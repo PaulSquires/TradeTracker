@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CWindow.h"
+#include <iostream>
 
 
 
@@ -123,6 +124,8 @@ LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 HWND CWindow::Create(HWND hParent, std::wstring wszTitle, WNDPROC lpfnWndProc,
     int x, int y, int nWidth, int nHeight, DWORD dwStyle, DWORD dwExStyle)
 {
+    dp(m_hwnd);
+
     if (m_hwnd) return NULL;
 
     static int nCount;
@@ -1004,27 +1007,27 @@ CWindow* AfxCWindowOwnerPtr(HWND hwnd)
 
 
 //' ========================================================================================
-//' Simple popup message box (used mostly for debugging purposes)
+//' Simple debug message output to console
 //' ========================================================================================
-void AfxMsg(std::wstring msg)
+void dp(std::wstring msg)
 {
-    std::wstring wszTitle(L"");
-    MessageBox(NULL, msg.c_str(), wszTitle.c_str(), 0);
+    std::wcout << msg << std::endl;
 }
 
-void AfxMsg(std::string msg)
+void dp(std::string msg)
 {
-    std::string szTitle("");
-    MessageBoxA(NULL, msg.c_str(), szTitle.c_str(), 0);
+    std::cout << msg << std::endl;
 }
 
-void AfxMsg(int msg)
+void dp(int msg)
 {
-    std::wstring wszMsg = std::to_wstring(msg);
-    std::wstring wszTitle(L"");
-    MessageBox(NULL, wszMsg.c_str(), wszTitle.c_str(), 0);
+    std::cout << msg << std::endl;
 }
 
+void dp(HWND msg)
+{
+    std::cout << msg << std::endl;
+}
 
 
     /*

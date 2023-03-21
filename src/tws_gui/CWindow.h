@@ -59,19 +59,19 @@ class CWindow
 {
 
 private:
-    HWND            m_hwnd;                     // Window handle
-    HINSTANCE       m_hInstance;                // Instance handle
-    HFONT           m_hFont;                    // Default font handle
-    HACCEL          m_hAccel;                   // Accelerator table handle
+    HWND            m_hwnd = NULL;              // Window handle
+    HINSTANCE       m_hInstance = NULL;         // Instance handle
+    HFONT           m_hFont = NULL;             // Default font handle
+    HACCEL          m_hAccel = NULL;            // Accelerator table handle
     int             m_DPI = 96;                 // Design-time DPI
     float           m_rx = 1;                   // Horizontal scaling ratio
     float           m_ry = 1;                   // Vertical scaling ratio
     ATOM            m_wAtom;                    // Class atom
     std::wstring    m_wszClassName;             // Class name
-    int             m_DefaultFontSize;          // Default font size
+    int             m_DefaultFontSize = 0;      // Default font size
     std::wstring    m_wszDefaultFontName;       // Default font name
 //DIM m_rgAccelEntries(ANY) AS ACCEL
-    HMODULE     m_hRichEditLib;                 // Rich Edit moudle handle
+    HMODULE     m_hRichEditLib = NULL;                 // Rich Edit moudle handle
 
 public:
     CWindow();
@@ -181,9 +181,10 @@ public:
 CWindow* AfxCWindowPtr(HWND hwnd);
 CWindow* AfxCWindowOwnerPtr(HWND hwnd);
 
-void AfxMsg(std::wstring msg);
-void AfxMsg(std::string msg);
-void AfxMsg(int msg);
+void dp(std::wstring msg);
+void dp(std::string msg);
+void dp(int msg);
+void dp(HWND msg);
 
 
 

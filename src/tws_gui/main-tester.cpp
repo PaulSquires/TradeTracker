@@ -241,7 +241,6 @@ int APIENTRY wWinMain(
     hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_CONNECT, L"Connect", 10, 10, 100, 30);
     hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_DISCONNECT, L"Disconnect", 10, 50, 100, 30);
 
-    
     pWindow->DoEvents(nCmdShow);
 
     if (pWindow) delete(pWindow);
