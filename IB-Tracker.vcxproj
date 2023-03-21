@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\tws-api\ContractCondition.cpp" />
+    <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
+    <ClCompile Include="src\tws-api\EClient.cpp" />
+    <ClCompile Include="src\tws-api\EClientSocket.cpp" />
+    <ClCompile Include="src\tws-api\EDecoder.cpp" />
+    <ClCompile Include="src\tws-api\EMessage.cpp" />
+    <ClCompile Include="src\tws-api\EMutex.cpp" />
+    <ClCompile Include="src\tws-api\EOrderDecoder.cpp" />
+    <ClCompile Include="src\tws-api\EReader.cpp" />
+    <ClCompile Include="src\tws-api\EReaderOSSignal.cpp" />
+    <ClCompile Include="src\tws-api\ESocket.cpp" />
+    <ClCompile Include="src\tws-api\executioncondition.cpp" />
+    <ClCompile Include="src\tws-api\MarginCondition.cpp" />
+    <ClCompile Include="src\tws-api\OperatorCondition.cpp" />
+    <ClCompile Include="src\tws-api\OrderCondition.cpp" />
+    <ClCompile Include="src\tws-api\pch.cpp" />
+    <ClCompile Include="src\tws-api\PercentChangeCondition.cpp" />
+    <ClCompile Include="src\tws-api\PriceCondition.cpp" />
+    <ClCompile Include="src\tws-api\SoftDollarTier.cpp" />
+    <ClCompile Include="src\tws-api\TimeCondition.cpp" />
+    <ClCompile Include="src\tws-api\TwsWrapper.cpp" />
+    <ClCompile Include="src\tws-api\Utils.cpp" />
+    <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
+    <ClCompile Include="src\tws_gui\CWindow.cpp" />
+    <ClCompile Include="src\tws_gui\main-tester.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\tws-api\bar.h" />
+    <ClInclude Include="src\tws-api\CommissionReport.h" />
+    <ClInclude Include="src\tws-api\CommonDefs.h" />
+    <ClInclude Include="src\tws-api\Contract.h" />
+    <ClInclude Include="src\tws-api\ContractCondition.h" />
+    <ClInclude Include="src\tws-api\Decimal.h" />
+    <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
+    <ClInclude Include="src\tws-api\DepthMktDataDescription.h" />
+    <ClInclude Include="src\tws-api\EClient.h" />
+    <ClInclude Include="src\tws-api\EClientException.h" />
+    <ClInclude Include="src\tws-api\EClientMsgSink.h" />
+    <ClInclude Include="src\tws-api\EClientSocket.h" />
+    <ClInclude Include="src\tws-api\EDecoder.h" />
+    <ClInclude Include="src\tws-api\EMessage.h" />
+    <ClInclude Include="src\tws-api\EMutex.h" />
+    <ClInclude Include="src\tws-api\EOrderDecoder.h" />
+    <ClInclude Include="src\tws-api\EPosixClientSocketPlatform.h" />
+    <ClInclude Include="src\tws-api\EReader.h" />
+    <ClInclude Include="src\tws-api\EReaderOSSignal.h" />
+    <ClInclude Include="src\tws-api\EReaderSignal.h" />
+    <ClInclude Include="src\tws-api\ESocket.h" />
+    <ClInclude Include="src\tws-api\ETransport.h" />
+    <ClInclude Include="src\tws-api\EWrapper.h" />
+    <ClInclude Include="src\tws-api\EWrapper_prototypes.h" />
+    <ClInclude Include="src\tws-api\Execution.h" />
+    <ClInclude Include="src\tws-api\executioncondition.h" />
+    <ClInclude Include="src\tws-api\FamilyCode.h" />
+    <ClInclude Include="src\tws-api\framework.h" />
+    <ClInclude Include="src\tws-api\HistogramEntry.h" />
+    <ClInclude Include="src\tws-api\HistoricalSession.h" />
+    <ClInclude Include="src\tws-api\HistoricalTick.h" />
+    <ClInclude Include="src\tws-api\HistoricalTickBidAsk.h" />
+    <ClInclude Include="src\tws-api\HistoricalTickLast.h" />
+    <ClInclude Include="src\tws-api\IExternalizable.h" />
+    <ClInclude Include="src\tws-api\MarginCondition.h" />
+    <ClInclude Include="src\tws-api\NewsProvider.h" />
+    <ClInclude Include="src\tws-api\OperatorCondition.h" />
+    <ClInclude Include="src\tws-api\Order.h" />
+    <ClInclude Include="src\tws-api\OrderCondition.h" />
+    <ClInclude Include="src\tws-api\OrderState.h" />
+    <ClInclude Include="src\tws-api\pch.h" />
+    <ClInclude Include="src\tws-api\PercentChangeCondition.h" />
+    <ClInclude Include="src\tws-api\platformspecific.h" />
+    <ClInclude Include="src\tws-api\PriceCondition.h" />
+    <ClInclude Include="src\tws-api\PriceIncrement.h" />
+    <ClInclude Include="src\tws-api\ScannerSubscription.h" />
+    <ClInclude Include="src\tws-api\SoftDollarTier.h" />
+    <ClInclude Include="src\tws-api\TagValue.h" />
+    <ClInclude Include="src\tws-api\targetver.h" />
+    <ClInclude Include="src\tws-api\TickAttrib.h" />
+    <ClInclude Include="src\tws-api\TickAttribBidAsk.h" />
+    <ClInclude Include="src\tws-api\TickAttribLast.h" />
+    <ClInclude Include="src\tws-api\TimeCondition.h" />
+    <ClInclude Include="src\tws-api\TwsSocketClientErrors.h" />
+    <ClInclude Include="src\tws-api\TwsWrapper.h" />
+    <ClInclude Include="src\tws-api\Utils.h" />
+    <ClInclude Include="src\tws-api\VolumeCondition.h" />
+    <ClInclude Include="src\tws-api\WshEventData.h" />
+    <ClInclude Include="src\tws_gui\CWindow.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{03741994-E562-4D2D-AE15-F90431B9ABCD}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\$(Configuration)\</OutDir>
+    <IntDir>C:\Users\plane\Documents\$(ProjectName)\$(Configuration)\tempBuildFiles\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>UNICODE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\tws-api;$(ProjectDir)\src\tws-gui</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>NotSet</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libbid.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\src\tws-api\lib</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Manifest>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <AdditionalDependencies>libbid.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\tws-api\lib\</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
