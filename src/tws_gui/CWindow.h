@@ -181,6 +181,13 @@ public:
 CWindow* AfxCWindowPtr(HWND hwnd);
 CWindow* AfxCWindowOwnerPtr(HWND hwnd);
 
+void AfxRedrawWindow(HWND hwnd);
+
+float AfxScaleX(float cx);
+float AfxScaleY(float cy);
+float AfxUnScaleX(float cx);
+float AfxUnScaleY(float cy);
+
 void dp(std::wstring msg);
 void dp(std::string msg);
 void dp(int msg);

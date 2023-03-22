@@ -1005,6 +1005,65 @@ CWindow* AfxCWindowOwnerPtr(HWND hwnd)
 
 
 //' ========================================================================================
+//' Redraws the specified window.
+//' Do not use it from within a WM_PAINT message.
+//' ========================================================================================
+void AfxRedrawWindow(HWND hwnd)
+{
+    InvalidateRect(hwnd, NULL, true);
+    UpdateWindow(hwnd);
+}
+
+
+//' ========================================================================================
+//' Scales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
+//' ========================================================================================
+float AfxScaleX(float cx)
+{
+    HDC hDC = GetDC(HWND_DESKTOP);
+    float res = cx * (GetDeviceCaps(hDC, LOGPIXELSX) / 96);
+    ReleaseDC( HWND_DESKTOP, hDC);
+    return res;
+}
+
+
+//' ========================================================================================
+//' Scales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
+//' ========================================================================================
+float AfxScaleY(float cy)
+{
+    HDC hDC = GetDC(HWND_DESKTOP);
+    float res = cy * (GetDeviceCaps(hDC, LOGPIXELSY) / 96);
+    ReleaseDC(HWND_DESKTOP, hDC);
+    return res;
+}
+
+
+//' ========================================================================================
+//' Unscales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
+//' ========================================================================================
+float AfxUnScaleX(float cx)
+{
+    HDC hDC = GetDC(HWND_DESKTOP);
+    float res = cx / (GetDeviceCaps(hDC, LOGPIXELSX) / 96);
+    ReleaseDC(HWND_DESKTOP, hDC);
+    return res;
+}
+
+
+//' ========================================================================================
+//' Unscales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
+//' ========================================================================================
+float AfxUnScaleY(float cy)
+{
+    HDC hDC = GetDC(HWND_DESKTOP);
+    float res = cy / (GetDeviceCaps(hDC, LOGPIXELSY) / 96);
+    ReleaseDC(HWND_DESKTOP, hDC);
+    return res;
+}
+
+
+//' ========================================================================================
 //' Simple debug message output to console
 //' ========================================================================================
 void dp(std::wstring msg)
