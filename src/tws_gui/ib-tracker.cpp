@@ -235,7 +235,7 @@ int APIENTRY wWinMain(
     CWindow* pWindow = new CWindow();
     if (pWindow == nullptr) return FALSE;
 
-    HWND hWnd = pWindow->Create(NULL, L"My first CWindow!", Main_WindowProc, CW_USEDEFAULT, CW_USEDEFAULT, 300, 200);
+    HWND hWnd = pWindow->Create(NULL, L"IB-Tracker tester", Main_WindowProc, CW_USEDEFAULT, CW_USEDEFAULT, 300, 200);
 
     HWND hCtl;
     hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_CONNECT, L"Connect", 10, 10, 100, 30);

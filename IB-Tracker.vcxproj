@@ -44,6 +44,8 @@
     <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
     <ClCompile Include="src\tws_gui\CWindow.cpp" />
     <ClCompile Include="src\tws_gui\main-tester.cpp" />
+    <ClCompile Include="src\tws_gui\NavPanel.cpp" />
+    <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tws-api\bar.h" />
@@ -105,6 +107,7 @@
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />
     <ClInclude Include="src\tws_gui\CWindow.h" />
+    <ClInclude Include="src\tws_gui\SuperLabel.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -176,7 +179,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>UNICODE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>$(ProjectDir)\src\tws-api;$(ProjectDir)\src\tws-gui</AdditionalIncludeDirectories>
@@ -189,8 +192,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>libbid.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\src\tws-api\lib</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib; libcmtd.lib; msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>

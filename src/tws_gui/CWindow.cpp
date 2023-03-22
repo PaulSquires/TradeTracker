@@ -124,8 +124,6 @@ LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 HWND CWindow::Create(HWND hParent, std::wstring wszTitle, WNDPROC lpfnWndProc,
     int x, int y, int nWidth, int nHeight, DWORD dwStyle, DWORD dwExStyle)
 {
-    dp(m_hwnd);
-
     if (m_hwnd) return NULL;
 
     static int nCount;
