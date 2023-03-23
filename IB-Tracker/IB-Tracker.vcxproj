@@ -44,6 +44,7 @@
     <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
     <ClCompile Include="src\tws_gui\CWindow.cpp" />
     <ClCompile Include="src\tws_gui\ib-tracker.cpp" />
+    <ClCompile Include="src\tws_gui\NavPanel.cpp" />
     <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +107,8 @@
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />
     <ClInclude Include="src\tws_gui\CWindow.h" />
+    <ClInclude Include="src\tws_gui\ib-tracker.h" />
+    <ClInclude Include="src\tws_gui\NavPanel.h" />
     <ClInclude Include="src\tws_gui\SuperLabel.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

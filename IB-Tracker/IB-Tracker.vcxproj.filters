@@ -93,6 +93,9 @@
     <ClCompile Include="src\tws_gui\SuperLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tws_gui\NavPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tws_gui\CWindow.h">
@@ -273,6 +276,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tws_gui\SuperLabel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tws_gui\NavPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tws_gui\ib-tracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

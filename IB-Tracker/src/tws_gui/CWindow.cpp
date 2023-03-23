@@ -694,5 +694,96 @@ std::wstring AfxGetWindowText(HWND hwnd)
 }
 
 
+//' ========================================================================================
+//' Gets the width in pixels of a window.
+//' Note: To retrieve the height of the desktop window pass the handle returned by the
+//' API function GetDesktopWindow.
+//' ========================================================================================
+int AfxGetWindowWidth(HWND hwnd)
+{
+    RECT rc;
+    GetWindowRect(hwnd, &rc);
+    return rc.right - rc.left;
+}
+
+
+//' ========================================================================================
+//' Gets the height in pixels of a window.
+//' Note: To retrieve the height of the desktop window pass the handle returned by the
+//' API function GetDesktopWindow.
+//' ========================================================================================
+int AfxGetWindowHeight(HWND hwnd)
+{
+    RECT rc;
+    GetWindowRect(hwnd, &rc);
+    return rc.bottom - rc.top;
+}
+
+
+//' ========================================================================================
+//' Centers a window on the screen or over another window.
+//' It also ensures that the placement is done within the work area.
+//' Parameters:
+//' - hwnd = Handle of the window.
+//' - hwndParent = [optional] Handle of the parent window.
+//' ========================================================================================
+void AfxCenterWindow(HWND hwnd, HWND hwndParent)
+{
+    RECT rc;            // Window coordinates
+    RECT rcParent;      // Parent window coordinates
+    RECT rcWorkArea;    // Work area coordinates
+    POINT pt;           // x and y coordinates of centered window
+
+    // Get the coordinates of the window
+    GetWindowRect(hwnd, &rc);
+    
+    // Calculate the width and height of the window
+    int nWidth = rc.right - rc.left;
+    int nHeight = rc.bottom - rc.top;
+
+    // Get the coordinates of the work area
+    if (SystemParametersInfo(SPI_GETWORKAREA, sizeof(rcWorkArea), &rcWorkArea, 0) == 0) {
+        rcWorkArea.right = GetSystemMetrics(SM_CXSCREEN);
+        rcWorkArea.bottom = GetSystemMetrics(SM_CYSCREEN);
+    }
+    
+    // Get the coordinates of the parent window
+    if (hwndParent) {
+        GetWindowRect(hwndParent, &rcParent);
+    }
+    else {
+        rcParent.left = rcWorkArea.left;
+        rcParent.top = rcWorkArea.top;
+        rcParent.right = rcWorkArea.right;
+        rcParent.bottom = rcWorkArea.bottom;
+    }
+
+        // Calculate the width and height of the parent window
+    int nParentWidth = rcParent.right - rcParent.left;
+    int nParentHeight = rcParent.bottom - rcParent.top;
+
+    // Calculate the new x coordinate and adjust for work area
+    pt.x = rcParent.left + ((nParentWidth - nWidth) / 2);
+    if (pt.x < rcWorkArea.left) {
+        pt.x = rcWorkArea.left;
+    } else if ((pt.x + nWidth) > rcWorkArea.right) {
+        pt.x = rcWorkArea.right - nWidth;
+    }
+
+    // Calculate the new y coordinate and adjust for work area
+    pt.y = rcParent.top + ((nParentHeight - nHeight) / 2);
+    if (pt.y < rcWorkArea.top) {
+        pt.y = rcWorkArea.top;
+    } else if ((pt.y + nHeight) > rcWorkArea.bottom) {
+        pt.y = rcWorkArea.bottom - nHeight;
+    }
+
+    // Convert screen coordinates to client area coordinates
+    if ((int)(GetWindowLongPtr(hwnd, GWL_STYLE) && WS_CHILD) == (int)WS_CHILD)
+        ScreenToClient(hwndParent, &pt);
+
+    // Reposition the window retaining its size and Z order
+    SetWindowPos(hwnd, NULL, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+}
 
 

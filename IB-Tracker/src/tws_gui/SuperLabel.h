@@ -61,7 +61,7 @@ class SUPERLABEL_DATA
 
 	// Lines
 	REAL LineWidth = 1;
-	DWORD LineColor = Color::MakeARGB(255, 0, 0, 0); ;
+	DWORD LineColor = Color::MakeARGB(255, 0, 0, 0);
 	DWORD LineColorHot = Color::MakeARGB(255, 0, 0, 0);
 
 	// Margins
@@ -101,7 +101,7 @@ class SUPERLABEL_DATA
 	bool FontBold = false;
 	bool FontItalic = false;
 	bool FontUnderline = false;
-	DWORD TextColor = Color::MakeARGB(255, 0, 0, 0);;
+	DWORD TextColor = Color::MakeARGB(255, 0, 0, 0);
 	SuperLabelPointer Pointer = SuperLabelPointer::Arrow;
 
 	// Text Hot
@@ -111,7 +111,7 @@ class SUPERLABEL_DATA
 	bool FontBoldHot = false;
 	bool FontItalicHot = false;
 	bool FontUnderlineHot = false;
-	DWORD TextColorHot = Color::MakeARGB(255, 0, 0, 0);;
+	DWORD TextColorHot = Color::MakeARGB(255, 0, 0, 0);
 	SuperLabelPointer PointerHot = SuperLabelPointer::Hand;
 };
 

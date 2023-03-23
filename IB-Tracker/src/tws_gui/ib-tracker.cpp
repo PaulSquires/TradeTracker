@@ -1,9 +1,8 @@
 // Defines the entry point for the test application.
 //
 
-#include "pch.h"
+//#include "pch.h"
 #include "framework.h"
-
 
 #include "CWindow.h"
 
@@ -14,7 +13,9 @@
 #include <thread>
 #include <future>
 
-#include "SuperLabel.h"
+#include "ib-tracker.h"
+#include "NavPanel.h"
+
 
 const int IDC_CONNECT = 1000;
 const int IDC_DISCONNECT = 1001;
@@ -147,6 +148,26 @@ bool tws_isConnected()
 }
 
 
+//' ========================================================================================
+//' Position all child windows. Called manually and/or by WM_SIZE
+//' ========================================================================================
+LRESULT Main_PositionWindows(HWND hWnd)
+{
+    RECT rcClient;
+    GetClientRect(hWnd, &rcClient);
+
+    HWND hWndNavPanel = GetDlgItem(hWnd, IDC_FRMNAVPANEL);
+   
+    int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
+    
+    dp(hWndNavPanel);
+
+    SetWindowPos(hWndNavPanel, 0,
+        0, 0, nNavPanelWidth, rcClient.bottom,
+        SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    return 0;
+}
 
 //' ========================================================================================
 //' Windows callback function.
@@ -156,59 +177,43 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     switch (message)
     {
 
-    case WM_CREATE:
-    {
-    }
+    case WM_SIZE:
+        // Position all of the child windows
+        if (wParam != SIZE_MINIMIZED)
+            Main_PositionWindows(hWnd);
     break;
 
+
     case WM_COMMAND:
-    {
         switch (GET_WM_COMMAND_ID(wParam, lParam))
         {
         
         case IDC_CONNECT:
-        {
             if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED) {
                 bool res = tws_connect();
                 printf("Connect: %ld\n", res);
                 printf("isConnected: %ld\n", tws_isConnected());
                 return 0;
             }
-
-        }
+            break;
 
         case IDC_DISCONNECT:
-        {
             if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED) {
                 bool res = tws_disconnect();
                 printf("Disconnect: %ld\n", res);
                 printf("isConnected: %ld\n", tws_isConnected());
                 return 0;
             }
-        }
-
-        default:
-        {
-        }
+            break;
 
         }
 
-    }
-    break;
-
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hWnd, &ps);
-        // TODO: Add any drawing code that uses hdc here...
-        EndPaint(hWnd, &ps);
-    }
-    break;
 
     case WM_DESTROY:
         tws_disconnect();
         PostQuitMessage(0);
         break;
+
 
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -243,40 +248,28 @@ int APIENTRY wWinMain(
     BindStdHandlesToConsole();
 
 
-    CWindow* pWindow = new CWindow();
-    if (pWindow == nullptr) return FALSE;
+    CWindow* pWindowMain = new CWindow();
+    if (pWindowMain == nullptr) return FALSE;
 
-    HWND hWnd = pWindow->Create(NULL, L"IB-Tracker tester", Main_WindowProc, CW_USEDEFAULT, CW_USEDEFAULT, 300, 200);
+    HWND hWndMain = pWindowMain->Create(NULL, L"IB-Tracker tester", Main_WindowProc, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600);
 
-    HWND hCtl;
-    hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_CONNECT, L"Connect", 10, 10, 100, 30);
-    hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_DISCONNECT, L"Disconnect", 10, 50, 100, 30);
+    //HWND hCtl;
+    //hCtl = pWindowMain->AddControl(Controls::Button, hWndMain, IDC_CONNECT, L"Connect", 10, 10, 100, 30);
+    //hCtl = pWindowMain->AddControl(Controls::Button, hWndMain, IDC_DISCONNECT, L"Disconnect", 10, 50, 100, 30);
 
-    SUPERLABEL_DATA* pData = nullptr;
     
-    hCtl = CreateSuperLabel(hWnd, 101, SuperLabelType::TextOnly, L"", 10, 90, 100, 30);
+    // Load the child windows
+    CWindow* pWindowNavPanel = NavPanel_Show(hWndMain);
+    
+    // Center the main window within the desktop taking into account the actual work area.
+    AfxCenterWindow(hWndMain, HWND_DESKTOP);
 
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->wszText = L"Disconnect";
-        pData->CtrlId = 100;
-        pData->BackColor = Color::MakeARGB(255,240,240,240);
-        pData->TextColor = Color::MakeARGB(255, 0, 0, 0);
-        //pData->HotTestEnable = false;
-        //pData->BackColorHot = Color::MakeARGB(255, 255, 0, 0);
-        //pData->TextColorHot = Color::MakeARGB(255, 0, 0, 255);
-        pData->wszToolTip = L"Options";
-        pData->BorderVisible = true;
-        pData->BorderWidth = 2;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-           
-    pWindow->DoEvents(nCmdShow);
+    pWindowMain->DoEvents(nCmdShow);
 
     GdiplusShutdown(gdiplusToken);
 
-    if (pWindow) delete(pWindow);
+    if (pWindowNavPanel) delete(pWindowNavPanel);
+    if (pWindowMain) delete(pWindowMain);
 
     return 0;
 }
