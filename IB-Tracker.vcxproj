@@ -43,8 +43,7 @@
     <ClCompile Include="src\tws-api\Utils.cpp" />
     <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
     <ClCompile Include="src\tws_gui\CWindow.cpp" />
-    <ClCompile Include="src\tws_gui\main-tester.cpp" />
-    <ClCompile Include="src\tws_gui\NavPanel.cpp" />
+    <ClCompile Include="src\tws_gui\ib-tracker.cpp" />
     <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -190,7 +189,7 @@
       <SubSystem>NotSet</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libbid.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdiplus.lib;libbid.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\src\tws-api\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; libcmtd.lib; msvcrtd.lib</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>

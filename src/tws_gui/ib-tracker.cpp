@@ -3,21 +3,25 @@
 
 #include "pch.h"
 #include "framework.h"
+
+
 #include "CWindow.h"
+
 #include "TwsWrapper.h"
-#include <windowsx.h>
+
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <future>
+
+#include "SuperLabel.h"
 
 const int IDC_CONNECT = 1000;
 const int IDC_DISCONNECT = 1001;
 const int IDC_MESSAGE = 1002;
 
-TwsClient client;
 
-#include <cstdlib>
-#include <iostream>
-#include <chrono>
-#include <thread>
-#include <future>
+TwsClient client;
 
 bool tws_isConnected();
 
@@ -196,7 +200,17 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
+
         // TODO: Add any drawing code that uses hdc here...
+        //Graphics    graphics(hdc);
+        //SolidBrush  brush(Color(255, 0, 0, 255));
+
+        //FontFamily  fontFamily(L"Times New Roman");
+        //Font        font(&fontFamily, 24, FontStyleRegular, UnitPoint);
+        //PointF      pointF(10.0f, 20.0f);
+
+        //graphics.DrawString(L"Hello World!", -1, &font, pointF, &brush);
+
         EndPaint(hWnd, &ps);
     }
     break;
@@ -224,13 +238,20 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // I want to create console terminal for GUI application
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR           gdiplusToken;
 
+    // Initialize GDI+.
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    
+    
+    // I want to create console terminal for GUI application
     // Allocate new console for app:
     AllocConsole();
-
+    
     // Redirect stderr/stdout/stdin to new console
     BindStdHandlesToConsole();
+
 
     CWindow* pWindow = new CWindow();
     if (pWindow == nullptr) return FALSE;
@@ -241,7 +262,29 @@ int APIENTRY wWinMain(
     hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_CONNECT, L"Connect", 10, 10, 100, 30);
     hCtl = pWindow->AddControl(Controls::Button, hWnd, IDC_DISCONNECT, L"Disconnect", 10, 50, 100, 30);
 
+    SUPERLABEL_DATA* pData = nullptr;
+    
+    hCtl = CreateSuperLabel(hWnd, 101, SuperLabelType::TextOnly, L"", 10, 90, 100, 24);
+
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->wszText = L"My super label";
+        pData->HotTestEnable = true;
+        pData->BackColor = Color::MakeARGB(255,240,240,240);
+        pData->BackColorHot = Color::MakeARGB(255, 255, 0, 0);
+        pData->TextColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->TextColorHot = Color::MakeARGB(255, 0, 0, 255);
+        pData->wszToolTip = L"Options";
+        pData->BorderVisible = true;
+        pData->BorderColor = Color::SaddleBrown;
+        pData->BorderWidth = 2;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+           
     pWindow->DoEvents(nCmdShow);
+
+    GdiplusShutdown(gdiplusToken);
 
     if (pWindow) delete(pWindow);
 

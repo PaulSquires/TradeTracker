@@ -1,53 +1,34 @@
 #pragma once
 
 #include "framework.h"
-#include <string>
-
-using namespace std::string_literals; // enables 'L' macro
 
 
 enum class Controls
 {
     None = 0,
-    Button = 1,
-    CustomButton, OwnerDrawButton = 2,
-    RadioButton, OptionButton = 3,
-    CheckBox = 4,
-    Check3State = 5,
-    Label = 6,
-    BitmapLabel = 7,
-    IconLabel = 8,
-    BitmapButton = 9,
-    IconButton = 10,
-    CustomLabel = 11,
-    Frame = 12,
-    GroupBox = 13,
-    Line = 14,
-    Edit, TextBox = 15,
-    EditMultiline, MultilineTextBox = 16,
-    ComboBox = 17,
-    ComboBoxEx = 18,
-    ListBox = 19,
-    ProgressBar = 20,
-    Header = 21,
-    TreeView = 22,
-    ListView = 23,
-    ToolBar = 24,
-    Rebar = 25,
-    DateTimePicker = 26,
-    MonthCalendar = 27,
-    IPAddress = 28,
-    HotKey = 29,
-    Animate = 30,
-    Pager = 31,
-    TabControl = 32,
-    StatusBar = 33,
-    SizeBox, SizeGrip = 34,
-    HScrollBar = 35,
-    VScrollBar = 36,
-    TrackBar, Slider = 37,
-    UpDown = 38,
-    RichEdit = 39
+    Button,
+    OptionButton,
+    CheckBox,
+    Label,
+    Frame,
+    Line,
+    TextBox,
+    MultilineTextBox,
+    ComboBox,
+    ListBox,
+    ProgressBar,
+    TreeView,
+    ListView,
+    DateTimePicker,
+    MonthCalendar,
+    TabControl,
+    StatusBar,
+    SizeGrip,
+    HScrollBar,
+    VScrollBar,
+    Slider,
+    UpDown,
+    RichEdit
 };
 
 
@@ -155,25 +136,6 @@ public:
 
     const float& UnScaleX(const float& cx) const { return cx / m_rx; }
     const float& UnScaleY(const float& cy) const { return cy / m_ry; }
-
-
-/*
-    DECLARE SUB GetWorkArea OVERLOAD(BYVAL lpRect AS LPRECT)
-    DECLARE FUNCTION GetWorkArea OVERLOAD() AS RECT
-    DECLARE FUNCTION AddControl(BYREF wszClassName AS WSTRING, BYVAL hParent AS HWND = NULL, BYVAL cID AS LONG_PTR = 0, _
-        BYREF wszTitle AS WSTRING = "", BYVAL x AS LONG = 0, BYVAL y AS LONG = 0, BYVAL nWidth AS LONG = 0, _
-        BYVAL nHeight AS LONG = 0, BYVAL dwStyle AS LONG = -1, BYVAL dwExStyle AS LONG = -1, BYVAL lpParam AS LONG_PTR = 0, _
-        BYVAL pWndProc AS SUBCLASSPROC = NULL, BYVAL uIdSubclass AS UINT_PTR = &HFFFFFFFF, BYVAL dwRefData AS DWORD_PTR = NULL) AS HWND
-    DECLARE PROPERTY AccelHandle() AS HACCEL
-    DECLARE PROPERTY AccelHandle(BYVAL hAccel AS HACCEL)
-    DECLARE SUB AddAccelerator OVERLOAD(BYVAL fvirt AS UBYTE, BYVAL wKey AS WORD, BYVAL cmd AS WORD)
-    DECLARE SUB AddAccelerator OVERLOAD(BYVAL fvirt AS UBYTE, BYREF wszKey AS WSTRING, BYVAL cmd AS WORD)
-    DECLARE FUNCTION CreateAcceleratorTable() AS HACCEL
-    DECLARE SUB DestroyAcceleratorTable()
-    DECLARE PROPERTY UserData(BYVAL idx AS LONG) AS LONG_PTR
-    DECLARE PROPERTY UserData(BYVAL idx AS LONG, BYVAL newValue AS LONG_PTR)
-*/
-
 };
 
 
@@ -182,16 +144,14 @@ CWindow* AfxCWindowPtr(HWND hwnd);
 CWindow* AfxCWindowOwnerPtr(HWND hwnd);
 
 void AfxRedrawWindow(HWND hwnd);
+std::wstring AfxGetWindowText(HWND hwnd);
 
+float AfxScaleRatioX();
+float AfxScaleRatioY();
 float AfxScaleX(float cx);
 float AfxScaleY(float cy);
 float AfxUnScaleX(float cx);
 float AfxUnScaleY(float cy);
-
-void dp(std::wstring msg);
-void dp(std::string msg);
-void dp(int msg);
-void dp(HWND msg);
 
 
 

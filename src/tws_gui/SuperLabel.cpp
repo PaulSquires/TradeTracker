@@ -109,10 +109,16 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
     case WM_SETCURSOR:
     {
-        if (pData == nullptr) return 0;
-        if (pData->HotTestEnable) {
-            SetCursor(LoadCursor(NULL, (LPCWSTR)IDC_HAND));
+        LPWSTR IDCPointer = IDC_HAND;
+
+        if (pData) {
+            if (pData->HotTestEnable) {
+                IDCPointer = (pData->PointerHot == SuperLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
+            } else {
+                IDCPointer = (pData->Pointer == SuperLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
+            }
         }
+        SetCursor(LoadCursor(NULL, (LPCWSTR)IDCPointer));
         return 0;
     }
     break;
@@ -124,15 +130,14 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         SendMessage(pData->hParent, MSG_SUPERLABEL_MOUSEMOVE, (WPARAM)hWnd, 0);
 
         // Tracks the mouse movement and stores the hot state
-
-        TrackMouseEvent trackMouse;
+        TRACKMOUSEEVENT trackMouse;
 
         if (GetProp(hWnd, L"HOT") == 0) {
             trackMouse.cbSize = sizeof(trackMouse);
             trackMouse.dwFlags = TME_LEAVE;
             trackMouse.hwndTrack = hWnd;
             trackMouse.dwHoverTime = 1;
-            TrackMouseEvent(@trackMouse);
+            TrackMouseEvent(&trackMouse);
             SetProp(hWnd, L"HOT", (HANDLE)TRUE);
             AfxRedrawWindow(hWnd);
         }
@@ -161,211 +166,216 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
                 
     case WM_PAINT:
     {
-        HDC _hdc = 0;
+        HDC hdc = NULL;
         PAINTSTRUCT ps;
         HDC memDC;           // Double buffering
         HBITMAP hbit;        // Double buffering
-            dim bIsHot   as Boolean
 
-            dim as HBRUSH   hBrush
-            dim as HPEN     hPen
-            dim as HFONT    hFont
+        if (pData == nullptr) {
+            BeginPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);
+             return 0;
+        }
 
-            dim as RECT rcClient, rcDraw
-            dim as long nLeft, nTop
-            dim as single rx = 1, ry = 1
+                
+        RECT rcClient{}, rcDraw{};
+        int  nLeft = 0, nTop = 0;
+        float rx = 1, ry = 1;
 
-            if (pData == nullptr) {
-                BeginPaint(hWnd, &ps);
-                EndPaint(hWnd, &ps)
-                return 0;
-            |
-        
-        Dim pWindow As CWindow Ptr = AfxCWindowPtr(pData->hParent)
-            if pWindow then
-                rx = pWindow->rxRatio
-                ry = pWindow->ryRatio
-                end if
+        bool bIsHot = false;
 
+        CWindow* pWindow = AfxCWindowPtr(pData->hParent);
 
-                _hdc = BeginPaint(hwnd, @ps)
+        if (pWindow != nullptr)
+        {
 
-                SaveDC _hDC
+            rx = pWindow->rxRatio();
+            ry = pWindow->ryRatio();
 
-                GetClientRect(hwnd, @rcClient)
+            hdc = BeginPaint(hWnd, &ps);
 
-                memDC = CreateCompatibleDC(_hdc)
-                hbit = CreateCompatibleBitmap(_hdc, rcClient.right, rcClient.bottom)
-                If hbit Then hbit = SelectObject(memDC, hbit)
+            SaveDC(hdc);
 
+            GetClientRect(hWnd, &rcClient);
 
-                ' Determine if we are in a Hot mouseover state
-                if pData->HotTestEnable then
-                    If GetProp(hwnd, "HOT") Then bIsHot = true
-                    end if
+            memDC = CreateCompatibleDC(hdc);
+            hbit = CreateCompatibleBitmap(hdc, rcClient.right, rcClient.bottom);
+            SelectBitmap(memDC, hbit);
 
 
-                    ' Create the background brush
-                    hBrush = CreateSolidBrush(iif(bIsHot, pData->BackColorHot, pData->BackColor))
-                    SelectObject(memDC, hBrush)
+            // Determine if we are in a Hot mouseover state
+            if (pData->HotTestEnable) {
+                if (GetProp(hWnd, L"HOT")) bIsHot = true;
+            }
 
-                    ' If border does not exists then create hollow/null pen
-                    if pData->BorderVisible = false then
-                        hPen = CreatePen(PS_NULL, pData->BorderWidth * rx, pData->BackColor)
-                    else
-                        hPen = CreatePen(pData->BorderStyle, _
-                            pData->BorderWidth * rx, _
-                            iif(bIsHot, pData->BorderColorHot, pData->BorderColor))
-                        end if
-                        SelectObject(memDC, hPen)
+            Graphics graphics(memDC);
 
 
-                        ' Paint the background using current brush and pen. Use RoundRect because 
-                        ' we may want to have rounded corners.
-                        ' Need to paint the whole rectangle otherwise the corners will be unpainted
-                        ' once the rounded edges are removed or a PS_NULL pen is used. 
-                        ' Need to use the brush of the parent form's background in order to
-                        ' simulate the transparency.
-                        if pWindow then FillRect(memDC, @rcClient, pWindow->Brush)
-                            RoundRect(memDC, 0, 0, rcClient.Right, rcClient.Bottom, _
-                                pData->BorderRoundWidth * rx, pData->BorderRoundHeight * ry)
+            // If border does not exist then create hollow/null pen
+            ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
+            if (pData->BorderVisible == false) clrPen = pData->BackColor;
+            Pen pen(clrPen, pData->BorderWidth);
+
+            // Create the background brush
+            SolidBrush backBrush(bIsHot ? pData->BackColorHot : pData->BackColor);
+            SolidBrush textBrush(bIsHot ? pData->TextColorHot : pData->TextColor);
 
 
-                            ' Create the different label types
-                            select case pData->CtrlType
-                            case SuperLabelType.ImageOnly, _
-                            SuperLabelType.ImageAndText
+            // Paint the background using current brush and pen. Use RoundRect because 
+            // we may want to have rounded corners.
+            graphics.FillRectangle(&backBrush, 0, 0, rcClient.right, rcClient.bottom);
+            //    RoundRect(memDC, 0, 0, rcClient.Right, rcClient.Bottom, _
+            //        pData->BorderRoundWidth * rx, pData->BorderRoundHeight * ry)
 
-                            nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx
-                            nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry
-                            SetRect(@rcDraw, nLeft, nTop, pData->ImageWidth * rx, pData->ImageHeight * ry)
-                            SuperLabel_LoadImageFromResource(memDC, _
-                                iif(bIsHot, pData->wszImageHot, pData->wszImage), _
-                                iif(bIsHot, pData->pImageHot, pData->pImage), _
-                                rcDraw)
-                            end select
+            FontFamily   fontFamily(pData->wszFontName.c_str());
+            Font         font(&fontFamily, pData->FontSize, FontStyleRegular, Unit::UnitPoint);
+            PointF       pointF(0.0f, 0.0f);
+            RectF        rectF(0, 0, (Gdiplus::REAL)rcClient.right, (Gdiplus::REAL)rcClient.bottom);
 
+            StringFormat stringF(0);
+            stringF.SetAlignment(StringAlignmentCenter);
+            stringF.SetLineAlignment(StringAlignmentCenter);
 
-                            select case pData->CtrlType
-                            case SuperLabelType.TextOnly, _
-                            SuperLabelType.ImageAndText
-
-                            dim as long wsStyle
-                            Select Case pData->TextAlignment
-                            Case SuperLabelAlignment.BottomCenter: wsStyle = DT_CENTER Or DT_BOTTOM or DT_SINGLELINE
-                            Case SuperLabelAlignment.BottomLeft : wsStyle = DT_LEFT   Or DT_BOTTOM or DT_SINGLELINE
-                            Case SuperLabelAlignment.BottomRight : wsStyle = DT_RIGHT  Or DT_BOTTOM or DT_SINGLELINE
-                            Case SuperLabelAlignment.MiddleCenter : wsStyle = DT_CENTER Or DT_VCENTER or DT_SINGLELINE
-                            Case SuperLabelAlignment.MiddleLeft : wsStyle = DT_LEFT   Or DT_VCENTER or DT_SINGLELINE
-                            Case SuperLabelAlignment.MiddleRight : wsStyle = DT_RIGHT  Or DT_VCENTER or DT_SINGLELINE
-                            Case SuperLabelAlignment.TopCenter : wsStyle = DT_CENTER Or DT_TOP or DT_WORDBREAK
-                            Case SuperLabelAlignment.TopLeft : wsStyle = DT_LEFT   Or DT_TOP or DT_WORDBREAK
-                            Case SuperLabelAlignment.TopRight : wsStyle = DT_RIGHT  Or DT_TOP or DT_WORDBREAK
-                            End Select
-                            wsStyle = wsStyle or DT_EXPANDTABS or DT_END_ELLIPSIS
-
-                            if pWindow then
-                                if pData->IsSelected then
-                                    hFont = pWindow->CreateFont(pData->wszFontName, pData->FontSize, FW_BOLD)
-                                else
-                                    hFont = pWindow->CreateFont(_
-                                        iif(bIsHot, pData->wszFontNameHot, pData->wszFontName), _
-                                        iif(bIsHot, pData->FontSizeHot, pData->FontSize), _
-                                        iif(bIsHot, pData->FontWeightHot, pData->FontWeight), _
-                                        iif(bIsHot, pData->FontItalicHot, pData->FontItalic), _
-                                        iif(bIsHot, pData->FontUnderlineHot, pData->FontUnderline), _
-                                        iif(bIsHot, pData->FontStrikeOutHot, pData->FontStrikeOut))
-                                    end if
-                                    end if
-
-                                    SetBkColor(memDC, iif(bIsHot, pData->BackColorHot, pData->BackColor))
-                                    SetTextColor(memDC, iif(bIsHot, pData->TextColorHot, pData->TextColor))
-                                    SelectObject(memDC, hFont)
-
-                                    nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx
-                                    nTop = (pData->MarginTop + pData->TextOffsetTop) * ry
-                                    SetRect(@rcDraw, nLeft, nTop, _
-                                        rcClient.Right - pData->MarginRight, _
-                                        rcClient.Bottom - pData->MarginBottom)
-                                    if pData->TextCharacterExtra then
-                                        SetTextCharacterExtra(memDC, pData->TextCharacterExtra)
-                                        end if
-                                        DrawText(memDC, pData->wszText, -1, @rcDraw, wsStyle)
-                                        'ExtTextOut( memDC, 0, 0, ETO_OPAQUE, @rcDraw, pData->wszText, len(pData->wszText), 0 )            
-
-                                        case SuperLabelType.LineHorizontal, SuperLabelType.LineVertical
-                                        ' Delete any existing pen (border) and create a new one for the line.
-                                        if hPen then DeleteObject(hPen)
-                                            hPen = CreatePen(pData->LineStyle, _
-                                                pData->LineWidth * rx, _
-                                                iif(bIsHot, pData->LineColorHot, pData->LineColor))
-                                            SelectObject(memDC, hPen)
-
-                                            if pData->CtrlType = SuperLabelType.LineHorizontal then
-                                                ' Draw the horizontal line vertically centered
-                                                nTop = (rcClient.Bottom - rcClient.Top) \ 2
-                                                MoveToEx(memDC, pData->MarginLeft * rx, nTop, null)
-                                                LineTo(memDC, rcClient.Right - (pData->MarginLeft * rx), nTop)
-                                                end if
-
-                                                if pData->CtrlType = SuperLabelType.LineVertical then
-                                                    ' Draw the vertical line 
-                                                    nLeft = (rcClient.Right - rcClient.Left) \ 2
-                                                    MoveToEx(memDC, nLeft, pData->MarginTop * rx, null)
-                                                    LineTo(memDC, nLeft, rcClient.Bottom - (pData->MarginBottom * rx))
-                                                    end if
-
-                                                    end select
+            graphics.DrawString(L"Hello World!", -1, &font, rectF, &stringF, &textBrush);
+            rectF.Inflate(-(pData->BorderWidth), -(pData->BorderWidth));
+            graphics.DrawRectangle(&pen, rectF);
 
 
-                                                    ' If selection mode is enabled then draw the little right hand side notch
-                                                    if (pData->IsSelected) or (bIsHot and pData->SelectionMode) then
-                                                        if hBrush then DeleteObject(hBrush)
-                                                            if hPen then DeleteObject(hPen)
-                                                                hBrush = CreateSolidBrush(pData->SelectorColor)
-                                                                hPen = CreatePen(PS_SOLID, 1 * ry, pData->SelectorColor)
-                                                                SelectObject(memDC, hBrush)
-                                                                SelectObject(memDC, hPen)
-                                                                ' Need to center the notch vertically
-                                                                dim as long nNotchHalfHeight = (10 * ry) / 2
-                                                                nTop = (rcClient.Bottom / 2) - nNotchHalfHeight
-                                                                dim as POINT vertices(2)
-                                                                vertices(0).x = rcClient.Right            : vertices(0).y = nTop
-                                                                vertices(1).x = rcClient.Right - (6 * rx) : vertices(1).y = nTop + nNotchHalfHeight
-                                                                vertices(2).x = rcClient.Right : vertices(2).y = nTop + (nNotchHalfHeight * 2)
-                                                                Polygon(memDC, @vertices(0), 3)
-                                                                end if
+                        //    // Create the different label types
+                        //    select case pData->CtrlType
+                        //    case SuperLabelType.ImageOnly, _
+                        //    SuperLabelType.ImageAndText
 
-                                                                ' Copy the entire memory bitmap to the main display
-                                                                BitBlt _hdc, 0, 0, rcClient.right, rcClient.bottom, memDC, 0, 0, SRCCOPY
+                        //    nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx
+                        //    nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry
+                        //    SetRect(@rcDraw, nLeft, nTop, pData->ImageWidth * rx, pData->ImageHeight * ry)
+                        //    SuperLabel_LoadImageFromResource(memDC, _
+                        //        iif(bIsHot, pData->wszImageHot, pData->wszImage), _
+                        //            iif(bIsHot, pData->pImageHot, pData->pImage), _
+                        //            rcDraw)
+                        //            end select
 
-                                                                ' Cleanup
-                                                                If hbit  Then DeleteObject SelectObject(memDC, hbit)
-                                                                If memDC Then DeleteDC memDC
 
-                                                                RestoreDC _hDC, -1
+                        //            select case pData->CtrlType
+                        //            case SuperLabelType.TextOnly, _
+                        //            SuperLabelType.ImageAndText
 
-                                                                if hBrush then DeleteObject(hBrush)
-                                                                    if hPen   then DeleteObject(hPen)
-                                                                        if hFont  then DeleteObject(hFont)
+                        //            dim as long wsStyle
+                        //            Select Case pData->TextAlignment
+                        //            Case SuperLabelAlignment.BottomCenter: wsStyle = DT_CENTER Or DT_BOTTOM or DT_SINGLELINE
+                        //            Case SuperLabelAlignment.BottomLeft : wsStyle = DT_LEFT   Or DT_BOTTOM or DT_SINGLELINE
+                        //            Case SuperLabelAlignment.BottomRight : wsStyle = DT_RIGHT  Or DT_BOTTOM or DT_SINGLELINE
+                        //            Case SuperLabelAlignment.MiddleCenter : wsStyle = DT_CENTER Or DT_VCENTER or DT_SINGLELINE
+                        //            Case SuperLabelAlignment.MiddleLeft : wsStyle = DT_LEFT   Or DT_VCENTER or DT_SINGLELINE
+                        //            Case SuperLabelAlignment.MiddleRight : wsStyle = DT_RIGHT  Or DT_VCENTER or DT_SINGLELINE
+                        //            Case SuperLabelAlignment.TopCenter : wsStyle = DT_CENTER Or DT_TOP or DT_WORDBREAK
+                        //            Case SuperLabelAlignment.TopLeft : wsStyle = DT_LEFT   Or DT_TOP or DT_WORDBREAK
+                        //            Case SuperLabelAlignment.TopRight : wsStyle = DT_RIGHT  Or DT_TOP or DT_WORDBREAK
+                        //            End Select
+                        //            wsStyle = wsStyle or DT_EXPANDTABS or DT_END_ELLIPSIS
 
-                                                                            EndPaint(hwnd, @ps)
+                        //            if pWindow then
+                        //                if pData->IsSelected then
+                        //                    hFont = pWindow->CreateFont(pData->wszFontName, pData->FontSize, FW_BOLD)
+                        //                else
+                        //                    hFont = pWindow->CreateFont(_
+                        //                        iif(bIsHot, pData->wszFontNameHot, pData->wszFontName), _
+                        //                        iif(bIsHot, pData->FontSizeHot, pData->FontSize), _
+                        //                        iif(bIsHot, pData->FontWeightHot, pData->FontWeight), _
+                        //                        iif(bIsHot, pData->FontItalicHot, pData->FontItalic), _
+                        //                        iif(bIsHot, pData->FontUnderlineHot, pData->FontUnderline), _
+                        //                        iif(bIsHot, pData->FontStrikeOutHot, pData->FontStrikeOut))
+                        //                    end if
+                        //                    end if
 
-                                                                            Exit Function
+                        //                    SetBkColor(memDC, iif(bIsHot, pData->BackColorHot, pData->BackColor))
+                        //                    SetTextColor(memDC, iif(bIsHot, pData->TextColorHot, pData->TextColor))
+                        //                    SelectObject(memDC, hFont)
 
+                        //                    nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx
+                        //                    nTop = (pData->MarginTop + pData->TextOffsetTop) * ry
+                        //                    SetRect(@rcDraw, nLeft, nTop, _
+                        //                        rcClient.Right - pData->MarginRight, _
+                        //                        rcClient.Bottom - pData->MarginBottom)
+                        //                    if pData->TextCharacterExtra then
+                        //                        SetTextCharacterExtra(memDC, pData->TextCharacterExtra)
+                        //                        end if
+                        //                        DrawText(memDC, pData->wszText, -1, @rcDraw, wsStyle)
+                        //                        'ExtTextOut( memDC, 0, 0, ETO_OPAQUE, @rcDraw, pData->wszText, len(pData->wszText), 0 )            
+
+                        //                        case SuperLabelType.LineHorizontal, SuperLabelType.LineVertical
+                        //                        // Delete any existing pen (border) and create a new one for the line.
+                        //                        if hPen then DeleteObject(hPen)
+                        //                            hPen = CreatePen(pData->LineStyle, _
+                        //                                pData->LineWidth * rx, _
+                        //                                iif(bIsHot, pData->LineColorHot, pData->LineColor))
+                        //                            SelectObject(memDC, hPen)
+
+                        //                            if pData->CtrlType = SuperLabelType.LineHorizontal then
+                        //                                // Draw the horizontal line vertically centered
+                        //                                nTop = (rcClient.Bottom - rcClient.Top) \ 2
+                        //                                MoveToEx(memDC, pData->MarginLeft * rx, nTop, null)
+                        //                                LineTo(memDC, rcClient.Right - (pData->MarginLeft * rx), nTop)
+                        //                                end if
+
+                        //                                if pData->CtrlType = SuperLabelType.LineVertical then
+                        //                                    // Draw the vertical line 
+                        //                                    nLeft = (rcClient.Right - rcClient.Left) \ 2
+                        //                                    MoveToEx(memDC, nLeft, pData->MarginTop * rx, null)
+                        //                                    LineTo(memDC, nLeft, rcClient.Bottom - (pData->MarginBottom * rx))
+                        //                                    end if
+
+                        //                                    end select
+
+
+                        //                                    // If selection mode is enabled then draw the little right hand side notch
+                        //                                    if (pData->IsSelected) or (bIsHot and pData->SelectionMode) then
+                        //                                        if hBrush then DeleteObject(hBrush)
+                        //                                            if hPen then DeleteObject(hPen)
+                        //                                                hBrush = CreateSolidBrush(pData->SelectorColor)
+                        //                                                hPen = CreatePen(PS_SOLID, 1 * ry, pData->SelectorColor)
+                        //                                                SelectObject(memDC, hBrush)
+                        //                                                SelectObject(memDC, hPen)
+                        //                                                // Need to center the notch vertically
+                        //                                                dim as long nNotchHalfHeight = (10 * ry) / 2
+                        //                                                nTop = (rcClient.Bottom / 2) - nNotchHalfHeight
+                        //                                                dim as POINT vertices(2)
+                        //                                                vertices(0).x = rcClient.Right            : vertices(0).y = nTop
+                        //                                                vertices(1).x = rcClient.Right - (6 * rx) : vertices(1).y = nTop + nNotchHalfHeight
+                        //                                                vertices(2).x = rcClient.Right : vertices(2).y = nTop + (nNotchHalfHeight * 2)
+                        //                                                Polygon(memDC, @vertices(0), 3)
+                        //                                                end if
+
+            // Copy the entire memory bitmap to the main display
+            BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, memDC, 0, 0, SRCCOPY);
+
+            // Restore the original state of the DC
+            RestoreDC(hdc, -1);
+
+            // Cleanup
+            DeleteObject(hbit);
+            DeleteDC(memDC);
+
+            EndPaint(hWnd, &ps);
+
+        }
+         
     }
     break;
 
     case WM_DESTROY:
-        If pData Then
-            if pData->pImage    then GdipDisposeImage(pData->pImage)
-                if pData->pImageHot then GdipDisposeImage(pData->pImageHot)
-                    Delete pData
-                    end if
-                    break;
+        if (pData) {
+        //    if (pData->pImage) GdipDisposeImage(pData->pImage);
+        //    if (pData->pImageHot) GdipDisposeImage(pData->pImageHot);
+        }
+        break;
+
+    case WM_NCDESTROY:
+        if (pData) delete(pData);
+        break;
 
     default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
     return 0;
 
@@ -373,126 +383,113 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 
 
-         
-         
-
-         
-
-   End Select 
-
-   Function = DefWindowProc( hWnd, uMsg, wParam, lParam ) 
-
- End Function
-  
-
-'------------------------------------------------------------------------------ 
-function SuperLabel_GetOptions( byval hCtrl as HWND ) as SUPERLABEL_DATA ptr
-   dim pData As SUPERLABEL_DATA Ptr = CAST( SUPERLABEL_DATA PTR, GetWindowLongPtr( hCtrl, 0 ))
-   function = pData 
-end function
+//'------------------------------------------------------------------------------ 
+SUPERLABEL_DATA* SuperLabel_GetOptions(HWND hCtrl)
+{
+    SUPERLABEL_DATA* pData = (SUPERLABEL_DATA*)GetWindowLongPtr(hCtrl, 0);
+    return pData;
+}
 
 
-'------------------------------------------------------------------------------ 
-function SuperLabel_SetOptions( byval hCtrl as HWND, byval pData as SUPERLABEL_DATA ptr ) as Long
-   if pData = 0 then exit function
+//'------------------------------------------------------------------------------ 
+int SuperLabel_SetOptions(HWND hCtrl, SUPERLABEL_DATA* pData)
+{
+    if (pData == nullptr) return 0;
 
-   if len( pData->wszToolTip ) then
-      if pData->hToolTip then
-         AfxSetTooltipText( pData->hToolTip, hCtrl, pData->wszToolTip )
-      end if
-   end if
+    if (pData->wszToolTip.length()) {
+        if (pData->hToolTip) {
+            //AfxSetTooltipText(pData->hToolTip, hCtrl, pData->wszToolTip)
+        }
+    }
 
-   SetWindowLongPtr( hCtrl, 0, CAST(LONG_PTR, pData) )
-   AfxRedrawWindow( hCtrl )
-   function = 0 
-end function
+    SetWindowLongPtr(hCtrl, 0, (LONG_PTR)pData);
+    AfxRedrawWindow(hCtrl);
+
+    return 0;
+}
 
 
-'------------------------------------------------------------------------------ 
-Function SuperLabel( ByVal hWndParent As hwnd, _
-                     ByVal CtrlId     As LONG_PTR, _ 
-                     byval nCtrlType  as SuperLabelType, _
-                     Byref wszText    As wString, _
-                     ByVal nLeft      As Long, _
-                     ByVal nTop       As Long, _
-                     ByVal nWidth     As Long, _
-                     ByVal nHeight    As Long _
-                     ) As hwnd
+//'------------------------------------------------------------------------------ 
+HWND CreateSuperLabel( 
+    HWND hWndParent, 
+    LONG_PTR CtrlId,
+    SuperLabelType nCtrlType,
+    std::wstring wszText, 
+    int nLeft, 
+    int nTop, 
+    int nWidth, 
+    int nHeight )
+{
+    std::wstring wszClassName(L"SUPERLABEL_CONTROL");
 
-   dim wszClassName As wstring * MAX_PATH = "SUPERLABEL_CONTROL"
-   dim wcex         As WNDCLASSEX
+    WNDCLASSEX wcex{};
     
-   dim as HINSTANCE hInst = cast( HINSTANCE, GetWindowLongPtr( hWndParent, GWLP_HINSTANCE ))
+    HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWndParent, GWLP_HINSTANCE);
 
-   If GetClassInfoEx( hInst, @wszClassName, @wcex ) = 0 Then
-      with wcex
-         .cbSize        = SizeOf(wcex)
-         .Style         = CS_DBLCLKS OR CS_HREDRAW OR CS_VREDRAW
-         .lpfnWndProc   = @SuperLabelProc
-         .cbClsExtra    = 0
-         .cbWndExtra    = SIZEOF(HANDLE)   ' make room to store a pointer to the class
-         .hInstance     = hInst
-         .hCursor       = LoadCursor( NULL, CAST(LPCWSTR, IDC_ARROW) )
-         .hIcon         = Null
-         .hIconSm       = NULL
-         .hbrBackground = CAST(HBRUSH, WHITE_BRUSH)
-         .lpszMenuName  = Null
-         .lpszClassName = @wszClassName 
-      end with
-      If RegisterClassEx(@wcex) = 0 Then Exit Function
-   End If
-
-    
-   dim as single rx = AfxScaleRatioX()
-   dim as single ry = AfxScaleRatioY()
+    if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
+        wcex.cbSize = sizeof(wcex);
+        wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+        wcex.lpfnWndProc = &SuperLabelProc;
+        wcex.cbClsExtra = 0;
+        wcex.cbWndExtra = sizeof(HANDLE);    //' make room to store a pointer to the class
+        wcex.hInstance = hInst;
+        wcex.hCursor = LoadCursor(NULL, (LPCWSTR)IDC_ARROW);
+        wcex.hIcon = NULL;
+        wcex.hIconSm = NULL;
+        wcex.hbrBackground = (HBRUSH)WHITE_BRUSH;
+        wcex.lpszMenuName = NULL;
+        wcex.lpszClassName = wszClassName.c_str();
+        if(RegisterClassEx(&wcex) == 0) return 0;
+    }
+        
+    float rx = AfxScaleRatioX();
+    float ry = AfxScaleRatioY();
    
-   dim lpParam AS LONG_PTR = 0
 
-   dim as HWND hCtrl = _
-               CreateWindowEx( 0, wszClassName, "", _
-                               WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or WS_CLIPSIBLINGS, _
-                               nLeft * rx, nTop * ry, nWidth * rx, nHeight * ry, _
-                               hwndParent, CAST(HMENU, CtrlId), hInst, CAST(LPVOID, lpParam) )
+    HWND hCtrl =
+        CreateWindowEx(0, wszClassName.c_str(), L"",
+            WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+            (int)(nLeft * rx), (int)(nTop * ry), (int)(nWidth * rx), (int)(nHeight * ry),
+            hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
-   IF hCtrl THEN
-      dim pData As SUPERLABEL_DATA Ptr = new SUPERLABEL_DATA                         
-      pData->hWindow    = hCtrl
-      pData->hParent    = hWndParent
-      pData->hInst      = hInst
-      pData->CtrlId     = CtrlId
-      pData->wszText    = wszText
-      pData->wszTextHot = wszText
-      pData->CtrlType   = nCtrlType 
-      
-      pData->hToolTip = AfxAddTooltip( hCtrl, "", _
-                                       FALSE, _   ' balloon 
-                                       FALSE _    ' centered
-                                       )
+    if (hCtrl) {
+        SUPERLABEL_DATA* pData = new SUPERLABEL_DATA;
 
-      if nCtrlType = SuperLabelType.LineHorizontal then 
-         pData->HotTestEnable = false
-         pData->BorderVisible = false
-      end if
-      if nCtrlType = SuperLabelType.LineVertical then 
-         pData->HotTestEnable = false
-         pData->BorderVisible = false
-      end if
+        pData->hWindow = hCtrl;
+        pData->hParent = hWndParent;
+        pData->hInst = hInst;
+        pData->CtrlId = CtrlId;
+        pData->wszText = wszText;
+        pData->wszTextHot = wszText;
+        pData->CtrlType = nCtrlType;
 
-      Dim pWindow As CWindow Ptr = AfxCWindowPtr( hWndParent )
-      if pWindow then 
-         'pData->wszFontName    = pWindow->DefaultFontName
-         pData->wszFontName    = "Arial"
-         pData->FontSize       = pWindow->DefaultFontSize
-         pData->wszFontNameHot = pData->wszFontName
-         pData->FontSizeHot    = pData->FontSize
-      end if
-      
-      SuperLabel_SetOptions( hCtrl, pData )
-   end if
+        pData->wszFontName = L"Segoe UI";
+        pData->FontSize = 9;
+        pData->wszFontNameHot = pData->wszFontName;
+        pData->FontSizeHot = pData->FontSize;
+
+        //pData->hToolTip = AfxAddTooltip( hCtrl, "", _
+        //                                 FALSE, _   ' balloon 
+        //                                 FALSE _    ' centered
+        //                                 )
+
+        if (nCtrlType == SuperLabelType::LineHorizontal) {
+            pData->HotTestEnable = false;
+            pData->BorderVisible = false;
+        }
+        if (nCtrlType == SuperLabelType::LineVertical) {
+            pData->HotTestEnable = false;
+            pData->BorderVisible = false;
+        }
+
+        pData->Pointer = SuperLabelPointer::Arrow;
+        pData->PointerHot = SuperLabelPointer::Hand;
+
+
+        SuperLabel_SetOptions(hCtrl, pData);
+    }
    
-   return = hCtrl
+    return hCtrl;
 }
 
  
-
-

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "CWindow.h"
-#include <iostream>
 
 
 
@@ -21,11 +20,12 @@ CWindow::CWindow()
 
     // Scale windows according to the DPI setting.
     HDC hDC = GetDC(NULL);
-    // Resolution ratio = current resolution / 96
-    m_rx = (float)(GetDeviceCaps(hDC, LOGPIXELSX) / 96);
-    m_ry = (float)(GetDeviceCaps(hDC, LOGPIXELSY) / 96);
+
+    // Resolution ratio = current resolution / 96.0 (using floating point math)
+    m_rx = (float)(GetDeviceCaps(hDC, LOGPIXELSX) / 96.0);
+    m_ry = (float)(GetDeviceCaps(hDC, LOGPIXELSY) / 96.0);
     ReleaseDC(NULL, hDC);
-    
+
     // Default font name and size
     m_wszDefaultFontName = L"Segoe UI";
     m_DefaultFontSize = 9;
@@ -106,20 +106,6 @@ LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 //' - nHeight     = Window height
 //' - dwStyle     = Window style
 //' - dwExStyle   = Extended style
-//' Remarks: As the last parameter we are passing a pointer to the class to allow its use
-//' in the WM_CREATE message, e.g.
-//'    CASE WM_CREATE
-//'       DIM pCreateStruct AS CREATESTRUCT PTR = CAST(CREATESTRUCT PTR, lParam)
-//'       DIM pWindow AS CWindow PTR = CAST(CWindow PTR, pCreateStruct->lpCreateParams)
-//'       IF pWindow THEN pWindow->AddControl("Button", hwnd, IDCANCEL, "&Close", 350, 250, 75, 23)
-//' -or-
-//'    CASE WM_CREATE
-//'       DIM pWindow AS CWindow PTR = AfxCWindowPtr(CAST(CREATESTRUCT PTR, lParam))
-//'       IF pWindow THEN pWindow->AddControl("Button", hwnd, IDCANCEL, "&Close", 350, 250, 75, 23)
-//' -or-
-//'    CASE WM_CREATE
-//'       DIM pWindow AS CWindow PTR = AfxCWindowPtr(lParam)
-//'       IF pWindow THEN pWindow->AddControl("Button", hwnd, IDCANCEL, "&Close", 350, 250, 75, 23)
 //' ========================================================================================
 HWND CWindow::Create(HWND hParent, std::wstring wszTitle, WNDPROC lpfnWndProc,
     int x, int y, int nWidth, int nHeight, DWORD dwStyle, DWORD dwExStyle)
@@ -432,25 +418,13 @@ HWND CWindow::AddControl(
         }
         break;
         
-    case Controls::CustomButton:  // OwnerDrawButton:
-        {
-
-        }
-        break;
-
-    case Controls::RadioButton:  // OptionButton:
+    case Controls::OptionButton:
         {
 
         }
         break;
 
     case Controls::CheckBox:
-        {
-
-        }
-        break;
-
-    case Controls::Check3State:
         {
 
         }
@@ -464,73 +438,31 @@ HWND CWindow::AddControl(
         }
         break;
 
-    case Controls::BitmapLabel:
-        {
-
-        }
-        break;
-
-    case Controls::IconLabel:
-        {
-
-        }
-        break;
-
-    case Controls::BitmapButton:
-        {
-
-        }
-        break;
-
-    case Controls::IconButton:
-        {
-
-        }
-        break;
-
-    case Controls::CustomLabel:
-        {
-
-        }
-        break;
-
     case Controls::Frame:
         {
 
         }
         break;
 
-    case Controls::GroupBox:
-        {
-
-        }
-        break;
-        
     case Controls::Line:
         {
 
         }
         break;
 
-    case Controls::Edit:    // TextBox:
+    case Controls::TextBox:
         {
 
         }
         break;
 
-    case Controls::EditMultiline:   // MultilineTextBox:
+    case Controls::MultilineTextBox:
         {
 
         }
         break;
 
     case Controls::ComboBox:
-        {
-
-        }
-        break;
-
-    case Controls::ComboBoxEx:
         {
 
         }
@@ -548,12 +480,6 @@ HWND CWindow::AddControl(
         }
         break;
 
-    case Controls::Header:
-        {
-
-        }
-        break;
-
     case Controls::TreeView:
         {
 
@@ -561,18 +487,6 @@ HWND CWindow::AddControl(
         break;
 
     case Controls::ListView:
-        {
-
-        }
-        break;
-
-    case Controls::ToolBar:
-        {
-
-        }
-        break;
-
-    case Controls::Rebar:
         {
 
         }
@@ -590,30 +504,6 @@ HWND CWindow::AddControl(
         }
         break;
 
-    case Controls::IPAddress:
-        {
-
-        }
-        break;
-
-    case Controls::HotKey:
-        {
-
-        }
-        break;
-
-    case Controls::Animate:
-        {
-
-        }
-        break;
-
-    case Controls::Pager:
-        {
-
-        }
-        break;
-
     case Controls::TabControl:
         {
 
@@ -626,7 +516,7 @@ HWND CWindow::AddControl(
         }
         break;
 
-    case Controls::SizeBox:  // SizeGrip:
+    case Controls::SizeGrip:
         {
 
         }
@@ -644,7 +534,7 @@ HWND CWindow::AddControl(
         }
         break;
 
-    case Controls::TrackBar:  // Slider:
+    case Controls::Slider:
         {
 
         }
@@ -682,302 +572,6 @@ HWND CWindow::AddControl(
     }
 
     return hCtl;
-
-
-    /*
-    CASE "CUSTOMBUTTON", "OWNERDRAWBUTTON"
-    ' Adds an ownerdraw button to the window.
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_OWNERDRAW
-    CASE "RADIOBUTTON", "OPTION"
-    ' Adds a radio button to the window.
-    ' Note: In PowerBASIC this control is called "Option".
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTORADIOBUTTON | BS_LEFT | BS_VCENTER
-    IF dwStyle = WS_GROUP THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTORADIOBUTTON | BS_LEFT | BS_VCENTER | WS_GROUP
-    CASE "CHECKBOX"
-    ' Adds a checkbox to the window.
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER
-    CASE "CHECK3STATE"
-    ' Adds a 3 state checkbox to the window.
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTO3STATE | BS_LEFT | BS_VCENTER
-    CASE "BITMAPLABEL"
-    ' Adds an image label to the window.
-    ' You must delete the bitmap before the application ends.
-    wsClassName = "Static"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_GROUP | SS_BITMAP
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_TRANSPARENT
-    bSetFont = FALSE
-    CASE "ICONLABEL"
-    ' Adds an image label to the window.
-    ' You must delete the icon before the application ends.
-    wsClassName = "Static"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_GROUP | SS_ICON
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_TRANSPARENT
-    bSetFont = FALSE
-    CASE "BITMAPBUTTON"
-    ' Adds an image button to the window.
-    ' You must delete the bitmap before the application ends.
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_BITMAP
-    CASE "ICONBUTTON"
-    ' Adds an image button to the window.
-    ' You must delete the icon before the application ends.
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON
-    CASE "CUSTOMLABEL"
-    ' Adds an ownerdraw label to the window.
-    wsClassName = "Static"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_GROUP | SS_OWNERDRAW
-    bSetFont = FALSE
-    CASE "FRAME", "FRAMEWINDOW"
-    ' Adds a frame to the window.
-    ' Note: This is not the same that PowerBASIC DDT's Frame control, that in fact is a Group Box.
-    wsClassName = "Static"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_CLIPSIBLINGS | WS_GROUP | SS_BLACKFRAME
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_TRANSPARENT
-    bSetFont = FALSE
-    CASE "GROUPBOX"
-    ' Adds a group box to the window.
-    ' Note: This is the same that DDT's frame control.
-    wsClassName = "Button"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_CLIPSIBLINGS | WS_GROUP | BS_GROUPBOX
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_TRANSPARENT
-    CASE "LINE"
-    ' Adds an horizontal line to the window
-    wsClassName = "Static"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | SS_ETCHEDFRAME
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_TRANSPARENT
-    bSetFont = FALSE
-    CASE "EDIT", "TEXTBOX"
-    ' Adds an edit control to the window.
-    wsClassName = "Edit"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "EDITMULTILINE", "MULTILINETEXTBOX"
-    ' Adds an edit control to the window.
-    wsClassName = "Edit"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "COMBOBOX"
-    ' Adds a combo box to the window.
-    IF dwStyle = -1 THEN dwStyle = WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER | WS_TABSTOP | CBS_DROPDOWN | CBS_HASSTRINGS | CBS_SORT
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "COMBOBOXEX", "COMBOBOXEX32"
-    ' Adds a combo box ex to the window.
-    wsClassName = "ComboBoxEx32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_BORDER | WS_TABSTOP | CBS_DROPDOWNLIST
-    CASE "LISTBOX"
-    ' Adds a list box to the window.
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | WS_BORDER | WS_TABSTOP | LBS_STANDARD | LBS_HASSTRINGS | LBS_SORT | LBS_NOTIFY
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "PROGRESSBAR", "MSCTLS_PROGRESS32"
-    ' Adds a progress bar to the window.
-    wsClassName = "msctls_progress32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE
-    bSetFont = FALSE
-    CASE "HEADER", "SYSHEADER32"
-    ' Adds an header control to the window.
-    wsClassName = "SysHeader32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | CCS_TOP | HDS_HORZ | HDS_BUTTONS
-    CASE "TREEVIEW", "SYSTREEVIEW32"
-    ' Adds a tree view control to the window.
-    wsClassName = "SysTreeView32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_BORDER | WS_TABSTOP | TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "LISTVIEW", "SYSLISTVIEW32"
-    ' Adds a list view control to the window.
-    wsClassName = "SysListView32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_AUTOARRANGE | LVS_EDITLABELS | LVS_ALIGNTOP
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "TOOLBAR", "TOOLBARWINDOW32"
-    ' Adds a toolbar control to the window.
-    wsClassName = "ToolbarWindow32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | CCS_TOP | WS_BORDER | TBSTYLE_FLAT | TBSTYLE_TOOLTIPS
-    CASE "REBAR", "REBARWINDOW32"
-    ' Adds a rebar control to the window.
-    wsClassName = "ReBarWindow32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_BORDER | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | CCS_NODIVIDER | RBS_VARHEIGHT | RBS_BANDBORDERS
-    CASE "DATETIMEPICKER", "SYSDATETIMEPICK32"
-    ' Adds a date time picker control to the window.
-    wsClassName = "SysDateTimePick32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | DTS_SHORTDATEFORMAT
-    CASE "MONTHCALENDAR", "MONTHCAL", "SYSMONTHCAL32"
-    ' Adds a month calendar control to the window.
-    wsClassName = "SysMonthCal32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "IPADDRESS", "SYSIPADDRESS32"
-    ' Adds an IPAddress control to the window.
-    wsClassName = "SysIPAddress32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "HOTKEY", "MSCTLS_HOTKEY32"
-    ' Adds an hotkey control to the window.
-    wsClassName = "msctls_hotkey32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    CASE "ANIMATE", "ANIMATION", "SYSANIMATE32"
-    ' Adds an animation control to the window.
-    wsClassName = "SysAnimate32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | ACS_TRANSPARENT
-    CASE "SYSLINK"
-    ' Adds a SysLink control to the window.
-    ' Note: The SysLink control is defined in the ComCtl32.dll version 6 and requires a manifest
-    ' | directive that specifies that version 6 of the DLL should be used if it is available.
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP
-    bSetFont = FALSE
-    CASE "PAGER", "SYSPAGER"
-    ' Adds a Pager control to the window.
-    wsClassName = "SysPager"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | PGS_HORZ
-    bSetFont = FALSE
-    CASE "TAB", "TABCONTROL", "SYSTABCONTROL32"
-    ' Adds a Tab control to the window.
-    wsClassName = "SysTabControl32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_GROUP | WS_TABSTOP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TCS_TABS | TCS_SINGLELINE | TCS_RAGGEDRIGHT
-    IF dwExStyle = -1 THEN dwExStyle = 0
-    dwExStyle = dwExStyle | WS_EX_CONTROLPARENT
-    CASE "STATUSBAR", "MSCTLS_STATUSBAR32"
-    ' Adds a StatusBar control to the window.
-    wsClassName = "msctls_statusbar32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | CCS_BOTTOM | SBARS_SIZEGRIP
-    CASE "SIZEBAR", "SIZEBOX", "SIZEGRIP"
-    ' Adds a size box to the window.
-    wsClassName = "Scrollbar"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | SBS_SIZEGRIP | SBS_SIZEBOXBOTTOMRIGHTALIGN
-    bSetFont = FALSE
-    nWidth = GetSystemMetrics(SM_CXVSCROLL)
-    nHeight = GetSystemMetrics(SM_CYHSCROLL)
-    DIM rcClient AS RECT = this.GetClientRect
-    x = rcClient.Right - nWidth
-    y = rcClient.Bottom - nHeight
-    CASE "HSCROLLBAR"
-    ' Adds an horizontal scroll bar to the window.
-    wsClassName = "Scrollbar"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | SBS_HORZ
-    bSetFont = FALSE
-    CASE "VSCROLLBAR"
-    ' Adds a vertical scroll bar to the window.
-    wsClassName = "Scrollbar"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | SBS_VERT
-    bSetFont = FALSE
-    CASE "TRACKBAR", "MSCTLS_TRACKBAR32", "SLIDER"
-    wsClassName = "msctls_trackbar32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | TBS_AUTOTICKS | TBS_HORZ | TBS_BOTTOM | TBS_TOOLTIPS
-    bSetFont = FALSE
-    CASE "UPDOWN", "MSCTLS_UPDOWN32"
-    wsClassName = "msctls_updown32"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | UDS_WRAP | UDS_ARROWKEYS | UDS_ALIGNRIGHT | UDS_SETBUDDYINT
-    bSetFont = FALSE
-    CASE "RICHEDIT", "RichEdit50W"
-    IF dwStyle = -1 THEN dwStyle = WS_VISIBLE | WS_TABSTOP | ES_LEFT | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_NOHIDESEL | ES_SAVESEL
-    IF dwExStyle = -1 THEN dwExStyle = WS_EX_CLIENTEDGE
-    wsClassName = "RichEdit50W"
-    m_hRichEditLib = CAST(HMODULE, LoadLibraryW("MSFTEDIT.DLL"))
-    END SELECT
-
-
-
-
-
-
-    SELECT CASE UCASE(wszClassName)
-    CASE "LISTBOX"
-    ' // Adjust the height of the control so that the integral height
-    ' // is based on the new font rather than the default SYSTEM_FONT
-    SetWindowPos hCtl, NULL, x, y, nWidth, nHeight, SWP_NOZORDER
-    CASE "DATETIMEPICKER", "SYSDATETIMEPICK32"
-    ' // Sets the font to be used by the date and time picker control's child month calendar control.
-    IF m_hFont THEN SendMessageW hCtl, DTM_SETMCFONT, CAST(WPARAM, m_hFont), CTRUE
-    CASE "PROGRESSBAR", "MSCTLS_PROGRESS32"
-    ' // Set the default range
-    .SendMessageW hCtl, PBM_SETRANGE32, 0, 100
-    ' // Set the default initial value
-    .SendMessageW hCtl, PBM_SETPOS, 0, 0
-    CASE "TRACKBAR", "MSCTLS_TRACKBAR32"
-    ' // Set the default range values
-    .SendMessageW hCtl, TBM_SETRANGEMIN, CTRUE, 0
-    .SendMessageW hCtl, TBM_SETRANGEMAX, CTRUE, 100
-    ' // Set the default page size
-    .SendMessageW hCtl, TBM_SETPAGESIZE, 0, 10
-    CASE "UPDOWN", "MSCTLS_UPDOWN32"
-    ' // Set the default base
-    .SendMessageW hCtl, UDM_SETBASE, 10, 0
-    ' // Set the default range values
-    .SendMessageW hCtl, UDM_SETRANGE32, 100, 0
-    ' // Set the default initial value
-    .SendMessageW hCtl, UDM_SETPOS32, 0, 0
-    ' // Correct for Windows using a default size for the updown control
-    this.SetWindowPos hCtl, NULL, x, y, nWidth, nHeight, SWP_NOZORDER
-    CASE "HSCROLLBAR", "VSCROLLBAR"
-    ' // Initialize the scroll bar with default values
-    DIM tsi AS SCROLLINFO
-    tsi.cbSize = SIZEOF(tsi)
-    tsi.fMask = SIF_PAGE | SIF_POS | SIF_RANGE
-    tsi.nMin = 0
-    tsi.nMax = 100
-    tsi.nPage = 0
-    tsi.nPos = 0
-    .SetScrollInfo hCtl, SB_CTL, @tsi, CTRUE
-    CASE "TOOLBAR", "TOOLBARWINDOW32"
-    ' // Set the button size
-    DIM AS LONG nButtonWidth, nButtonHeight
-    nButtonWidth = LOWORD(.SendMessageW(hCtl, TB_GETBUTTONSIZE, 0, 0)) * m_rx
-    nButtonHeight = HIWORD(.SendMessageW(hCtl, TB_GETBUTTONSIZE, 0, 0)) * m_ry
-    .SendMessageW hCtl, TB_SETBUTTONSIZE, 0, MAKELONG(nButtonWidth, nButtonHeight)
-    ' // Send this message for backward compatibility
-    .SendMessageW hCtl, TB_BUTTONSTRUCTSIZE, SIZEOF(TBBUTTON), 0
-    CASE "BITMAPLABEL"
-    ' // Loads the image
-    DIM hImage AS HANDLE, wID AS WORD, dwID AS DWORD
-    IF LEFT(wszTitle, 1) = "#" THEN
-    wID = VAL(MID(wszTitle, 2))
-    dwID = MAKELONG(wID, 0)
-    hImage = .LoadImageW(m_hInstance, CAST(LPCWSTR, CAST(ULONG_PTR, dwID)), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR)
-    ELSE
-    hImage = .LoadImageW(m_hInstance, wszTitle, IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR)
-    END IF
-    IF hImage THEN.SendMessageW(hCtl, STM_SETIMAGE, IMAGE_BITMAP, CAST(LPARAM, hImage))
-    CASE "ICONLABEL"
-    ' // Loads the image
-    DIM hImage AS HANDLE, wID AS WORD, dwID AS DWORD
-    IF LEFT(wszTitle, 1) = "#" THEN
-    wID = VAL(MID(wszTitle, 2))
-    dwID = MAKELONG(wID, 0)
-    hImage = .LoadImageW(m_hInstance, CAST(LPCWSTR, CAST(ULONG_PTR, dwID)), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR)
-    ELSE
-    hImage = .LoadImageW(m_hInstance, wszTitle, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR)
-    END IF
-    IF hImage THEN.SendMessageW(hCtl, STM_SETIMAGE, IMAGE_ICON, CAST(LPARAM, hImage))
-    CASE "BITMAPBUTTON"
-    ' // Loads the image
-    DIM hImage AS HANDLE, wID AS WORD, dwID AS DWORD
-    IF LEFT(wszTitle, 1) = "#" THEN
-    wID = VAL(MID(wszTitle, 2))
-    dwID = MAKELONG(wID, 0)
-    hImage = .LoadImageW(m_hInstance, CAST(LPCWSTR, CAST(ULONG_PTR, dwID)), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR)
-    ELSE
-    hImage = .LoadImageW(m_hInstance, wszTitle, IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR)
-    END IF
-    IF hImage THEN.SendMessageW(hCtl, BM_SETIMAGE, IMAGE_BITMAP, CAST(LPARAM, hImage))
-    CASE "ICONBUTTON"
-    ' // Loads the image
-    DIM hImage AS HANDLE, wID AS WORD, dwID AS DWORD
-    IF LEFT(wszTitle, 1) = "#" THEN
-    wID = VAL(MID(wszTitle, 2))
-    dwID = MAKELONG(wID, 0)
-    hImage = .LoadImageW(m_hInstance, CAST(LPCWSTR, CAST(ULONG_PTR, dwID)), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR)
-    ELSE
-    hImage = .LoadImageW(m_hInstance, wszTitle, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR)
-    END IF
-    IF hImage THEN.SendMessageW(hCtl, BM_SETIMAGE, IMAGE_ICON, CAST(LPARAM, hImage))
-    END SELECT
-    FUNCTION = hCtl
-    END FUNCTION
-    */
 }
 
 
@@ -1016,12 +610,36 @@ void AfxRedrawWindow(HWND hwnd)
 
 
 //' ========================================================================================
+//' Retrieves the desktop horizontal scaling ratio.
+//' ========================================================================================
+float AfxScaleRatioX()
+{
+    HDC hDC = GetDC(HWND_DESKTOP);
+    float res = (float)(GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f);
+    ReleaseDC(HWND_DESKTOP, hDC);
+    return res;
+}
+
+
+//' ========================================================================================
+//' Retrieves the desktop vertical scaling ratio.
+//' ========================================================================================
+float AfxScaleRatioY()
+{
+    HDC hDC = GetDC(HWND_DESKTOP);
+    float res = (float)(GetDeviceCaps(hDC, LOGPIXELSY) / 96.0f);
+    ReleaseDC(HWND_DESKTOP, hDC);
+    return res;
+}
+
+
+//' ========================================================================================
 //' Scales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
 //' ========================================================================================
 float AfxScaleX(float cx)
 {
     HDC hDC = GetDC(HWND_DESKTOP);
-    float res = cx * (GetDeviceCaps(hDC, LOGPIXELSX) / 96);
+    float res = (float)(cx * (GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f));
     ReleaseDC( HWND_DESKTOP, hDC);
     return res;
 }
@@ -1033,7 +651,7 @@ float AfxScaleX(float cx)
 float AfxScaleY(float cy)
 {
     HDC hDC = GetDC(HWND_DESKTOP);
-    float res = cy * (GetDeviceCaps(hDC, LOGPIXELSY) / 96);
+    float res = (float)(cy * (GetDeviceCaps(hDC, LOGPIXELSY) / 96.0f));
     ReleaseDC(HWND_DESKTOP, hDC);
     return res;
 }
@@ -1045,7 +663,7 @@ float AfxScaleY(float cy)
 float AfxUnScaleX(float cx)
 {
     HDC hDC = GetDC(HWND_DESKTOP);
-    float res = cx / (GetDeviceCaps(hDC, LOGPIXELSX) / 96);
+    float res = (float)(cx / (GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f));
     ReleaseDC(HWND_DESKTOP, hDC);
     return res;
 }
@@ -1057,141 +675,24 @@ float AfxUnScaleX(float cx)
 float AfxUnScaleY(float cy)
 {
     HDC hDC = GetDC(HWND_DESKTOP);
-    float res = cy / (GetDeviceCaps(hDC, LOGPIXELSY) / 96);
+    float res = (float)(cy / (GetDeviceCaps(hDC, LOGPIXELSY) / 96.0f));
     ReleaseDC(HWND_DESKTOP, hDC);
     return res;
 }
 
 
 //' ========================================================================================
-//' Simple debug message output to console
+//' Retrieve text from the specified window
 //' ========================================================================================
-void dp(std::wstring msg)
+std::wstring AfxGetWindowText(HWND hwnd)
 {
-    std::wcout << msg << std::endl;
-}
-
-void dp(std::string msg)
-{
-    std::cout << msg << std::endl;
-}
-
-void dp(int msg)
-{
-    std::cout << msg << std::endl;
-}
-
-void dp(HWND msg)
-{
-    std::cout << msg << std::endl;
+    std::wstring wszTemp;;
+    wszTemp.reserve(SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0) + 1);
+    GetWindowText(hwnd, const_cast<WCHAR*>(wszTemp.c_str()), wszTemp.capacity());
+    //return std::move(wszTemp);
+    return wszTemp;
 }
 
 
-    /*
-
-' =====================================================================================
-' Retrieves the size of the work area on the primary display monitor. The work area is the
-' portion of the screen not obscured by the system taskbar | by application desktop toolbars.
-' =====================================================================================
-PRIVATE SUB CWindow.GetWorkArea OVERLOAD(BYVAL lpRect AS LPRECT)
-IF lpRect = NULL THEN EXIT SUB
-SystemParametersInfoW(SPI_GETWORKAREA, 0, lpRect, 0)
-' // Divide by m_rx and m_ry to make the result High DPI aware
-lpRect->Left /= m_rx
-lpRect->Right /= m_rx
-lpRect->Top /= m_ry
-lpRect->Bottom /= m_ry
-END SUB
-' =====================================================================================
-' =====================================================================================
-PRIVATE FUNCTION CWindow.GetWorkArea OVERLOAD() AS RECT
-DIM rc AS RECT
-SystemParametersInfoW(SPI_GETWORKAREA, 0, @rc, 0)
-' // Divide by m_rx and m_ry to make the result High DPI aware
-rc.Left /= m_rx
-rc.Right /= m_rx
-rc.Top /= m_ry
-rc.Bottom /= m_ry
-FUNCTION = rc
-END FUNCTION
-' =====================================================================================
-
-' =====================================================================================
-    ' Gets/Sets the accelerator table handle
-    ' =====================================================================================
-    PRIVATE PROPERTY CWindow.AccelHandle() AS HACCEL
-    PROPERTY = m_hAccel
-    END PROPERTY
-    ' =====================================================================================
-    ' =====================================================================================
-    PRIVATE PROPERTY CWindow.AccelHandle(BYVAL hAccel AS HACCEL)
-    IF m_hAccel THEN.DestroyAcceleratorTable(m_hAccel)
-    IF UBOUND(m_rgAccelEntries) - LBOUND(m_rgAccelEntries) > -1 THEN ERASE m_rgAccelEntries
-    m_hAccel = hAccel
-    END PROPERTY
-    ' =====================================================================================
-    ' =====================================================================================
-    ' Adds an accelerator key to the table.
-    ' =====================================================================================
-    PRIVATE SUB CWindow.AddAccelerator OVERLOAD(BYVAL fvirt AS UBYTE, BYVAL wKey AS WORD, BYVAL cmd AS WORD)
-    REDIM PRESERVE m_rgAccelEntries(UBOUND(m_rgAccelEntries) + 1) AS ACCEL
-    m_rgAccelEntries(UBOUND(m_rgAccelEntries)).fvirt = fvirt
-    m_rgAccelEntries(UBOUND(m_rgAccelEntries)).key = wKey
-    m_rgAccelEntries(UBOUND(m_rgAccelEntries)).cmd = cmd
-    END SUB
-    ' =====================================================================================
-    ' =====================================================================================
-    PRIVATE SUB CWindow.AddAccelerator OVERLOAD(BYVAL fvirt AS UBYTE, BYREF wszKey AS WSTRING, BYVAL cmd AS WORD)
-    REDIM PRESERVE m_rgAccelEntries(UBOUND(m_rgAccelEntries) + 1) AS ACCEL
-    m_rgAccelEntries(UBOUND(m_rgAccelEntries)).fvirt = fvirt
-    m_rgAccelEntries(UBOUND(m_rgAccelEntries)).key = ASC(wszKey)
-    m_rgAccelEntries(UBOUND(m_rgAccelEntries)).cmd = cmd
-    END SUB
-    ' =====================================================================================
-    ' =====================================================================================
-    ' Creates the accelerator table.
-    ' =====================================================================================
-    PRIVATE FUNCTION CWindow.CreateAcceleratorTable() AS HACCEL
-    IF UBOUND(m_rgAccelEntries) - LBOUND(m_rgAccelEntries) = -1 THEN EXIT FUNCTION
-    IF m_hAccel THEN.DestroyAcceleratorTable(m_hAccel)
-    m_hAccel = .CreateAcceleratorTableW(CAST(LPACCEL, @m_rgAccelEntries(0)), UBOUND(m_rgAccelEntries) - LBOUND(m_rgAccelEntries) + 1)
-    FUNCTION = m_hAccel
-    END FUNCTION
-    ' =====================================================================================
-    ' =====================================================================================
-    ' Destroys the accelerator table.
-    ' =====================================================================================
-    PRIVATE SUB CWindow.DestroyAcceleratorTable
-    IF m_hAccel THEN.DestroyAcceleratorTable(m_hAccel)
-    IF UBOUND(m_rgAccelEntries) - LBOUND(m_rgAccelEntries) > -1 THEN ERASE m_rgAccelEntries
-    m_hAccel = NULL
-    END SUB
-    ' =====================================================================================
 
 
-    ' ########################################################################################
-    '                                *** HELPER FUNCTIONS ***
-    ' ########################################################################################
-
-    ' ========================================================================================
-    ' Returns a pointer to the CWindow class given the handle of its associated window handle.
-    ' To retrieve it from the handle of any of its child windows | controls, use AfxCWindowOwnerPtr.
-    ' ========================================================================================
-    PRIVATE FUNCTION AfxCWindowPtr OVERLOAD(BYVAL hwnd AS HWND) AS CWindow PTR
-    FUNCTION = CAST(CWindow PTR, .GetWindowLongPtrW(hwnd, 0))
-    END FUNCTION
-    ' ========================================================================================
-
-    ' ========================================================================================
-    ' Returns a pointer to the CWindow class given the handle of the window created with it
-    ' | the handle of any of it's children.
-    ' ========================================================================================
-    PRIVATE FUNCTION AfxCWindowOwnerPtr OVERLOAD(BYVAL hwnd AS HWND) AS CWindow PTR
-    IF hwnd = NULL THEN EXIT FUNCTION
-    DIM hRootOwner AS.HWND = .GetAncestor(hwnd, GA_ROOTOWNER)
-    IF hRootOwner = NULL THEN EXIT FUNCTION
-    FUNCTION = CAST(CWindow PTR, .GetWindowLongPtrW(hRootOwner, 0))
-    END FUNCTION
-    ' ========================================================================================
-
-*/

@@ -1,14 +1,14 @@
 #pragma once
 
 #include "framework.h"
-#include <string>
+
 
 // User defined messages
 const int MSG_SUPERLABEL_CLICK     = WM_USER + 1000;
 const int MSG_SUPERLABEL_MOUSEMOVE = WM_USER + 1001;
 
 
-enum SuperLabelType
+enum class SuperLabelType
 {
 	TextOnly,
 	ImageOnly,
@@ -17,7 +17,7 @@ enum SuperLabelType
 	LineVertical
 };
 
-enum SuperLabelAlignment
+enum class SuperLabelAlignment
 {
 	// Text alignment
 	MiddleCenter,
@@ -31,8 +31,17 @@ enum SuperLabelAlignment
 	BottomRight
 };
 
-struct SUPERLABEL_DATA
+enum class SuperLabelPointer
 {
+	Arrow,
+	Hand
+};
+
+
+class SUPERLABEL_DATA
+{
+	public:
+
 	HWND hWindow = NULL;
 	HWND hParent = NULL;
 	HINSTANCE hInst = NULL;
@@ -40,21 +49,21 @@ struct SUPERLABEL_DATA
 	std::wstring wszToolTip;
 
 	int CtrlId = 0;
-	SuperLabelType CtrlType;
+	SuperLabelType CtrlType = SuperLabelType::TextOnly;
 	bool HotTestEnable = false;
-	COLORREF BackColor = GetSysColor(COLOR_3DFACE);
-	COLORREF BackColorHot = GetSysColor(COLOR_3DFACE);
+	DWORD BackColor = 0;    
+	DWORD BackColorHot = 0; 
 
 	// Selection
 	bool SelectionMode = false;
 	bool IsSelected = false;
-	COLORREF SelectorColor = RGB(251, 253, 254);
+	DWORD SelectorColor = 0;
 
 	// Lines
 	int LineWidth = 1;
 	int LineStyle = PS_SOLID;
-	COLORREF LineColor = RGB(61, 156, 228);
-	COLORREF LineColorHot = RGB(61, 156, 228);
+	DWORD LineColor = 0;  
+	DWORD LineColorHot = 0;
 
 	// Margins
 	int MarginLeft = 0;
@@ -64,10 +73,10 @@ struct SUPERLABEL_DATA
 
 	// Border
 	bool BorderVisible = false;
-	int BorderWidth = 1;
+	Gdiplus::REAL BorderWidth = 1;
 	int BorderStyle = PS_SOLID;
-	COLORREF BorderColor = GetSysColor(COLOR_3DFACE);
-	COLORREF BorderColorHot = GetSysColor(COLOR_3DFACE);
+	DWORD BorderColor = 0; 
+	DWORD BorderColorHot = 0;
 	int BorderRoundWidth = 0;
 	int BorderRoundHeight = 0;
 
@@ -82,7 +91,7 @@ struct SUPERLABEL_DATA
 	int ImageOffsetTop = 0;
 
 	// Text General
-	SuperLabelAlignment TextAlignment = MiddleLeft;
+	SuperLabelAlignment TextAlignment = SuperLabelAlignment::MiddleLeft;
 	int TextOffsetLeft = 0;
 	int TextOffsetTop = 0;
 	int TextCharacterExtra = 0;
@@ -90,19 +99,28 @@ struct SUPERLABEL_DATA
 	// Text Normal
 	std::wstring wszText;
 	std::wstring wszFontName;
-	int FontSize = 0;
+	Gdiplus::REAL FontSize = 0;
 	int FontWeight = FW_NORMAL;
 	bool FontItalic = false;
 	bool FontUnderline = false;
-	COLORREF TextColor = RGB(0, 0, 0);
+	DWORD TextColor = 0;   
+	SuperLabelPointer Pointer = SuperLabelPointer::Arrow;
 
 	// Text Hot
 	std::wstring wszTextHot;
 	std::wstring wszFontNameHot;
-	int FontSizeHot = 0;
+	Gdiplus::REAL FontSizeHot = 0;
 	int FontWeightHot = FW_NORMAL;
 	bool FontItalicHot = false;
 	bool FontUnderlineHot = false;
-	COLORREF TextColorHot = RGB(0, 0, 0);
-
+	DWORD TextColorHot = 0;   
+	SuperLabelPointer PointerHot = SuperLabelPointer::Hand;
 };
+
+
+SUPERLABEL_DATA* SuperLabel_GetOptions(HWND hCtrl);
+int SuperLabel_SetOptions(HWND hCtrl, SUPERLABEL_DATA* pData);
+
+HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType, std::wstring wszText,
+	int nLeft, int nTop, int nWidth, int nHeight);
+

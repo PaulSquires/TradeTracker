@@ -18,7 +18,7 @@
     <ClCompile Include="src\tws_gui\CWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\tws_gui\main-tester.cpp">
+    <ClCompile Include="src\tws_gui\ib-tracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tws-api\ContractCondition.cpp">
@@ -88,9 +88,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tws-api\VolumeCondition.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tws_gui\NavPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tws_gui\SuperLabel.cpp">
