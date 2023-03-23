@@ -73,6 +73,62 @@
 //   FUNCTION = hStatus
 //END FUNCTION
 
+//'------------------------------------------------------------------------------ 
+void SuperLabel_SetTextAlignment(SUPERLABEL_DATA* pData, StringFormat& stringF)
+{
+    switch (pData->TextAlignment)
+    {
+    case SuperLabelAlignment::BottomCenter:
+        stringF.SetAlignment(StringAlignmentCenter);
+        stringF.SetLineAlignment(StringAlignmentFar);
+        break;
+
+    case SuperLabelAlignment::BottomLeft:
+        stringF.SetAlignment(StringAlignmentNear);
+        stringF.SetLineAlignment(StringAlignmentFar);
+        break;
+
+    case SuperLabelAlignment::BottomRight:
+        stringF.SetAlignment(StringAlignmentFar);
+        stringF.SetLineAlignment(StringAlignmentFar);
+        break;
+
+    case SuperLabelAlignment::MiddleCenter:
+        stringF.SetAlignment(StringAlignmentCenter);
+        stringF.SetLineAlignment(StringAlignmentCenter);
+        break;
+
+    case SuperLabelAlignment::MiddleLeft:
+        stringF.SetAlignment(StringAlignmentNear);
+        stringF.SetLineAlignment(StringAlignmentCenter);
+        break;
+
+    case SuperLabelAlignment::MiddleRight:
+        stringF.SetAlignment(StringAlignmentFar);
+        stringF.SetLineAlignment(StringAlignmentCenter);
+        break;
+
+    case SuperLabelAlignment::TopCenter:
+        stringF.SetAlignment(StringAlignmentCenter);
+        stringF.SetLineAlignment(StringAlignmentNear);
+        break;
+
+    case SuperLabelAlignment::TopLeft:
+        stringF.SetAlignment(StringAlignmentNear);
+        stringF.SetLineAlignment(StringAlignmentNear);
+        break;
+
+    case SuperLabelAlignment::TopRight:
+        stringF.SetAlignment(StringAlignmentFar);
+        stringF.SetLineAlignment(StringAlignmentNear);
+        break;
+
+    default:
+        stringF.SetAlignment(StringAlignmentCenter);
+        stringF.SetLineAlignment(StringAlignmentCenter);
+    }
+}
+
 
 //'------------------------------------------------------------------------------ 
 LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -174,7 +230,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         if (pData == nullptr) {
             BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);
-             return 0;
+            return 0;
         }
 
                 
@@ -202,149 +258,134 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             hbit = CreateCompatibleBitmap(hdc, rcClient.right, rcClient.bottom);
             SelectBitmap(memDC, hbit);
 
-
             // Determine if we are in a Hot mouseover state
             if (pData->HotTestEnable) {
                 if (GetProp(hWnd, L"HOT")) bIsHot = true;
             }
 
             Graphics graphics(memDC);
-
-
-            // If border does not exist then create hollow/null pen
-            ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
-            if (pData->BorderVisible == false) clrPen = pData->BackColor;
-            Pen pen(clrPen, pData->BorderWidth);
+            graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
             // Create the background brush
             SolidBrush backBrush(bIsHot ? pData->BackColorHot : pData->BackColor);
-            SolidBrush textBrush(bIsHot ? pData->TextColorHot : pData->TextColor);
 
 
-            // Paint the background using current brush and pen. Use RoundRect because 
+            // Paint the background using brush and default pen. Use RoundRect because 
             // we may want to have rounded corners.
             graphics.FillRectangle(&backBrush, 0, 0, rcClient.right, rcClient.bottom);
             //    RoundRect(memDC, 0, 0, rcClient.Right, rcClient.Bottom, _
             //        pData->BorderRoundWidth * rx, pData->BorderRoundHeight * ry)
 
-            FontFamily   fontFamily(pData->wszFontName.c_str());
-            Font         font(&fontFamily, pData->FontSize, FontStyleRegular, Unit::UnitPoint);
-            PointF       pointF(0.0f, 0.0f);
-            RectF        rectF(0, 0, (Gdiplus::REAL)rcClient.right, (Gdiplus::REAL)rcClient.bottom);
 
-            StringFormat stringF(0);
-            stringF.SetAlignment(StringAlignmentCenter);
-            stringF.SetLineAlignment(StringAlignmentCenter);
+            // Create the different label types
+            switch (pData->CtrlType)
+            {
+            case SuperLabelType::ImageOnly:
+            case SuperLabelType::ImageAndText:
+                //    nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx
+                //    nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry
+                //    SetRect(@rcDraw, nLeft, nTop, pData->ImageWidth * rx, pData->ImageHeight * ry)
+                //    SuperLabel_LoadImageFromResource(memDC, _
+                //        iif(bIsHot, pData->wszImageHot, pData->wszImage), _
+                //            iif(bIsHot, pData->pImageHot, pData->pImage), _
+                //            rcDraw)
+                break;
 
-            graphics.DrawString(L"Hello World!", -1, &font, rectF, &stringF, &textBrush);
-            rectF.Inflate(-(pData->BorderWidth), -(pData->BorderWidth));
+            default: {}
+            }
+
+
+            REAL nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx;
+            REAL nTop = (pData->MarginTop + pData->TextOffsetTop) * ry;
+            REAL nRight = rcClient.right - (pData->MarginRight * rx);
+            REAL nBottom = rcClient.bottom - (pData->MarginBottom * ry);
+
+            RectF rcDraw(nLeft, nTop, nRight - nLeft, nBottom - nTop);
+
+
+            switch (pData->CtrlType)
+            {
+            case SuperLabelType::TextOnly:
+            case SuperLabelType::ImageAndText:
+            {
+                FontFamily   fontFamily(bIsHot ? pData->wszFontNameHot.c_str() : pData->wszFontName.c_str());
+
+                REAL fontSize = (bIsHot ? pData->FontSizeHot : pData->FontSize);
+                int fontStyle = FontStyleRegular;
+
+                if (bIsHot) {
+                    if (pData->FontBoldHot) fontStyle |= FontStyleBold;
+                    if (pData->FontItalicHot) fontStyle |= FontStyleItalic;
+                    if (pData->FontUnderlineHot) fontStyle |= FontStyleUnderline;
+                }
+                else {
+                    if (pData->FontBold) fontStyle |= FontStyleBold;
+                    if (pData->FontItalic) fontStyle |= FontStyleItalic;
+                    if (pData->FontUnderline) fontStyle |= FontStyleUnderline;
+                }
+
+                Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+                SolidBrush   textBrush(bIsHot ? pData->TextColorHot : pData->TextColor);
+
+                StringFormat stringF(0);
+                SuperLabel_SetTextAlignment(pData, stringF);
+
+                if (pData->TextCharacterExtra)
+                    SetTextCharacterExtra(memDC, pData->TextCharacterExtra);                    
+
+                graphics.DrawString(pData->wszText.c_str(), -1, &font, rcDraw, &stringF, &textBrush);
+
+            }
+
+            case SuperLabelType::LineHorizontal:
+            {
+                ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
+                Pen pen(clrPen, pData->LineWidth);
+                // Draw the horizontal line centered taking margins into account
+                //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
+            }
+
+            case SuperLabelType::LineVertical:
+            {
+                ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
+                Pen pen(clrPen, pData->LineWidth);
+                // Draw the vertical line centered taking margins into account
+                //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
+            }
+
+            default: {}
+
+
+            }
+
+
+            //// If selection mode is enabled then draw the little right hand side notch
+            //if (pData->IsSelected) or (bIsHot and pData->SelectionMode) then
+            //    if hBrush then DeleteObject(hBrush)
+            //        if hPen then DeleteObject(hPen)
+            //            hBrush = CreateSolidBrush(pData->SelectorColor)
+            //            hPen = CreatePen(PS_SOLID, 1 * ry, pData->SelectorColor)
+            //            SelectObject(memDC, hBrush)
+            //            SelectObject(memDC, hPen)
+            //            // Need to center the notch vertically
+            //            dim as long nNotchHalfHeight = (10 * ry) / 2
+            //            nTop = (rcClient.Bottom / 2) - nNotchHalfHeight
+            //            dim as POINT vertices(2)
+            //            vertices(0).x = rcClient.Right            : vertices(0).y = nTop
+            //            vertices(1).x = rcClient.Right - (6 * rx) : vertices(1).y = nTop + nNotchHalfHeight
+            //            vertices(2).x = rcClient.Right : vertices(2).y = nTop + (nNotchHalfHeight * 2)
+            //            Polygon(memDC, @vertices(0), 3)
+            //            end if
+        
+
+            // Finally, draw any applicable border around the control after everything
+            // else has been painted.
+            ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
+            Pen pen(clrPen, pData->BorderWidth);
+            if (!pData->BorderVisible) clrPen = pData->BackColor;
+            RectF rectF(0, 0, (REAL)rcClient.right, (REAL)rcClient.bottom);
             graphics.DrawRectangle(&pen, rectF);
 
-
-                        //    // Create the different label types
-                        //    select case pData->CtrlType
-                        //    case SuperLabelType.ImageOnly, _
-                        //    SuperLabelType.ImageAndText
-
-                        //    nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx
-                        //    nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry
-                        //    SetRect(@rcDraw, nLeft, nTop, pData->ImageWidth * rx, pData->ImageHeight * ry)
-                        //    SuperLabel_LoadImageFromResource(memDC, _
-                        //        iif(bIsHot, pData->wszImageHot, pData->wszImage), _
-                        //            iif(bIsHot, pData->pImageHot, pData->pImage), _
-                        //            rcDraw)
-                        //            end select
-
-
-                        //            select case pData->CtrlType
-                        //            case SuperLabelType.TextOnly, _
-                        //            SuperLabelType.ImageAndText
-
-                        //            dim as long wsStyle
-                        //            Select Case pData->TextAlignment
-                        //            Case SuperLabelAlignment.BottomCenter: wsStyle = DT_CENTER Or DT_BOTTOM or DT_SINGLELINE
-                        //            Case SuperLabelAlignment.BottomLeft : wsStyle = DT_LEFT   Or DT_BOTTOM or DT_SINGLELINE
-                        //            Case SuperLabelAlignment.BottomRight : wsStyle = DT_RIGHT  Or DT_BOTTOM or DT_SINGLELINE
-                        //            Case SuperLabelAlignment.MiddleCenter : wsStyle = DT_CENTER Or DT_VCENTER or DT_SINGLELINE
-                        //            Case SuperLabelAlignment.MiddleLeft : wsStyle = DT_LEFT   Or DT_VCENTER or DT_SINGLELINE
-                        //            Case SuperLabelAlignment.MiddleRight : wsStyle = DT_RIGHT  Or DT_VCENTER or DT_SINGLELINE
-                        //            Case SuperLabelAlignment.TopCenter : wsStyle = DT_CENTER Or DT_TOP or DT_WORDBREAK
-                        //            Case SuperLabelAlignment.TopLeft : wsStyle = DT_LEFT   Or DT_TOP or DT_WORDBREAK
-                        //            Case SuperLabelAlignment.TopRight : wsStyle = DT_RIGHT  Or DT_TOP or DT_WORDBREAK
-                        //            End Select
-                        //            wsStyle = wsStyle or DT_EXPANDTABS or DT_END_ELLIPSIS
-
-                        //            if pWindow then
-                        //                if pData->IsSelected then
-                        //                    hFont = pWindow->CreateFont(pData->wszFontName, pData->FontSize, FW_BOLD)
-                        //                else
-                        //                    hFont = pWindow->CreateFont(_
-                        //                        iif(bIsHot, pData->wszFontNameHot, pData->wszFontName), _
-                        //                        iif(bIsHot, pData->FontSizeHot, pData->FontSize), _
-                        //                        iif(bIsHot, pData->FontWeightHot, pData->FontWeight), _
-                        //                        iif(bIsHot, pData->FontItalicHot, pData->FontItalic), _
-                        //                        iif(bIsHot, pData->FontUnderlineHot, pData->FontUnderline), _
-                        //                        iif(bIsHot, pData->FontStrikeOutHot, pData->FontStrikeOut))
-                        //                    end if
-                        //                    end if
-
-                        //                    SetBkColor(memDC, iif(bIsHot, pData->BackColorHot, pData->BackColor))
-                        //                    SetTextColor(memDC, iif(bIsHot, pData->TextColorHot, pData->TextColor))
-                        //                    SelectObject(memDC, hFont)
-
-                        //                    nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx
-                        //                    nTop = (pData->MarginTop + pData->TextOffsetTop) * ry
-                        //                    SetRect(@rcDraw, nLeft, nTop, _
-                        //                        rcClient.Right - pData->MarginRight, _
-                        //                        rcClient.Bottom - pData->MarginBottom)
-                        //                    if pData->TextCharacterExtra then
-                        //                        SetTextCharacterExtra(memDC, pData->TextCharacterExtra)
-                        //                        end if
-                        //                        DrawText(memDC, pData->wszText, -1, @rcDraw, wsStyle)
-                        //                        'ExtTextOut( memDC, 0, 0, ETO_OPAQUE, @rcDraw, pData->wszText, len(pData->wszText), 0 )            
-
-                        //                        case SuperLabelType.LineHorizontal, SuperLabelType.LineVertical
-                        //                        // Delete any existing pen (border) and create a new one for the line.
-                        //                        if hPen then DeleteObject(hPen)
-                        //                            hPen = CreatePen(pData->LineStyle, _
-                        //                                pData->LineWidth * rx, _
-                        //                                iif(bIsHot, pData->LineColorHot, pData->LineColor))
-                        //                            SelectObject(memDC, hPen)
-
-                        //                            if pData->CtrlType = SuperLabelType.LineHorizontal then
-                        //                                // Draw the horizontal line vertically centered
-                        //                                nTop = (rcClient.Bottom - rcClient.Top) \ 2
-                        //                                MoveToEx(memDC, pData->MarginLeft * rx, nTop, null)
-                        //                                LineTo(memDC, rcClient.Right - (pData->MarginLeft * rx), nTop)
-                        //                                end if
-
-                        //                                if pData->CtrlType = SuperLabelType.LineVertical then
-                        //                                    // Draw the vertical line 
-                        //                                    nLeft = (rcClient.Right - rcClient.Left) \ 2
-                        //                                    MoveToEx(memDC, nLeft, pData->MarginTop * rx, null)
-                        //                                    LineTo(memDC, nLeft, rcClient.Bottom - (pData->MarginBottom * rx))
-                        //                                    end if
-
-                        //                                    end select
-
-
-                        //                                    // If selection mode is enabled then draw the little right hand side notch
-                        //                                    if (pData->IsSelected) or (bIsHot and pData->SelectionMode) then
-                        //                                        if hBrush then DeleteObject(hBrush)
-                        //                                            if hPen then DeleteObject(hPen)
-                        //                                                hBrush = CreateSolidBrush(pData->SelectorColor)
-                        //                                                hPen = CreatePen(PS_SOLID, 1 * ry, pData->SelectorColor)
-                        //                                                SelectObject(memDC, hBrush)
-                        //                                                SelectObject(memDC, hPen)
-                        //                                                // Need to center the notch vertically
-                        //                                                dim as long nNotchHalfHeight = (10 * ry) / 2
-                        //                                                nTop = (rcClient.Bottom / 2) - nNotchHalfHeight
-                        //                                                dim as POINT vertices(2)
-                        //                                                vertices(0).x = rcClient.Right            : vertices(0).y = nTop
-                        //                                                vertices(1).x = rcClient.Right - (6 * rx) : vertices(1).y = nTop + nNotchHalfHeight
-                        //                                                vertices(2).x = rcClient.Right : vertices(2).y = nTop + (nNotchHalfHeight * 2)
-                        //                                                Polygon(memDC, @vertices(0), 3)
-                        //                                                end if
 
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, memDC, 0, 0, SRCCOPY);

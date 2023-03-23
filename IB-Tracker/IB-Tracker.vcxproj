@@ -158,7 +158,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\$(Configuration)\</OutDir>
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
     <IntDir>C:\Users\plane\Documents\$(ProjectName)\$(Configuration)\tempBuildFiles\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -60,10 +60,9 @@ class SUPERLABEL_DATA
 	DWORD SelectorColor = 0;
 
 	// Lines
-	int LineWidth = 1;
-	int LineStyle = PS_SOLID;
-	DWORD LineColor = 0;  
-	DWORD LineColorHot = 0;
+	REAL LineWidth = 1;
+	DWORD LineColor = Color::MakeARGB(255, 0, 0, 0); ;
+	DWORD LineColorHot = Color::MakeARGB(255, 0, 0, 0);
 
 	// Margins
 	int MarginLeft = 0;
@@ -73,10 +72,9 @@ class SUPERLABEL_DATA
 
 	// Border
 	bool BorderVisible = false;
-	Gdiplus::REAL BorderWidth = 1;
-	int BorderStyle = PS_SOLID;
-	DWORD BorderColor = 0; 
-	DWORD BorderColorHot = 0;
+	REAL BorderWidth = 1;
+	DWORD BorderColor = Color::MakeARGB(255, 0, 0, 0);
+	DWORD BorderColorHot = Color::MakeARGB(255, 0, 0, 0);
 	int BorderRoundWidth = 0;
 	int BorderRoundHeight = 0;
 
@@ -91,7 +89,7 @@ class SUPERLABEL_DATA
 	int ImageOffsetTop = 0;
 
 	// Text General
-	SuperLabelAlignment TextAlignment = SuperLabelAlignment::MiddleLeft;
+	SuperLabelAlignment TextAlignment = SuperLabelAlignment::MiddleCenter;
 	int TextOffsetLeft = 0;
 	int TextOffsetTop = 0;
 	int TextCharacterExtra = 0;
@@ -99,21 +97,21 @@ class SUPERLABEL_DATA
 	// Text Normal
 	std::wstring wszText;
 	std::wstring wszFontName;
-	Gdiplus::REAL FontSize = 0;
-	int FontWeight = FW_NORMAL;
+	REAL FontSize = 0;
+	bool FontBold = false;
 	bool FontItalic = false;
 	bool FontUnderline = false;
-	DWORD TextColor = 0;   
+	DWORD TextColor = Color::MakeARGB(255, 0, 0, 0);;
 	SuperLabelPointer Pointer = SuperLabelPointer::Arrow;
 
 	// Text Hot
 	std::wstring wszTextHot;
 	std::wstring wszFontNameHot;
-	Gdiplus::REAL FontSizeHot = 0;
-	int FontWeightHot = FW_NORMAL;
+	REAL FontSizeHot = 0;
+	bool FontBoldHot = false;
 	bool FontItalicHot = false;
 	bool FontUnderlineHot = false;
-	DWORD TextColorHot = 0;   
+	DWORD TextColorHot = Color::MakeARGB(255, 0, 0, 0);;
 	SuperLabelPointer PointerHot = SuperLabelPointer::Hand;
 };
 

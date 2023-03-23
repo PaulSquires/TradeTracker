@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IB-Tracker", "IB-Tracker.vcxproj", "{03741994-E562-4D2D-AE15-F90431B9ABCD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IB-Tracker", "IB-Tracker\IB-Tracker.vcxproj", "{03741994-E562-4D2D-AE15-F90431B9ABCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

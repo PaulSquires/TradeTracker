@@ -200,17 +200,7 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-
         // TODO: Add any drawing code that uses hdc here...
-        //Graphics    graphics(hdc);
-        //SolidBrush  brush(Color(255, 0, 0, 255));
-
-        //FontFamily  fontFamily(L"Times New Roman");
-        //Font        font(&fontFamily, 24, FontStyleRegular, UnitPoint);
-        //PointF      pointF(10.0f, 20.0f);
-
-        //graphics.DrawString(L"Hello World!", -1, &font, pointF, &brush);
-
         EndPaint(hWnd, &ps);
     }
     break;
@@ -264,19 +254,19 @@ int APIENTRY wWinMain(
 
     SUPERLABEL_DATA* pData = nullptr;
     
-    hCtl = CreateSuperLabel(hWnd, 101, SuperLabelType::TextOnly, L"", 10, 90, 100, 24);
+    hCtl = CreateSuperLabel(hWnd, 101, SuperLabelType::TextOnly, L"", 10, 90, 100, 30);
 
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->wszText = L"My super label";
-        pData->HotTestEnable = true;
+        pData->wszText = L"Disconnect";
+        pData->CtrlId = 100;
         pData->BackColor = Color::MakeARGB(255,240,240,240);
-        pData->BackColorHot = Color::MakeARGB(255, 255, 0, 0);
         pData->TextColor = Color::MakeARGB(255, 0, 0, 0);
-        pData->TextColorHot = Color::MakeARGB(255, 0, 0, 255);
+        //pData->HotTestEnable = false;
+        //pData->BackColorHot = Color::MakeARGB(255, 255, 0, 0);
+        //pData->TextColorHot = Color::MakeARGB(255, 0, 0, 255);
         pData->wszToolTip = L"Options";
         pData->BorderVisible = true;
-        pData->BorderColor = Color::SaddleBrown;
         pData->BorderWidth = 2;
         SuperLabel_SetOptions(hCtl, pData);
     }
