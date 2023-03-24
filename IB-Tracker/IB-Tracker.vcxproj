@@ -46,6 +46,7 @@
     <ClCompile Include="src\tws_gui\ib-tracker.cpp" />
     <ClCompile Include="src\tws_gui\NavPanel.cpp" />
     <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
+    <ClCompile Include="src\tws_gui\tws-client.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -111,6 +112,7 @@
     <ClInclude Include="src\tws_gui\ib-tracker.h" />
     <ClInclude Include="src\tws_gui\NavPanel.h" />
     <ClInclude Include="src\tws_gui\SuperLabel.h" />
+    <ClInclude Include="src\tws_gui\tws-client.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />

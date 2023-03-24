@@ -82,8 +82,6 @@ class SUPERLABEL_DATA
 	int BorderRoundHeight = 0;
 
 	// Images
-	int rcImageId = 0;
-	int rcImageHotId = 0;
 	Bitmap* pImage = nullptr;
 	Bitmap* pImageHot = nullptr;
 	int ImageWidth = 0;

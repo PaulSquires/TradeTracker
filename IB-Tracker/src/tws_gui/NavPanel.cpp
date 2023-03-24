@@ -1,7 +1,7 @@
 
 #include "framework.h"
 #include "NavPanel.h"
-
+#include "tws-client.h"
 
 
 //' ========================================================================================
@@ -14,9 +14,15 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     case WM_SIZE:
     {
-         // Move the bottom separator and application name into place
+        // Move the bottom separator and application name into place, but only do so
+        // if the vertical height of NavBar window has not become less than the minimum
+        // otherwise the two controls will bleed into the ones above them.
         RECT rcClient;
         GetClientRect(hWnd, &rcClient);
+        float MinHeight = AfxScaleY(645);
+
+        if (rcClient.bottom < MinHeight) return 0;
+
         SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_BOTTOMSEP), 0,
             0, rcClient.bottom - (int)AfxScaleY(50), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
         SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_APPNAME), 0,
@@ -24,16 +30,37 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     }
         break;
 
+
     case MSG_SUPERLABEL_MOUSEMOVE:
         break;
 
       
     case MSG_SUPERLABEL_CLICK:
-    {   HWND hCtl = (HWND)wParam;
+    {   
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
         SUPERLABEL_DATA* pData = (SUPERLABEL_DATA*)GetWindowLongPtr(hWnd, 0);
 
         if (pData) {
+
+            switch (CtrlId) {
+            case IDC_NAVPANEL_GEARICON:
+                bool res = tws_connect();
+                printf("Connect: %ld\n", res);
+                printf("isConnected: %ld\n", tws_isConnected());
+                break;
+            }
+
+
+            //bool res = tws_disconnect();
+            //printf("Disconnect: %ld\n", res);
+            //printf("isConnected: %ld\n", tws_isConnected());
+            //return 0;
         }
+
+
     }
     break;
 
@@ -88,13 +115,13 @@ CWindow* NavPanel_Show(HWND hWndParent)
         L"", nLeft, 20, 68, 68);
    pData = SuperLabel_GetOptions(hCtl);
    if (pData) {
-       pData->HotTestEnable = true;
+       pData->HotTestEnable = false;
        pData->BackColor = nBackColor;
        pData->BackColorHot = nBackColor;
        pData->ImageWidth = 68;
        pData->ImageHeight = 68;
-       pData->rcImageId = IDB_LOGO;
-       pData->rcImageHotId = IDB_LOGO;
+       pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
+       pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
        SuperLabel_SetOptions(hCtl, pData);
    }
 
@@ -104,17 +131,17 @@ CWindow* NavPanel_Show(HWND hWndParent)
        HWND_FRMNAVPANEL,
        IDC_NAVPANEL_GEARICON,
        SuperLabelType::ImageOnly,
-       L"", nLeft, 60, 24, 24);
+       L"", nLeft, 60, 20, 20);
    pData = SuperLabel_GetOptions(hCtl);
    if (pData) {
        pData->HotTestEnable = true;
        pData->BackColor = nBackColor;
        pData->BackColorHot = nBackColor;
-       pData->wszToolTip = L"Options";
+       pData->wszToolTip = L"Connect to TWS";
        pData->ImageWidth = 20;
        pData->ImageHeight = 20;
-       pData->rcImageId = IDB_GEAR;
-       pData->rcImageHotId = IDB_GEARHOT;
+       pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEAR), L"PNG");
+       pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEARHOT), L"PNG");
        SuperLabel_SetOptions(hCtl, pData);
    }
 
@@ -126,7 +153,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         L"Paul Squires", 0, 100, NAVPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = true;
+        pData->HotTestEnable = false;
         pData->BackColor = nBackColor;
         pData->BackColorHot = nBackColor;
         pData->TextColor = Color::MakeARGB(255, 158, 205, 241);
@@ -145,7 +172,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         L"Insight Web Design", 0, 118, NAVPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = true;
+        pData->HotTestEnable = false;
         pData->BackColor = nBackColor;
         pData->BackColorHot = nBackColor;
         pData->TextColor = nTextColor;
@@ -158,13 +185,16 @@ CWindow* NavPanel_Show(HWND hWndParent)
       
    
     // SEPARATOR
-    hCtl = CreateSuperLabel(HWND_FRMNAVPANEL, -1, SuperLabelType::LineHorizontal, L"", 0, 150, NAVPANEL_WIDTH, 2);
+    hCtl = CreateSuperLabel(
+        HWND_FRMNAVPANEL, -1, 
+        SuperLabelType::LineHorizontal, 
+        L"", 0, 150, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = nBackColor;
-        pData->LineColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->LineColor = Color::MakeARGB(255, 61, 156, 228);
         pData->LineColorHot = pData->LineColor;
-        pData->LineWidth = 2;
+        pData->LineWidth = 6;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
@@ -366,9 +396,9 @@ CWindow* NavPanel_Show(HWND hWndParent)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = nBackColor;
-        pData->LineColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->LineColor = Color::MakeARGB(255, 61, 156, 228);
         pData->LineColorHot = pData->LineColor;
-        pData->LineWidth = 2;
+        pData->LineWidth = 6;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
@@ -423,16 +453,18 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     // SEPARATOR
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL, IDC_NAVPANEL_BOTTOMSEP,
-        SuperLabelType::LineHorizontal, L"", 0, 0, NAVPANEL_WIDTH, 10);
+        HWND_FRMNAVPANEL, 
+        IDC_NAVPANEL_BOTTOMSEP,
+        SuperLabelType::LineHorizontal, 
+        L"", 0, 0, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = nBackColor;
-        pData->LineColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->LineColor = Color::MakeARGB(255, 61, 156, 228);
         pData->LineColorHot = pData->LineColor;
-        pData->LineWidth = 2;
+        pData->LineWidth = 6;
         pData->MarginLeft = 10;
-        pData->MarginRight = 1; 
+        pData->MarginRight = 10; 
         SuperLabel_SetOptions(hCtl, pData);
     }
 

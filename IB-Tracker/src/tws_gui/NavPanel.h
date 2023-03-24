@@ -1,5 +1,6 @@
 #pragma once
 
+#include "framework.h"
 #include "CWindow.h"
 #include "SuperLabel.h"
 

@@ -176,14 +176,16 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         // Tracks the mouse movement and stores the hot state
         TRACKMOUSEEVENT trackMouse;
 
-        if (GetProp(hWnd, L"HOT") == 0) {
-            trackMouse.cbSize = sizeof(trackMouse);
-            trackMouse.dwFlags = TME_LEAVE;
-            trackMouse.hwndTrack = hWnd;
-            trackMouse.dwHoverTime = 1;
-            TrackMouseEvent(&trackMouse);
-            SetProp(hWnd, L"HOT", (HANDLE)TRUE);
-            AfxRedrawWindow(hWnd);
+        if (pData->HotTestEnable) {
+            if (GetProp(hWnd, L"HOT") == 0) {
+                trackMouse.cbSize = sizeof(trackMouse);
+                trackMouse.dwFlags = TME_LEAVE;
+                trackMouse.hwndTrack = hWnd;
+                trackMouse.dwHoverTime = 1;
+                TrackMouseEvent(&trackMouse);
+                SetProp(hWnd, L"HOT", (HANDLE)TRUE);
+                AfxRedrawWindow(hWnd);
+            }
         }
         return 0;
     }
@@ -193,8 +195,10 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_MOUSELEAVE:
     {
         //  Removes the hot state and redraws the label
-        RemoveProp(hWnd, L"HOT");
-        AfxRedrawWindow(hWnd);
+        if (pData->HotTestEnable) {
+            RemoveProp(hWnd, L"HOT");
+            AfxRedrawWindow(hWnd);
+        }
         return 0;
     }
     break;
@@ -202,7 +206,9 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
     case WM_LBUTTONUP:
     {
-        PostMessage(pData->hParent, MSG_SUPERLABEL_CLICK, (WPARAM)hWnd, 0);
+        if (pData)
+            PostMessage(pData->hParent, MSG_SUPERLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+
         return 0;
     }
     break;
@@ -251,6 +257,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
                 if (GetProp(hWnd, L"HOT")) bIsHot = true;
             }
 
+
             Graphics graphics(memDC);
             graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
@@ -276,11 +283,6 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             case SuperLabelType::ImageOnly:
             case SuperLabelType::ImageAndText:
             {
-                if (pData->pImage) delete(pData->pImage);
-                if (pData->pImageHot) delete(pData->pImageHot);
-                pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(pData->rcImageId), L"PNG");
-                pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(pData->rcImageHotId), L"PNG");
-
                 nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx;
                 nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry;
                 nRight = rcClient.right - (pData->MarginRight * rx);
@@ -289,7 +291,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
                 RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
 
                 graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-                graphics.DrawImage(pData->pImage, rcImage);
+                graphics.DrawImage(bIsHot ? pData->pImageHot : pData->pImage, rcImage);
             }
             break;
 
