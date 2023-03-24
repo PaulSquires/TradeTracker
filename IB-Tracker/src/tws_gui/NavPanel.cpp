@@ -41,7 +41,7 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
-        SUPERLABEL_DATA* pData = (SUPERLABEL_DATA*)GetWindowLongPtr(hWnd, 0);
+        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hWnd, 0);
 
         if (pData) {
 
@@ -60,7 +60,6 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
             //return 0;
         }
 
-
     }
     break;
 
@@ -78,7 +77,6 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 //' ========================================================================================
 CWindow* NavPanel_Show(HWND hWndParent)
 {
-    
     // Create the window and child controls
     CWindow* pWindow = new CWindow;
    
@@ -102,7 +100,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         
     HWND hCtl;
 
-    SUPERLABEL_DATA* pData = nullptr;
+    SuperLabel* pData = nullptr;
 
    
 

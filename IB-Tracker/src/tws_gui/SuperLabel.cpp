@@ -74,69 +74,12 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
 
 
 //'------------------------------------------------------------------------------ 
-void SuperLabel_SetTextAlignment(SUPERLABEL_DATA* pData, StringFormat& stringF)
-{
-    switch (pData->TextAlignment)
-    {
-    case SuperLabelAlignment::BottomCenter:
-        stringF.SetAlignment(StringAlignmentCenter);
-        stringF.SetLineAlignment(StringAlignmentFar);
-        break;
-
-    case SuperLabelAlignment::BottomLeft:
-        stringF.SetAlignment(StringAlignmentNear);
-        stringF.SetLineAlignment(StringAlignmentFar);
-        break;
-
-    case SuperLabelAlignment::BottomRight:
-        stringF.SetAlignment(StringAlignmentFar);
-        stringF.SetLineAlignment(StringAlignmentFar);
-        break;
-
-    case SuperLabelAlignment::MiddleCenter:
-        stringF.SetAlignment(StringAlignmentCenter);
-        stringF.SetLineAlignment(StringAlignmentCenter);
-        break;
-
-    case SuperLabelAlignment::MiddleLeft:
-        stringF.SetAlignment(StringAlignmentNear);
-        stringF.SetLineAlignment(StringAlignmentCenter);
-        break;
-
-    case SuperLabelAlignment::MiddleRight:
-        stringF.SetAlignment(StringAlignmentFar);
-        stringF.SetLineAlignment(StringAlignmentCenter);
-        break;
-
-    case SuperLabelAlignment::TopCenter:
-        stringF.SetAlignment(StringAlignmentCenter);
-        stringF.SetLineAlignment(StringAlignmentNear);
-        break;
-
-    case SuperLabelAlignment::TopLeft:
-        stringF.SetAlignment(StringAlignmentNear);
-        stringF.SetLineAlignment(StringAlignmentNear);
-        break;
-
-    case SuperLabelAlignment::TopRight:
-        stringF.SetAlignment(StringAlignmentFar);
-        stringF.SetLineAlignment(StringAlignmentNear);
-        break;
-
-    default:
-        stringF.SetAlignment(StringAlignmentCenter);
-        stringF.SetLineAlignment(StringAlignmentCenter);
-    }
-}
-
-
-//'------------------------------------------------------------------------------ 
 LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    SUPERLABEL_DATA* pData = nullptr;
+    SuperLabel* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
-        pData = (SUPERLABEL_DATA*)GetWindowLongPtr(hWnd, 0);
+        pData = (SuperLabel*)GetWindowLongPtr(hWnd, 0);
     }
                  
 
@@ -147,9 +90,8 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     {
         // Handle all of the painting in WM_PAINT
         return TRUE;
+        break;
     }
-    break;
-
 
     case WM_SETCURSOR:
     {
@@ -193,231 +135,39 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 
     case WM_MOUSELEAVE:
-    {
         //  Removes the hot state and redraws the label
         if (pData->HotTestEnable) {
             RemoveProp(hWnd, L"HOT");
             AfxRedrawWindow(hWnd);
         }
         return 0;
-    }
-    break;
+        break;
 
 
     case WM_LBUTTONUP:
-    {
         if (pData)
             PostMessage(pData->hParent, MSG_SUPERLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
-
         return 0;
-    }
-    break;
+        break;
 
                 
     case WM_PAINT:
     {
-        HDC hdc = NULL;
         PAINTSTRUCT ps;
-        HDC memDC;           // Double buffering
-        HBITMAP hbit;        // Double buffering
 
-        if (pData == nullptr) {
-            BeginPaint(hWnd, &ps);
-            EndPaint(hWnd, &ps);
-            return 0;
+        HDC hdc = BeginPaint(hWnd, &ps);
+        if (pData) {
+            pData->StartDoubleBuffering(hdc);
+            pData->DrawImageInBuffer();
+            pData->DrawTextInBuffer();
+            pData->DrawLabelInBuffer();
+            pData->DrawNotchInBuffer();
+            pData->DrawBordersInBuffer();
+            pData->EndDoubleBuffering(hdc);
         }
-
-                
-        RECT rcClient{}, rcDraw{};
-        int  nLeft = 0, nTop = 0;
-        float rx = 1, ry = 1;
-
-        bool bIsHot = false;
-
-        CWindow* pWindow = AfxCWindowPtr(pData->hParent);
-
-        if (pWindow != nullptr)
-        {
-
-            rx = pWindow->rxRatio();
-            ry = pWindow->ryRatio();
-
-            hdc = BeginPaint(hWnd, &ps);
-
-            SaveDC(hdc);
-
-            GetClientRect(hWnd, &rcClient);
-
-            memDC = CreateCompatibleDC(hdc);
-            hbit = CreateCompatibleBitmap(hdc, rcClient.right, rcClient.bottom);
-            SelectBitmap(memDC, hbit);
-
-            // Determine if we are in a Hot mouseover state
-            if (pData->HotTestEnable) {
-                if (GetProp(hWnd, L"HOT")) bIsHot = true;
-            }
-
-
-            Graphics graphics(memDC);
-            graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
-
-            // Create the background brush
-            SolidBrush backBrush(bIsHot ? pData->BackColorHot : pData->BackColor);
-
-
-            // Paint the background using brush and default pen. Use RoundRect because 
-            // we may want to have rounded corners.
-            graphics.FillRectangle(&backBrush, 0, 0, rcClient.right, rcClient.bottom);
-            //    RoundRect(memDC, 0, 0, rcClient.Right, rcClient.Bottom, _
-            //        pData->BorderRoundWidth * rx, pData->BorderRoundHeight * ry)
-
-
-            REAL nLeft = 0;
-            REAL nTop = 0;
-            REAL nRight = 0;
-            REAL nBottom = 0;
-
-            // Create the different label types
-            switch (pData->CtrlType)
-            {
-            case SuperLabelType::ImageOnly:
-            case SuperLabelType::ImageAndText:
-            {
-                nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx;
-                nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry;
-                nRight = rcClient.right - (pData->MarginRight * rx);
-                nBottom = rcClient.bottom - (pData->MarginBottom * ry);
-
-                RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
-
-                graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-                graphics.DrawImage(bIsHot ? pData->pImageHot : pData->pImage, rcImage);
-            }
-            break;
-
-            default: {}
-            }
-
-
-            switch (pData->CtrlType)
-            {
-            case SuperLabelType::TextOnly:
-            case SuperLabelType::ImageAndText:
-            {
-                FontFamily   fontFamily(bIsHot ? pData->wszFontNameHot.c_str() : pData->wszFontName.c_str());
-
-                REAL fontSize = (bIsHot ? pData->FontSizeHot : pData->FontSize);
-                int fontStyle = FontStyleRegular;
-
-                if (bIsHot) {
-                    if (pData->FontBoldHot) fontStyle |= FontStyleBold;
-                    if (pData->FontItalicHot) fontStyle |= FontStyleItalic;
-                    if (pData->FontUnderlineHot) fontStyle |= FontStyleUnderline;
-                }
-                else {
-                    if (pData->FontBold) fontStyle |= FontStyleBold;
-                    if (pData->FontItalic) fontStyle |= FontStyleItalic;
-                    if (pData->FontUnderline) fontStyle |= FontStyleUnderline;
-                }
-
-                Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-                SolidBrush   textBrush(bIsHot ? pData->TextColorHot : pData->TextColor);
-
-                StringFormat stringF(0);
-                SuperLabel_SetTextAlignment(pData, stringF);
-
-                if (pData->TextCharacterExtra)
-                    SetTextCharacterExtra(memDC, pData->TextCharacterExtra);
-
-                nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx;
-                nTop = (pData->MarginTop + pData->TextOffsetTop) * ry;
-                nRight = rcClient.right - (pData->MarginRight * rx);
-                nBottom = rcClient.bottom - (pData->MarginBottom * ry);
-
-                RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
-
-                graphics.DrawString(pData->wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
-            }
-
-            case SuperLabelType::LineHorizontal:
-            {
-                nLeft = pData->MarginLeft * rx;
-                nTop = (pData->MarginTop + pData->TextOffsetTop) * ry;
-                nRight = rcClient.right - (pData->MarginRight * rx);
-                nBottom = nTop;
-                ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
-                Pen pen(clrPen, pData->LineWidth);
-                // Draw the horizontal line centered taking margins into account
-                graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
-            }
-
-            case SuperLabelType::LineVertical:
-            {
-                ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
-                Pen pen(clrPen, pData->LineWidth);
-                // Draw the vertical line centered taking margins into account
-                //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
-            }
-
-            default: {}
-
-
-            }
-
-
-            // If selection mode is enabled then draw the little right hand side notch
-            if ((pData->IsSelected) || (bIsHot && pData->SelectionMode)) {
-                // Create the background brush
-                SolidBrush backBrush(pData->SelectorColor);
-                // Need to center the notch vertically
-                REAL nNotchHalfHeight = (10 * ry) / 2;
-                REAL nTop = (rcClient.bottom / 2) - nNotchHalfHeight;
-                PointF point1((REAL)rcClient.right, nTop);
-                PointF point2((REAL)rcClient.right - (6 * rx), nTop + nNotchHalfHeight);
-                PointF point3((REAL)rcClient.right, nTop + (nNotchHalfHeight * 2));
-                PointF points[3] = { point1, point2, point3 };
-                PointF* pPoints = points;
-                graphics.FillPolygon(&backBrush, pPoints, 3);
-            }
-        
-
-            // Finally, draw any applicable border around the control after everything
-            // else has been painted.
-            switch (pData->CtrlType)
-            {
-            case SuperLabelType::ImageOnly:
-            case SuperLabelType::ImageAndText:
-            case SuperLabelType::TextOnly:
-            {
-                ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
-                if (!pData->BorderVisible) clrPen = pData->BackColor;
-                Pen pen(clrPen, pData->BorderWidth);
-
-                RectF rectF(0, 0, (REAL)rcClient.right, (REAL)rcClient.bottom);
-                graphics.DrawRectangle(&pen, rectF);
-            }
-            break;
-            
-            default: {}
-            }
-
-
-            // Copy the entire memory bitmap to the main display
-            BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, memDC, 0, 0, SRCCOPY);
-
-            // Restore the original state of the DC
-            RestoreDC(hdc, -1);
-
-            // Cleanup
-            DeleteObject(hbit);
-            DeleteDC(memDC);
-
-            EndPaint(hWnd, &ps);
-
-        }
-         
+        EndPaint(hWnd, &ps);
+        break;
     }
-    break;
 
     case WM_DESTROY:
         if (pData) {
@@ -426,9 +176,11 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         }
         break;
 
+
     case WM_NCDESTROY:
         if (pData) delete(pData);
         break;
+
 
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -440,15 +192,15 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 
 //'------------------------------------------------------------------------------ 
-SUPERLABEL_DATA* SuperLabel_GetOptions(HWND hCtrl)
+SuperLabel* SuperLabel_GetOptions(HWND hCtrl)
 {
-    SUPERLABEL_DATA* pData = (SUPERLABEL_DATA*)GetWindowLongPtr(hCtrl, 0);
+    SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
 
 
 //'------------------------------------------------------------------------------ 
-int SuperLabel_SetOptions(HWND hCtrl, SUPERLABEL_DATA* pData)
+int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData)
 {
     if (pData == nullptr) return 0;
 
@@ -509,7 +261,7 @@ HWND CreateSuperLabel(
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
-        SUPERLABEL_DATA* pData = new SUPERLABEL_DATA;
+        SuperLabel* pData = new SuperLabel;
 
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
@@ -526,18 +278,14 @@ HWND CreateSuperLabel(
 
         pData->hToolTip = AfxAddTooltip(hCtl, L"", FALSE, FALSE);
 
-        if (nCtrlType == SuperLabelType::LineHorizontal) {
-            pData->HotTestEnable = false;
-            pData->BorderVisible = false;
-        }
-        if (nCtrlType == SuperLabelType::LineVertical) {
+        if (nCtrlType == SuperLabelType::LineHorizontal || 
+            nCtrlType == SuperLabelType::LineVertical) {
             pData->HotTestEnable = false;
             pData->BorderVisible = false;
         }
 
         pData->Pointer = SuperLabelPointer::Arrow;
         pData->PointerHot = SuperLabelPointer::Hand;
-
 
         SuperLabel_SetOptions(hCtl, pData);
     }
