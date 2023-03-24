@@ -48,6 +48,7 @@
     <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="src\tws-api\bar.h" />
     <ClInclude Include="src\tws-api\CommissionReport.h" />
     <ClInclude Include="src\tws-api\CommonDefs.h" />
@@ -110,6 +111,18 @@
     <ClInclude Include="src\tws_gui\ib-tracker.h" />
     <ClInclude Include="src\tws_gui\NavPanel.h" />
     <ClInclude Include="src\tws_gui\SuperLabel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IB-Tracker.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rcdata1.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\tws_gui\images\gear32.png" />
+    <Image Include="src\tws_gui\images\gearhot32.png" />
+    <Image Include="src\tws_gui\images\logo.png" />
+    <Image Include="src\tws_gui\images\mainicon.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -184,7 +197,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)\src\tws-api;$(ProjectDir)\src\tws-gui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\tws-gui;$(ProjectDir)src\tws-api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -200,6 +213,10 @@
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>

@@ -7,6 +7,9 @@
 const int MSG_SUPERLABEL_CLICK     = WM_USER + 1000;
 const int MSG_SUPERLABEL_MOUSEMOVE = WM_USER + 1001;
 
+#define IDB_GEAR                        103
+#define IDB_GEARHOT                     104
+#define IDB_LOGO                        105
 
 enum class SuperLabelType
 {
@@ -57,7 +60,7 @@ class SUPERLABEL_DATA
 	// Selection
 	bool SelectionMode = false;
 	bool IsSelected = false;
-	DWORD SelectorColor = 0;
+	DWORD SelectorColor = Color::MakeARGB(255, 255, 255, 255);
 
 	// Lines
 	REAL LineWidth = 1;
@@ -79,10 +82,10 @@ class SUPERLABEL_DATA
 	int BorderRoundHeight = 0;
 
 	// Images
-	std::wstring wszImage;
-	std::wstring wszImageHot;
-	//pImage             As GpImage Ptr  ' Image object pointer
-	//pImageHot          As GpImage Ptr  ' Image object pointer
+	int rcImageId = 0;
+	int rcImageHotId = 0;
+	Bitmap* pImage = nullptr;
+	Bitmap* pImageHot = nullptr;
 	int ImageWidth = 0;
 	int ImageHeight = 0;
 	int ImageOffsetLeft = 0;

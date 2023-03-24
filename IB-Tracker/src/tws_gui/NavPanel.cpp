@@ -84,7 +84,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
         IDC_NAVPANEL_LOGO,
-        SuperLabelType::TextOnly,    //SuperLabelType::ImageOnly,
+        SuperLabelType::ImageOnly,
         L"", nLeft, 20, 68, 68);
    pData = SuperLabel_GetOptions(hCtl);
    if (pData) {
@@ -93,8 +93,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
        pData->BackColorHot = nBackColor;
        pData->ImageWidth = 68;
        pData->ImageHeight = 68;
-       pData->wszImage = L"IMAGE_LOGO";
-       pData->wszImageHot = L"IMAGE_LOGO";
+       pData->rcImageId = IDB_LOGO;
+       pData->rcImageHotId = IDB_LOGO;
        SuperLabel_SetOptions(hCtl, pData);
    }
 
@@ -103,7 +103,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
    hCtl = CreateSuperLabel(
        HWND_FRMNAVPANEL,
        IDC_NAVPANEL_GEARICON,
-       SuperLabelType::TextOnly,   //SuperLabelType::ImageOnly,
+       SuperLabelType::ImageOnly,
        L"", nLeft, 60, 24, 24);
    pData = SuperLabel_GetOptions(hCtl);
    if (pData) {
@@ -113,8 +113,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
        pData->wszToolTip = L"Options";
        pData->ImageWidth = 20;
        pData->ImageHeight = 20;
-       pData->wszImage = L"IMAGE_GEAR";
-       pData->wszImageHot = L"IMAGE_GEARHOT";
+       pData->rcImageId = IDB_GEAR;
+       pData->rcImageHotId = IDB_GEARHOT;
        SuperLabel_SetOptions(hCtl, pData);
    }
 
@@ -151,9 +151,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = nTextColor;
         pData->TextColorHot = pData->TextColor;
         pData->FontSize = 10;
-        //pData->FontWeight = FW_MEDIUM;
         pData->FontSizeHot = pData->FontSize;
-        //pData->FontWeightHot = pData->FontWeight;
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -164,6 +162,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = nBackColor;
+        pData->LineColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->LineColorHot = pData->LineColor;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -189,9 +189,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"DashBoard";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -214,9 +212,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"Clients";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -239,9 +235,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"Invoices";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -264,9 +258,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"Expenses";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -289,9 +281,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"Estimates";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -314,9 +304,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"Time Tracking";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -339,9 +327,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"Projects";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -364,9 +350,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight      = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot   = FW_MEDIUM
         pData->wszText = L"My Team";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -382,6 +366,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = nBackColor;
+        pData->LineColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->LineColorHot = pData->LineColor;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -405,9 +391,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot = FW_MEDIUM
         pData->wszText = L"Reports";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -430,9 +414,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColorHot = nTextColor;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
-        //pData->FontWeight = FW_MEDIUM
         pData->FontSizeHot = 11;
-        //pData->FontWeightHot = FW_MEDIUM
         pData->wszText = L"Accounting";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -446,6 +428,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = nBackColor;
+        pData->LineColor = Color::MakeARGB(255, 0, 0, 0);
+        pData->LineColorHot = pData->LineColor;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 1; 
@@ -466,9 +450,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = Color::MakeARGB(255, 158, 205, 241);
         pData->TextColorHot = pData->TextColor;
         pData->FontSize = 9;
-        //pData->FontWeight = FW_MEDIUM
         pData->FontSizeHot = pData->FontSize;
-        //pData->FontWeightHot = pData->FontWeight
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
         SuperLabel_SetOptions(hCtl, pData);
     }

@@ -249,17 +249,24 @@ int APIENTRY wWinMain(
     CWindow* pWindowMain = new CWindow();
     if (pWindowMain == nullptr) return FALSE;
 
-    float nWorkWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
-    float nWorkHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
+    float InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
+    float InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
     HWND hWndMain = pWindowMain->Create(
         HWND_DESKTOP, 
         L"IB-Tracker tester", 
         Main_WindowProc, 
         CW_USEDEFAULT, CW_USEDEFAULT, 
-        (INT)nWorkWidth, 
-        (INT)nWorkHeight
+        (INT)InitalMainWidth,
+        (INT)InitalMainHeight
         );
+
+    HANDLE hIconBig = LoadImage(pWindowMain->hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
+    SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hIconBig);
+
+    HANDLE hIconSmall = LoadImage(pWindowMain->hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
+    SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
+
 
     //HWND hCtl;
     //hCtl = pWindowMain->AddControl(Controls::Button, hWndMain, IDC_CONNECT, L"Connect", 10, 10, 100, 30);

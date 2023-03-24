@@ -938,7 +938,7 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText)
 int AfxGetFileVersion(std::wstring wszFileName)
 {
     VS_FIXEDFILEINFO* pvsffi = nullptr;
-    DWORD dwHandle = 0;
+    DWORD dwHandle;
     int res = 0;
 
     DWORD cbLen = GetFileVersionInfoSize(wszFileName.c_str(), &dwHandle);

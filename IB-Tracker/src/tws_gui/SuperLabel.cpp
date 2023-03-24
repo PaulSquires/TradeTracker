@@ -11,8 +11,6 @@
 
 
 
-
-
 // Stick a new line into your.rc file :
 // IDI_MY_IMAGE_FILE    PNG      "foo.png"
 // And make sure IDI_MY_IMAGE_FILE is defined as an integer in your resource.h header file.
@@ -145,18 +143,6 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     switch (uMsg)
     {
 
-    case WM_CREATE:
-    {
-    }
-    break;
-
-
-    case WM_COMMAND:
-    {
-    }
-    break;
-
-
     case WM_ERASEBKGND:
     {
         // Handle all of the painting in WM_PAINT
@@ -279,30 +265,36 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             //        pData->BorderRoundWidth * rx, pData->BorderRoundHeight * ry)
 
 
+            REAL nLeft = 0;
+            REAL nTop = 0;
+            REAL nRight = 0;
+            REAL nBottom = 0;
+
             // Create the different label types
             switch (pData->CtrlType)
             {
             case SuperLabelType::ImageOnly:
             case SuperLabelType::ImageAndText:
-                //    nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx
-                //    nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry
-                //    SetRect(@rcDraw, nLeft, nTop, pData->ImageWidth * rx, pData->ImageHeight * ry)
-                //    SuperLabel_LoadImageFromResource(memDC, _
-                //        iif(bIsHot, pData->wszImageHot, pData->wszImage), _
-                //            iif(bIsHot, pData->pImageHot, pData->pImage), _
-                //            rcDraw)
-                break;
+            {
+                if (pData->pImage) delete(pData->pImage);
+                if (pData->pImageHot) delete(pData->pImageHot);
+                pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(pData->rcImageId), L"PNG");
+                pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(pData->rcImageHotId), L"PNG");
+
+                nLeft = (pData->MarginLeft + pData->ImageOffsetLeft) * rx;
+                nTop = (pData->MarginTop + pData->ImageOffsetTop) * ry;
+                nRight = rcClient.right - (pData->MarginRight * rx);
+                nBottom = rcClient.bottom - (pData->MarginBottom * ry);
+
+                RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
+
+                graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+                graphics.DrawImage(pData->pImage, rcImage);
+            }
+            break;
 
             default: {}
             }
-
-
-            REAL nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx;
-            REAL nTop = (pData->MarginTop + pData->TextOffsetTop) * ry;
-            REAL nRight = rcClient.right - (pData->MarginRight * rx);
-            REAL nBottom = rcClient.bottom - (pData->MarginBottom * ry);
-
-            RectF rcDraw(nLeft, nTop, nRight - nLeft, nBottom - nTop);
 
 
             switch (pData->CtrlType)
@@ -333,18 +325,28 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
                 SuperLabel_SetTextAlignment(pData, stringF);
 
                 if (pData->TextCharacterExtra)
-                    SetTextCharacterExtra(memDC, pData->TextCharacterExtra);                    
+                    SetTextCharacterExtra(memDC, pData->TextCharacterExtra);
 
-                graphics.DrawString(pData->wszText.c_str(), -1, &font, rcDraw, &stringF, &textBrush);
+                nLeft = (pData->MarginLeft + pData->TextOffsetLeft) * rx;
+                nTop = (pData->MarginTop + pData->TextOffsetTop) * ry;
+                nRight = rcClient.right - (pData->MarginRight * rx);
+                nBottom = rcClient.bottom - (pData->MarginBottom * ry);
 
+                RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
+
+                graphics.DrawString(pData->wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
             }
 
             case SuperLabelType::LineHorizontal:
             {
+                nLeft = pData->MarginLeft * rx;
+                nTop = (pData->MarginTop + pData->TextOffsetTop) * ry;
+                nRight = rcClient.right - (pData->MarginRight * rx);
+                nBottom = nTop;
                 ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
                 Pen pen(clrPen, pData->LineWidth);
                 // Draw the horizontal line centered taking margins into account
-                //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
+                graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
             }
 
             case SuperLabelType::LineVertical:
@@ -361,33 +363,41 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
 
 
-            //// If selection mode is enabled then draw the little right hand side notch
-            //if (pData->IsSelected) or (bIsHot and pData->SelectionMode) then
-            //    if hBrush then DeleteObject(hBrush)
-            //        if hPen then DeleteObject(hPen)
-            //            hBrush = CreateSolidBrush(pData->SelectorColor)
-            //            hPen = CreatePen(PS_SOLID, 1 * ry, pData->SelectorColor)
-            //            SelectObject(memDC, hBrush)
-            //            SelectObject(memDC, hPen)
-            //            // Need to center the notch vertically
-            //            dim as long nNotchHalfHeight = (10 * ry) / 2
-            //            nTop = (rcClient.Bottom / 2) - nNotchHalfHeight
-            //            dim as POINT vertices(2)
-            //            vertices(0).x = rcClient.Right            : vertices(0).y = nTop
-            //            vertices(1).x = rcClient.Right - (6 * rx) : vertices(1).y = nTop + nNotchHalfHeight
-            //            vertices(2).x = rcClient.Right : vertices(2).y = nTop + (nNotchHalfHeight * 2)
-            //            Polygon(memDC, @vertices(0), 3)
-            //            end if
+            // If selection mode is enabled then draw the little right hand side notch
+            if ((pData->IsSelected) || (bIsHot && pData->SelectionMode)) {
+                // Create the background brush
+                SolidBrush backBrush(pData->SelectorColor);
+                // Need to center the notch vertically
+                REAL nNotchHalfHeight = (10 * ry) / 2;
+                REAL nTop = (rcClient.bottom / 2) - nNotchHalfHeight;
+                PointF point1((REAL)rcClient.right, nTop);
+                PointF point2((REAL)rcClient.right - (6 * rx), nTop + nNotchHalfHeight);
+                PointF point3((REAL)rcClient.right, nTop + (nNotchHalfHeight * 2));
+                PointF points[3] = { point1, point2, point3 };
+                PointF* pPoints = points;
+                graphics.FillPolygon(&backBrush, pPoints, 3);
+            }
         
 
             // Finally, draw any applicable border around the control after everything
             // else has been painted.
-            ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
-            Pen pen(clrPen, pData->BorderWidth);
+            switch (pData->CtrlType)
+            {
+            case SuperLabelType::ImageOnly:
+            case SuperLabelType::ImageAndText:
+            case SuperLabelType::TextOnly:
+            {
+                ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
+                if (!pData->BorderVisible) clrPen = pData->BackColor;
+                Pen pen(clrPen, pData->BorderWidth);
 
-            if (!pData->BorderVisible) clrPen = pData->BackColor;
-            RectF rectF(0, 0, (REAL)rcClient.right, (REAL)rcClient.bottom);
-            graphics.DrawRectangle(&pen, rectF);
+                RectF rectF(0, 0, (REAL)rcClient.right, (REAL)rcClient.bottom);
+                graphics.DrawRectangle(&pen, rectF);
+            }
+            break;
+            
+            default: {}
+            }
 
 
             // Copy the entire memory bitmap to the main display
@@ -409,8 +419,8 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
     case WM_DESTROY:
         if (pData) {
-        //    if (pData->pImage) GdipDisposeImage(pData->pImage);
-        //    if (pData->pImageHot) GdipDisposeImage(pData->pImageHot);
+            if (pData->pImage) delete(pData->pImage);
+            if (pData->pImageHot) delete(pData->pImageHot);
         }
         break;
 
@@ -445,7 +455,7 @@ int SuperLabel_SetOptions(HWND hCtrl, SUPERLABEL_DATA* pData)
             AfxSetTooltipText(pData->hToolTip, hCtrl, pData->wszToolTip);
         }
     }
-
+    
     SetWindowLongPtr(hCtrl, 0, (LONG_PTR)pData);
     AfxRedrawWindow(hCtrl);
 

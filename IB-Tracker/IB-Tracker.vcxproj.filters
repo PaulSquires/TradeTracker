@@ -284,5 +284,32 @@
     <ClInclude Include="src\tws_gui\ib-tracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IB-Tracker.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rcdata1.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\tws_gui\images\gear32.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\tws_gui\images\gearhot32.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\tws_gui\images\logo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\tws_gui\images\mainicon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
