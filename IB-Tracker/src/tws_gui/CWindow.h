@@ -131,6 +131,9 @@ public:
     const float& ryRatio() const { return m_ry; }
     void ryRatio(const float& ry) { m_ry = ry; }
 
+    HBRUSH GetBrush();
+    void SetBrush(HBRUSH hbrBackground);
+
     const float& ScaleX(const float& cx) const { return cx * m_rx; }
     const float& ScaleY(const float& cy) const { return cy * m_ry; }
 
@@ -156,6 +159,13 @@ float AfxUnScaleY(float cy);
 int AfxGetWindowWidth(HWND hwnd);
 int AfxGetWindowHeight(HWND hwnd);
 void AfxCenterWindow(HWND hwnd = NULL, HWND hwndParent = NULL);
+int AfxGetWorkAreaWidth();
+int AfxGetWorkAreaHeight();
+int AfxComCtlVersion();
+int AfxGetFileVersion(std::wstring pwszFileName);
+HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon = FALSE, bool bCentered = FALSE);
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText);
+
 
 
 

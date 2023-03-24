@@ -160,14 +160,13 @@ LRESULT Main_PositionWindows(HWND hWnd)
    
     int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
     
-    dp(hWndNavPanel);
-
     SetWindowPos(hWndNavPanel, 0,
         0, 0, nNavPanelWidth, rcClient.bottom,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
     return 0;
 }
+
 
 //' ========================================================================================
 //' Windows callback function.
@@ -223,7 +222,6 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 }
 
 
-
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -251,7 +249,17 @@ int APIENTRY wWinMain(
     CWindow* pWindowMain = new CWindow();
     if (pWindowMain == nullptr) return FALSE;
 
-    HWND hWndMain = pWindowMain->Create(NULL, L"IB-Tracker tester", Main_WindowProc, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600);
+    float nWorkWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
+    float nWorkHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
+
+    HWND hWndMain = pWindowMain->Create(
+        HWND_DESKTOP, 
+        L"IB-Tracker tester", 
+        Main_WindowProc, 
+        CW_USEDEFAULT, CW_USEDEFAULT, 
+        (INT)nWorkWidth, 
+        (INT)nWorkHeight
+        );
 
     //HWND hCtl;
     //hCtl = pWindowMain->AddControl(Controls::Button, hWndMain, IDC_CONNECT, L"Connect", 10, 10, 100, 30);

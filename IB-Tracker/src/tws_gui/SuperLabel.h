@@ -122,3 +122,5 @@ int SuperLabel_SetOptions(HWND hCtrl, SUPERLABEL_DATA* pData);
 HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType, std::wstring wszText,
 	int nLeft, int nTop, int nWidth, int nHeight);
 
+Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype);
+

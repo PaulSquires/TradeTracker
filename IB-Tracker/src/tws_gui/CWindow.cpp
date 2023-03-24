@@ -330,6 +330,34 @@ bool CWindow::SetFont(
 
 
 //' =====================================================================================
+//' Gets the background brush.
+//' =====================================================================================
+HBRUSH CWindow::GetBrush()
+{
+    if (m_hwnd == NULL) return NULL;
+    return (HBRUSH)GetClassLongPtr(m_hwnd, GCLP_HBRBACKGROUND);
+}
+
+
+//' =====================================================================================
+//' Sets the background brush.
+//' Handle to the class background brush. This member can be a handle to the physical
+//' brush to be used for painting the background, or it can be a color value. A color
+//' value must be one of the standard system colors (the value 1 must be added
+//' to the chosen color), e.g. COLOR_WINDOW + 1.
+//' You can also use CreateSolidBrush to create a logical brush with a solid color, e.g.
+//' CreateSolidBrush(RGB(0, 0, 255)
+//' =====================================================================================
+void CWindow::SetBrush(HBRUSH hbrBackground)
+{
+    if (m_hwnd == NULL) return;
+    SetClassLongPtr(m_hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
+    InvalidateRect(m_hwnd, NULL, TRUE);
+    UpdateWindow(m_hwnd);
+}
+
+
+//' =====================================================================================
 //' Internal function called by AddControl()
 //' =====================================================================================
 HWND CWindow::CreateControl(
@@ -787,3 +815,153 @@ void AfxCenterWindow(HWND hwnd, HWND hwndParent)
 }
 
 
+//' ========================================================================================
+//' Retrieves the coordinates of the work area on the primary display monitor expressed in
+//' virtual screen coordinates. The work area is the portion of the screen not obscured by
+//' the system taskbar or by application desktop toolbars. To get the work area of a monitor
+//' other than the primary display monitor, call the GetMonitorInfo function.
+//' ========================================================================================
+int AfxGetWorkAreaWidth()
+{
+    RECT rcWrk{};
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWrk, 0);
+    return (rcWrk.right - rcWrk.left);
+}
+
+//' ========================================================================================
+int AfxGetWorkAreaHeight()
+{
+    RECT rcWrk{};
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWrk, 0);
+    return (rcWrk.bottom - rcWrk.top);
+}
+
+
+//========================================================================================
+//' Creates a tooltip for a control.
+//' Parameters:
+//' - hwnd      = Handle of the window or control
+//' - wszText   = Tooltip text
+//' - bBalloon  = Ballon tip (TRUE or FALSE)
+//' - bCentered = Centered (TRUE or FALSE)
+//' Return Value:
+//'   The handle of the tooltip control
+//' ========================================================================================
+HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon, bool bCentered)
+{
+    if (IsWindow(hwnd) == 0) return 0;
+
+    // Creates the tooltip control
+    DWORD dwStyle = WS_POPUP | TTS_ALWAYSTIP;
+    if (bBalloon) dwStyle = dwStyle | TTS_BALLOON;
+
+    HWND hTooltip = CreateWindowEx(0, L"tooltips_class32", L"", dwStyle, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
+    if (hTooltip == NULL) return 0;
+
+    // You must explicitly define a tooltip control as topmost. Otherwise, it might be covered by the parent window.
+    SetWindowPos(hTooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+    // Registers the window with the tooltip control
+    // 32-bit: The size of the TOOLINFOW structure is 48 bytes in
+    // version 6 of comctl32.dll, and 44 bytes in lower versions.
+    // 64-bit: The size of the TOOLINFOW structure is 72 bytes in
+    // version 6 of comctl32.dll, and 64 bytes in lower versions.
+    TOOLINFO tti{};
+#ifdef _win64
+    tti.cbSize = (AfxComCtlVersion() < 600) ? 64 : 72;
+#else
+    tti.cbSize = (AfxComCtlVersion() < 600) ? 44 : 48;
+#endif
+
+    if ((int)(GetWindowLongPtr(hwnd, GWL_STYLE) && WS_CHILD) == (int)WS_CHILD) {
+        tti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+        tti.hwnd = GetParent(hwnd);
+        tti.uId = (UINT_PTR)hwnd;
+    }
+    else {
+        tti.uFlags = TTF_SUBCLASS;
+        tti.hwnd = hwnd;
+        tti.uId = 0;
+        GetClientRect(hwnd, &tti.rect);
+    }
+    if (bCentered) 
+        tti.uFlags = tti.uFlags | TTF_CENTERTIP;
+    tti.hinst = GetModuleHandle(NULL);
+    tti.lpszText = (LPWSTR)&wszText;
+    SendMessage(hTooltip, TTM_ADDTOOL, 0, (LPARAM)&tti);
+
+    return hTooltip;
+}
+
+
+//' ========================================================================================
+//' Sets/replaces the text of a tooltip control
+//' Parameters:
+//' - hTooltip = Handle of the tooltip control
+//' - hwnd     = Handle of the window or control
+//' - wszText  = Tooltip text
+//' ========================================================================================
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText)
+{
+    if ((hTooltip == NULL) || (hwnd == NULL)) return;
+    // 32-bit: The size of the TOOLINFOW structure is 48 bytes in
+    // version 6 of comctl32.dll, and 44 bytes in lower versions.
+    // 64-bit: The size of the TOOLINFOW structure is 72 bytes in
+    // version 6 of comctl32.dll, and 64 bytes in lower versions.
+    TOOLINFO tti{};
+#ifdef _win64
+    tti.cbSize = (AfxComCtlVersion() < 600) ? 64 : 72;
+#else
+    tti.cbSize = (AfxComCtlVersion() < 600) ? 44 : 48;
+#endif
+
+    if ((int)(GetWindowLongPtr(hwnd, GWL_STYLE) && WS_CHILD) == (int)WS_CHILD) {
+        tti.hwnd = GetParent(hwnd);
+        tti.uId = (UINT_PTR)hwnd;
+    }
+    else {
+        tti.hwnd = hwnd;
+        tti.uId = 0;
+    }
+    // Retrieve the tooltip information
+    SendMessage(hTooltip, TTM_GETTOOLINFO, 0, (LPARAM)&tti);
+    // Set the new tooltip text
+    tti.lpszText = &wszText[0];
+    SendMessage(hTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&tti);
+}
+
+    
+    //' ========================================================================================
+//' Returns the version of specified file multiplied by 100, e.g. 601 for version 6.01.
+//' Example: DIM ver AS LONG = AfxGetFileVersion("COMCTL32.DLL")
+//' ========================================================================================
+int AfxGetFileVersion(std::wstring wszFileName)
+{
+    VS_FIXEDFILEINFO* pvsffi = nullptr;
+    DWORD dwHandle = 0;
+    int res = 0;
+
+    DWORD cbLen = GetFileVersionInfoSize(wszFileName.c_str(), &dwHandle);
+    if (cbLen == 0) return 0;
+
+    HANDLE pVerInfo = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, cbLen);
+    if (pVerInfo == NULL) return 0;
+    if (GetFileVersionInfo(wszFileName.c_str(), dwHandle, cbLen, pVerInfo)) {
+        if (VerQueryValue(pVerInfo, L"\\", (LPVOID*) &pvsffi, (PUINT)&cbLen)) {
+            WORD wMajor = HIWORD(pvsffi->dwFileVersionMS);
+            WORD wMinor = LOWORD(pvsffi->dwFileVersionMS);
+            res = (wMajor + wMinor / 100) * 100;
+        }
+    }
+
+    HeapFree(GetProcessHeap(), 0, pVerInfo);
+    return res;
+}
+
+//' ========================================================================================
+//' Returns the version of CommCtl32.dll multiplied by 100, e.g. 582 for version 5.82.
+//' ========================================================================================
+int AfxComCtlVersion()
+{
+    return AfxGetFileVersion(L"COMCTL32.DLL");
+}

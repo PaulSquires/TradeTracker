@@ -10,68 +10,70 @@
 #include "SuperLabel.h"
 
 
- 
+
+
+
+// Stick a new line into your.rc file :
+// IDI_MY_IMAGE_FILE    PNG      "foo.png"
+// And make sure IDI_MY_IMAGE_FILE is defined as an integer in your resource.h header file.
+// #define IDI_MY_IMAGE_FILE               131
+// Then to load the image at runtime :
+// Gdiplus::Bitmap * pBmp = LoadImageFromResource(hInstance, MAKEINTRESOURCE(IDI_MY_IMAGE_FILE), L"PNG");
+
 //'------------------------------------------------------------------------------ 
-//bool SuperLabel_LoadImageFromResource(
-//    HDC memDC,
-//    std::wstring wszResourceName,
-//    byval pImage as GpImage Ptr, _
-//    byref rcDraw as RECT )
-//{
-//
-//}
-//   ' Loads an image from a resource file using GDI+
-//   if pImage then 
-//      GdipDisposeImage(pImage)
-//      pImage = null
-//   end if
-//
-//   IF LEN(wszResourceName) = 0 THEN RETURN E_INVALIDARG
-//   dim hInstance as HINSTANCE = GetModuleHandle(NULL)
-//   DIM hStatus AS LONG
-//   ' // Find the resource and lock it
-//   DIM hResource AS HRSRC = FindResource(hInstance, wszResourceName, CAST(LPCWSTR, RT_RCDATA))
-//   IF hResource = NULL THEN RETURN E_INVALIDARG
-//   DIM imageSize AS DWORD = SizeofResource(hInstance, hResource)
-//   IF imageSize = 0 THEN RETURN E_INVALIDARG
-//   DIM pResourceData AS LPVOID = LockResource(LoadResource(hInstance, hResource))
-//   IF pResourceData = NULL THEN RETURN E_INVALIDARG
-//   ' // Allocate memory to hold the image
-//   DIM hGlobal AS HGLOBAL = GlobalAlloc(GMEM_MOVEABLE, imageSize)
-//   IF hGlobal THEN
-//      ' // Lock the memory
-//      DIM pGlobalBuffer AS LPVOID = GlobalLock(hGlobal)
-//      IF pGlobalBuffer THEN
-//         ' // Copy the image from the resource file to global memory
-//         memcpy pGlobalBuffer, pResourceData, imageSize
-//         ' // Create an stream in global memory
-//         DIM pImageStream AS LPSTREAM, pGraphics AS GpGraphics PTR
-//         IF CreateStreamOnHGlobal(hGlobal, FALSE, @pImageStream) = S_OK THEN
-//            ' // Create a bitmap from the data contained in the stream
-//            hStatus = GdipCreateBitmapFromStream(pImageStream, cast(GpBitmap PTR PTR, @pImage))
-//            IF hStatus = 0 THEN
-//               ' // Creates a graphics object from it
-//               hStatus = GdipCreateFromHDC(memDC, @pGraphics)
-//               ' // Draws the image (required to keep it in memory, since we are
-//               ' // going to unlock and free the resource)
-//               IF pGraphics THEN 
-//                  GdipSetInterpolationMode( pGraphics, InterpolationModeHighQualityBicubic )
-//                  hStatus = _
-//                     GdipDrawImageRectI( pGraphics, pImage, rcDraw.Left, rcDraw.Top, rcDraw.Right, rcDraw.Bottom )
-//               end if
-//               ' // Deletes the graphics object
-//               IF pGraphics THEN GdipDeleteGraphics(pGraphics)
-//            END IF
-//            pImageStream->lpVtbl->Release(pImageStream)
-//         END IF
-//         ' // Unlock the memory
-//         GlobalUnlock pGlobalBuffer
-//      END IF
-//      ' // Free the memory
-//      GlobalFree hGlobal
-//   END IF
-//   FUNCTION = hStatus
-//END FUNCTION
+Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype)
+{
+    IStream* pStream = nullptr;
+    Gdiplus::Bitmap* pBmp = nullptr;
+    HGLOBAL hGlobal = nullptr;
+
+    HRSRC hrsrc = FindResourceW(GetModuleHandle(NULL), resid, restype);     // get the handle to the resource
+    if (hrsrc)
+    {
+        DWORD dwResourceSize = SizeofResource(hMod, hrsrc);
+        if (dwResourceSize > 0)
+        {
+            HGLOBAL hGlobalResource = LoadResource(hMod, hrsrc); // load it
+            if (hGlobalResource)
+            {
+                void* imagebytes = LockResource(hGlobalResource); // get a pointer to the file bytes
+
+                // copy image bytes into a real hglobal memory handle
+                hGlobal = GlobalAlloc(GHND, dwResourceSize);
+                if (hGlobal)
+                {
+                    void* pBuffer = GlobalLock(hGlobal);
+                    if (pBuffer)
+                    {
+                        memcpy(pBuffer, imagebytes, dwResourceSize);
+                        HRESULT hr = CreateStreamOnHGlobal(hGlobal, TRUE, &pStream);
+                        if (SUCCEEDED(hr))
+                        {
+                            // pStream now owns the global handle and will invoke GlobalFree on release
+                            hGlobal = nullptr;
+                            pBmp = new Gdiplus::Bitmap(pStream);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (pStream)
+    {
+        pStream->Release();
+        pStream = nullptr;
+    }
+
+    if (hGlobal)
+    {
+        GlobalFree(hGlobal);
+        hGlobal = nullptr;
+    }
+
+    return pBmp;
+}
+
 
 //'------------------------------------------------------------------------------ 
 void SuperLabel_SetTextAlignment(SUPERLABEL_DATA* pData, StringFormat& stringF)
@@ -382,6 +384,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             // else has been painted.
             ARGB clrPen = (bIsHot ? pData->BorderColorHot : pData->BorderColor);
             Pen pen(clrPen, pData->BorderWidth);
+
             if (!pData->BorderVisible) clrPen = pData->BackColor;
             RectF rectF(0, 0, (REAL)rcClient.right, (REAL)rcClient.bottom);
             graphics.DrawRectangle(&pen, rectF);
@@ -439,7 +442,7 @@ int SuperLabel_SetOptions(HWND hCtrl, SUPERLABEL_DATA* pData)
 
     if (pData->wszToolTip.length()) {
         if (pData->hToolTip) {
-            //AfxSetTooltipText(pData->hToolTip, hCtrl, pData->wszToolTip)
+            AfxSetTooltipText(pData->hToolTip, hCtrl, pData->wszToolTip);
         }
     }
 
@@ -487,16 +490,16 @@ HWND CreateSuperLabel(
     float ry = AfxScaleRatioY();
    
 
-    HWND hCtrl =
+    HWND hCtl =
         CreateWindowEx(0, wszClassName.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), (int)(nWidth * rx), (int)(nHeight * ry),
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
-    if (hCtrl) {
+    if (hCtl) {
         SUPERLABEL_DATA* pData = new SUPERLABEL_DATA;
 
-        pData->hWindow = hCtrl;
+        pData->hWindow = hCtl;
         pData->hParent = hWndParent;
         pData->hInst = hInst;
         pData->CtrlId = CtrlId;
@@ -509,10 +512,7 @@ HWND CreateSuperLabel(
         pData->wszFontNameHot = pData->wszFontName;
         pData->FontSizeHot = pData->FontSize;
 
-        //pData->hToolTip = AfxAddTooltip( hCtrl, "", _
-        //                                 FALSE, _   ' balloon 
-        //                                 FALSE _    ' centered
-        //                                 )
+        pData->hToolTip = AfxAddTooltip(hCtl, L"", FALSE, FALSE);
 
         if (nCtrlType == SuperLabelType::LineHorizontal) {
             pData->HotTestEnable = false;
@@ -527,10 +527,10 @@ HWND CreateSuperLabel(
         pData->PointerHot = SuperLabelPointer::Hand;
 
 
-        SuperLabel_SetOptions(hCtrl, pData);
+        SuperLabel_SetOptions(hCtl, pData);
     }
    
-    return hCtrl;
+    return hCtl;
 }
 
  
