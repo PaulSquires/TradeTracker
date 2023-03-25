@@ -76,6 +76,7 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
 //'------------------------------------------------------------------------------ 
 LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    static SuperLabel* pDataSelected = nullptr;
     SuperLabel* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
@@ -86,13 +87,6 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     switch (uMsg)
     {
 
-    case WM_ERASEBKGND:
-    {
-        // Handle all of the painting in WM_PAINT
-        return TRUE;
-        break;
-    }
-
     case WM_SETCURSOR:
     {
         LPWSTR IDCPointer = IDC_HAND;
@@ -100,7 +94,8 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         if (pData) {
             if (pData->HotTestEnable) {
                 IDCPointer = (pData->PointerHot == SuperLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
-            } else {
+            }
+            else {
                 IDCPointer = (pData->Pointer == SuperLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
             }
         }
@@ -144,13 +139,36 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         break;
 
 
-    case WM_LBUTTONUP:
-        if (pData)
+    case WM_LBUTTONDOWN:
+        if (pData) {
+            if (pData->AllowSelect) {
+                // Deselect any previous control that has selected status and repaint 
+                // new non-selected state.
+                if (pDataSelected) {
+                    pDataSelected->IsSelected = false;
+                    AfxRedrawWindow(pDataSelected->hWindow);
+                }
+
+                pData->IsSelected = true;
+                pDataSelected = pData;
+                AfxRedrawWindow(hWnd);
+            }
+
             PostMessage(pData->hParent, MSG_SUPERLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+
+        }
         return 0;
         break;
 
                 
+    case WM_ERASEBKGND:
+    {
+        // Handle all of the painting in WM_PAINT
+        return TRUE;
+        break;
+    }
+
+
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
@@ -168,6 +186,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         EndPaint(hWnd, &ps);
         break;
     }
+
 
     case WM_DESTROY:
         if (pData) {
@@ -222,7 +241,6 @@ HWND CreateSuperLabel(
     HWND hWndParent, 
     LONG_PTR CtrlId,
     SuperLabelType nCtrlType,
-    std::wstring wszText, 
     int nLeft, 
     int nTop, 
     int nWidth, 
@@ -267,8 +285,6 @@ HWND CreateSuperLabel(
         pData->hParent = hWndParent;
         pData->hInst = hInst;
         pData->CtrlId = CtrlId;
-        pData->wszText = wszText;
-        pData->wszTextHot = wszText;
         pData->CtrlType = nCtrlType;
 
         pData->wszFontName = L"Segoe UI";
@@ -293,4 +309,4 @@ HWND CreateSuperLabel(
     return hCtl;
 }
 
- 
+

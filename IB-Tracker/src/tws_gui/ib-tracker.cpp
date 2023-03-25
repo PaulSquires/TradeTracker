@@ -10,6 +10,7 @@
 #include "tws-client.h"
 #include "NavPanel.h"
 #include "CWindow.h"
+#include "Themes.h"
 
 
 
@@ -116,6 +117,11 @@ int APIENTRY wWinMain(
     // Redirect stderr/stdout/stdin to new console
     BindStdHandlesToConsole();
 
+    // Set the Theme to use for all windows and controls. Remember to call
+    // the SetThemeMainWindow() function after the application's main 
+    // window is created.
+    SetTheme(Themes::Dark);
+
 
     CWindow* pWindowMain = new CWindow();
     if (pWindowMain == nullptr) return FALSE;
@@ -132,6 +138,11 @@ int APIENTRY wWinMain(
         (INT)InitalMainWidth,
         (INT)InitalMainHeight
         );
+
+    // Set the top level main window that the ApplyActiveTheme function will use
+    // to enumerate all children windows to apply any newly changed theme.
+    SetThemeMainWindow(hWndMain);
+
 
     HANDLE hIconBig = LoadImage(pWindowMain->hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hIconBig);

@@ -65,9 +65,10 @@ public:
 	DWORD BackColorHot = 0; 
 
 	// Selection
-	bool SelectionMode = false;
+	bool AllowSelect = false;
 	bool IsSelected = false;
 	DWORD SelectorColor = Color::MakeARGB(255, 255, 255, 255);
+	DWORD BackColorSelected = Color::MakeARGB(255, 255, 255, 255);
 
 	// Lines
 	REAL LineWidth = 1;
@@ -121,6 +122,7 @@ public:
 	bool FontUnderlineHot = false;
 	DWORD TextColorHot = Color::MakeARGB(255, 0, 0, 0);
 	SuperLabelPointer PointerHot = SuperLabelPointer::Hand;
+
 
 
 	void SetTextAlignment(StringFormat* stringF)
@@ -197,8 +199,12 @@ public:
 		Graphics graphics(m_memDC);
 		graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
+		DWORD nBackColor = (m_bIsHot ? BackColorHot : BackColor);
+		if (IsSelected && AllowSelect)
+			nBackColor = BackColorSelected;
+
 		// Create the background brush
-		SolidBrush backBrush(m_bIsHot ? BackColorHot : BackColor);
+		SolidBrush backBrush(nBackColor);
 
 		// Paint the background using brush and default pen. Use RoundRect because 
 		// we may want to have rounded corners.
@@ -305,7 +311,7 @@ public:
 	void DrawNotchInBuffer()
 	{
 		// If selection mode is enabled then draw the little right hand side notch
-		if (IsSelected || (m_bIsHot && SelectionMode)) {
+		if (IsSelected || (m_bIsHot && AllowSelect)) {
 			// Create the background brush
 			SolidBrush backBrush(SelectorColor);
 			// Need to center the notch vertically
@@ -365,7 +371,7 @@ public:
 SuperLabel* SuperLabel_GetOptions(HWND hCtrl);
 int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData);
 
-HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType, std::wstring wszText,
+HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType, 
 	int nLeft, int nTop, int nWidth, int nHeight);
 
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype);
