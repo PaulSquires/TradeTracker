@@ -5,9 +5,8 @@
 enum class Themes {
 	Light,
 	Dark,
+	DarkPlus,
 	Blue,
-	Red,
-	Yellow,
 	Count     // Returns the number of defined themes
 };
 
@@ -20,6 +19,10 @@ enum class ThemeElement {
 	NavPanelBackSelected,
 	NavPanelTextSelected,
 	NavPanelSeparator,
+	NavPanelSelector,
+
+	TradesPanelBack,
+
 	Count     // Returns the number of defined theme elements
 };
 
@@ -31,4 +34,9 @@ void SetTheme(Themes theme);
 void ApplyActiveTheme();
 void SetThemeMainWindow(HWND hWndMain);
 Themes GetTheme();
+void Initialize_Light_Theme(DWORD clr[][(int)Themes::Count]);
+void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count]);
+void Initialize_DarkPlus_Theme(DWORD clr[][(int)Themes::Count]);
+void Initialize_Blue_Theme(DWORD clr[][(int)Themes::Count]);
+
 

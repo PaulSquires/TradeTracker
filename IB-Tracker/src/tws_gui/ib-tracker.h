@@ -2,4 +2,5 @@
 
 #include "framework.h"
 
-#define IDI_MAINICON                        106
+#define IDI_MAINICON           106
+

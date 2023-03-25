@@ -46,9 +46,13 @@
     <ClCompile Include="src\tws_gui\ib-tracker.cpp" />
     <ClCompile Include="src\tws_gui\NavPanel.cpp" />
     <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
+    <ClCompile Include="src\tws_gui\Theme-Light.cpp" />
     <ClCompile Include="src\tws_gui\Themes.cpp" />
     <ClCompile Include="src\tws_gui\TradesPanel.cpp" />
     <ClCompile Include="src\tws_gui\tws-client.cpp" />
+    <ClCompile Include="src\tws_gui\Theme-Dark.cpp" />
+    <ClCompile Include="src\tws_gui\Theme-DarkPlus.cpp" />
+    <ClCompile Include="src\tws_gui\Theme-Blue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />

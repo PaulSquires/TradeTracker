@@ -1,6 +1,7 @@
 #pragma once
 
 #include "framework.h"
+#include "Themes.h"
 
 
 // User defined messages
@@ -61,19 +62,19 @@ public:
 	int CtrlId = 0;
 	SuperLabelType CtrlType = SuperLabelType::TextOnly;
 	bool HotTestEnable = false;
-	DWORD BackColor = 0;    
-	DWORD BackColorHot = 0; 
+	ThemeElement BackColor{};
+	ThemeElement BackColorHot{};
 
 	// Selection
 	bool AllowSelect = false;
 	bool IsSelected = false;
-	DWORD SelectorColor = Color::MakeARGB(255, 255, 255, 255);
-	DWORD BackColorSelected = Color::MakeARGB(255, 255, 255, 255);
+	ThemeElement SelectorColor{};
+	ThemeElement BackColorSelected{};
 
 	// Lines
 	REAL LineWidth = 1;
-	DWORD LineColor = Color::MakeARGB(255, 0, 0, 0);
-	DWORD LineColorHot = Color::MakeARGB(255, 0, 0, 0);
+	ThemeElement LineColor{};
+	ThemeElement LineColorHot{};
 
 	// Margins
 	int MarginLeft = 0;
@@ -84,8 +85,8 @@ public:
 	// Border
 	bool BorderVisible = false;
 	REAL BorderWidth = 1;
-	DWORD BorderColor = Color::MakeARGB(255, 0, 0, 0);
-	DWORD BorderColorHot = Color::MakeARGB(255, 0, 0, 0);
+	ThemeElement BorderColor{};
+	ThemeElement BorderColorHot{};
 	int BorderRoundWidth = 0;
 	int BorderRoundHeight = 0;
 
@@ -110,7 +111,7 @@ public:
 	bool FontBold = false;
 	bool FontItalic = false;
 	bool FontUnderline = false;
-	DWORD TextColor = Color::MakeARGB(255, 0, 0, 0);
+	ThemeElement TextColor{};
 	SuperLabelPointer Pointer = SuperLabelPointer::Arrow;
 
 	// Text Hot
@@ -120,7 +121,7 @@ public:
 	bool FontBoldHot = false;
 	bool FontItalicHot = false;
 	bool FontUnderlineHot = false;
-	DWORD TextColorHot = Color::MakeARGB(255, 0, 0, 0);
+	ThemeElement TextColorHot{};
 	SuperLabelPointer PointerHot = SuperLabelPointer::Hand;
 
 
@@ -199,9 +200,9 @@ public:
 		Graphics graphics(m_memDC);
 		graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
-		DWORD nBackColor = (m_bIsHot ? BackColorHot : BackColor);
+		DWORD nBackColor = (m_bIsHot ? GetThemeColor(BackColorHot) : GetThemeColor(BackColor));
 		if (IsSelected && AllowSelect)
-			nBackColor = BackColorSelected;
+			nBackColor = GetThemeColor(BackColorSelected);
 
 		// Create the background brush
 		SolidBrush backBrush(nBackColor);
@@ -260,7 +261,7 @@ public:
 			}
 
 			Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-			SolidBrush   textBrush(m_bIsHot ? TextColorHot : TextColor);
+			SolidBrush   textBrush(m_bIsHot ? GetThemeColor(TextColorHot) : GetThemeColor(TextColor));
 
 			StringFormat stringF(0);
 			SetTextAlignment(&stringF);
@@ -292,7 +293,7 @@ public:
 				REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
 				REAL nRight = m_rcClient.right - (MarginRight * m_rx);
 				REAL nBottom = nTop;
-				ARGB clrPen = (m_bIsHot ? LineColorHot : LineColor);
+				ARGB clrPen = (m_bIsHot ? GetThemeColor(LineColorHot) : GetThemeColor(LineColor));
 				Pen pen(clrPen, LineWidth);
 				// Draw the horizontal line centered taking margins into account
 				Graphics graphics(m_memDC);
@@ -311,9 +312,10 @@ public:
 	void DrawNotchInBuffer()
 	{
 		// If selection mode is enabled then draw the little right hand side notch
-		if (IsSelected || (m_bIsHot && AllowSelect)) {
-			// Create the background brush
-			SolidBrush backBrush(SelectorColor);
+		//if (IsSelected || (m_bIsHot && AllowSelect)) {
+		if (IsSelected) {
+				// Create the background brush
+			SolidBrush backBrush(GetThemeColor(SelectorColor));
 			// Need to center the notch vertically
 			REAL nNotchHalfHeight = (10 * m_ry) / 2;
 			REAL nTop = (m_rcClient.bottom / 2) - nNotchHalfHeight;
@@ -339,8 +341,8 @@ public:
 		case SuperLabelType::ImageAndText:
 		case SuperLabelType::TextOnly:
 		{
-			ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
-			if (!BorderVisible) clrPen = BackColor;
+			ARGB clrPen = (m_bIsHot ? GetThemeColor(BorderColorHot) : GetThemeColor(BorderColor));
+			if (!BorderVisible) clrPen = GetThemeColor(BackColor);
 			Pen pen(clrPen, BorderWidth);
 
 			RectF rectF(0, 0, (REAL)m_rcClient.right, (REAL)m_rcClient.bottom);

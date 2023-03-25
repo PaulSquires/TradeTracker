@@ -112,9 +112,9 @@ HWND CWindow::Create(HWND hParent, std::wstring wszTitle, WNDPROC lpfnWndProc,
 {
     if (m_hwnd) return NULL;
 
-    static int nCount;
+    static int nCount = 0;
 
-    m_wszClassName = L"FBWindowClass:" + nCount;
+    m_wszClassName = L"FBWindowClass:" + std::to_wstring(nCount);
 
     // Default handler
     if (lpfnWndProc == nullptr) lpfnWndProc = CWindow_WindowProc;
@@ -498,7 +498,12 @@ HWND CWindow::AddControl(
 
     case Controls::ListBox:
         {
-
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | WS_BORDER | WS_TABSTOP | LBS_STANDARD | LBS_HASSTRINGS | LBS_SORT | LBS_NOTIFY;
+            wszClassName = L"Listbox";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, bSetFont, lpParam);
+            // Adjust the height of the control so that the integral height
+            // is based on the new font rather than the default SYSTEM_FONT
+            SetWindowPos(hCtl, NULL, x, y, nWidth, nHeight, SWP_NOZORDER);
         }
         break;
 

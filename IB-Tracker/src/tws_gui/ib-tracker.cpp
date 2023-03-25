@@ -7,8 +7,9 @@
 #include <tuple>     // std::ignore
 
 #include "ib-tracker.h"
-#include "tws-client.h"
 #include "NavPanel.h"
+#include "TradesPanel.h"
+#include "tws-client.h"
 #include "CWindow.h"
 #include "Themes.h"
 
@@ -52,12 +53,19 @@ LRESULT Main_PositionWindows(HWND hWnd)
     RECT rcClient;
     GetClientRect(hWnd, &rcClient);
 
+    // Position the left hand side Navigation Panel
     HWND hWndNavPanel = GetDlgItem(hWnd, IDC_FRMNAVPANEL);
-   
     int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
-    
     SetWindowPos(hWndNavPanel, 0,
         0, 0, nNavPanelWidth, rcClient.bottom,
+        SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    // Position the middle Trades Panel
+    HWND hWndTradesPanel = GetDlgItem(hWnd, IDC_FRMTRADESPANEL);
+    int nTradesPanelWidth = (rcClient.right - nNavPanelWidth);
+    SetWindowPos(hWndTradesPanel, 0,
+        nNavPanelWidth, 0, nTradesPanelWidth, rcClient.bottom,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
     return 0;
@@ -94,6 +102,9 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 }
 
 
+//' ========================================================================================
+//' WinMain main application startup entry point.
+//' ========================================================================================
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -117,15 +128,20 @@ int APIENTRY wWinMain(
     // Redirect stderr/stdout/stdin to new console
     BindStdHandlesToConsole();
 
+    
     // Set the Theme to use for all windows and controls. Remember to call
     // the SetThemeMainWindow() function after the application's main 
     // window is created.
     SetTheme(Themes::Dark);
 
 
+    // Create the main application window
     CWindow* pWindowMain = new CWindow();
     if (pWindowMain == nullptr) return FALSE;
 
+
+    // Size the main window to encompass 65% of screen width
+    // and 85% of screen height.
     float InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
     float InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
@@ -139,11 +155,14 @@ int APIENTRY wWinMain(
         (INT)InitalMainHeight
         );
 
+
     // Set the top level main window that the ApplyActiveTheme function will use
     // to enumerate all children windows to apply any newly changed theme.
     SetThemeMainWindow(hWndMain);
 
 
+    // Set the large and small application icons that will represent the application
+    // in various area of Windows such as the title bar, task bar, and shortcuts.
     HANDLE hIconBig = LoadImage(pWindowMain->hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hIconBig);
 
@@ -153,14 +172,22 @@ int APIENTRY wWinMain(
     
     // Load the child windows
     CWindow* pWindowNavPanel = NavPanel_Show(hWndMain);
-    
+    CWindow* pWindowTradesPanel = TradesPanel_Show(hWndMain);
+
+
     // Center the main window within the desktop taking into account the actual work area.
     AfxCenterWindow(hWndMain, HWND_DESKTOP);
 
+    
+    // Call the main modal message pump and wait for it to end.
     pWindowMain->DoEvents(nCmdShow);
 
+    
+    // Shut down the GDI+ subsystem
     GdiplusShutdown(gdiplusToken);
 
+
+    // delete our manually created memory and pointers for the various child panels.
     if (pWindowNavPanel) delete(pWindowNavPanel);
     if (pWindowMain) delete(pWindowMain);
 

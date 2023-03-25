@@ -18,21 +18,11 @@ void InitializeThemeColors()
 {
 	IsInitialized = true;
 
-	clr[(int)ThemeElement::NavPanelBack][(int)Themes::Dark] = Color::MakeARGB(255, 33, 37, 43);
-	clr[(int)ThemeElement::NavPanelBackHot][(int)Themes::Dark] = Color::MakeARGB(255, 20, 138, 228);
-	clr[(int)ThemeElement::NavPanelText][(int)Themes::Dark] = Color::MakeARGB(255, 255, 255, 255);
-	clr[(int)ThemeElement::NavPanelTextDim][(int)Themes::Dark] = Color::MakeARGB(255, 158, 205, 241);
-	clr[(int)ThemeElement::NavPanelTextHot][(int)Themes::Dark] = Color::MakeARGB(255, 255, 255, 255);
-	clr[(int)ThemeElement::NavPanelSeparator][(int)Themes::Dark] = Color::MakeARGB(255, 61, 156, 228);
-	clr[(int)ThemeElement::NavPanelBackSelected][(int)Themes::Dark] = Color::MakeARGB(255, 100, 100, 100);
-	clr[(int)ThemeElement::NavPanelTextSelected][(int)Themes::Dark] = Color::MakeARGB(255, 255, 255, 255);
+	Initialize_Light_Theme(clr);
+	Initialize_Dark_Theme(clr);
+	Initialize_DarkPlus_Theme(clr);
+	Initialize_Blue_Theme(clr);
 
-
-
-	clr[(int)ThemeElement::NavPanelBack][(int)Themes::Blue] = Color::MakeARGB(255, 13, 131, 221);
-	clr[(int)ThemeElement::NavPanelBack][(int)Themes::Red] = Color::PaleVioletRed;
-	clr[(int)ThemeElement::NavPanelBack][(int)Themes::Yellow] = Color::LightYellow;  
-				
 }
 
 
