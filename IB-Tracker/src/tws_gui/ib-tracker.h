@@ -1,6 +1,6 @@
 #pragma once
 
-#include "framework.h"
+#include "pch.h"
 
 #define IDI_MAINICON           106
 

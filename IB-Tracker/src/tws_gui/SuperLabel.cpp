@@ -5,7 +5,7 @@
 //' like a button, hot tracking, pictures, etc.
 //'
 
-#include "framework.h"
+#include "pch.h"
 #include "CWindow.h"
 #include "SuperLabel.h"
 

@@ -66,7 +66,7 @@
     <ClCompile Include="src\tws-api\OrderCondition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\tws-api\pch.cpp">
+    <ClCompile Include="src\tws_gui\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tws-api\PercentChangeCondition.cpp">
@@ -212,9 +212,6 @@
     <ClInclude Include="src\tws-api\FamilyCode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\tws-api\framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\tws-api\HistogramEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -251,7 +248,7 @@
     <ClInclude Include="src\tws-api\OrderState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\tws-api\pch.h">
+    <ClInclude Include="src\tws_gui\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tws-api\PercentChangeCondition.h">

@@ -1,12 +1,9 @@
 #pragma once
 
-#include "framework.h"
+#include "pch.h"
 
 #include "TwsWrapper.h"
 
-#include <chrono>
-#include <thread>
-#include <future>
 
 void threadFunction(std::future<void> future);
 void StartMonitorThread();

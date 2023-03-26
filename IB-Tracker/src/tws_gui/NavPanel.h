@@ -1,6 +1,6 @@
 #pragma once
 
-#include "framework.h"
+#include "pch.h"
 #include "CWindow.h"
 
 const int IDC_FRMNAVPANEL = 100;

@@ -34,7 +34,11 @@
     <ClCompile Include="src\tws-api\MarginCondition.cpp" />
     <ClCompile Include="src\tws-api\OperatorCondition.cpp" />
     <ClCompile Include="src\tws-api\OrderCondition.cpp" />
-    <ClCompile Include="src\tws-api\pch.cpp" />
+    <ClCompile Include="src\tws_gui\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\tws-api\PercentChangeCondition.cpp" />
     <ClCompile Include="src\tws-api\PriceCondition.cpp" />
     <ClCompile Include="src\tws-api\SoftDollarTier.cpp" />
@@ -86,7 +90,6 @@
     <ClInclude Include="src\tws-api\Execution.h" />
     <ClInclude Include="src\tws-api\executioncondition.h" />
     <ClInclude Include="src\tws-api\FamilyCode.h" />
-    <ClInclude Include="src\tws-api\framework.h" />
     <ClInclude Include="src\tws-api\HistogramEntry.h" />
     <ClInclude Include="src\tws-api\HistoricalSession.h" />
     <ClInclude Include="src\tws-api\HistoricalTick.h" />
@@ -99,7 +102,7 @@
     <ClInclude Include="src\tws-api\Order.h" />
     <ClInclude Include="src\tws-api\OrderCondition.h" />
     <ClInclude Include="src\tws-api\OrderState.h" />
-    <ClInclude Include="src\tws-api\pch.h" />
+    <ClInclude Include="src\tws_gui\pch.h" />
     <ClInclude Include="src\tws-api\PercentChangeCondition.h" />
     <ClInclude Include="src\tws-api\platformspecific.h" />
     <ClInclude Include="src\tws-api\PriceCondition.h" />
@@ -188,12 +191,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>C:\Users\plane\Documents\$(ProjectName)\$(Configuration)\tempBuildFiles\</IntDir>
+    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>C:\Users\plane\Documents\$(ProjectName)\$(Configuration)\tempBuildFiles\</IntDir>
+    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -202,7 +213,9 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>$(ProjectDir)src\tws-gui;$(ProjectDir)src\tws-api</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -230,7 +243,9 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>$(ProjectDir)src\tws-gui;$(ProjectDir)src\tws-api</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
