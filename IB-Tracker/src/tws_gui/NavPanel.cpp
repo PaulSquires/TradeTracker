@@ -26,9 +26,9 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
         if (rcClient.bottom < MinHeight) return 0;
 
-        SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_BOTTOMSEP), 0,
-            0, rcClient.bottom - (int)AfxScaleY(50), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-        SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_APPNAME), 0,
+        //SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_BOTTOMSEP), 0,
+        //    0, rcClient.bottom - (int)AfxScaleY(50), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES), 0,
             0, rcClient.bottom - (int)AfxScaleY(30), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
     }
         break;
@@ -56,7 +56,7 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         SolidBrush backBrush(nBackColor);
 
         // Paint the background using brush.
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+        graphics.FillRectangle(&backBrush, (int)ps.rcPaint.left, (int)ps.rcPaint.top, (int)ps.rcPaint.right, (int)ps.rcPaint.bottom);
 
         EndPaint(hWnd, &ps);
         break;
@@ -87,33 +87,33 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 break;
             }
 
-            case IDC_NAVPANEL_LIGHTTHEME:
-            {
-                SetTheme(Themes::Light);
-                ApplyActiveTheme();
-                break;
-            }
+            //case IDC_NAVPANEL_LIGHTTHEME:
+            //{
+            //    SetTheme(Themes::Light);
+            //    ApplyActiveTheme();
+            //    break;
+            //}
 
-            case IDC_NAVPANEL_DARKTHEME:
-            {
-                SetTheme(Themes::Dark);
-                ApplyActiveTheme();
-                break;
-            }
+            //case IDC_NAVPANEL_DARKTHEME:
+            //{
+            //    SetTheme(Themes::Dark);
+            //    ApplyActiveTheme();
+            //    break;
+            //}
 
-            case IDC_NAVPANEL_DARKPLUSTHEME:
-            {
-                SetTheme(Themes::DarkPlus);
-                ApplyActiveTheme();
-                break;
-            }
+            //case IDC_NAVPANEL_DARKPLUSTHEME:
+            //{
+            //    SetTheme(Themes::DarkPlus);
+            //    ApplyActiveTheme();
+            //    break;
+            //}
 
-            case IDC_NAVPANEL_BLUETHEME:
-            {
-                SetTheme(Themes::Blue);
-                ApplyActiveTheme();
-                break;
-            }
+            //case IDC_NAVPANEL_BLUETHEME:
+            //{
+            //    SetTheme(Themes::Blue);
+            //    ApplyActiveTheme();
+            //    break;
+            //}
 
 
             }
@@ -212,7 +212,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelTextDim;
         pData->FontSize = 10;
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
-        pData->wszText = L"Paul Squires";
+        pData->wszText = GetTraderName();
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -220,7 +220,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL, 
-        IDC_NAVPANEL_COMPANY,
+        IDC_NAVPANEL_APPNAME,
         SuperLabelType::TextOnly, 
         0, 118, NAVPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);
@@ -230,17 +230,18 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->FontSize = 10;
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
-        pData->wszText = L"Insight Web Design";
+        pData->wszText = L"IB-Tracker v1.0";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
       
    
     // SEPARATOR
+    nTop = 150;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL, -1, 
         SuperLabelType::LineHorizontal, 
-        0, 150, NAVPANEL_WIDTH, 10);
+        0, nTop, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::NavPanelBack;
@@ -254,10 +255,10 @@ CWindow* NavPanel_Show(HWND hWndParent)
    
     // MENU ITEMS
     nLeftOffset = 0;
-    nTop = 155;
+    nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_LIGHTTHEME,
+        IDC_NAVPANEL_ACTIVETRADES,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -273,7 +274,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Light Theme";
+        pData->wszText = L"Active Trades";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -282,7 +283,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_DARKTHEME,
+        IDC_NAVPANEL_CLOSEDTRADES,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -298,7 +299,49 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Dark Theme";
+        pData->wszText = L"Closed Trades";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    // SEPARATOR
+    nTop = nTop + nItemHeight + 6;
+    hCtl = CreateSuperLabel(
+        HWND_FRMNAVPANEL, -1,
+        SuperLabelType::LineHorizontal,
+        0, nTop, NAVPANEL_WIDTH, 10);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->LineColor = ThemeElement::NavPanelSeparator;
+        pData->LineWidth = 6;
+        pData->MarginLeft = 10;
+        pData->MarginRight = 10;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    nTop = nTop + 10;
+    hCtl = CreateSuperLabel(
+        HWND_FRMNAVPANEL,
+        IDC_NAVPANEL_NEWTRADE,
+        SuperLabelType::TextOnly,
+        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
+        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->BackColorHot = ThemeElement::NavPanelBackHot;
+        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
+        pData->TextColor = ThemeElement::NavPanelText;
+        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 11;
+        pData->FontSizeHot = 11;
+        pData->wszText = L"New Trade";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -307,7 +350,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_DARKPLUSTHEME,
+        IDC_NAVPANEL_SHORTSTRANGLE,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -323,7 +366,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Dark+ Theme";
+        pData->wszText = L"Short Strangle";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -332,7 +375,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_REDTHEME,
+        IDC_NAVPANEL_SHORTPUT,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -348,7 +391,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Red Theme";
+        pData->wszText = L"Short Put";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -357,7 +400,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_YELLOWTHEME,
+        IDC_NAVPANEL_SHORTCALL,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -373,7 +416,49 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Yellow Theme";
+        pData->wszText = L"Short Call";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    // SEPARATOR
+    nTop = nTop + nItemHeight + 6;
+    hCtl = CreateSuperLabel(
+        HWND_FRMNAVPANEL, -1,
+        SuperLabelType::LineHorizontal,
+        0, nTop, NAVPANEL_WIDTH, 10);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->LineColor = ThemeElement::NavPanelSeparator;
+        pData->LineWidth = 6;
+        pData->MarginLeft = 10;
+        pData->MarginRight = 10;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    nTop = nTop + 10;
+    hCtl = CreateSuperLabel(
+        HWND_FRMNAVPANEL,
+        IDC_NAVPANEL_TICKERTOTALS,
+        SuperLabelType::TextOnly,
+        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
+        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->BackColorHot = ThemeElement::NavPanelBackHot;
+        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
+        pData->TextColor = ThemeElement::NavPanelText;
+        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 11;
+        pData->FontSizeHot = 11;
+        pData->wszText = L"Ticker Totals";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -382,7 +467,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_BLUETHEME,
+        IDC_NAVPANEL_DAILYTOTALS,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -398,7 +483,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Blue Theme";
+        pData->wszText = L"Daily Totals";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -407,14 +492,14 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_PROJECTS,
+        IDC_NAVPANEL_RECONCILE,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
+        pData->SelectorColor = ThemeElement::TradesPanelBack;
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -423,32 +508,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Projects";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_MYTEAM,
-        SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
-        pData->wszText = L"My Team";
+        pData->wszText = L"Reconcile";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -471,35 +531,10 @@ CWindow* NavPanel_Show(HWND hWndParent)
     }
 
 
-    nTop = nTop + 16;
+    nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_REPORTS,
-        SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
-        pData->wszText = L"Reports";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_ACCOUNTING,
+        IDC_NAVPANEL_CONFIGURE,
         SuperLabelType::TextOnly, 
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -515,33 +550,15 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 11;
         pData->FontSizeHot = 11;
-        pData->wszText = L"Accounting";
+        pData->wszText = L"Configuration";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
-    // SEPARATOR
-    hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL, 
-        IDC_NAVPANEL_BOTTOMSEP,
-        SuperLabelType::LineHorizontal, 
-        0, 0, NAVPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->LineColor = ThemeElement::NavPanelSeparator;
-        pData->LineColorHot = pData->LineColor;
-        pData->LineWidth = 6;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10; 
         SuperLabel_SetOptions(hCtl, pData);
     }
 
 
     hCtl = CreateSuperLabel(
         HWND_FRMNAVPANEL,
-        IDC_NAVPANEL_APPNAME,
+        IDC_NAVPANEL_MESSAGES,
         SuperLabelType::TextOnly,
         0, 0, NAVPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);
@@ -552,7 +569,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
-        pData->wszText = L"inControl Software v1.0";
+        pData->wszText = L"TWS not connected";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }

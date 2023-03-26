@@ -982,8 +982,34 @@ std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
 {
     int nLen = SendMessage(hListBox, LB_GETTEXTLEN, nIndex, 0) + 1;
     std::wstring wszText(nLen, NULL);
-//    wmemcpy(&tlfw.lfFaceName[0], wszFaceName.c_str(), numChars);
-    
     SendMessage(hListBox, LB_GETTEXT, nIndex, (LPARAM)wszText.c_str());
     return wszText;
+}
+
+
+//' ========================================================================================
+//' Returns the path of the program which is currently executing.
+//' The path name will not contain a trailing backslash.
+//' ========================================================================================
+std::wstring AfxGetExePath()
+{
+    // The following retrieves the full path *and* exe name and extension.
+    std::wstring buffer(MAX_PATH, NULL);
+    GetModuleFileName(NULL, (LPWSTR)buffer.c_str(), MAX_PATH);
+
+    // Remove everything after the last trailing backslash
+    std::size_t found = buffer.find_last_of(L"/\\");
+    return buffer.substr(0, found);
+}
+
+
+//' ========================================================================================
+//' Retrieves the name of the user associated with the current thread.
+//' ========================================================================================
+std::wstring AfxGetUserName()
+{
+    DWORD dwBufLen = (DWORD)MAX_PATH;
+    std::wstring buffer(dwBufLen, NULL);
+    GetUserName((LPWSTR)buffer.c_str(), &dwBufLen);
+    return buffer.substr(0, dwBufLen - 1);
 }

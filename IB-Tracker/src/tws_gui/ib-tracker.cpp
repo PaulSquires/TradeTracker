@@ -13,6 +13,7 @@
 #include "tws-client.h"
 #include "CWindow.h"
 #include "Themes.h"
+#include "database.h"
 
 
 
@@ -158,11 +159,25 @@ int APIENTRY wWinMain(
     // Redirect stderr/stdout/stdin to new console
     BindStdHandlesToConsole();
 
-    
+
     // Set the Theme to use for all windows and controls. Remember to call
     // the SetThemeMainWindow() function after the application's main 
-    // window is created.
-    SetTheme(Themes::Dark);
+    // window is created. LoadDatabase may override this setting if a Theme
+    // setting is found in the database.
+    SetTheme(Themes::Light);
+
+
+    // Set the Trader's name that will display in the Navigation panel.
+    // LoadDatabase may override this setting if a setting is found 
+    // in the database. Default to the name used to log into this computer.
+    SetTraderName(AfxGetUserName());
+
+
+    // Load all transactions and configuration information. 
+    // If a Theme setting was found in the database then the Theme
+    // will override the default one that we just specified prior
+    // to calling this LoadDatabase function.
+    LoadDatabase();
 
 
     // Create the main application window
@@ -215,7 +230,8 @@ int APIENTRY wWinMain(
     // Call the main modal message pump and wait for it to end.
     pWindowMain->DoEvents(nCmdShow);
 
-    
+    SaveDatabase();
+
     // Shut down the GDI+ subsystem
     GdiplusShutdown(gdiplusToken);
 

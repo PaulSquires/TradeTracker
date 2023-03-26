@@ -10,6 +10,9 @@ bool IsInitialized = false;
 DWORD clr[(int)ThemeElement::Count][(int)Themes::Count];
 Themes ActiveTheme = Themes::Dark;
 
+std::wstring wszTraderName;
+
+
 
 //' ========================================================================================
 //' Initialize all theme and all theme element colors
@@ -74,6 +77,85 @@ Themes GetTheme()
 }
 
 
+//' ========================================================================================
+//' Return the current set Theme (std::wstring).
+//' ========================================================================================
+std::wstring GetThemeName()
+{
+	if (!IsInitialized) InitializeThemeColors();
+
+	switch (ActiveTheme)
+	{
+	case Themes::Light:
+		return L"Light";
+		break;
+	case Themes::Dark:
+		return L"Dark";
+		break;
+	case Themes::DarkPlus:
+		return L"DarkPlus";
+		break;
+	case Themes::Blue:
+		return L"Blue";
+		break;
+	default:
+		return L"Dark";
+	}
+}
+
+
+//' ========================================================================================
+//' Set the current Theme based on it's string name (std::wstring).
+//' ========================================================================================
+void SetThemeName(std::wstring wszTheme)
+{
+	if (!IsInitialized) InitializeThemeColors();
+
+	// Set a default theme here in case the incoming string is invalid
+	SetTheme(Themes::Light);
+
+	if (wszTheme == L"Light") {
+		SetTheme(Themes::Light);
+		return;
+	}
+
+	if (wszTheme == L"Dark") {
+		SetTheme(Themes::Dark);
+		return;
+	}
+
+	if (wszTheme == L"DarkPlus" || wszTheme == L"Dark+") {
+		SetTheme(Themes::DarkPlus);
+		return;
+	}
+
+	if (wszTheme == L"Blue") {
+		SetTheme(Themes::Blue);
+		return;
+	}
+}
+
+
+//' ========================================================================================
+//' Get the Trader's name that displays in the Navigation Panel.
+//' This value is saved and restored from database. 
+//' ========================================================================================
+std::wstring GetTraderName()
+{
+	return wszTraderName;
+}
+
+
+//' ========================================================================================
+//' Set the Trader's name that displays in the Navigation Panel.
+//' This value is saved and restored from database. 
+//' ========================================================================================
+void SetTraderName(std::wstring wszName)
+{
+	wszTraderName = wszName;
+}
+	
+	
 //' ========================================================================================
 //' Save the Window handle of the application's main window so that ApplyActiveTheme
 //' can enumerate all child windows in order to apply Theme changes.

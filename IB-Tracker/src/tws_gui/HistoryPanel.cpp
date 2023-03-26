@@ -44,7 +44,7 @@ LRESULT CALLBACK HistoryPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
         SolidBrush backBrush(nBackColor);
 
         // Paint the background using brush.
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+        graphics.FillRectangle(&backBrush, (int)ps.rcPaint.left, (int)ps.rcPaint.top, (int)ps.rcPaint.right, (int)ps.rcPaint.bottom);
 
         EndPaint(hWnd, &ps);
         break;
