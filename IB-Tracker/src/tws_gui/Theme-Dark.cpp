@@ -21,11 +21,15 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::NavPanelTextSelected][theme] = Color::MakeARGB(255, 255, 255, 255);
 	clr[(int)ThemeElement::NavPanelSelector][theme] = Color::MakeARGB(255, 38, 38, 38);
 
-	//clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::TradesPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
+	clr[(int)ThemeElement::TradesPanelText][theme] = Color::MakeARGB(255, 255, 255, 255);
+	clr[(int)ThemeElement::TradesPanelTextHot][theme] = Color::MakeARGB(255, 255, 255, 255);
+
+
+
 
 	//clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::MakeARGB(255, 0, 0, 0);
-
-	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::LightGoldenrodYellow;
 	clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::ForestGreen;
 
 }

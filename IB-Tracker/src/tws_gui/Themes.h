@@ -22,6 +22,9 @@ enum class ThemeElement {
 	NavPanelSelector,
 
 	TradesPanelBack,
+	TradesPanelBackHot,
+	TradesPanelText,
+	TradesPanelTextHot,
 
 	HistoryPanelBack,
 

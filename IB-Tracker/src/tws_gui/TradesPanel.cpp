@@ -4,7 +4,7 @@
 #include "TradesPanel.h"
 #include "Themes.h"
 
-const int LISTBOX_ROWHEIGHT = 22;
+const int LISTBOX_ROWHEIGHT = 20;
 
 
 
@@ -19,11 +19,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         lpdis->itemAction == ODA_SELECT ||
         lpdis->itemAction == ODA_FOCUS) {
 
-        RECT rc = lpdis->rcItem;
-        int nWidth = rc.right - rc.left;
-        int nHeight = rc.bottom - rc.top;
+        int nWidth = (lpdis->rcItem.right - lpdis->rcItem.left);
+        int nHeight = (lpdis->rcItem.bottom - lpdis->rcItem.top);
 
-        bool IsHot = false;
+        bool bIsHot = false;
 
         SaveDC(lpdis->hDC);
 
@@ -34,15 +33,57 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         hbit = CreateCompatibleBitmap(lpdis->hDC, nWidth, nHeight);
         if (hbit) SelectObject(memDC, hbit);
 
-        POINT pt;
-        GetCursorPos(&pt);
-        MapWindowPoints(lpdis->hwndItem, HWND_DESKTOP, (POINT*)&rc, 2);
-        if (PtInRect(&rc, pt)) IsHot = true;
+        if (ListBox_GetSel(lpdis->hwndItem, lpdis->itemID)) bIsHot = true;
 
-        if (ListBox_GetSel(lpdis->hwndItem, lpdis->itemID)) IsHot = true;
 
-        std::wstring wszCaption = AfxGetListBoxText(lpdis->hwndItem, lpdis->itemID);
+        Graphics graphics(memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
+
+        DWORD nBackColor = (bIsHot 
+            ? GetThemeColor(ThemeElement::TradesPanelBackHot) 
+            : GetThemeColor(ThemeElement::TradesPanelBack));
+
+        DWORD nTextColor = (bIsHot
+            ? GetThemeColor(ThemeElement::TradesPanelTextHot)
+            : GetThemeColor(ThemeElement::TradesPanelText));
+
+        // Create the background brush
+        SolidBrush backBrush(nBackColor);
+
+        // Paint the background using brush and default pen. Use RoundRect because 
+        // we may want to have rounded corners.
+        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+
+
+        std::wstring wszFontName = L"Tahoma";
+        FontFamily fontFamily(wszFontName.c_str());
+
+        REAL fontSize = 9;
+        int fontStyle = FontStyleRegular;
+
+            //if (FontBoldHot) fontStyle |= FontStyleBold;
+            //if (FontItalicHot) fontStyle |= FontStyleItalic;
+            //if (FontUnderlineHot) fontStyle |= FontStyleUnderline;
+
+        Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+        SolidBrush   textBrush(nTextColor);
+
+		// MiddleLeft
+        StringFormat stringF(StringFormatFlagsNoWrap);
+        stringF.SetAlignment(StringAlignmentNear);
+        stringF.SetLineAlignment(StringAlignmentCenter);
+            
+        //REAL nLeft = (MarginLeft + TextOffsetLeft) * m_rx;
+        //REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
+        //REAL nRight = m_rcClient.right - (MarginRight * m_rx);
+        //REAL nBottom = m_rcClient.bottom - (MarginBottom * m_ry);
+
+        //RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
+        RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
+
+        std::wstring wszText = AfxGetListBoxText(lpdis->hwndItem, lpdis->itemID);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
 
         BitBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
         
@@ -193,37 +234,43 @@ LRESULT CALLBACK TradesPanelListBox_SubclassProc(
 
 
     case WM_ERASEBKGND:
-//' if the number of lines in the listbox maybe less than the number per page then 
-//' calculate from last item to bottom of listbox, otherwise calculate based on
-//' the mod of the lineheight to listbox height so we can color the partial line
-//' that won't be displayed at the bottom of the list.
-//dim as RECT rc : GetClientRect(hWin, @rc)
-//
-//dim as RECT rcItem
-//SendMessage(hWin, LB_GETITEMRECT, 0, cast(LPARAM, @rcItem))
-//dim as long itemHeight = rcItem.bottom - rcItem.top
-//dim as long NumItems = ListBox_GetCount(hWin)
-//dim as long nTopIndex = SendMessage(hWin, LB_GETTOPINDEX, 0, 0)
-//dim as long visible_rows = 0
-//dim as long ItemsPerPage = 0
-//dim as long bottom_index = 0
-//
-//if NumItems > 0 then
-//ItemsPerPage = (rc.bottom - rc.top) / itemHeight
-//bottom_index = (nTopIndex + ItemsPerPage)
-//if bottom_index >= NumItems then bottom_index = NumItems - 1
-//visible_rows = (bottom_index - nTopIndex) + 1
-//rc.top = visible_rows * itemHeight
-//end if
-//
-//if rc.top < rc.bottom then
-//    dim as HDC _hDC = cast(HDC, _wParam)
-//    FillRect(_hDC, @rc, ghPanel.hPanelBrush)
-//    end if
-//
-//    ValidateRect(hWin, @rc)
-//    return true
+    {
+        // If the number of lines in the listbox maybe less than the number per page then 
+        // calculate from last item to bottom of listbox, otherwise calculate based on
+        // the mod of the lineheight to listbox height so we can color the partial line
+        // that won't be displayed at the bottom of the list.
+        RECT rc; GetClientRect(hWnd, &rc);
+
+        RECT rcItem{};
+        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int itemHeight = (rcItem.bottom - rcItem.top);
+        int NumItems = ListBox_GetCount(hWnd);
+        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int visible_rows = 0;
+        int ItemsPerPage = 0;
+        int bottom_index = 0;
+
+        if (NumItems > 0) {
+            ItemsPerPage = (rc.bottom - rc.top) / itemHeight;
+            bottom_index = (nTopIndex + ItemsPerPage);
+            if (bottom_index >= NumItems)
+                bottom_index = NumItems - 1;
+            visible_rows = (bottom_index - nTopIndex) + 1;
+            rc.top = visible_rows * itemHeight;
+        }
+
+        if (rc.top < rc.bottom) {
+            HDC hDC = (HDC)wParam;
+            HBRUSH hBrush = CreateSolidBrush(GetThemeCOLORREF(ThemeElement::TradesPanelBack));
+            FillRect(hDC, &rc, hBrush);
+            DeleteBrush(hBrush);
+        }
+
+        ValidateRect(hWnd, &rc);
+        return TRUE;
         break;
+
+    }
 
 
     case WM_DESTROY:
@@ -311,9 +358,9 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         //Graphics graphics(hdc);
 
-        // The ListBox covers the entire client area so currently there is no need
-        // to paint the background. This may change in the future if we add more controls.
-        
+        //// The ListBox covers the entire client area so currently there is no need
+        //// to paint the background. This may change in the future if we add more controls.
+        //
         //DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
 
         //// Create the background brush
@@ -368,7 +415,7 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             (SUBCLASSPROC)&TradesPanelListBox_SubclassProc, 
             IDC_LISTBOX, (DWORD_PTR)pWindow);
 
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < 20; i++) {
         std::wstring wszTemp = L"My test string " + std::to_wstring(i);
         ListBox_AddString(hListBox, wszTemp.c_str());
     }
