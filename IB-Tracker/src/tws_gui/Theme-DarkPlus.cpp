@@ -22,7 +22,8 @@ void Initialize_DarkPlus_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::NavPanelSelector][theme] = Color::MakeARGB(255, 30, 30, 38);
 
 	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 30, 30, 38);
-
+	
+	clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::MakeARGB(255, 38, 38, 43);
 }
 
 

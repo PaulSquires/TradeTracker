@@ -23,6 +23,8 @@ enum class ThemeElement {
 
 	TradesPanelBack,
 
+	HistoryPanelBack,
+
 	Count     // Returns the number of defined theme elements
 };
 

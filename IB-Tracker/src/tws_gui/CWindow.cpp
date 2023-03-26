@@ -951,7 +951,7 @@ int AfxGetFileVersion(std::wstring wszFileName)
 
     HANDLE pVerInfo = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, cbLen);
     if (pVerInfo == NULL) return 0;
-    if (GetFileVersionInfo(wszFileName.c_str(), dwHandle, cbLen, pVerInfo)) {
+    if (GetFileVersionInfo(wszFileName.c_str(), 0L, cbLen, pVerInfo)) {
         if (VerQueryValue(pVerInfo, L"\\", (LPVOID*) &pvsffi, (PUINT)&cbLen)) {
             WORD wMajor = HIWORD(pvsffi->dwFileVersionMS);
             WORD wMinor = LOWORD(pvsffi->dwFileVersionMS);
@@ -963,10 +963,27 @@ int AfxGetFileVersion(std::wstring wszFileName)
     return res;
 }
 
+
 //' ========================================================================================
 //' Returns the version of CommCtl32.dll multiplied by 100, e.g. 582 for version 5.82.
 //' ========================================================================================
 int AfxComCtlVersion()
 {
     return AfxGetFileVersion(L"COMCTL32.DLL");
+}
+
+
+//' ========================================================================================
+//' Gets a string from a list box.
+//' - hComboBox: A handle to the list box.
+//' - nIndex: The zero-based index of the item.
+//' ========================================================================================
+std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
+{
+    int nLen = SendMessage(hListBox, LB_GETTEXTLEN, nIndex, 0) + 1;
+    std::wstring wszText(nLen, NULL);
+//    wmemcpy(&tlfw.lfFaceName[0], wszFaceName.c_str(), numChars);
+    
+    SendMessage(hListBox, LB_GETTEXT, nIndex, (LPARAM)wszText.c_str());
+    return wszText;
 }

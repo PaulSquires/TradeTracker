@@ -117,6 +117,15 @@
     <ClCompile Include="src\tws_gui\Theme-Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tws_gui\HistoryPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tws_gui\trade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tws_gui\database.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tws_gui\CWindow.h">
@@ -315,6 +324,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tws_gui\Themes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tws_gui\HistoryPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tws_gui\trade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tws_gui\database.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

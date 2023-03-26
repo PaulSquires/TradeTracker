@@ -41,10 +41,11 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
 
         if (ListBox_GetSel(lpdis->hwndItem, lpdis->itemID)) IsHot = true;
 
-        // dim as CWSTR wszCaption = AfxGetListBoxText(lpdis->hwndItem, lpdis->ItemID)
+        std::wstring wszCaption = AfxGetListBoxText(lpdis->hwndItem, lpdis->itemID);
 
 
         BitBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
+        
 
         // Cleanup
         RestoreDC(lpdis->hDC, -1);
@@ -247,10 +248,8 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
     switch (uMsg)
     {
 
-    
     case WM_COMMAND:
     {
-
         HWND hCtl = GET_WM_COMMAND_HWND(wParam, lParam);
         int cmd = GET_WM_COMMAND_CMD(wParam, lParam);
         int id = GET_WM_COMMAND_ID(wParam, lParam);
@@ -291,7 +290,7 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
             rcClient.left, rcClient.top,
             rcClient.right - rcClient.left, 
             rcClient.bottom - rcClient.top, 
-            SWP_NOZORDER);
+            SWP_NOZORDER | SWP_SHOWWINDOW);
     }
     break;
 
@@ -310,15 +309,18 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         HDC hdc = BeginPaint(hWnd, &ps);
 
-        Graphics graphics(hdc);
+        //Graphics graphics(hdc);
 
-        DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+        // The ListBox covers the entire client area so currently there is no need
+        // to paint the background. This may change in the future if we add more controls.
+        
+        //DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
 
-        // Create the background brush
-        SolidBrush backBrush(nBackColor);
+        //// Create the background brush
+        //SolidBrush backBrush(nBackColor);
 
-        // Paint the background using brush.
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+        //// Paint the background using brush.
+        //graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 
         EndPaint(hWnd, &ps);
         break;
@@ -365,6 +367,11 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL, 
             (SUBCLASSPROC)&TradesPanelListBox_SubclassProc, 
             IDC_LISTBOX, (DWORD_PTR)pWindow);
+
+    for (int i = 0; i < 200; i++) {
+        std::wstring wszTemp = L"My test string " + std::to_wstring(i);
+        ListBox_AddString(hListBox, wszTemp.c_str());
+    }
 
     return pWindow;
 

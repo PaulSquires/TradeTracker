@@ -264,7 +264,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -289,7 +289,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -314,7 +314,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -339,7 +339,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -364,7 +364,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -389,7 +389,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -414,7 +414,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -439,7 +439,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -481,7 +481,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
@@ -506,7 +506,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::NavPanelSelector;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;
         pData->BackColor = ThemeElement::NavPanelBack;
         pData->BackColorHot = ThemeElement::NavPanelBackHot;
         pData->BackColorSelected = ThemeElement::NavPanelBackSelected;

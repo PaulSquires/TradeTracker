@@ -9,6 +9,7 @@
 #include "ib-tracker.h"
 #include "NavPanel.h"
 #include "TradesPanel.h"
+#include "HistoryPanel.h"
 #include "tws-client.h"
 #include "CWindow.h"
 #include "Themes.h"
@@ -61,9 +62,17 @@ LRESULT Main_PositionWindows(HWND hWnd)
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
+    // Position the right hand side History Panel
+    HWND hWndHistoryPanel = GetDlgItem(hWnd, IDC_FRMHISTORYPANEL);
+    int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
+    SetWindowPos(hWndHistoryPanel, 0,
+        rcClient.right - nHistoryPanelWidth, 0, nHistoryPanelWidth, rcClient.bottom,
+        SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
     // Position the middle Trades Panel
     HWND hWndTradesPanel = GetDlgItem(hWnd, IDC_FRMTRADESPANEL);
-    int nTradesPanelWidth = (rcClient.right - nNavPanelWidth);
+    int nTradesPanelWidth = (rcClient.right - nHistoryPanelWidth - nNavPanelWidth);
     SetWindowPos(hWndTradesPanel, 0,
         nNavPanelWidth, 0, nTradesPanelWidth, rcClient.bottom,
         SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -85,6 +94,27 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         if (wParam != SIZE_MINIMIZED)
             Main_PositionWindows(hWnd);
     break;
+
+
+    case WM_ERASEBKGND:
+    {
+        // Handle all of the painting in WM_PAINT
+        // We do not need to paint the background because the full clint area will always
+        // be covered by child windows (NavPanel, Trades Panel, History Panel)
+        return TRUE;
+        break;
+    }
+
+
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        EndPaint(hWnd, &ps);
+        break;
+    }
 
 
     case WM_DESTROY:
@@ -155,6 +185,8 @@ int APIENTRY wWinMain(
         (INT)InitalMainHeight
         );
 
+    pWindowMain->SetBrush(GetStockBrush(NULL_BRUSH));
+
 
     // Set the top level main window that the ApplyActiveTheme function will use
     // to enumerate all children windows to apply any newly changed theme.
@@ -173,6 +205,7 @@ int APIENTRY wWinMain(
     // Load the child windows
     CWindow* pWindowNavPanel = NavPanel_Show(hWndMain);
     CWindow* pWindowTradesPanel = TradesPanel_Show(hWndMain);
+    CWindow* pWindowHistoryPanel = HistoryPanel_Show(hWndMain);
 
 
     // Center the main window within the desktop taking into account the actual work area.
@@ -189,6 +222,8 @@ int APIENTRY wWinMain(
 
     // delete our manually created memory and pointers for the various child panels.
     if (pWindowNavPanel) delete(pWindowNavPanel);
+    if (pWindowTradesPanel) delete(pWindowTradesPanel);
+    if (pWindowHistoryPanel) delete(pWindowHistoryPanel);
     if (pWindowMain) delete(pWindowMain);
 
     return 0;

@@ -23,6 +23,8 @@ void Initialize_Blue_Theme(DWORD clr[][(int)Themes::Count])
 
 	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 255, 255, 255);
 
+	clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::MakeARGB(255, 13, 131, 221);
+
 }
 
 

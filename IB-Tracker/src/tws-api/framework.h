@@ -16,8 +16,11 @@
 #include <tchar.h>
 #include <commctrl.h>
 #include <iostream>
+#include <fstream>
 
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #include <objidl.h>
 #include <gdiplus.h>

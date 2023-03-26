@@ -43,11 +43,14 @@
     <ClCompile Include="src\tws-api\Utils.cpp" />
     <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
     <ClCompile Include="src\tws_gui\CWindow.cpp" />
+    <ClCompile Include="src\tws_gui\database.cpp" />
+    <ClCompile Include="src\tws_gui\HistoryPanel.cpp" />
     <ClCompile Include="src\tws_gui\ib-tracker.cpp" />
     <ClCompile Include="src\tws_gui\NavPanel.cpp" />
     <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
     <ClCompile Include="src\tws_gui\Theme-Light.cpp" />
     <ClCompile Include="src\tws_gui\Themes.cpp" />
+    <ClCompile Include="src\tws_gui\trade.cpp" />
     <ClCompile Include="src\tws_gui\TradesPanel.cpp" />
     <ClCompile Include="src\tws_gui\tws-client.cpp" />
     <ClCompile Include="src\tws_gui\Theme-Dark.cpp" />
@@ -115,10 +118,13 @@
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />
     <ClInclude Include="src\tws_gui\CWindow.h" />
+    <ClInclude Include="src\tws_gui\database.h" />
+    <ClInclude Include="src\tws_gui\HistoryPanel.h" />
     <ClInclude Include="src\tws_gui\ib-tracker.h" />
     <ClInclude Include="src\tws_gui\NavPanel.h" />
     <ClInclude Include="src\tws_gui\SuperLabel.h" />
     <ClInclude Include="src\tws_gui\Themes.h" />
+    <ClInclude Include="src\tws_gui\trade.h" />
     <ClInclude Include="src\tws_gui\TradesPanel.h" />
     <ClInclude Include="src\tws_gui\tws-client.h" />
   </ItemGroup>
