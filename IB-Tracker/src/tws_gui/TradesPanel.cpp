@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "ib-tracker.h"
 #include "TradesPanel.h"
+#include "SuperLabel.h"
 #include "Themes.h"
 #include "trade.h"
 
@@ -52,20 +53,22 @@ void CreateListBoxData(Trade* trade)
     
     
     // *** TRADE HEADER LINE ***
-    SetColumnData(ld, 0, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, 0, L"\u23F7", StringAlignmentFar, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    SetColumnData(ld, 1, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 10, FontStyleRegular | FontStyleBold);
     // Col 1 to 6 are set based on incoming TWS price data 
-    SetColumnData(ld, 1, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
     SetColumnData(ld, 2, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);
+        ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
     SetColumnData(ld, 3, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 8, FontStyleRegular);
-    SetColumnData(ld, 4, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, 4, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    SetColumnData(ld, 5, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
-    SetColumnData(ld, 5, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, 6, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 10, FontStyleRegular | FontStyleBold);   // current price
-    SetColumnData(ld, 6, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, 7, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
     vec.push_back(ld);
 
@@ -111,46 +114,50 @@ void CreateListBoxData(Trade* trade)
             ld->trade = trade;
 
             std::wstring wszDot = L"\u23FA";   // dot character
-            std::wstring expiryDate; // = QDate::fromString(leg->expiryDate, "yyyy-MM-dd");
-            std::wstring wszShortDate = L"Mar 24"; // = expiryDate.toString("MMM dd");
-            std::wstring wszDTE = L"6d";
+            std::wstring currentDate = AfxCurrentDate();
+            std::wstring expiryDate = leg->expiryDate;
+            std::wstring wszShortDate = AfxShortDate(expiryDate);
+            std::wstring wszDTE;
 
-            dp(AfxCurrentDate());
 
             // If the ExpiryDate is 2 days or less then display in Yellow, otherwise Magenta.
+            int DTE = AfxDaysBetween(currentDate, expiryDate);
+            wszDTE = std::to_wstring(DTE) + L"d";
+
             ThemeElement WarningDTE = ThemeElement::TradesPanelNormalDTE;
-            //if (QDate::currentDate().daysTo(expiryDate) < 3) 
-            //    WarningDTE = ThemeElement::TradesPanelwarningDTE;
+            if (DTE < 3) {
+                WarningDTE = ThemeElement::TradesPanelWarningDTE;
+            }
 
             // If the expiry year is greater than current year + 1 then add
             // the year to the display string. Useful for LEAP options.
-            //if (expiryDate.year() > QDate::currentDate().year() + 1) {
-            //    strShortDate = strShortDate + "/" + QString::number(expiryDate.year());
-            //}
-
-
-            // wszDTE = QString::number(QDate::currentDate().daysTo(expiryDate)) + "d";
-                        
+            if (AfxGetYear(expiryDate) > AfxGetYear(currentDate) + 1) {
+                wszShortDate.append(L"/"); 
+                wszShortDate.append(std::to_wstring(AfxGetYear(expiryDate)));
+            }
                         
             SetColumnData(ld, 0, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular );  // empty column
+                ThemeElement::TradesPanelText, 8, FontStyleRegular);
 
-            SetColumnData(ld, 1, wszDot, StringAlignmentNear, ThemeElement::TradesPanelBack,
+            SetColumnData(ld, 1, wszDot, StringAlignmentFar, ThemeElement::TradesPanelBack,
                 ThemeElement::TradesPanelText, 8, FontStyleRegular);   // dot (magenta/yellow)
 
-            SetColumnData(ld, 2, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark,
+            SetColumnData(ld, 2, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+                ThemeElement::TradesPanelText, 8, FontStyleRegular);  // empty column
+
+            SetColumnData(ld, 3, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark,
                 ThemeElement::TradesPanelText, 8, FontStyleRegular);  // position quantity
 
-            SetColumnData(ld, 3, wszShortDate, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
+            SetColumnData(ld, 4, wszShortDate, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
                 ThemeElement::TradesPanelText, 8, FontStyleRegular);   // expiry date
 
-            SetColumnData(ld, 4, wszDTE, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
+            SetColumnData(ld, 5, wszDTE, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
                 ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // DTE
 
-            SetColumnData(ld, 5, leg->strikePrice, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
+            SetColumnData(ld, 6, leg->strikePrice, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
                 ThemeElement::TradesPanelText, 8, FontStyleRegular);   // strike price
 
-            SetColumnData(ld, 6, leg->PutCall, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
+            SetColumnData(ld, 7, leg->PutCall, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
                 ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // PutCall
 
             vec.push_back(ld);
@@ -253,9 +260,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
             : GetThemeColor(ThemeElement::TradesPanelBack);
         DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
         
-        std::wstring wszFontName = L"Arial";
+        std::wstring wszFontName = L"Microsoft Sans Serif";
+        //std::wstring wszFontName = L"Segoe UI";
         FontFamily   fontFamily(wszFontName.c_str());
-        REAL fontSize = 8;
+        REAL fontSize = 10;
         int fontStyle = FontStyleRegular;
         
         StringAlignment alignment = StringAlignmentNear;
@@ -274,10 +282,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                 //int nColWidth = (int)(nWidth / 7);  // (int)AfxScaleX(120);
                 int nLeft = 0;
 
-                int nColWidth[7] = { 100, 100, 100, 100, 100, 100, 100 };
+                int nColWidth[8] = { 35, 40, 40, 40, 40, 40, 40, 40 };
 
                 // Draw each of the columns
-                for (int i = 0; i < 7; i++) {
+                for (int i = 0; i < 8; i++) {
                     wszText = ld->col[i].wszText;
                     
                     alignment = ld->col[i].alignment;
@@ -285,7 +293,7 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                         ? GetThemeColor(ThemeElement::TradesPanelBackHot) 
                         : GetThemeColor(ld->col[i].backTheme);
                     nTextColor = GetThemeColor(ld->col[i].textTheme);
-                    fontSize = ld->col[i].fontSize;
+                    fontSize = 24; // ld->col[i].fontSize;
                     fontStyle = ld->col[i].fontStyle;
 
                     int colWidth = (int)AfxScaleX((float)nColWidth[i]);
@@ -293,7 +301,8 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                     backBrush.SetColor(nBackColor);
                     graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
                     
-                    Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+                    //Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+                    Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPixel);
                     SolidBrush   textBrush(nTextColor);
                     StringFormat stringF(StringFormatFlagsNoWrap);
                     stringF.SetAlignment(alignment);
@@ -554,16 +563,17 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_SIZE:
     {
-        // Fill the entire client area with our listbox.
-        // Get the entire client area
+        // Move ListBox leaving a top and bottom margin.
         RECT rcClient;
         GetClientRect(hWnd, &rcClient);
 
+        int margin = (int)AfxScaleY(20);
+
         HWND hListBox = GetDlgItem(hWnd, IDC_LISTBOX);
         SetWindowPos(hListBox, 0, 
-            rcClient.left, rcClient.top,
+            rcClient.left, rcClient.top + margin,
             rcClient.right - rcClient.left, 
-            rcClient.bottom - rcClient.top, 
+            rcClient.bottom - rcClient.top - (margin * 2), 
             SWP_NOZORDER | SWP_SHOWWINDOW);
     }
     break;
@@ -583,18 +593,15 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         HDC hdc = BeginPaint(hWnd, &ps);
 
-        //Graphics graphics(hdc);
+        Graphics graphics(hdc);
 
-        //// The ListBox covers the entire client area so currently there is no need
-        //// to paint the background. This may change in the future if we add more controls.
-        //
-        //DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+        DWORD nBackColor = GetThemeColor(ThemeElement::NavPanelBack);
 
-        //// Create the background brush
-        //SolidBrush backBrush(nBackColor);
+        // Create the background brush
+        SolidBrush backBrush(nBackColor);
 
-        //// Paint the background using brush.
-        //graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+        // Paint the background using brush.
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 
         EndPaint(hWnd, &ps);
         break;
@@ -629,6 +636,27 @@ CWindow* TradesPanel_Show(HWND hWndParent)
 
     // Can only set the brush after the window is created
     pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
+
+    
+    SuperLabel* pData = nullptr;
+    
+    HWND hCtl = CreateSuperLabel(
+        HWND_TRADESPANEL,
+        IDC_LABEL,
+        SuperLabelType::TextOnly,
+        0, 0, 200, 18);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = false;
+        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->TextColor = ThemeElement::NavPanelText;
+        pData->FontSize = 8;
+        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
+        pData->wszText = L"Active Trades";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.

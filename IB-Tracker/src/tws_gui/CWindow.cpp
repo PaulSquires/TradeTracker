@@ -1039,11 +1039,20 @@ int AfxAstroDay(int nDay, int nMonth, int nYear)
 //' ========================================================================================
 //' Returns the number of days between two ISO formatted dates.
 //' ========================================================================================
-int AfxDaysBetween(std::wstring& wszStartDate, std::wstring& wszEndDate)
+int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate)
 {
+    // YYYY-MM-DD
+    // 0123456789
 
-    
-    return AfxAstroDay(nDay1, nMonth1, nYear1) - AfxAstroDay(nDay2, nMonth2, nYear2)
+    int nYear1 = std::stoi(wszStartDate.substr(0, 4));
+    int nMonth1 = std::stoi(wszStartDate.substr(5, 2));
+    int nDay1 = std::stoi(wszStartDate.substr(8,2));
+
+    int nYear2 = std::stoi(wszEndDate.substr(0, 4));
+    int nMonth2 = std::stoi(wszEndDate.substr(5, 2));
+    int nDay2 = std::stoi(wszEndDate.substr(8, 2));
+
+    return AfxAstroDay(nDay2, nMonth2, nYear2) - AfxAstroDay(nDay1, nMonth1, nYear1);
 }
 
 
@@ -1056,3 +1065,33 @@ std::wstring AfxCurrentDate()
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, NULL, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
     return buffer.substr(0, bytesWritten-1); // remove terminating null
 }
+
+
+//' ========================================================================================
+//' Returns the year from a date in ISO format (YYYY-MM-DD)
+//' ========================================================================================
+int AfxGetYear(std::wstring wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+    return std::stoi(wszDate.substr(0, 4));
+}
+
+
+//' ========================================================================================
+//' Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
+//' We use this when dealing with Option expiration dates to display.
+//' ========================================================================================
+std::wstring AfxShortDate(std::wstring wszDate)
+{
+    SYSTEMTIME st{};
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT,NULL, &st, L"MMM dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
+

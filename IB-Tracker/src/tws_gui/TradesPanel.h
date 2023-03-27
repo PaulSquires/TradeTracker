@@ -9,6 +9,7 @@
 const int IDC_TRADESPANEL = 101;
 
 const int IDC_LISTBOX = 102;
+const int IDC_LABEL = 103;
 
 // Construct the Trades ListBox data structure (Vector) that will be directly accessed
 // for each row during the WM_DRAWITEM notification. The message will specify which ListBox
@@ -29,7 +30,7 @@ struct ColumnData {
 
 struct LineData {
     Trade*          trade = nullptr;
-    ColumnData      col[7];
+    ColumnData      col[8];
 };
 
 
