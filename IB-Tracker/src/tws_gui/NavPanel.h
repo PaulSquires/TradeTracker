@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "CWindow.h"
 
-const int IDC_FRMNAVPANEL = 100;
+const int IDC_NAVPANEL = 100;
 
 const int IDC_NAVPANEL_LOGO          = 101;
 const int IDC_NAVPANEL_GEARICON      = 102;

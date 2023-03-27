@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <tuple>     // std::ignore
 
 #include <objidl.h>
 #include <gdiplus.h>

@@ -4,8 +4,6 @@
 
 #include "pch.h"
 
-#include <tuple>     // std::ignore
-
 #include "ib-tracker.h"
 #include "NavPanel.h"
 #include "TradesPanel.h"
@@ -16,7 +14,15 @@
 #include "database.h"
 
 
+#ifndef ENABLECONSOLE
+// Set to zero to disable the console window when the application runs.
+// We would disable the console when distributing/deploying the final app.
+#define ENABLECONSOLE 1
+#endif
 
+
+
+#if (ENABLECONSOLE >= 1)
 void BindStdHandlesToConsole()
 {
     // Redirect the CRT standard input, output, and error handles to the console
@@ -44,6 +50,8 @@ void BindStdHandlesToConsole()
     std::wcin.clear();
     std::cin.clear();
 }
+#endif
+
 
 
 
@@ -56,7 +64,7 @@ LRESULT Main_PositionWindows(HWND hWnd)
     GetClientRect(hWnd, &rcClient);
 
     // Position the left hand side Navigation Panel
-    HWND hWndNavPanel = GetDlgItem(hWnd, IDC_FRMNAVPANEL);
+    HWND hWndNavPanel = GetDlgItem(hWnd, IDC_NAVPANEL);
     int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
     SetWindowPos(hWndNavPanel, 0,
         0, 0, nNavPanelWidth, rcClient.bottom,
@@ -64,7 +72,7 @@ LRESULT Main_PositionWindows(HWND hWnd)
 
 
     // Position the right hand side History Panel
-    HWND hWndHistoryPanel = GetDlgItem(hWnd, IDC_FRMHISTORYPANEL);
+    HWND hWndHistoryPanel = GetDlgItem(hWnd, IDC_HISTORYPANEL);
     int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
     SetWindowPos(hWndHistoryPanel, 0,
         rcClient.right - nHistoryPanelWidth, 0, nHistoryPanelWidth, rcClient.bottom,
@@ -72,7 +80,7 @@ LRESULT Main_PositionWindows(HWND hWnd)
 
 
     // Position the middle Trades Panel
-    HWND hWndTradesPanel = GetDlgItem(hWnd, IDC_FRMTRADESPANEL);
+    HWND hWndTradesPanel = GetDlgItem(hWnd, IDC_TRADESPANEL);
     int nTradesPanelWidth = (rcClient.right - nHistoryPanelWidth - nNavPanelWidth);
     SetWindowPos(hWndTradesPanel, 0,
         nNavPanelWidth, 0, nTradesPanelWidth, rcClient.bottom,
@@ -153,11 +161,15 @@ int APIENTRY wWinMain(
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
     
     
+
+#if (ENABLECONSOLE >= 1)
     // Create console terminal for GUI application in order to print out debug messages
     AllocConsole();
     
     // Redirect stderr/stdout/stdin to new console
     BindStdHandlesToConsole();
+#endif
+
 
 
     // Set the Theme to use for all windows and controls. Remember to call

@@ -3,9 +3,186 @@
 #include "ib-tracker.h"
 #include "TradesPanel.h"
 #include "Themes.h"
+#include "trade.h"
+
+
+// TickerId declaration from TWS CommonDefs.h
+typedef long TickerId;
+
+
+HWND HWND_TRADESPANEL = NULL;
 
 const int LISTBOX_ROWHEIGHT = 20;
 
+std::vector<OpenTradesStruct> vec;
+
+
+
+//' ========================================================================================
+//' Create and populate the display data for the Trades ListBox
+//' ========================================================================================
+void CreateOpenDisplayData(Trade* trade)
+{
+    OpenTradesStruct* ots = new OpenTradesStruct;
+    ZeroMemory(ots, sizeof(OpenTradesStruct));
+
+    ots->trade = trade;
+    
+    ots->lineType = LineType::optionHeader;
+    ots->symbol = trade->tickerSymbol;
+
+
+    std::wstring    dot;               // Column 1
+    DWORD           clrDot;            // ARGB magenta or yellow (2 days or less DTE)
+    std::wstring    position;          // Column 2
+    std::wstring    expiryDate;        // Column 3  (short date)
+    std::wstring    DTE;               // Column 4  days to expiration
+    std::wstring    strikePrice;       // Column 5
+    std::wstring    PutCall;           // Column 6
+
+
+    // Roll up all of the SHARES or FUTURES transactions and display the aggregate rather than the individual legs.
+    //int aggregate = 0;
+    //for (const auto& leg : trade->openLegs) {
+    //    if (leg->underlying == "SHARES") {
+    //        textShares = "SHARES";
+    //        aggregate = aggregate + leg->openQuantity;
+    //    }
+    //    else if (leg->underlying == "FUTURES") {
+    //        textShares = "FUTURES";
+    //        aggregate = aggregate + leg->openQuantity;
+    //    }
+    //}
+
+    //if (aggregate) {
+    //    QTreeWidgetItem* legItem = new QTreeWidgetItem(treeItem);
+    //    if (isHistory) { legItem->setDisabled(true); }
+
+    //    int col = 1;
+    //    if (!isHistory) {
+    //        text = QChar(0x23FA);     // filled circle
+    //        SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::magenta, baseGrayBack);
+    //        col++;
+    //    }
+
+    //    for (int i = 2; i < 7; ++i) {
+    //        text = "";
+    //        SetItemAttributes(legItem, i, text, Qt::AlignLeft, font, gray, darkGrayBack);
+    //    }
+
+    //    text = textShares;
+    //    SetItemAttributes(legItem, col, text, Qt::AlignLeft | Qt::AlignVCenter, font, gray, darkGrayBack);
+
+    //    text = QString::number(std::abs(trade->ACB / aggregate), 'f', 2);
+    //    SetItemAttributes(legItem, 5, text, Qt::AlignCenter, font, gray, darkGrayBack);
+
+    //    text = QString::number(aggregate);
+    //    SetItemAttributes(legItem, 6, text, Qt::AlignRight | Qt::AlignVCenter, font, white, darkGrayBack);
+
+    //}
+
+    for (const auto& leg : trade->openLegs) {
+        if (leg->underlying == "OPTIONS") {
+            QTreeWidgetItem* legItem = new QTreeWidgetItem(treeItem);
+            if (isHistory) { legItem->setDisabled(true); }
+
+            // Store the leg pointer
+            legItem->setData(0, Qt::UserRole, QVariant::fromValue((void*)leg));
+
+            int col = 1;
+
+            QDate expiryDate = QDate::fromString(leg->expiryDate, "yyyy-MM-dd");
+            QString strShortDate = expiryDate.toString("MMM dd");
+
+            if (!isHistory) {
+                text = QChar(0x23FA);     // filled circle
+
+                // If the ExpiryDate is 2 days or less then display in Yellow, otherwise Magenta.
+                if (QDate::currentDate().daysTo(expiryDate) < 3) {
+                    SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::yellow, baseGrayBack);
+                }
+                else {
+                    SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::magenta, baseGrayBack);
+                }
+                col++;
+            }
+
+            text = QString::number(leg->openQuantity);
+            SetItemAttributes(legItem, col, text, Qt::AlignRight | Qt::AlignVCenter, font, white, darkGrayBack);
+            col++;
+
+
+            // If the expiry year is greater than current year + 1 then add
+            // the year to the display string. Useful for LEAP options.
+            if (expiryDate.year() > QDate::currentDate().year() + 1) {
+                strShortDate = strShortDate + "/" + QString::number(expiryDate.year());
+            }
+
+            text = strShortDate;
+            SetItemAttributes(legItem, col, text, Qt::AlignCenter, font, white, lightGrayBack);
+            col++;
+
+            text = QString::number(QDate::currentDate().daysTo(expiryDate)) + "d";
+            SetItemAttributes(legItem, col, text, Qt::AlignCenter, font, gray, darkGrayBack);
+            col++;
+
+            text = leg->strikePrice;
+            SetItemAttributes(legItem, col, text, Qt::AlignCenter, font, white, lightGrayBack);
+            col++;
+
+            text = " " + leg->PutCall;
+            SetItemAttributes(legItem, col, text, Qt::AlignLeft | Qt::AlignVCenter, font, gray, darkGrayBack);
+        }
+    }
+
+    AddSeparatorTreeItem(treeItem);
+    //std::wstring wszTemp;
+    //ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), wszTemp.c_str());
+}
+
+
+
+//' ========================================================================================
+//' Populate the Trades table with the current active/open trades
+//' ========================================================================================
+void ShowActiveTradesTable()
+{
+  //  PauseTWS();
+
+    for (auto& trade : trades) {
+        // reset the treeItem pointer
+       // trade->treeItem = nullptr;
+    }
+
+    // Clear the current trades list
+    ListBox_ResetContent(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
+
+    //ui->labelTicker->setText("Active Trades");
+
+    // Sort the trades vector based on ticker symbol
+    std::sort(trades.begin(), trades.end(),
+        [](const Trade* trade1, const Trade* trade2) {
+            return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
+        });
+
+    bool isHistory = false;
+
+    //ui->treeTrades->setStyleSheet("QTreeView::item { padding: 4px;}");
+
+    for (const auto& trade : trades) {
+        // We are displaying only all open trades
+        if (trade->isOpen) {
+            CreateDisplayData(trade, isHistory);
+        }
+    }
+
+    //ui->treeTrades->expandAll();
+
+    // hash map to make updating real time prices fast
+    // CreateMapOpenTrades();     
+    // 
+    //ResumeTWS();
+}
 
 
 //' ========================================================================================
@@ -19,6 +196,7 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         lpdis->itemAction == ODA_SELECT ||
         lpdis->itemAction == ODA_FOCUS) {
 
+        int linenum = lpdis->itemID;
         int nWidth = (lpdis->rcItem.right - lpdis->rcItem.left);
         int nHeight = (lpdis->rcItem.bottom - lpdis->rcItem.top);
 
@@ -82,7 +260,7 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         //RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
         RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
 
-        std::wstring wszText = AfxGetListBoxText(lpdis->hwndItem, lpdis->itemID);
+        std::wstring wszText = L"linenum = " + std::to_wstring(linenum);    // = AfxGetListBoxText(lpdis->hwndItem, lpdis->itemID);
         graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
 
         BitBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
@@ -391,14 +569,14 @@ CWindow* TradesPanel_Show(HWND hWndParent)
     // Create the window and child controls
     CWindow* pWindow = new CWindow;
 
-    HWND HWND_FRMTRADESPANEL =
+    HWND_TRADESPANEL =
         pWindow->Create(hWndParent, L"", &TradesPanel_WndProc, 0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     // This is a child window of the main application parent so treat it like child
     // control and assign it a ControlID.
-    SetWindowLongPtr(HWND_FRMTRADESPANEL, GWLP_ID, IDC_FRMTRADESPANEL);
+    SetWindowLongPtr(HWND_TRADESPANEL, GWLP_ID, IDC_TRADESPANEL);
 
     // Can only set the brush after the window is created
     pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
@@ -406,17 +584,17 @@ CWindow* TradesPanel_Show(HWND hWndParent)
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     HWND hListBox = 
-        pWindow->AddControl(Controls::ListBox, HWND_FRMTRADESPANEL, IDC_LISTBOX, L"", 
+        pWindow->AddControl(Controls::ListBox, HWND_TRADESPANEL, IDC_LISTBOX, L"", 
             0, 0, 0, 0, 
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP | 
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
-            LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOTIFY, 
+            LBS_NODATA | LBS_OWNERDRAWFIXED | LBS_NOTIFY, 
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL, 
             (SUBCLASSPROC)&TradesPanelListBox_SubclassProc, 
             IDC_LISTBOX, (DWORD_PTR)pWindow);
 
-    for (int i = 0; i < 20; i++) {
-        std::wstring wszTemp = L"My test string " + std::to_wstring(i);
+    for (int i = 0; i < 200; i++) {
+        std::wstring wszTemp;
         ListBox_AddString(hListBox, wszTemp.c_str());
     }
 

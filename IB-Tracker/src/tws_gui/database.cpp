@@ -298,6 +298,7 @@ bool LoadDatabase()
     
     }
 
+
     // Now that the trades have been constructed, create the open position vector based
     // on a sorted list of open legs. We also calculate the ACB for the entire Trade
     // rather than physically storing that value in the database. This allows us to

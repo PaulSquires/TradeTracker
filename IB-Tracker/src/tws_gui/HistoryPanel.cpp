@@ -6,6 +6,8 @@
 #include "SuperLabel.h"
 #include "Themes.h"
 
+HWND HWND_HISTORYPANEL = nullptr;
+
 
 
 //' ========================================================================================
@@ -70,14 +72,14 @@ CWindow* HistoryPanel_Show(HWND hWndParent)
     // Create the window and child controls
     CWindow* pWindow = new CWindow;
    
-    HWND HWND_FRMHISTORYPANEL =
+    HWND_HISTORYPANEL =
         pWindow->Create(hWndParent, L"", & HistoryPanel_WndProc, 0, 0, HISTORYPANEL_WIDTH, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
     // This is a child window of the main application parent so treat it like child
     // control and assign it a ControlID.
-    SetWindowLongPtr(HWND_FRMHISTORYPANEL, GWLP_ID, IDC_FRMHISTORYPANEL);
+    SetWindowLongPtr(HWND_HISTORYPANEL, GWLP_ID, IDC_HISTORYPANEL);
 
     // Can only set the brush after the window is created
     pWindow->SetBrush(GetStockBrush(NULL_BRUSH));

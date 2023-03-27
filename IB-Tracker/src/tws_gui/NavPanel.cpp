@@ -2,9 +2,12 @@
 #include "pch.h"
 #include "ib-tracker.h"
 #include "NavPanel.h"
+#include "TradesPanel.h"
 #include "tws-client.h"
 #include "SuperLabel.h"
 #include "Themes.h"
+
+HWND HWND_NAVPANEL = nullptr;
 
 
 //' ========================================================================================
@@ -87,12 +90,11 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 break;
             }
 
-            //case IDC_NAVPANEL_LIGHTTHEME:
-            //{
-            //    SetTheme(Themes::Light);
-            //    ApplyActiveTheme();
-            //    break;
-            //}
+            case IDC_NAVPANEL_ACTIVETRADES:
+            {
+                ShowActiveTradesTable();
+                break;
+            }
 
             //case IDC_NAVPANEL_DARKTHEME:
             //{
@@ -140,14 +142,14 @@ CWindow* NavPanel_Show(HWND hWndParent)
     // Create the window and child controls
     CWindow* pWindow = new CWindow;
    
-    HWND HWND_FRMNAVPANEL =
+    HWND_NAVPANEL =
         pWindow->Create(hWndParent, L"", & NavPanel_WndProc, 0, 0, NAVPANEL_WIDTH, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
     // This is a child window of the main application parent so treat it like child
     // control and assign it a ControlID.
-    SetWindowLongPtr(HWND_FRMNAVPANEL, GWLP_ID, IDC_FRMNAVPANEL);
+    SetWindowLongPtr(HWND_NAVPANEL, GWLP_ID, IDC_NAVPANEL);
 
     // Can only set the brush after the window is created
     pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
@@ -164,7 +166,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
    // HEADER CONTROLS
     nLeft = (NAVPANEL_WIDTH - 68) / 2;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_LOGO,
         SuperLabelType::ImageOnly,
         nLeft, 20, 68, 68);
@@ -182,7 +184,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
    nLeft = NAVPANEL_WIDTH - 40;
    hCtl = CreateSuperLabel(
-       HWND_FRMNAVPANEL,
+       HWND_NAVPANEL,
        IDC_NAVPANEL_GEARICON,
        SuperLabelType::ImageOnly,
        nLeft, 60, 20, 20);
@@ -201,7 +203,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
    
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_USERNAME,
         SuperLabelType::TextOnly,
         0, 100, NAVPANEL_WIDTH, 18);
@@ -219,7 +221,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
 
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL, 
+        HWND_NAVPANEL, 
         IDC_NAVPANEL_APPNAME,
         SuperLabelType::TextOnly, 
         0, 118, NAVPANEL_WIDTH, 18);
@@ -239,7 +241,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     // SEPARATOR
     nTop = 150;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL, -1, 
+        HWND_NAVPANEL, -1, 
         SuperLabelType::LineHorizontal, 
         0, nTop, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
@@ -257,7 +259,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     nLeftOffset = 0;
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_ACTIVETRADES,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -282,7 +284,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
    
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_CLOSEDTRADES,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -308,7 +310,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL, -1,
+        HWND_NAVPANEL, -1,
         SuperLabelType::LineHorizontal,
         0, nTop, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
@@ -324,7 +326,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_NEWTRADE,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -349,7 +351,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_SHORTSTRANGLE,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -374,7 +376,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_SHORTPUT,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -399,7 +401,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_SHORTCALL,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -425,7 +427,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL, -1,
+        HWND_NAVPANEL, -1,
         SuperLabelType::LineHorizontal,
         0, nTop, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
@@ -441,7 +443,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_TICKERTOTALS,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -466,7 +468,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_DAILYTOTALS,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -491,7 +493,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_RECONCILE,
         SuperLabelType::TextOnly,
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -517,7 +519,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         -1, SuperLabelType::LineHorizontal,
         0, nTop, NAVPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
@@ -533,7 +535,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_CONFIGURE,
         SuperLabelType::TextOnly, 
         0, nTop, NAVPANEL_WIDTH, nItemHeight);
@@ -557,7 +559,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
 
     hCtl = CreateSuperLabel(
-        HWND_FRMNAVPANEL,
+        HWND_NAVPANEL,
         IDC_NAVPANEL_MESSAGES,
         SuperLabelType::TextOnly,
         0, 0, NAVPANEL_WIDTH, 18);

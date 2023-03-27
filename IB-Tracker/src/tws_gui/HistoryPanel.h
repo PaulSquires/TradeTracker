@@ -4,7 +4,7 @@
 #include "CWindow.h"
 
 
-const int IDC_FRMHISTORYPANEL = 102;
+const int IDC_HISTORYPANEL = 102;
 
 const int HISTORYPANEL_WIDTH = 260;
 
