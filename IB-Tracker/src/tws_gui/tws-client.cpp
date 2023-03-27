@@ -1,6 +1,7 @@
 
 #include "pch.h"
 #include "tws-client.h"
+#include "UserMessages.h"
 
 
 TwsClient client;
@@ -61,14 +62,20 @@ bool tws_connect()
         client.setConnectOptions(connectOptions);
     }
 
+    SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_START, 0, 0);
+
     bool res = client.connect(host, port, clientId);
     if (res) {
         // Start thread that will start messaging polling
         // and poll if TWS remains connected.
+        SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
         client.processMessages();
 
         StartMonitorThread();
+    }
+    else {
+        SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
     }
 
     return res;

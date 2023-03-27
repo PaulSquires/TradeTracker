@@ -130,6 +130,7 @@
     <ClInclude Include="src\tws_gui\trade.h" />
     <ClInclude Include="src\tws_gui\TradesPanel.h" />
     <ClInclude Include="src\tws_gui\tws-client.h" />
+    <ClInclude Include="src\tws_gui\UserMessages.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />

@@ -3,11 +3,8 @@
 #include "pch.h"
 #include "Themes.h"
 #include "CWindow.h"
+#include "UserMessages.h"
 
-
-// User defined messages
-const int MSG_SUPERLABEL_CLICK     = WM_USER + 1000;
-const int MSG_SUPERLABEL_MOUSEMOVE = WM_USER + 1001;
 
 #define IDB_GEAR                        103
 #define IDB_GEARHOT                     104
@@ -107,7 +104,7 @@ public:
 
 	// Text Normal
 	std::wstring wszText;
-	std::wstring wszFontName;
+	std::wstring wszFontName = L"Microsoft Sans Serif";
 	REAL FontSize = 0;
 	bool FontBold = false;
 	bool FontItalic = false;
@@ -311,15 +308,14 @@ public:
 	void DrawNotchInBuffer()
 	{
 		// If selection mode is enabled then draw the little right hand side notch
-		//if (IsSelected || (m_bIsHot && AllowSelect)) {
 		if (IsSelected) {
-				// Create the background brush
+			// Create the background brush
 			SolidBrush backBrush(GetThemeColor(SelectorColor));
 			// Need to center the notch vertically
-			REAL nNotchHalfHeight = (10 * m_ry) / 2;
+			REAL nNotchHalfHeight = (16 * m_ry) / 2;
 			REAL nTop = (m_rcClient.bottom / 2) - nNotchHalfHeight;
 			PointF point1((REAL)m_rcClient.right, nTop);
-			PointF point2((REAL)m_rcClient.right - (6 * m_rx), nTop + nNotchHalfHeight);
+			PointF point2((REAL)m_rcClient.right - (8 * m_rx), nTop + nNotchHalfHeight);
 			PointF point3((REAL)m_rcClient.right, nTop + (nNotchHalfHeight * 2));
 			PointF points[3] = { point1, point2, point3 };
 			PointF* pPoints = points;

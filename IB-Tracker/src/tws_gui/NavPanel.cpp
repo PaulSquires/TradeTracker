@@ -6,8 +6,9 @@
 #include "tws-client.h"
 #include "SuperLabel.h"
 #include "Themes.h"
+#include "UserMessages.h"
+#include "NavPanel.h"
 
-HWND HWND_NAVPANEL = nullptr;
 
 
 //' ========================================================================================
@@ -25,14 +26,12 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         // otherwise the two controls will bleed into the ones above them.
         RECT rcClient;
         GetClientRect(hWnd, &rcClient);
-        float MinHeight = AfxScaleY(645);
+        float MinHeight = AfxScaleY(540);
 
         if (rcClient.bottom < MinHeight) return 0;
 
-        //SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_BOTTOMSEP), 0,
-        //    0, rcClient.bottom - (int)AfxScaleY(50), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
         SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES), 0,
-            0, rcClient.bottom - (int)AfxScaleY(30), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+            0, rcClient.bottom - (int)AfxScaleY(42), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
     }
         break;
 
@@ -62,6 +61,29 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         graphics.FillRectangle(&backBrush, (int)ps.rcPaint.left, (int)ps.rcPaint.top, (int)ps.rcPaint.right, (int)ps.rcPaint.bottom);
 
         EndPaint(hWnd, &ps);
+        break;
+    }
+
+
+    case MSG_TWS_CONNECT_START:
+    {
+        break;
+    }
+
+
+    case MSG_TWS_CONNECT_SUCCESS:
+    {
+        break;
+    }
+
+
+    case MSG_TWS_CONNECT_FAILURE:
+    {
+        break;
+    }
+
+    case MSG_TWS_CONNECT_DISCONNECT:
+    {
         break;
     }
 
@@ -155,7 +177,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
 
     int nTop, nLeft, nLeftOffset;
-    int nItemHeight = 40;
+    int nItemHeight = 28;
         
     HWND hCtl;
 
@@ -193,7 +215,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
        pData->HotTestEnable = true;
        pData->BackColor = ThemeElement::NavPanelBack;
        pData->BackColorHot = ThemeElement::NavPanelBack;
-       pData->wszToolTip = L"Connect to TWS";
+       pData->wszToolTip = L" Connect to TWS ";
        pData->ImageWidth = 20;
        pData->ImageHeight = 20;
        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEAR), L"PNG");
@@ -274,8 +296,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Active Trades";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -299,8 +321,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Closed Trades";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -341,8 +363,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"New Trade";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -366,8 +388,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Short Strangle";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -391,8 +413,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Short Put";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -416,8 +438,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Short Call";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -458,8 +480,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Ticker Totals";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -483,8 +505,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Daily Totals";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -508,8 +530,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Reconcile";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -550,8 +572,8 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelText;
         pData->TextColorHot = ThemeElement::NavPanelText;
         pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 11;
-        pData->FontSizeHot = 11;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
         pData->wszText = L"Configuration";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
@@ -570,7 +592,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelTextDim;
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
-        pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
+        pData->TextAlignment = SuperLabelAlignment::BottomCenter;
         pData->wszText = L"TWS not connected";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
