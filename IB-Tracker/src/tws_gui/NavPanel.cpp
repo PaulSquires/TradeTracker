@@ -92,7 +92,7 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
             case IDC_NAVPANEL_ACTIVETRADES:
             {
-                ShowActiveTradesTable();
+                ShowActiveTrades();
                 break;
             }
 

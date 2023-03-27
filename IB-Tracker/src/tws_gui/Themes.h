@@ -24,7 +24,11 @@ enum class ThemeElement {
 	TradesPanelBack,
 	TradesPanelBackHot,
 	TradesPanelText,
-	TradesPanelTextHot,
+	TradesPanelTextDim,
+	TradesPanelColBackLight,
+	TradesPanelColBackDark,
+	TradesPanelNormalDTE,
+	TradesPanelWarningDTE,
 
 	HistoryPanelBack,
 

@@ -55,6 +55,9 @@ public:
     std::wstring  futureExpiry = L"";     // YYYYMM of Futures contract expiry
     double        ACB          = 0;
 
+    double  tickerLastPrice = 0;
+    double  tickerClosePrice = 0;
+
     std::vector<Transaction*> transactions;     // pointer list for all transactions in the trade
     std::vector<Leg*> openLegs;                 // sorted list of open legs for this trade
 

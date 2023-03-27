@@ -6,69 +6,91 @@
 #include "trade.h"
 
 
-// TickerId declaration from TWS CommonDefs.h
-typedef long TickerId;
-
-
 HWND HWND_TRADESPANEL = NULL;
 
 const int LISTBOX_ROWHEIGHT = 20;
 
-std::vector<OpenTradesStruct> vec;
+std::vector<LineData*> vec;
+
+
+//' ========================================================================================
+// Destroy all manually allocated ListBox display data that is held in the vector.
+//' ========================================================================================
+void DestroyListBoxDisplayData()
+{
+    for (const auto& ld : vec) {
+        delete(ld);
+    }
+    vec.clear();
+}
+
+
+//' ========================================================================================
+//' Helper function to more easily set the data for an individual ListBox display column.
+//' ========================================================================================
+void SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
+    ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
+{
+    ld->col[index].wszText = wszText;
+    ld->col[index].alignment = alignment;
+    ld->col[index].backTheme = backTheme;
+    ld->col[index].textTheme = textTheme;
+    ld->col[index].fontSize = fontSize;
+    ld->col[index].fontStyle = fontStyle;
+}
 
 
 
 //' ========================================================================================
 //' Create and populate the display data for the Trades ListBox
 //' ========================================================================================
-void CreateOpenDisplayData(Trade* trade)
+void CreateListBoxData(Trade* trade)
 {
-    OpenTradesStruct* ots = new OpenTradesStruct;
-    ZeroMemory(ots, sizeof(OpenTradesStruct));
+    LineData* ld = new LineData;
 
-    ots->trade = trade;
+    ld->trade = trade;
     
-    ots->lineType = LineType::optionHeader;
-    ots->symbol = trade->tickerSymbol;
+    
+    // *** TRADE HEADER LINE ***
+    SetColumnData(ld, 0, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 10, FontStyleRegular | FontStyleBold);
+    // Col 1 to 6 are set based on incoming TWS price data 
+    SetColumnData(ld, 1, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
+    SetColumnData(ld, 2, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    SetColumnData(ld, 3, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    SetColumnData(ld, 4, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
+    SetColumnData(ld, 5, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 10, FontStyleRegular | FontStyleBold);   // current price
+    SetColumnData(ld, 6, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
+    vec.push_back(ld);
 
 
-    std::wstring    dot;               // Column 1
-    DWORD           clrDot;            // ARGB magenta or yellow (2 days or less DTE)
-    std::wstring    position;          // Column 2
-    std::wstring    expiryDate;        // Column 3  (short date)
-    std::wstring    DTE;               // Column 4  days to expiration
-    std::wstring    strikePrice;       // Column 5
-    std::wstring    PutCall;           // Column 6
-
-
+    // *** SHARES ***
     // Roll up all of the SHARES or FUTURES transactions and display the aggregate rather than the individual legs.
-    //int aggregate = 0;
-    //for (const auto& leg : trade->openLegs) {
-    //    if (leg->underlying == "SHARES") {
-    //        textShares = "SHARES";
-    //        aggregate = aggregate + leg->openQuantity;
-    //    }
-    //    else if (leg->underlying == "FUTURES") {
-    //        textShares = "FUTURES";
-    //        aggregate = aggregate + leg->openQuantity;
-    //    }
-    //}
+    std::wstring textShares;
+    int aggregate = 0;
+    for (const auto& leg : trade->openLegs) {
+        if (leg->underlying == L"SHARES") {
+            textShares = L"SHARES";
+            aggregate = aggregate + leg->openQuantity;
+        }
+        else if (leg->underlying == L"FUTURES") {
+            textShares = L"FUTURES";
+            aggregate = aggregate + leg->openQuantity;
+        }
+    }
 
-    //if (aggregate) {
-    //    QTreeWidgetItem* legItem = new QTreeWidgetItem(treeItem);
-    //    if (isHistory) { legItem->setDisabled(true); }
+//    if (aggregate) {
 
-    //    int col = 1;
-    //    if (!isHistory) {
-    //        text = QChar(0x23FA);     // filled circle
-    //        SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::magenta, baseGrayBack);
-    //        col++;
-    //    }
-
-    //    for (int i = 2; i < 7; ++i) {
-    //        text = "";
-    //        SetItemAttributes(legItem, i, text, Qt::AlignLeft, font, gray, darkGrayBack);
-    //    }
+//        int col = 1;
+//        text = QChar(0x23FA);     // filled circle
+//        SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::magenta, baseGrayBack);
+//        col++;
 
     //    text = textShares;
     //    SetItemAttributes(legItem, col, text, Qt::AlignLeft | Qt::AlignVCenter, font, gray, darkGrayBack);
@@ -81,106 +103,108 @@ void CreateOpenDisplayData(Trade* trade)
 
     //}
 
+
+    // *** OPTION LEGS ***
     for (const auto& leg : trade->openLegs) {
-        if (leg->underlying == "OPTIONS") {
-            QTreeWidgetItem* legItem = new QTreeWidgetItem(treeItem);
-            if (isHistory) { legItem->setDisabled(true); }
+        if (leg->underlying == L"OPTIONS") {
+            ld = new LineData;
+            ld->trade = trade;
 
-            // Store the leg pointer
-            legItem->setData(0, Qt::UserRole, QVariant::fromValue((void*)leg));
+            std::wstring expiryDate; // = QDate::fromString(leg->expiryDate, "yyyy-MM-dd");
+            std::wstring wszShortDate = L"Mar 24"; // = expiryDate.toString("MMM dd");
+            std::wstring wszDTE = L"6d";
 
-            int col = 1;
-
-            QDate expiryDate = QDate::fromString(leg->expiryDate, "yyyy-MM-dd");
-            QString strShortDate = expiryDate.toString("MMM dd");
-
-            if (!isHistory) {
-                text = QChar(0x23FA);     // filled circle
-
-                // If the ExpiryDate is 2 days or less then display in Yellow, otherwise Magenta.
-                if (QDate::currentDate().daysTo(expiryDate) < 3) {
-                    SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::yellow, baseGrayBack);
-                }
-                else {
-                    SetItemAttributes(legItem, 0, text, Qt::AlignCenter, font, Qt::magenta, baseGrayBack);
-                }
-                col++;
-            }
-
-            text = QString::number(leg->openQuantity);
-            SetItemAttributes(legItem, col, text, Qt::AlignRight | Qt::AlignVCenter, font, white, darkGrayBack);
-            col++;
-
+            // If the ExpiryDate is 2 days or less then display in Yellow, otherwise Magenta.
+            ThemeElement WarningDTE = ThemeElement::TradesPanelNormalDTE;
+            //if (QDate::currentDate().daysTo(expiryDate) < 3) 
+            //    WarningDTE = ThemeElement::TradesPanelwarningDTE;
 
             // If the expiry year is greater than current year + 1 then add
             // the year to the display string. Useful for LEAP options.
-            if (expiryDate.year() > QDate::currentDate().year() + 1) {
-                strShortDate = strShortDate + "/" + QString::number(expiryDate.year());
-            }
+            //if (expiryDate.year() > QDate::currentDate().year() + 1) {
+            //    strShortDate = strShortDate + "/" + QString::number(expiryDate.year());
+            //}
 
-            text = strShortDate;
-            SetItemAttributes(legItem, col, text, Qt::AlignCenter, font, white, lightGrayBack);
-            col++;
 
-            text = QString::number(QDate::currentDate().daysTo(expiryDate)) + "d";
-            SetItemAttributes(legItem, col, text, Qt::AlignCenter, font, gray, darkGrayBack);
-            col++;
+            // wszDTE = QString::number(QDate::currentDate().daysTo(expiryDate)) + "d";
+                        
+                        
+            SetColumnData(ld, 0, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, 8, FontStyleRegular );  // empty column
 
-            text = leg->strikePrice;
-            SetItemAttributes(legItem, col, text, Qt::AlignCenter, font, white, lightGrayBack);
-            col++;
+            SetColumnData(ld, 1, std::to_wstring(0x23FA), StringAlignmentNear, ThemeElement::TradesPanelBack,
+                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // dot (magenta/yellow)
 
-            text = " " + leg->PutCall;
-            SetItemAttributes(legItem, col, text, Qt::AlignLeft | Qt::AlignVCenter, font, gray, darkGrayBack);
+            SetColumnData(ld, 2, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark,
+                ThemeElement::TradesPanelText, 8, FontStyleRegular);  // position quantity
+
+            SetColumnData(ld, 3, wszShortDate, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
+                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // expiry date
+
+            SetColumnData(ld, 4, wszDTE, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
+                ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // DTE
+
+            SetColumnData(ld, 5, leg->strikePrice, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
+                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // strike price
+
+            SetColumnData(ld, 6, leg->PutCall, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
+                ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // PutCall
+
+            vec.push_back(ld);
         }
     }
 
-    AddSeparatorTreeItem(treeItem);
-    //std::wstring wszTemp;
-    //ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), wszTemp.c_str());
+
+    // *** BLANK SEPARATION LINE ***
+    ld = new LineData;
+    for (int i = 0; i < 7; i++) {
+        SetColumnData(ld, i, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular); 
+    }
+    vec.push_back(ld);
 }
 
 
 
 //' ========================================================================================
-//' Populate the Trades table with the current active/open trades
+//' Populate the Trades ListBox with the current active/open trades
 //' ========================================================================================
-void ShowActiveTradesTable()
+void ShowActiveTrades()
 {
   //  PauseTWS();
 
-    for (auto& trade : trades) {
-        // reset the treeItem pointer
-       // trade->treeItem = nullptr;
-    }
-
-    // Clear the current trades list
-    ListBox_ResetContent(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-
     //ui->labelTicker->setText("Active Trades");
 
+    // TODO: optimize this by sorting after initial database load and after
+    // newly added/deleted data, rather than here every time we display the
+    // active trades.
     // Sort the trades vector based on ticker symbol
     std::sort(trades.begin(), trades.end(),
         [](const Trade* trade1, const Trade* trade2) {
             return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
         });
 
-    bool isHistory = false;
 
-    //ui->treeTrades->setStyleSheet("QTreeView::item { padding: 4px;}");
+    // Clear the current trades list
+    ListBox_ResetContent(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
 
+    // Destroy any existing ListBox line data
+    DestroyListBoxDisplayData();
+
+    // Create the new ListBox line data
     for (const auto& trade : trades) {
         // We are displaying only all open trades
         if (trade->isOpen) {
-            CreateDisplayData(trade, isHistory);
+            CreateListBoxData(trade);
         }
     }
 
-    //ui->treeTrades->expandAll();
+    // Display the new ListBox data
+    for (int i = 0; i < (int)vec.size(); i++) {
+        ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L""); 
+    }
+    AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
 
-    // hash map to make updating real time prices fast
-    // CreateMapOpenTrades();     
-    // 
     //ResumeTWS();
 }
 
@@ -217,51 +241,64 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 
+        // Set some defaults in case there is no valid ListBox line number
+        std::wstring wszText;
+        
+        DWORD nBackColor = (bIsHot)
+            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+            : GetThemeColor(ThemeElement::TradesPanelBack);
+        DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
+        
+        std::wstring wszFontName = L"Arial";
+        FontFamily   fontFamily(wszFontName.c_str());
+        REAL fontSize = 8;
+        int fontStyle = FontStyleRegular;
+        
+        StringAlignment alignment = StringAlignmentNear;
 
-        DWORD nBackColor = (bIsHot 
-            ? GetThemeColor(ThemeElement::TradesPanelBackHot) 
-            : GetThemeColor(ThemeElement::TradesPanelBack));
 
-        DWORD nTextColor = (bIsHot
-            ? GetThemeColor(ThemeElement::TradesPanelTextHot)
-            : GetThemeColor(ThemeElement::TradesPanelText));
-
-        // Create the background brush
+        // Paint the full width background using brush 
         SolidBrush backBrush(nBackColor);
-
-        // Paint the background using brush and default pen. Use RoundRect because 
-        // we may want to have rounded corners.
         graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
 
 
-        std::wstring wszFontName = L"Tahoma";
-        FontFamily fontFamily(wszFontName.c_str());
+        // Get the current ListBox line data should a valid line exist
+        // Paint the individual columns with the specific data.
+        if (linenum > -1) {
+            LineData* ld = vec.at(linenum);
+            if (ld != nullptr) {
+                int nColWidth = (int)(nWidth / 7);  // (int)AfxScaleX(120);
+                int nLeft = 0;
 
-        REAL fontSize = 9;
-        int fontStyle = FontStyleRegular;
+                // Draw each of the columns
+                for (int i = 0; i < 7; i++) {
+                    wszText = ld->col[i].wszText;
+                    
+                    alignment = ld->col[i].alignment;
+                    nBackColor = (bIsHot) 
+                        ? GetThemeColor(ThemeElement::TradesPanelBackHot) 
+                        : GetThemeColor(ld->col[i].backTheme);
+                    nTextColor = GetThemeColor(ld->col[i].textTheme);
+                    fontSize = ld->col[i].fontSize;
+                    fontStyle = ld->col[i].fontStyle;
 
-            //if (FontBoldHot) fontStyle |= FontStyleBold;
-            //if (FontItalicHot) fontStyle |= FontStyleItalic;
-            //if (FontUnderlineHot) fontStyle |= FontStyleUnderline;
+                    backBrush.SetColor(nBackColor);
+                    graphics.FillRectangle(&backBrush, nLeft, 0, nColWidth, nHeight);
+                    
+                    Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+                    SolidBrush   textBrush(nTextColor);
+                    StringFormat stringF(StringFormatFlagsNoWrap);
+                    stringF.SetAlignment(alignment);
+                    stringF.SetLineAlignment(StringAlignmentCenter);
 
-        Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   textBrush(nTextColor);
+                    RectF rcText((REAL)nLeft, (REAL)0, (REAL)nColWidth, (REAL)nHeight);
+                    graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+                    
+                    nLeft += nColWidth;
+                }
 
-		// MiddleLeft
-        StringFormat stringF(StringFormatFlagsNoWrap);
-        stringF.SetAlignment(StringAlignmentNear);
-        stringF.SetLineAlignment(StringAlignmentCenter);
-            
-        //REAL nLeft = (MarginLeft + TextOffsetLeft) * m_rx;
-        //REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
-        //REAL nRight = m_rcClient.right - (MarginRight * m_rx);
-        //REAL nBottom = m_rcClient.bottom - (MarginBottom * m_ry);
-
-        //RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
-        RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
-
-        std::wstring wszText = L"linenum = " + std::to_wstring(linenum);    // = AfxGetListBoxText(lpdis->hwndItem, lpdis->itemID);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+            }
+        }
 
         BitBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
         
@@ -452,6 +489,10 @@ LRESULT CALLBACK TradesPanelListBox_SubclassProc(
 
 
     case WM_DESTROY:
+        // Destroy all manually allocated ListBox display data that is held
+        // in the vector.
+        DestroyListBoxDisplayData();
+
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, &TradesPanelListBox_SubclassProc, uIdSubclass);
         break;
@@ -592,11 +633,6 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL, 
             (SUBCLASSPROC)&TradesPanelListBox_SubclassProc, 
             IDC_LISTBOX, (DWORD_PTR)pWindow);
-
-    for (int i = 0; i < 200; i++) {
-        std::wstring wszTemp;
-        ListBox_AddString(hListBox, wszTemp.c_str());
-    }
 
     return pWindow;
 
