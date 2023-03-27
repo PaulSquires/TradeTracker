@@ -1013,3 +1013,46 @@ std::wstring AfxGetUserName()
     GetUserName((LPWSTR)buffer.c_str(), &dwBufLen);
     return buffer.substr(0, dwBufLen - 1);
 }
+
+
+//' ========================================================================================
+//' Returns the Astronomical Day for any given date.
+//' Parameters:
+//' - nDay: A number between 1-31.
+//' - nMonth; A number between 1-12.
+//' - nYear: A four digit year, e.g. 2011.
+//' Return Value:
+//' - The Astronomical Day.
+//' See: http://support.microsoft.com/kb/109451/en-us
+//' Note: Among other things, can be used to find the number of days between any two dates, e.g.:
+//' PRINT AfxAstroDay(1, 3, -12400) - AfxAstroDay(28, 2, -12400)  ' Prints 2
+//' PRINT AfxAstroDay(1, 3, 12000) - AfxAstroDay(28, 2, -12000) ' Prints 8765822
+//' PRINT AfxAstroDay(28, 2, 1902) - AfxAstroDay(1, 3, 1898)  ' Prints 1459 days
+//' ========================================================================================
+int AfxAstroDay(int nDay, int nMonth, int nYear)
+{
+    double y = nYear + (nMonth - 2.85) / 12;
+    return INT(INT(INT(367 * y) - 1.75 * INT(y) + nDay) - 0.75 * INT(0.01 * y)) + 1721119;
+}
+
+
+//' ========================================================================================
+//' Returns the number of days between two ISO formatted dates.
+//' ========================================================================================
+int AfxDaysBetween(std::wstring& wszStartDate, std::wstring& wszEndDate)
+{
+
+    
+    return AfxAstroDay(nDay1, nMonth1, nYear1) - AfxAstroDay(nDay2, nMonth2, nYear2)
+}
+
+
+//' ========================================================================================
+//' Returns the current date in ISO format (YYYY-MM-DD)
+//' ========================================================================================
+std::wstring AfxCurrentDate()
+{
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, NULL, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten-1); // remove terminating null
+}

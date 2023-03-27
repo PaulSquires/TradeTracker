@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "Themes.h"
+#include "CWindow.h"
 
 
 // User defined messages
@@ -198,7 +199,7 @@ public:
 		SelectBitmap(m_memDC, m_hbit);
 
 		Graphics graphics(m_memDC);
-		graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
+		graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
 		DWORD nBackColor = (m_bIsHot ? GetThemeColor(BackColorHot) : GetThemeColor(BackColor));
 		if (IsSelected && AllowSelect)
@@ -231,7 +232,6 @@ public:
 			RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
 
 			Graphics graphics(m_memDC);
-			graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 			graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
 			graphics.DrawImage(m_bIsHot ? pImageHot : pImage, rcImage);
 		}
@@ -277,7 +277,7 @@ public:
 			RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
 
 			Graphics graphics(m_memDC);
-			graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
+			graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 			graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
 		}
 
@@ -297,7 +297,6 @@ public:
 				Pen pen(clrPen, LineWidth);
 				// Draw the horizontal line centered taking margins into account
 				Graphics graphics(m_memDC);
-				graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 				graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
 
 			//case SuperLabelType::LineVertical:
@@ -325,7 +324,6 @@ public:
 			PointF points[3] = { point1, point2, point3 };
 			PointF* pPoints = points;
 			Graphics graphics(m_memDC);
-			graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 			graphics.FillPolygon(&backBrush, pPoints, 3);
 		}
 	}
@@ -347,7 +345,6 @@ public:
 
 			RectF rectF(0, 0, (REAL)m_rcClient.right, (REAL)m_rcClient.bottom);
 			Graphics graphics(m_memDC);
-			graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
 			graphics.DrawRectangle(&pen, rectF);
 		}
 		}

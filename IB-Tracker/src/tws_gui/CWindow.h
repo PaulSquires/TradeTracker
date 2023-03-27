@@ -168,6 +168,8 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText);
 std::wstring AfxGetListBoxText(HWND hListBox, int nIndex);
 std::wstring AfxGetExePath();
 std::wstring AfxGetUserName();
+//int AfxDaysBetween(int nDay1, int nMonth1, int nYear1, int nDay2, int nMonth2, int nYear2);
+std::wstring AfxCurrentDate();
 
 
 

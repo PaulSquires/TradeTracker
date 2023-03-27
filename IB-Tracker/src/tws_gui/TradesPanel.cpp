@@ -110,9 +110,12 @@ void CreateListBoxData(Trade* trade)
             ld = new LineData;
             ld->trade = trade;
 
+            std::wstring wszDot = L"\u23FA";   // dot character
             std::wstring expiryDate; // = QDate::fromString(leg->expiryDate, "yyyy-MM-dd");
             std::wstring wszShortDate = L"Mar 24"; // = expiryDate.toString("MMM dd");
             std::wstring wszDTE = L"6d";
+
+            dp(AfxCurrentDate());
 
             // If the ExpiryDate is 2 days or less then display in Yellow, otherwise Magenta.
             ThemeElement WarningDTE = ThemeElement::TradesPanelNormalDTE;
@@ -132,7 +135,7 @@ void CreateListBoxData(Trade* trade)
             SetColumnData(ld, 0, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
             ThemeElement::TradesPanelText, 8, FontStyleRegular );  // empty column
 
-            SetColumnData(ld, 1, std::to_wstring(0x23FA), StringAlignmentNear, ThemeElement::TradesPanelBack,
+            SetColumnData(ld, 1, wszDot, StringAlignmentNear, ThemeElement::TradesPanelBack,
                 ThemeElement::TradesPanelText, 8, FontStyleRegular);   // dot (magenta/yellow)
 
             SetColumnData(ld, 2, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark,
@@ -239,7 +242,8 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
 
 
         Graphics graphics(memDC);
-        graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+        
 
         // Set some defaults in case there is no valid ListBox line number
         std::wstring wszText;
@@ -267,8 +271,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         if (linenum > -1) {
             LineData* ld = vec.at(linenum);
             if (ld != nullptr) {
-                int nColWidth = (int)(nWidth / 7);  // (int)AfxScaleX(120);
+                //int nColWidth = (int)(nWidth / 7);  // (int)AfxScaleX(120);
                 int nLeft = 0;
+
+                int nColWidth[7] = { 100, 100, 100, 100, 100, 100, 100 };
 
                 // Draw each of the columns
                 for (int i = 0; i < 7; i++) {
@@ -282,8 +288,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                     fontSize = ld->col[i].fontSize;
                     fontStyle = ld->col[i].fontStyle;
 
+                    int colWidth = (int)AfxScaleX((float)nColWidth[i]);
+
                     backBrush.SetColor(nBackColor);
-                    graphics.FillRectangle(&backBrush, nLeft, 0, nColWidth, nHeight);
+                    graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
                     
                     Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
                     SolidBrush   textBrush(nTextColor);
@@ -291,10 +299,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                     stringF.SetAlignment(alignment);
                     stringF.SetLineAlignment(StringAlignmentCenter);
 
-                    RectF rcText((REAL)nLeft, (REAL)0, (REAL)nColWidth, (REAL)nHeight);
+                    RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
                     graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
                     
-                    nLeft += nColWidth;
+                    nLeft += colWidth;
                 }
 
             }
