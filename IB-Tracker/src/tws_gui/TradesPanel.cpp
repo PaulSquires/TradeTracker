@@ -10,7 +10,7 @@
 
 HWND HWND_TRADESPANEL = NULL;
 
-const int LISTBOX_ROWHEIGHT = 28;
+const int LISTBOX_ROWHEIGHT = 24;
 
 std::vector<LineData*> vec;
 
@@ -58,17 +58,17 @@ void CreateListBoxData(Trade* trade)
     SetColumnData(ld, 1, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);
     // Col 1 to 6 are set based on incoming TWS price data 
-    SetColumnData(ld, 2, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, COLUMN_TICKER_ITM, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
     SetColumnData(ld, 3, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 8, FontStyleRegular);
     SetColumnData(ld, 4, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 8, FontStyleRegular);
-    SetColumnData(ld, 5, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, COLUMN_TICKER_CHANGE, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
-    SetColumnData(ld, 6, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);   // current price
-    SetColumnData(ld, 7, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+    SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
     vec.push_back(ld);
 
@@ -228,8 +228,8 @@ void ShowActiveTrades()
     }
 
     // Display the new ListBox data
-    for (auto& ld : vec) {
-        int nIndex = ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L"");
+    for (LineData* ld : vec) {
+            int nIndex = ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L"");
         // Request price market data for all non-listbox blank lines. 
         // Blank lines will have nullptr trade and this is tested for
         // in the called routine.
@@ -705,7 +705,6 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             IDC_LISTBOX, (DWORD_PTR)pWindow);
 
     return pWindow;
-
 }
 
 

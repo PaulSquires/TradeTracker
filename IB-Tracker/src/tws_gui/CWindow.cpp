@@ -1142,9 +1142,21 @@ std::wstring AfxGetDefaultFont()
 //' ========================================================================================
 std::string unicode2ansi(const std::wstring& wstr)
 {
+    // Size, in bytes, including any terminating null character
     int size_needed = WideCharToMultiByte(CP_ACP, 0, &wstr[0], -1, NULL, 0, NULL, NULL);
     std::string strTo(size_needed, 0);
-    WideCharToMultiByte(CP_ACP, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-    return strTo;
+    int bytes_written = WideCharToMultiByte(CP_ACP, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    // Remove trailing null when assigning back to the std::string
+    return strTo.substr(0, bytes_written);
 }
 
+//' ========================================================================================
+// Convert an ANSI string to a wide Unicode String
+std::wstring ansi2unicode(const std::string& str)
+//' ========================================================================================
+{
+    int size_needed = MultiByteToWideChar(CP_ACP, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo(size_needed, 0);
+    MultiByteToWideChar(CP_ACP, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
+}

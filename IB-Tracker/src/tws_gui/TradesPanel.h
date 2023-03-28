@@ -40,6 +40,19 @@ public:
 
 const int TICKER_NUMBER_OFFEST = 100;
 
+// These columns in the table are updated in real time when connected
+// to TWS. The LineData pointer is updated via a call to SetColumnData
+// and the correct ListBox line is invalidated/redrawn in order to force
+// display of the new price data. Refer to TwsClient::tickPrice in the
+// tws-client.cpp file to see this in action.
+const int COLUMN_TICKER_ITM          = 2;    // ITM (In the Money)
+const int COLUMN_TICKER_CHANGE       = 5;    // price change
+const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
+const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
+
+extern std::vector<LineData*> vec;
+
 CWindow* TradesPanel_Show(HWND hWndParent);
 void ShowActiveTrades();
-
+void SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
+    ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle);

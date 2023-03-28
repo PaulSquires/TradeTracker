@@ -9,6 +9,7 @@
 #include "CommonDefs.h"
 #include "Utils.h"
 
+#include "TradesPanel.h"
 
 
 // The NavPanel window is exposed external because other
@@ -16,9 +17,16 @@
 // "messages" label to display. e.g TWS connection status.
 extern HWND HWND_NAVPANEL;
 
+// The TradesPanel window is exposed external because we
+// call the ListBox on that panel to display updated
+// real time price data.
+extern HWND HWND_TRADESPANEL;
+
+
 bool isThreadFinished = false;
 bool isThreadPaused = false;
 
+bool isMonitorThreadActive = false;
 
 TwsClient client;
 
@@ -34,8 +42,9 @@ std::thread my_thread;
 
 void threadFunction(std::future<void> future) {
     std::cout << "Starting the thread" << std::endl;
+	isMonitorThreadActive = true;
     while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-        std::cout << "Executing the thread....." << std::endl;
+        //std::cout << "Executing the thread....." << std::endl;
         if (tws_isConnected()) {
             client.waitForSignal();
             client.processMsgs();
@@ -46,22 +55,25 @@ void threadFunction(std::future<void> future) {
 
         std::chrono::milliseconds(500); //wait for 500 milliseconds
     }
-    std::cout << "Thread Terminated" << std::endl;
+	isMonitorThreadActive = false;
+	std::cout << "Thread Terminated" << std::endl;
 }
 
 
 void StartMonitorThread()
 {
-    future = signal_exit.get_future();//create future objects
+	if (isMonitorThreadActive) return;
+	future = signal_exit.get_future();//create future objects
     my_thread = std::thread(&threadFunction, std::move(future)); //start thread, and move future
 }
 
 void EndMonitorThread()
 {
-    std::cout << "Threads will be stopped soon...." << std::endl;
+	if (!isMonitorThreadActive) return;
+	isThreadPaused = true;   // prevent processing TickData, etc while thread is shutting down
+	std::cout << "Threads will be stopped soon...." << std::endl;
     signal_exit.set_value(); //set value into promise
     my_thread.join(); //join the thread with the main thread
-    std::cout << "Doing task in main function" << std::endl;
 }
 
 
@@ -93,7 +105,7 @@ bool tws_connect()
 
 bool tws_disconnect()
 {
-    if (client.isConnected() == false) return true;
+    if (tws_isConnected() == false) return true;
 
     EndMonitorThread();
 
@@ -124,7 +136,8 @@ void tws_cancelMktData(TickerId tickerId)
 
 void tws_requestMktData(LineData* ld)
 {
-	if (ld->trade = nullptr) return;
+	if (!tws_isConnected()) return;
+	if (ld->trade == nullptr) return;
 	client.requestMktData(ld);
 }
 
@@ -219,20 +232,15 @@ void TwsClient::cancelMktData(TickerId tickerId)
 
 void TwsClient::requestMktData(LineData* ld)
 {
-
-	std::cout << "trade: " << ld->trade << std::endl;
-
 	// Convert the unicode symbol to regular string type
 	std::string symbol = unicode2ansi(ld->trade->tickerSymbol);
-
-	std::cout << "Converted symbol: " << symbol << std::endl;
 
 	//	struct Contract;
 	Contract contract;
 	contract.symbol = symbol;
 	contract.secType = "STK";
 	contract.currency = "USD";
-	contract.exchange = "SMART";
+	contract.exchange = "SMART";  //"SMART" source code says not to use SMART but it seems to work;
 
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 
@@ -264,12 +272,63 @@ void TwsClient::connectAck() {
 
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 	if (isThreadPaused) return; 
-	printf("Tick Price. Ticker Id: %ld, Field: %d, Price: %s, CanAutoExecute: %d, PastLimit: %d, PreOpen: %d\n", tickerId, (int)field, Utils::doubleMaxString(price).c_str(), attribs.canAutoExecute, attribs.pastLimit, attribs.preOpen);
+
+	// Market data tick price callback. Handles all price related ticks.Every tickPrice callback is followed 
+	// by a tickSize.A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
+	// this field currently available, whereas a tickPrice with a positive tickSize indicates an active 
+	// quote of 0 (typically for a combo contract).
+
+	// Parameters
+	// tickerId	the request's unique identifier.
+	// field	the type of the price being received(i.e.ask price)(TickType)
+	// price	the actual price.
+	// attribs	an TickAttrib object that contains price attributes such as TickAttrib::CanAutoExecute, TickAttrib::PastLimit and TickAttrib::PreOpen.
+
+	// Most pertinent TickType fields for our use would be the following:
+	// enum TickType { LAST, CLOSE, OPEN }
+	if (field == LAST || field == OPEN || field == CLOSE) {
+		printf("Tick Price. Ticker Id: %ld, Field: %d, Price: %s, CanAutoExecute: %d, PastLimit: %d, PreOpen: %d\n", tickerId, (int)field, Utils::doubleMaxString(price).c_str(), attribs.canAutoExecute, attribs.pastLimit, attribs.preOpen);
+
+		// These columns in the table are updated in real time when connected
+		// to TWS. The LineData pointer is updated via a call to SetColumnData
+		// and the correct ListBox line is invalidated/redrawn in order to force
+		// display of the new price data. 
+
+		// Convert the 'price' double to a nice 2 decimal place money like string for presentation purposes.
+    	// j will include +1 for null terminator
+		std::string buffer(256, 0);
+		int j = snprintf(&buffer[0], 256, "%.2f\n", price);
+		std::wstring wszPrice = ansi2unicode(buffer);
+		wszPrice = wszPrice.substr(0, j - 1);   // -1 to remove null terminator
+
+
+		for (LineData* ld : vec) {
+			if (ld->tickerId == tickerId) {
+				SetColumnData(ld, COLUMN_TICKER_ITM, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+					ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
+				SetColumnData(ld, COLUMN_TICKER_CHANGE, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
+					ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
+				SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, wszPrice,	StringAlignmentCenter, 
+					ThemeElement::TradesPanelBack,	ThemeElement::TradesPanelText, 9
+					, FontStyleRegular | FontStyleBold);   // current price
+				SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+					ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
+				int nIndex = tickerId - TICKER_NUMBER_OFFEST;
+
+				// Only update/repaint the line containing the new price data rather than the whole ListBox.
+				RECT rc{};
+				ListBox_GetItemRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), nIndex, &rc);
+				InvalidateRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), &rc, TRUE);
+				UpdateWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
+				break;
+			}
+		}
+	}
 }
 
 void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
 	if (isThreadPaused) return;
-	printf("Tick Size. Ticker Id: %ld, Field: %d, Size: %s\n", tickerId, (int)field, decimalStringToDisplay(size).c_str());
+	// printf("Tick Size. Ticker Id: %ld, Field: %d, Size: %s\n", tickerId, (int)field, decimalStringToDisplay(size).c_str());
 }
 
 void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
@@ -279,12 +338,12 @@ void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int 
 }
 
 void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) {
-	printf("Tick Generic. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, Utils::doubleMaxString(value).c_str());
+	// printf("Tick Generic. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, Utils::doubleMaxString(value).c_str());
 	if (isThreadPaused) return;
 }
 
 void TwsClient::tickString(TickerId tickerId, TickType tickType, const std::string& value) {
-	printf("Tick String. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, value.c_str());
+	// printf("Tick String. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, value.c_str());
 	if (isThreadPaused) return;
 }
 

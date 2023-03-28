@@ -175,7 +175,5 @@ std::wstring AfxShortDate(std::wstring wszDate);
 bool isWineActive();
 std::wstring AfxGetDefaultFont();
 std::string unicode2ansi(const std::wstring& wstr);
-
-
-
+std::wstring ansi2unicode(const std::string& str);
 

@@ -12,7 +12,7 @@
 // The NavPanel window is exposed external because other
 // areas of the application need to send messages to the
 // "messages" label to display. e.g TWS connection status.
-HWND HWND_NAVPANEL = nullptr;
+HWND HWND_NAVPANEL = NULL;
 
 
 //' ========================================================================================
@@ -137,6 +137,10 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 bool res = tws_connect();
                 printf("Connect: %ld\n", res);
                 printf("isConnected: %ld\n", tws_isConnected());
+                // If we connect to TWS successfully then we need to start showing
+                // the price data for any active trades displaying in our table.
+                if (tws_isConnected())
+                    ShowActiveTrades();
                 break;
             }
 

@@ -241,7 +241,6 @@ int APIENTRY wWinMain(
     // Call the main modal message pump and wait for it to end.
     pWindowMain->DoEvents(nCmdShow);
 
-    SaveDatabase();
 
     // Shut down the GDI+ subsystem
     GdiplusShutdown(gdiplusToken);
