@@ -52,7 +52,7 @@ void CreateListBoxData(Trade* trade)
     ld->trade = trade;
 
     SetColumnData(ld, 0, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);
+        ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
     SetColumnData(ld, 1, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);
     // Col 1 to 6 are set based on incoming TWS price data 
@@ -268,8 +268,7 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
             : GetThemeColor(ThemeElement::TradesPanelBack);
         DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
         
-        std::wstring wszFontName = L"Microsoft Sans Serif";
-        //std::wstring wszFontName = L"Segoe UI";
+        std::wstring wszFontName = AfxGetDefaultFont();
         FontFamily   fontFamily(wszFontName.c_str());
         REAL fontSize = 10;
         int fontStyle = FontStyleRegular;
@@ -320,7 +319,6 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                     graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
                     
                     Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-                    //Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPixel);
                     SolidBrush   textBrush(nTextColor);
                     StringFormat stringF(StringFormatFlagsNoWrap);
                     stringF.SetAlignment(alignment);

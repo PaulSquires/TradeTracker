@@ -23,9 +23,5 @@ const int IDC_NAVPANEL_MESSAGES      = 115;
 
 const int NAVPANEL_WIDTH = 180;
 
-// The NavPanel window is exposed external because other
-// areas of the application need to send messages to the
-// "messages" label to display. e.g TWS connection status.
-extern HWND HWND_NAVPANEL = nullptr;
 
 CWindow* NavPanel_Show(HWND hWndParent);

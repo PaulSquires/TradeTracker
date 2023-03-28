@@ -9,6 +9,10 @@
 #include "UserMessages.h"
 #include "NavPanel.h"
 
+// The NavPanel window is exposed external because other
+// areas of the application need to send messages to the
+// "messages" label to display. e.g TWS connection status.
+HWND HWND_NAVPANEL = nullptr;
 
 
 //' ========================================================================================
@@ -67,23 +71,47 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     case MSG_TWS_CONNECT_START:
     {
+        SuperLabel* pData = nullptr;
+        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        if (pData) {
+            pData->wszText = L"Connecting to TWS";
+            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        }
         break;
     }
 
 
     case MSG_TWS_CONNECT_SUCCESS:
     {
+        SuperLabel* pData = nullptr;
+        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        if (pData) {
+            pData->wszText = L"TWS Connected";
+            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        }
         break;
     }
 
 
     case MSG_TWS_CONNECT_FAILURE:
     {
+        SuperLabel* pData = nullptr;
+        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        if (pData) {
+            pData->wszText = L"TWS connection failed";
+            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        }
         break;
     }
 
     case MSG_TWS_CONNECT_DISCONNECT:
     {
+        SuperLabel* pData = nullptr;
+        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        if (pData) {
+            pData->wszText = L"TWS Disonnected";
+            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        }
         break;
     }
 
@@ -183,7 +211,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     SuperLabel* pData = nullptr;
 
-   
+
 
    // HEADER CONTROLS
     nLeft = (NAVPANEL_WIDTH - 68) / 2;

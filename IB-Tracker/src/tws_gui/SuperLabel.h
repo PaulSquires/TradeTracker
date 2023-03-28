@@ -104,7 +104,7 @@ public:
 
 	// Text Normal
 	std::wstring wszText;
-	std::wstring wszFontName = L"Microsoft Sans Serif";
+	std::wstring wszFontName;
 	REAL FontSize = 0;
 	bool FontBold = false;
 	bool FontItalic = false;
@@ -241,6 +241,10 @@ public:
 		{
 		case SuperLabelType::TextOnly:
 		case SuperLabelType::ImageAndText:
+
+			wszFontName = AfxGetDefaultFont();
+
+			wszFontNameHot = wszFontName;
 			FontFamily fontFamily(m_bIsHot ? wszFontNameHot.c_str() : wszFontName.c_str());
 
 			REAL fontSize = (m_bIsHot ? FontSizeHot : FontSize);

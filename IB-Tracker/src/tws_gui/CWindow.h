@@ -172,6 +172,8 @@ std::wstring AfxCurrentDate();
 int AfxGetYear(std::wstring wszDate);
 int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate);
 std::wstring AfxShortDate(std::wstring wszDate);
+bool isWineActive();
+std::wstring AfxGetDefaultFont();
 
 
 

@@ -3,6 +3,12 @@
 #include "tws-client.h"
 #include "UserMessages.h"
 
+// The NavPanel window is exposed external because other
+// areas of the application need to send messages to the
+// "messages" label to display. e.g TWS connection status.
+extern HWND HWND_NAVPANEL;
+
+
 
 TwsClient client;
 
@@ -31,6 +37,7 @@ void threadFunction(std::future<void> future) {
         std::chrono::milliseconds(500); //wait for 500 milliseconds
     }
     std::cout << "Thread Terminated" << std::endl;
+    SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
 
@@ -98,8 +105,9 @@ bool tws_disconnect()
 bool tws_isConnected()
 {
     bool res = false;
-    if ((client.isSocketOK()) && (client.isConnected()))
+    if ((client.isSocketOK()) && (client.isConnected())) {
         res = true;
+    }
     return res;
 }
 

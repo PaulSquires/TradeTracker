@@ -171,7 +171,6 @@ int APIENTRY wWinMain(
 #endif
 
 
-
     // Set the Theme to use for all windows and controls. Remember to call
     // the SetThemeMainWindow() function after the application's main 
     // window is created. LoadDatabase may override this setting if a Theme

@@ -27,7 +27,7 @@ CWindow::CWindow()
     ReleaseDC(NULL, hDC);
 
     // Default font name and size
-    m_wszDefaultFontName = L"Segoe UI";
+    m_wszDefaultFontName = AfxGetDefaultFont();
     m_DefaultFontSize = 9;
 
     // Initialize the common controls library
@@ -1095,3 +1095,43 @@ std::wstring AfxShortDate(std::wstring wszDate)
 }
 
 
+//' ========================================================================================
+//' Check if running under Linux Wine
+//' ========================================================================================
+bool isWineActive()
+{
+    bool res = false;
+
+    //static const char* (CDECL * pwine_get_version)(void);
+    HMODULE hntdll = GetModuleHandleA("ntdll.dll");
+    if (!hntdll) {
+        return false;
+    }
+
+    if ( GetProcAddress(hntdll, "wine_get_version")) {
+        res = true;
+    } else {
+        res = false;
+    }
+    FreeLibrary(hntdll);
+    return res;
+}
+
+
+//' ========================================================================================
+//' Retrieve name of font to use for GUI elements under Windows or Wine/Linux
+//' ========================================================================================
+#include <versionhelpers.h>
+std::wstring AfxGetDefaultFont()
+{
+    // Windows 7 or Vista we'll use Tahoma. Everything above we'll use Segoe UI.
+    // Wine will always use Tahoma.
+    // Tahoma seems to exist on base Windows and Wine installs.
+    std::wstring wszFont = L"Tahoma";
+
+    // Use macro from versionhelpers.h
+    if (IsWindows8OrGreater()) wszFont = L"Segoe UI";
+    if (isWineActive()) wszFont = L"Tahoma";
+
+    return wszFont;
+}
