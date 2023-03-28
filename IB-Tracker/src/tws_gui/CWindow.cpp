@@ -1135,3 +1135,16 @@ std::wstring AfxGetDefaultFont()
 
     return wszFont;
 }
+
+
+//' ========================================================================================
+//' Convert an wide Unicode string to ANSI string
+//' ========================================================================================
+std::string unicode2ansi(const std::wstring& wstr)
+{
+    int size_needed = WideCharToMultiByte(CP_ACP, 0, &wstr[0], -1, NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_ACP, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+

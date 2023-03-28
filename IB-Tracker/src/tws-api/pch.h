@@ -25,8 +25,6 @@
 #include <chrono>
 #include <thread>
 #include <future>
-#include <locale>
-#include <codecvt>
 
 #include <string>
 #include <vector>

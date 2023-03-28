@@ -43,7 +43,6 @@
     <ClCompile Include="src\tws-api\PriceCondition.cpp" />
     <ClCompile Include="src\tws-api\SoftDollarTier.cpp" />
     <ClCompile Include="src\tws-api\TimeCondition.cpp" />
-    <ClCompile Include="src\tws-api\TwsWrapper.cpp" />
     <ClCompile Include="src\tws-api\Utils.cpp" />
     <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
     <ClCompile Include="src\tws_gui\CWindow.cpp" />
@@ -102,6 +101,7 @@
     <ClInclude Include="src\tws-api\Order.h" />
     <ClInclude Include="src\tws-api\OrderCondition.h" />
     <ClInclude Include="src\tws-api\OrderState.h" />
+    <ClInclude Include="src\tws-api\pch.h" />
     <ClInclude Include="src\tws_gui\pch.h" />
     <ClInclude Include="src\tws-api\PercentChangeCondition.h" />
     <ClInclude Include="src\tws-api\platformspecific.h" />
@@ -116,7 +116,6 @@
     <ClInclude Include="src\tws-api\TickAttribLast.h" />
     <ClInclude Include="src\tws-api\TimeCondition.h" />
     <ClInclude Include="src\tws-api\TwsSocketClientErrors.h" />
-    <ClInclude Include="src\tws-api\TwsWrapper.h" />
     <ClInclude Include="src\tws-api\Utils.h" />
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />

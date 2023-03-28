@@ -5,6 +5,7 @@
 #include "Themes.h"
 #include "trade.h"
 
+typedef long TickerId;
 
 const int IDC_TRADESPANEL = 101;
 
@@ -29,10 +30,13 @@ struct ColumnData {
 };
 
 struct LineData {
+    bool            isTickerLine = false;
     Trade*          trade = nullptr;
     ColumnData      col[8];
+    TickerId        tickerId = 0;
 };
 
+const int TICKER_NUMBER_OFFEST = 100;
 
 CWindow* TradesPanel_Show(HWND hWndParent);
 void ShowActiveTrades();

@@ -174,6 +174,7 @@ int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate);
 std::wstring AfxShortDate(std::wstring wszDate);
 bool isWineActive();
 std::wstring AfxGetDefaultFont();
+std::string unicode2ansi(const std::wstring& wstr);
 
 
 

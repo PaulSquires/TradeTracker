@@ -5,6 +5,7 @@
 #include "SuperLabel.h"
 #include "Themes.h"
 #include "trade.h"
+#include "tws-client.h"
 
 
 HWND HWND_TRADESPANEL = NULL;
@@ -50,6 +51,7 @@ void CreateListBoxData(Trade* trade)
     // *** TRADE HEADER LINE ***
     LineData* ld = new LineData;
     ld->trade = trade;
+    ld->isTickerLine = true;
 
     SetColumnData(ld, 0, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
         ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
@@ -190,7 +192,7 @@ void CreateListBoxData(Trade* trade)
 //' ========================================================================================
 void ShowActiveTrades()
 {
-  //  PauseTWS();
+    tws_PauseTWS();
 
 
     // TODO: optimize this by sorting after initial database load and after
@@ -201,6 +203,12 @@ void ShowActiveTrades()
         [](const Trade* trade1, const Trade* trade2) {
             return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
         });
+
+    
+    // Cancel any previous market data requests
+    for (const auto& ld: vec) {
+        tws_cancelMktData(ld->tickerId);
+    }
 
 
     // Clear the current trades list
@@ -218,12 +226,21 @@ void ShowActiveTrades()
     }
 
     // Display the new ListBox data
-    for (int i = 0; i < (int)vec.size(); i++) {
-        ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L""); 
+    for (auto& ld : vec) {
+        int nIndex = ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L"");
+        // Request price market data for all non-listbox blank lines. 
+        // Blank lines will have nullptr trade and this is tested for
+        // in the called routine.
+        if (ld->isTickerLine) {
+            ld->tickerId = nIndex + TICKER_NUMBER_OFFEST;
+            dp(ld->tickerId);
+            tws_requestMktData(ld);
+        }
     }
     AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
 
-    //ResumeTWS();
+
+    tws_ResumeTWS();
 }
 
 
