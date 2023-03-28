@@ -20,7 +20,8 @@ const int IDC_LABEL = 103;
 // to be the same as the line number of the ticker in the ListBox. Need to just invalidate
 // that ListBox line in order to display the updated price information.
 
-struct ColumnData {
+class ColumnData {
+public:
     std::wstring        wszText;
     StringAlignment     alignment = StringAlignmentNear;  // StringAlignmentNear, StringAlignmentCenter, StringAlignmentFar
     ThemeElement        backTheme = ThemeElement::TradesPanelBack;
@@ -29,7 +30,8 @@ struct ColumnData {
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
 };
 
-struct LineData {
+class LineData {
+public:
     bool            isTickerLine = false;
     Trade*          trade = nullptr;
     ColumnData      col[8];

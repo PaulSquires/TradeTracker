@@ -116,6 +116,7 @@ bool tws_isConnected()
 
 void tws_cancelMktData(TickerId tickerId)
 {
+	if (!tws_isConnected()) return;
 	if (tickerId < 1) return;
 	client.cancelMktData(tickerId);
 }
@@ -218,6 +219,9 @@ void TwsClient::cancelMktData(TickerId tickerId)
 
 void TwsClient::requestMktData(LineData* ld)
 {
+
+	std::cout << "trade: " << ld->trade << std::endl;
+
 	// Convert the unicode symbol to regular string type
 	std::string symbol = unicode2ansi(ld->trade->tickerSymbol);
 

@@ -20,7 +20,7 @@ std::vector<LineData*> vec;
 //' ========================================================================================
 void DestroyListBoxDisplayData()
 {
-    for (const auto& ld : vec) {
+    for (LineData* ld : vec) {
         delete(ld);
     }
     vec.clear();
@@ -207,7 +207,9 @@ void ShowActiveTrades()
     
     // Cancel any previous market data requests
     for (const auto& ld: vec) {
-        tws_cancelMktData(ld->tickerId);
+        if (ld->isTickerLine) {
+            tws_cancelMktData(ld->tickerId);
+        }
     }
 
 
@@ -233,7 +235,6 @@ void ShowActiveTrades()
         // in the called routine.
         if (ld->isTickerLine) {
             ld->tickerId = nIndex + TICKER_NUMBER_OFFEST;
-            dp(ld->tickerId);
             tws_requestMktData(ld);
         }
     }
