@@ -194,6 +194,7 @@ void ShowActiveTrades()
 {
     tws_PauseTWS();
 
+    vec.reserve(100);    // reserve space for 100 lines
 
     // TODO: optimize this by sorting after initial database load and after
     // newly added/deleted data, rather than here every time we display the
@@ -217,6 +218,7 @@ void ShowActiveTrades()
     ListBox_ResetContent(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
 
     // Destroy any existing ListBox line data
+    // This will also clear the vector
     DestroyListBoxDisplayData();
 
     // Create the new ListBox line data

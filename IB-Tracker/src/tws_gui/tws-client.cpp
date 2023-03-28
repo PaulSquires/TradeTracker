@@ -295,14 +295,13 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// display of the new price data. 
 
 		// Convert the 'price' double to a nice 2 decimal place money like string for presentation purposes.
-    	// j will include +1 for null terminator
-		std::string buffer(256, 0);
-		int j = snprintf(&buffer[0], 256, "%.2f\n", price);
-		std::wstring wszPrice = ansi2unicode(buffer);
-		wszPrice = wszPrice.substr(0, j - 1);   // -1 to remove null terminator
+		std::wstring wszPrice = AfxMoney(price);
 
+		//for (LineData* ld : vec) {
+		int nIndex = tickerId - TICKER_NUMBER_OFFEST;
+		LineData* ld = vec.at(nIndex);
 
-		for (LineData* ld : vec) {
+		if (ld != nullptr) {
 			if (ld->tickerId == tickerId) {
 				SetColumnData(ld, COLUMN_TICKER_ITM, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
 					ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
@@ -313,14 +312,14 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					, FontStyleRegular | FontStyleBold);   // current price
 				SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
 					ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
-				int nIndex = tickerId - TICKER_NUMBER_OFFEST;
 
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};
 				ListBox_GetItemRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), nIndex, &rc);
 				InvalidateRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), &rc, TRUE);
 				UpdateWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-				break;
+				//break;
+		
 			}
 		}
 	}
