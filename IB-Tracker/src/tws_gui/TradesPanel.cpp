@@ -263,7 +263,7 @@ void ShowActiveTrades()
         }
     }
     AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-
+    AfxRedrawWindow(vsb.hWnd);
 
     tws_ResumeTWS();
 }
@@ -316,7 +316,6 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         int fontStyle = FontStyleRegular;
         
         StringAlignment alignment = StringAlignmentNear;
-
 
         // Paint the full width background using brush 
         SolidBrush backBrush(nBackColor);
@@ -408,9 +407,9 @@ bool calcVThumbRect()
     // If no items exist then exit to avoid division by zero GPF's.
     if (vsb.numItems == 0) return FALSE;
     
-    vsb.itemsPerPage = (int)((float)vsb.listBoxHeight / (float)vsb.itemHeight);
+    vsb.itemsPerPage = (int)(std::round(vsb.listBoxHeight / (float)vsb.itemHeight));
     vsb.thumbHeight = (int)(((float)vsb.itemsPerPage / (float)vsb.numItems) * (float)vsb.listBoxHeight);
-    GetClientRect(vsb.hWnd, &rc);
+
     vsb.rc.left = rc.left;
     vsb.rc.top = (int)(rc.top + (((float)nTopIndex / (float)vsb.numItems) * (float)vsb.listBoxHeight));
     vsb.rc.right = rc.right;
@@ -440,7 +439,7 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
         POINT pt;
         pt.x = GET_X_LPARAM(lParam);
         pt.y = GET_Y_LPARAM(lParam);
-        calcVThumbRect();            // in client coordinates
+        calcVThumbRect();           
         if (PtInRect(&vsb.rc, pt)) {
             prev_pt = pt;
             vsb.bDragActive = true;
@@ -452,14 +451,14 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
             if (pt.y < vsb.rc.top) {
                 nTopIndex = max(nTopIndex - vsb.itemsPerPage, 0);
                 SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopIndex, 0);
-                calcVThumbRect();   // in client coordinates
+                calcVThumbRect();   
                 AfxRedrawWindow(vsb.hWnd);
             } else {
                 if (pt.y > vsb.rc.bottom) {
                     int nMaxTopIndex = vsb.numItems - vsb.itemsPerPage;
                     nTopIndex = min(nTopIndex + vsb.itemsPerPage, nMaxTopIndex);
                     SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopIndex, 0);
-                    calcVThumbRect();   // in client coordinates
+                    calcVThumbRect(); 
                     AfxRedrawWindow(vsb.hWnd);
                 }
             }
@@ -477,8 +476,8 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
             pt.y = GET_Y_LPARAM(lParam);
             if (pt.y != prev_pt.y) {
                 int delta = (pt.y - prev_pt.y);
+
                 RECT rc; GetClientRect(hWnd, &rc);
-                rc.bottom = (int)(rc.bottom * vsb.thumbRatio);
                 vsb.rc.top = max(0, vsb.rc.top + delta);
                 vsb.rc.top = min(vsb.rc.top, rc.bottom - vsb.thumbHeight);
                 vsb.rc.bottom = vsb.rc.top + vsb.thumbHeight;
@@ -486,9 +485,12 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
                 prev_pt = pt;
 
                 int nPrevTopLine = SendMessage(vsb.hListBox, LB_GETTOPINDEX, 0, 0);
-                int nTopLine = (int)((float)vsb.rc.top / (float)rc.bottom * (float)vsb.numItems);
+                int nTopLine = (int)std::round(vsb.rc.top / (float)rc.bottom * vsb.numItems);
                 if (nTopLine != nPrevTopLine)
-                    SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopLine, 0);
+                    SendMessage(vsb.hListBox, LB_SETTOPINDEX, (WPARAM)nTopLine, 0);
+
+                //std::cout << nPrevTopLine << "  " << nTopLine << std::endl;
+
                 AfxRedrawWindow(hWnd);
             }
         }
@@ -522,15 +524,17 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
         SelectBitmap(memDC, hbit);
 
         Graphics graphics(memDC);
+        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
         SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelScrollBarBack));
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
-
-        Pen pen(GetThemeColor(ThemeElement::TradesPanelScrollBarLine), 1);
-        graphics.DrawLine(&pen, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.left, ps.rcPaint.bottom);
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
         backBrush.SetColor(GetThemeColor(ThemeElement::TradesPanelScrollBarThumb));
-        graphics.FillRectangle(&backBrush, vsb.rc.left, vsb.rc.top, vsb.rc.right, vsb.rc.bottom);
+        graphics.FillRectangle(&backBrush, vsb.rc.left, vsb.rc.top, nWidth, vsb.thumbHeight);
+        
+        Pen pen(GetThemeColor(ThemeElement::TradesPanelScrollBarLine), 1);
+        graphics.DrawLine(&pen, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.left, ps.rcPaint.bottom);
 
         // Copy the entire memory bitmap to the main display
         BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -573,13 +577,6 @@ LRESULT CALLBACK ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-
-//dim pWindow as CWindow ptr = AfxCWindowPtr(HWND_FRMEXPLORER)
-
-    // Keep track of last index we were over so that we only issue a 
-    // repaint if the cursor has moved off of the line.
-    static int nLastIdx = -1;
-
     // Create static accumulation variable to collect the data from
     // a series of middle mouse wheel scrolls.
     static int accumDelta = 0;
@@ -613,71 +610,31 @@ LRESULT CALLBACK ListBox_SubclassProc(
     }
 
     case WM_MOUSEMOVE:
-//' Track that we are over the control in order to catch the 
-//' eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
-//dim tme as TrackMouseEvent
-//tme.cbSize = sizeof(TrackMouseEvent)
-//tme.dwFlags = TME_HOVER or TME_LEAVE
-//tme.hwndTrack = hWin
-//TrackMouseEvent(@tme)
-//
-//' get the item rect that the mouse is over and only invalidate
-//' that instead of the entire listbox
-//dim as RECT rc
-//dim as long idx = Listbox_ItemFromPoint(hWin, GET_X_LPARAM(_lParam), GET_Y_LPARAM(_lParam))
-//' The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-//' if the specified point is in the client area of the list box, or one if it is outside the 
-//' client area.
-//if hiword(idx) < > 1 then
-//if idx <> nLastIdx then
-//ListBox_GetItemRect(hWin, idx, @rc)
-//InvalidateRect(hWin, @rc, true)
-//ListBox_GetItemRect(hWin, nLastIdx, @rc)
-//InvalidateRect(hWin, @rc, true)
-//nLastIdx = idx
-//end if
-//end if
         break;
-
 
     case WM_MOUSEHOVER:
-//dim as CWSTR wszTooltip
-//if IsWindow(hTooltip) = 0 then hTooltip = AfxAddTooltip(hWin, "", false, false)
-//dim as long idx = Listbox_ItemFromPoint(hWin, GET_X_LPARAM(_lParam), GET_Y_LPARAM(_lParam))
-//' The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-//' if the specified point is in the client area of the list box, or one if it is outside the 
-//' client area.
-//if hiword(idx) < > 1 then
-//dim as clsDocument ptr pDoc = cast(clsDocument ptr, ListBox_GetItemData(hWin, idx))
-//if pDoc then wszTooltip = pDoc->DiskFilename
-//' Display the tooltip
-//AfxSetTooltipText(hTooltip, hWin, wszTooltip)
-//AfxRedrawWindow(hWin)
-//end if
         break;
 
-
     case WM_MOUSELEAVE:
-//nLastIdx = -1
-//AfxRedrawWindow(hWin)
         break;
 
 
     case WM_RBUTTONDOWN:
-//' Create the popup menu
-//dim as long idx = Listbox_ItemFromPoint(hWin, GET_X_LPARAM(_lParam), GET_Y_LPARAM(_lParam))
-//' The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-//' if the specified point is in the client area of the list box, or one if it is outside the 
-//' client area.
-//if hiword(idx) < > 1 then
-//dim as clsDocument ptr pDoc = cast(clsDocument ptr, ListBox_GetItemData(hWin, idx))
-//if pDoc then
-//ListBox_SetSel(hWin, true, idx)
-//dim as HMENU hPopupMenu = CreateExplorerContextMenu(pDoc)
-//dim as POINT pt : GetCursorPos(@pt)
-//dim as long id = TrackPopupMenu(hPopUpMenu, TPM_RETURNCMD, pt.x, pt.y, 0, HWND_FRMMAIN, byval null)
-//
+    {
+        // Create the popup menu
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) != 1) {
+            //ListBox_SetSel(hWnd, TRUE, idx);
+            //dim as HMENU hPopupMenu = CreateExplorerContextMenu(pDoc)
+            //dim as POINT pt : GetCursorPos(@pt)
+            //dim as long id = TrackPopupMenu(hPopUpMenu, TPM_RETURNCMD, pt.x, pt.y, 0, HWND_FRMMAIN, byval null)
+            //AfxRedrawWindow(hWnd);
+        }
         break;
+    }
 
 
     case WM_LBUTTONUP:
@@ -708,7 +665,7 @@ LRESULT CALLBACK ListBox_SubclassProc(
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
         RECT rc; GetClientRect(hWnd, &rc);
-
+        
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int itemHeight = (rcItem.bottom - rcItem.top);
@@ -717,21 +674,23 @@ LRESULT CALLBACK ListBox_SubclassProc(
         int visible_rows = 0;
         int ItemsPerPage = 0;
         int bottom_index = 0;
+        int nWidth = (rc.right - rc.left);
+        int nHeight = (rc.bottom - rc.top);
 
         if (NumItems > 0) {
-            ItemsPerPage = (rc.bottom - rc.top) / itemHeight;
+            ItemsPerPage = (nHeight) / itemHeight;
             bottom_index = (nTopIndex + ItemsPerPage);
             if (bottom_index >= NumItems)
                 bottom_index = NumItems - 1;
             visible_rows = (bottom_index - nTopIndex) + 1;
             rc.top = visible_rows * itemHeight;
         }
-
+        
         if (rc.top < rc.bottom) {
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));
-            graphics.FillRectangle(&backBrush, rc.left, rc.top, rc.right, rc.bottom);
+            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
         ValidateRect(hWnd, &rc);
@@ -751,7 +710,7 @@ LRESULT CALLBACK ListBox_SubclassProc(
         break;
 
 
-        }   // end of switch statment
+    }   // end of switch statment
 
     // For messages that we don't deal with
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -775,9 +734,12 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         if (id == IDC_LISTBOX && cmd == LBN_SELCHANGE) {
             // update the highlighting of the current line
+            // TODO: Handle the repaint in the subclass (WM_LBUTTONDOWN) rather than this notification because
+            // of the delay in repainting the switched lines.
             AfxRedrawWindow(hCtl);
-            //    ' update the scrollbar position if necessary
-            //    frmExplorer_PositionWindows()
+            //  update the scrollbar position if necessary
+            calcVThumbRect();
+            AfxRedrawWindow(vsb.hWnd);
         }
 
     }
@@ -803,7 +765,16 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         RECT rcClient;
         GetClientRect(hWnd, &rcClient);
 
-        bool bShowScrollBar = calcVThumbRect();
+        // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
+        // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
+        // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
+        bool bShowScrollBar = false;
+        if (vsb.bDragActive) {
+            bShowScrollBar = true;
+        }
+        else {
+            bShowScrollBar = calcVThumbRect();
+        }
         int VScrollBarWidth = bShowScrollBar ? (int)AfxScaleX(VSCROLLBAR_WIDTH) : 0;
 
         int margin = (int)AfxScaleY(LISTBOX_ROWHEIGHT);
@@ -846,7 +817,9 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         SolidBrush backBrush(nBackColor);
 
         // Paint the background using brush.
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
         EndPaint(hWnd, &ps);
         break;
@@ -913,7 +886,6 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             (SUBCLASSPROC)&ListBox_SubclassProc, 
             IDC_LISTBOX, (DWORD_PTR)pWindow);
 
-
     vsb.hWnd =
         pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
             0, 0, 0, 0,
@@ -921,6 +893,9 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)&VScrollBar_SubclassProc,
             IDC_VSCROLLBAR, (DWORD_PTR)pWindow);
+
+    // Set focus to ListBox so we get a correct repaint via WM_DRAWITEM
+    SetFocus(vsb.hListBox);
 
     return pWindow;
 }

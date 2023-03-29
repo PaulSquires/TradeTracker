@@ -77,7 +77,6 @@ LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        // TODO: Add any drawing code that uses hdc here...
         EndPaint(hWnd, &ps);
     }
     break;
@@ -1181,4 +1180,15 @@ std::wstring AfxMoney(double value)
     int j = snprintf(&buffer[0], 256, "%.2f\n", value);
     std::wstring wszMoney = ansi2unicode(buffer);
     return wszMoney.substr(0, j - 1);   // -1 to remove null terminator
+}
+
+//' ========================================================================================
+//' Gets the zero-based index of the item nearest the specified point in a list box.
+//' The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero
+//' if the specified point is in the client area of the list box, or one if it is outside
+//' the client area.
+//' ========================================================================================
+int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y)
+{
+    return SendMessage(hListBox, LB_ITEMFROMPOINT, 0, (LPARAM)MAKELONG(x, y));
 }

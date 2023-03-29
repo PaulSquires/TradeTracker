@@ -62,7 +62,9 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         SolidBrush backBrush(nBackColor);
 
         // Paint the background using brush.
-        graphics.FillRectangle(&backBrush, (int)ps.rcPaint.left, (int)ps.rcPaint.top, (int)ps.rcPaint.right, (int)ps.rcPaint.bottom);
+        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
         EndPaint(hWnd, &ps);
         break;

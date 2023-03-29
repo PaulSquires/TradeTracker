@@ -6,7 +6,7 @@
 
 const int IDC_HISTORYPANEL = 102;
 
-const int HISTORYPANEL_WIDTH = 260;
+const int HISTORYPANEL_WIDTH = 300;
 
 
 CWindow* HistoryPanel_Show(HWND hWndParent);
