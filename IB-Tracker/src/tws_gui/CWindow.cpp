@@ -468,7 +468,7 @@ HWND CWindow::AddControl(
 
     case Controls::Custom:
     {
-        if (dwStyle == -1) dwStyle = WS_VISIBLE;
+        if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_NOTIFY;
         wszClassName = L"Static";
         hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, bSetFont, lpParam);
     }

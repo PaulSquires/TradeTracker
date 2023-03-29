@@ -415,9 +415,6 @@ bool calcVThumbRect()
     vsb.rc.top = (int)(rc.top + (((float)nTopIndex / (float)vsb.numItems) * (float)vsb.listBoxHeight));
     vsb.rc.right = rc.right;
     vsb.rc.bottom = (vsb.rc.top + vsb.thumbHeight);
-
-    std::wcout << vsb.rc.left << " " << vsb.rc.top << " " << vsb.rc.right << " " << vsb.rc.bottom << std::endl;
-    std::wcout << vsb.itemsPerPage << " " << vsb.numItems << " " << vsb.listBoxHeight << " " << vsb.thumbHeight << std::endl;
     
     // If the number of items in the listbox is less than what could display
     // on the screen then there is no need to show the scrollbar.
@@ -440,29 +437,28 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
     {
     case WM_LBUTTONDOWN:
         {
-        HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
-        POINT pt; GetCursorPos(&pt);
-        calcVThumbRect();    // in client coordinates
-        RECT rc = vsb.rc;            // convert copy to screen coordinates
-        MapWindowPoints(hWnd, HWND_DESKTOP, (POINT*)&rc, 2);
-        if (PtInRect(&rc, pt)) {
+        POINT pt;
+        pt.x = GET_X_LPARAM(lParam);
+        pt.y = GET_Y_LPARAM(lParam);
+        calcVThumbRect();            // in client coordinates
+        if (PtInRect(&vsb.rc, pt)) {
             prev_pt = pt;
             vsb.bDragActive = true;
             SetCapture(hWnd);
         }
         else {
             // we have clicked on a PageUp or PageDn
-            int nTopIndex = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
-            if (pt.y < rc.top) {
+            int nTopIndex = SendMessage(vsb.hListBox, LB_GETTOPINDEX, 0, 0);
+            if (pt.y < vsb.rc.top) {
                 nTopIndex = max(nTopIndex - vsb.itemsPerPage, 0);
-                SendMessage(hListBox, LB_SETTOPINDEX, nTopIndex, 0);
+                SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopIndex, 0);
                 calcVThumbRect();   // in client coordinates
                 AfxRedrawWindow(vsb.hWnd);
             } else {
-                if (pt.y > rc.bottom) {
+                if (pt.y > vsb.rc.bottom) {
                     int nMaxTopIndex = vsb.numItems - vsb.itemsPerPage;
                     nTopIndex = min(nTopIndex + vsb.itemsPerPage, nMaxTopIndex);
-                    SendMessage(hListBox, LB_SETTOPINDEX, nTopIndex, 0);
+                    SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopIndex, 0);
                     calcVThumbRect();   // in client coordinates
                     AfxRedrawWindow(vsb.hWnd);
                 }
@@ -476,10 +472,11 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
     case WM_MOUSEMOVE:
         {
         if (vsb.bDragActive) {
-            POINT pt; GetCursorPos(&pt);
+            POINT pt;
+            pt.x = GET_X_LPARAM(lParam);
+            pt.y = GET_Y_LPARAM(lParam);
             if (pt.y != prev_pt.y) {
                 int delta = (pt.y - prev_pt.y);
-                // convert to client coordinates for ease of use
                 RECT rc; GetClientRect(hWnd, &rc);
                 rc.bottom = (int)(rc.bottom * vsb.thumbRatio);
                 vsb.rc.top = max(0, vsb.rc.top + delta);
@@ -488,11 +485,10 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
 
                 prev_pt = pt;
 
-                HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
-                int nPrevTopLine = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
-                int nTopLine = (vsb.rc.top / rc.bottom) * vsb.numItems;
+                int nPrevTopLine = SendMessage(vsb.hListBox, LB_GETTOPINDEX, 0, 0);
+                int nTopLine = (int)((float)vsb.rc.top / (float)rc.bottom * (float)vsb.numItems);
                 if (nTopLine != nPrevTopLine)
-                    SendMessage(hListBox, LB_SETTOPINDEX, nTopLine, 0);
+                    SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopLine, 0);
                 AfxRedrawWindow(hWnd);
             }
         }
@@ -519,7 +515,14 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
-        Graphics graphics(hdc);
+        SaveDC(hdc);
+
+        HDC memDC = CreateCompatibleDC(hdc);
+        HBITMAP hbit = CreateCompatibleBitmap(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
+        SelectBitmap(memDC, hbit);
+
+        Graphics graphics(memDC);
+
         SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelScrollBarBack));
         graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 
@@ -528,6 +531,16 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
 
         backBrush.SetColor(GetThemeColor(ThemeElement::TradesPanelScrollBarThumb));
         graphics.FillRectangle(&backBrush, vsb.rc.left, vsb.rc.top, vsb.rc.right, vsb.rc.bottom);
+
+        // Copy the entire memory bitmap to the main display
+        BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
+
+        // Restore the original state of the DC
+        RestoreDC(hdc, -1);
+
+        // Cleanup
+        DeleteObject(hbit);
+        DeleteDC(memDC);
 
         EndPaint(hWnd, &ps);
 
@@ -586,16 +599,16 @@ LRESULT CALLBACK ListBox_SubclassProc(
             nTopIndex = max(0, nTopIndex);
             SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
             accumDelta = 0;
-            //frmPanelVScroll_PositionWindows(SW_SHOWNA)
         }
         else {
             if (accumDelta <= -120) {     // scroll down 3 lines
                 nTopIndex += +3;
                 SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
                 accumDelta = 0;
-                //frmPanelVScroll_PositionWindows(SW_SHOWNA)
             }
         }
+        calcVThumbRect();   
+        AfxRedrawWindow(vsb.hWnd);
         break;
     }
 
@@ -904,8 +917,8 @@ CWindow* TradesPanel_Show(HWND hWndParent)
     vsb.hWnd =
         pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
             0, 0, 0, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            WS_EX_NOACTIVATE | WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)&VScrollBar_SubclassProc,
             IDC_VSCROLLBAR, (DWORD_PTR)pWindow);
 
