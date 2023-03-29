@@ -29,6 +29,9 @@ enum class ThemeElement {
 	TradesPanelColBackDark,
 	TradesPanelNormalDTE,
 	TradesPanelWarningDTE,
+	TradesPanelScrollBarBack,
+	TradesPanelScrollBarLine,
+	TradesPanelScrollBarThumb,
 
 	valuePositive,    // usually green
 	valueNegative,    // usually red

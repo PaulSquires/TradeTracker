@@ -12,13 +12,19 @@ HWND HWND_TRADESPANEL = NULL;
 
 const int LISTBOX_ROWHEIGHT = 24;
 const int VSCROLLBAR_WIDTH = 14;
+const int VSCROLLBAR_MINTHUMBSIZE = 20;
+
 
 class VScrollBar
 {
 public:
+    HWND hWnd = NULL;
+    HWND hListBox = NULL;
     bool bDragActive = false;
-    int numLines = 0;
-    int linesPerPage = 0;
+    int listBoxHeight = 0;
+    int itemHeight = 0;
+    int numItems = 0;
+    int itemsPerPage = 0;
     int thumbHeight = 0;
     float thumbRatio = 0;
     RECT rc{};
@@ -383,6 +389,42 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
 }
 
 
+//' ========================================================================================
+//' Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
+//' Will return TRUE if RECT is not empty. 
+//' ========================================================================================
+bool calcVThumbRect()
+{
+    // calculate the vertical scrollbar in client coordinates
+    SetRectEmpty(&vsb.rc);
+    int nTopIndex = SendMessage(vsb.hListBox, LB_GETTOPINDEX, 0, 0);
+
+    RECT rc{};
+    GetClientRect(vsb.hListBox, &rc);
+    vsb.listBoxHeight = (rc.bottom - rc.top);
+    vsb.itemHeight = ListBox_GetItemHeight(vsb.hListBox, 0);
+    vsb.numItems = ListBox_GetCount(vsb.hListBox);
+    
+    // If no items exist then exit to avoid division by zero GPF's.
+    if (vsb.numItems == 0) return FALSE;
+    
+    vsb.itemsPerPage = (int)((float)vsb.listBoxHeight / (float)vsb.itemHeight);
+    vsb.thumbHeight = (int)(((float)vsb.itemsPerPage / (float)vsb.numItems) * (float)vsb.listBoxHeight);
+    GetClientRect(vsb.hWnd, &rc);
+    vsb.rc.left = rc.left;
+    vsb.rc.top = (int)(rc.top + (((float)nTopIndex / (float)vsb.numItems) * (float)vsb.listBoxHeight));
+    vsb.rc.right = rc.right;
+    vsb.rc.bottom = (vsb.rc.top + vsb.thumbHeight);
+
+    std::wcout << vsb.rc.left << " " << vsb.rc.top << " " << vsb.rc.right << " " << vsb.rc.bottom << std::endl;
+    std::wcout << vsb.itemsPerPage << " " << vsb.numItems << " " << vsb.listBoxHeight << " " << vsb.thumbHeight << std::endl;
+    
+    // If the number of items in the listbox is less than what could display
+    // on the screen then there is no need to show the scrollbar.
+    return (vsb.numItems < vsb.itemsPerPage) ? FALSE : TRUE;
+
+}
+
 
 //' ========================================================================================
 //' Vertical scrollBar subclass Window procedure
@@ -392,15 +434,16 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 
-    static POINT prev_pt;                 // screen pt.y cursor position
+    static POINT prev_pt;             // screen pt.y cursor position
 
     switch (uMsg)
     {
     case WM_LBUTTONDOWN:
         {
+        HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
         POINT pt; GetCursorPos(&pt);
-        //    frmEditorVScroll_calcVThumbRect(pDoc)   // in client coordinates
-        RECT rc = vsb.rc;  // convert copy to screen coordinates
+        calcVThumbRect();    // in client coordinates
+        RECT rc = vsb.rc;            // convert copy to screen coordinates
         MapWindowPoints(hWnd, HWND_DESKTOP, (POINT*)&rc, 2);
         if (PtInRect(&rc, pt)) {
             prev_pt = pt;
@@ -409,20 +452,19 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
         }
         else {
             // we have clicked on a PageUp or PageDn
-            HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
             int nTopIndex = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
             if (pt.y < rc.top) {
-                nTopIndex = max(nTopIndex - vsb.linesPerPage, 0);
+                nTopIndex = max(nTopIndex - vsb.itemsPerPage, 0);
                 SendMessage(hListBox, LB_SETTOPINDEX, nTopIndex, 0);
-                //frmEditorVScroll_calcVThumbRect(pDoc);   // in client coordinates
-                //AfxRedrawWindow(HWND_FRMEDITOR_VSCROLLBAR(idxWindow));
+                calcVThumbRect();   // in client coordinates
+                AfxRedrawWindow(vsb.hWnd);
             } else {
                 if (pt.y > rc.bottom) {
-                    int nMaxTopIndex = vsb.numLines - vsb.linesPerPage;
-                    nTopIndex = min(nTopIndex + vsb.linesPerPage, nMaxTopIndex);
+                    int nMaxTopIndex = vsb.numItems - vsb.itemsPerPage;
+                    nTopIndex = min(nTopIndex + vsb.itemsPerPage, nMaxTopIndex);
                     SendMessage(hListBox, LB_SETTOPINDEX, nTopIndex, 0);
-                    //frmEditorVScroll_calcVThumbRect(pDoc);   // in client coordinates
-                    //AfxRedrawWindow(HWND_FRMEDITOR_VSCROLLBAR(idxWindow));
+                    calcVThumbRect();   // in client coordinates
+                    AfxRedrawWindow(vsb.hWnd);
                 }
             }
 
@@ -448,7 +490,7 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
 
                 HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
                 int nPrevTopLine = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
-                int nTopLine = (vsb.rc.top / rc.bottom) * vsb.numLines;
+                int nTopLine = (vsb.rc.top / rc.bottom) * vsb.numItems;
                 if (nTopLine != nPrevTopLine)
                     SendMessage(hListBox, LB_SETTOPINDEX, nTopLine, 0);
                 AfxRedrawWindow(hWnd);
@@ -478,13 +520,13 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
         HDC hdc = BeginPaint(hWnd, &ps);
 
         Graphics graphics(hdc);
-        SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));
+        SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelScrollBarBack));
         graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 
-        Pen pen(GetThemeColor(ThemeElement::TradesPanelText), 1);
+        Pen pen(GetThemeColor(ThemeElement::TradesPanelScrollBarLine), 1);
         graphics.DrawLine(&pen, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.left, ps.rcPaint.bottom);
 
-        backBrush.SetColor(GetThemeColor(ThemeElement::TradesPanelText));
+        backBrush.SetColor(GetThemeColor(ThemeElement::TradesPanelScrollBarThumb));
         graphics.FillRectangle(&backBrush, vsb.rc.left, vsb.rc.top, vsb.rc.right, vsb.rc.bottom);
 
         EndPaint(hWnd, &ps);
@@ -748,8 +790,10 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         RECT rcClient;
         GetClientRect(hWnd, &rcClient);
 
+        bool bShowScrollBar = calcVThumbRect();
+        int VScrollBarWidth = bShowScrollBar ? (int)AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+
         int margin = (int)AfxScaleY(LISTBOX_ROWHEIGHT);
-        int VScrollBarWidth = (int)AfxScaleX(VSCROLLBAR_WIDTH);
 
         int nLeft = rcClient.left;
         int nTop = rcClient.top + margin;
@@ -761,8 +805,8 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         nLeft = nLeft + nWidth;   // right edge of ListBox
         nWidth = VScrollBarWidth;
         SetWindowPos(GetDlgItem(hWnd, IDC_VSCROLLBAR), 0,
-            nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        
+            nLeft, nTop, nWidth, nHeight, 
+            SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
     }
     break;
 
@@ -846,7 +890,7 @@ CWindow* TradesPanel_Show(HWND hWndParent)
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
-    HWND hListBox = 
+    vsb.hListBox = 
         pWindow->AddControl(Controls::ListBox, HWND_TRADESPANEL, IDC_LISTBOX, L"", 
             0, 0, 0, 0, 
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP | 
@@ -857,7 +901,7 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             IDC_LISTBOX, (DWORD_PTR)pWindow);
 
 
-    HWND hVScrollBar =
+    vsb.hWnd =
         pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

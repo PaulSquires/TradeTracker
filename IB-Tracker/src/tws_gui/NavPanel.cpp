@@ -35,7 +35,7 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         if (rcClient.bottom < MinHeight) return 0;
 
         SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES), 0,
-            0, rcClient.bottom - (int)AfxScaleY(42), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+            0, rcClient.bottom - (int)AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
     }
         break;
 
@@ -630,7 +630,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelTextDim;
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
-        pData->TextAlignment = SuperLabelAlignment::BottomCenter;
+        pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
         pData->wszText = L"TWS not connected";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);

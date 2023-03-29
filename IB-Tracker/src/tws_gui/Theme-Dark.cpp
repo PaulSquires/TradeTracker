@@ -29,6 +29,9 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::TradesPanelColBackDark][theme] = Color::MakeARGB(255, 51, 51, 51);
 	clr[(int)ThemeElement::TradesPanelNormalDTE][theme] = Color::Magenta;
 	clr[(int)ThemeElement::TradesPanelWarningDTE][theme] = Color::Yellow;
+	clr[(int)ThemeElement::TradesPanelScrollBarBack][theme] = Color::MakeARGB(255, 38, 38, 38);;
+	clr[(int)ThemeElement::TradesPanelScrollBarLine][theme] = Color::MakeARGB(255, 51, 51, 51);;
+	clr[(int)ThemeElement::TradesPanelScrollBarThumb][theme] = Color::MakeARGB(255, 212, 212, 212);
 
 	clr[(int)ThemeElement::valuePositive][theme] = Color::MakeARGB(255, 72, 151, 13);
 	clr[(int)ThemeElement::valueNegative][theme] = Color::MakeARGB(255, 255, 30, 0);
