@@ -286,6 +286,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 	// Most pertinent TickType fields for our use would be the following:
 	// enum TickType { LAST, CLOSE, OPEN }
+	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
 		printf("Tick Price. Ticker Id: %ld, Field: %d, Price: %s, CanAutoExecute: %d, PastLimit: %d, PreOpen: %d\n", tickerId, (int)field, Utils::doubleMaxString(price).c_str(), attribs.canAutoExecute, attribs.pastLimit, attribs.preOpen);
 
@@ -294,34 +295,102 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// and the correct ListBox line is invalidated/redrawn in order to force
 		// display of the new price data. 
 
-		// Convert the 'price' double to a nice 2 decimal place money like string for presentation purposes.
-		std::wstring wszPrice = AfxMoney(price);
-
-		//for (LineData* ld : vec) {
+		// The tickerId was setup so that it is a direct index access into the vector. This makes lookups
+		// for the ListBox row that needs to be updated almost instantaneous. We initially uses a "TICKER_NUMBER_OFFEST"
+		// value to add to the ListBox line index so that the tickerId being sent to TWS would not start
+		// at value zero (because the first row of a ListBox is zero).
 		int nIndex = tickerId - TICKER_NUMBER_OFFEST;
 		LineData* ld = vec.at(nIndex);
 
 		if (ld != nullptr) {
-			if (ld->tickerId == tickerId) {
-				SetColumnData(ld, COLUMN_TICKER_ITM, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-					ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
-				SetColumnData(ld, COLUMN_TICKER_CHANGE, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
-					ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
-				SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, wszPrice,	StringAlignmentCenter, 
-					ThemeElement::TradesPanelBack,	ThemeElement::TradesPanelText, 9
-					, FontStyleRegular | FontStyleBold);   // current price
-				SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-					ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
+			// Do sanity check to be sure that the tickerId matches the returned data
+			if (ld->tickerId == tickerId && ld->trade != nullptr) {
+
+				if (field == LAST) {
+					ld->trade->tickerLastPrice = price;
+				}
+
+				if (field == CLOSE) {
+					ld->trade->tickerClosePrice = price;
+					if (ld->trade->tickerLastPrice == 0) 
+						ld->trade->tickerLastPrice = price;
+				}
+
+				if (field == OPEN) {
+					if (ld->trade->tickerLastPrice == 0)
+						ld->trade->tickerLastPrice = price;
+				}
+
+				// Calculate the price change
+				double delta = 0;
+				if (ld->trade->tickerClosePrice != 0) { 
+					delta = (ld->trade->tickerLastPrice - ld->trade->tickerClosePrice); 
+				}
+
+				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
+				bool isITMred = false;
+				bool isITMgreen = false;
+				for (const auto& leg : ld->trade->openLegs) {
+					if (leg->underlying == L"OPTIONS") {
+						if (leg->PutCall == L"P") {
+							if (ld->trade->tickerLastPrice < std::stod(leg->strikePrice)) {
+								leg->openQuantity < 0 ? isITMred = true : isITMred = false;
+								leg->openQuantity > 0 ? isITMgreen = true : isITMgreen = false;
+								break;
+							}
+						}
+						else if (leg->PutCall == L"C") {
+							if (ld->trade->tickerLastPrice > std::stod(leg->strikePrice)) {
+								leg->openQuantity < 0 ? isITMred = true : isITMred = false;
+								leg->openQuantity > 0 ? isITMgreen = true : isITMgreen = false;
+								break;
+							}
+						}
+					}
+				}
+
+				
+				std::wstring wszText = L"";
+
+				ThemeElement themeEl = ThemeElement::TradesPanelText;
+				if (isITMred) {
+					wszText = L"ITM";
+					themeEl = ThemeElement::valueNegative;
+				}
+				else if (isITMgreen) {
+					wszText = L"ITM";
+					themeEl = ThemeElement::valuePositive;
+				}
+				SetColumnData(ld, COLUMN_TICKER_ITM, wszText, StringAlignmentNear, ThemeElement::TradesPanelBack,
+					themeEl, 8, FontStyleRegular);   // ITM
+
+
+				wszText = AfxMoney(delta);
+				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+				SetColumnData(ld, COLUMN_TICKER_CHANGE, wszText, StringAlignmentFar, ThemeElement::TradesPanelBack,
+					themeEl, 8, FontStyleRegular);   // price change
+
+
+				wszText = AfxMoney(ld->trade->tickerLastPrice);
+				SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, wszText, StringAlignmentCenter,
+					ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 9,
+					FontStyleRegular | FontStyleBold);   // current price
+
+
+				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100) + L"%";
+				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+				SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, wszText, StringAlignmentNear, ThemeElement::TradesPanelBack,
+					themeEl, 8, FontStyleRegular);   // price percentage change
+
 
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};
 				ListBox_GetItemRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), nIndex, &rc);
 				InvalidateRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), &rc, TRUE);
 				UpdateWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-				//break;
-		
 			}
 		}
+
 	}
 }
 

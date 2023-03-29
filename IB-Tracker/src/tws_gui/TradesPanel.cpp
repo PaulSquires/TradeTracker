@@ -11,8 +11,24 @@
 HWND HWND_TRADESPANEL = NULL;
 
 const int LISTBOX_ROWHEIGHT = 24;
+const int VSCROLLBAR_WIDTH = 14;
+
+class VScrollBar
+{
+public:
+    bool bDragActive = false;
+    int numLines = 0;
+    int linesPerPage = 0;
+    int thumbHeight = 0;
+    float thumbRatio = 0;
+    RECT rc{};
+};
+
 
 std::vector<LineData*> vec;
+
+VScrollBar vsb;
+
 
 
 //' ========================================================================================
@@ -368,12 +384,137 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
 
 
 
+//' ========================================================================================
+//' Vertical scrollBar subclass Window procedure
+//' ========================================================================================
+LRESULT CALLBACK VScrollBar_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+
+    static POINT prev_pt;                 // screen pt.y cursor position
+
+    switch (uMsg)
+    {
+    case WM_LBUTTONDOWN:
+        {
+        POINT pt; GetCursorPos(&pt);
+        //    frmEditorVScroll_calcVThumbRect(pDoc)   // in client coordinates
+        RECT rc = vsb.rc;  // convert copy to screen coordinates
+        MapWindowPoints(hWnd, HWND_DESKTOP, (POINT*)&rc, 2);
+        if (PtInRect(&rc, pt)) {
+            prev_pt = pt;
+            vsb.bDragActive = true;
+            SetCapture(hWnd);
+        }
+        else {
+            // we have clicked on a PageUp or PageDn
+            HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
+            int nTopIndex = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
+            if (pt.y < rc.top) {
+                nTopIndex = max(nTopIndex - vsb.linesPerPage, 0);
+                SendMessage(hListBox, LB_SETTOPINDEX, nTopIndex, 0);
+                //frmEditorVScroll_calcVThumbRect(pDoc);   // in client coordinates
+                //AfxRedrawWindow(HWND_FRMEDITOR_VSCROLLBAR(idxWindow));
+            } else {
+                if (pt.y > rc.bottom) {
+                    int nMaxTopIndex = vsb.numLines - vsb.linesPerPage;
+                    nTopIndex = min(nTopIndex + vsb.linesPerPage, nMaxTopIndex);
+                    SendMessage(hListBox, LB_SETTOPINDEX, nTopIndex, 0);
+                    //frmEditorVScroll_calcVThumbRect(pDoc);   // in client coordinates
+                    //AfxRedrawWindow(HWND_FRMEDITOR_VSCROLLBAR(idxWindow));
+                }
+            }
+
+        }
+        break;
+        }
+
+
+    case WM_MOUSEMOVE:
+        {
+        if (vsb.bDragActive) {
+            POINT pt; GetCursorPos(&pt);
+            if (pt.y != prev_pt.y) {
+                int delta = (pt.y - prev_pt.y);
+                // convert to client coordinates for ease of use
+                RECT rc; GetClientRect(hWnd, &rc);
+                rc.bottom = (int)(rc.bottom * vsb.thumbRatio);
+                vsb.rc.top = max(0, vsb.rc.top + delta);
+                vsb.rc.top = min(vsb.rc.top, rc.bottom - vsb.thumbHeight);
+                vsb.rc.bottom = vsb.rc.top + vsb.thumbHeight;
+
+                prev_pt = pt;
+
+                HWND hListBox = GetDlgItem(GetParent(hWnd), IDC_LISTBOX);
+                int nPrevTopLine = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
+                int nTopLine = (vsb.rc.top / rc.bottom) * vsb.numLines;
+                if (nTopLine != nPrevTopLine)
+                    SendMessage(hListBox, LB_SETTOPINDEX, nTopLine, 0);
+                AfxRedrawWindow(hWnd);
+            }
+        }
+        break;
+        }
+
+
+    case WM_LBUTTONUP:
+        {
+        vsb.bDragActive = false;
+        prev_pt.x = 0;
+        prev_pt.y = 0;
+        ReleaseCapture();
+        break;
+        }
+
+    case WM_ERASEBKGND:
+        return TRUE;
+        break;
+        
+        
+    case WM_PAINT:
+        {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        Graphics graphics(hdc);
+        SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+
+        Pen pen(GetThemeColor(ThemeElement::TradesPanelText), 1);
+        graphics.DrawLine(&pen, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.left, ps.rcPaint.bottom);
+
+        backBrush.SetColor(GetThemeColor(ThemeElement::TradesPanelText));
+        graphics.FillRectangle(&backBrush, vsb.rc.left, vsb.rc.top, vsb.rc.right, vsb.rc.bottom);
+
+        EndPaint(hWnd, &ps);
+
+        break;
+        }
+
+                                               
+
+    case WM_DESTROY:
+    {
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, &VScrollBar_SubclassProc, uIdSubclass);
+        break;
+    }
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
 
 
 //' ========================================================================================
-//' TradesPanel Listbox subclass Window procedure
+//' Listbox subclass Window procedure
 //' ========================================================================================
-LRESULT CALLBACK TradesPanelListBox_SubclassProc(
+LRESULT CALLBACK ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -392,25 +533,29 @@ LRESULT CALLBACK TradesPanelListBox_SubclassProc(
     {
 
     case WM_MOUSEWHEEL:
-//' accumulate delta until scroll one line (up +120, down -120). 
-//' 120 is the Microsoft default delta
-//dim as long zDelta = GET_WHEEL_DELTA_WPARAM(_wParam)
-//dim as long nTopIndex = SendMessage(hWin, LB_GETTOPINDEX, 0, 0)
-//accumDelta = accumDelta + zDelta
-//if accumDelta >= 120 then       ' scroll up 3 lines
-//nTopIndex = nTopIndex - 3
-//nTopIndex = max(0, nTopIndex)
-//SendMessage(hWin, LB_SETTOPINDEX, nTopIndex, 0)
-//accumDelta = 0
-//frmPanelVScroll_PositionWindows(SW_SHOWNA)
-//elseif accumDelta <= -120 then  ' scroll down 3 lines
-//nTopIndex = nTopIndex + 3
-//SendMessage(hWin, LB_SETTOPINDEX, nTopIndex, 0)
-//accumDelta = 0
-//frmPanelVScroll_PositionWindows(SW_SHOWNA)
-//end if
+    {
+        // Accumulate delta until scroll one line (up +120, down -120). 
+        // 120 is the Microsoft default delta
+        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        accumDelta += zDelta;
+        if (accumDelta >= 120) {     // scroll up 3 lines
+            nTopIndex -= 3;
+            nTopIndex = max(0, nTopIndex);
+            SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+            accumDelta = 0;
+            //frmPanelVScroll_PositionWindows(SW_SHOWNA)
+        }
+        else {
+            if (accumDelta <= -120) {     // scroll down 3 lines
+                nTopIndex += +3;
+                SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+                accumDelta = 0;
+                //frmPanelVScroll_PositionWindows(SW_SHOWNA)
+            }
+        }
         break;
-
+    }
 
     case WM_MOUSEMOVE:
 //' Track that we are over the control in order to catch the 
@@ -529,9 +674,9 @@ LRESULT CALLBACK TradesPanelListBox_SubclassProc(
 
         if (rc.top < rc.bottom) {
             HDC hDC = (HDC)wParam;
-            HBRUSH hBrush = CreateSolidBrush(GetThemeCOLORREF(ThemeElement::TradesPanelBack));
-            FillRect(hDC, &rc, hBrush);
-            DeleteBrush(hBrush);
+            Graphics graphics(hDC);
+            SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));
+            graphics.FillRectangle(&backBrush, rc.left, rc.top, rc.right, rc.bottom);
         }
 
         ValidateRect(hWnd, &rc);
@@ -547,7 +692,7 @@ LRESULT CALLBACK TradesPanelListBox_SubclassProc(
         DestroyListBoxDisplayData();
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, &TradesPanelListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, &ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -604,13 +749,20 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         GetClientRect(hWnd, &rcClient);
 
         int margin = (int)AfxScaleY(LISTBOX_ROWHEIGHT);
+        int VScrollBarWidth = (int)AfxScaleX(VSCROLLBAR_WIDTH);
 
-        HWND hListBox = GetDlgItem(hWnd, IDC_LISTBOX);
-        SetWindowPos(hListBox, 0, 
-            rcClient.left, rcClient.top + margin,
-            rcClient.right - rcClient.left, 
-            rcClient.bottom - rcClient.top - (margin * 2), 
-            SWP_NOZORDER | SWP_SHOWWINDOW);
+        int nLeft = rcClient.left;
+        int nTop = rcClient.top + margin;
+        int nWidth = rcClient.right - rcClient.left - VScrollBarWidth;
+        int nHeight = rcClient.bottom - rcClient.top - (margin * 2);
+        SetWindowPos(GetDlgItem(hWnd, IDC_LISTBOX), 0, 
+            nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+        nLeft = nLeft + nWidth;   // right edge of ListBox
+        nWidth = VScrollBarWidth;
+        SetWindowPos(GetDlgItem(hWnd, IDC_VSCROLLBAR), 0,
+            nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        
     }
     break;
 
@@ -642,8 +794,6 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         EndPaint(hWnd, &ps);
         break;
     }
-
-
 
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -703,8 +853,17 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
             LBS_NODATA | LBS_OWNERDRAWFIXED | LBS_NOTIFY, 
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL, 
-            (SUBCLASSPROC)&TradesPanelListBox_SubclassProc, 
+            (SUBCLASSPROC)&ListBox_SubclassProc, 
             IDC_LISTBOX, (DWORD_PTR)pWindow);
+
+
+    HWND hVScrollBar =
+        pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+            WS_EX_NOACTIVATE | WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)&VScrollBar_SubclassProc,
+            IDC_VSCROLLBAR, (DWORD_PTR)pWindow);
 
     return pWindow;
 }

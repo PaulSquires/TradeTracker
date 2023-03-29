@@ -134,6 +134,11 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
             
             case IDC_NAVPANEL_GEARICON:
             {
+                // Prevent multiple clicks of the connect button by waiting until
+                // the first click is finished.
+                static bool bProcessingConnectClick = false;
+                if (bProcessingConnectClick) break;
+                bProcessingConnectClick = true;
                 bool res = tws_connect();
                 printf("Connect: %ld\n", res);
                 printf("isConnected: %ld\n", tws_isConnected());
@@ -141,6 +146,7 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 // the price data for any active trades displaying in our table.
                 if (tws_isConnected())
                     ShowActiveTrades();
+                bProcessingConnectClick = false;
                 break;
             }
 

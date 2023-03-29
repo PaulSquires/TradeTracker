@@ -10,6 +10,7 @@ enum class Controls
     OptionButton,
     CheckBox,
     Label,
+    Custom,
     Frame,
     Line,
     TextBox,

@@ -11,6 +11,8 @@ const int IDC_TRADESPANEL = 101;
 
 const int IDC_LISTBOX = 102;
 const int IDC_LABEL = 103;
+const int IDC_VSCROLLBAR = 104;
+
 
 // Construct the Trades ListBox data structure (Vector) that will be directly accessed
 // for each row during the WM_DRAWITEM notification. The message will specify which ListBox

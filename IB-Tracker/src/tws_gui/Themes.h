@@ -30,6 +30,9 @@ enum class ThemeElement {
 	TradesPanelNormalDTE,
 	TradesPanelWarningDTE,
 
+	valuePositive,    // usually green
+	valueNegative,    // usually red
+
 	HistoryPanelBack,
 
 	Count     // Returns the number of defined theme elements

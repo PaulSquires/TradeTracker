@@ -30,6 +30,8 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::TradesPanelNormalDTE][theme] = Color::Magenta;
 	clr[(int)ThemeElement::TradesPanelWarningDTE][theme] = Color::Yellow;
 
+	clr[(int)ThemeElement::valuePositive][theme] = Color::MakeARGB(255, 72, 151, 13);
+	clr[(int)ThemeElement::valueNegative][theme] = Color::MakeARGB(255, 255, 30, 0);
 
 
 
