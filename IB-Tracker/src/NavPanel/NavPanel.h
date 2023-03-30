@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "CWindow.h"
+#include "..\Utilities\CWindow.h"
 
 const int IDC_NAVPANEL = 100;
 

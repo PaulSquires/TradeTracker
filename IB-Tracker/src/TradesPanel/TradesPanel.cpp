@@ -1,11 +1,11 @@
 
 #include "pch.h"
-#include "ib-tracker.h"
+#include "..\Utilities\SuperLabel.h"
+#include "..\MainWindow\MainWindow.h"
+#include "..\MainWindow\tws-client.h"
+#include "..\Database\trade.h"
+#include "..\Themes\Themes.h"
 #include "TradesPanel.h"
-#include "SuperLabel.h"
-#include "Themes.h"
-#include "trade.h"
-#include "tws-client.h"
 
 
 HWND HWND_TRADESPANEL = NULL;

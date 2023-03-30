@@ -1,12 +1,11 @@
 
 #include "pch.h"
-#include "ib-tracker.h"
-#include "NavPanel.h"
-#include "TradesPanel.h"
-#include "tws-client.h"
-#include "SuperLabel.h"
-#include "Themes.h"
-#include "UserMessages.h"
+#include "..\Utilities\SuperLabel.h"
+#include "..\Utilities\UserMessages.h"
+#include "..\Themes\Themes.h"
+#include "..\MainWindow\MainWindow.h"
+#include "..\MainWindow\tws-client.h"
+#include "..\TradesPanel\TradesPanel.h"
 #include "NavPanel.h"
 
 // The NavPanel window is exposed external because other

@@ -1,10 +1,10 @@
 
 #include "pch.h"
-#include "ib-tracker.h"
+#include "..\Utilities\SuperLabel.h"
+#include "..\MainWindow\MainWindow.h"
+#include "..\MainWindow\tws-client.h"
+#include "..\Themes\Themes.h"
 #include "HistoryPanel.h"
-#include "tws-client.h"
-#include "SuperLabel.h"
-#include "Themes.h"
 
 HWND HWND_HISTORYPANEL = nullptr;
 

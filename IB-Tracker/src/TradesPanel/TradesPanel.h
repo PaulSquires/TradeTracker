@@ -1,9 +1,9 @@
 #pragma once
 
 #include "pch.h"
-#include "CWindow.h"
-#include "Themes.h"
-#include "trade.h"
+#include "..\Utilities\CWindow.h"
+#include "..\Themes\Themes.h"
+#include "..\Database\trade.h"
 
 typedef long TickerId;
 

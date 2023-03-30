@@ -1,15 +1,14 @@
 
 #include "pch.h"
+#include "..\Utilities\UserMessages.h"
+#include "..\TradesPanel\TradesPanel.h"
 #include "tws-client.h"
-#include "UserMessages.h"
 
-#include "EClientSocket.h"
-#include "EPosixClientSocketPlatform.h"
+#include "tws-api\EClientSocket.h"
+#include "tws-api\EPosixClientSocketPlatform.h"
+#include "tws-api\CommonDefs.h"
+#include "tws-api\Utils.h"
 
-#include "CommonDefs.h"
-#include "Utils.h"
-
-#include "TradesPanel.h"
 
 
 // The NavPanel window is exposed external because other

@@ -19,48 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\tws-api\ContractCondition.cpp" />
-    <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
-    <ClCompile Include="src\tws-api\EClient.cpp" />
-    <ClCompile Include="src\tws-api\EClientSocket.cpp" />
-    <ClCompile Include="src\tws-api\EDecoder.cpp" />
-    <ClCompile Include="src\tws-api\EMessage.cpp" />
-    <ClCompile Include="src\tws-api\EMutex.cpp" />
-    <ClCompile Include="src\tws-api\EOrderDecoder.cpp" />
-    <ClCompile Include="src\tws-api\EReader.cpp" />
-    <ClCompile Include="src\tws-api\EReaderOSSignal.cpp" />
-    <ClCompile Include="src\tws-api\ESocket.cpp" />
-    <ClCompile Include="src\tws-api\executioncondition.cpp" />
-    <ClCompile Include="src\tws-api\MarginCondition.cpp" />
-    <ClCompile Include="src\tws-api\OperatorCondition.cpp" />
-    <ClCompile Include="src\tws-api\OrderCondition.cpp" />
-    <ClCompile Include="src\tws_gui\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\tws-api\PercentChangeCondition.cpp" />
-    <ClCompile Include="src\tws-api\PriceCondition.cpp" />
-    <ClCompile Include="src\tws-api\SoftDollarTier.cpp" />
-    <ClCompile Include="src\tws-api\TimeCondition.cpp" />
-    <ClCompile Include="src\tws-api\Utils.cpp" />
-    <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
-    <ClCompile Include="src\tws_gui\CWindow.cpp" />
-    <ClCompile Include="src\tws_gui\database.cpp" />
-    <ClCompile Include="src\tws_gui\HistoryPanel.cpp" />
-    <ClCompile Include="src\tws_gui\ib-tracker.cpp" />
-    <ClCompile Include="src\tws_gui\NavPanel.cpp" />
-    <ClCompile Include="src\tws_gui\SuperLabel.cpp" />
-    <ClCompile Include="src\tws_gui\Theme-Light.cpp" />
-    <ClCompile Include="src\tws_gui\Themes.cpp" />
-    <ClCompile Include="src\tws_gui\trade.cpp" />
-    <ClCompile Include="src\tws_gui\TradesPanel.cpp" />
-    <ClCompile Include="src\tws_gui\tws-client.cpp" />
-    <ClCompile Include="src\tws_gui\Theme-Dark.cpp" />
-    <ClCompile Include="src\tws_gui\Theme-DarkPlus.cpp" />
-    <ClCompile Include="src\tws_gui\Theme-Blue.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\tws-api\bar.h" />
     <ClInclude Include="src\tws-api\CommissionReport.h" />
@@ -101,8 +59,12 @@
     <ClInclude Include="src\tws-api\Order.h" />
     <ClInclude Include="src\tws-api\OrderCondition.h" />
     <ClInclude Include="src\tws-api\OrderState.h" />
-    <ClInclude Include="src\tws-api\pch.h" />
-    <ClInclude Include="src\tws_gui\pch.h" />
+    <ClInclude Include="src\Database\database.h" />
+    <ClInclude Include="src\Database\trade.h" />
+    <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
+    <ClInclude Include="src\MainWindow\MainWindow.h" />
+    <ClInclude Include="src\MainWindow\tws-client.h" />
+    <ClInclude Include="src\NavPanel\NavPanel.h" />
     <ClInclude Include="src\tws-api\PercentChangeCondition.h" />
     <ClInclude Include="src\tws-api\platformspecific.h" />
     <ClInclude Include="src\tws-api\PriceCondition.h" />
@@ -119,17 +81,12 @@
     <ClInclude Include="src\tws-api\Utils.h" />
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />
-    <ClInclude Include="src\tws_gui\CWindow.h" />
-    <ClInclude Include="src\tws_gui\database.h" />
-    <ClInclude Include="src\tws_gui\HistoryPanel.h" />
-    <ClInclude Include="src\tws_gui\ib-tracker.h" />
-    <ClInclude Include="src\tws_gui\NavPanel.h" />
-    <ClInclude Include="src\tws_gui\SuperLabel.h" />
-    <ClInclude Include="src\tws_gui\Themes.h" />
-    <ClInclude Include="src\tws_gui\trade.h" />
-    <ClInclude Include="src\tws_gui\TradesPanel.h" />
-    <ClInclude Include="src\tws_gui\tws-client.h" />
-    <ClInclude Include="src\tws_gui\UserMessages.h" />
+    <ClInclude Include="src\Themes\Themes.h" />
+    <ClInclude Include="src\TradesPanel\TradesPanel.h" />
+    <ClInclude Include="src\Utilities\CWindow.h" />
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Utilities\SuperLabel.h" />
+    <ClInclude Include="src\Utilities\UserMessages.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />
@@ -138,10 +95,53 @@
     <None Include="rcdata1.bin" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\tws_gui\images\gear32.png" />
-    <Image Include="src\tws_gui\images\gearhot32.png" />
-    <Image Include="src\tws_gui\images\logo.png" />
-    <Image Include="src\tws_gui\images\mainicon.ico" />
+    <Image Include="src\Images\gear32.png" />
+    <Image Include="src\Images\gearhot32.png" />
+    <Image Include="src\Images\logo.png" />
+    <Image Include="src\Images\mainicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\tws-api\ContractCondition.cpp" />
+    <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
+    <ClCompile Include="src\tws-api\EClient.cpp" />
+    <ClCompile Include="src\tws-api\EClientSocket.cpp" />
+    <ClCompile Include="src\tws-api\EDecoder.cpp" />
+    <ClCompile Include="src\tws-api\EMessage.cpp" />
+    <ClCompile Include="src\tws-api\EMutex.cpp" />
+    <ClCompile Include="src\tws-api\EOrderDecoder.cpp" />
+    <ClCompile Include="src\tws-api\EReader.cpp" />
+    <ClCompile Include="src\tws-api\EReaderOSSignal.cpp" />
+    <ClCompile Include="src\tws-api\ESocket.cpp" />
+    <ClCompile Include="src\tws-api\executioncondition.cpp" />
+    <ClCompile Include="src\tws-api\MarginCondition.cpp" />
+    <ClCompile Include="src\tws-api\OperatorCondition.cpp" />
+    <ClCompile Include="src\tws-api\OrderCondition.cpp" />
+    <ClCompile Include="src\tws-api\PercentChangeCondition.cpp" />
+    <ClCompile Include="src\tws-api\PriceCondition.cpp" />
+    <ClCompile Include="src\tws-api\SoftDollarTier.cpp" />
+    <ClCompile Include="src\tws-api\TimeCondition.cpp" />
+    <ClCompile Include="src\tws-api\Utils.cpp" />
+    <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
+    <ClCompile Include="src\Database\database.cpp" />
+    <ClCompile Include="src\Database\trade.cpp" />
+    <ClCompile Include="src\HistoryPanel\HistoryPanel.cpp" />
+    <ClCompile Include="src\MainWindow\MainWindow.cpp" />
+    <ClCompile Include="src\MainWindow\tws-client.cpp" />
+    <ClCompile Include="src\NavPanel\NavPanel.cpp" />
+    <ClCompile Include="src\Themes\Theme-Blue.cpp" />
+    <ClCompile Include="src\Themes\Theme-Dark.cpp" />
+    <ClCompile Include="src\Themes\Theme-DarkPlus.cpp" />
+    <ClCompile Include="src\Themes\Theme-Light.cpp" />
+    <ClCompile Include="src\Themes\Themes.cpp" />
+    <ClCompile Include="src\TradesPanel\TradesPanel.cpp" />
+    <ClCompile Include="src\Utilities\CWindow.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Utilities\SuperLabel.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -152,7 +152,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -162,7 +162,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -189,22 +189,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)bld\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)bld\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)bld\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\bld\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)bld\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -212,7 +214,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\tws-gui;$(ProjectDir)src\tws-api</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -242,7 +244,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\tws-gui;$(ProjectDir)src\tws-api</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -268,8 +270,44 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>libbid.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)\tws-api\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;gdiplus.lib;libbid.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\src\tws-api\lib</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib; libcmtd.lib; msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>NotSet</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>UNICODE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>UNICODE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)\src\tws-api\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Version.lib;gdiplus.lib;libbid.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib; libcmtd.lib; msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>NotSet</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

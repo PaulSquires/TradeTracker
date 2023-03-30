@@ -1,7 +1,7 @@
 
 #include "pch.h"
 #include "Themes.h"
-#include "CWindow.h"
+#include "..\Utilities\CWindow.h"
 
 
 HWND hWndMainWindow = NULL;

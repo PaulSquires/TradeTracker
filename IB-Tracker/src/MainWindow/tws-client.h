@@ -3,14 +3,14 @@
 #include "pch.h"
 
 
-#include "EWrapper.h"
-#include "EReaderOSSignal.h"
-#include "EReader.h"
+#include "tws-api\EWrapper.h"
+#include "tws-api\EReaderOSSignal.h"
+#include "tws-api\EReader.h"
 
 #include <memory>
 #include <vector>
 
-#include "TradesPanel.h"
+#include "..\TradesPanel\TradesPanel.h"
 
 
 
@@ -37,7 +37,7 @@ public:
 
 public:
 	// events
-#include "EWrapper_prototypes.h"
+#include "tws-api\EWrapper_prototypes.h"
 
 
 private:

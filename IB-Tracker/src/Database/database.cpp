@@ -1,7 +1,7 @@
 #include "pch.h"
+#include "..\Utilities\CWindow.h"
+#include "..\Themes\Themes.h"
 #include "trade.h"
-#include "CWindow.h"
-#include "Themes.h"
 #include "database.h"
 
 
@@ -187,15 +187,8 @@ bool LoadDatabase()
 
     db.open(dbFilename, std::ios::in);
 
-    if (!db.is_open()) {
-        int msgboxID = MessageBox(
-            NULL,
-            (LPCWSTR)(L"Could not read trades database"),
-            (LPCWSTR)L"Warning",
-            MB_ICONWARNING
-        );
+    if (!db.is_open()) 
         return false;
-    }
 
     std::wstring databaseVersion;
 

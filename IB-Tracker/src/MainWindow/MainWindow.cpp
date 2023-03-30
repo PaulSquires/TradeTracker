@@ -4,14 +4,14 @@
 
 #include "pch.h"
 
-#include "ib-tracker.h"
-#include "NavPanel.h"
-#include "TradesPanel.h"
-#include "HistoryPanel.h"
+#include "MainWindow.h"
 #include "tws-client.h"
-#include "CWindow.h"
-#include "Themes.h"
-#include "database.h"
+#include "..\NavPanel\NavPanel.h"
+#include "..\TradesPanel\TradesPanel.h"
+#include "..\HistoryPanel\HistoryPanel.h"
+#include "..\Utilities\CWindow.h"
+#include "..\Themes\Themes.h"
+#include "..\Database\database.h"
 
 
 
@@ -176,7 +176,7 @@ int APIENTRY wWinMain(
     // the SetThemeMainWindow() function after the application's main 
     // window is created. LoadDatabase may override this setting if a Theme
     // setting is found in the database.
-    SetTheme(Themes::Light);
+    SetTheme(Themes::Dark);
 
 
     // Set the Trader's name that will display in the Navigation panel.

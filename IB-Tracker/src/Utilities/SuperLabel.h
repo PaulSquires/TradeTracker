@@ -1,9 +1,9 @@
 #pragma once
 
 #include "pch.h"
-#include "Themes.h"
 #include "CWindow.h"
 #include "UserMessages.h"
+#include "..\Themes\Themes.h"
 
 
 #define IDB_GEAR                        103
