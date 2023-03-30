@@ -1,8 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
-
 //  The hierarchy of the data is:
 //      Trade
 //          |-> Transaction

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 // User defined messages
 const int MSG_SUPERLABEL_CLICK			= WM_USER + 1000;
 const int MSG_SUPERLABEL_MOUSEMOVE		= WM_USER + 1001;

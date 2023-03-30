@@ -51,7 +51,6 @@ CWindow::~CWindow()
     if (m_hFont) DeleteObject(m_hFont);
     if (m_hAccel) DestroyAcceleratorTable(m_hAccel);
     if (m_wszClassName.length()) UnregisterClass(m_wszClassName.c_str(), m_hInstance);
-    if (m_hRichEditLib) FreeLibrary(m_hRichEditLib);
 }
 
 
@@ -62,16 +61,6 @@ LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 {
     switch (message)
     {
-
-    case WM_CREATE:
-    {
-    }
-    break;
-
-    case WM_COMMAND:
-    {
-    }
-    break;
 
     case WM_PAINT:
     {
@@ -294,37 +283,6 @@ HFONT CWindow::CreateFont(
     ReleaseDC(HWND_DESKTOP, hDC);
 
     return CreateFontIndirect(&tlfw);
-}
-
-
-//' =====================================================================================
-//' Creates a High DPI aware logical font and sets it as the default font.
-//' Usage examples:
-//'   CWindow.SetFont("MS Sans Serif", 8, FW_NORMAL, , , , DEFAULT_CHARSET)
-//'   CWindow.SetFont("Courier New", 10, FW_BOLD, , , , DEFAULT_CHARSET)
-//'   CWindow.SetFont("Marlett", 8, FW_NORMAL, , , , SYMBOL_CHARSET)
-//' Return Value = TRUE | FALSE.
-//' =====================================================================================
-bool CWindow::SetFont(
-    std::wstring wszFaceName,
-    int lPointSize,
-    int lWeight,
-    BYTE bItalic,
-    BYTE bUnderline,
-    BYTE bStrikeOut,
-    BYTE bCharSet)
-{
-    HFONT hFont = this->CreateFont(wszFaceName, lPointSize, lWeight, bItalic, bUnderline, bStrikeOut, bCharSet);
-    if (hFont) {
-        if (m_hFont) DeleteObject(m_hFont);
-        m_hFont = hFont;
-        m_wszDefaultFontName = wszFaceName;
-        m_DefaultFontSize = lPointSize;
-        return true;
-    }
-    else {
-        return false;
-    }
 }
 
 
@@ -676,48 +634,36 @@ float AfxScaleRatioY()
 //' ========================================================================================
 //' Scales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
 //' ========================================================================================
-float AfxScaleX(float cx)
+int AfxScaleX(float cx)
 {
-    HDC hDC = GetDC(HWND_DESKTOP);
-    float res = (float)(cx * (GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f));
-    ReleaseDC( HWND_DESKTOP, hDC);
-    return res;
+    return (int)round((cx * AfxScaleRatioX()));
 }
 
 
 //' ========================================================================================
 //' Scales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
 //' ========================================================================================
-float AfxScaleY(float cy)
+int AfxScaleY(float cy)
 {
-    HDC hDC = GetDC(HWND_DESKTOP);
-    float res = (float)(cy * (GetDeviceCaps(hDC, LOGPIXELSY) / 96.0f));
-    ReleaseDC(HWND_DESKTOP, hDC);
-    return res;
+    return (int)round((cy * AfxScaleRatioX()));
 }
 
 
 //' ========================================================================================
 //' Unscales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
 //' ========================================================================================
-float AfxUnScaleX(float cx)
+int AfxUnScaleX(float cx)
 {
-    HDC hDC = GetDC(HWND_DESKTOP);
-    float res = (float)(cx / (GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f));
-    ReleaseDC(HWND_DESKTOP, hDC);
-    return res;
+    return (int)round((cx / AfxScaleRatioX()));
 }
 
 
 //' ========================================================================================
 //' Unscales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
 //' ========================================================================================
-float AfxUnScaleY(float cy)
+int AfxUnScaleY(float cy)
 {
-    HDC hDC = GetDC(HWND_DESKTOP);
-    float res = (float)(cy / (GetDeviceCaps(hDC, LOGPIXELSY) / 96.0f));
-    ReleaseDC(HWND_DESKTOP, hDC);
-    return res;
+    return (int)round((cy / AfxScaleRatioY()));
 }
 
 

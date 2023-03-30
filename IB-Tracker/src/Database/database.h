@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 bool LoadDatabase();
 bool SaveDatabase();
 

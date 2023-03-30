@@ -55,90 +55,94 @@ void BindStdHandlesToConsole()
 
 
 
+//' ========================================================================================
+//' Process WM_DESTROY message for window/dialog: MainWindow
+//' ========================================================================================
+void MainWindow_OnDestroy(HWND hwnd)
+{
+    // Disconnect from IBKR TWS and shut down monitoring thread.
+    tws_disconnect();
+    PostQuitMessage(0);
+}
+
 
 //' ========================================================================================
-//' Position all child windows. Called manually and/or by WM_SIZE
+//' Process WM_ERASEBKGND message for window/dialog: MainWindow
 //' ========================================================================================
-LRESULT Main_PositionWindows(HWND hWnd)
+BOOL MainWindow_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
-    RECT rcClient;
-    GetClientRect(hWnd, &rcClient);
+    // Handle all of the painting in WM_PAINT
+    // We do not need to paint the background because the full client area will always
+    // be covered by child windows (NavPanel, Trades Panel, History Panel)
+    return TRUE;
+}
+
+
+//' ========================================================================================
+//' Process WM_PAINT message for window/dialog: MainWindow
+//' ========================================================================================
+void MainWindow_OnPaint(HWND hwnd)
+{
+    PAINTSTRUCT ps;
+
+    HDC hdc = BeginPaint(hwnd, &ps);
+
+    EndPaint(hwnd, &ps);
+}
+
+
+//' ========================================================================================
+//' Process WM_SIZE message for window/dialog: MainWindow
+//' ========================================================================================
+void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
+{
+    // Position all of the child windows
+    if (state == SIZE_MINIMIZED) return;
 
     // Position the left hand side Navigation Panel
-    HWND hWndNavPanel = GetDlgItem(hWnd, IDC_NAVPANEL);
+    HWND hWndNavPanel = GetDlgItem(hwnd, IDC_NAVPANEL);
     int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
     SetWindowPos(hWndNavPanel, 0,
-        0, 0, nNavPanelWidth, rcClient.bottom,
+        0, 0, nNavPanelWidth, cy,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the right hand side History Panel
-    HWND hWndHistoryPanel = GetDlgItem(hWnd, IDC_HISTORYPANEL);
+    HWND hWndHistoryPanel = GetDlgItem(hwnd, IDC_HISTORYPANEL);
     int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
     SetWindowPos(hWndHistoryPanel, 0,
-        rcClient.right - nHistoryPanelWidth, 0, nHistoryPanelWidth, rcClient.bottom,
+        cx - nHistoryPanelWidth, 0, nHistoryPanelWidth, cy,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the middle Trades Panel
-    HWND hWndTradesPanel = GetDlgItem(hWnd, IDC_TRADESPANEL);
-    int nTradesPanelWidth = (rcClient.right - nHistoryPanelWidth - nNavPanelWidth);
+    HWND hWndTradesPanel = GetDlgItem(hwnd, IDC_TRADESPANEL);
+    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nNavPanelWidth);
     SetWindowPos(hWndTradesPanel, 0,
-        nNavPanelWidth, 0, nTradesPanelWidth, rcClient.bottom,
+        nNavPanelWidth, 0, nTradesPanelWidth, cy,
         SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    return 0;
 }
 
 
 //' ========================================================================================
 //' Windows callback function.
 //' ========================================================================================
-LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+//
+// MainWindow  Window Procedure
+//
+LRESULT CALLBACK MainWindow_WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
+    switch (msg)
     {
+        HANDLE_MSG(hwnd, WM_DESTROY, MainWindow_OnDestroy);
+        HANDLE_MSG(hwnd, WM_ERASEBKGND, MainWindow_OnEraseBkgnd);
+        HANDLE_MSG(hwnd, WM_PAINT, MainWindow_OnPaint);
+        HANDLE_MSG(hwnd, WM_SIZE, MainWindow_OnSize);
 
-    case WM_SIZE:
-        // Position all of the child windows
-        if (wParam != SIZE_MINIMIZED)
-            Main_PositionWindows(hWnd);
-    break;
+        //// TODO: Add window message crackers here...
 
-
-    case WM_ERASEBKGND:
-    {
-        // Handle all of the painting in WM_PAINT
-        // We do not need to paint the background because the full client area will always
-        // be covered by child windows (NavPanel, Trades Panel, History Panel)
-        return TRUE;
-        break;
+    default: return DefWindowProc(hwnd, msg, wParam, lParam);
     }
-
-
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-
-        HDC hdc = BeginPaint(hWnd, &ps);
-
-        EndPaint(hWnd, &ps);
-        break;
-    }
-
-
-    case WM_DESTROY:
-        // Disconnect from IBKR TWS and shut down monitoring thread.
-        tws_disconnect();
-        PostQuitMessage(0);
-        break;
-
-
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-
-    return 0;
 }
 
 
@@ -199,17 +203,17 @@ int APIENTRY wWinMain(
 
     // Size the main window to encompass 65% of screen width
     // and 85% of screen height.
-    float InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
-    float InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
+    int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
+    int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
 
     HWND hWndMain = pWindowMain->Create(
         HWND_DESKTOP, 
         L"IB-Tracker", 
-        Main_WindowProc, 
+        MainWindow_WndProc,
         CW_USEDEFAULT, CW_USEDEFAULT, 
-        (INT)InitalMainWidth,
-        (INT)InitalMainHeight
+        InitalMainWidth,
+        InitalMainHeight
         );
 
     pWindowMain->SetBrush(GetStockBrush(NULL_BRUSH));

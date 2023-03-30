@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pch.h"
 #include "..\Utilities\CWindow.h"
 
 const int IDC_NAVPANEL = 100;

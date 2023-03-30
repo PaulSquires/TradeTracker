@@ -15,72 +15,79 @@ HWND HWND_NAVPANEL = NULL;
 
 
 //' ========================================================================================
+//' Process WM_SIZE message for window/dialog: NavPanel
+//' ========================================================================================
+void NavPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+{
+    // Move the bottom separator and application name into place, but only do so
+    // if the vertical height of NavBar window has not become less than the minimum
+    // otherwise the two controls will bleed into the ones above them.
+    int MinHeight = AfxScaleY(540);
+
+    if (cy < MinHeight) return;
+
+    SetWindowPos(GetDlgItem(hwnd, IDC_NAVPANEL_GEARICON), 0,
+        AfxScaleX(12), cy - AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+    SetWindowPos(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES), 0,
+        AfxScaleX(35), cy - AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+}
+
+
+//' ========================================================================================
+//' Process WM_ERASEBKGND message for window/dialog: NavPanel
+//' ========================================================================================
+BOOL NavPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+{
+    // Handle all of the painting in WM_PAINT
+    return TRUE;
+}
+
+
+//' ========================================================================================
+//' Process WM_PAINT message for window/dialog: NavPanel
+//' ========================================================================================
+void NavPanel_OnPaint(HWND hwnd)
+{
+    PAINTSTRUCT ps;
+
+    HDC hdc = BeginPaint(hwnd, &ps);
+
+    Graphics graphics(hdc);
+
+    DWORD nBackColor = GetThemeColor(ThemeElement::NavPanelBack);
+
+    // Create the background brush
+    SolidBrush backBrush(nBackColor);
+
+    // Paint the background using brush.
+    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+    EndPaint(hwnd, &ps);
+}
+
+
+//' ========================================================================================
 //' NavPanel Window procedure
 //' ========================================================================================
-LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK NavPanel_WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
+    switch (msg)
     {
-
-    case WM_SIZE:
-    {
-        // Move the bottom separator and application name into place, but only do so
-        // if the vertical height of NavBar window has not become less than the minimum
-        // otherwise the two controls will bleed into the ones above them.
-        RECT rcClient;
-        GetClientRect(hWnd, &rcClient);
-        float MinHeight = AfxScaleY(540);
-
-        if (rcClient.bottom < MinHeight) return 0;
-
-        SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_GEARICON), 0,
-            (int)AfxScaleX(12), rcClient.bottom - (int)AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-
-        SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES), 0,
-            (int)AfxScaleX(35), rcClient.bottom - (int)AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-        
-        break;
-    }
-
-
-    case WM_ERASEBKGND:
-    {
-        // Handle all of the painting in WM_PAINT
-        return TRUE;
-        break;
-    }
-
-
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-
-        HDC hdc = BeginPaint(hWnd, &ps);
-        
-        Graphics graphics(hdc);
-
-        DWORD nBackColor = GetThemeColor(ThemeElement::NavPanelBack);
-
-        // Create the background brush
-        SolidBrush backBrush(nBackColor);
-
-        // Paint the background using brush.
-        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
-
-        EndPaint(hWnd, &ps);
-        break;
-    }
+    HANDLE_MSG(hwnd, WM_SIZE, NavPanel_OnSize);
+    HANDLE_MSG(hwnd, WM_ERASEBKGND, NavPanel_OnEraseBkgnd);
+    HANDLE_MSG(hwnd, WM_PAINT, NavPanel_OnPaint);
 
 
     case MSG_TWS_CONNECT_START:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"Connecting to TWS";
-            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         }
         break;
     }
@@ -89,10 +96,10 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case MSG_TWS_CONNECT_SUCCESS:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"TWS Connected";
-            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         }
         break;
     }
@@ -101,10 +108,10 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case MSG_TWS_CONNECT_FAILURE:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"TWS connection failed";
-            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         }
         break;
     }
@@ -112,10 +119,10 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case MSG_TWS_CONNECT_DISCONNECT:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"TWS Disonnected";
-            AfxRedrawWindow(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES));
         }
         break;
     }
@@ -131,7 +138,7 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
-        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hWnd, 0);
+        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hwnd, 0);
 
         if (pData) {
 
@@ -191,11 +198,10 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     break;
 
 
-    default:
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    default: return DefWindowProc(hwnd, msg, wParam, lParam);
+
     }
     return 0;
-
 }
 
 

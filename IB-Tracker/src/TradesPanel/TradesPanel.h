@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pch.h"
 #include "..\Utilities\CWindow.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\trade.h"

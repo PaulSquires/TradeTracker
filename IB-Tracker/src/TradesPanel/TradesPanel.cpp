@@ -258,7 +258,7 @@ void CalculateColumnWidths(int nIndex)
                 &font, layoutRect, &format, &boundRect);
 
             nColWidth[i] = max(nColWidth[i], nMinColWidth[i]);
-            int textLength = (int)AfxUnScaleX(boundRect.Width) + 6;  // add a bit for padding
+            int textLength = AfxUnScaleX(boundRect.Width) + 6;  // add a bit for padding
             if (textLength > nColWidth[i]) {  
                 nColWidth[i] = textLength;
                 bRedrawListBox = true;
@@ -413,7 +413,7 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                     fontSize = ld->col[i].fontSize;
                     fontStyle = ld->col[i].fontStyle;
 
-                    int colWidth = (int)AfxScaleX((float)nColWidth[i]);
+                    int colWidth = AfxScaleX((float)nColWidth[i]);
 
                     backBrush.SetColor(nBackColor);
                     graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
@@ -809,7 +809,7 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
     {
         // Set the height of the list box items. 
         MEASUREITEMSTRUCT* lpmis = (MEASUREITEMSTRUCT*)lParam;
-        lpmis->itemHeight = (UINT)AfxScaleY(LISTBOX_ROWHEIGHT);
+        lpmis->itemHeight = AfxScaleY(LISTBOX_ROWHEIGHT);
     }
     break;
 
@@ -834,9 +834,9 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         else {
             bShowScrollBar = calcVThumbRect();
         }
-        int VScrollBarWidth = bShowScrollBar ? (int)AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+        int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
 
-        int margin = (int)AfxScaleY(LISTBOX_ROWHEIGHT);
+        int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
 
         int nLeft = rcClient.left;
         int nTop = rcClient.top + margin;

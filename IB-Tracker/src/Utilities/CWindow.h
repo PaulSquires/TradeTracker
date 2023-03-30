@@ -1,8 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
-
 enum class Controls
 {
     None = 0,
@@ -50,10 +47,8 @@ private:
     float           m_ry = 1;                   // Vertical scaling ratio
     ATOM            m_wAtom;                    // Class atom
     std::wstring    m_wszClassName;             // Class name
-    int             m_DefaultFontSize = 0;      // Default font size
     std::wstring    m_wszDefaultFontName;       // Default font name
-//DIM m_rgAccelEntries(ANY) AS ACCEL
-    HMODULE     m_hRichEditLib = NULL;                 // Rich Edit moudle handle
+    int             m_DefaultFontSize = 0;      // Default font size
 
 public:
     CWindow();
@@ -79,15 +74,6 @@ public:
         BYTE bStrikeOut = FALSE,             // __in CTRUE = strikeout
         BYTE bCharSet = DEFAULT_CHARSET);    // __in character set
         
-    bool SetFont(
-        std::wstring wszFaceName,
-        int lPointSize,
-        int lWeight = 0,
-        BYTE bItalic = FALSE,
-        BYTE bUnderline = FALSE,
-        BYTE bStrikeOut = FALSE,
-        BYTE bCharSet = DEFAULT_CHARSET);
-
     HWND CreateControl(                        // INTERNAL called by AddControl() 
         std::wstring wszClassName,             // Control class
         HWND hParent,                          // Parent window handle
@@ -152,10 +138,10 @@ std::wstring AfxGetWindowText(HWND hwnd);
 
 float AfxScaleRatioX();
 float AfxScaleRatioY();
-float AfxScaleX(float cx);
-float AfxScaleY(float cy);
-float AfxUnScaleX(float cx);
-float AfxUnScaleY(float cy);
+int AfxScaleX(float cx);
+int AfxScaleY(float cy);
+int AfxUnScaleX(float cx);
+int AfxUnScaleY(float cy);
 
 int AfxGetWindowWidth(HWND hwnd);
 int AfxGetWindowHeight(HWND hwnd);

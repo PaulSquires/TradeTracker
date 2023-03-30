@@ -1,8 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
-
 #include "tws-api\EWrapper.h"
 #include "tws-api\EReaderOSSignal.h"
 #include "tws-api\EReader.h"

@@ -41,13 +41,5 @@ using namespace std::string_literals; // enables 'L' macro
 
 #pragma comment (lib,"Gdiplus.lib")
 
-//' ========================================================================================
-//' Simple debug message output to console
-//' ========================================================================================
-template <typename T>
-void dp(T t)
-{
-    std::wcout << t << std::endl;
-}
 
 

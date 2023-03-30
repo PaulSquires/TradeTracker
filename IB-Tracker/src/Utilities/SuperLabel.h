@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pch.h"
 #include "CWindow.h"
 #include "UserMessages.h"
 #include "..\Themes\Themes.h"
