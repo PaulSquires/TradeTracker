@@ -33,10 +33,14 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
         if (rcClient.bottom < MinHeight) return 0;
 
+        SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_GEARICON), 0,
+            (int)AfxScaleX(12), rcClient.bottom - (int)AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
         SetWindowPos(GetDlgItem(hWnd, IDC_NAVPANEL_MESSAGES), 0,
-            0, rcClient.bottom - (int)AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-    }
+            (int)AfxScaleX(35), rcClient.bottom - (int)AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        
         break;
+    }
 
 
     case WM_ERASEBKGND:
@@ -243,26 +247,6 @@ CWindow* NavPanel_Show(HWND hWndParent)
    }
 
 
-   nLeft = NAVPANEL_WIDTH - 40;
-   hCtl = CreateSuperLabel(
-       HWND_NAVPANEL,
-       IDC_NAVPANEL_GEARICON,
-       SuperLabelType::ImageOnly,
-       nLeft, 60, 20, 20);
-   pData = SuperLabel_GetOptions(hCtl);
-   if (pData) {
-       pData->HotTestEnable = true;
-       pData->BackColor = ThemeElement::NavPanelBack;
-       pData->BackColorHot = ThemeElement::NavPanelBack;
-       pData->wszToolTip = L" Connect to TWS ";
-       pData->ImageWidth = 20;
-       pData->ImageHeight = 20;
-       pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEAR), L"PNG");
-       pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEARHOT), L"PNG");
-       SuperLabel_SetOptions(hCtl, pData);
-   }
-
-   
     hCtl = CreateSuperLabel(
         HWND_NAVPANEL,
         IDC_NAVPANEL_USERNAME,
@@ -621,9 +605,28 @@ CWindow* NavPanel_Show(HWND hWndParent)
 
     hCtl = CreateSuperLabel(
         HWND_NAVPANEL,
+        IDC_NAVPANEL_GEARICON,
+        SuperLabelType::ImageOnly,
+        0, 0, 20, 20);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->BackColorHot = ThemeElement::NavPanelBack;
+        pData->wszToolTip = L" Connect to TWS ";
+        pData->ImageWidth = 20;
+        pData->ImageHeight = 20;
+        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEAR), L"PNG");
+        pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEARHOT), L"PNG");
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    hCtl = CreateSuperLabel(
+        HWND_NAVPANEL,
         IDC_NAVPANEL_MESSAGES,
         SuperLabelType::TextOnly,
-        0, 0, NAVPANEL_WIDTH, 18);
+        0, 0, NAVPANEL_WIDTH - 35, 18);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
@@ -631,8 +634,9 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->TextColor = ThemeElement::NavPanelTextDim;
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
-        pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
-        pData->wszText = L"TWS not connected";
+        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
+        //pData->wszText = L"TWS not connected";
+        pData->wszText = L"012345678901234567890123456789";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }

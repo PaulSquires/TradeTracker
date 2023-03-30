@@ -384,7 +384,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				// Do calculation to ensure column widths are wide enough to accommodate the new
 				// price data that has just arrived.
-				CalculateColumnWidths();
+				CalculateColumnWidths(nIndex);
 				
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};

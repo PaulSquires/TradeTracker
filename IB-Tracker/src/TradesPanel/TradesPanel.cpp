@@ -228,7 +228,7 @@ void CreateListBoxData(Trade* trade)
 //' This function is also called when receiving new price data from TWS because
 //' that data may need the column width to be wider.
 //' ========================================================================================
-void CalculateColumnWidths()
+void CalculateColumnWidths(int nIndex)
 {
     HDC hdc = GetDC(vsb.hListBox);
 
@@ -247,6 +247,9 @@ void CalculateColumnWidths()
     bool bRedrawListBox = false;
 
     for (auto& ld : vec) {
+        // If a specific line number was passed intot his function then we only
+        // test for that line rather than all lines (like when the arrays are first loaded).
+        if (nIndex != -1) ld = vec.at(nIndex);
         for (int i = 0; i < NUM_COLUMNS; i++) {
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
@@ -261,7 +264,7 @@ void CalculateColumnWidths()
                 bRedrawListBox = true;
             }
         }
-
+        if (nIndex != -1) break;
     }
     ReleaseDC(vsb.hListBox, hdc);
 

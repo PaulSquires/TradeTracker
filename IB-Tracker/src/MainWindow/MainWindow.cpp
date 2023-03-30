@@ -109,7 +109,7 @@ LRESULT CALLBACK Main_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     case WM_ERASEBKGND:
     {
         // Handle all of the painting in WM_PAINT
-        // We do not need to paint the background because the full clint area will always
+        // We do not need to paint the background because the full client area will always
         // be covered by child windows (NavPanel, Trades Panel, History Panel)
         return TRUE;
         break;
