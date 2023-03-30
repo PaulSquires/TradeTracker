@@ -58,3 +58,4 @@ CWindow* TradesPanel_Show(HWND hWndParent);
 void ShowActiveTrades();
 void SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
     ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle);
+void CalculateColumnWidths();

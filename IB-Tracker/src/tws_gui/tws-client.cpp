@@ -383,6 +383,10 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					themeEl, 8, FontStyleRegular);   // price percentage change
 
 
+				// Do calculation to ensure column widths are wide enough to accommodate the new
+				// price data that has just arrived.
+				CalculateColumnWidths();
+				
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};
 				ListBox_GetItemRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), nIndex, &rc);

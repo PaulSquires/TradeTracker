@@ -14,6 +14,20 @@ const int LISTBOX_ROWHEIGHT = 24;
 const int VSCROLLBAR_WIDTH = 14;
 const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
+const int NUM_COLUMNS = 8;
+int nMinColWidth[NUM_COLUMNS] =
+{
+    25,     /* dropdown arrow*/
+    45,     /* ticker symbol */
+    50,     /* ITM */
+    50,     /* position quantity */
+    50,     /* expiry date */
+    40,     /* DTE */
+    45,     /* strike price */
+    40      /* put/call */
+};
+int nColWidth[NUM_COLUMNS] = {};
+
 
 class VScrollBar
 {
@@ -26,7 +40,6 @@ public:
     int numItems = 0;
     int itemsPerPage = 0;
     int thumbHeight = 0;
-    float thumbRatio = 0;
     RECT rc{};
 };
 
@@ -210,6 +223,54 @@ void CreateListBoxData(Trade* trade)
 
 
 //' ========================================================================================
+//' Calculate the actual column widths based on the size of the strings in
+//' the vector while respecting the minimum values as defined in nMinColWidth[].
+//' This function is also called when receiving new price data from TWS because
+//' that data may need the column width to be wider.
+//' ========================================================================================
+void CalculateColumnWidths()
+{
+    HDC hdc = GetDC(vsb.hListBox);
+
+    Graphics graphics(hdc);
+    graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+    std::wstring wszFontName = AfxGetDefaultFont();
+    FontFamily fontFamily(wszFontName.c_str());
+    REAL fontSize = 10;
+    int fontStyle = FontStyleRegular;
+    RectF boundRect;
+    RectF layoutRect(0.0f, 0.0f, 100.0f, 50.0f);
+    StringFormat format;
+    format.SetAlignment(StringAlignmentFar);
+
+    bool bRedrawListBox = false;
+
+    for (auto& ld : vec) {
+        for (int i = 0; i < NUM_COLUMNS; i++) {
+            fontSize = ld->col[i].fontSize;
+            fontStyle = ld->col[i].fontStyle;
+            Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+            graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(), 
+                &font, layoutRect, &format, &boundRect);
+
+            nColWidth[i] = max(nColWidth[i], nMinColWidth[i]);
+            int textLength = (int)AfxUnScaleX(boundRect.Width) + 6;  // add a bit for padding
+            if (textLength > nColWidth[i]) {  
+                nColWidth[i] = textLength;
+                bRedrawListBox = true;
+            }
+        }
+
+    }
+    ReleaseDC(vsb.hListBox, hdc);
+
+    if (bRedrawListBox)
+        AfxRedrawWindow(vsb.hListBox);
+}
+
+
+//' ========================================================================================
 //' Populate the Trades ListBox with the current active/open trades
 //' ========================================================================================
 void ShowActiveTrades()
@@ -251,9 +312,17 @@ void ShowActiveTrades()
         }
     }
 
+
+    // Calculate the actual column widths based on the size of the strings in
+    // the vector while respecting the minimum values as defined in nMinColWidth[].
+    // This function is also called when receiving new price data from TWS because
+    // that data may need the column width to be wider.
+    CalculateColumnWidths();
+
+
     // Display the new ListBox data
-    for (LineData* ld : vec) {
-            int nIndex = ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L"");
+    for (auto& ld : vec) {
+        int nIndex = ListBox_AddString(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), L"");
         // Request price market data for all non-listbox blank lines. 
         // Blank lines will have nullptr trade and this is tested for
         // in the called routine.
@@ -327,23 +396,10 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
         if (linenum > -1) {
             LineData* ld = vec.at(linenum);
             if (ld != nullptr) {
-                //int nColWidth = (int)(nWidth / 7);  // (int)AfxScaleX(120);
                 int nLeft = 0;
 
-                int nColWidth[8] = 
-                { 
-                    25,     /* dropdown arrow*/
-                    45,     /* ticker symbol */
-                    50,     /* ITM */
-                    50,     /* position quantity */
-                    50,     /* expiry date */
-                    40,     /* DTE */
-                    45,     /* strike price */
-                    40      /* put/call */
-                };
-
                 // Draw each of the columns
-                for (int i = 0; i < 8; i++) {
+                for (int i = 0; i < NUM_COLUMNS; i++) {
                     wszText = ld->col[i].wszText;
                     
                     alignment = ld->col[i].alignment;
@@ -894,6 +950,9 @@ CWindow* TradesPanel_Show(HWND hWndParent)
             (SUBCLASSPROC)&VScrollBar_SubclassProc,
             IDC_VSCROLLBAR, (DWORD_PTR)pWindow);
 
+    
+    ShowActiveTrades();
+    
     // Set focus to ListBox so we get a correct repaint via WM_DRAWITEM
     SetFocus(vsb.hListBox);
 
