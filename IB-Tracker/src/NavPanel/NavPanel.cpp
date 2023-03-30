@@ -635,8 +635,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
-        //pData->wszText = L"TWS not connected";
-        pData->wszText = L"012345678901234567890123456789";
+        pData->wszText = L"TWS not connected";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
