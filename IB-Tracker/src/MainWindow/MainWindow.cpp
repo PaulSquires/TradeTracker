@@ -55,9 +55,9 @@ void BindStdHandlesToConsole()
 
 
 
-//' ========================================================================================
-//' Process WM_DESTROY message for window/dialog: MainWindow
-//' ========================================================================================
+// ========================================================================================
+// Process WM_DESTROY message for window/dialog: MainWindow
+// ========================================================================================
 void MainWindow_OnDestroy(HWND hwnd)
 {
     // Disconnect from IBKR TWS and shut down monitoring thread.
@@ -66,9 +66,9 @@ void MainWindow_OnDestroy(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Process WM_ERASEBKGND message for window/dialog: MainWindow
-//' ========================================================================================
+// ========================================================================================
+// Process WM_ERASEBKGND message for window/dialog: MainWindow
+// ========================================================================================
 BOOL MainWindow_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
@@ -78,9 +78,9 @@ BOOL MainWindow_OnEraseBkgnd(HWND hwnd, HDC hdc)
 }
 
 
-//' ========================================================================================
-//' Process WM_PAINT message for window/dialog: MainWindow
-//' ========================================================================================
+// ========================================================================================
+// Process WM_PAINT message for window/dialog: MainWindow
+// ========================================================================================
 void MainWindow_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
@@ -91,9 +91,9 @@ void MainWindow_OnPaint(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Process WM_SIZE message for window/dialog: MainWindow
-//' ========================================================================================
+// ========================================================================================
+// Process WM_SIZE message for window/dialog: MainWindow
+// ========================================================================================
 void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     // Position all of the child windows
@@ -124,9 +124,9 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 }
 
 
-//' ========================================================================================
-//' Windows callback function.
-//' ========================================================================================
+// ========================================================================================
+// Windows callback function.
+// ========================================================================================
 //
 // MainWindow  Window Procedure
 //
@@ -146,9 +146,9 @@ LRESULT CALLBACK MainWindow_WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 }
 
 
-//' ========================================================================================
-//' WinMain main application startup entry point.
-//' ========================================================================================
+// ========================================================================================
+// WinMain main application startup entry point.
+// ========================================================================================
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -234,9 +234,10 @@ int APIENTRY wWinMain(
 
     
     // Load the child windows
-    CWindow* pWindowNavPanel = NavPanel_Show(hWndMain);
-    CWindow* pWindowTradesPanel = TradesPanel_Show(hWndMain);
-    CWindow* pWindowHistoryPanel = HistoryPanel_Show(hWndMain);
+
+    CNavPanel     NavPanel(hWndMain);
+    CTradesPanel  TradesPanel(hWndMain);
+    CHistoryPanel HistoryPanel(hWndMain);
 
 
     // Center the main window within the desktop taking into account the actual work area.
@@ -252,9 +253,6 @@ int APIENTRY wWinMain(
 
 
     // delete our manually created memory and pointers for the various child panels.
-    if (pWindowNavPanel) delete(pWindowNavPanel);
-    if (pWindowTradesPanel) delete(pWindowTradesPanel);
-    if (pWindowHistoryPanel) delete(pWindowHistoryPanel);
     if (pWindowMain) delete(pWindowMain);
 
     return 0;

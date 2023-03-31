@@ -1,9 +1,9 @@
-//'
-//' SUPER LABEL CONTROL
-//' Copyright (C) 2023 Paul Squires, PlanetSquires Software
-//' This control should be able to handle all different types of labels and will act
-//' like a button, hot tracking, pictures, etc.
-//'
+//
+// SUPER LABEL CONTROL
+// Copyright (C) 2023 Paul Squires, PlanetSquires Software
+// This control should be able to handle all different types of labels and will act
+// like a button, hot tracking, pictures, etc.
+//
 
 #include "pch.h"
 #include "CWindow.h"
@@ -18,7 +18,7 @@
 // Then to load the image at runtime :
 // Gdiplus::Bitmap * pBmp = LoadImageFromResource(hInstance, MAKEINTRESOURCE(IDI_MY_IMAGE_FILE), L"PNG");
 
-//'------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ 
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype)
 {
     IStream* pStream = nullptr;
@@ -73,7 +73,7 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
 }
 
 
-//'------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ 
 LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static SuperLabel* pDataSelected = nullptr;
@@ -210,7 +210,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 
 
-//'------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ 
 SuperLabel* SuperLabel_GetOptions(HWND hCtrl)
 {
     SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtrl, 0);
@@ -218,7 +218,7 @@ SuperLabel* SuperLabel_GetOptions(HWND hCtrl)
 }
 
 
-//'------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ 
 int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData)
 {
     if (pData == nullptr) return 0;
@@ -236,7 +236,7 @@ int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData)
 }
 
 
-//'------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ 
 HWND CreateSuperLabel( 
     HWND hWndParent, 
     LONG_PTR CtrlId,
@@ -257,7 +257,7 @@ HWND CreateSuperLabel(
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = &SuperLabelProc;
         wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = sizeof(HANDLE);    //' make room to store a pointer to the class
+        wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class
         wcex.hInstance = hInst;
         wcex.hCursor = LoadCursor(NULL, (LPCWSTR)IDC_ARROW);
         wcex.hIcon = NULL;

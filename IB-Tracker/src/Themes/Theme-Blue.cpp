@@ -3,10 +3,10 @@
 #include "Themes.h"
 
 
-//' ========================================================================================
-//' Initialize the elements of the clr array based on the specific theme.
-//' Pass in the 2-dimensional color array.
-//' ========================================================================================
+// ========================================================================================
+// Initialize the elements of the clr array based on the specific theme.
+// Pass in the 2-dimensional color array.
+// ========================================================================================
 void Initialize_Blue_Theme(DWORD clr[][(int)Themes::Count])
 {
 	int theme = (int)Themes::Blue;

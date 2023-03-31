@@ -14,19 +14,6 @@ const int LISTBOX_ROWHEIGHT = 24;
 const int VSCROLLBAR_WIDTH = 14;
 const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
-const int NUM_COLUMNS = 8;
-int nMinColWidth[NUM_COLUMNS] =
-{
-    25,     /* dropdown arrow*/
-    45,     /* ticker symbol */
-    50,     /* ITM */
-    50,     /* position quantity */
-    50,     /* expiry date */
-    40,     /* DTE */
-    45,     /* strike price */
-    40      /* put/call */
-};
-int nColWidth[NUM_COLUMNS] = {};
 
 
 class VScrollBar
@@ -50,9 +37,27 @@ VScrollBar vsb;
 
 
 
-//' ========================================================================================
+// ========================================================================================
+// Constructor
+// ========================================================================================
+CTradesPanel::CTradesPanel(HWND hWndParent)
+{
+    Show(hWndParent);
+}
+
+
+// ========================================================================================
+// Destructor
+// ========================================================================================
+CTradesPanel::~CTradesPanel()
+{
+    if (m_pWindow) delete(m_pWindow);
+}
+
+
+// ========================================================================================
 // Destroy all manually allocated ListBox display data that is held in the vector.
-//' ========================================================================================
+// ========================================================================================
 void DestroyListBoxDisplayData()
 {
     for (LineData* ld : vec) {
@@ -62,9 +67,9 @@ void DestroyListBoxDisplayData()
 }
 
 
-//' ========================================================================================
-//' Helper function to more easily set the data for an individual ListBox display column.
-//' ========================================================================================
+// ========================================================================================
+// Helper function to more easily set the data for an individual ListBox display column.
+// ========================================================================================
 void SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
     ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
 {
@@ -78,9 +83,9 @@ void SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignmen
 
 
 
-//' ========================================================================================
-//' Create and populate the display data for the Trades ListBox
-//' ========================================================================================
+// ========================================================================================
+// Create and populate the display data for the Trades ListBox
+// ========================================================================================
 void CreateListBoxData(Trade* trade)
 {
     // *** TRADE HEADER LINE ***
@@ -222,13 +227,13 @@ void CreateListBoxData(Trade* trade)
 
 
 
-//' ========================================================================================
-//' Calculate the actual column widths based on the size of the strings in
-//' the vector while respecting the minimum values as defined in nMinColWidth[].
-//' This function is also called when receiving new price data from TWS because
-//' that data may need the column width to be wider.
-//' ========================================================================================
-void CalculateColumnWidths(int nIndex)
+// ========================================================================================
+// Calculate the actual column widths based on the size of the strings in
+// the vector while respecting the minimum values as defined in nMinColWidth[].
+// This function is also called when receiving new price data from TWS because
+// that data may need the column width to be wider.
+// ========================================================================================
+void CTradesPanel::CalculateColumnWidths(int nIndex)
 {
     HDC hdc = GetDC(vsb.hListBox);
 
@@ -250,7 +255,7 @@ void CalculateColumnWidths(int nIndex)
         // If a specific line number was passed intot his function then we only
         // test for that line rather than all lines (like when the arrays are first loaded).
         if (nIndex != -1) ld = vec.at(nIndex);
-        for (int i = 0; i < NUM_COLUMNS; i++) {
+        for (int i = 0; i < 8; i++) {
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
             Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
@@ -273,9 +278,9 @@ void CalculateColumnWidths(int nIndex)
 }
 
 
-//' ========================================================================================
-//' Populate the Trades ListBox with the current active/open trades
-//' ========================================================================================
+// ========================================================================================
+// Populate the Trades ListBox with the current active/open trades
+// ========================================================================================
 void ShowActiveTrades()
 {
     tws_PauseTWS();
@@ -341,10 +346,10 @@ void ShowActiveTrades()
 }
 
 
-//' ========================================================================================
-//' Process WM_DRAWITEM message 
-//' ========================================================================================
-int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
+// ========================================================================================
+// Process WM_DRAWITEM message 
+// ========================================================================================
+int CTradesPanel::OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
 {
     if (lpdis == nullptr) return 0;
 
@@ -402,7 +407,7 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                 int nLeft = 0;
 
                 // Draw each of the columns
-                for (int i = 0; i < NUM_COLUMNS; i++) {
+                for (int i = 0; i < 8; i++) {
                     wszText = ld->col[i].wszText;
                     
                     alignment = ld->col[i].alignment;
@@ -447,11 +452,11 @@ int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
 }
 
 
-//' ========================================================================================
-//' Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
-//' Will return TRUE if RECT is not empty. 
-//' ========================================================================================
-bool calcVThumbRect()
+// ========================================================================================
+// Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
+// Will return TRUE if RECT is not empty. 
+// ========================================================================================
+bool CTradesPanel::calcVThumbRect()
 {
     // calculate the vertical scrollbar in client coordinates
     SetRectEmpty(&vsb.rc);
@@ -481,10 +486,10 @@ bool calcVThumbRect()
 }
 
 
-//' ========================================================================================
-//' Vertical scrollBar subclass Window procedure
-//' ========================================================================================
-LRESULT CALLBACK VScrollBar_SubclassProc(
+// ========================================================================================
+// Vertical scrollBar subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK CTradesPanel::VScrollBar_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -629,10 +634,10 @@ LRESULT CALLBACK VScrollBar_SubclassProc(
 
 
 
-//' ========================================================================================
-//' Listbox subclass Window procedure
-//' ========================================================================================
-LRESULT CALLBACK ListBox_SubclassProc(
+// ========================================================================================
+// Listbox subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK CTradesPanel::ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -697,22 +702,22 @@ LRESULT CALLBACK ListBox_SubclassProc(
 
 
     case WM_LBUTTONUP:
-//' Prevent this programmatic selection if Ctrl or Shift is active
-//' because we want the listbox to select the listbox item rather for
-//' us to mess with that selection via SetTabIndexByDocumentPtr().
+// Prevent this programmatic selection if Ctrl or Shift is active
+// because we want the listbox to select the listbox item rather for
+// us to mess with that selection via SetTabIndexByDocumentPtr().
 //dim as boolean isCtrl = (GetAsyncKeyState(VK_CONTROL) and &H8000)
 //dim as boolean isShift = (GetAsyncKeyState(VK_SHIFT) and &H8000)
 //if (isCtrl = false) andalso(isShift = false) then
-//' determine if we clicked on a regular file or a node header
+// determine if we clicked on a regular file or a node header
 //dim as RECT rc
 //dim as long idx = Listbox_ItemFromPoint(hWin, GET_X_LPARAM(_lParam), GET_Y_LPARAM(_lParam))
-//' The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-//' if the specified point is in the client area of the list box, or one if it is outside the 
-//' client area.
+// The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+// if the specified point is in the client area of the list box, or one if it is outside the 
+// client area.
 //if hiword(idx) < > 1 then
 //dim as CWSTR wszCaption = AfxGetListBoxText(hWin, idx)
 //if left(wszCaption, 1) = "%" then
-//' Toggle the show/hide of files under this node
+// Toggle the show/hide of files under this node
 //dim as long idxArray = getExplorerNodeHeaderIndex(wszCaption)
         break;
 
@@ -765,7 +770,7 @@ LRESULT CALLBACK ListBox_SubclassProc(
         DestroyListBoxDisplayData();
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, &ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -777,10 +782,10 @@ LRESULT CALLBACK ListBox_SubclassProc(
 }
 
 
-//' ========================================================================================
-//' TradesPanel Window procedure
-//' ========================================================================================
-LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+// ========================================================================================
+// TradesPanel Window procedure
+// ========================================================================================
+LRESULT CALLBACK CTradesPanel::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
@@ -892,16 +897,16 @@ LRESULT CALLBACK TradesPanel_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 }
 
 
-//' ========================================================================================
-//' TradesPanel_Show
-//' ========================================================================================
-CWindow* TradesPanel_Show(HWND hWndParent)
+// ========================================================================================
+// TradesPanel_Show
+// ========================================================================================
+void CTradesPanel::Show(HWND hWndParent)
 {
     // Create the window and child controls
-    CWindow* pWindow = new CWindow;
+    CWindow* m_pWindow = new CWindow;
 
     HWND_TRADESPANEL =
-        pWindow->Create(hWndParent, L"", &TradesPanel_WndProc, 0, 0, 0, 0,
+        m_pWindow->Create(hWndParent, L"", WndProc, 0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -910,7 +915,7 @@ CWindow* TradesPanel_Show(HWND hWndParent)
     SetWindowLongPtr(HWND_TRADESPANEL, GWLP_ID, IDC_TRADESPANEL);
 
     // Can only set the brush after the window is created
-    pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
+    m_pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
 
     
     SuperLabel* pData = nullptr;
@@ -936,22 +941,22 @@ CWindow* TradesPanel_Show(HWND hWndParent)
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     vsb.hListBox = 
-        pWindow->AddControl(Controls::ListBox, HWND_TRADESPANEL, IDC_LISTBOX, L"", 
+        m_pWindow->AddControl(Controls::ListBox, HWND_TRADESPANEL, IDC_LISTBOX, L"", 
             0, 0, 0, 0, 
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP | 
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
             LBS_NODATA | LBS_OWNERDRAWFIXED | LBS_NOTIFY, 
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL, 
-            (SUBCLASSPROC)&ListBox_SubclassProc, 
-            IDC_LISTBOX, (DWORD_PTR)pWindow);
+            (SUBCLASSPROC)ListBox_SubclassProc,
+            IDC_LISTBOX, (DWORD_PTR)m_pWindow);
 
     vsb.hWnd =
-        pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
+        m_pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)&VScrollBar_SubclassProc,
-            IDC_VSCROLLBAR, (DWORD_PTR)pWindow);
+            (SUBCLASSPROC)VScrollBar_SubclassProc,
+            IDC_VSCROLLBAR, (DWORD_PTR)m_pWindow);
 
     
     ShowActiveTrades();
@@ -959,7 +964,6 @@ CWindow* TradesPanel_Show(HWND hWndParent)
     // Set focus to ListBox so we get a correct repaint via WM_DRAWITEM
     SetFocus(vsb.hListBox);
 
-    return pWindow;
 }
 
 

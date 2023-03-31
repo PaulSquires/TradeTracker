@@ -14,9 +14,9 @@ std::wstring wszTraderName;
 
 
 
-//' ========================================================================================
-//' Initialize all theme and all theme element colors
-//' ========================================================================================
+// ========================================================================================
+// Initialize all theme and all theme element colors
+// ========================================================================================
 void InitializeThemeColors()
 {
 	IsInitialized = true;
@@ -29,9 +29,9 @@ void InitializeThemeColors()
 }
 
 
-//' ========================================================================================
-//' Get the specified Theme element Color based on the current active theme.
-//' ========================================================================================
+// ========================================================================================
+// Get the specified Theme element Color based on the current active theme.
+// ========================================================================================
 DWORD GetThemeColor(ThemeElement element)
 {
 	if (!IsInitialized) InitializeThemeColors();
@@ -42,10 +42,10 @@ DWORD GetThemeColor(ThemeElement element)
 }
 
 
-//' ========================================================================================
-//' Get the specified Theme element COLORREF based on the current active theme.
-//' Used for interfacing to GDI based api. 
-//' ========================================================================================
+// ========================================================================================
+// Get the specified Theme element COLORREF based on the current active theme.
+// Used for interfacing to GDI based api. 
+// ========================================================================================
 COLORREF GetThemeCOLORREF(ThemeElement element)
 {
 	if (!IsInitialized) InitializeThemeColors();
@@ -57,9 +57,9 @@ COLORREF GetThemeCOLORREF(ThemeElement element)
 }
 
 
-//' ========================================================================================
-//' Set the internal structures to use the incoming Theme.
-//' ========================================================================================
+// ========================================================================================
+// Set the internal structures to use the incoming Theme.
+// ========================================================================================
 void SetTheme(Themes theme)
 {
 	if (!IsInitialized) InitializeThemeColors();
@@ -67,9 +67,9 @@ void SetTheme(Themes theme)
 }
 
 
-//' ========================================================================================
-//' Return the current set Theme (Themes enum).
-//' ========================================================================================
+// ========================================================================================
+// Return the current set Theme (Themes enum).
+// ========================================================================================
 Themes GetTheme()
 {
 	if (!IsInitialized) InitializeThemeColors();
@@ -77,9 +77,9 @@ Themes GetTheme()
 }
 
 
-//' ========================================================================================
-//' Return the current set Theme (std::wstring).
-//' ========================================================================================
+// ========================================================================================
+// Return the current set Theme (std::wstring).
+// ========================================================================================
 std::wstring GetThemeName()
 {
 	if (!IsInitialized) InitializeThemeColors();
@@ -104,9 +104,9 @@ std::wstring GetThemeName()
 }
 
 
-//' ========================================================================================
-//' Set the current Theme based on it's string name (std::wstring).
-//' ========================================================================================
+// ========================================================================================
+// Set the current Theme based on it's string name (std::wstring).
+// ========================================================================================
 void SetThemeName(std::wstring wszTheme)
 {
 	if (!IsInitialized) InitializeThemeColors();
@@ -136,39 +136,39 @@ void SetThemeName(std::wstring wszTheme)
 }
 
 
-//' ========================================================================================
-//' Get the Trader's name that displays in the Navigation Panel.
-//' This value is saved and restored from database. 
-//' ========================================================================================
+// ========================================================================================
+// Get the Trader's name that displays in the Navigation Panel.
+// This value is saved and restored from database. 
+// ========================================================================================
 std::wstring GetTraderName()
 {
 	return wszTraderName;
 }
 
 
-//' ========================================================================================
-//' Set the Trader's name that displays in the Navigation Panel.
-//' This value is saved and restored from database. 
-//' ========================================================================================
+// ========================================================================================
+// Set the Trader's name that displays in the Navigation Panel.
+// This value is saved and restored from database. 
+// ========================================================================================
 void SetTraderName(std::wstring wszName)
 {
 	wszTraderName = wszName;
 }
 	
 	
-//' ========================================================================================
-//' Save the Window handle of the application's main window so that ApplyActiveTheme
-//' can enumerate all child windows in order to apply Theme changes.
-//' ========================================================================================
+// ========================================================================================
+// Save the Window handle of the application's main window so that ApplyActiveTheme
+// can enumerate all child windows in order to apply Theme changes.
+// ========================================================================================
 void SetThemeMainWindow(HWND hWndMain)
 {
 	hWndMainWindow = hWndMain;
 }
 
 
-//' ========================================================================================
-//' Apply the active/current Theme to all visual windows in real time.
-//' ========================================================================================
+// ========================================================================================
+// Apply the active/current Theme to all visual windows in real time.
+// ========================================================================================
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 
 	if (IsWindowVisible(hwnd)) {

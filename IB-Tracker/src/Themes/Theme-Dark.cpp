@@ -3,10 +3,10 @@
 #include "Themes.h"
 
 
-//' ========================================================================================
-//' Initialize the elements of the clr array based on the specific theme.
-//' Pass in the 2-dimensional color array.
-//' ========================================================================================
+// ========================================================================================
+// Initialize the elements of the clr array based on the specific theme.
+// Pass in the 2-dimensional color array.
+// ========================================================================================
 void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 {
 	int theme = (int)Themes::Dark;
@@ -39,7 +39,8 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 
 
 	//clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::MakeARGB(255, 0, 0, 0);
-	clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::ForestGreen;
+	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 38, 38, 38);
+	//clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::ForestGreen;
 
 }
 

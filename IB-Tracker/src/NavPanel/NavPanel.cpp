@@ -14,10 +14,28 @@
 HWND HWND_NAVPANEL = NULL;
 
 
-//' ========================================================================================
-//' Process WM_SIZE message for window/dialog: NavPanel
-//' ========================================================================================
-void NavPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+// ========================================================================================
+// Constructor
+// ========================================================================================
+CNavPanel::CNavPanel(HWND hWndParent)
+{
+    Show(hWndParent);
+}
+
+
+// ========================================================================================
+// Destructor
+// ========================================================================================
+CNavPanel::~CNavPanel()
+{
+    if (m_pWindow) delete(m_pWindow);
+}
+
+
+// ========================================================================================
+// Process WM_SIZE message for window/dialog: NavPanel
+// ========================================================================================
+void CNavPanel::OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     // Move the bottom separator and application name into place, but only do so
     // if the vertical height of NavBar window has not become less than the minimum
@@ -34,20 +52,20 @@ void NavPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 }
 
 
-//' ========================================================================================
-//' Process WM_ERASEBKGND message for window/dialog: NavPanel
-//' ========================================================================================
-BOOL NavPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+// ========================================================================================
+// Process WM_ERASEBKGND message for window/dialog: NavPanel
+// ========================================================================================
+BOOL CNavPanel::OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
 }
 
 
-//' ========================================================================================
-//' Process WM_PAINT message for window/dialog: NavPanel
-//' ========================================================================================
-void NavPanel_OnPaint(HWND hwnd)
+// ========================================================================================
+// Process WM_PAINT message for window/dialog: NavPanel
+// ========================================================================================
+void CNavPanel::OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -69,16 +87,26 @@ void NavPanel_OnPaint(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' NavPanel Window procedure
-//' ========================================================================================
-LRESULT CALLBACK NavPanel_WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+// ========================================================================================
+// Process WM_DESTROY message for window/dialog: NavPanel
+// ========================================================================================
+void CNavPanel::OnDestroy(HWND hwnd)
+{
+    // TODO: Add your message processing code here...
+}
+
+
+
+// ========================================================================================
+// NavPanel Window procedure
+// ========================================================================================
+LRESULT CALLBACK CNavPanel::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-    HANDLE_MSG(hwnd, WM_SIZE, NavPanel_OnSize);
-    HANDLE_MSG(hwnd, WM_ERASEBKGND, NavPanel_OnEraseBkgnd);
-    HANDLE_MSG(hwnd, WM_PAINT, NavPanel_OnPaint);
+    HANDLE_MSG(hwnd, WM_SIZE, OnSize);
+    HANDLE_MSG(hwnd, WM_ERASEBKGND, OnEraseBkgnd);
+    HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
 
 
     case MSG_TWS_CONNECT_START:
@@ -205,16 +233,16 @@ LRESULT CALLBACK NavPanel_WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 }
 
 
-//' ========================================================================================
-//' NavPanel_Show
-//' ========================================================================================
-CWindow* NavPanel_Show(HWND hWndParent)
+// ========================================================================================
+// NavPanel_Show
+// ========================================================================================
+void CNavPanel::Show(HWND hWndParent)
 {
     // Create the window and child controls
-    CWindow* pWindow = new CWindow;
+    CWindow* m_pWindow = new CWindow;
    
     HWND_NAVPANEL =
-        pWindow->Create(hWndParent, L"", & NavPanel_WndProc, 0, 0, NAVPANEL_WIDTH, 0,
+        m_pWindow->Create(hWndParent, L"", WndProc, 0, 0, NAVPANEL_WIDTH, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
@@ -223,7 +251,7 @@ CWindow* NavPanel_Show(HWND hWndParent)
     SetWindowLongPtr(HWND_NAVPANEL, GWLP_ID, IDC_NAVPANEL);
 
     // Can only set the brush after the window is created
-    pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
+    m_pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
 
     int nTop, nLeft, nLeftOffset;
     int nItemHeight = 28;
@@ -645,8 +673,6 @@ CWindow* NavPanel_Show(HWND hWndParent)
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
-
-    return pWindow;
 
 }
 

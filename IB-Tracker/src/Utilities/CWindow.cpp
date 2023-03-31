@@ -3,13 +3,13 @@
 
 
 
-//' ========================================================================================
-//' CWindow class constructor
-//' Usage:
-//'    DIM pWindow AS CWindow
-//' Remarks:
-//' CWindow will use "FBWindowClass:" and a number as the window class.
-//' ========================================================================================
+// ========================================================================================
+// CWindow class constructor
+// Usage:
+//    DIM pWindow AS CWindow
+// Remarks:
+// CWindow will use "FBWindowClass:" and a number as the window class.
+// ========================================================================================
 CWindow::CWindow()
 {
     // Class name
@@ -43,9 +43,9 @@ CWindow::CWindow()
 }
 
 
-//' ========================================================================================
-//' CWindow class destructor
-//' ========================================================================================
+// ========================================================================================
+// CWindow class destructor
+// ========================================================================================
 CWindow::~CWindow()
 {
     if (m_hFont) DeleteObject(m_hFont);
@@ -54,9 +54,9 @@ CWindow::~CWindow()
 }
 
 
-//' ========================================================================================
-//' Default CWindow callback function.
-//' ========================================================================================
+// ========================================================================================
+// Default CWindow callback function.
+// ========================================================================================
 LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -82,19 +82,19 @@ LRESULT CALLBACK CWindow_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 }
 
 
-//' ========================================================================================
-//' Window creation
-//' Parameters:
-//' - hParent     = Parent window handle
-//' - wszTitle    = Window caption
-//' - lpfnWndProc = Address of the callback function
-//' - x           = Horizontal position
-//' - y           = Vertical position
-//' - nWidth      = Window width
-//' - nHeight     = Window height
-//' - dwStyle     = Window style
-//' - dwExStyle   = Extended style
-//' ========================================================================================
+// ========================================================================================
+// Window creation
+// Parameters:
+// - hParent     = Parent window handle
+// - wszTitle    = Window caption
+// - lpfnWndProc = Address of the callback function
+// - x           = Horizontal position
+// - y           = Vertical position
+// - nWidth      = Window width
+// - nHeight     = Window height
+// - dwStyle     = Window style
+// - dwExStyle   = Extended style
+// ========================================================================================
 HWND CWindow::Create(HWND hParent, std::wstring wszTitle, WNDPROC lpfnWndProc,
     int x, int y, int nWidth, int nHeight, DWORD dwStyle, DWORD dwExStyle)
 {
@@ -159,20 +159,20 @@ HWND CWindow::Create(HWND hParent, std::wstring wszTitle, WNDPROC lpfnWndProc,
 }
 
 
-//' ========================================================================================
-//' Processes window messages
-//' Uses IsDialogMessage in the message pump
-//' Note: To process arrow keys, characters, enter, insert, backspace | delete keys, set USEDLGMSG = 0.
-//' | you can leave it as is and process the WM_GETDLGCODE message:
-//' CASE WM_GETDLGCODE
-//'    FUNCTION = DLGC_WANTALLKEYS
-//' If you are only interested in arrow keys and characters...
-//' CASE WM_GETDLGCODE
-//'    FUNCTION = DLGC_WANTARROWS | DLGC_WANTCHARS
+// ========================================================================================
+// Processes window messages
+// Uses IsDialogMessage in the message pump
+// Note: To process arrow keys, characters, enter, insert, backspace | delete keys, set USEDLGMSG = 0.
+// | you can leave it as is and process the WM_GETDLGCODE message:
+// CASE WM_GETDLGCODE
+//    FUNCTION = DLGC_WANTALLKEYS
+// If you are only interested in arrow keys and characters...
+// CASE WM_GETDLGCODE
+//    FUNCTION = DLGC_WANTARROWS | DLGC_WANTCHARS
 #ifndef USEDLGMSG
 #define USEDLGMSG 1
 #endif
-//' ========================================================================================
+// ========================================================================================
 WPARAM CWindow::DoEvents(int nCmdShow)
 {
     MSG uMsg;
@@ -208,43 +208,43 @@ WPARAM CWindow::DoEvents(int nCmdShow)
 }
 
 
-//' ========================================================================================
-//' Creates a High DPI aware logical font.
-//' - wszFaceName = The typeface name.
-//' - lPointSize = The point size.
-//' - lWeight = The weight of the font in the range 0 through 1000. For example, 400 is normal
-//'      and 700 is bold. If this value is zero, a default weight is used.
-//'      The following values are defined for convenience.
-//'      FW_DONTCARE (0), FW_THIN (100), FW_EXTRALIGHT (200), FW_ULTRALIGHT (200), FW_LIGHT (300),
-//'      FW_NORMAL (400), FW_REGULAR (400), FW_MEDIUM (500), FW_SEMIBOLD (600), FW_DEMIBOLD (600),
-//'      FW_BOLD (700), FW_EXTRABOLD (800), FW_ULTRABOLD (800), FW_HEAVY (900), FW_BLACK (900)
-//' - bItalic = Italic flag. CTRUE | FALSE
-//' - bUnderline = Underline flag. CTRUE | FALSE
-//' - bStrikeOut = StrikeOut flag. CTRUE | FALSE
-//' - bCharset = Charset.
-//'      The following values are predefined: ANSI_CHARSET, BALTIC_CHARSET, CHINESEBIG5_CHARSET,
-//'      DEFAULT_CHARSET, EASTEUROPE_CHARSET, GB2312_CHARSET, GREEK_CHARSET, HANGUL_CHARSET,
-//'      MAC_CHARSET, OEM_CHARSET, RUSSIAN_CHARSET, SHIFTJIS_CHARSET, SYMBOL_CHARSET, TURKISH_CHARSET,
-//'      VIETNAMESE_CHARSET, JOHAB_CHARSET (Korean language edition of Windows), ARABIC_CHARSET and
-//'      HEBREW_CHARSET (Middle East language edition of Windows), THAI_CHARSET (Thai language
-//'      edition of Windows).
-//'      The OEM_CHARSET value specifies a character set that is operating-system dependent.
-//'      DEFAULT_CHARSET is set to a value based on the current system locale. For example, when
-//'      the system locale is English (United States), it is set as ANSI_CHARSET.
-//'      Fonts with other character sets may exist in the operating system. If an application uses
-//'      a font with an unknown character set, it should not attempt to translate | interpret
-//'      strings that are rendered with that font.
-//'      This parameter is important in the font mapping process. To ensure consistent results,
-//'      specify a specific character set. If you specify a typeface name in the lfFaceName member,
-//'      make sure that the lfCharSet value matches the character set of the typeface specified in lfFaceName.
-//' Return value: The handle of the font | NULL on failure.
-//' Remarks: The returned font must be destroyed with DeleteObject | the macro DeleteFont
-//' when no longer needed to prevent memory leaks.
-//' Usage examples:
-//'   hFont = CWindow.CreateFont("MS Sans Serif", 8, FW_NORMAL, , , , DEFAULT_CHARSET)
-//'   hFont = CWindow.CreateFont("Courier New", 10, FW_BOLD, , , , DEFAULT_CHARSET)
-//'   hFont = CWindow.CreateFont("Marlett", 8, FW_NORMAL, , , , SYMBOL_CHARSET)
-//' ========================================================================================
+// ========================================================================================
+// Creates a High DPI aware logical font.
+// - wszFaceName = The typeface name.
+// - lPointSize = The point size.
+// - lWeight = The weight of the font in the range 0 through 1000. For example, 400 is normal
+//      and 700 is bold. If this value is zero, a default weight is used.
+//      The following values are defined for convenience.
+//      FW_DONTCARE (0), FW_THIN (100), FW_EXTRALIGHT (200), FW_ULTRALIGHT (200), FW_LIGHT (300),
+//      FW_NORMAL (400), FW_REGULAR (400), FW_MEDIUM (500), FW_SEMIBOLD (600), FW_DEMIBOLD (600),
+//      FW_BOLD (700), FW_EXTRABOLD (800), FW_ULTRABOLD (800), FW_HEAVY (900), FW_BLACK (900)
+// - bItalic = Italic flag. CTRUE | FALSE
+// - bUnderline = Underline flag. CTRUE | FALSE
+// - bStrikeOut = StrikeOut flag. CTRUE | FALSE
+// - bCharset = Charset.
+//      The following values are predefined: ANSI_CHARSET, BALTIC_CHARSET, CHINESEBIG5_CHARSET,
+//      DEFAULT_CHARSET, EASTEUROPE_CHARSET, GB2312_CHARSET, GREEK_CHARSET, HANGUL_CHARSET,
+//      MAC_CHARSET, OEM_CHARSET, RUSSIAN_CHARSET, SHIFTJIS_CHARSET, SYMBOL_CHARSET, TURKISH_CHARSET,
+//      VIETNAMESE_CHARSET, JOHAB_CHARSET (Korean language edition of Windows), ARABIC_CHARSET and
+//      HEBREW_CHARSET (Middle East language edition of Windows), THAI_CHARSET (Thai language
+//      edition of Windows).
+//      The OEM_CHARSET value specifies a character set that is operating-system dependent.
+//      DEFAULT_CHARSET is set to a value based on the current system locale. For example, when
+//      the system locale is English (United States), it is set as ANSI_CHARSET.
+//      Fonts with other character sets may exist in the operating system. If an application uses
+//      a font with an unknown character set, it should not attempt to translate | interpret
+//      strings that are rendered with that font.
+//      This parameter is important in the font mapping process. To ensure consistent results,
+//      specify a specific character set. If you specify a typeface name in the lfFaceName member,
+//      make sure that the lfCharSet value matches the character set of the typeface specified in lfFaceName.
+// Return value: The handle of the font | NULL on failure.
+// Remarks: The returned font must be destroyed with DeleteObject | the macro DeleteFont
+// when no longer needed to prevent memory leaks.
+// Usage examples:
+//   hFont = CWindow.CreateFont("MS Sans Serif", 8, FW_NORMAL, , , , DEFAULT_CHARSET)
+//   hFont = CWindow.CreateFont("Courier New", 10, FW_BOLD, , , , DEFAULT_CHARSET)
+//   hFont = CWindow.CreateFont("Marlett", 8, FW_NORMAL, , , , SYMBOL_CHARSET)
+// ========================================================================================
 HFONT CWindow::CreateFont(
     std::wstring wszFaceName,        // __in Typeface name of font
     int lPointSize,                  // __in Point size
@@ -286,9 +286,9 @@ HFONT CWindow::CreateFont(
 }
 
 
-//' =====================================================================================
-//' Gets the background brush.
-//' =====================================================================================
+// =====================================================================================
+// Gets the background brush.
+// =====================================================================================
 HBRUSH CWindow::GetBrush()
 {
     if (m_hwnd == NULL) return NULL;
@@ -296,15 +296,15 @@ HBRUSH CWindow::GetBrush()
 }
 
 
-//' =====================================================================================
-//' Sets the background brush.
-//' Handle to the class background brush. This member can be a handle to the physical
-//' brush to be used for painting the background, or it can be a color value. A color
-//' value must be one of the standard system colors (the value 1 must be added
-//' to the chosen color), e.g. COLOR_WINDOW + 1.
-//' You can also use CreateSolidBrush to create a logical brush with a solid color, e.g.
-//' CreateSolidBrush(RGB(0, 0, 255)
-//' =====================================================================================
+// =====================================================================================
+// Sets the background brush.
+// Handle to the class background brush. This member can be a handle to the physical
+// brush to be used for painting the background, or it can be a color value. A color
+// value must be one of the standard system colors (the value 1 must be added
+// to the chosen color), e.g. COLOR_WINDOW + 1.
+// You can also use CreateSolidBrush to create a logical brush with a solid color, e.g.
+// CreateSolidBrush(RGB(0, 0, 255)
+// =====================================================================================
 void CWindow::SetBrush(HBRUSH hbrBackground)
 {
     if (m_hwnd == NULL) return;
@@ -314,9 +314,9 @@ void CWindow::SetBrush(HBRUSH hbrBackground)
 }
 
 
-//' =====================================================================================
-//' Internal function called by AddControl()
-//' =====================================================================================
+// =====================================================================================
+// Internal function called by AddControl()
+// =====================================================================================
 HWND CWindow::CreateControl(
     std::wstring wszClassName,             // Control class
     HWND hParent,                          // Parent window handle
@@ -355,9 +355,9 @@ HWND CWindow::CreateControl(
 
 
     
-//' =====================================================================================
-//' Adds a control to the window
-//' =====================================================================================
+// =====================================================================================
+// Adds a control to the window
+// =====================================================================================
 HWND CWindow::AddControl(
     Controls control,                      // Control type (Controls Enum)
     HWND hParent,                          // Parent window handle
@@ -573,20 +573,20 @@ HWND CWindow::AddControl(
 }
 
 
-//' ========================================================================================
-//' Returns a pointer to the CWindow class given the handle of its associated window handle.
-//' To retrieve it from the handle of any of its child windows | controls, use AfxCWindowOwnerPtr.
-//' ========================================================================================
+// ========================================================================================
+// Returns a pointer to the CWindow class given the handle of its associated window handle.
+// To retrieve it from the handle of any of its child windows | controls, use AfxCWindowOwnerPtr.
+// ========================================================================================
 CWindow* AfxCWindowPtr(HWND hwnd)
 {
     return (CWindow*)GetWindowLongPtr(hwnd, 0);
 }
 
 
-//' ========================================================================================
-//' Returns a pointer to the CWindow class given the handle of the window created with it
-//' | the handle of any of it's children.
-//' ========================================================================================
+// ========================================================================================
+// Returns a pointer to the CWindow class given the handle of the window created with it
+// | the handle of any of it's children.
+// ========================================================================================
 CWindow* AfxCWindowOwnerPtr(HWND hwnd)
 {
     if (hwnd == NULL) return nullptr;
@@ -596,10 +596,10 @@ CWindow* AfxCWindowOwnerPtr(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Redraws the specified window.
-//' Do not use it from within a WM_PAINT message.
-//' ========================================================================================
+// ========================================================================================
+// Redraws the specified window.
+// Do not use it from within a WM_PAINT message.
+// ========================================================================================
 void AfxRedrawWindow(HWND hwnd)
 {
     InvalidateRect(hwnd, NULL, true);
@@ -607,9 +607,9 @@ void AfxRedrawWindow(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Retrieves the desktop horizontal scaling ratio.
-//' ========================================================================================
+// ========================================================================================
+// Retrieves the desktop horizontal scaling ratio.
+// ========================================================================================
 float AfxScaleRatioX()
 {
     HDC hDC = GetDC(HWND_DESKTOP);
@@ -619,9 +619,9 @@ float AfxScaleRatioX()
 }
 
 
-//' ========================================================================================
-//' Retrieves the desktop vertical scaling ratio.
-//' ========================================================================================
+// ========================================================================================
+// Retrieves the desktop vertical scaling ratio.
+// ========================================================================================
 float AfxScaleRatioY()
 {
     HDC hDC = GetDC(HWND_DESKTOP);
@@ -631,45 +631,45 @@ float AfxScaleRatioY()
 }
 
 
-//' ========================================================================================
-//' Scales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
-//' ========================================================================================
+// ========================================================================================
+// Scales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
+// ========================================================================================
 int AfxScaleX(float cx)
 {
     return (int)round((cx * AfxScaleRatioX()));
 }
 
 
-//' ========================================================================================
-//' Scales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
-//' ========================================================================================
+// ========================================================================================
+// Scales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
+// ========================================================================================
 int AfxScaleY(float cy)
 {
     return (int)round((cy * AfxScaleRatioX()));
 }
 
 
-//' ========================================================================================
-//' Unscales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
-//' ========================================================================================
+// ========================================================================================
+// Unscales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
+// ========================================================================================
 int AfxUnScaleX(float cx)
 {
     return (int)round((cx / AfxScaleRatioX()));
 }
 
 
-//' ========================================================================================
-//' Unscales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
-//' ========================================================================================
+// ========================================================================================
+// Unscales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
+// ========================================================================================
 int AfxUnScaleY(float cy)
 {
     return (int)round((cy / AfxScaleRatioY()));
 }
 
 
-//' ========================================================================================
-//' Retrieve text from the specified window
-//' ========================================================================================
+// ========================================================================================
+// Retrieve text from the specified window
+// ========================================================================================
 std::wstring AfxGetWindowText(HWND hwnd)
 {
     std::wstring wszTemp;;
@@ -680,11 +680,11 @@ std::wstring AfxGetWindowText(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Gets the width in pixels of a window.
-//' Note: To retrieve the height of the desktop window pass the handle returned by the
-//' API function GetDesktopWindow.
-//' ========================================================================================
+// ========================================================================================
+// Gets the width in pixels of a window.
+// Note: To retrieve the height of the desktop window pass the handle returned by the
+// API function GetDesktopWindow.
+// ========================================================================================
 int AfxGetWindowWidth(HWND hwnd)
 {
     RECT rc;
@@ -693,11 +693,11 @@ int AfxGetWindowWidth(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Gets the height in pixels of a window.
-//' Note: To retrieve the height of the desktop window pass the handle returned by the
-//' API function GetDesktopWindow.
-//' ========================================================================================
+// ========================================================================================
+// Gets the height in pixels of a window.
+// Note: To retrieve the height of the desktop window pass the handle returned by the
+// API function GetDesktopWindow.
+// ========================================================================================
 int AfxGetWindowHeight(HWND hwnd)
 {
     RECT rc;
@@ -706,13 +706,13 @@ int AfxGetWindowHeight(HWND hwnd)
 }
 
 
-//' ========================================================================================
-//' Centers a window on the screen or over another window.
-//' It also ensures that the placement is done within the work area.
-//' Parameters:
-//' - hwnd = Handle of the window.
-//' - hwndParent = [optional] Handle of the parent window.
-//' ========================================================================================
+// ========================================================================================
+// Centers a window on the screen or over another window.
+// It also ensures that the placement is done within the work area.
+// Parameters:
+// - hwnd = Handle of the window.
+// - hwndParent = [optional] Handle of the parent window.
+// ========================================================================================
 void AfxCenterWindow(HWND hwnd, HWND hwndParent)
 {
     RECT rc;            // Window coordinates
@@ -773,12 +773,12 @@ void AfxCenterWindow(HWND hwnd, HWND hwndParent)
 }
 
 
-//' ========================================================================================
-//' Retrieves the coordinates of the work area on the primary display monitor expressed in
-//' virtual screen coordinates. The work area is the portion of the screen not obscured by
-//' the system taskbar or by application desktop toolbars. To get the work area of a monitor
-//' other than the primary display monitor, call the GetMonitorInfo function.
-//' ========================================================================================
+// ========================================================================================
+// Retrieves the coordinates of the work area on the primary display monitor expressed in
+// virtual screen coordinates. The work area is the portion of the screen not obscured by
+// the system taskbar or by application desktop toolbars. To get the work area of a monitor
+// other than the primary display monitor, call the GetMonitorInfo function.
+// ========================================================================================
 int AfxGetWorkAreaWidth()
 {
     RECT rcWrk{};
@@ -786,7 +786,7 @@ int AfxGetWorkAreaWidth()
     return (rcWrk.right - rcWrk.left);
 }
 
-//' ========================================================================================
+// ========================================================================================
 int AfxGetWorkAreaHeight()
 {
     RECT rcWrk{};
@@ -796,15 +796,15 @@ int AfxGetWorkAreaHeight()
 
 
 //========================================================================================
-//' Creates a tooltip for a control.
-//' Parameters:
-//' - hwnd      = Handle of the window or control
-//' - wszText   = Tooltip text
-//' - bBalloon  = Ballon tip (TRUE or FALSE)
-//' - bCentered = Centered (TRUE or FALSE)
-//' Return Value:
-//'   The handle of the tooltip control
-//' ========================================================================================
+// Creates a tooltip for a control.
+// Parameters:
+// - hwnd      = Handle of the window or control
+// - wszText   = Tooltip text
+// - bBalloon  = Ballon tip (TRUE or FALSE)
+// - bCentered = Centered (TRUE or FALSE)
+// Return Value:
+//   The handle of the tooltip control
+// ========================================================================================
 HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon, bool bCentered)
 {
     if (IsWindow(hwnd) == 0) return 0;
@@ -852,13 +852,13 @@ HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon, bool bCentere
 }
 
 
-//' ========================================================================================
-//' Sets/replaces the text of a tooltip control
-//' Parameters:
-//' - hTooltip = Handle of the tooltip control
-//' - hwnd     = Handle of the window or control
-//' - wszText  = Tooltip text
-//' ========================================================================================
+// ========================================================================================
+// Sets/replaces the text of a tooltip control
+// Parameters:
+// - hTooltip = Handle of the tooltip control
+// - hwnd     = Handle of the window or control
+// - wszText  = Tooltip text
+// ========================================================================================
 void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText)
 {
     if ((hTooltip == NULL) || (hwnd == NULL)) return;
@@ -889,10 +889,10 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText)
 }
 
     
-    //' ========================================================================================
-//' Returns the version of specified file multiplied by 100, e.g. 601 for version 6.01.
-//' Example: DIM ver AS LONG = AfxGetFileVersion("COMCTL32.DLL")
-//' ========================================================================================
+    // ========================================================================================
+// Returns the version of specified file multiplied by 100, e.g. 601 for version 6.01.
+// Example: DIM ver AS LONG = AfxGetFileVersion("COMCTL32.DLL")
+// ========================================================================================
 int AfxGetFileVersion(std::wstring wszFileName)
 {
     VS_FIXEDFILEINFO* pvsffi = nullptr;
@@ -917,20 +917,20 @@ int AfxGetFileVersion(std::wstring wszFileName)
 }
 
 
-//' ========================================================================================
-//' Returns the version of CommCtl32.dll multiplied by 100, e.g. 582 for version 5.82.
-//' ========================================================================================
+// ========================================================================================
+// Returns the version of CommCtl32.dll multiplied by 100, e.g. 582 for version 5.82.
+// ========================================================================================
 int AfxComCtlVersion()
 {
     return AfxGetFileVersion(L"COMCTL32.DLL");
 }
 
 
-//' ========================================================================================
-//' Gets a string from a list box.
-//' - hComboBox: A handle to the list box.
-//' - nIndex: The zero-based index of the item.
-//' ========================================================================================
+// ========================================================================================
+// Gets a string from a list box.
+// - hComboBox: A handle to the list box.
+// - nIndex: The zero-based index of the item.
+// ========================================================================================
 std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
 {
     int nLen = SendMessage(hListBox, LB_GETTEXTLEN, nIndex, 0) + 1;
@@ -940,10 +940,10 @@ std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
 }
 
 
-//' ========================================================================================
-//' Returns the path of the program which is currently executing.
-//' The path name will not contain a trailing backslash.
-//' ========================================================================================
+// ========================================================================================
+// Returns the path of the program which is currently executing.
+// The path name will not contain a trailing backslash.
+// ========================================================================================
 std::wstring AfxGetExePath()
 {
     // The following retrieves the full path *and* exe name and extension.
@@ -956,9 +956,9 @@ std::wstring AfxGetExePath()
 }
 
 
-//' ========================================================================================
-//' Retrieves the name of the user associated with the current thread.
-//' ========================================================================================
+// ========================================================================================
+// Retrieves the name of the user associated with the current thread.
+// ========================================================================================
 std::wstring AfxGetUserName()
 {
     DWORD dwBufLen = (DWORD)MAX_PATH;
@@ -968,20 +968,20 @@ std::wstring AfxGetUserName()
 }
 
 
-//' ========================================================================================
-//' Returns the Astronomical Day for any given date.
-//' Parameters:
-//' - nDay: A number between 1-31.
-//' - nMonth; A number between 1-12.
-//' - nYear: A four digit year, e.g. 2011.
-//' Return Value:
-//' - The Astronomical Day.
-//' See: http://support.microsoft.com/kb/109451/en-us
-//' Note: Among other things, can be used to find the number of days between any two dates, e.g.:
-//' PRINT AfxAstroDay(1, 3, -12400) - AfxAstroDay(28, 2, -12400)  ' Prints 2
-//' PRINT AfxAstroDay(1, 3, 12000) - AfxAstroDay(28, 2, -12000) ' Prints 8765822
-//' PRINT AfxAstroDay(28, 2, 1902) - AfxAstroDay(1, 3, 1898)  ' Prints 1459 days
-//' ========================================================================================
+// ========================================================================================
+// Returns the Astronomical Day for any given date.
+// Parameters:
+// - nDay: A number between 1-31.
+// - nMonth; A number between 1-12.
+// - nYear: A four digit year, e.g. 2011.
+// Return Value:
+// - The Astronomical Day.
+// See: http://support.microsoft.com/kb/109451/en-us
+// Note: Among other things, can be used to find the number of days between any two dates, e.g.:
+// PRINT AfxAstroDay(1, 3, -12400) - AfxAstroDay(28, 2, -12400)  ' Prints 2
+// PRINT AfxAstroDay(1, 3, 12000) - AfxAstroDay(28, 2, -12000) ' Prints 8765822
+// PRINT AfxAstroDay(28, 2, 1902) - AfxAstroDay(1, 3, 1898)  ' Prints 1459 days
+// ========================================================================================
 int AfxAstroDay(int nDay, int nMonth, int nYear)
 {
     double y = nYear + (nMonth - 2.85) / 12;
@@ -989,9 +989,9 @@ int AfxAstroDay(int nDay, int nMonth, int nYear)
 }
 
 
-//' ========================================================================================
-//' Returns the number of days between two ISO formatted dates.
-//' ========================================================================================
+// ========================================================================================
+// Returns the number of days between two ISO formatted dates.
+// ========================================================================================
 int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate)
 {
     // YYYY-MM-DD
@@ -1009,9 +1009,9 @@ int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate)
 }
 
 
-//' ========================================================================================
-//' Returns the current date in ISO format (YYYY-MM-DD)
-//' ========================================================================================
+// ========================================================================================
+// Returns the current date in ISO format (YYYY-MM-DD)
+// ========================================================================================
 std::wstring AfxCurrentDate()
 {
     std::wstring buffer(260, NULL);
@@ -1020,9 +1020,9 @@ std::wstring AfxCurrentDate()
 }
 
 
-//' ========================================================================================
-//' Returns the year from a date in ISO format (YYYY-MM-DD)
-//' ========================================================================================
+// ========================================================================================
+// Returns the year from a date in ISO format (YYYY-MM-DD)
+// ========================================================================================
 int AfxGetYear(std::wstring wszDate)
 {
     // YYYY-MM-DD
@@ -1031,10 +1031,10 @@ int AfxGetYear(std::wstring wszDate)
 }
 
 
-//' ========================================================================================
-//' Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
-//' We use this when dealing with Option expiration dates to display.
-//' ========================================================================================
+// ========================================================================================
+// Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
+// We use this when dealing with Option expiration dates to display.
+// ========================================================================================
 std::wstring AfxShortDate(std::wstring wszDate)
 {
     SYSTEMTIME st{};
@@ -1048,9 +1048,9 @@ std::wstring AfxShortDate(std::wstring wszDate)
 }
 
 
-//' ========================================================================================
-//' Check if running under Linux Wine
-//' ========================================================================================
+// ========================================================================================
+// Check if running under Linux Wine
+// ========================================================================================
 bool isWineActive()
 {
     bool res = false;
@@ -1071,9 +1071,9 @@ bool isWineActive()
 }
 
 
-//' ========================================================================================
-//' Retrieve name of font to use for GUI elements under Windows or Wine/Linux
-//' ========================================================================================
+// ========================================================================================
+// Retrieve name of font to use for GUI elements under Windows or Wine/Linux
+// ========================================================================================
 #include <versionhelpers.h>
 std::wstring AfxGetDefaultFont()
 {
@@ -1090,9 +1090,9 @@ std::wstring AfxGetDefaultFont()
 }
 
 
-//' ========================================================================================
-//' Convert an wide Unicode string to ANSI string
-//' ========================================================================================
+// ========================================================================================
+// Convert an wide Unicode string to ANSI string
+// ========================================================================================
 std::string unicode2ansi(const std::wstring& wstr)
 {
     // Size, in bytes, including any terminating null character
@@ -1104,9 +1104,9 @@ std::string unicode2ansi(const std::wstring& wstr)
 }
 
 
-//' ========================================================================================
+// ========================================================================================
 // Convert an ANSI string to a wide Unicode String
-//' ========================================================================================
+// ========================================================================================
 std::wstring ansi2unicode(const std::string& str)
 {
     int size_needed = MultiByteToWideChar(CP_ACP, 0, &str[0], (int)str.size(), NULL, 0);
@@ -1116,9 +1116,9 @@ std::wstring ansi2unicode(const std::string& str)
 }
 
 
-//' ========================================================================================
+// ========================================================================================
 // Format a numeric (double) string with twodecimalplaces.
-//' ========================================================================================
+// ========================================================================================
 std::wstring AfxMoney(double value)
 {
     // j will include +1 for null terminator
@@ -1128,12 +1128,12 @@ std::wstring AfxMoney(double value)
     return wszMoney.substr(0, j - 1);   // -1 to remove null terminator
 }
 
-//' ========================================================================================
-//' Gets the zero-based index of the item nearest the specified point in a list box.
-//' The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero
-//' if the specified point is in the client area of the list box, or one if it is outside
-//' the client area.
-//' ========================================================================================
+// ========================================================================================
+// Gets the zero-based index of the item nearest the specified point in a list box.
+// The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero
+// if the specified point is in the client area of the list box, or one if it is outside
+// the client area.
+// ========================================================================================
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y)
 {
     return SendMessage(hListBox, LB_ITEMFROMPOINT, 0, (LPARAM)MAKELONG(x, y));
