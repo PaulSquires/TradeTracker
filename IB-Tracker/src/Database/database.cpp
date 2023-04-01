@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "..\Utilities\CWindow.h"
+#include "..\Utilities\AfxWin.h"
 #include "..\Themes\Themes.h"
 #include "trade.h"
 #include "database.h"

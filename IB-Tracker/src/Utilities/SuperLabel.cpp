@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "CWindow.h"
+#include "AfxWin.h"
 #include "SuperLabel.h"
 
 

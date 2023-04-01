@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="src\main.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\NavPanel\NavPanel.h" />
     <ClInclude Include="src\tws-api\bar.h" />
     <ClInclude Include="src\tws-api\CommissionReport.h" />
     <ClInclude Include="src\tws-api\CommonDefs.h" />
@@ -100,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\NavPanel\NavPanel.cpp" />
     <ClCompile Include="src\tws-api\ContractCondition.cpp" />
     <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
     <ClCompile Include="src\tws-api\EClient.cpp" />

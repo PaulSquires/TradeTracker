@@ -6,11 +6,14 @@
 
 #include "MainWindow.h"
 //#include "tws-client.h"
-//#include "..\NavPanel\NavPanel.h"
+#include "..\NavPanel\NavPanel.h"
 //#include "..\TradesPanel\TradesPanel.h"
 //#include "..\HistoryPanel\HistoryPanel.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\database.h"
+
+
+CNavPanel NavPanel;
 
 
 
@@ -58,14 +61,14 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
 
-/*
     // Position the left hand side Navigation Panel
-    HWND hWndNavPanel = GetDlgItem(hwnd, IDC_NAVPANEL);
+    HWND hWndNavPanel = NavPanel.WindowHandle();  // GetDlgItem(hwnd, IDC_NAVPANEL);
     int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
     SetWindowPos(hWndNavPanel, 0,
         0, 0, nNavPanelWidth, cy,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
+/*
 
     // Position the right hand side History Panel
     HWND hWndHistoryPanel = GetDlgItem(hwnd, IDC_HISTORYPANEL);
@@ -93,11 +96,12 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    //HWND_NAVPANEL =
-    //    m_pWindow->Create(hWndParent, L"", WndProc, 0, 0, NAVPANEL_WIDTH, 0,
-    //        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-    //        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-    std::cout << "MainWindow WM_CREATE" << std::endl;
+
+    HWND hWndNav = 
+        NavPanel.Create( hwnd, L"", 0, 0, NAVPANEL_WIDTH, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+            
     return TRUE;
 }
 

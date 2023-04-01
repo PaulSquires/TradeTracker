@@ -3,7 +3,7 @@
 #include "..\Utilities\CWindowBase.h"
 
 
-class NavPanel : public CWindowBase<MainWindow>
+class CNavPanel : public CWindowBase<CNavPanel>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);

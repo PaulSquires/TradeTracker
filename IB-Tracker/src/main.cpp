@@ -13,6 +13,7 @@
 #define ENABLECONSOLE 1
 #endif
 
+
 #if (ENABLECONSOLE >= 1)
 void BindStdHandlesToConsole()
 {
@@ -101,14 +102,14 @@ int APIENTRY wWinMain(
     int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
 
-    MainWindow main;
+    MainWindow Main;
 
-    HWND hWndMain = main.Create(
-        HWND_DESKTOP,
-        L"IB-Tracker",
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        InitalMainWidth,
-        InitalMainHeight);
+    HWND hWndMain = Main.Create(
+                        HWND_DESKTOP,
+                        L"IB-Tracker",
+                        CW_USEDEFAULT, CW_USEDEFAULT,
+                        InitalMainWidth,
+                        InitalMainHeight);
 
 
     // Set the top level main window that the ApplyActiveTheme function will use
@@ -118,10 +119,10 @@ int APIENTRY wWinMain(
 
     // Set the large and small application icons that will represent the application
     // in various area of Windows such as the title bar, task bar, and shortcuts.
-    HANDLE hIconBig = LoadImage(main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
+    HANDLE hIconBig = LoadImage(Main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hIconBig);
 
-    HANDLE hIconSmall = LoadImage(main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
+    HANDLE hIconSmall = LoadImage(Main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
 
@@ -141,7 +142,7 @@ int APIENTRY wWinMain(
     while (GetMessage(&msg, NULL, 0, 0))
     {
         // Processes accelerator keys for menu commands
-        if (main.hAccel() == NULL || (!TranslateAccelerator(hWndMain, main.hAccel(), &msg))) {
+        if (Main.hAccel() == NULL || (!TranslateAccelerator(hWndMain, Main.hAccel(), &msg))) {
 #if (USEDLGMSG >= 1)
             // Determines whether a message is intended for the specified
             // dialog box and, if it is, processes the message.
