@@ -165,6 +165,43 @@ public:
     }
 
 
+    //' =====================================================================================
+    //' Internal function called by AddControl()
+    //' =====================================================================================
+    HWND CreateControl(
+        std::wstring wszClassName,             // Control class
+        HWND hParent,                          // Parent window handle
+        LONG_PTR cID,                          // Control identifier
+        std::wstring wszTitle,                 // Control caption
+        int x,                                 // Horizontal position
+        int y,                                 // Vertical position
+        int nWidth,                            // Control width
+        int nHeight,                           // Control height
+        int dwStyle,                           // Control style
+        int dwExStyle,                         // Extended style
+        bool bSetFont,                         // SetFont flag
+        LONG_PTR lpParam)                      // Pointer to custom data
+    {
+        // Don't allow negative values for the styles
+        if (dwStyle == -1) dwStyle = 0;
+        if (dwExStyle == -1) dwExStyle = 0;
+
+        // Make sure that the control has the WS_CHILD style
+        dwStyle = dwStyle | WS_CHILD;
+
+        // Create the control
+        HWND hCtl = CreateWindowEx(dwExStyle, wszClassName.c_str(), wszTitle.c_str(), dwStyle,
+            (int)(x * m_rx), (int)(y * m_ry), (int)(nWidth * m_rx), (int)(nHeight * m_ry),
+            hParent, (HMENU)cID, m_hInstance, (LPVOID)lpParam);
+        if (hCtl == NULL) return NULL;
+        // Set the font
+        if (m_hFont) {
+            if (bSetFont) SendMessage(hCtl, WM_SETFONT, (WPARAM)m_hFont, TRUE);
+        }
+        return hCtl;
+    }
+
+
     HWND AddControl(
         Controls control,                             // Control type (Controls Enum)
         HWND hParent = NULL,                          // Parent window handle

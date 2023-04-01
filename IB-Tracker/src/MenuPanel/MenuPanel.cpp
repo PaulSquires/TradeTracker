@@ -5,8 +5,11 @@
 #include "..\Themes\Themes.h"
 //#include "..\MainWindow\MainWindow.h"
 //#include "..\MainWindow\tws-client.h"
-//#include "..\TradesPanel\TradesPanel.h"
+#include "..\TradesPanel\TradesPanel.h"
 #include "MenuPanel.h"
+
+
+extern void TradesPanel_ShowActiveTrades();
 
 
 // ========================================================================================
@@ -572,7 +575,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
-        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(m_hwnd, 0);
+        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtl, 0);
 
         if (pData) {
 
@@ -598,7 +601,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_MENUPANEL_ACTIVETRADES:
             {
-                //    ShowActiveTrades();
+                TradesPanel_ShowActiveTrades();
                 break;
             }
 

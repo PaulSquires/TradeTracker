@@ -9,6 +9,7 @@ class CTradesPanel : public CWindowBase<CTradesPanel>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
 
@@ -59,11 +60,3 @@ const int COLUMN_TICKER_CHANGE       = 5;    // price change
 const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
 const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
-
-
-
-extern std::vector<LineData*> vec;
-
-void ShowActiveTrades();
-void SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
-    ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle);
