@@ -13,6 +13,8 @@ const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
 extern CTradesPanel TradesPanel;
 
+extern std::vector<Trade*> trades;
+
 std::vector<LineData*> vec;
 
 
@@ -275,6 +277,40 @@ void TradesPanel_CalculateColumnWidths(int nIndex)
 
 
 // ========================================================================================
+// Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
+// Will return TRUE if RECT is not empty. 
+// ========================================================================================
+bool TradesPanel_calcVThumbRect()
+{
+    // calculate the vertical scrollbar in client coordinates
+    SetRectEmpty(&vsb.rc);
+    int nTopIndex = SendMessage(vsb.hListBox, LB_GETTOPINDEX, 0, 0);
+
+    RECT rc{};
+    GetClientRect(vsb.hListBox, &rc);
+    vsb.listBoxHeight = (rc.bottom - rc.top);
+    vsb.itemHeight = ListBox_GetItemHeight(vsb.hListBox, 0);
+    vsb.numItems = ListBox_GetCount(vsb.hListBox);
+
+    // If no items exist then exit to avoid division by zero GPF's.
+    if (vsb.numItems == 0) return FALSE;
+
+    vsb.itemsPerPage = (int)(std::round(vsb.listBoxHeight / (float)vsb.itemHeight));
+    vsb.thumbHeight = (int)(((float)vsb.itemsPerPage / (float)vsb.numItems) * (float)vsb.listBoxHeight);
+
+    vsb.rc.left = rc.left;
+    vsb.rc.top = (int)(rc.top + (((float)nTopIndex / (float)vsb.numItems) * (float)vsb.listBoxHeight));
+    vsb.rc.right = rc.right;
+    vsb.rc.bottom = (vsb.rc.top + vsb.thumbHeight);
+
+    // If the number of items in the listbox is less than what could display
+    // on the screen then there is no need to show the scrollbar.
+    return (vsb.numItems < vsb.itemsPerPage) ? FALSE : TRUE;
+
+}
+
+
+// ========================================================================================
 // Populate the Trades ListBox with the current active/open trades
 // ========================================================================================
 void TradesPanel_ShowActiveTrades()
@@ -316,7 +352,6 @@ void TradesPanel_ShowActiveTrades()
         }
     }
 
-    std::cout << trades.size() << " " << std::endl;
 
     // Calculate the actual column widths based on the size of the strings in
     // the vector while respecting the minimum values as defined in nMinColWidth[].
@@ -336,13 +371,13 @@ void TradesPanel_ShowActiveTrades()
      //       tws_requestMktData(ld);
         }
     }
-    AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-    AfxRedrawWindow(vsb.hwnd);
+
+    // Generate a WM_SIZE message to display and position the ListBox and vertical ScrollBar.
+    RECT rc; GetWindowRect(HWND_TRADESPANEL, &rc);
+    SendMessage(HWND_TRADESPANEL, WM_SIZE, SW_NORMAL, MAKELPARAM(rc.right - rc.left, rc.bottom - rc.top));
 
 //    tws_ResumeTWS();
 }
-
-
 
 
 // ========================================================================================
@@ -397,7 +432,6 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         SolidBrush backBrush(nBackColor);
         graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
 
-
         // Get the current ListBox line data should a valid line exist
         // Paint the individual columns with the specific data.
         if (linenum > -1) {
@@ -448,40 +482,6 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         if (memDC) DeleteDC(memDC);
 
     }
-
-}
-
-
-// ========================================================================================
-// Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
-// Will return TRUE if RECT is not empty. 
-// ========================================================================================
-bool TradesPanel_calcVThumbRect()
-{
-    // calculate the vertical scrollbar in client coordinates
-    SetRectEmpty(&vsb.rc);
-    int nTopIndex = SendMessage(vsb.hListBox, LB_GETTOPINDEX, 0, 0);
-
-    RECT rc{};
-    GetClientRect(vsb.hListBox, &rc);
-    vsb.listBoxHeight = (rc.bottom - rc.top);
-    vsb.itemHeight = ListBox_GetItemHeight(vsb.hListBox, 0);
-    vsb.numItems = ListBox_GetCount(vsb.hListBox);
-    
-    // If no items exist then exit to avoid division by zero GPF's.
-    if (vsb.numItems == 0) return FALSE;
-    
-    vsb.itemsPerPage = (int)(std::round(vsb.listBoxHeight / (float)vsb.itemHeight));
-    vsb.thumbHeight = (int)(((float)vsb.itemsPerPage / (float)vsb.numItems) * (float)vsb.listBoxHeight);
-
-    vsb.rc.left = rc.left;
-    vsb.rc.top = (int)(rc.top + (((float)nTopIndex / (float)vsb.numItems) * (float)vsb.listBoxHeight));
-    vsb.rc.right = rc.right;
-    vsb.rc.bottom = (vsb.rc.top + vsb.thumbHeight);
-    
-    // If the number of items in the listbox is less than what could display
-    // on the screen then there is no need to show the scrollbar.
-    return (vsb.numItems < vsb.itemsPerPage) ? FALSE : TRUE;
 
 }
 
@@ -737,7 +737,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         int bottom_index = 0;
         int nWidth = (rc.right - rc.left);
         int nHeight = (rc.bottom - rc.top);
-
+        
         if (NumItems > 0) {
             ItemsPerPage = (nHeight) / itemHeight;
             bottom_index = (nTopIndex + ItemsPerPage);
@@ -844,9 +844,6 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     SetWindowPos(GetDlgItem(hwnd, IDC_LABEL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
-    // Move ListBox leaving a top and bottom margin.
-
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
@@ -862,7 +859,7 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nLeft = 0;
     int nTop = margin;
     int nWidth = cx - VScrollBarWidth;
-    int nHeight = cy - (margin * 2);
+    int nHeight = cy - margin;
     SetWindowPos(GetDlgItem(hwnd, IDC_LISTBOX), 0,
         nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -902,6 +899,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
+    vsb.hListBox = 
         TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
@@ -919,6 +917,10 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_VScrollBar_SubclassProc,
             IDC_VSCROLLBAR, NULL);
+
+
+    // Set focus to ListBox
+    SetFocus(vsb.hListBox);
 
     return TRUE;
 }

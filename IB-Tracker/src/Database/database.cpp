@@ -12,8 +12,7 @@ const std::wstring idMagic = L"IB-TRACKER-DATABASE";
 const std::wstring version = L"1.0.0";
 
 // Pointer list for all trades (initially loaded from database)
-// This variable is defined as extern in the trade.h header file
-// so that it can be shared throughout the entire application.
+// This variable is accessed via extern in other files that require it.
 std::vector<Trade*> trades;
 
 
