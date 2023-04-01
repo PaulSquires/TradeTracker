@@ -15,6 +15,21 @@ const int VSCROLLBAR_WIDTH = 14;
 const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
 
+int CTradesPanel::nMinColWidth[8] =
+{
+    25,     /* dropdown arrow*/
+    45,     /* ticker symbol */
+    50,     /* ITM */
+    50,     /* position quantity */
+    50,     /* expiry date */
+    40,     /* DTE */
+    45,     /* strike price */
+    40      /* put/call */
+};
+
+int CTradesPanel::nColWidth[8] = { 0,0,0,0,0,0,0 };
+
+
 
 class VScrollBar
 {
@@ -40,9 +55,8 @@ VScrollBar vsb;
 // ========================================================================================
 // Constructor
 // ========================================================================================
-CTradesPanel::CTradesPanel(HWND hWndParent)
+CTradesPanel::CTradesPanel()
 {
-    Show(hWndParent);
 }
 
 
@@ -321,11 +335,12 @@ void ShowActiveTrades()
     }
 
 
+    // TODO: Fix this call to CalculateColumnWidths
     // Calculate the actual column widths based on the size of the strings in
     // the vector while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    CalculateColumnWidths();
+    CTradesPanel::CalculateColumnWidths();
 
 
     // Display the new ListBox data
@@ -418,7 +433,8 @@ int CTradesPanel::OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis)
                     fontSize = ld->col[i].fontSize;
                     fontStyle = ld->col[i].fontStyle;
 
-                    int colWidth = AfxScaleX((float)nColWidth[i]);
+                    // TODO: Fix access to nColWidth[]
+                    int colWidth = 100; // AfxScaleX((float)nColWidth[i]);
 
                     backBrush.SetColor(nBackColor);
                     graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
@@ -888,6 +904,7 @@ LRESULT CALLBACK CTradesPanel::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
         EndPaint(hWnd, &ps);
         break;
     }
+
 
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);

@@ -34,9 +34,8 @@ VScrollBar2 vsb;
 // ========================================================================================
 // Constructor
 // ========================================================================================
-CHistoryPanel::CHistoryPanel(HWND hWndParent)
+CHistoryPanel::CHistoryPanel()
 {
-    Show(hWndParent);
 }
 
 

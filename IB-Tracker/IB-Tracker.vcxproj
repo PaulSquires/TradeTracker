@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\main.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\tws-api\bar.h" />
     <ClInclude Include="src\tws-api\CommissionReport.h" />
@@ -61,10 +62,7 @@
     <ClInclude Include="src\tws-api\OrderState.h" />
     <ClInclude Include="src\Database\database.h" />
     <ClInclude Include="src\Database\trade.h" />
-    <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
     <ClInclude Include="src\MainWindow\MainWindow.h" />
-    <ClInclude Include="src\MainWindow\tws-client.h" />
-    <ClInclude Include="src\NavPanel\NavPanel.h" />
     <ClInclude Include="src\tws-api\PercentChangeCondition.h" />
     <ClInclude Include="src\tws-api\platformspecific.h" />
     <ClInclude Include="src\tws-api\PriceCondition.h" />
@@ -82,9 +80,9 @@
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />
     <ClInclude Include="src\Themes\Themes.h" />
-    <ClInclude Include="src\TradesPanel\TradesPanel.h" />
-    <ClInclude Include="src\Utilities\CWindow.h" />
+    <ClInclude Include="src\Utilities\AfxWin.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Utilities\CWindowBase.h" />
     <ClInclude Include="src\Utilities\SuperLabel.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
   </ItemGroup>
@@ -101,6 +99,7 @@
     <Image Include="src\Images\mainicon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\tws-api\ContractCondition.cpp" />
     <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
     <ClCompile Include="src\tws-api\EClient.cpp" />
@@ -124,17 +123,13 @@
     <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
     <ClCompile Include="src\Database\database.cpp" />
     <ClCompile Include="src\Database\trade.cpp" />
-    <ClCompile Include="src\HistoryPanel\HistoryPanel.cpp" />
     <ClCompile Include="src\MainWindow\MainWindow.cpp" />
-    <ClCompile Include="src\MainWindow\tws-client.cpp" />
-    <ClCompile Include="src\NavPanel\NavPanel.cpp" />
     <ClCompile Include="src\Themes\Theme-Blue.cpp" />
     <ClCompile Include="src\Themes\Theme-Dark.cpp" />
     <ClCompile Include="src\Themes\Theme-DarkPlus.cpp" />
     <ClCompile Include="src\Themes\Theme-Light.cpp" />
     <ClCompile Include="src\Themes\Themes.cpp" />
-    <ClCompile Include="src\TradesPanel\TradesPanel.cpp" />
-    <ClCompile Include="src\Utilities\CWindow.cpp" />
+    <ClCompile Include="src\Utilities\AfxWin.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

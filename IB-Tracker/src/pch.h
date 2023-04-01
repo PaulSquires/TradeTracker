@@ -26,6 +26,8 @@
 #include <future>
 #include <locale>
 #include <codecvt>
+#include <versionhelpers.h>
+
 
 #include <string>
 #include <vector>

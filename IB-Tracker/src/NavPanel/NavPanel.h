@@ -1,6 +1,14 @@
 #pragma once
 
-#include "..\Utilities\CWindow.h"
+#include "..\Utilities\CWindowBase.h"
+
+
+class NavPanel : public CWindowBase<MainWindow>
+{
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+};
+
 
 const int IDC_NAVPANEL = 100;
 
@@ -21,25 +29,4 @@ const int IDC_NAVPANEL_CONFIGURE     = 114;
 const int IDC_NAVPANEL_MESSAGES      = 115;
 
 const int NAVPANEL_WIDTH = 180;
-
-class CNavPanel
-{
-private:
-
-    static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-    static void OnDestroy(HWND hwnd);
-    static BOOL OnEraseBkgnd(HWND hwnd, HDC hdc);
-    static void OnPaint(HWND hwnd);
-    static void OnSize(HWND hwnd, UINT state, int cx, int cy);
-
-    static void Show(HWND hWndParent);
-
-    CWindow* m_pWindow = nullptr;
-
-public:
-    CNavPanel(HWND hWndParent);
-    ~CNavPanel();
-
-};
 

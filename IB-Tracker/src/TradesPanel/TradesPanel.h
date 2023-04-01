@@ -51,8 +51,6 @@ const int COLUMN_TICKER_CHANGE       = 5;    // price change
 const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
 const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
-//const int NUM_COLUMNS = 8;
-
 
 class CTradesPanel
 {
@@ -69,37 +67,26 @@ private:
 
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    static int CTradesPanel::OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis);
-    static void OnDestroy(HWND hwnd);
-    static BOOL OnEraseBkgnd(HWND hwnd, HDC hdc);
-    static void OnPaint(HWND hwnd);
-    static void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    static int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis);
+    //static void OnDestroy(HWND hwnd);
+    //static BOOL OnEraseBkgnd(HWND hwnd, HDC hdc);
+    //static void OnPaint(HWND hwnd);
+    //static void OnSize(HWND hwnd, UINT state, int cx, int cy);
 
-    static void Show(HWND hWndParent);
 
-    int nMinColWidth[8] =
-    {
-        25,     /* dropdown arrow*/
-        45,     /* ticker symbol */
-        50,     /* ITM */
-        50,     /* position quantity */
-        50,     /* expiry date */
-        40,     /* DTE */
-        45,     /* strike price */
-        40      /* put/call */
-    };
-    int nColWidth[8] = {0,0,0,0,0,0,0,0};
+    static int nMinColWidth[8];
+    static int nColWidth[8];
 
     CWindow* m_pWindow = nullptr;
 
 public:
-    CTradesPanel(HWND hWndParent);
+    CTradesPanel();
     ~CTradesPanel();
-    
-    void CalculateColumnWidths(int nIndex = -1);
+
+    static void CalculateColumnWidths(int nIndex = -1);
+    static void Show(HWND hWndParent);
 
 };
-
 
 extern std::vector<LineData*> vec;
 

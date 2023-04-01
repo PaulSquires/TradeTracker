@@ -32,23 +32,10 @@ private:
 
     static void Show(HWND hWndParent);
 
-
-    int nColWidth[NUM_COLUMNS] =
-    {
-        25,     /* dropdown arrow*/
-        45,     /* ticker symbol */
-        50,     /* ITM */
-        50,     /* position quantity */
-        50,     /* expiry date */
-        40,     /* DTE */
-        45,     /* strike price */
-        40      /* put/call */
-    };
-
     CWindow* m_pWindow = nullptr;
 
 public:
-    CHistoryPanel(HWND hWndParent);
+    CHistoryPanel();
     ~CHistoryPanel();
 
 };
