@@ -6,13 +6,13 @@
 //#include "..\MainWindow\MainWindow.h"
 //#include "..\MainWindow\tws-client.h"
 //#include "..\TradesPanel\TradesPanel.h"
-#include "NavPanel.h"
+#include "MenuPanel.h"
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: NavPanel
+// Process WM_SIZE message for window/dialog: MenuPanel
 // ========================================================================================
-void NavPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void MenuPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     // Move the bottom separator and application name into place, but only do so
     // if the vertical height of NavBar window has not become less than the minimum
@@ -21,18 +21,18 @@ void NavPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     if (cy < MinHeight) return;
 
-    SetWindowPos(GetDlgItem(hwnd, IDC_NAVPANEL_GEARICON), 0,
-        AfxScaleX(12), cy - AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+    SetWindowPos(GetDlgItem(hwnd, IDC_MENUPANEL_GEARICON), 0,
+        AfxScaleX(12), cy - AfxScaleY(42), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-    SetWindowPos(GetDlgItem(hwnd, IDC_NAVPANEL_MESSAGES), 0,
-        AfxScaleX(35), cy - AfxScaleY(46), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+    SetWindowPos(GetDlgItem(hwnd, IDC_MENUPANEL_MESSAGES), 0,
+        AfxScaleX(35), cy - AfxScaleY(42), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: NavPanel
+// Process WM_ERASEBKGND message for window/dialog: MenuPanel
 // ========================================================================================
-BOOL NavPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL MenuPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -40,9 +40,9 @@ BOOL NavPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: NavPanel
+// Process WM_PAINT message for window/dialog: MenuPanel
 // ========================================================================================
-void NavPanel_OnPaint(HWND hwnd)
+void MenuPanel_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -50,7 +50,7 @@ void NavPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::NavPanelBack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::MenuPanelBack);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -65,18 +65,18 @@ void NavPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_DESTROY message for window/dialog: NavPanel
+// Process WM_DESTROY message for window/dialog: MenuPanel
 // ========================================================================================
-void CNavPanel_OnDestroy(HWND hwnd)
+void CMenuPanel_OnDestroy(HWND hwnd)
 {
     // TODO: Add your message processing code here...
 }
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: NavPanel
+// Process WM_CREATE message for window/dialog: MenuPanel
 // ========================================================================================
-BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     int nTop, nLeft, nLeftOffset;
     int nItemHeight = 28;
@@ -86,16 +86,16 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SuperLabel* pData = nullptr;
 
     // HEADER CONTROLS
-    nLeft = (NAVPANEL_WIDTH - 68) / 2;
+    nLeft = (MENUPANEL_WIDTH - 68) / 2;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_LOGO,
+        IDC_MENUPANEL_LOGO,
         SuperLabelType::ImageOnly,
         nLeft, 20, 68, 68);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::NavPanelBack;
+        pData->BackColor = ThemeElement::MenuPanelBack;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
@@ -106,14 +106,14 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_USERNAME,
+        IDC_MENUPANEL_USERNAME,
         SuperLabelType::TextOnly,
-        0, 100, NAVPANEL_WIDTH, 18);
+        0, 100, MENUPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->TextColor = ThemeElement::NavPanelTextDim;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelTextDim;
         pData->FontSize = 10;
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
         pData->wszText = GetTraderName();
@@ -124,14 +124,14 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_APPNAME,
+        IDC_MENUPANEL_APPNAME,
         SuperLabelType::TextOnly,
-        0, 118, NAVPANEL_WIDTH, 18);
+        0, 118, MENUPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->TextColor = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelText;
         pData->FontSize = 10;
         pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
         pData->wszText = L"IB-Tracker v1.0";
@@ -145,11 +145,11 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateSuperLabel(
         hwnd, -1,
         SuperLabelType::LineHorizontal,
-        0, nTop, NAVPANEL_WIDTH, 10);
+        0, nTop, MENUPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->LineColor = ThemeElement::NavPanelSeparator;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 6;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -162,19 +162,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_ACTIVETRADES,
+        IDC_MENUPANEL_ACTIVETRADES,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -187,19 +187,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_CLOSEDTRADES,
+        IDC_MENUPANEL_CLOSEDTRADES,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -214,11 +214,11 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateSuperLabel(
         hwnd, -1,
         SuperLabelType::LineHorizontal,
-        0, nTop, NAVPANEL_WIDTH, 10);
+        0, nTop, MENUPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->LineColor = ThemeElement::NavPanelSeparator;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 6;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -229,19 +229,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_NEWTRADE,
+        IDC_MENUPANEL_NEWTRADE,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -254,19 +254,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_SHORTSTRANGLE,
+        IDC_MENUPANEL_SHORTSTRANGLE,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -279,19 +279,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_SHORTPUT,
+        IDC_MENUPANEL_SHORTPUT,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -304,19 +304,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_SHORTCALL,
+        IDC_MENUPANEL_SHORTCALL,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -331,11 +331,11 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateSuperLabel(
         hwnd, -1,
         SuperLabelType::LineHorizontal,
-        0, nTop, NAVPANEL_WIDTH, 10);
+        0, nTop, MENUPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->LineColor = ThemeElement::NavPanelSeparator;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 6;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -346,19 +346,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_TICKERTOTALS,
+        IDC_MENUPANEL_TICKERTOTALS,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -371,19 +371,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_DAILYTOTALS,
+        IDC_MENUPANEL_DAILYTOTALS,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -396,19 +396,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_RECONCILE,
+        IDC_MENUPANEL_RECONCILE,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -423,11 +423,11 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateSuperLabel(
         hwnd, -1, 
         SuperLabelType::LineHorizontal,
-        0, nTop, NAVPANEL_WIDTH, 10);
+        0, nTop, MENUPANEL_WIDTH, 10);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->LineColor = ThemeElement::NavPanelSeparator;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 6;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -438,19 +438,19 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_CONFIGURE,
+        IDC_MENUPANEL_CONFIGURE,
         SuperLabelType::TextOnly,
-        0, nTop, NAVPANEL_WIDTH, nItemHeight);
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::TradesPanelBack;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBackHot;
-        pData->BackColorSelected = ThemeElement::NavPanelBackSelected;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->TextColorHot = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -462,14 +462,14 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_GEARICON,
+        IDC_MENUPANEL_GEARICON,
         SuperLabelType::ImageOnly,
         0, 0, 20, 20);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->BackColorHot = ThemeElement::NavPanelBack;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBack;
         pData->wszToolTip = L" Connect to TWS ";
         pData->ImageWidth = 20;
         pData->ImageHeight = 20;
@@ -481,14 +481,14 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_NAVPANEL_MESSAGES,
+        IDC_MENUPANEL_MESSAGES,
         SuperLabelType::TextOnly,
-        0, 0, NAVPANEL_WIDTH - 35, 18);
+        0, 0, MENUPANEL_WIDTH - 35, 18);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->TextColor = ThemeElement::NavPanelTextDim;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelTextDim;
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
@@ -502,25 +502,25 @@ BOOL NavPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
-// NavPanel Window procedure
+// MenuPanel Window procedure
 // ========================================================================================
-LRESULT CNavPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, NavPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_SIZE, NavPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, NavPanel_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, NavPanel_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_CREATE, MenuPanel_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_SIZE, MenuPanel_OnSize);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, MenuPanel_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, MenuPanel_OnPaint);
 
 
     case MSG_TWS_CONNECT_START:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"Connecting to TWS";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         }
         break;
     }
@@ -529,10 +529,10 @@ LRESULT CNavPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_SUCCESS:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"TWS Connected";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         }
         break;
     }
@@ -541,10 +541,10 @@ LRESULT CNavPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_FAILURE:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"TWS connection failed";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         }
         break;
     }
@@ -553,10 +553,10 @@ LRESULT CNavPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_DISCONNECT:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         if (pData) {
             pData->wszText = L"TWS Disonnected";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_NAVPANEL_MESSAGES));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_MESSAGES));
         }
         break;
     }
@@ -578,7 +578,7 @@ LRESULT CNavPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             switch (CtrlId) {
 
-            case IDC_NAVPANEL_GEARICON:
+            case IDC_MENUPANEL_GEARICON:
             {
                 // Prevent multiple clicks of the connect button by waiting until
                 // the first click is finished.
@@ -596,7 +596,7 @@ LRESULT CNavPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            case IDC_NAVPANEL_ACTIVETRADES:
+            case IDC_MENUPANEL_ACTIVETRADES:
             {
                 //    ShowActiveTrades();
                 break;

@@ -1,7 +1,7 @@
 
 #include "pch.h"
 #include "Themes.h"
-#include "..\Utilities\CWindow.h"
+#include "..\Utilities\AfxWin.h"
 
 
 HWND hWndMainWindow = NULL;

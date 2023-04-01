@@ -1,18 +1,16 @@
 
 #include "pch.h"
 #include "..\Utilities\SuperLabel.h"
-#include "..\MainWindow\MainWindow.h"
-#include "..\MainWindow\tws-client.h"
+//#include "..\MainWindow\MainWindow.h"
+//#include "..\MainWindow\tws-client.h"
 #include "..\Themes\Themes.h"
 #include "HistoryPanel.h"
-
-HWND HWND_HISTORYPANEL = NULL;
 
 const int LISTBOX_ROWHEIGHT = 24;
 const int VSCROLLBAR_WIDTH = 14;
 const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
-
+/*
 class VScrollBar2
 {
 public:
@@ -30,22 +28,6 @@ public:
 VScrollBar2 vsb;
 
 
-
-// ========================================================================================
-// Constructor
-// ========================================================================================
-CHistoryPanel::CHistoryPanel()
-{
-}
-
-
-// ========================================================================================
-// Destructor
-// ========================================================================================
-CHistoryPanel::~CHistoryPanel()
-{
-    if (m_pWindow) delete(m_pWindow);
-}
 
 
 // ========================================================================================
@@ -358,12 +340,13 @@ LRESULT CALLBACK CHistoryPanel::ListBox_SubclassProc(
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 
 }
+*/
 
 
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: HistoryPanel
 // ========================================================================================
-void CHistoryPanel::OnDestroy(HWND hwnd)
+void HistoryPanel_OnDestroy(HWND hwnd)
 {
     // TODO: Add your message processing code here...
 }
@@ -372,7 +355,7 @@ void CHistoryPanel::OnDestroy(HWND hwnd)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: HistoryPanel
 // ========================================================================================
-BOOL CHistoryPanel::OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL HistoryPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -382,7 +365,7 @@ BOOL CHistoryPanel::OnEraseBkgnd(HWND hwnd, HDC hdc)
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: HistoryPanel
 // ========================================================================================
-void CHistoryPanel::OnPaint(HWND hwnd)
+void HistoryPanel_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -407,65 +390,28 @@ void CHistoryPanel::OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: HistoryPanel
 // ========================================================================================
-void CHistoryPanel::OnSize(HWND hwnd, UINT state, int cx, int cy)
+void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     // TODO: Add your message processing code here...
 }
 
 
-
 // ========================================================================================
-// HistoryPanel  Window Procedure
+// Process WM_CREATE message for window/dialog: HistoryPanel
 // ========================================================================================
-LRESULT CALLBACK CHistoryPanel::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    switch (msg)
-    {
-        HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
-        HANDLE_MSG(hwnd, WM_ERASEBKGND, OnEraseBkgnd);
-        HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
-        HANDLE_MSG(hwnd, WM_SIZE, OnSize);
-
-        //// TODO: Add window message crackers here...
-
-    default: return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-}
-
-
-
-// ========================================================================================
-// HistoryPanel_Show
-// ========================================================================================
-void CHistoryPanel::Show(HWND hWndParent)
-{
-    // Create the window and child controls
-    CWindow* m_pWindow = new CWindow;
-   
-    HWND_HISTORYPANEL =
-        m_pWindow->Create(hWndParent, L"", WndProc, 0, 0, HISTORYPANEL_WIDTH, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-    
-    // This is a child window of the main application parent so treat it like child
-    // control and assign it a ControlID.
-    SetWindowLongPtr(HWND_HISTORYPANEL, GWLP_ID, IDC_HISTORYPANEL);
-
-    // Can only set the brush after the window is created
-    m_pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
-
     SuperLabel* pData = nullptr;
 
     HWND hCtl = CreateSuperLabel(
-        HWND_HISTORYPANEL,
-        IDC_LABEL,
+        hwnd, -1,
         SuperLabelType::TextOnly,
-        0, 0, 200, LISTBOX_ROWHEIGHT);
+        0, 0, HISTORYPANEL_WIDTH, LISTBOX_ROWHEIGHT);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->TextColor = ThemeElement::NavPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelText;
         pData->FontSize = 9;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"Trade History";
@@ -473,7 +419,7 @@ void CHistoryPanel::Show(HWND hWndParent)
         SuperLabel_SetOptions(hCtl, pData);
     }
 
-
+/*
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     vsb.hListBox =
@@ -494,6 +440,29 @@ void CHistoryPanel::Show(HWND hWndParent)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)VScrollBar_SubclassProc,
             IDC_VSCROLLBAR, (DWORD_PTR)m_pWindow);
-
+*/
+    return TRUE;
 }
+
+
+
+// ========================================================================================
+// HistoryPanel  Window Procedure
+// ========================================================================================
+LRESULT CHistoryPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        HANDLE_MSG(m_hwnd, WM_CREATE, HistoryPanel_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_DESTROY, HistoryPanel_OnDestroy);
+        HANDLE_MSG(m_hwnd, WM_SIZE, HistoryPanel_OnSize);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, HistoryPanel_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, HistoryPanel_OnPaint);
+
+    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
+    }
+}
+
+
+
 

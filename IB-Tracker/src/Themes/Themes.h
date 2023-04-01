@@ -9,15 +9,15 @@ enum class Themes {
 };
 
 enum class ThemeElement {
-	NavPanelBack,
-	NavPanelBackHot,
-	NavPanelText,
-	NavPanelTextDim,
-	NavPanelTextHot,
-	NavPanelBackSelected,
-	NavPanelTextSelected,
-	NavPanelSeparator,
-	NavPanelSelector,
+	MenuPanelBack,
+	MenuPanelBackHot,
+	MenuPanelText,
+	MenuPanelTextDim,
+	MenuPanelTextHot,
+	MenuPanelBackSelected,
+	MenuPanelTextSelected,
+	MenuPanelSeparator,
+	MenuPanelSelector,
 
 	TradesPanelBack,
 	TradesPanelBackHot,

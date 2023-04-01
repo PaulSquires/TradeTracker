@@ -11,15 +11,15 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 {
 	int theme = (int)Themes::Dark;
 
-	clr[(int)ThemeElement::NavPanelBack][theme] = Color::MakeARGB(255, 0, 0, 0);
-	clr[(int)ThemeElement::NavPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
-	clr[(int)ThemeElement::NavPanelText][theme] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::NavPanelTextDim][theme] = Color::MakeARGB(255, 157, 165, 180);
-	clr[(int)ThemeElement::NavPanelTextHot][theme] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::NavPanelSeparator][theme] = Color::MakeARGB(255, 53, 59, 69);
-	clr[(int)ThemeElement::NavPanelBackSelected][theme] = Color::MakeARGB(255, 44, 49, 58);
-	clr[(int)ThemeElement::NavPanelTextSelected][theme] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::NavPanelSelector][theme] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::MenuPanelBack][theme] = Color::MakeARGB(255, 0, 0, 0);
+	clr[(int)ThemeElement::MenuPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
+	clr[(int)ThemeElement::MenuPanelText][theme] = Color::MakeARGB(255, 212, 212, 212);
+	clr[(int)ThemeElement::MenuPanelTextDim][theme] = Color::MakeARGB(255, 157, 165, 180);
+	clr[(int)ThemeElement::MenuPanelTextHot][theme] = Color::MakeARGB(255, 212, 212, 212);
+	clr[(int)ThemeElement::MenuPanelSeparator][theme] = Color::MakeARGB(255, 53, 59, 69);
+	clr[(int)ThemeElement::MenuPanelBackSelected][theme] = Color::MakeARGB(255, 44, 49, 58);
+	clr[(int)ThemeElement::MenuPanelTextSelected][theme] = Color::MakeARGB(255, 212, 212, 212);
+	clr[(int)ThemeElement::MenuPanelSelector][theme] = Color::MakeARGB(255, 38, 38, 38);
 
 	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 38, 38, 38);
 	clr[(int)ThemeElement::TradesPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
@@ -38,9 +38,7 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 
 
 
-	//clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::MakeARGB(255, 0, 0, 0);
-	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 38, 38, 38);
-	//clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::ForestGreen;
+	clr[(int)ThemeElement::HistoryPanelBack][theme] = Color::ForestGreen;
 
 }
 

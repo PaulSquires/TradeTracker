@@ -6,14 +6,16 @@
 
 #include "MainWindow.h"
 //#include "tws-client.h"
-#include "..\NavPanel\NavPanel.h"
-//#include "..\TradesPanel\TradesPanel.h"
-//#include "..\HistoryPanel\HistoryPanel.h"
+#include "..\MenuPanel\MenuPanel.h"
+#include "..\HistoryPanel\HistoryPanel.h"
+#include "..\TradesPanel\TradesPanel.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\database.h"
 
 
-CNavPanel NavPanel;
+CMenuPanel      MenuPanel;
+CHistoryPanel   HistoryPanel;
+CTradesPanel    TradesPanel;
 
 
 
@@ -49,6 +51,20 @@ void MainWindow_OnPaint(HWND hwnd)
 
     HDC hdc = BeginPaint(hwnd, &ps);
 
+    Graphics graphics(hdc);
+
+    DWORD nBackColor = GetThemeColor(ThemeElement::MenuPanelBack);
+
+    // Create the background brush
+    SolidBrush backBrush(nBackColor);
+
+    // Paint the background (only the bottom "statusbar" area) using brush.
+    int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
+    int nTop = ps.rcPaint.bottom - margin;
+    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&backBrush, ps.rcPaint.left, nTop, nWidth, nHeight);
+
     EndPaint(hwnd, &ps);
 }
 
@@ -61,31 +77,31 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
 
+    int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
+
     // Position the left hand side Navigation Panel
-    HWND hWndNavPanel = NavPanel.WindowHandle();  // GetDlgItem(hwnd, IDC_NAVPANEL);
-    int nNavPanelWidth = AfxGetWindowWidth(hWndNavPanel);
-    SetWindowPos(hWndNavPanel, 0,
-        0, 0, nNavPanelWidth, cy,
+    HWND hWndMenuPanel = MenuPanel.WindowHandle();
+    int nMenuPanelWidth = AfxGetWindowWidth(hWndMenuPanel);
+    SetWindowPos(hWndMenuPanel, 0,
+        0, 0, nMenuPanelWidth, cy,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
-/*
 
     // Position the right hand side History Panel
-    HWND hWndHistoryPanel = GetDlgItem(hwnd, IDC_HISTORYPANEL);
+    HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
     int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
     SetWindowPos(hWndHistoryPanel, 0,
-        cx - nHistoryPanelWidth, 0, nHistoryPanelWidth, cy,
+        cx - nHistoryPanelWidth, 0, nHistoryPanelWidth, cy - margin,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the middle Trades Panel
-    HWND hWndTradesPanel = GetDlgItem(hwnd, IDC_TRADESPANEL);
-    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nNavPanelWidth);
+    HWND hWndTradesPanel = TradesPanel.WindowHandle();
+    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth);
     SetWindowPos(hWndTradesPanel, 0,
-        nNavPanelWidth, 0, nTradesPanelWidth, cy,
+        nMenuPanelWidth, 0, nTradesPanelWidth, cy - margin,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
-        */
 }
 
 
@@ -96,12 +112,18 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
+    MenuPanel.Create( hwnd, L"", 0, 0, MENUPANEL_WIDTH, 0,
+    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+    WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    HWND hWndNav = 
-        NavPanel.Create( hwnd, L"", 0, 0, NAVPANEL_WIDTH, 0,
+    HistoryPanel.Create(hwnd, L"", 0, 0, HISTORYPANEL_WIDTH, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-            
+
+    TradesPanel.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+    
     return TRUE;
 }
 
@@ -110,9 +132,6 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-//
-// MainWindow  Window Procedure
-//
 LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)

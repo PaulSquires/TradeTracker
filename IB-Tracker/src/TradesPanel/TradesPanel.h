@@ -1,16 +1,24 @@
 #pragma once
 
-#include "..\Utilities\CWindow.h"
+#include "..\Utilities\CWindowBase.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\trade.h"
 
-typedef long TickerId;
 
-const int IDC_TRADESPANEL = 101;
+class CTradesPanel : public CWindowBase<CTradesPanel>
+{
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+};
+
+
+typedef long TickerId;
 
 const int IDC_LISTBOX = 102;
 const int IDC_LABEL = 103;
 const int IDC_VSCROLLBAR = 104;
+
+const int LISTBOX_ROWHEIGHT = 24;
 
 
 // Construct the Trades ListBox data structure (Vector) that will be directly accessed
@@ -52,41 +60,7 @@ const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
 const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
 
-class CTradesPanel
-{
-private:
-    static bool calcVThumbRect();
 
-    static LRESULT CALLBACK VScrollBar_SubclassProc(
-        HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
-        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
-
-    static LRESULT CALLBACK ListBox_SubclassProc(
-        HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
-        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
-
-    static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-    static int OnDrawItem(HWND hWnd, DRAWITEMSTRUCT* lpdis);
-    //static void OnDestroy(HWND hwnd);
-    //static BOOL OnEraseBkgnd(HWND hwnd, HDC hdc);
-    //static void OnPaint(HWND hwnd);
-    //static void OnSize(HWND hwnd, UINT state, int cx, int cy);
-
-
-    static int nMinColWidth[8];
-    static int nColWidth[8];
-
-    CWindow* m_pWindow = nullptr;
-
-public:
-    CTradesPanel();
-    ~CTradesPanel();
-
-    static void CalculateColumnWidths(int nIndex = -1);
-    static void Show(HWND hWndParent);
-
-};
 
 extern std::vector<LineData*> vec;
 

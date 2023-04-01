@@ -1,21 +1,17 @@
 
 #include "pch.h"
 #include "..\Utilities\SuperLabel.h"
-#include "..\MainWindow\MainWindow.h"
-#include "..\MainWindow\tws-client.h"
+//#include "..\MainWindow\MainWindow.h"
+//#include "..\MainWindow\tws-client.h"
 #include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
 #include "TradesPanel.h"
 
-
-HWND HWND_TRADESPANEL = NULL;
-
-const int LISTBOX_ROWHEIGHT = 24;
 const int VSCROLLBAR_WIDTH = 14;
 const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
 
-int CTradesPanel::nMinColWidth[8] =
+int nMinColWidth[8] =
 {
     25,     /* dropdown arrow*/
     45,     /* ticker symbol */
@@ -27,9 +23,10 @@ int CTradesPanel::nMinColWidth[8] =
     40      /* put/call */
 };
 
-int CTradesPanel::nColWidth[8] = { 0,0,0,0,0,0,0 };
+int nColWidth[8] = { 0,0,0,0,0,0,0 };
 
 
+/*
 
 class VScrollBar
 {
@@ -45,28 +42,11 @@ public:
     RECT rc{};
 };
 
-
-std::vector<LineData*> vec;
-
 VScrollBar vsb;
 
 
 
-// ========================================================================================
-// Constructor
-// ========================================================================================
-CTradesPanel::CTradesPanel()
-{
-}
-
-
-// ========================================================================================
-// Destructor
-// ========================================================================================
-CTradesPanel::~CTradesPanel()
-{
-    if (m_pWindow) delete(m_pWindow);
-}
+std::vector<LineData*> vec;
 
 
 // ========================================================================================
@@ -247,7 +227,7 @@ void CreateListBoxData(Trade* trade)
 // This function is also called when receiving new price data from TWS because
 // that data may need the column width to be wider.
 // ========================================================================================
-void CTradesPanel::CalculateColumnWidths(int nIndex)
+void CalculateColumnWidths(int nIndex)
 {
     HDC hdc = GetDC(vsb.hListBox);
 
@@ -798,14 +778,168 @@ LRESULT CALLBACK CTradesPanel::ListBox_SubclassProc(
 }
 
 
-// ========================================================================================
-// TradesPanel Window procedure
-// ========================================================================================
-LRESULT CALLBACK CTradesPanel::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
+*/
 
+
+// ========================================================================================
+// Process WM_DESTROY message for window/dialog: TradesPanel
+// ========================================================================================
+void TradesPanel_OnDestroy(HWND hwnd)
+{
+    // TODO: Add your message processing code here...
+}
+
+
+// ========================================================================================
+// Process WM_ERASEBKGND message for window/dialog: TradesPanel
+// ========================================================================================
+BOOL TradesPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+{
+    // Handle all of the painting in WM_PAINT
+    return TRUE;
+}
+
+
+// ========================================================================================
+// Process WM_PAINT message for window/dialog: TradesPanel
+// ========================================================================================
+void TradesPanel_OnPaint(HWND hwnd)
+{
+    PAINTSTRUCT ps;
+
+    HDC hdc = BeginPaint(hwnd, &ps);
+
+    Graphics graphics(hdc);
+
+    DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+
+    // Create the background brush
+    SolidBrush backBrush(nBackColor);
+
+    // Paint the background using brush.
+    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+    EndPaint(hwnd, &ps);
+}
+
+
+// ========================================================================================
+// Process WM_SIZE message for window/dialog: TradesPanel
+// ========================================================================================
+void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+{
+    int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
+
+    // Move and size the top label into place
+    SetWindowPos(GetDlgItem(hwnd, IDC_LABEL), 0,
+        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+/*
+    // Move ListBox leaving a top and bottom margin.
+
+    // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
+    // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
+    // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
+    bool bShowScrollBar = false;
+    if (vsb.bDragActive) {
+        bShowScrollBar = true;
+    }
+    else {
+        bShowScrollBar = calcVThumbRect();
+    }
+    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+
+
+    int nLeft = 0;
+    int nTop = margin;
+    int nWidth = cx - VScrollBarWidth;
+    int nHeight = cy - (margin * 2);
+    SetWindowPos(GetDlgItem(hWnd, IDC_LISTBOX), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft = nLeft + nWidth;   // right edge of ListBox
+    nWidth = VScrollBarWidth;
+    SetWindowPos(GetDlgItem(hWnd, IDC_VSCROLLBAR), 0,
+        nLeft, nTop, nWidth, nHeight,
+        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+ */       
+
+}
+
+
+// ========================================================================================
+// Process WM_CREATE message for window/dialog: TradesPanel
+// ========================================================================================
+BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+{
+    SuperLabel* pData = nullptr;
+
+    HWND hCtl = CreateSuperLabel(
+        hwnd,
+        IDC_LABEL,
+        SuperLabelType::TextOnly,
+        0, 0, 0, 0);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = false;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->FontSize = 9;
+        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
+        pData->wszText = L"Active Trades";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+/*
+    // Create an Ownerdraw fixed row sized listbox that we will use to custom
+    // paint our various open trades.
+    vsb.hListBox =
+        m_pWindow->AddControl(Controls::ListBox, HWND_TRADESPANEL, IDC_LISTBOX, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
+            LBS_NODATA | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)ListBox_SubclassProc,
+            IDC_LISTBOX, (DWORD_PTR)m_pWindow);
+
+    vsb.hWnd =
+        m_pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)VScrollBar_SubclassProc,
+            IDC_VSCROLLBAR, (DWORD_PTR)m_pWindow);
+    */
+    return TRUE;
+}
+
+
+
+
+// ========================================================================================
+// Windows callback function.
+// ========================================================================================
+LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        HANDLE_MSG(m_hwnd, WM_CREATE, TradesPanel_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_DESTROY, TradesPanel_OnDestroy);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesPanel_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, TradesPanel_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, TradesPanel_OnSize);
+
+    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
+    }
+}
+
+
+/*
     case WM_COMMAND:
     {
         HWND hCtl = GET_WM_COMMAND_HWND(wParam, lParam);
@@ -841,146 +975,10 @@ LRESULT CALLBACK CTradesPanel::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
     case WM_SIZE:
     {
-        // Move ListBox leaving a top and bottom margin.
-        RECT rcClient;
-        GetClientRect(hWnd, &rcClient);
-
-        // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
-        // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
-        // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
-        bool bShowScrollBar = false;
-        if (vsb.bDragActive) {
-            bShowScrollBar = true;
-        }
-        else {
-            bShowScrollBar = calcVThumbRect();
-        }
-        int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
-
-        int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
-
-        int nLeft = rcClient.left;
-        int nTop = rcClient.top + margin;
-        int nWidth = rcClient.right - rcClient.left - VScrollBarWidth;
-        int nHeight = rcClient.bottom - rcClient.top - (margin * 2);
-        SetWindowPos(GetDlgItem(hWnd, IDC_LISTBOX), 0, 
-            nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-        nLeft = nLeft + nWidth;   // right edge of ListBox
-        nWidth = VScrollBarWidth;
-        SetWindowPos(GetDlgItem(hWnd, IDC_VSCROLLBAR), 0,
-            nLeft, nTop, nWidth, nHeight, 
-            SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
     }
     break;
 
 
-    case WM_ERASEBKGND:
-    {
-        // Handle all of the painting in WM_PAINT
-        return TRUE;
-        break;
-    }
 
-
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-
-        HDC hdc = BeginPaint(hWnd, &ps);
-
-        Graphics graphics(hdc);
-
-        DWORD nBackColor = GetThemeColor(ThemeElement::NavPanelBack);
-
-        // Create the background brush
-        SolidBrush backBrush(nBackColor);
-
-        // Paint the background using brush.
-        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
-
-        EndPaint(hWnd, &ps);
-        break;
-    }
-
-
-    default:
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
-    }
-    return 0;
-
-}
-
-
-// ========================================================================================
-// TradesPanel_Show
-// ========================================================================================
-void CTradesPanel::Show(HWND hWndParent)
-{
-    // Create the window and child controls
-    CWindow* m_pWindow = new CWindow;
-
-    HWND_TRADESPANEL =
-        m_pWindow->Create(hWndParent, L"", WndProc, 0, 0, 0, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
-    // This is a child window of the main application parent so treat it like child
-    // control and assign it a ControlID.
-    SetWindowLongPtr(HWND_TRADESPANEL, GWLP_ID, IDC_TRADESPANEL);
-
-    // Can only set the brush after the window is created
-    m_pWindow->SetBrush(GetStockBrush(NULL_BRUSH));
-
-    
-    SuperLabel* pData = nullptr;
-    
-    HWND hCtl = CreateSuperLabel(
-        HWND_TRADESPANEL,
-        IDC_LABEL,
-        SuperLabelType::TextOnly,
-        0, 0, 200, LISTBOX_ROWHEIGHT);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::NavPanelBack;
-        pData->TextColor = ThemeElement::NavPanelText;
-        pData->FontSize = 9;
-        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
-        pData->wszText = L"Active Trades";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
-    // Create an Ownerdraw fixed row sized listbox that we will use to custom
-    // paint our various open trades.
-    vsb.hListBox = 
-        m_pWindow->AddControl(Controls::ListBox, HWND_TRADESPANEL, IDC_LISTBOX, L"", 
-            0, 0, 0, 0, 
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP | 
-            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
-            LBS_NODATA | LBS_OWNERDRAWFIXED | LBS_NOTIFY, 
-            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL, 
-            (SUBCLASSPROC)ListBox_SubclassProc,
-            IDC_LISTBOX, (DWORD_PTR)m_pWindow);
-
-    vsb.hWnd =
-        m_pWindow->AddControl(Controls::Custom, HWND_TRADESPANEL, IDC_VSCROLLBAR, L"",
-            0, 0, 0, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_NOTIFY,
-            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)VScrollBar_SubclassProc,
-            IDC_VSCROLLBAR, (DWORD_PTR)m_pWindow);
-
-    
-    ShowActiveTrades();
-    
-    // Set focus to ListBox so we get a correct repaint via WM_DRAWITEM
-    SetFocus(vsb.hListBox);
-
-}
-
+*/
 

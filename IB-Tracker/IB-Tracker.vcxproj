@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\NavPanel\NavPanel.h" />
+    <ClInclude Include="src\MenuPanel\MenuPanel.h" />
+    <ClInclude Include="src\TradesPanel\TradesPanel.h" />
     <ClInclude Include="src\tws-api\bar.h" />
     <ClInclude Include="src\tws-api\CommissionReport.h" />
     <ClInclude Include="src\tws-api\CommonDefs.h" />
@@ -100,8 +102,10 @@
     <Image Include="src\Images\mainicon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\HistoryPanel\HistoryPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\NavPanel\NavPanel.cpp" />
+    <ClCompile Include="src\MenuPanel\MenuPanel.cpp" />
+    <ClCompile Include="src\TradesPanel\TradesPanel.cpp" />
     <ClCompile Include="src\tws-api\ContractCondition.cpp" />
     <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
     <ClCompile Include="src\tws-api\EClient.cpp" />
