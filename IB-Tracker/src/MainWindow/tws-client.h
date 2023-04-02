@@ -7,8 +7,7 @@
 #include <memory>
 #include <vector>
 
-//#include "..\TradesPanel\TradesPanel.h"
-
+#include "..\TradesPanel\TradesPanel.h"
 
 
 class EClientSocket;

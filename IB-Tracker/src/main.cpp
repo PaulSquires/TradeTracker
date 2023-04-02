@@ -3,8 +3,16 @@
 #include "Utilities/AfxWin.h"
 #include "Themes/Themes.h"
 #include "Database/database.h"
+#include "Database/trade.h"
 
 #include "MainWindow/MainWindow.h"
+#include "MenuPanel/MenuPanel.h"
+#include "TradesPanel/TradesPanel.h"
+#include "Utilities/UserMessages.h"
+
+extern HWND HWND_MENUPANEL;
+extern HWND HWND_TRADESPANEL;
+
 
 
 #ifndef ENABLECONSOLE
@@ -130,7 +138,6 @@ int APIENTRY wWinMain(
     AfxCenterWindow(hWndMain, HWND_DESKTOP);
 
 
-    // Call the main modal message pump and wait for it to end.
     if (hWndMain == NULL) return 0;
 
     // Show the window and update its client area
@@ -138,6 +145,19 @@ int APIENTRY wWinMain(
     UpdateWindow(hWndMain);
 
 
+    // If trades exist then show them now and try to automatically connect to TWS.
+    //if (trades.size() != 0) {
+    //    SendMessage(HWND_MENUPANEL, MSG_SUPERLABEL_CLICK, (WPARAM)IDC_MENUPANEL_ACTIVETRADES,
+    //        (LPARAM)GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES));
+    //    AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
+    //    AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_VSCROLLBAR));
+
+    //    PostMessage(HWND_MENUPANEL, MSG_SUPERLABEL_CLICK, (WPARAM)IDC_MENUPANEL_GEARICON,
+    //        (LPARAM)GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_GEARICON));
+    //}
+
+
+    // Call the main modal message pump and wait for it to end.
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {

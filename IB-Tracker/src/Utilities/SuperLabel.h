@@ -223,8 +223,8 @@ public:
 		case SuperLabelType::ImageAndText:
 			REAL nLeft = (MarginLeft + ImageOffsetLeft) * m_rx;
 			REAL nTop = (MarginTop + ImageOffsetTop) * m_ry;
-			REAL nRight = m_rcClient.right - (MarginRight * m_rx);
-			REAL nBottom = m_rcClient.bottom - (MarginBottom * m_ry);
+			REAL nRight = nLeft + (ImageWidth * m_rx);
+			REAL nBottom = nTop + (ImageHeight * m_ry);
 
 			RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
 
@@ -264,14 +264,15 @@ public:
 			Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
 			SolidBrush   textBrush(m_bIsHot ? GetThemeColor(TextColorHot) : GetThemeColor(TextColor));
 
-			StringFormat stringF(0);
+			StringFormat stringF(StringFormatFlagsNoWrap);
+			stringF.SetTrimming(StringTrimmingEllipsisWord);
 			SetTextAlignment(&stringF);
 
 			if (TextCharacterExtra)
 				SetTextCharacterExtra(m_memDC, TextCharacterExtra);
 
-			REAL nLeft = (MarginLeft + TextOffsetLeft) * m_rx;
-			REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
+			REAL nLeft = (MarginLeft + ImageWidth + ImageOffsetLeft + TextOffsetLeft) * m_rx;
+			REAL nTop = (MarginTop + ImageHeight + ImageOffsetLeft + TextOffsetTop) * m_ry;
 			REAL nRight = m_rcClient.right - (MarginRight * m_rx);
 			REAL nBottom = m_rcClient.bottom - (MarginBottom * m_ry);
 

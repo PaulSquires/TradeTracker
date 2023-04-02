@@ -22,13 +22,8 @@ const int IDC_VSCROLLBAR = 104;
 const int LISTBOX_ROWHEIGHT = 24;
 
 
-// Construct the Trades ListBox data structure (Vector) that will be directly accessed
-// for each row during the WM_DRAWITEM notification. The message will specify which ListBox
-// line it is attempting to draw. We simply get that line information from the following
-// display structure vector. Likewise, when new price data is received from TWS, it will also
-// directly reference a specific ListBox line because we would have set the requested tickerId
-// to be the same as the line number of the ticker in the ListBox. Need to just invalidate
-// that ListBox line in order to display the updated price information.
+// Construct the Trades ListBox data structure that will be directly accessed
+// for each row during the WM_DRAWITEM notification. 
 
 class ColumnData {
 public:
@@ -45,10 +40,9 @@ public:
     bool            isTickerLine = false;
     Trade*          trade = nullptr;
     ColumnData      col[8];
-    TickerId        tickerId = 0;
+    TickerId        tickerId = -1;
 };
 
-const int TICKER_NUMBER_OFFEST = 100;
 
 // These columns in the table are updated in real time when connected
 // to TWS. The LineData pointer is updated via a call to SetColumnData

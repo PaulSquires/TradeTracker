@@ -5,7 +5,7 @@
 #include "pch.h"
 
 #include "MainWindow.h"
-//#include "tws-client.h"
+#include "tws-client.h"
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
@@ -25,7 +25,7 @@ CTradesPanel    TradesPanel;
 void MainWindow_OnDestroy(HWND hwnd)
 {
     // Disconnect from IBKR TWS and shut down monitoring thread.
-   // tws_disconnect();
+    tws_disconnect();
     PostQuitMessage(0);
 }
 
@@ -103,8 +103,6 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
 }
-
-
 
 
 // ========================================================================================

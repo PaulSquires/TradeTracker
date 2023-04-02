@@ -10,11 +10,15 @@
 #include "tws-api\Utils.h"
 
 
+extern void TradesPanel_CalculateColumnWidths(int nIndex);
+extern void TradesPanel_SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
+	ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle);
+
 
 // The NavPanel window is exposed external because other
 // areas of the application need to send messages to the
 // "messages" label to display. e.g TWS connection status.
-extern HWND HWND_NAVPANEL;
+extern HWND HWND_MENUPANEL;
 
 // The TradesPanel window is exposed external because we
 // call the ListBox on that panel to display updated
@@ -43,7 +47,7 @@ void threadFunction(std::future<void> future) {
     std::cout << "Starting the thread" << std::endl;
 	isMonitorThreadActive = true;
     while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-        //std::cout << "Executing the thread....." << std::endl;
+       // std::cout << "Executing the thread....." << std::endl;
         if (tws_isConnected()) {
             client.waitForSignal();
             client.processMsgs();
@@ -52,7 +56,7 @@ void threadFunction(std::future<void> future) {
             break;
         }
 
-        std::chrono::milliseconds(500); //wait for 500 milliseconds
+		std::chrono::milliseconds(250);   // wait for 250 milliseconds
     }
 	isMonitorThreadActive = false;
 	std::cout << "Thread Terminated" << std::endl;
@@ -84,18 +88,18 @@ bool tws_connect()
     int port = 7496;   // 7497 is paper trading account
     int clientId = 0;
 
-    SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_START, 0, 0);
+    SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_START, 0, 0);
 
     bool res = client.connect(host, port, clientId);
     if (res) {
         // Start thread that will start messaging polling
         // and poll if TWS remains connected.
-        SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+        SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
         StartMonitorThread();
     }
     else {
-        SendMessage(HWND_NAVPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
+        SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
     }
 
     return res;
@@ -105,6 +109,7 @@ bool tws_connect()
 bool tws_disconnect()
 {
     if (tws_isConnected() == false) return true;
+	isThreadPaused = true;
 
     EndMonitorThread();
 
@@ -143,11 +148,13 @@ void tws_requestMktData(LineData* ld)
 
 void tws_PauseTWS()
 {
+	if (!tws_isConnected()) return;
 	isThreadPaused = true;
 }
 
 void tws_ResumeTWS()
 {
+	if (!tws_isConnected()) return;
 	isThreadPaused = false;
 }
 
@@ -294,16 +301,15 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// and the correct ListBox line is invalidated/redrawn in order to force
 		// display of the new price data. 
 
-		// The tickerId was setup so that it is a direct index access into the vector. This makes lookups
-		// for the ListBox row that needs to be updated almost instantaneous. We initially uses a "TICKER_NUMBER_OFFEST"
-		// value to add to the ListBox line index so that the tickerId being sent to TWS would not start
-		// at value zero (because the first row of a ListBox is zero).
-		int nIndex = tickerId - TICKER_NUMBER_OFFEST;
-		LineData* ld = vec.at(nIndex);
+		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX);
+		int lbCount = ListBox_GetCount(hListBox);
+		
+		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
 
-		if (ld != nullptr) {
-			// Do sanity check to be sure that the tickerId matches the returned data
-			if (ld->tickerId == tickerId && ld->trade != nullptr) {
+			LineData* ld = (LineData*)ListBox_GetItemData(hListBox, nIndex);
+			if (ld == nullptr) continue;
+
+			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->isTickerLine == TRUE)) {
 
 				if (field == LAST) {
 					ld->trade->tickerLastPrice = price;
@@ -311,7 +317,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				if (field == CLOSE) {
 					ld->trade->tickerClosePrice = price;
-					if (ld->trade->tickerLastPrice == 0) 
+					if (ld->trade->tickerLastPrice == 0)
 						ld->trade->tickerLastPrice = price;
 				}
 
@@ -320,10 +326,11 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 						ld->trade->tickerLastPrice = price;
 				}
 
+
 				// Calculate the price change
 				double delta = 0;
-				if (ld->trade->tickerClosePrice != 0) { 
-					delta = (ld->trade->tickerLastPrice - ld->trade->tickerClosePrice); 
+				if (ld->trade->tickerClosePrice != 0) {
+					delta = (ld->trade->tickerLastPrice - ld->trade->tickerClosePrice);
 				}
 
 				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
@@ -348,7 +355,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					}
 				}
 
-				
+
 				std::wstring wszText = L"";
 
 				ThemeElement themeEl = ThemeElement::TradesPanelText;
@@ -360,42 +367,39 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					wszText = L"ITM";
 					themeEl = ThemeElement::valuePositive;
 				}
-				SetColumnData(ld, COLUMN_TICKER_ITM, wszText, StringAlignmentNear, ThemeElement::TradesPanelBack,
-					themeEl, 8, FontStyleRegular);   // ITM
+				TradesPanel_SetColumnData(ld, COLUMN_TICKER_ITM, wszText, StringAlignment::StringAlignmentNear, ThemeElement::TradesPanelBack, themeEl, 8, FontStyleRegular);   // ITM
 
 
 				wszText = AfxMoney(delta);
 				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
-				SetColumnData(ld, COLUMN_TICKER_CHANGE, wszText, StringAlignmentFar, ThemeElement::TradesPanelBack,
-					themeEl, 8, FontStyleRegular);   // price change
+				TradesPanel_SetColumnData(ld, COLUMN_TICKER_CHANGE, wszText, StringAlignment::StringAlignmentFar, ThemeElement::TradesPanelBack, themeEl, 8, FontStyleRegular);   // price change
 
 
 				wszText = AfxMoney(ld->trade->tickerLastPrice);
-				SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, wszText, StringAlignmentCenter,
-					ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 9,
-					FontStyleRegular | FontStyleBold);   // current price
+				TradesPanel_SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, wszText, StringAlignment::StringAlignmentCenter,
+					ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);   // current price
 
 
 				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100) + L"%";
 				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
-				SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, wszText, StringAlignmentNear, ThemeElement::TradesPanelBack,
-					themeEl, 8, FontStyleRegular);   // price percentage change
+				TradesPanel_SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, wszText, StringAlignment::StringAlignmentNear, ThemeElement::TradesPanelBack, themeEl, 8, FontStyleRegular);   // price percentage change
 
 
-				// TODO: Reimplement CalculateColumnWidths(nIndex);
 				// Do calculation to ensure column widths are wide enough to accommodate the new
 				// price data that has just arrived.
-				//CalculateColumnWidths(nIndex);
-				
+				TradesPanel_CalculateColumnWidths(nIndex);
+
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};
 				ListBox_GetItemRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), nIndex, &rc);
 				InvalidateRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), &rc, TRUE);
 				UpdateWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-			}
-		}
+				
+				break;
 
-	}
+			}  // if
+		}  // for
+	}  // if
 }
 
 void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
