@@ -8,33 +8,35 @@
 #include "..\HistoryPanel\HistoryPanel.h"
 
 
-int nHistoryMinColWidth[8] =
+int nHistoryMinColWidth[10] =
 {
-    25,     /* dropdown arrow*/
-    45,     /* ticker symbol */
-    50,     /* ITM */
+    15,     /* dropdown arrow*/
+    50,     /* Description */
     50,     /* position quantity */
     50,     /* expiry date */
     40,     /* DTE */
     45,     /* strike price */
-    40      /* put/call */
+    40,     /* put/call */
+    40,     /* ACB, BTC/STO, etc */
+    0,
+    0
 };
 
-int nHistoryColWidth[8] = { 0,0,0,0,0,0,0 };
-
-int nMinColWidth[8] =
+int nTradesMinColWidth[10] =
 {
     25,     /* dropdown arrow*/
-    45,     /* ticker symbol */
+    50,     /* ticker symbol */
     50,     /* ITM */
-    50,     /* position quantity */
+    50,     /* position quantity */  
     50,     /* expiry date */
     40,     /* DTE */
     45,     /* strike price */
-    40      /* put/call */
+    40,     /* put/call */
+    0,
+    0
 };
 
-int nColWidth[8] = { 0,0,0,0,0,0,0 };
+int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
 
 // ========================================================================================
@@ -46,6 +48,15 @@ int nColWidth[8] = { 0,0,0,0,0,0,0 };
 void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
 {
     HDC hdc = GetDC(hListBox);
+
+    // Initialize the nColWidth array based on the incoming ListBox
+    for (int i = 0; i < 10; i++) {
+        if (GetDlgCtrlID(hListBox) == IDC_TRADES_LISTBOX) {
+            nColWidth[i] = nTradesMinColWidth[i];
+        } else {
+            nColWidth[i] = nHistoryMinColWidth[i];
+        }
+    }
 
     Graphics graphics(hdc);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
@@ -61,7 +72,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
 
     bool bRedrawListBox = false;
 
-    int nEnd = ListBox_GetCount(hListBox) - 1;
+    int nEnd = (int)ListBox_GetCount(hListBox) - 1;
     int nStart = 0;
     // If a specific line number was passed into this function then we only
     // test for that line rather than all lines (like when the arrays are first loaded.
@@ -70,26 +81,28 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
         nStart = nIndex; nEnd = nIndex;
     }
 
-    for (int nIndex = nStart; nIndex = nEnd; nIndex++) {
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
-        for (int i = 0; i < 8; i++) {
+    for (int ii = nStart; ii <= nEnd; ii++) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
+        for (int i = 0; i < 10; i++) {
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
             Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
             graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(),
                 &font, layoutRect, &format, &boundRect);
 
-            nHistoryColWidth[i] = max(nHistoryColWidth[i], nHistoryMinColWidth[i]);
-            int textLength = AfxUnScaleX(boundRect.Width) + 10;  // add a bit for padding
-            if (textLength > nHistoryColWidth[i]) {
-                nHistoryColWidth[i] = textLength;
+            int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
+
+            if (textLength > nColWidth[i]) {
+                nColWidth[i] = textLength;
                 bRedrawListBox = true;
             }
         }
         if (nIndex != -1) break;
     }
     ReleaseDC(hListBox, hdc);
-
+    
+    std::cout << bRedrawListBox << " " << std::endl;
+    
     if (bRedrawListBox) {
         AfxRedrawWindow(hListBox);
     }
@@ -126,39 +139,45 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
     ListBoxData* ld = new ListBoxData;
     
     bool isHistory = GetDlgCtrlID(hListBox) == IDC_HISTORY_LISTBOX ? true : false;
+    REAL font8 = 8;
+    REAL font9 = 9;
+    std::wstring text; 
 
     if (isHistory) {
         tickerId = -1;
-        std::wstring text = (trade->isOpen ? L"Open Pos" : L"Closed Pos");
-        ld->SetData(0, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);   // orange
+        font8 = 7;  // make the History table a little smaller than the Trades table
+        font9 = 8;
 
-        //text = QString::number(std::abs(trade->ACB), 'f', 2);
-        text = L"999.99";
-        ld->SetData(6, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);   // orange
+        ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+        std::wstring text = (trade->isOpen ? L"Open Pos" : L"Closed Pos");
+        ld->SetData(1, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular);   // orange
+
+        text = AfxMoney(std::abs(trade->ACB));
+        ld->SetData(7, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular);  
 
     }
     else {
         ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);
+            ThemeElement::TradesPanelText, font9, FontStyleRegular | FontStyleBold);
         // Col 1 to 6 are set based on incoming TWS price data 
         ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
+            ThemeElement::TradesPanelText, font8, FontStyleRegular);   // ITM
         ld->SetData(3, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);
+            ThemeElement::TradesPanelText, font8, FontStyleRegular);
         ld->SetData(4, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);
+            ThemeElement::TradesPanelText, font8, FontStyleRegular);
         ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // price change
         ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);   // current price
+            ThemeElement::TradesPanelText, font9, FontStyleRegular | FontStyleBold);   // current price
         ld->SetData(COLUMN_TICKER_PERCENTAGE, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
-
-        std::cout << ld->tickerId << " " << tickerId << std::endl;
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // price percentage change
 
         tws_requestMktData(ld);
     }
@@ -192,33 +211,35 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
         ld = new ListBoxData;
 
         ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);
+            ThemeElement::TradesPanelText, font8, FontStyleRegular);
 
         int col = 1;
         if (!isHistory) {
             ld->SetData(col, trade, tickerId, wszDot, StringAlignmentFar, ThemeElement::TradesPanelBack,
-                ThemeElement::TradesPanelNormalDTE, 7, FontStyleRegular);
+                ThemeElement::TradesPanelNormalDTE, font8, FontStyleRegular);
             col += 2;
         }
 
         ld->SetData(col, trade, tickerId, textShares, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
         col++;
 
         ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
         col++;
 
         ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
         col++;
 
-        ld->SetData(col, trade, tickerId, L"11.58", StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
+        text = AfxMoney(std::abs(trade->ACB / aggregate));
+        ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
         col++;
 
-        ld->SetData(col, trade, tickerId, L"200", StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
+        text = std::to_wstring(aggregate);
+        ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
+            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
 
         ListBox_AddString(hListBox, ld);
     }
@@ -251,35 +272,35 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
             }
 
 
-            int col = 1;
+            int col = 2;
 
             if (!isHistory) {
                 ld->SetData(col, trade, tickerId, wszDot, StringAlignmentFar, ThemeElement::TradesPanelBack,
-                    WarningDTE, 7, FontStyleRegular);
+                    WarningDTE, font8, FontStyleRegular);
                 col++;
             }
 
             ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);  // empty column
+                ThemeElement::TradesPanelText, font8, FontStyleRegular);  // empty column
             col++;
 
-            ld->SetData(col, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark, ThemeElement::TradesPanelText, 8, FontStyleRegular);  // position quantity
+            ld->SetData(col, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark, ThemeElement::TradesPanelText, font8, FontStyleRegular);  // position quantity
             col++;
 
             ld->SetData(col, trade, tickerId, wszShortDate, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // expiry date
+                ThemeElement::TradesPanelText, font8, FontStyleRegular);   // expiry date
             col++;
 
             ld->SetData(col, trade, tickerId, wszDTE, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-                ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // DTE
+                ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // DTE
             col++;
 
             ld->SetData(col, trade, tickerId, leg->strikePrice, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // strike price
+                ThemeElement::TradesPanelText, font8, FontStyleRegular);   // strike price
             col++;
 
             ld->SetData(col, trade, tickerId, L"  " + leg->PutCall, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
-                ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // PutCall
+                ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // PutCall
 
             ListBox_AddString(hListBox, ld);
         }
@@ -301,17 +322,20 @@ void ListBoxData_TradesHistoryHeader(HWND hListBox, Trade* trade, Transaction* t
 
     TickerId tickerId = -1;
 
+    ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelTextDim, 7, FontStyleRegular);
+
     text = trans->description;
-    ld->SetData(0, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);   // orange
+    ld->SetData(1, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 7, FontStyleRegular);   // orange
 
     text = trans->transDate;
-    ld->SetData(1, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);   
+    ld->SetData(2, trade, tickerId, text, StringAlignmentNear, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, 7, FontStyleRegular);   
 
-    text = L"123.45";  // QString::number(std::abs(trans->total), 'f', 2);
+    text = AfxMoney(std::abs(trans->total));
     ld->SetData(6, trade, tickerId, text, StringAlignmentFar, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);   // green/red
+        ThemeElement::TradesPanelText, 7, FontStyleRegular);   // green/red
 
     ListBox_AddString(hListBox, ld);
 
@@ -325,12 +349,12 @@ void ListBoxData_SharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg*
     TickerId tickerId = -1;
 
     text = trans->underlying;
-    ld->SetData(1, trade, tickerId, text, StringAlignmentNear,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    ld->SetData(3, trade, tickerId, text, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
-    text = L"1000";   //  QString::number(leg->openQuantity);
+    text = std::to_wstring(leg->openQuantity);
     ld->SetData(6, trade, tickerId, text, StringAlignmentFar,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }
@@ -342,9 +366,9 @@ void ListBoxData_OptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg
     std::wstring text;
     TickerId tickerId = -1;
 
-    text = L"-1";   // QString::number(leg->origQuantity);
-    ld->SetData(1, trade, tickerId, text, StringAlignmentFar,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    text = std::to_wstring(leg->origQuantity);
+    ld->SetData(3, trade, tickerId, text, StringAlignmentFar,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     /*
         QDate expiryDate = QDate::fromString(leg->expiryDate, "yyyy-MM-dd");
@@ -360,20 +384,20 @@ void ListBoxData_OptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg
     */
 
     text = L"Mar 31";  // strShortDate;
-    ld->SetData(2, trade, tickerId, text, StringAlignmentCenter,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    ld->SetData(4, trade, tickerId, text, StringAlignmentCenter,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     text = L"7";  // strDays;
-    ld->SetData(3, trade, tickerId, text, StringAlignmentCenter,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    ld->SetData(5, trade, tickerId, text, StringAlignmentCenter,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     text = leg->strikePrice;
-    ld->SetData(4, trade, tickerId, text, StringAlignmentCenter,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    ld->SetData(6, trade, tickerId, text, StringAlignmentCenter,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     text = L" " + leg->PutCall;
-    ld->SetData(5, trade, tickerId, text, StringAlignmentNear,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    ld->SetData(7, trade, tickerId, text, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     /*
     QColor clr;
@@ -381,8 +405,8 @@ void ListBoxData_OptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg
     if (leg->action == "STO" || leg->action == "STC") { clr = red; }
 */
     text = leg->action;
-    ld->SetData(6, trade, tickerId, text, StringAlignmentCenter,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 8, FontStyleRegular);
+    ld->SetData(8, trade, tickerId, text, StringAlignmentCenter,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 7, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }

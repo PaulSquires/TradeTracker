@@ -15,6 +15,7 @@ const int HISTORY_VSCROLLBAR_MINTHUMBSIZE = 20;
 extern CHistoryPanel HistoryPanel;
 
 extern std::vector<Trade*> trades;
+extern int nColWidth[];
 
 
 class VHistoryScrollBar
@@ -192,8 +193,7 @@ void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
                 fontSize = ld->col[i].fontSize;
                 fontStyle = ld->col[i].fontStyle;
 
-                // TODO: Fix access to nColWidth[]
-                int colWidth = 100; // AfxScaleX((float)nColWidth[i]);
+                int colWidth = AfxScaleX((float)nColWidth[i]);
 
                 backBrush.SetColor(nBackColor);
                 graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);

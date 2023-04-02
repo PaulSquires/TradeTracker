@@ -15,6 +15,7 @@ const int VSCROLLBAR_MINTHUMBSIZE = 20;
 extern CTradesPanel TradesPanel;
 
 extern std::vector<Trade*> trades;
+extern int nColWidth[];
 
 extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 
@@ -108,7 +109,7 @@ void TradesPanel_ShowActiveTrades()
 
 
     // Calculate the actual column widths based on the size of the strings in
-    // LineData while respecting the minimum values as defined in nMinColWidth[].
+    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, -1);
@@ -192,8 +193,7 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
                 fontSize = ld->col[i].fontSize;
                 fontStyle = ld->col[i].fontStyle;
 
-                // TODO: Fix access to nColWidth[]
-                int colWidth = 100; // AfxScaleX((float)nColWidth[i]);
+                int colWidth = AfxScaleX((float)nColWidth[i]);
 
                 backBrush.SetColor(nBackColor);
                 graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
