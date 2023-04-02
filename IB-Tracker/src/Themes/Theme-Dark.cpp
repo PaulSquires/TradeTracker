@@ -22,7 +22,8 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::MenuPanelSelector][theme] = Color::MakeARGB(255, 38, 38, 38);
 
 	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 38, 38, 38);
-	clr[(int)ThemeElement::TradesPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
+	clr[(int)ThemeElement::TradesPanelBackHot][theme] = Color::MakeARGB(225, 38, 38, 38);
+	//clr[(int)ThemeElement::TradesPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
 	clr[(int)ThemeElement::TradesPanelText][theme] = Color::MakeARGB(255, 212, 212, 212);
 	clr[(int)ThemeElement::TradesPanelTextDim][theme] = Color::Gray;
 	clr[(int)ThemeElement::TradesPanelColBackLight][theme] = Color::MakeARGB(255, 68, 68, 68);

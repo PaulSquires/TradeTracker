@@ -58,12 +58,9 @@ void MainWindow_OnPaint(HWND hwnd)
     // Create the background brush
     SolidBrush backBrush(nBackColor);
 
-    // Paint the background (only the bottom "statusbar" area) using brush.
-    int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
-    int nTop = ps.rcPaint.bottom - margin;
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, nTop, nWidth, nHeight);
+    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -77,7 +74,8 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
 
-    int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
+    int margin = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
+    int inner_margin = AfxScaleY(6);
 
     // Position the left hand side Navigation Panel
     HWND hWndMenuPanel = MenuPanel.WindowHandle();
@@ -91,13 +89,13 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
     int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
     SetWindowPos(hWndHistoryPanel, 0,
-        cx - nHistoryPanelWidth, 0, nHistoryPanelWidth, cy - margin,
+        cx - nHistoryPanelWidth - inner_margin, 0, nHistoryPanelWidth, cy - margin,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the middle Trades Panel
     HWND hWndTradesPanel = TradesPanel.WindowHandle();
-    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth);
+    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth - (inner_margin * 2));
     SetWindowPos(hWndTradesPanel, 0,
         nMenuPanelWidth, 0, nTradesPanelWidth, cy - margin,
         SWP_NOZORDER | SWP_SHOWWINDOW);

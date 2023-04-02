@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include "..\TradesPanel\TradesPanel.h"
+#include "..\Utilities\ListBoxData.h"
 
 
 class EClientSocket;
@@ -29,7 +29,7 @@ public:
 	void waitForSignal();
 	void processMsgs();
 	void cancelMktData(TickerId tickerId);
-	void requestMktData(LineData* ld);
+	void requestMktData(ListBoxData* ld);
 
 public:
 	// events
@@ -55,7 +55,7 @@ bool tws_connect();
 bool tws_disconnect();
 bool tws_isConnected();
 void tws_cancelMktData(TickerId tickerId);
-void tws_requestMktData(LineData* ld);
+void tws_requestMktData(ListBoxData* ld);
 void tws_PauseTWS();
 void tws_ResumeTWS();
 

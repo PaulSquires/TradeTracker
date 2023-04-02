@@ -1,8 +1,6 @@
 #pragma once
 
 #include "..\Utilities\CWindowBase.h"
-#include "..\Themes\Themes.h"
-#include "..\Database\trade.h"
 
 
 class CTradesPanel : public CWindowBase<CTradesPanel>
@@ -13,35 +11,11 @@ public:
 };
 
 
-typedef long TickerId;
+const int IDC_TRADES_LISTBOX = 100;
+const int IDC_TRADES_LABEL = 101;
+const int IDC_TRADES_VSCROLLBAR = 102;
 
-const int IDC_LISTBOX = 102;
-const int IDC_LABEL = 103;
-const int IDC_VSCROLLBAR = 104;
-
-const int LISTBOX_ROWHEIGHT = 24;
-
-
-// Construct the Trades ListBox data structure that will be directly accessed
-// for each row during the WM_DRAWITEM notification. 
-
-class ColumnData {
-public:
-    std::wstring        wszText;
-    StringAlignment     alignment = StringAlignmentNear;  // StringAlignmentNear, StringAlignmentCenter, StringAlignmentFar
-    ThemeElement        backTheme = ThemeElement::TradesPanelBack;
-    ThemeElement        textTheme = ThemeElement::TradesPanelText;;
-    REAL                fontSize = 8;                    // 8, 10
-    int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
-};
-
-class LineData {
-public:
-    bool            isTickerLine = false;
-    Trade*          trade = nullptr;
-    ColumnData      col[8];
-    TickerId        tickerId = -1;
-};
+const int TRADES_LISTBOX_ROWHEIGHT = 24;
 
 
 // These columns in the table are updated in real time when connected

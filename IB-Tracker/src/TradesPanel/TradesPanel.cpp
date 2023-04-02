@@ -1,10 +1,11 @@
 
 #include "pch.h"
-#include "..\Utilities\SuperLabel.h"
+#include "..\MainWindow\tws-client.h"
 #include "..\Database\trade.h"
+#include "..\Utilities\SuperLabel.h"
+#include "..\Utilities\ListBoxData.h"
 #include "..\Themes\Themes.h"
 #include "TradesPanel.h"
-#include "..\MainWindow\tws-client.h"
 
 HWND HWND_TRADESPANEL = NULL;
 
@@ -15,20 +16,8 @@ extern CTradesPanel TradesPanel;
 
 extern std::vector<Trade*> trades;
 
+extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 
-int nMinColWidth[8] =
-{
-    25,     /* dropdown arrow*/
-    45,     /* ticker symbol */
-    50,     /* ITM */
-    50,     /* position quantity */
-    50,     /* expiry date */
-    40,     /* DTE */
-    45,     /* strike price */
-    40      /* put/call */
-};
-
-int nColWidth[8] = { 0,0,0,0,0,0,0 };
 
 
 class VScrollBar
@@ -47,255 +36,6 @@ public:
 
 VScrollBar vsb;
 
-
-
-
-// ========================================================================================
-// Destroy all manually allocated ListBox display data that is held in LineData structures.
-// ========================================================================================
-void TradesPanel_DestroyListBoxDisplayData()
-{
-    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX);
-
-    // Cancel any previous market data requests and delete any previously
-    // allocated lineData structures.
-    int lbCount = ListBox_GetCount(hListBox);
-    for (int i = 0; i < lbCount; i++) {
-        LineData* ld = (LineData*)ListBox_GetItemData(hListBox, i);
-        if (ld != nullptr) {
-            if (ld->isTickerLine) tws_cancelMktData(ld->tickerId);
-            delete(ld);
-        }
-    }
-
-    // Clear the current trades listbox
-    ListBox_ResetContent(hListBox);
-}
-
-
-// ========================================================================================
-// Helper function to more easily set the data for an individual ListBox display column.
-// ========================================================================================
-void TradesPanel_SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
-    ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
-{
-    ld->col[index].wszText = wszText;
-    ld->col[index].alignment = alignment;
-    ld->col[index].backTheme = backTheme;
-    ld->col[index].textTheme = textTheme;
-    ld->col[index].fontSize = fontSize;
-    ld->col[index].fontStyle = fontStyle;
-}
-
-
-
-// ========================================================================================
-// Create and populate the display data for the Trades ListBox
-// ========================================================================================
-void TradesPanel_CreateListBoxData(int tickerId, Trade* trade)
-{
-    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX);
-
-    // *** TRADE HEADER LINE ***
-    LineData* ld = new LineData;
-    ld->trade = trade;
-    ld->isTickerLine = true;
-
-    TradesPanel_SetColumnData(ld, 0, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);
-    TradesPanel_SetColumnData(ld, 1, trade->tickerSymbol, StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);
-    // Col 1 to 6 are set based on incoming TWS price data 
-    TradesPanel_SetColumnData(ld, COLUMN_TICKER_ITM, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);   // ITM
-    TradesPanel_SetColumnData(ld, 3, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);
-    TradesPanel_SetColumnData(ld, 4, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 8, FontStyleRegular);
-    TradesPanel_SetColumnData(ld, COLUMN_TICKER_CHANGE, L"", StringAlignmentFar, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price change
-    TradesPanel_SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, L"0.00", StringAlignmentCenter, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);   // current price
-    TradesPanel_SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // price percentage change
-    
-    ld->tickerId = tickerId;
-    ListBox_AddString(hListBox, ld);
-    tws_requestMktData(ld);
-
-
-
-    std::wstring wszDot = L"\u23FA";   // dot character
-    ThemeElement WarningDTE = ThemeElement::TradesPanelNormalDTE;
-
-
-    // *** SHARES ***
-    // Roll up all of the SHARES or FUTURES transactions and display the aggregate rather than the individual legs.
-    std::wstring textShares;
-    int aggregate = 0;
-    for (const auto& leg : trade->openLegs) {
-        if (leg->underlying == L"SHARES") {
-            textShares = L"SHARES";
-            aggregate = aggregate + leg->openQuantity;
-        }
-        else if (leg->underlying == L"FUTURES") {
-            textShares = L"FUTURES";
-            aggregate = aggregate + leg->openQuantity;
-        }
-    }
-
-    if (aggregate) {
-        ld = new LineData;
-        ld->trade = trade;
-
-        TradesPanel_SetColumnData(ld, 0, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);
-
-        TradesPanel_SetColumnData(ld, 1, wszDot, StringAlignmentFar, ThemeElement::TradesPanelBack,
-            WarningDTE, 7, FontStyleRegular);   // dot (magenta/yellow)
-
-        TradesPanel_SetColumnData(ld, 2, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);  // empty column
-
-        TradesPanel_SetColumnData(ld, 3, textShares, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);  // SHARES/FUTURES
-
-        TradesPanel_SetColumnData(ld, 4, L"", StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);   // empty
-
-        TradesPanel_SetColumnData(ld, 5, L"", StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // empty
-
-        TradesPanel_SetColumnData(ld, 6, L"11.58", StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // strike price
-
-        TradesPanel_SetColumnData(ld, 7, L"200", StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-            ThemeElement::TradesPanelText, 8, FontStyleRegular);   // PutCall
-
-        ListBox_AddString(hListBox, ld);
-    }
-
-
-    // *** OPTION LEGS ***
-    for (const auto& leg : trade->openLegs) {
-        if (leg->underlying == L"OPTIONS") {
-            ld = new LineData;
-            ld->trade = trade;
-
-            std::wstring currentDate = AfxCurrentDate();
-            std::wstring expiryDate = leg->expiryDate;
-            std::wstring wszShortDate = AfxShortDate(expiryDate);
-            std::wstring wszDTE;
-
-
-            // If the ExpiryDate is 2 days or less then display in Yellow, otherwise Magenta.
-            int DTE = AfxDaysBetween(currentDate, expiryDate);
-            wszDTE = std::to_wstring(DTE) + L"d";
-
-            if (DTE < 3) {
-                WarningDTE = ThemeElement::TradesPanelWarningDTE;
-            }
-
-            // If the expiry year is greater than current year + 1 then add
-            // the year to the display string. Useful for LEAP options.
-            if (AfxGetYear(expiryDate) > AfxGetYear(currentDate) + 1) {
-                wszShortDate.append(L"/"); 
-                wszShortDate.append(std::to_wstring(AfxGetYear(expiryDate)));
-            }
-                        
-            TradesPanel_SetColumnData(ld, 0, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);
-
-            TradesPanel_SetColumnData(ld, 1, wszDot, StringAlignmentFar, ThemeElement::TradesPanelBack,
-                WarningDTE, 7, FontStyleRegular);   // dot (magenta/yellow)
-
-            TradesPanel_SetColumnData(ld, 2, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);  // empty column
-
-            TradesPanel_SetColumnData(ld, 3, std::to_wstring(leg->openQuantity), StringAlignmentFar, ThemeElement::TradesPanelColBackDark,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);  // position quantity
-
-            TradesPanel_SetColumnData(ld, 4, wszShortDate, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // expiry date
-
-            TradesPanel_SetColumnData(ld, 5, wszDTE, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-                ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // DTE
-
-            TradesPanel_SetColumnData(ld, 6, leg->strikePrice, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
-                ThemeElement::TradesPanelText, 8, FontStyleRegular);   // strike price
-
-            TradesPanel_SetColumnData(ld, 7, L"  " + leg->PutCall, StringAlignmentNear, ThemeElement::TradesPanelColBackDark,
-                ThemeElement::TradesPanelTextDim, 8, FontStyleRegular);   // PutCall
-
-            ListBox_AddString(hListBox, ld);
-        }
-    }
-
-
-    // *** BLANK SEPARATION LINE ***
-    ld = new LineData;
-    ListBox_AddString(hListBox, ld);
-}
-
-
-
-// ========================================================================================
-// Calculate the actual column widths based on the size of the strings in
-// LineData while respecting the minimum values as defined in nMinColWidth[].
-// This function is also called when receiving new price data from TWS because
-// that data may need the column width to be wider.
-// ========================================================================================
-void TradesPanel_CalculateColumnWidths(int nIndex)
-{
-    HDC hdc = GetDC(vsb.hListBox);
-
-    Graphics graphics(hdc);
-    graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
-
-    std::wstring wszFontName = AfxGetDefaultFont();
-    FontFamily fontFamily(wszFontName.c_str());
-    REAL fontSize = 10;
-    int fontStyle = FontStyleRegular;
-    RectF boundRect;
-    RectF layoutRect(0.0f, 0.0f, 100.0f, 50.0f);
-    StringFormat format;
-    format.SetAlignment(StringAlignmentFar);
-
-    bool bRedrawListBox = false;
-
-    int nEnd = ListBox_GetCount(vsb.hListBox) - 1;
-    int nStart = 0;
-    // If a specific line number was passed into this function then we only
-    // test for that line rather than all lines (like when the arrays are first loaded.
-    // A value of -1 will iterate all strings the columns.
-    if (nIndex != -1) {
-        nStart = nIndex; nEnd = nIndex;
-    }
-
-    for (int nIndex = nStart; nIndex = nEnd; nIndex++) {
-        LineData* ld = (LineData*)ListBox_GetItemData(vsb.hListBox, nIndex);
-        for (int i = 0; i < 8; i++) {
-            fontSize = ld->col[i].fontSize;
-            fontStyle = ld->col[i].fontStyle;
-            Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(), 
-                &font, layoutRect, &format, &boundRect);
-
-            nColWidth[i] = max(nColWidth[i], nMinColWidth[i]);
-            int textLength = AfxUnScaleX(boundRect.Width) + 10;  // add a bit for padding
-            if (textLength > nColWidth[i]) {  
-                nColWidth[i] = textLength;
-                bRedrawListBox = true;
-            }
-        }
-        if (nIndex != -1) break;
-    }
-    ReleaseDC(vsb.hListBox, hdc);
-
-    if (bRedrawListBox) {
-        AfxRedrawWindow(vsb.hListBox);
-    }
-}
 
 
 // ========================================================================================
@@ -337,6 +77,8 @@ bool TradesPanel_calcVThumbRect()
 // ========================================================================================
 void TradesPanel_ShowActiveTrades()
 {
+    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
+
     tws_PauseTWS();
 
     // TODO: optimize this by sorting after initial database load and after
@@ -351,7 +93,7 @@ void TradesPanel_ShowActiveTrades()
 
     // Destroy any existing ListBox line data
     // This will also clear the LineData pointers and cancel any previous market data
-    TradesPanel_DestroyListBoxDisplayData();
+    ListBoxData_DestroyItemData(hListBox);
 
 
     // Create the new ListBox line data and initiate the new market data.
@@ -359,7 +101,7 @@ void TradesPanel_ShowActiveTrades()
     for (const auto& trade : trades) {
         // We are displaying only all open trades
         if (trade->isOpen) {
-            TradesPanel_CreateListBoxData(tickerId, trade);
+            ListBoxData_OpenPosition(hListBox, trade, tickerId);
         }
         tickerId++;
     }
@@ -369,7 +111,7 @@ void TradesPanel_ShowActiveTrades()
     // LineData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    TradesPanel_CalculateColumnWidths(-1);
+    ListBoxData_ResizeColumnWidths(hListBox, -1);
 
 
     // Generate a WM_SIZE message to display and position the ListBox and vertical ScrollBar.
@@ -435,7 +177,7 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         // Get the current ListBox line data should a valid line exist
         // Paint the individual columns with the specific data.
         if (linenum != -1) {
-            LineData* ld = (LineData*)(lpDrawItem->itemData);
+            ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
             int nLeft = 0;
 
             // Draw each of the columns
@@ -611,7 +353,6 @@ LRESULT CALLBACK TradesPanel_VScrollBar_SubclassProc(
         break;
         }
 
-                                               
 
     case WM_DESTROY:
     {
@@ -762,7 +503,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
     case WM_DESTROY:
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
-        TradesPanel_DestroyListBoxDisplayData();
+        ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, TradesPanel_ListBox_SubclassProc, uIdSubclass);
@@ -783,7 +524,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 // ========================================================================================
 void TradesPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(LISTBOX_ROWHEIGHT);
+    lpMeasureItem->itemHeight = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
 }
 
 
@@ -836,10 +577,10 @@ void TradesPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    int margin = AfxScaleY(LISTBOX_ROWHEIGHT);
+    int margin = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
 
     // Move and size the top label into place
-    SetWindowPos(GetDlgItem(hwnd, IDC_LABEL), 0,
+    SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_LABEL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
@@ -858,12 +599,12 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nTop = margin;
     int nWidth = cx - VScrollBarWidth;
     int nHeight = cy - margin;
-    SetWindowPos(GetDlgItem(hwnd, IDC_LISTBOX), 0,
+    SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_LISTBOX), 0,
         nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;
-    SetWindowPos(GetDlgItem(hwnd, IDC_VSCROLLBAR), 0,
+    SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_VSCROLLBAR), 0,
         nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 }
@@ -880,7 +621,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     HWND hCtl = CreateSuperLabel(
         hwnd,
-        IDC_LABEL,
+        IDC_TRADES_LABEL,
         SuperLabelType::TextOnly,
         0, 0, 0, 0);
     pData = SuperLabel_GetOptions(hCtl);
@@ -888,7 +629,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->HotTestEnable = false;
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->TextColor = ThemeElement::MenuPanelText;
-        pData->FontSize = 9;
+        pData->FontSize = 8;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"Active Trades";
         pData->wszTextHot = pData->wszText;
@@ -898,23 +639,23 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     vsb.hListBox = 
-        TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_LISTBOX, L"",
+        TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
             LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_ListBox_SubclassProc,
-            IDC_LISTBOX, NULL);
+            IDC_TRADES_LISTBOX, NULL);
 
 
     vsb.hwnd =
-        TradesPanel.AddControl(Controls::Custom, hwnd, IDC_VSCROLLBAR, L"",
+        TradesPanel.AddControl(Controls::Custom, hwnd, IDC_TRADES_VSCROLLBAR, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_VScrollBar_SubclassProc,
-            IDC_VSCROLLBAR, NULL);
+            IDC_TRADES_VSCROLLBAR, NULL);
 
 
     // Set focus to ListBox
@@ -929,7 +670,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    if (id == IDC_LISTBOX && codeNotify == LBN_SELCHANGE) {
+    if (id == IDC_TRADES_LISTBOX && codeNotify == LBN_SELCHANGE) {
         // update the highlighting of the current line
         // TODO: Handle the repaint in the subclass (WM_LBUTTONDOWN) rather than this notification because
         // of the delay in repainting the switched lines.
@@ -937,6 +678,14 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         //  update the scrollbar position if necessary
         TradesPanel_calcVThumbRect();
         AfxRedrawWindow(vsb.hwnd);
+        // Get the current line to determine if a valid Trade pointer exists so that we
+        // can show the trade history.
+        int nIndex = ListBox_GetCurSel(hwndCtl);
+        if (nIndex > -1) {
+            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nIndex);
+            if (ld != nullptr)
+                HistoryPanel_ShowTradesHistoryTable(ld->trade);
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 
 #include "pch.h"
 #include "..\Utilities\UserMessages.h"
+#include "..\Utilities\ListBoxData.h"
+#include "..\Utilities\AfxWin.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "tws-client.h"
 
@@ -9,10 +11,6 @@
 #include "tws-api\CommonDefs.h"
 #include "tws-api\Utils.h"
 
-
-extern void TradesPanel_CalculateColumnWidths(int nIndex);
-extern void TradesPanel_SetColumnData(LineData* ld, int index, std::wstring wszText, StringAlignment alignment,
-	ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle);
 
 
 // The NavPanel window is exposed external because other
@@ -138,7 +136,7 @@ void tws_cancelMktData(TickerId tickerId)
 }
 
 
-void tws_requestMktData(LineData* ld)
+void tws_requestMktData(ListBoxData* ld)
 {
 	if (!tws_isConnected()) return;
 	if (ld->trade == nullptr) return;
@@ -236,7 +234,7 @@ void TwsClient::cancelMktData(TickerId tickerId)
 }
 
 
-void TwsClient::requestMktData(LineData* ld)
+void TwsClient::requestMktData(ListBoxData* ld)
 {
 	// Convert the unicode symbol to regular string type
 	std::string symbol = unicode2ansi(ld->trade->tickerSymbol);
@@ -301,12 +299,12 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// and the correct ListBox line is invalidated/redrawn in order to force
 		// display of the new price data. 
 
-		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX);
+		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
 		int lbCount = ListBox_GetCount(hListBox);
 		
 		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
 
-			LineData* ld = (LineData*)ListBox_GetItemData(hListBox, nIndex);
+			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
 			if (ld == nullptr) continue;
 
 			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->isTickerLine == TRUE)) {
@@ -367,33 +365,30 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					wszText = L"ITM";
 					themeEl = ThemeElement::valuePositive;
 				}
-				TradesPanel_SetColumnData(ld, COLUMN_TICKER_ITM, wszText, StringAlignment::StringAlignmentNear, ThemeElement::TradesPanelBack, themeEl, 8, FontStyleRegular);   // ITM
 
+				ld->SetTextData(COLUMN_TICKER_ITM, wszText, themeEl);  // ITM
 
 				wszText = AfxMoney(delta);
 				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
-				TradesPanel_SetColumnData(ld, COLUMN_TICKER_CHANGE, wszText, StringAlignment::StringAlignmentFar, ThemeElement::TradesPanelBack, themeEl, 8, FontStyleRegular);   // price change
-
+				ld->SetTextData(COLUMN_TICKER_CHANGE, wszText, themeEl);  // price change
 
 				wszText = AfxMoney(ld->trade->tickerLastPrice);
-				TradesPanel_SetColumnData(ld, COLUMN_TICKER_CURRENTPRICE, wszText, StringAlignment::StringAlignmentCenter,
-					ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, 9, FontStyleRegular | FontStyleBold);   // current price
-
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, ThemeElement::TradesPanelText);  // current price
 
 				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100) + L"%";
 				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
-				TradesPanel_SetColumnData(ld, COLUMN_TICKER_PERCENTAGE, wszText, StringAlignment::StringAlignmentNear, ThemeElement::TradesPanelBack, themeEl, 8, FontStyleRegular);   // price percentage change
+				ld->SetTextData(COLUMN_TICKER_PERCENTAGE, wszText, themeEl);  // price percentage change
 
 
 				// Do calculation to ensure column widths are wide enough to accommodate the new
 				// price data that has just arrived.
-				TradesPanel_CalculateColumnWidths(nIndex);
+				ListBoxData_ResizeColumnWidths(hListBox, nIndex);
 
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};
-				ListBox_GetItemRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), nIndex, &rc);
-				InvalidateRect(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX), &rc, TRUE);
-				UpdateWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
+				ListBox_GetItemRect(hListBox, nIndex, &rc);
+				InvalidateRect(hListBox, &rc, TRUE);
+				UpdateWindow(hListBox);
 				
 				break;
 

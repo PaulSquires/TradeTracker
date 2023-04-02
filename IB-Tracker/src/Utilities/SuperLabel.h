@@ -370,6 +370,7 @@ public:
 
 SuperLabel* SuperLabel_GetOptions(HWND hCtrl);
 int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData);
+void SuperLabel_SetText(HWND hCtrl, std::wstring wszText);
 
 HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType, 
 	int nLeft, int nTop, int nWidth, int nHeight);

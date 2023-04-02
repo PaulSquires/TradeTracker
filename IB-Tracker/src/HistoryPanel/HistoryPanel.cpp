@@ -1,20 +1,26 @@
 
 #include "pch.h"
 #include "..\Utilities\SuperLabel.h"
-//#include "..\MainWindow\MainWindow.h"
-//#include "..\MainWindow\tws-client.h"
+#include "..\Utilities\ListBoxData.h"
+#include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
 #include "HistoryPanel.h"
 
-const int LISTBOX_ROWHEIGHT = 24;
-const int VSCROLLBAR_WIDTH = 14;
-const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
-/*
-class VScrollBar2
+HWND HWND_HISTORYPANEL = NULL;
+
+const int HISTORY_VSCROLLBAR_WIDTH = 14;
+const int HISTORY_VSCROLLBAR_MINTHUMBSIZE = 20;
+
+extern CHistoryPanel HistoryPanel;
+
+extern std::vector<Trade*> trades;
+
+
+class VHistoryScrollBar
 {
 public:
-    HWND hWnd = NULL;
+    HWND hwnd = NULL;
     HWND hListBox = NULL;
     bool bDragActive = false;
     int listBoxHeight = 0;
@@ -25,8 +31,7 @@ public:
     RECT rc{};
 };
 
-VScrollBar2 vsb;
-
+VHistoryScrollBar vsb;
 
 
 
@@ -34,7 +39,7 @@ VScrollBar2 vsb;
 // Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
 // Will return TRUE if RECT is not empty. 
 // ========================================================================================
-bool CHistoryPanel::calcVThumbRect()
+bool HistoryPanel_calcVThumbRect()
 {
     // calculate the vertical scrollbar in client coordinates
     SetRectEmpty(&vsb.rc);
@@ -64,10 +69,167 @@ bool CHistoryPanel::calcVThumbRect()
 }
 
 
+
+
+// ========================================================================================
+// Populate the History ListBox with the current active/open trades
+// ========================================================================================
+void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
+{
+    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
+
+    // Clear the current trade history table
+    ListBoxData_DestroyItemData(hListBox);
+
+
+    SuperLabel_SetText(
+        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
+        trade->tickerSymbol + L": " + trade->tickerName);
+
+
+    // Show the final rolled up Open position for this trade
+    ListBoxData_OpenPosition(hListBox, trade, -1);
+        
+
+    // Read the transactions in reverse so that the newest history transactions get displayed first
+    for (int i = trade->transactions.size() - 1; i >= 0; --i) {
+        Transaction* trans = trade->transactions.at(i);
+
+        ListBoxData_TradesHistoryHeader(hListBox, trade, trans);
+
+        // Show the detail leg information for this transaction.
+        for (const auto& leg : trans->legs) {
+            if (leg->underlying == L"OPTIONS") { ListBoxData_OptionsLeg(hListBox, trade, trans, leg); }
+            else if (leg->underlying == L"SHARES") { ListBoxData_SharesLeg(hListBox, trade, trans, leg); }
+            else if (leg->underlying == L"FUTURES") {
+                ListBoxData_SharesLeg(hListBox, trade, trans, leg);
+            }
+        }
+    }
+
+
+    // Calculate the actual column widths based on the size of the strings in
+    // LineData while respecting the minimum values as defined in nMinColWidth[].
+    // This function is also called when receiving new price data from TWS because
+    // that data may need the column width to be wider.
+    ListBoxData_ResizeColumnWidths(hListBox, -1);
+
+
+    // Generate a WM_SIZE message to display and position the ListBox and vertical ScrollBar.
+    RECT rc; GetWindowRect(HWND_HISTORYPANEL, &rc);
+    SendMessage(HWND_HISTORYPANEL, WM_SIZE, SW_NORMAL, MAKELPARAM(rc.right - rc.left, rc.bottom - rc.top));
+
+}
+
+
+// ========================================================================================
+// Process WM_DRAWITEM message for window/dialog: HistoryPanel
+// ========================================================================================
+void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
+{
+    if (lpDrawItem == nullptr) return;
+
+    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
+        lpDrawItem->itemAction == ODA_SELECT ||
+        lpDrawItem->itemAction == ODA_FOCUS) {
+
+        int linenum = lpDrawItem->itemID;
+        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
+        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
+
+        bool bIsHot = false;
+
+        SaveDC(lpDrawItem->hDC);
+
+        HDC memDC = NULL;         // Double buffering
+        HBITMAP hbit = NULL;      // Double buffering
+
+        memDC = CreateCompatibleDC(lpDrawItem->hDC);
+        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
+        if (hbit) SelectObject(memDC, hbit);
+
+        if (ListBox_GetSel(lpDrawItem->hwndItem, lpDrawItem->itemID)) bIsHot = true;
+
+
+        Graphics graphics(memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+
+        // Set some defaults in case there is no valid ListBox line number
+        std::wstring wszText;
+
+        DWORD nBackColor = (bIsHot)
+            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+            : GetThemeColor(ThemeElement::TradesPanelBack);
+        DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
+
+        std::wstring wszFontName = AfxGetDefaultFont();
+        FontFamily   fontFamily(wszFontName.c_str());
+        REAL fontSize = 10;
+        int fontStyle = FontStyleRegular;
+
+        StringAlignment alignment = StringAlignmentNear;
+
+        // Paint the full width background using brush 
+        SolidBrush backBrush(nBackColor);
+        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+
+        // Get the current ListBox line data should a valid line exist
+        // Paint the individual columns with the specific data.
+        if (linenum != -1) {
+            ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
+            int nLeft = 0;
+
+            // Draw each of the columns
+            for (int i = 0; i < 8; i++) {
+                wszText = ld->col[i].wszText;
+
+                alignment = ld->col[i].alignment;
+                nBackColor = (bIsHot)
+                    ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+                    : GetThemeColor(ld->col[i].backTheme);
+                nTextColor = GetThemeColor(ld->col[i].textTheme);
+                fontSize = ld->col[i].fontSize;
+                fontStyle = ld->col[i].fontStyle;
+
+                // TODO: Fix access to nColWidth[]
+                int colWidth = 100; // AfxScaleX((float)nColWidth[i]);
+
+                backBrush.SetColor(nBackColor);
+                graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
+
+                Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+                SolidBrush   textBrush(nTextColor);
+                StringFormat stringF(StringFormatFlagsNoWrap);
+                stringF.SetAlignment(alignment);
+                stringF.SetLineAlignment(StringAlignmentCenter);
+
+                RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
+                graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+
+                nLeft += colWidth;
+            }  // for
+
+        }  // if
+
+        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
+            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
+
+
+        // Cleanup
+        RestoreDC(lpDrawItem->hDC, -1);
+        if (hbit) DeleteObject(hbit);
+        if (memDC) DeleteDC(memDC);
+
+    }
+
+}
+
+
 // ========================================================================================
 // Vertical scrollBar subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
+LRESULT CALLBACK HistoryPanel_VScrollBar_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -81,7 +243,7 @@ LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
         POINT pt;
         pt.x = GET_X_LPARAM(lParam);
         pt.y = GET_Y_LPARAM(lParam);
-        calcVThumbRect();
+        HistoryPanel_calcVThumbRect();
         if (PtInRect(&vsb.rc, pt)) {
             prev_pt = pt;
             vsb.bDragActive = true;
@@ -93,16 +255,16 @@ LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
             if (pt.y < vsb.rc.top) {
                 nTopIndex = max(nTopIndex - vsb.itemsPerPage, 0);
                 SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopIndex, 0);
-                calcVThumbRect();
-                AfxRedrawWindow(vsb.hWnd);
+                HistoryPanel_calcVThumbRect();
+                AfxRedrawWindow(vsb.hwnd);
             }
             else {
                 if (pt.y > vsb.rc.bottom) {
                     int nMaxTopIndex = vsb.numItems - vsb.itemsPerPage;
                     nTopIndex = min(nTopIndex + vsb.itemsPerPage, nMaxTopIndex);
                     SendMessage(vsb.hListBox, LB_SETTOPINDEX, nTopIndex, 0);
-                    calcVThumbRect();
-                    AfxRedrawWindow(vsb.hWnd);
+                    HistoryPanel_calcVThumbRect();
+                    AfxRedrawWindow(vsb.hwnd);
                 }
             }
 
@@ -131,8 +293,6 @@ LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
                 int nTopLine = (int)std::round(vsb.rc.top / (float)rc.bottom * vsb.numItems);
                 if (nTopLine != nPrevTopLine)
                     SendMessage(vsb.hListBox, LB_SETTOPINDEX, (WPARAM)nTopLine, 0);
-
-                //std::cout << nPrevTopLine << "  " << nTopLine << std::endl;
 
                 AfxRedrawWindow(hWnd);
             }
@@ -177,7 +337,7 @@ LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
         graphics.FillRectangle(&backBrush, vsb.rc.left, vsb.rc.top, nWidth, vsb.thumbHeight);
 
         Pen pen(GetThemeColor(ThemeElement::TradesPanelScrollBarLine), 1);
-        graphics.DrawLine(&pen, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.left, ps.rcPaint.bottom);
+        graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
 
         // Copy the entire memory bitmap to the main display
         BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -195,10 +355,11 @@ LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
     }
 
 
+
     case WM_DESTROY:
     {
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, (SUBCLASSPROC)VScrollBar_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, HistoryPanel_VScrollBar_SubclassProc, uIdSubclass);
         break;
     }
 
@@ -214,7 +375,7 @@ LRESULT CALLBACK CHistoryPanel::VScrollBar_SubclassProc(
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK CHistoryPanel::ListBox_SubclassProc(
+LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -245,41 +406,10 @@ LRESULT CALLBACK CHistoryPanel::ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        calcVThumbRect();
-        AfxRedrawWindow(vsb.hWnd);
+        HistoryPanel_calcVThumbRect();
+        AfxRedrawWindow(vsb.hwnd);
         break;
     }
-
-    case WM_MOUSEMOVE:
-        break;
-
-    case WM_MOUSEHOVER:
-        break;
-
-    case WM_MOUSELEAVE:
-        break;
-
-
-    case WM_RBUTTONDOWN:
-    {
-        // Create the popup menu
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-        // if the specified point is in the client area of the list box, or one if it is outside the 
-        // client area.
-        if (HIWORD(idx) != 1) {
-            //ListBox_SetSel(hWnd, TRUE, idx);
-            //dim as HMENU hPopupMenu = CreateExplorerContextMenu(pDoc)
-            //dim as POINT pt : GetCursorPos(@pt)
-            //dim as long id = TrackPopupMenu(hPopUpMenu, TPM_RETURNCMD, pt.x, pt.y, 0, HWND_FRMMAIN, byval null)
-            //AfxRedrawWindow(hWnd);
-        }
-        break;
-    }
-
-
-    case WM_LBUTTONUP:
-        break;
 
 
     case WM_ERASEBKGND:
@@ -326,11 +456,11 @@ LRESULT CALLBACK CHistoryPanel::ListBox_SubclassProc(
 
     case WM_DESTROY:
         // Destroy all manually allocated ListBox display data that is held
-        // in the vector.
-        //DestroyListBoxDisplayData();
+        // in the LineData structures..
+        ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, HistoryPanel_ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -340,7 +470,16 @@ LRESULT CALLBACK CHistoryPanel::ListBox_SubclassProc(
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 
 }
-*/
+
+
+
+// ========================================================================================
+// Process WM_MEASUREITEM message for window/dialog: HistoryPanel
+// ========================================================================================
+void HistoryPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+{
+    lpMeasureItem->itemHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
+}
 
 
 // ========================================================================================
@@ -373,7 +512,7 @@ void HistoryPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::HistoryPanelBack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -392,7 +531,36 @@ void HistoryPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    // TODO: Add your message processing code here...
+    int margin = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
+
+    // Move and size the top label into place
+    SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_SYMBOL), 0,
+        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
+    // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
+    // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
+    bool bShowScrollBar = false;
+    if (vsb.bDragActive) {
+        bShowScrollBar = true;
+    }
+    else {
+        bShowScrollBar = HistoryPanel_calcVThumbRect();
+    }
+    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(HISTORY_VSCROLLBAR_WIDTH) : 0;
+
+    int nLeft = 0;
+    int nTop = margin;
+    int nWidth = cx - VScrollBarWidth;
+    int nHeight = cy - margin;
+    SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft = nLeft + nWidth;   // right edge of ListBox
+    nWidth = VScrollBarWidth;
+    SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_VSCROLLBAR), 0,
+        nLeft, nTop, nWidth, nHeight,
+        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 }
 
 
@@ -401,53 +569,66 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
+    HWND_HISTORYPANEL = hwnd;
+
     SuperLabel* pData = nullptr;
 
     HWND hCtl = CreateSuperLabel(
-        hwnd, -1,
+        hwnd,
+        IDC_HISTORY_SYMBOL,
         SuperLabelType::TextOnly,
-        0, 0, HISTORYPANEL_WIDTH, LISTBOX_ROWHEIGHT);
+        0, 0, 0, 0);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->TextColor = ThemeElement::MenuPanelText;
-        pData->FontSize = 9;
+        pData->FontSize = 8;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"Trade History";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
 
-/*
+
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     vsb.hListBox =
-        m_pWindow->AddControl(Controls::ListBox, HWND_HISTORYPANEL, IDC_LISTBOX, L"",
+        HistoryPanel.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
-            LBS_NODATA | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)ListBox_SubclassProc,
-            IDC_LISTBOX, (DWORD_PTR)m_pWindow);
+            (SUBCLASSPROC)HistoryPanel_ListBox_SubclassProc,
+            IDC_HISTORY_LISTBOX, NULL);
 
 
-    vsb.hWnd =
-        m_pWindow->AddControl(Controls::Custom, HWND_HISTORYPANEL, IDC_VSCROLLBAR, L"",
+    vsb.hwnd =
+        HistoryPanel.AddControl(Controls::Custom, hwnd, IDC_HISTORY_VSCROLLBAR, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)VScrollBar_SubclassProc,
-            IDC_VSCROLLBAR, (DWORD_PTR)m_pWindow);
-*/
+            (SUBCLASSPROC)HistoryPanel_VScrollBar_SubclassProc,
+            IDC_HISTORY_VSCROLLBAR, NULL);
+
     return TRUE;
+}
+
+
+// ========================================================================================
+// Process WM_COMMAND message for window/dialog: HistoryPanel
+// ========================================================================================
+void HistoryPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+    if (id == IDC_HISTORY_LISTBOX && codeNotify == LBN_SELCHANGE) {
+    }
 }
 
 
 
 // ========================================================================================
-// HistoryPanel  Window Procedure
+// Windows callback function.
 // ========================================================================================
 LRESULT CHistoryPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -455,14 +636,14 @@ LRESULT CHistoryPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, HistoryPanel_OnCreate);
         HANDLE_MSG(m_hwnd, WM_DESTROY, HistoryPanel_OnDestroy);
-        HANDLE_MSG(m_hwnd, WM_SIZE, HistoryPanel_OnSize);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, HistoryPanel_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, HistoryPanel_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, HistoryPanel_OnSize);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, HistoryPanel_OnDrawItem);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, HistoryPanel_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, HistoryPanel_OnCommand);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
 }
-
-
-
 

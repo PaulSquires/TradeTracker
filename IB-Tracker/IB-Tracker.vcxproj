@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="resource.h" />
@@ -144,6 +145,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Utilities\ListBoxData.cpp" />
     <ClCompile Include="src\Utilities\SuperLabel.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
