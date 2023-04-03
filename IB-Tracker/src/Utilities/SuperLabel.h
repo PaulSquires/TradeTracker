@@ -272,12 +272,12 @@ public:
 				SetTextCharacterExtra(m_memDC, TextCharacterExtra);
 
 			REAL nLeft = (MarginLeft + ImageWidth + ImageOffsetLeft + TextOffsetLeft) * m_rx;
-			REAL nTop = (MarginTop + ImageHeight + ImageOffsetLeft + TextOffsetTop) * m_ry;
+			REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
 			REAL nRight = m_rcClient.right - (MarginRight * m_rx);
 			REAL nBottom = m_rcClient.bottom - (MarginBottom * m_ry);
 
 			RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
-
+			
 			Graphics graphics(m_memDC);
 			graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 			graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);

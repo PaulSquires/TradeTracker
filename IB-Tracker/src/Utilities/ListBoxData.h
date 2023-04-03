@@ -54,7 +54,7 @@ public:
 void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId);
-void ListBoxData_TradesHistoryHeader(HWND hListBox, Trade* trade, Transaction* trans);
-void ListBoxData_OptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
-void ListBoxData_SharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
+void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans);
+void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
+void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
 

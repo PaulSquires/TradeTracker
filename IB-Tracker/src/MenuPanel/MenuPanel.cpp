@@ -460,7 +460,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateSuperLabel(
         hwnd,
         IDC_MENUPANEL_GEARICON,
-        SuperLabelType::ImageAndText,  // ImageOnly,
+        SuperLabelType::ImageAndText,  
         0, 0, MENUPANEL_WIDTH, 20);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
@@ -471,10 +471,11 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->TextColorHot = ThemeElement::MenuPanelTextDim;
         pData->FontSize = 9;
         pData->FontSizeHot = pData->FontSize;
-        pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
+        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"TWS not connected";
         pData->wszTextHot = pData->wszText;
         pData->wszToolTip = L" Connect to TWS ";
+        pData->TextOffsetLeft = 4;
         pData->ImageWidth = 20;
         pData->ImageHeight = 20;
         pData->ImageOffsetLeft = 10;

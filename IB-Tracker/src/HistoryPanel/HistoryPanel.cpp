@@ -71,7 +71,6 @@ bool HistoryPanel_calcVThumbRect()
 
 
 
-
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
 // ========================================================================================
@@ -96,21 +95,21 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     for (int i = trade->transactions.size() - 1; i >= 0; --i) {
         Transaction* trans = trade->transactions.at(i);
 
-        ListBoxData_TradesHistoryHeader(hListBox, trade, trans);
+        ListBoxData_HistoryHeader(hListBox, trade, trans);
 
         // Show the detail leg information for this transaction.
         for (const auto& leg : trans->legs) {
-            if (leg->underlying == L"OPTIONS") { ListBoxData_OptionsLeg(hListBox, trade, trans, leg); }
-            else if (leg->underlying == L"SHARES") { ListBoxData_SharesLeg(hListBox, trade, trans, leg); }
+            if (leg->underlying == L"OPTIONS") { ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); }
+            else if (leg->underlying == L"SHARES") { ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg); }
             else if (leg->underlying == L"FUTURES") {
-                ListBoxData_SharesLeg(hListBox, trade, trans, leg);
+                ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
             }
         }
     }
 
 
     // Calculate the actual column widths based on the size of the strings in
-    // LineData while respecting the minimum values as defined in nMinColWidth[].
+    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, -1);
@@ -419,7 +418,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
         RECT rc; GetClientRect(hWnd, &rc);
-
+        
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int itemHeight = (rcItem.bottom - rcItem.top);
@@ -441,6 +440,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         }
 
         if (rc.top < rc.bottom) {
+            nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));

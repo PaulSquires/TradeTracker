@@ -30,11 +30,10 @@ enum class ThemeElement {
 	TradesPanelScrollBarBack,
 	TradesPanelScrollBarLine,
 	TradesPanelScrollBarThumb,
+	TradesPanelHistoryText,
 
 	valuePositive,    // usually green
 	valueNegative,    // usually red
-
-	HistoryPanelBack,
 
 	Count     // Returns the number of defined theme elements
 };

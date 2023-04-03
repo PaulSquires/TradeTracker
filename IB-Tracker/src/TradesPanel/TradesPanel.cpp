@@ -487,6 +487,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         }
         
         if (rc.top < rc.bottom) {
+            nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));

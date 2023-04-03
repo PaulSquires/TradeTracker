@@ -104,9 +104,9 @@ int APIENTRY wWinMain(
     LoadDatabase();
 
 
-    // Size the main window to encompass 65% of screen width
+    // Size the main window to encompass 75% of screen width
     // and 85% of screen height.
-    int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.65f);
+    int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
     int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
 
