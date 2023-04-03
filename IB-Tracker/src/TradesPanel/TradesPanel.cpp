@@ -169,9 +169,6 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         if (ListBox_GetSel(lpDrawItem->hwndItem, lpDrawItem->itemID)) bIsHot = true;
 
-        std::cout << lpDrawItem->hwndItem << " " <<
-            lpDrawItem->itemID << " " <<
-            ListBox_GetSel(lpDrawItem->hwndItem, lpDrawItem->itemID) << " " << std::endl;
 
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);

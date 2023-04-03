@@ -37,4 +37,6 @@ std::string unicode2ansi(const std::wstring& wstr);
 std::wstring ansi2unicode(const std::string& str);
 std::wstring AfxMoney(double value);
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y);
+bool AfxStringCompareI(const std::string& s1, const std::string& s2);
+bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
 

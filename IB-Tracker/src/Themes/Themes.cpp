@@ -11,7 +11,7 @@ DWORD clr[(int)ThemeElement::Count][(int)Themes::Count];
 Themes ActiveTheme = Themes::Dark;
 
 std::wstring wszTraderName;
-
+bool StartupConnect = true;
 
 
 // ========================================================================================
@@ -156,6 +156,24 @@ void SetTraderName(std::wstring wszName)
 }
 	
 	
+// ========================================================================================
+// Get the true/false to try to automatically connect on program startup.
+// ========================================================================================
+bool GetStartupConnect()
+{
+	return StartupConnect;
+}
+
+
+// ========================================================================================
+// Get the true/false to try to automatically connect on program startup.
+// ========================================================================================
+void SetStartupConnect(bool bConnect)
+{
+	StartupConnect = bConnect;
+}
+
+
 // ========================================================================================
 // Save the Window handle of the application's main window so that ApplyActiveTheme
 // can enumerate all child windows in order to apply Theme changes.

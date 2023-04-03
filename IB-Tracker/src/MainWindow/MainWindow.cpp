@@ -29,18 +29,13 @@ void MainWindow_StartupShowTrades()
     if (trades.size() != 0) {
         TradesPanel_ShowActiveTrades();
 
-        HWND hListBox = GetDlgItem(TradesPanel.WindowHandle(), IDC_TRADES_LISTBOX);
-        ListBox_SetSel(hListBox, 0, TRUE);
-        SetFocus(hListBox);
-
-        std::cout << hListBox << " " << std::endl;
-        AfxRedrawWindow(hListBox);
-
-        bool res = tws_connect();
-        if (tws_isConnected()) {
-            // Need to re-populate the Trades if successfully connected in order
-            // to send the request market data for each ticker.
-            TradesPanel_ShowActiveTrades();
+        if (GetStartupConnect()) {
+            bool res = tws_connect();
+            if (tws_isConnected()) {
+                // Need to re-populate the Trades if successfully connected in order
+                // to send the request market data for each ticker.
+                TradesPanel_ShowActiveTrades();
+            }
         }
 
     }

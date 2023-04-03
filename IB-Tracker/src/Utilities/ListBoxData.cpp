@@ -11,10 +11,8 @@
 int nHistoryMinColWidth[10] =
 {
     15,     /* dropdown arrow*/
-    //60,     /* Description */
-    //50,     /* position quantity */
-    0,     /* Description */
-    0,     /* position quantity */
+    60,     /* Description */
+    50,     /* position quantity */
     50,     /* expiry date */
     40,     /* DTE */
     45,     /* strike price */
@@ -31,9 +29,9 @@ int nTradesMinColWidth[10] =
     50,     /* ITM */
     50,     /* position quantity */  
     50,     /* expiry date */
-    40,     /* DTE */
-    45,     /* strike price */
-    40,     /* put/call */
+    45,     /* DTE */
+    50,     /* strike price / current price */
+    45,     /* put/call */
     0,
     0
 };

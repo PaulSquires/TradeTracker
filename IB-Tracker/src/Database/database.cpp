@@ -130,6 +130,7 @@ bool SaveDatabase()
     db << idMagic << "|" << version << "\n"
         << "THEME|" << GetThemeName() << "\n"
         << "TRADERNAME|" << GetTraderName() << "\n"
+        << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n"
         << "// TRADE  T|isOpen|TickerSymbol|TickerName|FutureExpiry\n"
         << "// TRANS  X|underlying|description|transDate|quantity|price|multiplier|fees|total\n"
         << "// LEG    L|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
@@ -246,6 +247,13 @@ bool LoadDatabase()
             continue;
         }
 
+        // Check for configuration identifiers
+        if (st.at(0) == L"STARTUPCONNECT") {
+            std::wstring wszConnect = st.at(1);
+            bool bConnect = AfxWStringCompareI(wszConnect, L"true");
+            SetStartupConnect(bConnect);
+            continue;
+        }
 
         // Check for Trades, Transactions, and Legs
 

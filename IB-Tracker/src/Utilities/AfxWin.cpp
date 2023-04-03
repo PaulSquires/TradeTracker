@@ -537,6 +537,7 @@ std::wstring AfxMoney(double value)
     return wszMoney.substr(0, j - 1);   // -1 to remove null terminator
 }
 
+
 // ========================================================================================
 // Gets the zero-based index of the item nearest the specified point in a list box.
 // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero
@@ -548,3 +549,25 @@ int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y)
     return SendMessage(hListBox, LB_ITEMFROMPOINT, 0, (LPARAM)MAKELONG(x, y));
 }
 
+
+// ========================================================================================
+// Compare two string or wstring for equality (case insensitive)
+// ========================================================================================
+inline bool caseInsCharCompareN(char a, char b) {
+    return (toupper(a) == toupper(b));
+}
+inline bool caseInsCharCompareW(wchar_t a, wchar_t b) {
+    return (towupper(a) == towupper(b));
+}
+
+bool AfxStringCompareI(const std::string& s1, const std::string& s2)
+{
+    return ((s1.size() == s2.size()) &&
+    equal (s1.begin(), s1.end(), s2.begin(), caseInsCharCompareN));
+}
+
+bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2) 
+{
+    return ((s1.size() == s2.size()) &&
+    equal(s1.begin(), s1.end(), s2.begin(), caseInsCharCompareW));
+}

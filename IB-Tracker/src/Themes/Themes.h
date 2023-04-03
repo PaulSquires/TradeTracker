@@ -46,10 +46,16 @@ void SetTheme(Themes theme);
 void ApplyActiveTheme();
 void SetThemeMainWindow(HWND hWndMain);
 Themes GetTheme();
+
 std::wstring GetThemeName();
+void SetThemeName(std::wstring wszTheme);
+
 std::wstring GetTraderName();
 void SetTraderName(std::wstring wszName);
-void SetThemeName(std::wstring wszTheme);
+
+bool GetStartupConnect();
+void SetStartupConnect(bool bConnect);
+
 void Initialize_Light_Theme(DWORD clr[][(int)Themes::Count]);
 void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count]);
 void Initialize_DarkPlus_Theme(DWORD clr[][(int)Themes::Count]);
