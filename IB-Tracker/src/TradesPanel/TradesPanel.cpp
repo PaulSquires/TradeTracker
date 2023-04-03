@@ -5,6 +5,7 @@
 #include "..\Utilities\SuperLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Themes\Themes.h"
+#include "..\MenuPanel\MenuPanel.h"
 #include "TradesPanel.h"
 
 HWND HWND_TRADESPANEL = NULL;
@@ -19,6 +20,7 @@ extern int nColWidth[];
 
 extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 
+extern HWND HWND_MENUPANEL;
 
 
 class VScrollBar
@@ -114,10 +116,26 @@ void TradesPanel_ShowActiveTrades()
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, -1);
 
+    
+    // Select the correct menu panel item
+    SuperLabel_Select(GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES), true);
 
-    // Generate a WM_SIZE message to display and position the ListBox and vertical ScrollBar.
-    RECT rc; GetWindowRect(HWND_TRADESPANEL, &rc);
-    SendMessage(HWND_TRADESPANEL, WM_SIZE, SW_NORMAL, MAKELPARAM(rc.right - rc.left, rc.bottom - rc.top));
+
+    // If trades exist then select the first trade so that its history will show
+    if (ListBox_GetCount(hListBox)) {
+        ListBox_SetCurSel(hListBox, 0);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
+        if (ld != nullptr) {
+            HistoryPanel_ShowTradesHistoryTable(ld->trade);
+        }
+        //AfxRedrawWindow(hListBox);
+        //SetFocus(hListBox);
+    }
+
+
+    // Re-calculate scrollbar and show thumb if necessary
+    TradesPanel_calcVThumbRect();
+    AfxRedrawWindow(vsb.hwnd);
 
     tws_ResumeTWS();
 }
@@ -151,6 +169,9 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         if (ListBox_GetSel(lpDrawItem->hwndItem, lpDrawItem->itemID)) bIsHot = true;
 
+        std::cout << lpDrawItem->hwndItem << " " <<
+            lpDrawItem->itemID << " " <<
+            ListBox_GetSel(lpDrawItem->hwndItem, lpDrawItem->itemID) << " " << std::endl;
 
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
@@ -183,6 +204,8 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
             // Draw each of the columns
             for (int i = 0; i < 8; i++) {
+                if (ld == nullptr) break;
+
                 wszText = ld->col[i].wszText;
 
                 alignment = ld->col[i].alignment;
@@ -648,7 +671,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_ListBox_SubclassProc,
             IDC_TRADES_LISTBOX, NULL);
-
+    ListBox_AddString(vsb.hListBox, NULL);
 
     vsb.hwnd =
         TradesPanel.AddControl(Controls::Custom, hwnd, IDC_TRADES_VSCROLLBAR, L"",
@@ -657,10 +680,6 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_VScrollBar_SubclassProc,
             IDC_TRADES_VSCROLLBAR, NULL);
-
-
-    // Set focus to ListBox
-    SetFocus(vsb.hListBox);
 
     return TRUE;
 }

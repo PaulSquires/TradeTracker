@@ -250,6 +250,18 @@ void SuperLabel_SetText(HWND hCtrl, std::wstring wszText)
 
 
 //------------------------------------------------------------------------------ 
+void SuperLabel_Select(HWND hCtrl, bool IsSelected)
+{
+    SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->IsSelected = IsSelected;
+        SuperLabel_SetOptions(hCtrl, pData);
+        AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
 HWND CreateSuperLabel( 
     HWND hWndParent, 
     LONG_PTR CtrlId,

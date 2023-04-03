@@ -146,15 +146,7 @@ int APIENTRY wWinMain(
 
 
     // If trades exist then show them now and try to automatically connect to TWS.
-    //if (trades.size() != 0) {
-    //    SendMessage(HWND_MENUPANEL, MSG_SUPERLABEL_CLICK, (WPARAM)IDC_MENUPANEL_ACTIVETRADES,
-    //        (LPARAM)GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES));
-    //    AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_LISTBOX));
-    //    AfxRedrawWindow(GetDlgItem(HWND_TRADESPANEL, IDC_VSCROLLBAR));
-
-    //    PostMessage(HWND_MENUPANEL, MSG_SUPERLABEL_CLICK, (WPARAM)IDC_MENUPANEL_GEARICON,
-    //        (LPARAM)GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_GEARICON));
-    //}
+    PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
 
 
     // Call the main modal message pump and wait for it to end.

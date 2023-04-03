@@ -405,8 +405,8 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
     ld->SetData(6, trade, tickerId, L" " + leg->PutCall, StringAlignmentNear,
         ThemeElement::TradesPanelColBackDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
 
-    ThemeElement clr = ThemeElement::valuePositive;
-    if (leg->action == L"STO" || leg->action == L"STC") clr = ThemeElement::valueNegative;
+    ThemeElement clr = ThemeElement::valueNegative;
+    if (leg->action == L"STO" || leg->action == L"STC") clr = ThemeElement::valuePositive;
 
     ld->SetData(7, trade, tickerId, leg->action, StringAlignmentCenter,
         ThemeElement::TradesPanelColBackLight, clr, font8, FontStyleRegular);

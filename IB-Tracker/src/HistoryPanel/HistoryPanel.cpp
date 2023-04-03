@@ -76,6 +76,8 @@ bool HistoryPanel_calcVThumbRect()
 // ========================================================================================
 void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 {
+    if (trade == nullptr) return;
+
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
 
     // Clear the current trade history table
@@ -115,9 +117,9 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     ListBoxData_ResizeColumnWidths(hListBox, -1);
 
 
-    // Generate a WM_SIZE message to display and position the ListBox and vertical ScrollBar.
-    RECT rc; GetWindowRect(HWND_HISTORYPANEL, &rc);
-    SendMessage(HWND_HISTORYPANEL, WM_SIZE, SW_NORMAL, MAKELPARAM(rc.right - rc.left, rc.bottom - rc.top));
+    // Re-calculate scrollbar and show thumb if necessary
+    HistoryPanel_calcVThumbRect();
+    AfxRedrawWindow(vsb.hwnd);
 
 }
 
@@ -182,6 +184,8 @@ void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
             // Draw each of the columns
             for (int i = 0; i < 8; i++) {
+                if (ld == nullptr) break;
+
                 wszText = ld->col[i].wszText;
 
                 alignment = ld->col[i].alignment;
@@ -602,7 +606,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)HistoryPanel_ListBox_SubclassProc,
             IDC_HISTORY_LISTBOX, NULL);
-
+    ListBox_AddString(vsb.hListBox, NULL);
 
     vsb.hwnd =
         HistoryPanel.AddControl(Controls::Custom, hwnd, IDC_HISTORY_VSCROLLBAR, L"",

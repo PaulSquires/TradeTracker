@@ -11,12 +11,40 @@
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\database.h"
+#include "..\Utilities\UserMessages.h"
 
 
 CMenuPanel      MenuPanel;
 CHistoryPanel   HistoryPanel;
 CTradesPanel    TradesPanel;
 
+extern void TradesPanel_ShowActiveTrades();
+
+
+// ========================================================================================
+// Automatically show any existing trades on program startup & connect to TWS.
+// ========================================================================================
+void MainWindow_StartupShowTrades()
+{
+    if (trades.size() != 0) {
+        TradesPanel_ShowActiveTrades();
+
+        HWND hListBox = GetDlgItem(TradesPanel.WindowHandle(), IDC_TRADES_LISTBOX);
+        ListBox_SetSel(hListBox, 0, TRUE);
+        SetFocus(hListBox);
+
+        std::cout << hListBox << " " << std::endl;
+        AfxRedrawWindow(hListBox);
+
+        bool res = tws_connect();
+        if (tws_isConnected()) {
+            // Need to re-populate the Trades if successfully connected in order
+            // to send the request market data for each ticker.
+            TradesPanel_ShowActiveTrades();
+        }
+
+    }
+}
 
 
 // ========================================================================================
@@ -137,6 +165,11 @@ LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, MainWindow_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, MainWindow_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, MainWindow_OnSize);
+
+    case MSG_STARTUP_SHOWTRADES:
+        MainWindow_StartupShowTrades();
+        return 0;
+        break;
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
