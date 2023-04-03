@@ -280,7 +280,7 @@ HWND CreateSuperLabel(
     if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = &SuperLabelProc;
+        wcex.lpfnWndProc = SuperLabelProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class
         wcex.hInstance = hInst;

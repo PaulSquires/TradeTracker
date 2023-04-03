@@ -90,6 +90,7 @@
     <ClInclude Include="src\Utilities\CWindowBase.h" />
     <ClInclude Include="src\Utilities\SuperLabel.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
+    <ClInclude Include="src\VScrollBar\VScrollBar.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />
@@ -147,6 +148,7 @@
     </ClCompile>
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
     <ClCompile Include="src\Utilities\SuperLabel.cpp" />
+    <ClCompile Include="src\VScrollBar\VScrollBar.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

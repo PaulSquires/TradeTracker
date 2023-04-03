@@ -461,7 +461,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         hwnd,
         IDC_MENUPANEL_GEARICON,
         SuperLabelType::ImageAndText,  
-        0, 0, MENUPANEL_WIDTH, 20);
+        0, 0, MENUPANEL_WIDTH, 26);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;

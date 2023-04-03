@@ -315,6 +315,14 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
 }
 
 
+void ListBoxData_HistoryBlankLine(HWND hListBox)
+{
+    // *** BLANK SEPARATION LINE AT END OF HISTORY LIST ***
+    ListBoxData* ld = new ListBoxData;
+    ListBox_AddString(hListBox, ld);
+}
+
+
 void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans)
 {
     // Display the transaction description, date, and total prior to showing the detail lines

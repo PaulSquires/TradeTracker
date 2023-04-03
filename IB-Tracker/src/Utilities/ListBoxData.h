@@ -57,4 +57,5 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans);
 void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
 void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
+void ListBoxData_HistoryBlankLine(HWND hListBox);
 
