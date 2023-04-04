@@ -68,7 +68,7 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
 
 
     // Re-calculate scrollbar and show thumb if necessary
@@ -91,11 +91,10 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 // ========================================================================================
 void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {
-    if (lpDrawItem == nullptr) return;
+    if (lpDrawItem->itemID == -1) return;
 
     if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
-        lpDrawItem->itemAction == ODA_SELECT ||
-        lpDrawItem->itemAction == ODA_FOCUS) {
+        lpDrawItem->itemAction == ODA_SELECT) {
 
         int linenum = lpDrawItem->itemID;
         int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
@@ -112,7 +111,8 @@ void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
         if (hbit) SelectObject(memDC, hbit);
 
-        if (ListBox_GetSel(lpDrawItem->hwndItem, lpDrawItem->itemID)) bIsHot = true;
+        // We do not do hot tracking for the History table because we do not
+        // need to visually show any selected lines.
 
 
         Graphics graphics(memDC);
@@ -140,42 +140,40 @@ void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         // Get the current ListBox line data should a valid line exist
         // Paint the individual columns with the specific data.
-        if (linenum != -1) {
-            ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
-            int nLeft = 0;
+        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
+        int nLeft = 0;
 
-            // Draw each of the columns
-            for (int i = 0; i < 8; i++) {
-                if (ld == nullptr) break;
+        // Draw each of the columns
+        for (int i = 0; i < 8; i++) {
+            if (ld == nullptr) break;
 
-                wszText = ld->col[i].wszText;
+            wszText = ld->col[i].wszText;
 
-                alignment = ld->col[i].alignment;
-                nBackColor = (bIsHot)
-                    ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-                    : GetThemeColor(ld->col[i].backTheme);
-                nTextColor = GetThemeColor(ld->col[i].textTheme);
-                fontSize = ld->col[i].fontSize;
-                fontStyle = ld->col[i].fontStyle;
+            alignment = ld->col[i].alignment;
+            nBackColor = (bIsHot)
+                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+                : GetThemeColor(ld->col[i].backTheme);
+            nTextColor = GetThemeColor(ld->col[i].textTheme);
+            fontSize = ld->col[i].fontSize;
+            fontStyle = ld->col[i].fontStyle;
 
-                int colWidth = AfxScaleX((float)nColWidth[i]);
+            int colWidth = AfxScaleX((float)nColWidth[i]);
 
-                backBrush.SetColor(nBackColor);
-                graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
+            backBrush.SetColor(nBackColor);
+            graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
 
-                Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-                SolidBrush   textBrush(nTextColor);
-                StringFormat stringF(0);
-                stringF.SetAlignment(alignment);
-                stringF.SetLineAlignment(StringAlignmentCenter);
+            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+            SolidBrush   textBrush(nTextColor);
+            StringFormat stringF(0);
+            stringF.SetAlignment(alignment);
+            stringF.SetLineAlignment(StringAlignmentCenter);
 
-                RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
-                graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
+            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
 
-                nLeft += colWidth;
-            }  // for
+            nLeft += colWidth;
+        }
 
-        }  // if
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
             lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
@@ -187,7 +185,6 @@ void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         if (memDC) DeleteDC(memDC);
 
     }
-
 }
 
 
@@ -410,8 +407,8 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->BackColor = ThemeElement::TradesPanelBack;
+        pData->TextColor = ThemeElement::TradesPanelText;
         pData->FontSize = 8;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"Trade History";

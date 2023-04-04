@@ -15,7 +15,8 @@ const int IDC_TRADES_LISTBOX = 100;
 const int IDC_TRADES_LABEL = 101;
 const int IDC_TRADES_VSCROLLBAR = 102;
 
-const int TRADES_LISTBOX_ROWHEIGHT = 24;
+const int ACTIVE_TRADES_LISTBOX_ROWHEIGHT = 24;
+const int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
 
 
 // These columns in the table are updated in real time when connected

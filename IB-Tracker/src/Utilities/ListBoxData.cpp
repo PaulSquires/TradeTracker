@@ -10,7 +10,7 @@
 
 int nHistoryMinColWidth[10] =
 {
-    15,     /* dropdown arrow*/
+    15,     /* dropdown arrow */
     60,     /* Description */
     50,     /* position quantity */
     50,     /* expiry date */
@@ -29,7 +29,7 @@ int nHistoryMinColWidth[10] =
 // display the description but it will wrap in the display rectangle.
 int nHistoryMaxColWidth[10] =
 {
-    15,      /* dropdown arrow*/
+    15,      /* dropdown arrow */
     100,     /* Description */
     100,     /* position quantity */
     100,     /* expiry date */
@@ -41,9 +41,10 @@ int nHistoryMaxColWidth[10] =
     0
 };
 
+
 int nTradesMinColWidth[10] =
 {
-    25,     /* dropdown arrow*/
+    25,     /* dropdown arrow */
     50,     /* ticker symbol */
     50,     /* ITM */
     50,     /* position quantity */  
@@ -55,6 +56,23 @@ int nTradesMinColWidth[10] =
     0
 };
 
+
+
+int nClosedMinColWidth[10] =
+{
+    15,     /* empty */
+    75,     /* Close Date */
+    50,     /* Ticker Symbol */
+    300,    /* Ticker Name */
+    100,    /* Amount */
+    0,     
+    0,     
+    0,     
+    0,
+    0
+};
+
+
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
 
@@ -64,18 +82,25 @@ int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 // This function is also called when receiving new price data from TWS because
 // that data may need the column width to be wider.
 // ========================================================================================
-void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
+void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex)
 {
     HDC hdc = GetDC(hListBox);
 
-    bool isHistory = (GetDlgCtrlID(hListBox) == IDC_HISTORY_LISTBOX) ? true : false;
-
     // Initialize the nColWidth array based on the incoming ListBox
     for (int i = 0; i < 10; i++) {
-        if (isHistory) {
-            nColWidth[i] = nHistoryMinColWidth[i];
-        } else {
+        switch (tabletype)
+        {
+        case TableType::ActiveTrades:
             nColWidth[i] = nTradesMinColWidth[i];
+            break;
+
+        case TableType::ClosedTrades:
+            nColWidth[i] = nClosedMinColWidth[i];
+            break;
+
+        case TableType::TradeHistory:
+            nColWidth[i] = nHistoryMinColWidth[i];
+            break;
         }
     }
 
@@ -87,7 +112,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
     REAL fontSize = 0;
     int fontStyle = FontStyleRegular;
     RectF boundRect;
-    RectF layoutRect(0.0f, 0.0f, 300.0f, 50.0f);
+    RectF layoutRect(0.0f, 0.0f, 1000.0f, 50.0f);
     StringFormat format;
     format.SetAlignment(StringAlignmentFar);
 
@@ -114,9 +139,11 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
 
             int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
 
+
             if (textLength > nColWidth[i]) {
                 nColWidth[i] = textLength;
-                if (isHistory) {
+
+                if (tabletype == TableType::TradeHistory) {
                     nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
                 }
                 bRedrawListBox = true;
@@ -444,4 +471,27 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
     ListBox_AddString(hListBox, ld);
 }
 
+
+void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    ld->SetData(1, trade, tickerId, closedDate, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+
+    ld->SetData(2, trade, tickerId, trade->tickerSymbol, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ld->SetData(3, trade, tickerId, trade->tickerName, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(4, trade, tickerId, AfxMoney(trade->ACB), StringAlignmentFar,
+        ThemeElement::TradesPanelBack, clr, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+}
 

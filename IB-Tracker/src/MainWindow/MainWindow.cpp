@@ -103,7 +103,7 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     if (state == SIZE_MINIMIZED) return;
     
 
-    int MARGIN = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
+    int MARGIN = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
     int INNER_MARGIN = AfxScaleY(6);
     int SPLITTER_WIDTH = AfxScaleX(6);
 

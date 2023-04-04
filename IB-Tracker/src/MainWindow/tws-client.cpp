@@ -4,6 +4,7 @@
 #include "..\Utilities\ListBoxData.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\MenuPanel\MenuPanel.h"
 #include "tws-client.h"
 
 #include "tws-api\EClientSocket.h"
@@ -42,20 +43,20 @@ std::thread my_thread;
 
 
 void threadFunction(std::future<void> future) {
-    std::cout << "Starting the thread" << std::endl;
+	std::cout << "Starting the thread" << std::endl;
 	isMonitorThreadActive = true;
-    while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-       // std::cout << "Executing the thread....." << std::endl;
-        if (tws_isConnected()) {
-            client.waitForSignal();
-            client.processMsgs();
-        }
-        else {
-            break;
-        }
+	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
+		// std::cout << "Executing the thread....." << std::endl;
+		if (tws_isConnected()) {
+			client.waitForSignal();
+			client.processMsgs();
+		}
+		else {
+			break;
+		}
 
-		std::chrono::milliseconds(250);   // wait for 250 milliseconds
-    }
+		std::chrono::milliseconds(500);   // wait for 500 milliseconds
+	}
 	isMonitorThreadActive = false;
 	std::cout << "Thread Terminated" << std::endl;
 }
@@ -300,6 +301,8 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// display of the new price data. 
 
 		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
+		if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) != IDC_MENUPANEL_ACTIVETRADES) return;
+
 		int lbCount = ListBox_GetCount(hListBox);
 		
 		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
@@ -382,7 +385,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				// Do calculation to ensure column widths are wide enough to accommodate the new
 				// price data that has just arrived.
-				ListBoxData_ResizeColumnWidths(hListBox, nIndex);
+				ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, nIndex);
 
 				// Only update/repaint the line containing the new price data rather than the whole ListBox.
 				RECT rc{};

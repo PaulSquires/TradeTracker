@@ -51,11 +51,20 @@ public:
 
 };
 
-void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex);
+
+enum class TableType
+{
+    ActiveTrades,
+    ClosedTrades,
+    TradeHistory
+};
+
+void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans);
 void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
 void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
 void ListBoxData_HistoryBlankLine(HWND hListBox);
+void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate);
 

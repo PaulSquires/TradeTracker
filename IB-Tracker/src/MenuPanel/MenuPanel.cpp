@@ -9,6 +9,7 @@
 
 
 extern void TradesPanel_ShowActiveTrades();
+extern void TradesPanel_ShowClosedTrades();
 
 HWND HWND_MENUPANEL = NULL;
 
@@ -488,6 +489,44 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 }
 
 
+
+// ========================================================================================
+// Select the specified menu item (and deselect any other menu items)
+// ========================================================================================
+void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
+{
+    HWND hCtrl = NULL;
+    for (int ctrlId = IDC_MENUPANEL_ACTIVETRADES; ctrlId <= IDC_MENUPANEL_CONFIGURE; ctrlId++)
+    {
+        hCtrl = GetDlgItem(hParent, ctrlId);
+        SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
+        if (pData != nullptr) {
+            pData->IsSelected = (pData->CtrlId == CtrlId) ? true : false;
+            SuperLabel_SetOptions(hCtrl, pData);
+            AfxRedrawWindow(hCtrl);
+        }
+    }
+}
+
+
+// ========================================================================================
+// Gets the ID of the currently active menu item.
+// ========================================================================================
+int MenuPanel_GetActiveMenuItem(HWND hParent)
+{
+    HWND hCtrl = NULL;
+    for (int ctrlId = IDC_MENUPANEL_ACTIVETRADES; ctrlId <= IDC_MENUPANEL_CONFIGURE; ctrlId++)
+    {
+        hCtrl = GetDlgItem(hParent, ctrlId);
+        SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
+        if (pData != nullptr) {
+            if (pData->IsSelected) return ctrlId;
+        }
+    }
+    return 0;
+}
+
+
 // ========================================================================================
 // MenuPanel Window procedure
 // ========================================================================================
@@ -565,6 +604,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             switch (CtrlId) {
 
+            case IDC_MENUPANEL_MESSAGES:
             case IDC_MENUPANEL_GEARICON:
             {
                 // If already connected then don't try to connect again
@@ -589,9 +629,64 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_MENUPANEL_ACTIVETRADES:
             {
-                pData->IsSelected = true;
-                AfxRedrawWindow(hCtl);
+                // Deselect any previous selected menu item.
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 TradesPanel_ShowActiveTrades();
+                break;
+            }
+
+            case IDC_MENUPANEL_CLOSEDTRADES:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradesPanel_ShowClosedTrades();
+                break;
+            }
+
+            case IDC_MENUPANEL_NEWTRADE:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_SHORTSTRANGLE:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_SHORTPUT:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_SHORTCALL:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_TICKERTOTALS:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_DAILYTOTALS:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_RECONCILE:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+            case IDC_MENUPANEL_CONFIGURE:
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 break;
             }
 

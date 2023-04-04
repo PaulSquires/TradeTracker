@@ -28,3 +28,5 @@ const int IDC_MENUPANEL_MESSAGES      = 115;
 
 const int MENUPANEL_WIDTH = 180;
 
+void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId);
+int MenuPanel_GetActiveMenuItem(HWND hParent);
