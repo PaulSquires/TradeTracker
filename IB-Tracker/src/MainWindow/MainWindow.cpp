@@ -20,6 +20,11 @@ CTradesPanel    TradesPanel;
 
 extern void TradesPanel_ShowActiveTrades();
 
+RECT rcSplitter{};
+bool isDragging = false;    // If dragging our splitter
+POINT prev_pt{};            // for tracking current splitter drag
+
+
 
 // ========================================================================================
 // Automatically show any existing trades on program startup & connect to TWS.
@@ -85,6 +90,12 @@ void MainWindow_OnPaint(HWND hwnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
+    // rcSplitter test
+    backBrush.SetColor(Color::Green);
+    nWidth = (rcSplitter.right - rcSplitter.left);
+    nHeight = (rcSplitter.bottom - rcSplitter.top);
+    graphics.FillRectangle(&backBrush, rcSplitter.left, rcSplitter.top, nWidth, nHeight);
+
     EndPaint(hwnd, &ps);
 }
 
@@ -97,8 +108,9 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
 
-    int margin = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
-    int inner_margin = AfxScaleY(6);
+    int MARGIN = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
+    int INNER_MARGIN = AfxScaleY(6);
+    int SPLITTER_WIDTH = AfxScaleX(6);
 
     // Position the left hand side Navigation Panel
     HWND hWndMenuPanel = MenuPanel.WindowHandle();
@@ -112,16 +124,23 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
     int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
     SetWindowPos(hWndHistoryPanel, 0,
-        cx - nHistoryPanelWidth - inner_margin, 0, nHistoryPanelWidth, cy - margin,
+        cx - nHistoryPanelWidth - INNER_MARGIN, 0, nHistoryPanelWidth, cy - MARGIN,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
+        
     // Position the middle Trades Panel
     HWND hWndTradesPanel = TradesPanel.WindowHandle();
-    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth - (inner_margin * 2));
+    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth - SPLITTER_WIDTH - INNER_MARGIN);
     SetWindowPos(hWndTradesPanel, 0,
-        nMenuPanelWidth, 0, nTradesPanelWidth, cy - margin,
+        nMenuPanelWidth, 0, nTradesPanelWidth, cy - MARGIN,
         SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    // Calculate the area for the "splitter control"
+    rcSplitter.left = nMenuPanelWidth + nTradesPanelWidth;
+    rcSplitter.top = 0;
+    rcSplitter.right = rcSplitter.left + SPLITTER_WIDTH;
+    rcSplitter.bottom = cy;
 
 }
 
@@ -149,6 +168,115 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
+// Determine if mouse cursor is over our splitter control area.
+// ========================================================================================
+bool IsMouseOverSplitter(HWND hwnd)
+{
+    POINT pt; GetCursorPos(&pt);
+    MapWindowPoints(HWND_DESKTOP, hwnd, (POINT*)&pt, 1);
+
+    if (PtInRect(&rcSplitter, pt)) {
+        SetCursor(LoadCursor(NULL, (LPCWSTR)IDC_SIZEWE));
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+// ========================================================================================
+// Process WM_LBUTTONDOWN message for window/dialog: MainWindow
+// ========================================================================================
+void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
+{
+    if (IsMouseOverSplitter(hwnd)) {
+        isDragging = true;
+        prev_pt.x = x;
+        SetCapture(hwnd);
+    }
+}
+
+
+// ========================================================================================
+// Process WM_MOUSEMOVE message for window/dialog: MainWindow
+// ========================================================================================
+void MainWindow_OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
+{
+    if (isDragging) {
+        // Calculate the change between mouse movements and resize
+        // the child windows accordingly.
+        int xDelta = x - prev_pt.x;
+
+        HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
+        int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel) + xDelta;
+        int nHistoryPanelHeight = AfxGetWindowHeight(hWndHistoryPanel);
+        SetWindowPos(hWndHistoryPanel, 0, 
+            0, 0, nHistoryPanelWidth, nHistoryPanelHeight, SWP_NOZORDER | SWP_NOMOVE);
+        RECT rc; GetClientRect(hwnd, &rc);
+        MainWindow_OnSize(hwnd, SW_NORMAL, rc.right, rc.bottom);
+
+        prev_pt.x = x;
+    }
+}
+
+
+// ========================================================================================
+// Process WM_LBUTTONUP message for window/dialog: MainWindow
+// ========================================================================================
+void MainWindow_OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
+{
+    if (isDragging) {
+        isDragging = false;
+        ReleaseCapture();
+    }
+}
+
+
+// ========================================================================================
+// Process WM_SETCURSOR message for window/dialog: MainWindow
+// ========================================================================================
+BOOL MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT msg)
+{
+    LPWSTR curId = IDC_ARROW;
+
+    // Determine if the mouse is over our "splitter control"
+    if (IsMouseOverSplitter(hwnd)) {
+        SetCursor(LoadCursor(NULL, (LPCWSTR)IDC_SIZEWE));
+        return TRUE;
+    }
+
+    switch (codeHitTest)
+    {
+    case HTTOPRIGHT:
+    case HTBOTTOMLEFT:
+        curId = IDC_SIZENESW;
+        break;
+
+    case HTBOTTOMRIGHT:
+    case HTTOPLEFT:
+        curId = IDC_SIZENWSE;
+        break;
+
+    case HTLEFT:
+    case HTRIGHT:
+        curId = IDC_SIZEWE;
+        break;
+
+    case HTTOP:
+    case HTBOTTOM:
+        curId = IDC_SIZENS;
+        break;
+
+    default:
+        curId = IDC_ARROW;
+    }
+
+    SetCursor(LoadCursor(NULL, (LPCWSTR)curId));
+    return TRUE;
+}
+
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -160,6 +288,11 @@ LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, MainWindow_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, MainWindow_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, MainWindow_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MOUSEMOVE, MainWindow_OnMouseMove);
+        HANDLE_MSG(m_hwnd, WM_LBUTTONDOWN, MainWindow_OnLButtonDown);
+        HANDLE_MSG(m_hwnd, WM_LBUTTONUP, MainWindow_OnLButtonUp);
+        HANDLE_MSG(m_hwnd, WM_SETCURSOR, MainWindow_OnSetCursor);
+
 
     case MSG_STARTUP_SHOWTRADES:
         MainWindow_StartupShowTrades();
