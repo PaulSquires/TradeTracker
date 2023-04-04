@@ -109,6 +109,13 @@ int APIENTRY wWinMain(
     int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
     int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
+    // Impose a maximum size on the initial height/width in order
+    // to ensure that the main window does not display exceptionally
+    // large especially when run on very large monitors.
+    // Target a minimum 720p screen resolution size (1280 x 720).
+    if (InitalMainWidth > 1280) InitalMainWidth = 1280;
+    if (InitalMainHeight > 720) InitalMainHeight = 720;
+
 
     MainWindow Main;
 

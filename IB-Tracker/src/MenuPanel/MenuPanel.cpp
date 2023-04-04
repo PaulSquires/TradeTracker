@@ -1,6 +1,6 @@
 
 #include "pch.h"
-#include "..\Utilities\SuperLabel.h"
+#include "..\SuperLabel\SuperLabel.h"
 #include "..\Utilities\UserMessages.h"
 #include "..\Themes\Themes.h"
 #include "..\MainWindow\tws-client.h"

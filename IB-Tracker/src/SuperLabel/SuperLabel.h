@@ -1,8 +1,8 @@
 #pragma once
 
-#include "UserMessages.h"
 #include "..\Themes\Themes.h"
 #include "..\Utilities\AfxWin.h"
+#include "..\Utilities\UserMessages.h"
 
 #define IDB_GEAR                        103
 #define IDB_GEARHOT                     104

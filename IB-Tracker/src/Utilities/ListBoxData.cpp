@@ -22,6 +22,25 @@ int nHistoryMinColWidth[10] =
     0
 };
 
+
+// We need a maximum column size for the History table because the
+// user may end a very long description and we don't want the column
+// to expand to fit this whole trade description. We will still
+// display the description but it will wrap in the display rectangle.
+int nHistoryMaxColWidth[10] =
+{
+    15,      /* dropdown arrow*/
+    100,     /* Description */
+    100,     /* position quantity */
+    100,     /* expiry date */
+    100,     /* DTE */
+    100,     /* strike price */
+    100,     /* put/call */
+    100,     /* ACB, BTC/STO, etc */
+    0,
+    0
+};
+
 int nTradesMinColWidth[10] =
 {
     25,     /* dropdown arrow*/
@@ -49,12 +68,14 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
 {
     HDC hdc = GetDC(hListBox);
 
+    bool isHistory = (GetDlgCtrlID(hListBox) == IDC_HISTORY_LISTBOX) ? true : false;
+
     // Initialize the nColWidth array based on the incoming ListBox
     for (int i = 0; i < 10; i++) {
-        if (GetDlgCtrlID(hListBox) == IDC_TRADES_LISTBOX) {
-            nColWidth[i] = nTradesMinColWidth[i];
-        } else {
+        if (isHistory) {
             nColWidth[i] = nHistoryMinColWidth[i];
+        } else {
+            nColWidth[i] = nTradesMinColWidth[i];
         }
     }
 
@@ -95,6 +116,9 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, int nIndex)
 
             if (textLength > nColWidth[i]) {
                 nColWidth[i] = textLength;
+                if (isHistory) {
+                    nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
+                }
                 bRedrawListBox = true;
             }
         }

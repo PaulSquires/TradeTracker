@@ -90,12 +90,6 @@ void MainWindow_OnPaint(HWND hwnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
-    // rcSplitter test
-    backBrush.SetColor(Color::Green);
-    nWidth = (rcSplitter.right - rcSplitter.left);
-    nHeight = (rcSplitter.bottom - rcSplitter.top);
-    graphics.FillRectangle(&backBrush, rcSplitter.left, rcSplitter.top, nWidth, nHeight);
-
     EndPaint(hwnd, &ps);
 }
 
@@ -107,34 +101,38 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
+    
 
     int MARGIN = AfxScaleY(TRADES_LISTBOX_ROWHEIGHT);
     int INNER_MARGIN = AfxScaleY(6);
     int SPLITTER_WIDTH = AfxScaleX(6);
 
+    HDWP hdwp = BeginDeferWindowPos(3);
+
     // Position the left hand side Navigation Panel
     HWND hWndMenuPanel = MenuPanel.WindowHandle();
     int nMenuPanelWidth = AfxGetWindowWidth(hWndMenuPanel);
-    SetWindowPos(hWndMenuPanel, 0,
-        0, 0, nMenuPanelWidth, cy,
-        SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hWndMenuPanel, 0,
+                0, 0, nMenuPanelWidth, cy,
+                SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the right hand side History Panel
     HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
     int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
-    SetWindowPos(hWndHistoryPanel, 0,
-        cx - nHistoryPanelWidth - INNER_MARGIN, 0, nHistoryPanelWidth, cy - MARGIN,
-        SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hWndHistoryPanel, 0,
+                cx - nHistoryPanelWidth - INNER_MARGIN, 0, nHistoryPanelWidth, cy - MARGIN,
+                SWP_NOZORDER | SWP_SHOWWINDOW);
 
         
     // Position the middle Trades Panel
     HWND hWndTradesPanel = TradesPanel.WindowHandle();
     int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth - SPLITTER_WIDTH - INNER_MARGIN);
-    SetWindowPos(hWndTradesPanel, 0,
-        nMenuPanelWidth, 0, nTradesPanelWidth, cy - MARGIN,
-        SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hWndTradesPanel, 0,
+                nMenuPanelWidth, 0, nTradesPanelWidth, cy - MARGIN,
+                SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
     rcSplitter.left = nMenuPanelWidth + nTradesPanelWidth;
@@ -196,6 +194,22 @@ void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 }
 
 
+void UpdateSplitterChildren(HWND hwnd, int xDelta)
+{
+    HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
+    int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel) + xDelta;
+    int nHistoryPanelHeight = AfxGetWindowHeight(hWndHistoryPanel);
+    SetWindowPos(hWndHistoryPanel, 0,
+        0, 0, nHistoryPanelWidth, nHistoryPanelHeight, SWP_NOZORDER | SWP_NOMOVE);
+
+    RECT rc; GetClientRect(hwnd, &rc);
+    MainWindow_OnSize(hwnd, SIZE_RESTORED, rc.right, rc.bottom);
+    AfxRedrawWindow(TradesPanel.WindowHandle());
+    AfxRedrawWindow(HistoryPanel.WindowHandle());
+    AfxRedrawWindow(hwnd);
+}
+
+
 // ========================================================================================
 // Process WM_MOUSEMOVE message for window/dialog: MainWindow
 // ========================================================================================
@@ -204,17 +218,15 @@ void MainWindow_OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
     if (isDragging) {
         // Calculate the change between mouse movements and resize
         // the child windows accordingly.
-        int xDelta = x - prev_pt.x;
+        int xDelta = prev_pt.x - x;
 
-        HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
-        int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel) + xDelta;
-        int nHistoryPanelHeight = AfxGetWindowHeight(hWndHistoryPanel);
-        SetWindowPos(hWndHistoryPanel, 0, 
-            0, 0, nHistoryPanelWidth, nHistoryPanelHeight, SWP_NOZORDER | SWP_NOMOVE);
-        RECT rc; GetClientRect(hwnd, &rc);
-        MainWindow_OnSize(hwnd, SW_NORMAL, rc.right, rc.bottom);
+        // Only reposition after a cummulative greater than 3 pixel move
+        // in order to reduce the amount of screen updating.
+        if (abs(xDelta) > 3) {
+            UpdateSplitterChildren(hwnd, xDelta);
+            prev_pt.x = x;
+        }
 
-        prev_pt.x = x;
     }
 }
 
@@ -226,6 +238,8 @@ void MainWindow_OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
 {
     if (isDragging) {
         isDragging = false;
+        int xDelta = prev_pt.x - x;
+        UpdateSplitterChildren(hwnd, xDelta);
         ReleaseCapture();
     }
 }

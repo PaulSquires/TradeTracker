@@ -1,6 +1,6 @@
 
 #include "pch.h"
-#include "..\Utilities\SuperLabel.h"
+#include "..\SuperLabel\SuperLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
@@ -165,7 +165,7 @@ void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
                 Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
                 SolidBrush   textBrush(nTextColor);
-                StringFormat stringF(StringFormatFlagsNoWrap);
+                StringFormat stringF(0);
                 stringF.SetAlignment(alignment);
                 stringF.SetLineAlignment(StringAlignmentCenter);
 

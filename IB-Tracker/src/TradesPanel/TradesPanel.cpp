@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\Database\trade.h"
-#include "..\Utilities\SuperLabel.h"
+#include "..\SuperLabel\SuperLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Themes\Themes.h"
 #include "..\MenuPanel\MenuPanel.h"

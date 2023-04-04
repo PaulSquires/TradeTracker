@@ -88,7 +88,7 @@
     <ClInclude Include="src\Utilities\AfxWin.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Utilities\CWindowBase.h" />
-    <ClInclude Include="src\Utilities\SuperLabel.h" />
+    <ClInclude Include="src\SuperLabel\SuperLabel.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
     <ClInclude Include="src\VScrollBar\VScrollBar.h" />
   </ItemGroup>
@@ -147,7 +147,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
-    <ClCompile Include="src\Utilities\SuperLabel.cpp" />
+    <ClCompile Include="src\SuperLabel\SuperLabel.cpp" />
     <ClCompile Include="src\VScrollBar\VScrollBar.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
