@@ -188,6 +188,7 @@ void TradesPanel_ShowClosedTrades()
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
+
     // If closed trades exist then select the first trade so that its history will show
     if (ListBox_GetCount(hListBox)) {
         ListBox_SetCurSel(hListBox, 0);
@@ -196,6 +197,9 @@ void TradesPanel_ShowClosedTrades()
             HistoryPanel_ShowTradesHistoryTable(ld->trade);
         }
     }
+
+    SetFocus(hListBox);
+    AfxRedrawWindow(hListBox);
 
     tws_ResumeTWS();
 
