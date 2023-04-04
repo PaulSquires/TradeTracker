@@ -47,6 +47,8 @@ void threadFunction(std::future<void> future) {
 	isMonitorThreadActive = true;
 	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
 		// std::cout << "Executing the thread....." << std::endl;
+		std::chrono::milliseconds(500);   // wait for 500 milliseconds (helps to clear the sockets)
+
 		if (tws_isConnected()) {
 			client.waitForSignal();
 			client.processMsgs();
@@ -55,7 +57,6 @@ void threadFunction(std::future<void> future) {
 			break;
 		}
 
-		std::chrono::milliseconds(500);   // wait for 500 milliseconds
 	}
 	isMonitorThreadActive = false;
 	std::cout << "Thread Terminated" << std::endl;

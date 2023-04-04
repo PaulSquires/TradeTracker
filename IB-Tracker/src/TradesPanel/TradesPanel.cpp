@@ -17,7 +17,6 @@ const int VSCROLLBAR_MINTHUMBSIZE = 20;
 extern CTradesPanel TradesPanel;
 
 extern std::vector<Trade*> trades;
-extern int nColWidth[];
 
 extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 
@@ -32,6 +31,7 @@ void TradesPanel_ShowActiveTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+    HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
 
@@ -75,15 +75,9 @@ void TradesPanel_ShowActiveTrades()
     // Select the correct menu panel item
     MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES);
 
-
-    // If trades exist then select the first trade so that its history will show
-    if (ListBox_GetCount(hListBox)) {
-        ListBox_SetCurSel(hListBox, 0);
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
-        if (ld != nullptr) {
-            HistoryPanel_ShowTradesHistoryTable(ld->trade);
-        }
-    }
+    
+    // Set the label text indicated the type of trades being listed
+    SuperLabel_SetText(hLabel, L"Active Trades");
 
 
     // Re-calculate scrollbar and show thumb if necessary
@@ -98,6 +92,16 @@ void TradesPanel_ShowActiveTrades()
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
+
+    // If trades exist then select the first trade so that its history will show
+    if (ListBox_GetCount(hListBox)) {
+        ListBox_SetCurSel(hListBox, 0);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
+        if (ld != nullptr) {
+            HistoryPanel_ShowTradesHistoryTable(ld->trade);
+        }
+    }
+
     tws_ResumeTWS();
 }
 
@@ -109,6 +113,7 @@ void TradesPanel_ShowClosedTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+    HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
 
@@ -166,15 +171,9 @@ void TradesPanel_ShowClosedTrades()
     // Select the correct menu panel item
     MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_CLOSEDTRADES);
 
-
-    // If closed trades exist then select the first trade so that its history will show
-    if (ListBox_GetCount(hListBox)) {
-        ListBox_SetCurSel(hListBox, 0);
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
-        if (ld != nullptr) {
-            HistoryPanel_ShowTradesHistoryTable(ld->trade);
-        }
-    }
+    
+    // Set the label text indicated the type of trades being listed
+    SuperLabel_SetText(hLabel, L"Closed Trades");
 
 
     // Re-calculate scrollbar and show thumb if necessary
@@ -188,6 +187,15 @@ void TradesPanel_ShowClosedTrades()
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
+
+    // If closed trades exist then select the first trade so that its history will show
+    if (ListBox_GetCount(hListBox)) {
+        ListBox_SetCurSel(hListBox, 0);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
+        if (ld != nullptr) {
+            HistoryPanel_ShowTradesHistoryTable(ld->trade);
+        }
+    }
 
     tws_ResumeTWS();
 
@@ -265,7 +273,7 @@ void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
 
-            int colWidth = AfxScaleX((float)nColWidth[i]);
+            int colWidth = AfxScaleX((float)ld->col[i].colWidth);
 
             backBrush.SetColor(nBackColor);
             graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
@@ -578,8 +586,8 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::TradesPanelBack;
-        pData->TextColor = ThemeElement::TradesPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelText;
         pData->FontSize = 8;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"Active Trades";

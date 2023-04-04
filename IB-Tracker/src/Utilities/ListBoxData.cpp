@@ -61,9 +61,9 @@ int nTradesMinColWidth[10] =
 int nClosedMinColWidth[10] =
 {
     15,     /* empty */
-    75,     /* Close Date */
+    65,     /* Close Date */
     50,     /* Ticker Symbol */
-    300,    /* Ticker Name */
+    200,    /* Ticker Name */
     100,    /* Amount */
     0,     
     0,     
@@ -134,11 +134,11 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
             Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+            
             graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(),
                 &font, layoutRect, &format, &boundRect);
 
             int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
-
 
             if (textLength > nColWidth[i]) {
                 nColWidth[i] = textLength;
@@ -146,11 +146,26 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
                 if (tabletype == TableType::TradeHistory) {
                     nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
                 }
+
                 bRedrawListBox = true;
             }
+
         }
+
+            
         if (nIndex != -1) break;
     }
+
+
+    // Update the newly calculated column widths into each of the ld structures
+    for (int ii = nStart; ii <= nEnd; ii++) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
+        for (int i = 0; i < 10; i++) {
+            ld->col[i].colWidth = nColWidth[i];
+        }
+        ListBox_SetItemData(hListBox, ii, ld);
+    }
+
     ReleaseDC(hListBox, hdc);
     
     if (bRedrawListBox) {
@@ -478,6 +493,9 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring 
 
     TickerId tickerId = -1;
     REAL font8 = 8;
+
+    ld->SetData(0, trade, tickerId, L"", StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
 
     ld->SetData(1, trade, tickerId, closedDate, StringAlignmentNear,
         ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);

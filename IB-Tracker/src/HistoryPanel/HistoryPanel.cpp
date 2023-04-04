@@ -407,8 +407,8 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::TradesPanelBack;
-        pData->TextColor = ThemeElement::TradesPanelText;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->TextColor = ThemeElement::MenuPanelText;
         pData->FontSize = 8;
         pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
         pData->wszText = L"Trade History";

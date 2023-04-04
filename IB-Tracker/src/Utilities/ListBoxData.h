@@ -16,6 +16,7 @@ public:
     ThemeElement        textTheme = ThemeElement::TradesPanelText;;
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
+    int                 colWidth;
 };
 
 class ListBoxData {
