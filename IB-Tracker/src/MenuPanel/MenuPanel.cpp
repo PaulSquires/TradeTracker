@@ -10,6 +10,7 @@
 
 extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
+extern void HistoryPanel_ShowTickerTotals();
 
 HWND HWND_MENUPANEL = NULL;
 
@@ -669,6 +670,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_TICKERTOTALS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                HistoryPanel_ShowTickerTotals();
                 break;
             }
 

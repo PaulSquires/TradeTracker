@@ -57,7 +57,8 @@ enum class TableType
 {
     ActiveTrades,
     ClosedTrades,
-    TradeHistory
+    TradeHistory,
+    TickerTotals
 };
 
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
@@ -68,4 +69,4 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
 void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
 void ListBoxData_HistoryBlankLine(HWND hListBox);
 void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate);
-
+void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);

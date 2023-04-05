@@ -87,6 +87,89 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 
 
 // ========================================================================================
+// Populate the ListBox with the total earnings from each Ticker.
+// ========================================================================================
+void HistoryPanel_ShowTickerTotals()
+{
+    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
+    HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+
+    // Prevent ListBox redrawing until all calculations are completed
+    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
+
+
+    // Clear the current trade history table
+    ListBoxData_DestroyItemData(hListBox);
+
+
+    SuperLabel_SetText(
+        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
+        L"Ticker Totals");
+
+
+    //headers << "Ticker" << "Name" << "Amount" << "";
+    
+    // Calculate the amounts per Ticker Symbol
+    std::unordered_map<std::wstring, double> mapTicker;
+    mapTicker.clear();
+
+    for (const auto& trade : trades) {
+        if (trade->tickerSymbol == L"OPENBAL") continue;
+        double total = mapTicker[trade->tickerSymbol] + trade->ACB;
+        mapTicker[trade->tickerSymbol] = total;
+    }
+
+    struct VecData {
+        std::wstring ticker;
+        double amount;
+    };
+
+    // create a empty vector of VecData
+    std::vector<VecData> vec;
+
+    // copy from the map to the vector
+    for (const auto& [key, value] : mapTicker) {
+        VecData data{ key, value };
+        vec.push_back(data);
+    }
+
+    // sort the vector largest to smallest based on amount (using a lamda)
+    std::sort(vec.begin(), vec.end(),
+        [](VecData a, VecData b) {return (a.amount > b.amount); });
+
+
+    for (const auto& i : vec) {
+        ListBoxData_OutputTickerTotals(hListBox, i.ticker, i.amount);
+    }
+
+    ListBoxData_HistoryBlankLine(hListBox);
+
+
+    // Calculate the actual column widths based on the size of the strings in
+    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
+    // This function is also called when receiving new price data from TWS because
+    // that data may need the column width to be wider.
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
+
+
+    // Re-calculate scrollbar and show thumb if necessary
+    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
+    if (pData != nullptr) {
+        pData->calcVThumbRect();
+        AfxRedrawWindow(pData->hwnd);
+    }
+
+    // Redraw the ListBox to ensure that any recalculated columns are 
+    // displayed correctly. Re-enable redraw.
+    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    AfxRedrawWindow(hListBox);
+
+}
+
+
+
+
+// ========================================================================================
 // Process WM_DRAWITEM message for window/dialog: HistoryPanel
 // ========================================================================================
 void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)

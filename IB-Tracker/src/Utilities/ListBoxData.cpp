@@ -73,6 +73,21 @@ int nClosedMinColWidth[10] =
 };
 
 
+int nTickerTotalsMinColWidth[10] =
+{
+    15,     /* empty */
+    50,     /* Ticker Symbol */
+    150,    /* Ticker Name */
+    100,    /* Amount */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
+
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
 
@@ -101,6 +116,11 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         case TableType::TradeHistory:
             nColWidth[i] = nHistoryMinColWidth[i];
             break;
+
+        case TableType::TickerTotals:
+            nColWidth[i] = nTickerTotalsMinColWidth[i];
+            break;
+
         }
     }
 
@@ -381,6 +401,9 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
 }
 
 
+// ========================================================================================
+// Create the display data for a blank line
+// ========================================================================================
 void ListBoxData_HistoryBlankLine(HWND hListBox)
 {
     // *** BLANK SEPARATION LINE AT END OF HISTORY LIST ***
@@ -389,6 +412,9 @@ void ListBoxData_HistoryBlankLine(HWND hListBox)
 }
 
 
+// ========================================================================================
+// Create the display data a History Header line.
+// ========================================================================================
 void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans)
 {
     // Display the transaction description, date, and total prior to showing the detail lines
@@ -420,6 +446,9 @@ void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans)
 }
 
 
+// ========================================================================================
+// Create the display data for a History SHARES leg.
+// ========================================================================================
 void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg)
 {
     ListBoxData* ld = new ListBoxData;
@@ -442,6 +471,9 @@ void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* tran
 }
 
 
+// ========================================================================================
+// Create the display data for a History OPTIONS leg.
+// ========================================================================================
 void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg)
 {
     ListBoxData* ld = new ListBoxData;
@@ -487,6 +519,9 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
 }
 
 
+// ========================================================================================
+// Create the display data line for a closed position.
+// ========================================================================================
 void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate)
 {
     ListBoxData* ld = new ListBoxData;
@@ -509,6 +544,39 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring 
     ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
     ld->SetData(4, trade, tickerId, AfxMoney(trade->ACB), StringAlignmentFar,
         ThemeElement::TradesPanelBack, clr, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+}
+
+
+// ========================================================================================
+// Create the display data line for a closed position.
+// ========================================================================================
+void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+    REAL font9 = 9;
+
+    std::wcout << ticker << L" " << std::endl;
+    ld->SetData(0, nullptr, tickerId, ticker, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font9, FontStyleRegular);
+
+    // Look up the Company name based on the tickerid
+    auto iter = std::find_if(trades.begin(), trades.end(),
+         [&](const Trade* t) { return (t->tickerSymbol == ticker && t->tickerName.length()); });
+
+    if (iter != trades.end()) {
+        auto index = std::distance(trades.begin(), iter);
+        ld->SetData(0, nullptr, tickerId, trades.at(index)->tickerName, StringAlignmentNear,
+            ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font9, FontStyleRegular);
+    }
+
+    ThemeElement clr = (amount >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(2, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar,
+        ThemeElement::TradesPanelBack, clr, font9, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }
