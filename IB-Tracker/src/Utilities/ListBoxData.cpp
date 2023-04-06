@@ -75,10 +75,10 @@ int nClosedMinColWidth[10] =
 
 int nTickerTotalsMinColWidth[10] =
 {
-    15,     /* empty */
-    50,     /* Ticker Symbol */
-    150,    /* Ticker Name */
-    100,    /* Amount */
+    5,     /* empty */
+    50,    /* Ticker Symbol */
+    70,    /* Ticker Name */
+    45,    /* Amount */
     0,
     0,
     0,
@@ -87,6 +87,19 @@ int nTickerTotalsMinColWidth[10] =
     0
 };
 
+int nTickerTotalsMaxColWidth[10] =
+{
+    5,        /* empty */
+    50,       /* Ticker Symbol */
+    250,      /* Ticker Name */
+    120,      /* Amount */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
 
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
@@ -165,6 +178,10 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
                 if (tabletype == TableType::TradeHistory) {
                     nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
+                }
+
+                if (tabletype == TableType::TickerTotals) {
+                    nColWidth[i] = min(nColWidth[i], nTickerTotalsMaxColWidth[i]);
                 }
 
                 bRedrawListBox = true;
@@ -560,8 +577,7 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
     REAL font8 = 8;
     REAL font9 = 9;
 
-    std::wcout << ticker << L" " << std::endl;
-    ld->SetData(0, nullptr, tickerId, ticker, StringAlignmentNear,
+    ld->SetData(1, nullptr, tickerId, ticker, StringAlignmentNear,
         ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font9, FontStyleRegular);
 
     // Look up the Company name based on the tickerid
@@ -570,12 +586,12 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
 
     if (iter != trades.end()) {
         auto index = std::distance(trades.begin(), iter);
-        ld->SetData(0, nullptr, tickerId, trades.at(index)->tickerName, StringAlignmentNear,
+        ld->SetData(2, nullptr, tickerId, trades.at(index)->tickerName, StringAlignmentNear,
             ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font9, FontStyleRegular);
     }
 
     ThemeElement clr = (amount >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
-    ld->SetData(2, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar,
+    ld->SetData(3, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar,
         ThemeElement::TradesPanelBack, clr, font9, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);

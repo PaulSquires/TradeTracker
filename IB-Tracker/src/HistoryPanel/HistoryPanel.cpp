@@ -5,6 +5,8 @@
 #include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
 #include "..\VScrollBar\VScrollBar.h"
+#include "..\MenuPanel\MenuPanel.h"
+
 #include "HistoryPanel.h"
 
 
@@ -17,6 +19,8 @@ extern CHistoryPanel HistoryPanel;
 
 extern std::vector<Trade*> trades;
 extern int nColWidth[];
+
+extern HWND HWND_MENUPANEL;
 
 
 // ========================================================================================
@@ -102,11 +106,6 @@ void HistoryPanel_ShowTickerTotals()
     ListBoxData_DestroyItemData(hListBox);
 
 
-    SuperLabel_SetText(
-        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
-        L"Ticker Totals");
-
-
     //headers << "Ticker" << "Name" << "Amount" << "";
     
     // Calculate the amounts per Ticker Symbol
@@ -149,7 +148,12 @@ void HistoryPanel_ShowTickerTotals()
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::TickerTotals, -1);
+
+
+    SuperLabel_SetText(
+        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
+        L"Ticker Totals");
 
 
     // Re-calculate scrollbar and show thumb if necessary
@@ -382,7 +386,16 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
 // ========================================================================================
 void HistoryPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
+    int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+    switch (menuId)
+    {
+    case IDC_MENUPANEL_TICKERTOTALS:
+        lpMeasureItem->itemHeight = AfxScaleY(TICKER_TOTALS_LISTBOX_ROWHEIGHT);
+        break;
+
+    default:
+        lpMeasureItem->itemHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
+    }
 }
 
 
@@ -507,7 +520,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
-            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_OWNERDRAWVARIABLE | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)HistoryPanel_ListBox_SubclassProc,
             IDC_HISTORY_LISTBOX, NULL);
