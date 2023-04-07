@@ -22,6 +22,9 @@ extern int nColWidth[];
 
 extern HWND HWND_MENUPANEL;
 
+void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
+
+
 
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
@@ -32,6 +35,12 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
+    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
+
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -97,6 +106,12 @@ void HistoryPanel_ShowTickerTotals()
 {
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
+    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
+
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -177,12 +192,10 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
 
-    // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
-    // Save the previously top line of the ListBox so that it can be restored
-    // after the new states are determined.
-    int nTopLine = ListBox_GetTopIndex(hListBox);
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
+    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
 
     std::wstring selectedDate;
@@ -194,8 +207,17 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
             // If the node is already open then we close it, otherwise open it.
             isOpen = ld->isDailyTotalsNodeOpen ? false : true;
             if (!isOpen) selectedDate = L"";
+        } else {
+            return;
         }
     }
+
+    // Prevent ListBox redrawing until all calculations are completed
+    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
+
+    // Save the previously top line of the ListBox so that it can be restored
+    // after the new states are determined.
+    int nTopLine = ListBox_GetTopIndex(hListBox);
 
 
     // Clear the current trade history table
@@ -305,8 +327,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
         L"Daily Totals");
 
 
-    std::cout << nTopLine << " " << std::endl;
-
     // Set the ListBox to the previous topline.
     ListBox_SetTopIndex(hListBox, nTopLine);
 
@@ -322,7 +342,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
-
 }
 
 
@@ -474,24 +493,6 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
 
     case WM_LBUTTONUP:
     {
-        // Create the popup menu
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-        // if the specified point is in the client area of the list box, or one if it is outside the 
-        // client area.
-        if (HIWORD(idx) != 1) {
-            // If the Daily Totals menu is selected then we are clicking on a line in
-            // the list of daily totals and wishing to expand or contract it. We do the test
-            // here to determine the date being actioned and whether to expand/contract the node.
-            if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) == IDC_MENUPANEL_DAILYTOTALS) {
-                // The date will be valid if we are "opening" the node, or simply null if
-                // we will just show all closed nodes.
-                ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
-                if (ld != nullptr) {
-                   HistoryPanel_ShowDailyTotals(ld);
-                }
-            }
-        }
         break;
     }
 
@@ -649,10 +650,23 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int VScrollBarWidth = bShowScrollBar ? AfxScaleX(HISTORY_VSCROLLBAR_WIDTH) : 0;
 
-    int nLeft = 0;
     int nTop = margin;
+    int nLeft = 0;
     int nWidth = cx - VScrollBarWidth;
-    int nHeight = cy - margin;
+    int nHeight = 0;
+
+    int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+    if (menuId == IDC_MENUPANEL_DAILYTOTALS) {
+        nHeight = (HISTORY_LISTBOX_ROWHEIGHT * 2);
+        SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), 0,
+            nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = AfxScaleY(120);
+    } else {
+        ShowWindow(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), SW_HIDE);
+    }
+
+    
+    nHeight = cy - margin;
     SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX), 0,
         nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -691,7 +705,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    // Create an Ownerdraw fixed row sized listbox that we will use to custom
+    // Create an Ownerdraw variable row sized listbox that we will use to custom
     // paint our various open trades.
     hCtl =
         HistoryPanel.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX, L"",
@@ -707,6 +721,20 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateVScrollBar(hwnd, IDC_HISTORY_VSCROLLBAR, hCtl);
 
+
+    // Create an Ownerdraw variable row sized listbox that we will use to custom
+    // paint the Daily History Summary.
+    hCtl =
+        HistoryPanel.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX_SUMMARY, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
+            LBS_OWNERDRAWVARIABLE | LBS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)HistoryPanel_ListBox_SubclassProc,
+            IDC_HISTORY_LISTBOX, NULL);
+    ListBox_AddString(hCtl, NULL);
+
     return TRUE;
 }
 
@@ -717,6 +745,15 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 void HistoryPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     if (id == IDC_HISTORY_LISTBOX && codeNotify == LBN_SELCHANGE) {
+        if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) == IDC_MENUPANEL_DAILYTOTALS) {
+            // The date will be valid if we are "opening" the node, or simply null if
+            // we will just show all closed nodes.
+            int idx = ListBox_GetCurSel(hwndCtl);
+            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, idx);
+            if (ld != nullptr) {
+                HistoryPanel_ShowDailyTotals(ld);
+            }
+        }
     }
 }
 

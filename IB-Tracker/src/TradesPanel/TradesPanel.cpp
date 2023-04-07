@@ -600,7 +600,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    // Create an Ownerdraw fixed row sized listbox that we will use to custom
+    // Create an Ownerdraw variable row sized listbox that we will use to custom
     // paint our various open trades.
     hCtl = 
         TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
