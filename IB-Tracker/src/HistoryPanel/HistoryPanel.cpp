@@ -172,13 +172,30 @@ void HistoryPanel_ShowTickerTotals()
 // ========================================================================================
 // Populate the ListBox with the total earnings per day.
 // ========================================================================================
-void HistoryPanel_ShowDailyTotals(const std::wstring& selectedDate)
+void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
 {
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
+
+    // Save the previously top line of the ListBox so that it can be restored
+    // after the new states are determined.
+    int nTopLine = ListBox_GetTopIndex(hListBox);
+
+
+    std::wstring selectedDate;
+    bool isOpen = false;
+
+    if (ld != nullptr) {
+        if (ld->isDailyTotalsNode) {
+            selectedDate = ld->DailyTotalsDate;
+            // If the node is already open then we close it, otherwise open it.
+            isOpen = ld->isDailyTotalsNodeOpen ? false : true;
+            if (!isOpen) selectedDate = L"";
+        }
+    }
 
 
     // Clear the current trade history table
@@ -233,14 +250,15 @@ void HistoryPanel_ShowDailyTotals(const std::wstring& selectedDate)
             YTD += dayTotal;
             if (AfxGetMonth(wszDate) == currentMonth) MTD += dayTotal;
         }
-
-        ListBoxData_OutputDailyTotalsNodeHeader(hListBox, wszDate, dayTotal, false);
-
+        
         // Expand the line if necessary
         if (wszDate == selectedDate) {
+            ListBoxData_OutputDailyTotalsNodeHeader(hListBox, wszDate, dayTotal, isOpen);
             for (auto& data : iter->second) {
                 ListBoxData_OutputDailyTotalsDetailLine(hListBox, data.trade, data.trans);
             }
+        } else {
+            ListBoxData_OutputDailyTotalsNodeHeader(hListBox, wszDate, dayTotal, false);
         }
         grandTotal += dayTotal;
     }
@@ -285,6 +303,12 @@ void HistoryPanel_ShowDailyTotals(const std::wstring& selectedDate)
     SuperLabel_SetText(
         GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
         L"Daily Totals");
+
+
+    std::cout << nTopLine << " " << std::endl;
+
+    // Set the ListBox to the previous topline.
+    ListBox_SetTopIndex(hListBox, nTopLine);
 
 
     // Re-calculate scrollbar and show thumb if necessary
@@ -462,7 +486,10 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
             if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) == IDC_MENUPANEL_DAILYTOTALS) {
                 // The date will be valid if we are "opening" the node, or simply null if
                 // we will just show all closed nodes.
-                HistoryPanel_ShowDailyTotals(L"2023-03-31");
+                ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+                if (ld != nullptr) {
+                   HistoryPanel_ShowDailyTotals(ld);
+                }
             }
         }
         break;

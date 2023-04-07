@@ -626,6 +626,10 @@ void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, d
     REAL font8 = 8;
     REAL font9 = 9;
 
+    ld->isDailyTotalsNode = true;
+    ld->isDailyTotalsNodeOpen = isOpen;
+    ld->DailyTotalsDate = date;
+
     // Triangle open/closed
     ld->SetData(0, nullptr, tickerId, (isOpen ? L"\u23F7" : L"\u23F5"), StringAlignmentCenter, 
         ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);

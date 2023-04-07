@@ -22,6 +22,9 @@ public:
 class ListBoxData {
 public:
     bool            isTickerLine = false;
+    bool            isDailyTotalsNode = false;
+    bool            isDailyTotalsNodeOpen = false;
+    std::wstring    DailyTotalsDate;
     TickerId        tickerId = -1;
     Trade*          trade = nullptr;
     ColumnData      col[10];
