@@ -29,6 +29,8 @@ std::wstring AfxGetExePath();
 std::wstring AfxGetUserName();
 std::wstring AfxCurrentDate();
 int AfxGetYear(std::wstring wszDate);
+int AfxGetMonth(std::wstring wszDate);
+int AfxGetDay(std::wstring wszDate);
 int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate);
 std::wstring AfxShortDate(std::wstring wszDate);
 bool isWineActive();

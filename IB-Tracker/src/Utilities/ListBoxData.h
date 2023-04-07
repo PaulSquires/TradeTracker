@@ -71,6 +71,6 @@ void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* tran
 void ListBoxData_HistoryBlankLine(HWND hListBox);
 void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate);
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
-void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount);
+void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
 void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transaction* trans);
 

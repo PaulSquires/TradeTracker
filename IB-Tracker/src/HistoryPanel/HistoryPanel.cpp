@@ -172,7 +172,7 @@ void HistoryPanel_ShowTickerTotals()
 // ========================================================================================
 // Populate the ListBox with the total earnings per day.
 // ========================================================================================
-void HistoryPanel_ShowDailyTotals()
+void HistoryPanel_ShowDailyTotals(const std::wstring& selectedDate)
 {
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
@@ -218,42 +218,36 @@ void HistoryPanel_ShowDailyTotals()
     // Iterate the map in reverse and display the contents in the table
     double grandTotal = 0;
 
-    std::wstring wszText;
+    std::wstring wszDate;
     for (auto iter = mapTotals.rbegin(); iter != mapTotals.rend(); ++iter) {
 
         double dayTotal = 0;
-        wszText = iter->first;
+        wszDate = iter->first;
         
+        // Calculate the day total for this date
         for (const auto& data : iter->second) {
             dayTotal+= data.trans->total;
         }
-        ListBoxData_OutputDailyTotalsNodeHeader(hListBox, iter->first, dayTotal);
+        // Increase the MTD and YTD based on the date
+        if (AfxGetYear(wszDate) == currentYear) {
+            YTD += dayTotal;
+            if (AfxGetMonth(wszDate) == currentMonth) MTD += dayTotal;
+        }
 
-        for (auto& data : iter->second) {
-            ListBoxData_OutputDailyTotalsDetailLine(hListBox, data.trade, data.trans);
+        ListBoxData_OutputDailyTotalsNodeHeader(hListBox, wszDate, dayTotal, false);
+
+        // Expand the line if necessary
+        if (wszDate == selectedDate) {
+            for (auto& data : iter->second) {
+                ListBoxData_OutputDailyTotalsDetailLine(hListBox, data.trade, data.trans);
+            }
         }
         grandTotal += dayTotal;
     }
 
 /*
-        // Increase the MTD and YTD based of the date
-        if (date.year() == currentYear) {
-            YTD = YTD + dayTotal;
-            if (date.month() == currentMonth) { MTD = MTD + dayTotal; }
-        }
-
-        // Finally, set the Total Amount for this particular date
-        QLocale q;
-        text = q.toCurrencyString(dayTotal, " ", 2);
-        SetItemAttributes(parent, 2, text, Qt::AlignRight | Qt::AlignVCenter, font, dayTotal >= 0 ? green : red, baseGrayBack);
-    }
-
 
     // Populate the summary data
-    QTreeWidgetItem* parent = new QTreeWidgetItem(ui->treeSummary);
-
-    QLocale q;
-
     text = q.toCurrencyString(grandTotal, " ", 2);
     SetItemAttributes(parent, 0, text, Qt::AlignCenter, font, grandTotal >= 0 ? green : red, baseGrayBack);
 
@@ -279,6 +273,7 @@ void HistoryPanel_ShowDailyTotals()
     text = q.toCurrencyString(YTD, " ", 2);
     SetItemAttributes(parent, 4, text, Qt::AlignCenter, font, YTD >= 0 ? green : red, baseGrayBack);
 */
+
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
@@ -448,6 +443,27 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         if (pData != nullptr) {
             pData->calcVThumbRect();
             AfxRedrawWindow(pData->hwnd);
+        }
+        break;
+    }
+
+
+    case WM_LBUTTONUP:
+    {
+        // Create the popup menu
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) != 1) {
+            // If the Daily Totals menu is selected then we are clicking on a line in
+            // the list of daily totals and wishing to expand or contract it. We do the test
+            // here to determine the date being actioned and whether to expand/contract the node.
+            if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) == IDC_MENUPANEL_DAILYTOTALS) {
+                // The date will be valid if we are "opening" the node, or simply null if
+                // we will just show all closed nodes.
+                HistoryPanel_ShowDailyTotals(L"2023-03-31");
+            }
         }
         break;
     }

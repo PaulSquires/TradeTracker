@@ -618,7 +618,7 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
 // ========================================================================================
 // Create the display data line for a daily total node header line.
 // ========================================================================================
-void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount)
+void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -626,9 +626,9 @@ void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, d
     REAL font8 = 8;
     REAL font9 = 9;
 
-
-    ld->SetData(0, nullptr, tickerId, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
-        ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+    // Triangle open/closed
+    ld->SetData(0, nullptr, tickerId, (isOpen ? L"\u23F7" : L"\u23F5"), StringAlignmentCenter, 
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
 
     std::wstring wszText = date;
     ld->SetData(1, nullptr, tickerId, wszText, StringAlignmentNear,

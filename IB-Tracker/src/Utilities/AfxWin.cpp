@@ -441,6 +441,28 @@ int AfxGetYear(std::wstring wszDate)
 
 
 // ========================================================================================
+// Returns the month from a date in ISO format (YYYY-MM-DD)
+// ========================================================================================
+int AfxGetMonth(std::wstring wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+    return std::stoi(wszDate.substr(5, 2));
+}
+
+
+// ========================================================================================
+// Returns the day from a date in ISO format (YYYY-MM-DD)
+// ========================================================================================
+int AfxGetDay(std::wstring wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+    return std::stoi(wszDate.substr(8, 2));
+}
+
+
+// ========================================================================================
 // Returns the short format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
 std::wstring AfxGetShortDayName(std::wstring wszDate)

@@ -11,7 +11,7 @@
 extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
 extern void HistoryPanel_ShowTickerTotals();
-extern void HistoryPanel_ShowDailyTotals();
+extern void HistoryPanel_ShowDailyTotals(const std::wstring& selectedDate);
 
 
 HWND HWND_MENUPANEL = NULL;
@@ -632,7 +632,6 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_MENUPANEL_ACTIVETRADES:
             {
-                // Deselect any previous selected menu item.
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 TradesPanel_ShowActiveTrades();
                 break;
@@ -679,7 +678,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_DAILYTOTALS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                HistoryPanel_ShowDailyTotals();
+                HistoryPanel_ShowDailyTotals(L"");
                 break;
             }
 
