@@ -39,4 +39,8 @@ std::wstring AfxMoney(double value);
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y);
 bool AfxStringCompareI(const std::string& s1, const std::string& s2);
 bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
+int AfxLocalYear();
+int AfxLocalMonth();
+std::wstring AfxGetShortDayName(std::wstring wszDate);
+
 

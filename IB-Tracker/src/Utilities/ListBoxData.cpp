@@ -101,6 +101,20 @@ int nTickerTotalsMaxColWidth[10] =
     0
 };
 
+int nDailyTotalsMinColWidth[10] =
+{
+    5,      /* dropdown arrow */
+    75,     /* Date/Ticker */
+    150,    /* Day/Description */
+    100,    /* Amount */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
 
@@ -134,6 +148,9 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
             nColWidth[i] = nTickerTotalsMinColWidth[i];
             break;
 
+        case TableType::DailyTotals:
+            nColWidth[i] = nDailyTotalsMinColWidth[i];
+            break;
         }
     }
 
@@ -578,7 +595,7 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
     REAL font9 = 9;
 
     ld->SetData(1, nullptr, tickerId, ticker, StringAlignmentNear,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font9, FontStyleRegular);
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
 
     // Look up the Company name based on the tickerid
     auto iter = std::find_if(trades.begin(), trades.end(),
@@ -587,12 +604,70 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
     if (iter != trades.end()) {
         auto index = std::distance(trades.begin(), iter);
         ld->SetData(2, nullptr, tickerId, trades.at(index)->tickerName, StringAlignmentNear,
-            ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font9, FontStyleRegular);
+            ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
     }
 
     ThemeElement clr = (amount >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
     ld->SetData(3, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar,
-        ThemeElement::TradesPanelBack, clr, font9, FontStyleRegular);
+        ThemeElement::TradesPanelBack, clr, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+}
+
+
+// ========================================================================================
+// Create the display data line for a daily total node header line.
+// ========================================================================================
+void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+    REAL font9 = 9;
+
+
+    ld->SetData(0, nullptr, tickerId, L"\u23F7", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    std::wstring wszText = date;
+    ld->SetData(1, nullptr, tickerId, wszText, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+
+    wszText = AfxGetShortDayName(date);
+    ld->SetData(2, nullptr, tickerId, wszText, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+
+    ThemeElement clr = (amount >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(3, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar,
+        ThemeElement::TradesPanelBack, clr, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+}
+
+
+// ========================================================================================
+// Create the display data line for a daily total detail line.
+// ========================================================================================
+void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transaction* trans)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+    REAL font9 = 9;
+
+    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    ld->SetData(1, nullptr, tickerId, trade->tickerSymbol, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    ld->SetData(2, nullptr, tickerId, trans->description, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    ld->SetData(3, nullptr, tickerId, AfxMoney(trans->total), StringAlignmentFar,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }

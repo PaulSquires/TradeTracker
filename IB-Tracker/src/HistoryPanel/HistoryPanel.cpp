@@ -106,8 +106,6 @@ void HistoryPanel_ShowTickerTotals()
     ListBoxData_DestroyItemData(hListBox);
 
 
-    //headers << "Ticker" << "Name" << "Amount" << "";
-    
     // Calculate the amounts per Ticker Symbol
     std::unordered_map<std::wstring, double> mapTicker;
     mapTicker.clear();
@@ -171,6 +169,142 @@ void HistoryPanel_ShowTickerTotals()
 }
 
 
+// ========================================================================================
+// Populate the ListBox with the total earnings per day.
+// ========================================================================================
+void HistoryPanel_ShowDailyTotals()
+{
+    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
+    HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+
+    // Prevent ListBox redrawing until all calculations are completed
+    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
+
+
+    // Clear the current trade history table
+    ListBoxData_DestroyItemData(hListBox);
+
+    //headers << "Profit / Loss" << "Stock Value" << "Net Profit / Loss" << "MTD" << "YTD" << "";
+    //ui->treeSummary->setHeaderLabels(headers);
+    //headers.clear();
+
+    //headers << "Date" << "Day / Description" << "Amount" << "";
+    //ui->treeDaily->setHeaderLabels(headers);
+    //headers.clear();
+
+
+    // Calculate the daily amounts
+    // Map contains a vector for every unique date.
+    struct MapData {
+        Trade* trade;
+        Transaction* trans;
+    };
+
+    std::map< std::wstring, std::vector<MapData> > mapTotals;
+    mapTotals.clear();
+
+    int currentYear = AfxLocalYear();
+    int currentMonth = AfxLocalMonth();
+    double MTD = 0;
+    double YTD = 0;
+
+    for (const auto& trade : trades) {
+        for (const auto& trans : trade->transactions) {
+            MapData data{trade, trans};
+            mapTotals[trans->transDate].push_back(data);
+        }
+    }
+
+    // Iterate the map in reverse and display the contents in the table
+    double grandTotal = 0;
+
+    std::wstring wszText;
+    for (auto iter = mapTotals.rbegin(); iter != mapTotals.rend(); ++iter) {
+
+        double dayTotal = 0;
+        wszText = iter->first;
+        
+        for (const auto& data : iter->second) {
+            dayTotal+= data.trans->total;
+        }
+        ListBoxData_OutputDailyTotalsNodeHeader(hListBox, iter->first, dayTotal);
+
+        for (auto& data : iter->second) {
+            ListBoxData_OutputDailyTotalsDetailLine(hListBox, data.trade, data.trans);
+        }
+        grandTotal += dayTotal;
+    }
+
+/*
+        // Increase the MTD and YTD based of the date
+        if (date.year() == currentYear) {
+            YTD = YTD + dayTotal;
+            if (date.month() == currentMonth) { MTD = MTD + dayTotal; }
+        }
+
+        // Finally, set the Total Amount for this particular date
+        QLocale q;
+        text = q.toCurrencyString(dayTotal, " ", 2);
+        SetItemAttributes(parent, 2, text, Qt::AlignRight | Qt::AlignVCenter, font, dayTotal >= 0 ? green : red, baseGrayBack);
+    }
+
+
+    // Populate the summary data
+    QTreeWidgetItem* parent = new QTreeWidgetItem(ui->treeSummary);
+
+    QLocale q;
+
+    text = q.toCurrencyString(grandTotal, " ", 2);
+    SetItemAttributes(parent, 0, text, Qt::AlignCenter, font, grandTotal >= 0 ? green : red, baseGrayBack);
+
+    double stockValue = 0;
+    for (const auto& trade : trades) {
+        if (!trade->isOpen) { continue; }
+        for (const auto& leg : trade->openLegs) {
+            if (leg->underlying == L"SHARES") {
+                stockValue = stockValue + (leg->openQuantity * trade->tickerLastPrice);
+            }
+        }
+    }
+    text = q.toCurrencyString(stockValue, " ", 2);
+    SetItemAttributes(parent, 1, text, Qt::AlignCenter, font, stockValue >= 0 ? green : red, baseGrayBack);
+
+    double netValue = grandTotal + stockValue;
+    text = q.toCurrencyString(netValue, " ", 2);
+    SetItemAttributes(parent, 2, text, Qt::AlignCenter, font, netValue >= 0 ? green : red, baseGrayBack);
+
+    text = q.toCurrencyString(MTD, " ", 2);
+    SetItemAttributes(parent, 3, text, Qt::AlignCenter, font, MTD >= 0 ? green : red, baseGrayBack);
+
+    text = q.toCurrencyString(YTD, " ", 2);
+    SetItemAttributes(parent, 4, text, Qt::AlignCenter, font, YTD >= 0 ? green : red, baseGrayBack);
+*/
+
+    // Calculate the actual column widths based on the size of the strings in
+    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
+    // This function is also called when receiving new price data from TWS because
+    // that data may need the column width to be wider.
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::DailyTotals, -1);
+
+
+    SuperLabel_SetText(
+        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
+        L"Daily Totals");
+
+
+    // Re-calculate scrollbar and show thumb if necessary
+    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
+    if (pData != nullptr) {
+        pData->calcVThumbRect();
+        AfxRedrawWindow(pData->hwnd);
+    }
+
+    // Redraw the ListBox to ensure that any recalculated columns are 
+    // displayed correctly. Re-enable redraw.
+    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    AfxRedrawWindow(hListBox);
+
+}
 
 
 // ========================================================================================
@@ -390,6 +524,7 @@ void HistoryPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
     switch (menuId)
     {
     case IDC_MENUPANEL_TICKERTOTALS:
+    case IDC_MENUPANEL_DAILYTOTALS:
         lpMeasureItem->itemHeight = AfxScaleY(TICKER_TOTALS_LISTBOX_ROWHEIGHT);
         break;
 

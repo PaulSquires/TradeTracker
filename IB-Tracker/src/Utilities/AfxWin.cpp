@@ -441,6 +441,25 @@ int AfxGetYear(std::wstring wszDate)
 
 
 // ========================================================================================
+// Returns the short format day based on the specified date in ISO format (YYYY-MM-DD)
+// ========================================================================================
+std::wstring AfxGetShortDayName(std::wstring wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+
+    SYSTEMTIME st;
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"ddd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
+
+// ========================================================================================
 // Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
 // We use this when dealing with Option expiration dates to display.
 // ========================================================================================
@@ -570,4 +589,26 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2)
 {
     return ((s1.size() == s2.size()) &&
     equal(s1.begin(), s1.end(), s2.begin(), caseInsCharCompareW));
+}
+
+
+// ========================================================================================
+// Returns the current local year. The valid values are 1601 through 30827.
+// ========================================================================================
+int AfxLocalYear()
+{
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    return st.wYear;
+}
+
+
+// ========================================================================================
+// Returns the current local month. The valid values are 1 thorugh 12 (1 = January, etc.).
+// ========================================================================================
+int AfxLocalMonth()
+{
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    return st.wMonth;
 }
