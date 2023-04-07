@@ -198,8 +198,9 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
 
-    std::wstring selectedDate;
-    bool isOpen = false;
+    // Default to opening the current date
+    std::wstring selectedDate = AfxCurrentDate();
+    bool isOpen = true;
 
     if (ld != nullptr) {
         if (ld->isDailyTotalsNode) {
@@ -222,14 +223,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
 
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
-
-    //headers << "Profit / Loss" << "Stock Value" << "Net Profit / Loss" << "MTD" << "YTD" << "";
-    //ui->treeSummary->setHeaderLabels(headers);
-    //headers.clear();
-
-    //headers << "Date" << "Day / Description" << "Amount" << "";
-    //ui->treeDaily->setHeaderLabels(headers);
-    //headers.clear();
 
 
     // Calculate the daily amounts
