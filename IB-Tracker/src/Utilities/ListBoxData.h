@@ -76,4 +76,5 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring 
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
 void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
 void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transaction* trans);
+void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
 

@@ -676,3 +676,62 @@ void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transa
     ListBox_AddString(hListBox, ld);
 }
 
+
+// ========================================================================================
+// Create the display data line for a daily total SUMMARY lines.
+// ========================================================================================
+void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+    REAL font9 = 9;
+
+/*
+    // Populate the summary data
+    text = q.toCurrencyString(grandTotal, " ", 2);
+
+    ThemeElement clr = (grandTotal >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(0, nullptr, tickerId, AfxMoney(grandTotal), StringAlignmentCenter, 
+        ThemeElement::TradesPanelBack, clr, font8, FontStyleRegular);
+
+    double stockValue = 0;
+    for (const auto& trade : trades) {
+        if (!trade->isOpen) continue;
+        for (const auto& leg : trade->openLegs) {
+            if (leg->underlying == L"SHARES") {
+                stockValue = stockValue + (leg->openQuantity * trade->tickerLastPrice);
+            }
+        }
+    }
+
+    text = q.toCurrencyString(stockValue, " ", 2);
+
+
+    SetItemAttributes(parent, 1, text, Qt::AlignCenter, font, stockValue >= 0 ? green : red, baseGrayBack);
+
+    double netValue = grandTotal + stockValue;
+    text = q.toCurrencyString(netValue, " ", 2);
+    SetItemAttributes(parent, 2, text, Qt::AlignCenter, font, netValue >= 0 ? green : red, baseGrayBack);
+
+    text = q.toCurrencyString(MTD, " ", 2);
+    SetItemAttributes(parent, 3, text, Qt::AlignCenter, font, MTD >= 0 ? green : red, baseGrayBack);
+
+    text = q.toCurrencyString(YTD, " ", 2);
+    SetItemAttributes(parent, 4, text, Qt::AlignCenter, font, YTD >= 0 ? green : red, baseGrayBack);
+
+
+    ld->SetData(1, nullptr, tickerId, trade->tickerSymbol, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    ld->SetData(2, nullptr, tickerId, trans->description, StringAlignmentNear,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    ld->SetData(3, nullptr, tickerId, AfxMoney(trans->total), StringAlignmentFar,
+        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+    */
+}
+

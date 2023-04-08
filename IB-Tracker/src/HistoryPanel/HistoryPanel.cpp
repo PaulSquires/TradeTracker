@@ -278,34 +278,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
         grandTotal += dayTotal;
     }
 
-/*
-
-    // Populate the summary data
-    text = q.toCurrencyString(grandTotal, " ", 2);
-    SetItemAttributes(parent, 0, text, Qt::AlignCenter, font, grandTotal >= 0 ? green : red, baseGrayBack);
-
-    double stockValue = 0;
-    for (const auto& trade : trades) {
-        if (!trade->isOpen) { continue; }
-        for (const auto& leg : trade->openLegs) {
-            if (leg->underlying == L"SHARES") {
-                stockValue = stockValue + (leg->openQuantity * trade->tickerLastPrice);
-            }
-        }
-    }
-    text = q.toCurrencyString(stockValue, " ", 2);
-    SetItemAttributes(parent, 1, text, Qt::AlignCenter, font, stockValue >= 0 ? green : red, baseGrayBack);
-
-    double netValue = grandTotal + stockValue;
-    text = q.toCurrencyString(netValue, " ", 2);
-    SetItemAttributes(parent, 2, text, Qt::AlignCenter, font, netValue >= 0 ? green : red, baseGrayBack);
-
-    text = q.toCurrencyString(MTD, " ", 2);
-    SetItemAttributes(parent, 3, text, Qt::AlignCenter, font, MTD >= 0 ? green : red, baseGrayBack);
-
-    text = q.toCurrencyString(YTD, " ", 2);
-    SetItemAttributes(parent, 4, text, Qt::AlignCenter, font, YTD >= 0 ? green : red, baseGrayBack);
-*/
 
 
     // Calculate the actual column widths based on the size of the strings in
