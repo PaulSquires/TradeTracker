@@ -99,6 +99,8 @@ void TradesPanel_ShowActiveTrades()
         if (ld != nullptr) {
             HistoryPanel_ShowTradesHistoryTable(ld->trade);
         }
+    }else {
+        ListBoxData_HistoryBlankLine(hListBox);
     }
 
     tws_ResumeTWS();
@@ -195,6 +197,9 @@ void TradesPanel_ShowClosedTrades()
         if (ld != nullptr) {
             HistoryPanel_ShowTradesHistoryTable(ld->trade);
         }
+    }
+    else {
+        ListBoxData_HistoryBlankLine(hListBox);
     }
 
     SetFocus(hListBox);
@@ -444,7 +449,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
     // paint our various open trades.
-    hCtl = 
+    hCtl =
         TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |

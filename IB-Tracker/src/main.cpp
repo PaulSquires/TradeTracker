@@ -18,7 +18,7 @@ extern HWND HWND_TRADESPANEL;
 #ifndef ENABLECONSOLE
 // Set to zero to disable the console window when the application runs.
 // We would disable the console when distributing/deploying the final app.
-#define ENABLECONSOLE 0
+#define ENABLECONSOLE 1
 #endif
 
 

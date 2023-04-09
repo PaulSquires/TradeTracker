@@ -292,6 +292,8 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
         L"Daily Totals");
 
 
+    ListBoxData_HistoryBlankLine(hListBox);
+    
     // Set the ListBox to the previous topline.
     ListBox_SetTopIndex(hListBox, nTopLine);
 
