@@ -8,6 +8,13 @@
 #endif
 
 virtual void tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib) EWRAPPER_VIRTUAL_IMPL;
+virtual void connectionClosed() EWRAPPER_VIRTUAL_IMPL;
+virtual void connectAck() EWRAPPER_VIRTUAL_IMPL;
+virtual void error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson) EWRAPPER_VIRTUAL_IMPL;
+virtual void position( const std::string& account, const Contract& contract, Decimal position, double avgCost) EWRAPPER_VIRTUAL_IMPL;
+virtual void positionEnd() EWRAPPER_VIRTUAL_IMPL;
+
+
 virtual void tickSize(TickerId tickerId, TickType field, Decimal size) EWRAPPER_VIRTUAL_IMPL;
 virtual void tickOptionComputation( TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
 	double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice) EWRAPPER_VIRTUAL_IMPL;
@@ -21,7 +28,6 @@ virtual void orderStatus( OrderId orderId, const std::string& status, Decimal fi
 virtual void openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&) EWRAPPER_VIRTUAL_IMPL;
 virtual void openOrderEnd() EWRAPPER_VIRTUAL_IMPL;
 virtual void winError( const std::string& str, int lastError) EWRAPPER_VIRTUAL_IMPL;
-virtual void connectionClosed() EWRAPPER_VIRTUAL_IMPL;
 virtual void updateAccountValue(const std::string& key, const std::string& val,
 const std::string& currency, const std::string& accountName) EWRAPPER_VIRTUAL_IMPL;
 virtual void updatePortfolio( const Contract& contract, Decimal position,
@@ -35,7 +41,6 @@ virtual void bondContractDetails( int reqId, const ContractDetails& contractDeta
 virtual void contractDetailsEnd( int reqId) EWRAPPER_VIRTUAL_IMPL;
 virtual void execDetails( int reqId, const Contract& contract, const Execution& execution) EWRAPPER_VIRTUAL_IMPL;
 virtual void execDetailsEnd( int reqId) EWRAPPER_VIRTUAL_IMPL;
-virtual void error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson) EWRAPPER_VIRTUAL_IMPL;
 virtual void updateMktDepth(TickerId id, int position, int operation, int side,
 	double price, Decimal size) EWRAPPER_VIRTUAL_IMPL;
 virtual void updateMktDepthL2(TickerId id, int position, const std::string& marketMaker, int operation,
@@ -58,8 +63,6 @@ virtual void deltaNeutralValidation(int reqId, const DeltaNeutralContract& delta
 virtual void tickSnapshotEnd( int reqId) EWRAPPER_VIRTUAL_IMPL;
 virtual void marketDataType( TickerId reqId, int marketDataType) EWRAPPER_VIRTUAL_IMPL;
 virtual void commissionReport( const CommissionReport& commissionReport) EWRAPPER_VIRTUAL_IMPL;
-virtual void position( const std::string& account, const Contract& contract, Decimal position, double avgCost) EWRAPPER_VIRTUAL_IMPL;
-virtual void positionEnd() EWRAPPER_VIRTUAL_IMPL;
 virtual void accountSummary( int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& curency) EWRAPPER_VIRTUAL_IMPL;
 virtual void accountSummaryEnd( int reqId) EWRAPPER_VIRTUAL_IMPL;
 virtual void verifyMessageAPI( const std::string& apiData) EWRAPPER_VIRTUAL_IMPL;
@@ -68,7 +71,6 @@ virtual void displayGroupList( int reqId, const std::string& groups) EWRAPPER_VI
 virtual void displayGroupUpdated( int reqId, const std::string& contractInfo) EWRAPPER_VIRTUAL_IMPL;
 virtual void verifyAndAuthMessageAPI( const std::string& apiData, const std::string& xyzChallange) EWRAPPER_VIRTUAL_IMPL;
 virtual void verifyAndAuthCompleted( bool isSuccessful, const std::string& errorText) EWRAPPER_VIRTUAL_IMPL;
-virtual void connectAck() EWRAPPER_VIRTUAL_IMPL;
 virtual void positionMulti( int reqId, const std::string& account,const std::string& modelCode, const Contract& contract, Decimal pos, double avgCost) EWRAPPER_VIRTUAL_IMPL;
 virtual void positionMultiEnd( int reqId) EWRAPPER_VIRTUAL_IMPL;
 virtual void accountUpdateMulti( int reqId, const std::string& account, const std::string& modelCode, const std::string& key, const std::string& value, const std::string& currency) EWRAPPER_VIRTUAL_IMPL;
@@ -109,5 +111,6 @@ virtual void wshMetaData(int reqId, const std::string& dataJson) EWRAPPER_VIRTUA
 virtual void wshEventData(int reqId, const std::string& dataJson) EWRAPPER_VIRTUAL_IMPL;
 virtual void historicalSchedule(int reqId, const std::string& startDateTime, const std::string& endDateTime, const std::string& timeZone, const std::vector<HistoricalSession>& sessions) EWRAPPER_VIRTUAL_IMPL;
 virtual void userInfo(int reqId, const std::string& whiteBrandingId) EWRAPPER_VIRTUAL_IMPL;
+
 
 #undef EWRAPPER_VIRTUAL_IMPL

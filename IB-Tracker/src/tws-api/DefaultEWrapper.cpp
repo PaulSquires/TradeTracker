@@ -5,6 +5,13 @@
 #include "DefaultEWrapper.h"
 
 void DefaultEWrapper::tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attribs) { }
+void DefaultEWrapper::position( const std::string& account, const Contract& contract, Decimal position, double avgCost) { }
+void DefaultEWrapper::positionEnd() { }
+void DefaultEWrapper::error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson) { }
+void DefaultEWrapper::connectionClosed() { }
+void DefaultEWrapper::connectAck() { }
+
+
 void DefaultEWrapper::tickSize( TickerId tickerId, TickType field, Decimal size) { }
 void DefaultEWrapper::tickOptionComputation( TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
 	   double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice) { }
@@ -18,12 +25,11 @@ void DefaultEWrapper::orderStatus( OrderId orderId, const std::string& status, D
 void DefaultEWrapper::openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&) { }
 void DefaultEWrapper::openOrderEnd() { }
 void DefaultEWrapper::winError( const std::string& str, int lastError) { }
-void DefaultEWrapper::connectionClosed() { }
 void DefaultEWrapper::updateAccountValue(const std::string& key, const std::string& val,
    const std::string& currency, const std::string& accountName) { }
-void DefaultEWrapper::updatePortfolio( const Contract& contract, Decimal position,
-      double marketPrice, double marketValue, double averageCost,
-      double unrealizedPNL, double realizedPNL, const std::string& accountName) { }
+void DefaultEWrapper::updatePortfolio(const Contract& contract, Decimal position,
+	double marketPrice, double marketValue, double averageCost,
+	double unrealizedPNL, double realizedPNL, const std::string& accountName) { }
 void DefaultEWrapper::updateAccountTime(const std::string& timeStamp) { }
 void DefaultEWrapper::accountDownloadEnd(const std::string& accountName) { }
 void DefaultEWrapper::nextValidId( OrderId orderId) { }
@@ -32,7 +38,6 @@ void DefaultEWrapper::bondContractDetails( int reqId, const ContractDetails& con
 void DefaultEWrapper::contractDetailsEnd( int reqId) { }
 void DefaultEWrapper::execDetails( int reqId, const Contract& contract, const Execution& execution) { }
 void DefaultEWrapper::execDetailsEnd( int reqId) { }
-void DefaultEWrapper::error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson) { }
 void DefaultEWrapper::updateMktDepth(TickerId id, int position, int operation, int side,
 	double price, Decimal size) { }
 void DefaultEWrapper::updateMktDepthL2(TickerId id, int position, const std::string& marketMaker, int operation,
@@ -55,8 +60,6 @@ void DefaultEWrapper::deltaNeutralValidation(int reqId, const DeltaNeutralContra
 void DefaultEWrapper::tickSnapshotEnd( int reqId) { }
 void DefaultEWrapper::marketDataType( TickerId reqId, int marketDataType) { }
 void DefaultEWrapper::commissionReport( const CommissionReport& commissionReport) { }
-void DefaultEWrapper::position( const std::string& account, const Contract& contract, Decimal position, double avgCost) { }
-void DefaultEWrapper::positionEnd() { }
 void DefaultEWrapper::accountSummary( int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& curency) { }
 void DefaultEWrapper::accountSummaryEnd( int reqId) { }
 void DefaultEWrapper::verifyMessageAPI( const std::string& apiData) { }
@@ -65,7 +68,6 @@ void DefaultEWrapper::displayGroupList( int reqId, const std::string& groups) { 
 void DefaultEWrapper::displayGroupUpdated( int reqId, const std::string& contractInfo) { }
 void DefaultEWrapper::verifyAndAuthMessageAPI( const std::string& apiData, const std::string& xyzChallange) { }
 void DefaultEWrapper::verifyAndAuthCompleted( bool isSuccessful, const std::string& errorText) { }
-void DefaultEWrapper::connectAck() { }
 void DefaultEWrapper::positionMulti( int reqId, const std::string& account,const std::string& modelCode, const Contract& contract, Decimal pos, double avgCost) { }
 void DefaultEWrapper::positionMultiEnd( int reqId) { }
 void DefaultEWrapper::accountUpdateMulti( int reqId, const std::string& account, const std::string& modelCode, const std::string& key, const std::string& value, const std::string& currency) { }

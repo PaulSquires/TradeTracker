@@ -735,3 +735,104 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
     */
 }
 
+
+// ========================================================================================
+// Process WM_DRAWITEM message for window/dialog
+// ========================================================================================
+void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
+{
+    if (lpDrawItem->itemID == -1) return;
+
+    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
+        lpDrawItem->itemAction == ODA_SELECT) {
+
+        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
+        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
+
+        bool bIsHot = false;
+
+        SaveDC(lpDrawItem->hDC);
+
+        HDC memDC = NULL;         // Double buffering
+        HBITMAP hbit = NULL;      // Double buffering
+
+        memDC = CreateCompatibleDC(lpDrawItem->hDC);
+        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
+        if (hbit) SelectObject(memDC, hbit);
+
+        if ((lpDrawItem->itemAction | ODA_SELECT) &&
+            (lpDrawItem->itemState & ODS_SELECTED)) {
+            bIsHot = true;
+        }
+
+        Graphics graphics(memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+
+        // Set some defaults in case there is no valid ListBox line number
+        std::wstring wszText;
+
+        DWORD nBackColor = (bIsHot)
+            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+            : GetThemeColor(ThemeElement::TradesPanelBack);
+        DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
+
+        std::wstring wszFontName = AfxGetDefaultFont();
+        FontFamily   fontFamily(wszFontName.c_str());
+        REAL fontSize = 10;
+        int fontStyle = FontStyleRegular;
+
+        StringAlignment alignment = StringAlignmentNear;
+
+        // Paint the full width background using brush 
+        SolidBrush backBrush(nBackColor);
+        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+
+        // Get the current ListBox line data should a valid line exist
+        // Paint the individual columns with the specific data.
+        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
+        int nLeft = 0;
+
+        // Draw each of the columns
+        for (int i = 0; i < 8; i++) {
+            if (ld == nullptr) break;
+
+            wszText = ld->col[i].wszText;
+
+            alignment = ld->col[i].alignment;
+            nBackColor = (bIsHot)
+                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+                : GetThemeColor(ld->col[i].backTheme);
+            nTextColor = GetThemeColor(ld->col[i].textTheme);
+            fontSize = ld->col[i].fontSize;
+            fontStyle = ld->col[i].fontStyle;
+
+            int colWidth = AfxScaleX((float)ld->col[i].colWidth);
+
+            backBrush.SetColor(nBackColor);
+            graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
+
+            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+            SolidBrush   textBrush(nTextColor);
+            StringFormat stringF(StringFormatFlagsNoWrap);
+            stringF.SetAlignment(alignment);
+            stringF.SetLineAlignment(StringAlignmentCenter);
+
+            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
+            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+
+            nLeft += colWidth;
+        }
+
+
+        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
+            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
+
+
+        // Cleanup
+        RestoreDC(lpDrawItem->hDC, -1);
+        if (hbit) DeleteObject(hbit);
+        if (memDC) DeleteDC(memDC);
+    }
+}
+

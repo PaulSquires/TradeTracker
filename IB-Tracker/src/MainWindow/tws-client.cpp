@@ -401,6 +401,27 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	}  // if
 }
 
+void TwsClient::error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson)
+{
+	switch (errorCode) {
+	case 2104:
+	case 2106:
+	case 2158:
+		return;
+	}
+	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, errorCode, errorString.c_str());
+}
+
+void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost) {
+	//    printf( "Position. %s - Symbol: %s, SecType: %s, Currency: %s, Position: %s, Avg Cost: %s\n", account.c_str(), contract.symbol.c_str(), contract.secType.c_str(), contract.currency.c_str(), decimalStringToDisplay(position).c_str(), Utils::doubleMaxString(avgCost).c_str());
+}
+
+void TwsClient::positionEnd() {
+	printf("PositionEnd\n");
+}
+
+
+
 void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
 	if (isThreadPaused) return;
 	// printf("Tick Size. Ticker Id: %ld, Field: %d, Size: %s\n", tickerId, (int)field, decimalStringToDisplay(size).c_str());
@@ -427,24 +448,6 @@ void TwsClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints
 	if (isThreadPaused) return;
 }
 
-void TwsClient::error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson)
-{
-	switch (errorCode) {
-	case 2104:
-	case 2106:
-	case 2158:
-		return;
-	}
-	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, errorCode, errorString.c_str());
-}
-
-void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost) {
-	//    printf( "Position. %s - Symbol: %s, SecType: %s, Currency: %s, Position: %s, Avg Cost: %s\n", account.c_str(), contract.symbol.c_str(), contract.secType.c_str(), contract.currency.c_str(), decimalStringToDisplay(position).c_str(), Utils::doubleMaxString(avgCost).c_str());
-}
-
-void TwsClient::positionEnd() {
-	printf("PositionEnd\n");
-}
 
 void TwsClient::winError(const std::string& str, int lastError) {}
 

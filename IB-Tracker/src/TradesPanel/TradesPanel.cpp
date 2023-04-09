@@ -12,7 +12,6 @@
 HWND HWND_TRADESPANEL = NULL;
 
 const int VSCROLLBAR_WIDTH = 14;
-const int VSCROLLBAR_MINTHUMBSIZE = 20;
 
 extern CTradesPanel TradesPanel;
 
@@ -206,106 +205,6 @@ void TradesPanel_ShowClosedTrades()
 }
 
 
-// ========================================================================================
-// Process WM_DRAWITEM message for window/dialog: TradesPanel
-// ========================================================================================
-void TradesPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
-{
-    if (lpDrawItem->itemID == -1) return;
-
-    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
-        lpDrawItem->itemAction == ODA_SELECT) {
-
-        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
-        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
-
-        bool bIsHot = false;
-
-        SaveDC(lpDrawItem->hDC);
-
-        HDC memDC = NULL;         // Double buffering
-        HBITMAP hbit = NULL;      // Double buffering
-
-        memDC = CreateCompatibleDC(lpDrawItem->hDC);
-        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
-        if (hbit) SelectObject(memDC, hbit);
-
-        if ((lpDrawItem->itemAction | ODA_SELECT) &&
-            (lpDrawItem->itemState & ODS_SELECTED)) {
-            bIsHot = true;
-        }
-
-        Graphics graphics(memDC);
-        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
-        
-
-        // Set some defaults in case there is no valid ListBox line number
-        std::wstring wszText;
-        
-        DWORD nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-            : GetThemeColor(ThemeElement::TradesPanelBack);
-        DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
-        
-        std::wstring wszFontName = AfxGetDefaultFont();
-        FontFamily   fontFamily(wszFontName.c_str());
-        REAL fontSize = 10;
-        int fontStyle = FontStyleRegular;
-        
-        StringAlignment alignment = StringAlignmentNear;
-
-        // Paint the full width background using brush 
-        SolidBrush backBrush(nBackColor);
-        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
-
-        // Get the current ListBox line data should a valid line exist
-        // Paint the individual columns with the specific data.
-        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
-        int nLeft = 0;
-
-        // Draw each of the columns
-        for (int i = 0; i < 8; i++) {
-            if (ld == nullptr) break;
-
-            wszText = ld->col[i].wszText;
-
-            alignment = ld->col[i].alignment;
-            nBackColor = (bIsHot)
-                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-                : GetThemeColor(ld->col[i].backTheme);
-            nTextColor = GetThemeColor(ld->col[i].textTheme);
-            fontSize = ld->col[i].fontSize;
-            fontStyle = ld->col[i].fontStyle;
-
-            int colWidth = AfxScaleX((float)ld->col[i].colWidth);
-
-            backBrush.SetColor(nBackColor);
-            graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
-
-            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            SolidBrush   textBrush(nTextColor);
-            StringFormat stringF(StringFormatFlagsNoWrap);
-            stringF.SetAlignment(alignment);
-            stringF.SetLineAlignment(StringAlignmentCenter);
-
-            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
-            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
-
-            nLeft += colWidth;
-        }
-
-
-        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left, 
-            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
-        
-
-        // Cleanup
-        RestoreDC(lpDrawItem->hDC, -1);
-        if (hbit) DeleteObject(hbit);
-        if (memDC) DeleteDC(memDC);
-    }
-}
-
 
 // ========================================================================================
 // Listbox subclass Window procedure
@@ -349,54 +248,6 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         }
         break;
     }
-
-    case WM_MOUSEMOVE:
-        break;
-
-    case WM_MOUSEHOVER:
-        break;
-
-    case WM_MOUSELEAVE:
-        break;
-
-
-    case WM_RBUTTONDOWN:
-    {
-        // Create the popup menu
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-        // if the specified point is in the client area of the list box, or one if it is outside the 
-        // client area.
-        if (HIWORD(idx) != 1) {
-            //ListBox_SetSel(hWnd, TRUE, idx);
-            //dim as HMENU hPopupMenu = CreateExplorerContextMenu(pDoc)
-            //dim as POINT pt : GetCursorPos(@pt)
-            //dim as long id = TrackPopupMenu(hPopUpMenu, TPM_RETURNCMD, pt.x, pt.y, 0, HWND_FRMMAIN, byval null)
-            //AfxRedrawWindow(hWnd);
-        }
-        break;
-    }
-
-
-    case WM_LBUTTONUP:
-// Prevent this programmatic selection if Ctrl or Shift is active
-// because we want the listbox to select the listbox item rather for
-// us to mess with that selection via SetTabIndexByDocumentPtr().
-//dim as boolean isCtrl = (GetAsyncKeyState(VK_CONTROL) and &H8000)
-//dim as boolean isShift = (GetAsyncKeyState(VK_SHIFT) and &H8000)
-//if (isCtrl = false) andalso(isShift = false) then
-// determine if we clicked on a regular file or a node header
-//dim as RECT rc
-//dim as long idx = Listbox_ItemFromPoint(hWin, GET_X_LPARAM(_lParam), GET_Y_LPARAM(_lParam))
-// The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-// if the specified point is in the client area of the list box, or one if it is outside the 
-// client area.
-//if hiword(idx) < > 1 then
-//dim as CWSTR wszCaption = AfxGetListBoxText(hWin, idx)
-//if left(wszCaption, 1) = "%" then
-// Toggle the show/hide of files under this node
-//dim as long idxArray = getExplorerNodeHeaderIndex(wszCaption)
-        break;
 
 
     case WM_ERASEBKGND:
@@ -483,15 +334,6 @@ void TradesPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
     default:
         lpMeasureItem->itemHeight = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
     }
-}
-
-
-// ========================================================================================
-// Process WM_DESTROY message for window/dialog: TradesPanel
-// ========================================================================================
-void TradesPanel_OnDestroy(HWND hwnd)
-{
-    // TODO: Add your message processing code here...
 }
 
 
@@ -629,10 +471,7 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     if (id == IDC_TRADES_LISTBOX && codeNotify == LBN_SELCHANGE) {
         HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
         VScrollBar* pData = VScrollBar_GetPointer(hListBox);
-        // update the highlighting of the current line
-        // TODO: Handle the repaint in the subclass (WM_LBUTTONDOWN) rather than this notification because
-        // of the delay in repainting the switched lines.
-        AfxRedrawWindow(hwndCtl);
+
         //  update the scrollbar position if necessary
         if (pData != nullptr) {
             pData->calcVThumbRect();
@@ -650,6 +489,20 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 }
 
 
+// ========================================================================================
+// Process WM_CONTEXTMENU message for window/dialog: TradesPanel
+// ========================================================================================
+void TradesPanel_OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
+{
+    if (hwndContext == GetDlgItem(hwnd, IDC_TRADES_LISTBOX)) {
+
+        std::cout << "rclick popup menu" << " " << std::endl;
+        //m_hMenu = CreatePopupMenu();
+        //InsertMenu(m_hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, "Hello");
+        //TrackPopupMenu(m_hMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
+    }
+}
+
 
 // ========================================================================================
 // Windows callback function.
@@ -658,14 +511,16 @@ LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
+        HANDLE_MSG(m_hwnd, WM_COMMAND, TradesPanel_OnCommand); 
+        HANDLE_MSG(m_hwnd, WM_CONTEXTMENU, TradesPanel_OnContextMenu);
         HANDLE_MSG(m_hwnd, WM_CREATE, TradesPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_DESTROY, TradesPanel_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesPanel_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradesPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradesPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_DRAWITEM, TradesPanel_OnDrawItem);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradesPanel_OnMeasureItem);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, TradesPanel_OnCommand);
+
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

@@ -310,107 +310,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
 }
 
 
-// ========================================================================================
-// Process WM_DRAWITEM message for window/dialog: HistoryPanel
-// ========================================================================================
-void HistoryPanel_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
-{
-    if (lpDrawItem->itemID == -1) return;
-
-    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
-        lpDrawItem->itemAction == ODA_SELECT) {
-
-        int linenum = lpDrawItem->itemID;
-        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
-        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
-
-        bool bIsHot = false;
-
-        SaveDC(lpDrawItem->hDC);
-
-        HDC memDC = NULL;         // Double buffering
-        HBITMAP hbit = NULL;      // Double buffering
-
-        memDC = CreateCompatibleDC(lpDrawItem->hDC);
-        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
-        if (hbit) SelectObject(memDC, hbit);
-
-        // We do not do hot tracking for the History table because we do not
-        // need to visually show any selected lines.
-
-
-        Graphics graphics(memDC);
-        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
-
-
-        // Set some defaults in case there is no valid ListBox line number
-        std::wstring wszText;
-
-        DWORD nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-            : GetThemeColor(ThemeElement::TradesPanelBack);
-        DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
-
-        std::wstring wszFontName = AfxGetDefaultFont();
-        FontFamily   fontFamily(wszFontName.c_str());
-        REAL fontSize = 10;
-        int fontStyle = FontStyleRegular;
-
-        StringAlignment alignment = StringAlignmentNear;
-
-        // Paint the full width background using brush 
-        SolidBrush backBrush(nBackColor);
-        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
-
-        // Get the current ListBox line data should a valid line exist
-        // Paint the individual columns with the specific data.
-        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
-        int nLeft = 0;
-
-        // Draw each of the columns
-        for (int i = 0; i < 8; i++) {
-            if (ld == nullptr) break;
-
-            wszText = ld->col[i].wszText;
-
-            alignment = ld->col[i].alignment;
-            nBackColor = (bIsHot)
-                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-                : GetThemeColor(ld->col[i].backTheme);
-            nTextColor = GetThemeColor(ld->col[i].textTheme);
-            fontSize = ld->col[i].fontSize;
-            fontStyle = ld->col[i].fontStyle;
-
-            int colWidth = AfxScaleX((float)nColWidth[i]);
-
-            backBrush.SetColor(nBackColor);
-            graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
-
-            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            SolidBrush   textBrush(nTextColor);
-            StringFormat stringF(0);
-            stringF.SetAlignment(alignment);
-            stringF.SetLineAlignment(StringAlignmentCenter);
-
-            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
-            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
-
-            nLeft += colWidth;
-        }
-
-
-        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
-            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
-
-
-        // Cleanup
-        RestoreDC(lpDrawItem->hDC, -1);
-        if (hbit) DeleteObject(hbit);
-        if (memDC) DeleteDC(memDC);
-
-    }
-}
-
 
 // ========================================================================================
 // Listbox subclass Window procedure
@@ -452,12 +351,6 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
             pData->calcVThumbRect();
             AfxRedrawWindow(pData->hwnd);
         }
-        break;
-    }
-
-
-    case WM_LBUTTONUP:
-    {
         break;
     }
 
@@ -540,15 +433,6 @@ void HistoryPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
     default:
         lpMeasureItem->itemHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
     }
-}
-
-
-// ========================================================================================
-// Process WM_DESTROY message for window/dialog: HistoryPanel
-// ========================================================================================
-void HistoryPanel_OnDestroy(HWND hwnd)
-{
-    // TODO: Add your message processing code here...
 }
 
 
@@ -732,13 +616,12 @@ LRESULT CHistoryPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, HistoryPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_DESTROY, HistoryPanel_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, HistoryPanel_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, HistoryPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, HistoryPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_DRAWITEM, HistoryPanel_OnDrawItem);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, HistoryPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_COMMAND, HistoryPanel_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
