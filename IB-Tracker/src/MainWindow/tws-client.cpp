@@ -45,6 +45,7 @@ std::thread my_thread;
 void threadFunction(std::future<void> future) {
 	std::cout << "Starting the thread" << std::endl;
 	isMonitorThreadActive = true;
+
 	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
 		// std::cout << "Executing the thread....." << std::endl;
 		std::chrono::milliseconds(500);   // wait for 500 milliseconds (helps to clear the sockets)
@@ -100,6 +101,8 @@ bool tws_connect()
     }
     else {
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
+		std::wstring wszText = L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";
+		MessageBox(HWND_TRADESPANEL, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
     }
 
     return res;
@@ -184,16 +187,12 @@ bool TwsClient::connect(const char* host, int port, int clientId)
 	// trying to connect
 	printf("Connecting to %s:%d clientId:%d\n", !(host && *host) ? "127.0.0.1" : host, port, clientId);
 
-	//! [connect]
 	bool bRes = m_pClient->eConnect(host, port, clientId, m_extraAuth);
-	//! [connect]
 
 	if (bRes) {
 		printf("Connected to %s:%d clientId:%d\n", m_pClient->host().c_str(), m_pClient->port(), clientId);
-		//! [ereader]
 		m_pReader = std::unique_ptr<EReader>(new EReader(m_pClient, &m_osSignal));
 		m_pReader->start();
-		//! [ereader]
 
 	}
 	else {

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
     <ClInclude Include="src\main.h" />
@@ -32,7 +33,6 @@
     <ClInclude Include="src\tws-api\Contract.h" />
     <ClInclude Include="src\tws-api\ContractCondition.h" />
     <ClInclude Include="src\tws-api\Decimal.h" />
-    <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
     <ClInclude Include="src\tws-api\DepthMktDataDescription.h" />
     <ClInclude Include="src\tws-api\EClient.h" />
     <ClInclude Include="src\tws-api\EClientException.h" />
