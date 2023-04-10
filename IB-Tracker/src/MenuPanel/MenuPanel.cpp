@@ -614,14 +614,13 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 // If already connected then don't try to connect again
                 if (tws_isConnected()) break;
 
-                    // Prevent multiple clicks of the connect button by waiting until
+                // Prevent multiple clicks of the connect button by waiting until
                 // the first click is finished.
                 static bool bProcessingConnectClick = false;
                 if (bProcessingConnectClick) break;
                 bProcessingConnectClick = true;
                 bool res = tws_connect();
-                printf("Connect: %ld\n", res);
-                //printf("isConnected: %ld\n", tws_isConnected());
+
                 // If we connect to TWS successfully then we need to start showing
                 // the price data for any active trades displaying in our table.
                 if (tws_isConnected()) {

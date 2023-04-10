@@ -153,7 +153,7 @@ int APIENTRY wWinMain(
 
 
     // If trades exist then show them now and try to automatically connect to TWS if
-    // that configuration option is set..
+    // that configuration option is set.
     PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
 
 
@@ -181,7 +181,6 @@ int APIENTRY wWinMain(
         }
     }
 
-    SaveDatabase();
 
     // Shut down the GDI+ subsystem
     GdiplusShutdown(gdiplusToken);

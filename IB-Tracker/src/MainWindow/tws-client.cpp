@@ -27,10 +27,10 @@ extern HWND HWND_TRADESPANEL;
 
 bool isThreadFinished = false;
 bool isThreadPaused = false;
-
 bool isMonitorThreadActive = false;
 
 TwsClient client;
+
 
 
 //
@@ -49,14 +49,15 @@ void threadFunction(std::future<void> future) {
 	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
 		// std::cout << "Executing the thread....." << std::endl;
 
-		if (tws_isConnected()) {
+		if(client.isConnected()) {
+			//if (tws_isConnected()) {
 			client.waitForSignal();
 			client.processMsgs();
 		}
 		else {
 			break;
 		}
-		std::chrono::milliseconds(500);   // wait for 500 milliseconds (helps to clear the sockets)
+//		std::chrono::milliseconds(500);   // wait for 500 milliseconds (helps to clear the sockets)
 
 	}
 	isMonitorThreadActive = false;
@@ -89,7 +90,8 @@ bool tws_connect()
     int port = 7496;   // 7497 is paper trading account
     int clientId = 0;
 
-    SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_START, 0, 0);
+	
+	SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_START, 0, 0);
 
     bool res = client.connect(host, port, clientId);
     if (res) {
@@ -97,8 +99,11 @@ bool tws_connect()
         // and poll if TWS remains connected.
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
-        StartMonitorThread();
-    }
+		if (client.isConnected()) {
+			StartMonitorThread();
+		}
+	
+	}
     else {
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring wszText = L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";

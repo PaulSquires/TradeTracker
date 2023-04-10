@@ -117,6 +117,10 @@ int nDailyTotalsMinColWidth[10] =
 
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
+bool PrevMarketDataLoaded = false;
+
+
+
 
 // ========================================================================================
 // Calculate the actual column widths based on the size of the strings in
@@ -239,7 +243,11 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < lbCount; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->isTickerLine) tws_cancelMktData(ld->tickerId);
+            if (ld->isTickerLine) {
+                if (PrevMarketDataLoaded) {
+                    tws_cancelMktData(ld->tickerId);
+                }
+            }
             delete(ld);
         }
     }
@@ -300,6 +308,9 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
             ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // price percentage change
 
         tws_requestMktData(ld);
+
+        if (tws_isConnected()) 
+            PrevMarketDataLoaded = true;
     }
     ListBox_AddString(hListBox, ld);
 
