@@ -3,6 +3,8 @@
 #include "Themes.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\ConfigDialog\ConfigDialog.h"
+#include "..\MenuPanel\MenuPanel.h"
+#include "..\SuperLabel\SuperLabel.h"
 
 
 HWND hWndMainWindow = NULL;
@@ -13,6 +15,9 @@ Themes ActiveTheme = Themes::Dark;
 
 std::wstring wszTraderName;
 bool StartupConnect = true;
+
+extern HWND HWND_MENUPANEL;
+
 
 
 // ========================================================================================
@@ -181,6 +186,7 @@ std::wstring GetTraderName()
 void SetTraderName(std::wstring wszName)
 {
 	wszTraderName = wszName;
+	SuperLabel_SetText(GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_TRADERNAME), wszName);
 }
 	
 	

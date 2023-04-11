@@ -12,7 +12,7 @@ public:
 
 const int IDC_MENUPANEL_LOGO          = 101;
 const int IDC_MENUPANEL_GEARICON      = 102;
-const int IDC_MENUPANEL_USERNAME      = 103;
+const int IDC_MENUPANEL_TRADERNAME    = 103;
 const int IDC_MENUPANEL_APPNAME       = 104;
 const int IDC_MENUPANEL_ACTIVETRADES  = 105;
 const int IDC_MENUPANEL_CLOSEDTRADES  = 106;

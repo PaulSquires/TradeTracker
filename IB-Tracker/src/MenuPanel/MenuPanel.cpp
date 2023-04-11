@@ -111,7 +111,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_MENUPANEL_USERNAME,
+        IDC_MENUPANEL_TRADERNAME,
         SuperLabelType::TextOnly,
         0, 100, MENUPANEL_WIDTH, 18);
     pData = SuperLabel_GetOptions(hCtl);

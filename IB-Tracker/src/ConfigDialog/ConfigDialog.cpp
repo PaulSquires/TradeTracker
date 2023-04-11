@@ -2,10 +2,10 @@
 #include "pch.h"
 
 #include "ConfigDialog.h"
-#include "..\MainWindow\MainWindow.h"
 #include "..\Themes\Themes.h"
+#include "..\MainWindow\MainWindow.h"
 #include "..\SuperLabel\SuperLabel.h"
-
+#include "..\Database\database.h"
 
 
 HWND HWND_CONFIGDIALOG = NULL;
@@ -86,7 +86,7 @@ BOOL ConfigDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // --------------------------------
     nTop += 50;
-    hCtl = ConfigDialog.AddControl(Controls::CheckBox, hwnd, IDC_CONFIGDIALOG_TRADERNAME,
+    hCtl = ConfigDialog.AddControl(Controls::CheckBox, hwnd, IDC_CONFIGDIALOG_STARTUPCONNECT,
             L"Connect to Trader Workstation (TWS) when the application starts.", 
             nLeft, nTop, 500, 18);
     Button_SetCheck(hCtl, GetStartupConnect() ? BST_CHECKED : BST_UNCHECKED);
@@ -148,6 +148,22 @@ void ConfigDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     {
     case (IDC_CONFIGDIALOG_OK):
         if (codeNotify == BN_CLICKED) {
+            
+            // Save the config data to the database
+ 
+            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_DARKTHEME) == BST_CHECKED) SetTheme(Themes::Dark);
+            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_DARKPLUSTHEME) == BST_CHECKED) SetTheme(Themes::DarkPlus);
+            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_BLUETHEME) == BST_CHECKED) SetTheme(Themes::Blue);
+            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_LIGHTTHEME) == BST_CHECKED) SetTheme(Themes::Light);
+
+            std::wstring wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_CONFIGDIALOG_TRADERNAME));
+            SetTraderName(wszText);
+
+            bool startupConnect = 
+                Button_GetCheck(GetDlgItem(hwnd, IDC_CONFIGDIALOG_STARTUPCONNECT)) == BST_CHECKED ? true : false;
+            SetStartupConnect(startupConnect);
+
+            SaveDatabase();
             SendMessage(hwnd, WM_CLOSE, 0, 0);
         }
         break;

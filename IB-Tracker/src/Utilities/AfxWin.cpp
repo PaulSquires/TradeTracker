@@ -79,11 +79,10 @@ int AfxUnScaleY(float cy)
 // ========================================================================================
 std::wstring AfxGetWindowText(HWND hwnd)
 {
-    std::wstring wszTemp;;
-    wszTemp.reserve(SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0) + 1);
-    GetWindowText(hwnd, const_cast<WCHAR*>(wszTemp.c_str()), wszTemp.capacity());
-    //return std::move(wszTemp);
-    return wszTemp;
+    DWORD dwBufLen = SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0) + 1;
+    std::wstring buffer(dwBufLen, NULL);
+    GetWindowText(hwnd, (LPWSTR)buffer.c_str(), dwBufLen);
+    return buffer.substr(0, dwBufLen - 1);
 }
 
 
@@ -93,7 +92,6 @@ std::wstring AfxGetWindowText(HWND hwnd)
 bool AfxSetWindowText(HWND hwnd, LPCVOID pwszText)
 {
     return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)pwszText);
-
 }
 
 
