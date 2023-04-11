@@ -117,7 +117,7 @@ int APIENTRY wWinMain(
     if (InitalMainHeight > 720) InitalMainHeight = 720;
 
 
-    MainWindow Main;
+    CMainWindow Main;
 
     HWND hWndMain = Main.Create(
                         HWND_DESKTOP,

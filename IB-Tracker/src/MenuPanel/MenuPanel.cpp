@@ -4,7 +4,9 @@
 #include "..\Utilities\UserMessages.h"
 #include "..\Themes\Themes.h"
 #include "..\MainWindow\tws-client.h"
+#include "..\MainWindow\MainWindow.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\ConfigDialog\ConfigDialog.h"
 #include "..\Utilities\ListBoxData.h"
 #include "MenuPanel.h"
 
@@ -16,6 +18,11 @@ extern void HistoryPanel_ShowDailyTotals(const ListBoxData* ld);
 
 
 HWND HWND_MENUPANEL = NULL;
+
+extern HWND HWND_MAINWINDOW;
+
+extern CConfigDialog ConfigDialog;
+
 
 
 // ========================================================================================
@@ -691,6 +698,30 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_CONFIGURE:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                HWND hwnd = ConfigDialog.Create(m_hwnd, L"", 0, 0, 800, 600,
+                    WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                    WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+                
+                AfxCenterWindow(hwnd, HWND_MAINWINDOW);
+                ShowWindow(hwnd, SW_SHOWNORMAL);
+                
+                // Call modal message pump and wait for it to end.
+                EnableWindow(HWND_MAINWINDOW, FALSE);
+
+                MSG msg{};
+                while (GetMessage(&msg, NULL, 0, 0))
+                {
+                    // Determines whether a message is intended for the specified
+                    // dialog box and, if it is, processes the message.
+                    if (!IsDialogMessage(hwnd, &msg)) {
+                        // Translates virtual-key messages into character messages.
+                        TranslateMessage(&msg);
+                        // Dispatches a message to a window procedure.
+                        DispatchMessage(&msg);
+                    }
+                }
+                EnableWindow(HWND_MAINWINDOW, TRUE);
+
                 break;
             }
 

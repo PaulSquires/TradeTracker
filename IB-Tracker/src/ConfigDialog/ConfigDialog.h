@@ -3,10 +3,12 @@
 #include "..\Utilities\CWindowBase.h"
 
 
-class CMainWindow : public CWindowBase<CMainWindow>
+class CConfigDialog: public CWindowBase<CConfigDialog>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
-#define IDI_MAINICON           106
+
+const int IDC_CONFIGDIALOG_DARKTHEME = 100;

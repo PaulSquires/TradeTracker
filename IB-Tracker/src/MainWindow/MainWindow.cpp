@@ -9,14 +9,18 @@
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\ConfigDialog\ConfigDialog.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\database.h"
 #include "..\Utilities\UserMessages.h"
 
+HWND HWND_MAINWINDOW = NULL;
 
 CMenuPanel      MenuPanel;
 CHistoryPanel   HistoryPanel;
 CTradesPanel    TradesPanel;
+CConfigDialog   ConfigDialog;
+
 
 extern void TradesPanel_ShowActiveTrades();
 
@@ -148,6 +152,8 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
+    HWND_MAINWINDOW = hwnd;
+
     MenuPanel.Create( hwnd, L"", 0, 0, MENUPANEL_WIDTH, 0,
     WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
     WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
@@ -293,7 +299,7 @@ BOOL MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT m
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
