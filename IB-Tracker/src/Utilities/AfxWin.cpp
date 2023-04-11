@@ -88,6 +88,16 @@ std::wstring AfxGetWindowText(HWND hwnd)
 
 
 // ========================================================================================
+// Set text for the specified window
+// ========================================================================================
+bool AfxSetWindowText(HWND hwnd, LPCVOID pwszText)
+{
+    return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)pwszText);
+
+}
+
+
+// ========================================================================================
 // Gets the width in pixels of a window.
 // Note: To retrieve the height of the desktop window pass the handle returned by the
 // API function GetDesktopWindow.

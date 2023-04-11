@@ -37,6 +37,9 @@ void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::valuePositive][theme] = Color::MakeARGB(255, 72, 151, 13);
 	clr[(int)ThemeElement::valueNegative][theme] = Color::MakeARGB(255, 255, 30, 0);
 
+	clr[(int)ThemeElement::ConfigDialogBack][theme] = Color::MakeARGB(255, 0, 0, 0);
+	clr[(int)ThemeElement::ConfigDialogText][theme] = Color::MakeARGB(255, 212, 212, 212);
+	clr[(int)ThemeElement::ConfigDialogSeparator][theme] = Color::MakeARGB(255, 53, 59, 69);
 }
 
 

@@ -32,6 +32,10 @@ enum class ThemeElement {
 	TradesPanelScrollBarThumb,
 	TradesPanelHistoryText,
 
+	ConfigDialogBack,
+	ConfigDialogText,
+	ConfigDialogSeparator,
+
 	valuePositive,    // usually green
 	valueNegative,    // usually red
 
@@ -46,6 +50,7 @@ void SetTheme(Themes theme);
 void ApplyActiveTheme();
 void SetThemeMainWindow(HWND hWndMain);
 Themes GetTheme();
+int GetThemeControlId();
 
 std::wstring GetThemeName();
 void SetThemeName(std::wstring wszTheme);

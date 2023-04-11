@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Themes.h"
 #include "..\Utilities\AfxWin.h"
+#include "..\ConfigDialog\ConfigDialog.h"
 
 
 HWND hWndMainWindow = NULL;
@@ -100,6 +101,33 @@ std::wstring GetThemeName()
 		break;
 	default:
 		return L"Dark";
+	}
+}
+
+
+// ========================================================================================
+// Return the current set Theme control ID. (IDC).
+// ========================================================================================
+int GetThemeControlId()
+{
+	if (!IsInitialized) InitializeThemeColors();
+
+	switch (ActiveTheme)
+	{
+	case Themes::Light:
+		return IDC_CONFIGDIALOG_LIGHTTHEME;
+		break;
+	case Themes::Dark:
+		return IDC_CONFIGDIALOG_DARKTHEME;
+		break;
+	case Themes::DarkPlus:
+		return IDC_CONFIGDIALOG_DARKPLUSTHEME;
+		break;
+	case Themes::Blue:
+		return IDC_CONFIGDIALOG_BLUETHEME;
+		break;
+	default:
+		return IDC_CONFIGDIALOG_DARKTHEME;
 	}
 }
 

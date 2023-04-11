@@ -9,7 +9,6 @@
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
-#include "..\ConfigDialog\ConfigDialog.h"
 #include "..\Themes\Themes.h"
 #include "..\Database\database.h"
 #include "..\Utilities\UserMessages.h"
@@ -19,7 +18,6 @@ HWND HWND_MAINWINDOW = NULL;
 CMenuPanel      MenuPanel;
 CHistoryPanel   HistoryPanel;
 CTradesPanel    TradesPanel;
-CConfigDialog   ConfigDialog;
 
 
 extern void TradesPanel_ShowActiveTrades();

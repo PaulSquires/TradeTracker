@@ -29,6 +29,7 @@ public:
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
 
             pThis->m_hwnd = hwnd;
+
         }
         else
         {
@@ -61,6 +62,12 @@ public:
 
         m_hAccel = NULL;
 
+        // Create a default font
+        if (m_hFont == NULL)
+            m_hFont = this->CreateFont(m_wszDefaultFontName, m_DefaultFontSize, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
+
+        // Generate class name based on unique memory address of class
+        m_wszClassName = L"CWindowClass:" + std::to_wstring((unsigned long long)this);
     }
 
 
@@ -81,8 +88,6 @@ public:
         DWORD dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         DWORD dwExStyle = WS_EX_CONTROLPARENT | WS_EX_WINDOWEDGE)
     {
-        // Generate class name based on unique memory address of class
-        m_wszClassName = L"CWindowClass:" + std::to_wstring((unsigned long long)this);
 
         WNDCLASSEXW wcex = { 0 };
         wcex.cbSize = sizeof(WNDCLASSEX);
@@ -113,10 +118,6 @@ public:
             hWndParent, NULL, m_hInstance, (HANDLE)this);
 
 
-        // Create a default font
-        if (m_hFont == NULL)
-            m_hFont = this->CreateFont(m_wszDefaultFontName, m_DefaultFontSize, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
-
         // Set the font
         if (m_hFont) SendMessage(m_hwnd, WM_SETFONT, (WPARAM)m_hFont, false);
 
@@ -125,9 +126,9 @@ public:
 
 
     HFONT CreateFont(
-        std::wstring wszFaceName,        // __in Typeface name of font
-        int lPointSize,                  // __in Point size
-        int lWeight,                     // __in Font weight(bold etc.)
+        std::wstring wszFaceName,       // __in Typeface name of font
+        int lPointSize,                 // __in Point size
+        int lWeight,                    // __in Font weight(bold etc.)
         BYTE bItalic,                   // __in CTRUE = italic
         BYTE bUnderline,                // __in CTRUE = underline
         BYTE bStrikeOut,                // __in CTRUE = strikeout
@@ -179,7 +180,6 @@ public:
         int nHeight,                           // Control height
         int dwStyle,                           // Control style
         int dwExStyle,                         // Extended style
-        bool bSetFont,                         // SetFont flag
         LONG_PTR lpParam)                      // Pointer to custom data
     {
         // Don't allow negative values for the styles
@@ -194,10 +194,7 @@ public:
             (int)(x * m_rx), (int)(y * m_ry), (int)(nWidth * m_rx), (int)(nHeight * m_ry),
             hParent, (HMENU)cID, m_hInstance, (LPVOID)lpParam);
         if (hCtl == NULL) return NULL;
-        // Set the font
-        if (m_hFont) {
-            if (bSetFont) SendMessage(hCtl, WM_SETFONT, (WPARAM)m_hFont, TRUE);
-        }
+
         return hCtl;
     }
 
@@ -243,19 +240,24 @@ public:
 #endif
             if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_FLAT;
             wszClassName = L"Button";
-            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, bSetFont, lpParam);
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
         case Controls::OptionButton:
         {
-
+            if (dwStyle == WS_GROUP) dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTORADIOBUTTON | BS_LEFT | BS_VCENTER | WS_GROUP;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTORADIOBUTTON | BS_LEFT | BS_VCENTER;
+            wszClassName = L"Button";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
         case Controls::CheckBox:
         {
-
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER;
+            wszClassName = L"Button";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
@@ -263,7 +265,7 @@ public:
         {
             if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_LEFT | WS_GROUP | SS_NOTIFY;
             wszClassName = L"Static";
-            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, bSetFont, lpParam);
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
@@ -271,7 +273,7 @@ public:
         {
             if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_NOTIFY;
             wszClassName = L"Static";
-            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, bSetFont, lpParam);
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
@@ -283,13 +285,20 @@ public:
 
         case Controls::Line:
         {
-
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_ETCHEDFRAME;
+            if (dwExStyle == -1) dwExStyle = WS_EX_TRANSPARENT;
+            bSetFont = FALSE;
+            wszClassName = L"Static";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
         case Controls::TextBox:
         {
-
+            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwStyle == -1) dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL;
+            wszClassName = L"Edit";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
@@ -309,7 +318,7 @@ public:
         {
             if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | WS_BORDER | WS_TABSTOP | LBS_STANDARD | LBS_HASSTRINGS | LBS_SORT | LBS_NOTIFY;
             wszClassName = L"Listbox";
-            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, bSetFont, lpParam);
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
             // Adjust the height of the control so that the integral height
             // is based on the new font rather than the default SYSTEM_FONT
             SetWindowPos(hCtl, NULL, x, y, nWidth, nHeight, SWP_NOZORDER);
@@ -401,6 +410,14 @@ public:
         break;
         }
 
+
+        // Set the font
+        if (hCtl) {
+            if (m_hFont) {
+                if (bSetFont) SendMessage(hCtl, WM_SETFONT, (WPARAM)m_hFont, TRUE);
+            }
+        }
+
         // Subclass the control if pWndProc is not null
         if (hCtl) {
             if (pWndProc != nullptr) {
@@ -424,17 +441,15 @@ public:
 
 
 protected:
-
     virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
-    HWND  m_hwnd;
+    HWND  m_hwnd = NULL;
     HFONT m_hFont = NULL;
-
-    HINSTANCE m_hInstance;
-    HACCEL m_hAccel;
+    HINSTANCE m_hInstance = NULL;
+    HACCEL m_hAccel = NULL;
     std::wstring m_wszClassName;
     std::wstring m_wszDefaultFontName;
-    int m_DefaultFontSize;
+    int m_DefaultFontSize = 9;
     float m_rx = 1;
     float m_ry = 1;
 };

@@ -15,13 +15,9 @@ extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
 extern void HistoryPanel_ShowTickerTotals();
 extern void HistoryPanel_ShowDailyTotals(const ListBoxData* ld);
-
+extern void ConfigDialog_Show();
 
 HWND HWND_MENUPANEL = NULL;
-
-extern HWND HWND_MAINWINDOW;
-
-extern CConfigDialog ConfigDialog;
 
 
 
@@ -159,7 +155,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
-        pData->LineWidth = 6;
+        pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
@@ -228,7 +224,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
-        pData->LineWidth = 6;
+        pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
@@ -345,7 +341,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
-        pData->LineWidth = 6;
+        pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
@@ -437,7 +433,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
-        pData->LineWidth = 6;
+        pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
@@ -507,16 +503,13 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
 {
     HWND hCtrl = NULL;
-    for (int ctrlId = IDC_MENUPANEL_ACTIVETRADES; ctrlId <= IDC_MENUPANEL_CONFIGURE; ctrlId++)
-    {
-        hCtrl = GetDlgItem(hParent, ctrlId);
-        SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
-        if (pData != nullptr) {
-            pData->IsSelected = (pData->CtrlId == CtrlId) ? true : false;
-            SuperLabel_SetOptions(hCtrl, pData);
-            AfxRedrawWindow(hCtrl);
-        }
+    for (int i = IDC_MENUPANEL_ACTIVETRADES; i <= IDC_MENUPANEL_CONFIGURE; i++) {
+        hCtrl = GetDlgItem(hParent, i);
+        SuperLabel_Select(hCtrl, false);
     }
+
+    hCtrl = GetDlgItem(hParent, CtrlId);
+    SuperLabel_Select(hCtrl, true);
 }
 
 
@@ -697,31 +690,12 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_MENUPANEL_CONFIGURE:
             {
+                // Save the currently selected menu item so that it can be restored
+                // once the Configuration dialog closes.
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                HWND hwnd = ConfigDialog.Create(m_hwnd, L"", 0, 0, 800, 600,
-                    WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                    WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-                
-                AfxCenterWindow(hwnd, HWND_MAINWINDOW);
-                ShowWindow(hwnd, SW_SHOWNORMAL);
-                
-                // Call modal message pump and wait for it to end.
-                EnableWindow(HWND_MAINWINDOW, FALSE);
-
-                MSG msg{};
-                while (GetMessage(&msg, NULL, 0, 0))
-                {
-                    // Determines whether a message is intended for the specified
-                    // dialog box and, if it is, processes the message.
-                    if (!IsDialogMessage(hwnd, &msg)) {
-                        // Translates virtual-key messages into character messages.
-                        TranslateMessage(&msg);
-                        // Dispatches a message to a window procedure.
-                        DispatchMessage(&msg);
-                    }
-                }
-                EnableWindow(HWND_MAINWINDOW, TRUE);
-
+                ConfigDialog_Show();
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
                 break;
             }
 
