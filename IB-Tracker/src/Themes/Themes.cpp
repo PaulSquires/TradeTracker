@@ -186,7 +186,9 @@ std::wstring GetTraderName()
 void SetTraderName(std::wstring wszName)
 {
 	wszTraderName = wszName;
-	SuperLabel_SetText(GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_TRADERNAME), wszName);
+	HWND hCtl = GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_TRADERNAME);
+	if (IsWindow(hCtl))
+		SuperLabel_SetText(hCtl, wszName);
 }
 	
 	
@@ -236,6 +238,8 @@ void ApplyActiveTheme()
 
 	// Enumerate through all top level and child windows to invalidate
 	// and repaint them with the new current active theme.
-	if (hWndMainWindow != NULL)
+	if (hWndMainWindow != NULL) {
+		AfxRedrawWindow(hWndMainWindow);
 		EnumChildWindows(hWndMainWindow, EnumWindowsProc, 0);
+	}
 }

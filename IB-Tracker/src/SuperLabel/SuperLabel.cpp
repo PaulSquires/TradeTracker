@@ -141,21 +141,10 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
     case WM_LBUTTONDOWN:
         if (pData) {
-            if (pData->AllowSelect) {
-                // Deselect any previous control that has selected status and repaint 
-                // new non-selected state.
-                if (pDataSelected) {
-                    pDataSelected->IsSelected = false;
-                    AfxRedrawWindow(pDataSelected->hWindow);
-                }
-
-                pData->IsSelected = true;
-                pDataSelected = pData;
-                AfxRedrawWindow(hWnd);
-            }
-
+            // We do not set the button IsSelected to true here because we leave it to 
+            // the user to decide if after clicking the label whether to set the label
+            // to selected or not.
             PostMessage(pData->hParent, MSG_SUPERLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
-
         }
         return 0;
         break;

@@ -138,7 +138,6 @@ HBRUSH ConfigDialog_OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int typ
 }
 
 
-
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: ConfigDialog
 // ========================================================================================
@@ -151,13 +150,31 @@ void ConfigDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             
             // Save the config data to the database
  
-            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_DARKTHEME) == BST_CHECKED) SetTheme(Themes::Dark);
-            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_DARKPLUSTHEME) == BST_CHECKED) SetTheme(Themes::DarkPlus);
-            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_BLUETHEME) == BST_CHECKED) SetTheme(Themes::Blue);
-            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_LIGHTTHEME) == BST_CHECKED) SetTheme(Themes::Light);
+            bool applyTheme = false;
+
+            if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_DARKTHEME) == BST_CHECKED) {
+                SetTheme(Themes::Dark);
+                applyTheme = true;
+            }
+            else if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_DARKPLUSTHEME) == BST_CHECKED) {
+                SetTheme(Themes::DarkPlus);
+                applyTheme = true;
+            }
+            else if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_BLUETHEME) == BST_CHECKED) {
+                SetTheme(Themes::Blue);
+                applyTheme = true;
+            }
+            else if (IsDlgButtonChecked(hwnd, IDC_CONFIGDIALOG_LIGHTTHEME) == BST_CHECKED) {
+                SetTheme(Themes::Light);
+                applyTheme = true;
+            }
+
+            if (applyTheme) ApplyActiveTheme();
+
 
             std::wstring wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_CONFIGDIALOG_TRADERNAME));
             SetTraderName(wszText);
+
 
             bool startupConnect = 
                 Button_GetCheck(GetDlgItem(hwnd, IDC_CONFIGDIALOG_STARTUPCONNECT)) == BST_CHECKED ? true : false;
@@ -176,7 +193,6 @@ void ConfigDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
     }
 }
-
 
 
 // ========================================================================================

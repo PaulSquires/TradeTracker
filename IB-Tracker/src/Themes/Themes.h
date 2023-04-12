@@ -32,10 +32,6 @@ enum class ThemeElement {
 	TradesPanelScrollBarThumb,
 	TradesPanelHistoryText,
 
-	ConfigDialogBack,
-	ConfigDialogText,
-	ConfigDialogSeparator,
-
 	valuePositive,    // usually green
 	valueNegative,    // usually red
 

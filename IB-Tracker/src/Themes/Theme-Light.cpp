@@ -22,6 +22,20 @@ void Initialize_Light_Theme(DWORD clr[][(int)Themes::Count])
 	clr[(int)ThemeElement::MenuPanelSelector][theme] = Color::MakeARGB(255, 255, 255, 255);
 
 	clr[(int)ThemeElement::TradesPanelBack][theme] = Color::MakeARGB(255, 255, 255, 255);
+	clr[(int)ThemeElement::TradesPanelBackHot][theme] = Color::MakeARGB(255, 44, 49, 58);
+	clr[(int)ThemeElement::TradesPanelText][theme] = Color::MakeARGB(255, 212, 212, 212);
+	clr[(int)ThemeElement::TradesPanelTextDim][theme] = Color::Gray;
+	clr[(int)ThemeElement::TradesPanelColBackLight][theme] = Color::MakeARGB(255, 68, 68, 68);
+	clr[(int)ThemeElement::TradesPanelColBackDark][theme] = Color::MakeARGB(255, 51, 51, 51);
+	clr[(int)ThemeElement::TradesPanelNormalDTE][theme] = Color::Magenta;
+	clr[(int)ThemeElement::TradesPanelWarningDTE][theme] = Color::Yellow;
+	clr[(int)ThemeElement::TradesPanelScrollBarBack][theme] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::TradesPanelScrollBarLine][theme] = Color::MakeARGB(255, 64, 67, 73);
+	clr[(int)ThemeElement::TradesPanelScrollBarThumb][theme] = Color::MakeARGB(255, 51, 51, 51);
+	clr[(int)ThemeElement::TradesPanelHistoryText][theme] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
+
+	clr[(int)ThemeElement::valuePositive][theme] = Color::MakeARGB(255, 72, 151, 13);
+	clr[(int)ThemeElement::valueNegative][theme] = Color::MakeARGB(255, 255, 30, 0);
 
 }
 
