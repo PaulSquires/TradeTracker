@@ -3,15 +3,7 @@
 #include "Utilities/AfxWin.h"
 #include "Themes/Themes.h"
 #include "Database/database.h"
-#include "Database/trade.h"
-
 #include "MainWindow/MainWindow.h"
-#include "MenuPanel/MenuPanel.h"
-#include "TradesPanel/TradesPanel.h"
-#include "Utilities/UserMessages.h"
-
-extern HWND HWND_MENUPANEL;
-extern HWND HWND_TRADESPANEL;
 
 
 
@@ -150,11 +142,6 @@ int APIENTRY wWinMain(
     // Show the window and update its client area
     ShowWindow(hWndMain, (nCmdShow == 0) ? SW_SHOW : nCmdShow);
     UpdateWindow(hWndMain);
-
-
-    // If trades exist then show them now and try to automatically connect to TWS if
-    // that configuration option is set.
-    PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
 
 
     // Call the main modal message pump and wait for it to end.

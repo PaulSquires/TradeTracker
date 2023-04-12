@@ -36,11 +36,6 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
 
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
-    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
-    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
-
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -84,17 +79,15 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
 
 
-    // Re-calculate scrollbar and show thumb if necessary
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
-    if (pData != nullptr) {
-        pData->calcVThumbRect();
-        AfxRedrawWindow(pData->hwnd);
-    }
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
+
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
+    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
 }
 
@@ -106,11 +99,6 @@ void HistoryPanel_ShowTickerTotals()
 {
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
-
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
-    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
-    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -181,6 +169,11 @@ void HistoryPanel_ShowTickerTotals()
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
+    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
+
 }
 
 
@@ -191,11 +184,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
 {
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
-
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
-    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
-    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
 
     // Default to opening the current date
@@ -309,6 +297,12 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
+
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
+    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
+
 }
 
 

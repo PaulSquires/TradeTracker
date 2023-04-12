@@ -1,11 +1,8 @@
 #pragma once
 
-#include "tws-api\EWrapper.h"
-#include "tws-api\EReaderOSSignal.h"
-#include "tws-api\EReader.h"
-
-#include <memory>
-#include <vector>
+#include "..\tws-api\EWrapper.h"
+#include "..\tws-api\EReaderOSSignal.h"
+#include "..\tws-api\EReader.h"
 
 #include "..\Utilities\ListBoxData.h"
 
@@ -30,10 +27,11 @@ public:
 	void processMsgs();
 	void cancelMktData(TickerId tickerId);
 	void requestMktData(ListBoxData* ld);
+	void requestPositions();
 
 public:
 	// events
-#include "tws-api\EWrapper_prototypes.h"
+#include "..\tws-api\EWrapper_prototypes.h"
 
 
 private:
@@ -56,6 +54,7 @@ bool tws_disconnect();
 bool tws_isConnected();
 void tws_cancelMktData(TickerId tickerId);
 void tws_requestMktData(ListBoxData* ld);
+void tws_performReconciliation();
 void tws_PauseTWS();
 void tws_ResumeTWS();
 

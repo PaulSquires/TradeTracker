@@ -153,11 +153,13 @@ LRESULT CALLBACK VScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             SolidBrush backBrush(GetThemeColor(pData->ScrollBarBack));
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
-            backBrush.SetColor(GetThemeColor(pData->ScrollBarThumb));
-            graphics.FillRectangle(&backBrush, pData->rc.left, pData->rc.top, nWidth, pData->thumbHeight);
+            if (pData->numItems > pData->itemsPerPage) {
+                backBrush.SetColor(GetThemeColor(pData->ScrollBarThumb));
+                graphics.FillRectangle(&backBrush, pData->rc.left, pData->rc.top, nWidth, pData->thumbHeight);
 
-            Pen pen(GetThemeColor(pData->ScrollBarLine), 1);
-            graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
+                Pen pen(GetThemeColor(pData->ScrollBarLine), 1);
+                graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
+            }
 
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);

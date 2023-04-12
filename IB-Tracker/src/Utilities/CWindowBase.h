@@ -296,7 +296,7 @@ public:
         case Controls::TextBox:
         {
             if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
-            if (dwStyle == -1) dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL;
             wszClassName = L"Edit";
             hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
@@ -304,7 +304,10 @@ public:
 
         case Controls::MultilineTextBox:
         {
-
+            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN;
+            wszClassName = L"Edit";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ConfigDialog\ConfigDialog.h" />
+    <ClInclude Include="src\Reconcile\Reconcile.h" />
     <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
@@ -111,6 +112,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow\tws-client.cpp" />
     <ClCompile Include="src\MenuPanel\MenuPanel.cpp" />
+    <ClCompile Include="src\Reconcile\Reconcile.cpp" />
     <ClCompile Include="src\TradesPanel\TradesPanel.cpp" />
     <ClCompile Include="src\tws-api\ContractCondition.cpp" />
     <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />

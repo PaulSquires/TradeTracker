@@ -17,10 +17,13 @@ extern CTradesPanel TradesPanel;
 
 extern std::vector<Trade*> trades;
 
+extern HWND HWND_HISTORYPANEL;
 extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
+extern void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 extern HWND HWND_MENUPANEL;
 
+void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
 
@@ -80,13 +83,6 @@ void TradesPanel_ShowActiveTrades()
     SuperLabel_SetText(hLabel, L"Active Trades");
 
 
-    // Re-calculate scrollbar and show thumb if necessary
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
-    if (pData != nullptr) {
-        pData->calcVThumbRect();
-        AfxRedrawWindow(pData->hwnd);
-    }
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
@@ -103,6 +99,12 @@ void TradesPanel_ShowActiveTrades()
     }else {
         ListBoxData_HistoryBlankLine(hListBox);
     }
+    
+
+    // Resize the panel to ensure that the correct controls are shown and are
+    // positioned correctly.
+    RECT rc; GetClientRect(HWND_TRADESPANEL, &rc);
+    TradesPanel_OnSize(HWND_TRADESPANEL, 0, rc.right, rc.bottom);
 
     tws_ResumeTWS();
 }
@@ -483,6 +485,7 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             pData->calcVThumbRect();
             AfxRedrawWindow(pData->hwnd);
         }
+
         // Get the current line to determine if a valid Trade pointer exists so that we
         // can show the trade history.
         int nIndex = ListBox_GetCurSel(hwndCtl);

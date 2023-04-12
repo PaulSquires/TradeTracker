@@ -1,16 +1,18 @@
-
 #include "pch.h"
+
 #include "..\Utilities\UserMessages.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\MenuPanel\MenuPanel.h"
-#include "tws-client.h"
+#include "..\Reconcile\Reconcile.h"
 
-#include "tws-api\EClientSocket.h"
-#include "tws-api\EPosixClientSocketPlatform.h"
-#include "tws-api\CommonDefs.h"
-#include "tws-api\Utils.h"
+#include "..\tws-api\EClientSocket.h"
+#include "..\tws-api\EPosixClientSocketPlatform.h"
+#include "..\tws-api\CommonDefs.h"
+#include "..\tws-api\Utils.h"
+
+#include "tws-client.h"
 
 
 
@@ -164,6 +166,19 @@ void tws_ResumeTWS()
 	isThreadPaused = false;
 }
 
+void tws_performReconciliation()
+{
+	if (!tws_isConnected()) {
+		MessageBox(
+			HWND_MENUPANEL,
+			(LPCWSTR)L"Must be connected to TWS to perform a reconciliation.",
+			(LPCWSTR)L"Error",
+			MB_ICONINFORMATION);
+		return;
+	}
+
+	client.requestPositions();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -267,6 +282,10 @@ void TwsClient::requestMktData(ListBoxData* ld)
 	//}
 }
 	
+void TwsClient::requestPositions()
+{
+	m_pClient->reqPositions();
+}
 
 
 
@@ -403,6 +422,10 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	}  // if
 }
 
+void TwsClient::connectionClosed() {
+	printf("Connection Closed\n");
+}
+
 void TwsClient::error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson)
 {
 	switch (errorCode) {
@@ -414,13 +437,20 @@ void TwsClient::error(int id, int errorCode, const std::string& errorString, con
 	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, errorCode, errorString.c_str());
 }
 
-void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost) {
-	//    printf( "Position. %s - Symbol: %s, SecType: %s, Currency: %s, Position: %s, Avg Cost: %s\n", account.c_str(), contract.symbol.c_str(), contract.secType.c_str(), contract.currency.c_str(), decimalStringToDisplay(position).c_str(), Utils::doubleMaxString(avgCost).c_str());
+void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost) 
+{
+	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
+	Reconcile_position(contract, position);
 }
 
-void TwsClient::positionEnd() {
-	printf("PositionEnd\n");
+void TwsClient::positionEnd()
+{
+	// This callback is automatically called the first time all positions have been sent through
+	// the position callback.
+	m_pClient->cancelPositions();
+	Reconcile_positionEnd();
 }
+
 
 
 
@@ -450,17 +480,7 @@ void TwsClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints
 	if (isThreadPaused) return;
 }
 
-
 void TwsClient::winError(const std::string& str, int lastError) {}
-
-void TwsClient::connectionClosed() {
-	printf("Connection Closed\n");
-}
-
-
-
-
-
 
 void TwsClient::nextValidId(OrderId orderId) {
 }

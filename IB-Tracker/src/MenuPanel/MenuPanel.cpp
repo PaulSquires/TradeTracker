@@ -684,7 +684,10 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_MENUPANEL_RECONCILE:
             {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                tws_performReconciliation();
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
                 break;
             }
 

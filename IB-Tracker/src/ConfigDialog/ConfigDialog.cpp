@@ -215,6 +215,9 @@ LRESULT CConfigDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
+// ========================================================================================
+// Create and show the Configuration modal dialog.
+// ========================================================================================
 void ConfigDialog_Show()
 {
     HWND hwnd = ConfigDialog.Create(HWND_MAINWINDOW, L"Configuration", 0, 0, 600, 390,
@@ -245,3 +248,4 @@ void ConfigDialog_Show()
     }
 
 }
+
