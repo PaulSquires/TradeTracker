@@ -47,17 +47,14 @@ void threadFunction(std::future<void> future) {
 	isMonitorThreadActive = true;
 
 	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-		// std::cout << "Executing the thread....." << std::endl;
 
-		if(client.isConnected()) {
-			//if (tws_isConnected()) {
+		if (tws_isConnected()) {
 			client.waitForSignal();
 			client.processMsgs();
 		}
 		else {
 			break;
 		}
-//		std::chrono::milliseconds(500);   // wait for 500 milliseconds (helps to clear the sockets)
 
 	}
 	isMonitorThreadActive = false;
@@ -102,11 +99,12 @@ bool tws_connect()
 		if (client.isConnected()) {
 			StartMonitorThread();
 		}
-	
+
 	}
     else {
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
-		std::wstring wszText = L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";
+		std::wstring wszText = 
+			L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";
 		MessageBox(HWND_TRADESPANEL, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
     }
 
