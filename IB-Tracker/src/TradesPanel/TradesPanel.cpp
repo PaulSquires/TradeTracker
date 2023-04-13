@@ -11,20 +11,40 @@
 
 HWND HWND_TRADESPANEL = NULL;
 
-const int VSCROLLBAR_WIDTH = 14;
-
 extern CTradesPanel TradesPanel;
 
 extern std::vector<Trade*> trades;
 
 extern HWND HWND_HISTORYPANEL;
 extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
-extern void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 extern HWND HWND_MENUPANEL;
 
-void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
+
+// ========================================================================================
+// Central function that actually selects and displays the incoming ListBox index item.
+// ========================================================================================
+void TradesPanel_ShowListBoxItem(int index)
+{
+    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
+    HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+
+    ListBox_SetCurSel(hListBox, index);
+
+    //  update the scrollbar position if necessary
+    VScrollBar_Recalculate(hVScrollBar);
+
+    // Get the current line to determine if a valid Trade pointer exists so that we
+    // can show the trade history.
+    if (index > -1) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
+        if (ld != nullptr)
+            HistoryPanel_ShowTradesHistoryTable(ld->trade);
+    }
+
+    SetFocus(hListBox);
+}
 
 
 // ========================================================================================
@@ -91,20 +111,13 @@ void TradesPanel_ShowActiveTrades()
 
     // If trades exist then select the first trade so that its history will show
     if (ListBox_GetCount(hListBox)) {
-        ListBox_SetCurSel(hListBox, 0);
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
-        if (ld != nullptr) {
-            HistoryPanel_ShowTradesHistoryTable(ld->trade);
-        }
+        TradesPanel_ShowListBoxItem(0);
     }else {
         ListBoxData_HistoryBlankLine(hListBox);
     }
     
 
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
-    RECT rc; GetClientRect(HWND_TRADESPANEL, &rc);
-    TradesPanel_OnSize(HWND_TRADESPANEL, 0, rc.right, rc.bottom);
+    VScrollBar_Recalculate(hVScrollBar);
 
     tws_ResumeTWS();
 }
@@ -180,13 +193,6 @@ void TradesPanel_ShowClosedTrades()
     SuperLabel_SetText(hLabel, L"Closed Trades");
 
 
-    // Re-calculate scrollbar and show thumb if necessary
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
-    if (pData != nullptr) {
-        pData->calcVThumbRect();
-        AfxRedrawWindow(pData->hwnd);
-    }
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
@@ -195,18 +201,13 @@ void TradesPanel_ShowClosedTrades()
 
     // If closed trades exist then select the first trade so that its history will show
     if (ListBox_GetCount(hListBox)) {
-        ListBox_SetCurSel(hListBox, 0);
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, 0);
-        if (ld != nullptr) {
-            HistoryPanel_ShowTradesHistoryTable(ld->trade);
-        }
+        TradesPanel_ShowListBoxItem(0);
     }
     else {
         ListBoxData_HistoryBlankLine(hListBox);
     }
 
-    SetFocus(hListBox);
-    AfxRedrawWindow(hListBox);
+    VScrollBar_Recalculate(hVScrollBar);
 
     tws_ResumeTWS();
 
@@ -248,12 +249,8 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
-        VScrollBar* pData = VScrollBar_GetPointer(hListBox);
-        if (pData != nullptr) {
-            pData->calcVThumbRect();
-            AfxRedrawWindow(pData->hwnd);
-        }
+        HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+        VScrollBar_Recalculate(hVScrollBar);
         break;
     }
 
@@ -385,8 +382,8 @@ void TradesPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
-    VScrollBar* pData = VScrollBar_GetPointer(hListBox);
+    HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
+    HWND hVScrollBar = GetDlgItem(hwnd, IDC_TRADES_VSCROLLBAR);
         
     int margin = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
 
@@ -394,10 +391,12 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_LABEL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bShowScrollBar = false;
+    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
             bShowScrollBar = true;
@@ -408,17 +407,17 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
 
+
     int nLeft = 0;
     int nTop = margin;
     int nWidth = cx - VScrollBarWidth;
     int nHeight = cy - margin;
-    SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_LISTBOX), 0,
-        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, 
+        SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;
-    SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_VSCROLLBAR), 0,
-        nLeft, nTop, nWidth, nHeight,
+    SetWindowPos(hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 }
 
@@ -477,23 +476,8 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     if (id == IDC_TRADES_LISTBOX && codeNotify == LBN_SELCHANGE) {
-        HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
-        VScrollBar* pData = VScrollBar_GetPointer(hListBox);
-
-        //  update the scrollbar position if necessary
-        if (pData != nullptr) {
-            pData->calcVThumbRect();
-            AfxRedrawWindow(pData->hwnd);
-        }
-
-        // Get the current line to determine if a valid Trade pointer exists so that we
-        // can show the trade history.
         int nIndex = ListBox_GetCurSel(hwndCtl);
-        if (nIndex > -1) {
-            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nIndex);
-            if (ld != nullptr)
-                HistoryPanel_ShowTradesHistoryTable(ld->trade);
-        }
+        TradesPanel_ShowListBoxItem(nIndex);
     }
 }
 

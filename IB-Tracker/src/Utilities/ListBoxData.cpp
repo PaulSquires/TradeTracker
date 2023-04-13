@@ -115,6 +115,20 @@ int nDailyTotalsMinColWidth[10] =
     0
 };
 
+int nDailyTotalsSummaryMinColWidth[10] =
+{
+    75,     /* Profit/Loss */
+    75,     /* Stock value */
+    75,     /* Net Profit/Loss */
+    75,     /* MTD */
+    75,     /* YTD */
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
 bool PrevMarketDataLoaded = false;
@@ -155,8 +169,13 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         case TableType::DailyTotals:
             nColWidth[i] = nDailyTotalsMinColWidth[i];
             break;
+
+        case TableType::DailyTotalsSummary:
+            nColWidth[i] = nDailyTotalsSummaryMinColWidth[i];
+            break;
         }
     }
+
 
     Graphics graphics(hdc);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
@@ -595,7 +614,7 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring 
 
 
 // ========================================================================================
-// Create the display data line for a closed position.
+// Create the display data line for a Ticker total.
 // ========================================================================================
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount)
 {
@@ -699,14 +718,30 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
     REAL font8 = 8;
     REAL font9 = 9;
 
-/*
+
+    // Header
+    ld->SetData(0, nullptr, tickerId, L"Profit/Loss", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ld->SetData(1, nullptr, tickerId, L"Stock Value", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ld->SetData(2, nullptr, tickerId, L"Net Profit", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ld->SetData(3, nullptr, tickerId, L"MTD", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ld->SetData(4, nullptr, tickerId, L"YTD", StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        ThemeElement::TradesPanelText, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+
+
+
     // Populate the summary data
-    text = q.toCurrencyString(grandTotal, " ", 2);
-
-    ThemeElement clr = (grandTotal >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
-    ld->SetData(0, nullptr, tickerId, AfxMoney(grandTotal), StringAlignmentCenter, 
-        ThemeElement::TradesPanelBack, clr, font8, FontStyleRegular);
-
+    ld = new ListBoxData;
+    
     double stockValue = 0;
     for (const auto& trade : trades) {
         if (!trade->isOpen) continue;
@@ -717,38 +752,35 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
         }
     }
 
-    text = q.toCurrencyString(stockValue, " ", 2);
+    ThemeElement clr = (grandTotal >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(0, nullptr, tickerId, AfxMoney(grandTotal), StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        clr, font8, FontStyleRegular);
 
-
-    SetItemAttributes(parent, 1, text, Qt::AlignCenter, font, stockValue >= 0 ? green : red, baseGrayBack);
+    clr = (stockValue >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(1, nullptr, tickerId, AfxMoney(stockValue), StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        clr, font8, FontStyleRegular);
 
     double netValue = grandTotal + stockValue;
-    text = q.toCurrencyString(netValue, " ", 2);
-    SetItemAttributes(parent, 2, text, Qt::AlignCenter, font, netValue >= 0 ? green : red, baseGrayBack);
+    clr = (netValue >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(2, nullptr, tickerId, AfxMoney(netValue), StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        clr, font8, FontStyleRegular);
 
-    text = q.toCurrencyString(MTD, " ", 2);
-    SetItemAttributes(parent, 3, text, Qt::AlignCenter, font, MTD >= 0 ? green : red, baseGrayBack);
+    clr = (MTD >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(3, nullptr, tickerId, AfxMoney(MTD), StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        clr, font8, FontStyleRegular);
 
-    text = q.toCurrencyString(YTD, " ", 2);
-    SetItemAttributes(parent, 4, text, Qt::AlignCenter, font, YTD >= 0 ? green : red, baseGrayBack);
-
-
-    ld->SetData(1, nullptr, tickerId, trade->tickerSymbol, StringAlignmentNear,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
-
-    ld->SetData(2, nullptr, tickerId, trans->description, StringAlignmentNear,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
-
-    ld->SetData(3, nullptr, tickerId, AfxMoney(trans->total), StringAlignmentFar,
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+    clr = (YTD >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ld->SetData(4, nullptr, tickerId, AfxMoney(YTD), StringAlignmentCenter, ThemeElement::TradesPanelBack,
+        clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
-    */
+
 }
 
 
 // ========================================================================================
-// Process WM_DRAWITEM message for window/dialog
+// Process WM_DRAWITEM message for window/dialog 
+// (common function for TradesPanel & HistoryPanel)
 // ========================================================================================
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {

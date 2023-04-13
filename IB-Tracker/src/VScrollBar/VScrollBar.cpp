@@ -41,7 +41,9 @@ bool VScrollBar::calcVThumbRect()
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Windows message callback for the custom ScrollBar control.
+// ========================================================================================
 LRESULT CALLBACK VScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     VScrollBar* pData = nullptr;
@@ -240,10 +242,26 @@ HWND CreateVScrollBar(
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Retrieve the stored data pointer from the custom ScrollBar
+// ========================================================================================
 VScrollBar* VScrollBar_GetPointer(HWND hCtrl)
 {
     VScrollBar* pData = (VScrollBar*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
+
+
+// ========================================================================================
+// Recalculate the ScrollBar thumb size and refresh display.
+// ========================================================================================
+void VScrollBar_Recalculate(HWND hCtrl)
+{
+    VScrollBar* pData = VScrollBar_GetPointer(hCtrl);
+    if (pData != nullptr) {
+        pData->calcVThumbRect();
+        AfxRedrawWindow(pData->hwnd);
+    }
+}
+
 

@@ -28,5 +28,10 @@ public:
 
 };
 
+
+const int VSCROLLBAR_WIDTH = 14;
+
 HWND CreateVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hListBox);
 VScrollBar* VScrollBar_GetPointer(HWND hCtrl);
+void VScrollBar_Recalculate(HWND hCtrl);
+

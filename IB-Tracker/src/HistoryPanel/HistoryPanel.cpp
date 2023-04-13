@@ -12,9 +12,6 @@
 
 HWND HWND_HISTORYPANEL = NULL;
 
-const int HISTORY_VSCROLLBAR_WIDTH = 14;
-const int HISTORY_VSCROLLBAR_MINTHUMBSIZE = 20;
-
 extern CHistoryPanel HistoryPanel;
 
 extern std::vector<Trade*> trades;
@@ -84,10 +81,13 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
+    
+    // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
+     // and position the Summary listbox and daily detail listbox.
     RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
     HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
+
+    VScrollBar_Recalculate(hVScrollBar);
 
 }
 
@@ -157,23 +157,19 @@ void HistoryPanel_ShowTickerTotals()
         L"Ticker Totals");
 
 
-    // Re-calculate scrollbar and show thumb if necessary
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
-    if (pData != nullptr) {
-        pData->calcVThumbRect();
-        AfxRedrawWindow(pData->hwnd);
-    }
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
+
+    // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
+    // and position the Summary listbox and daily detail listbox.
     RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
     HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
+
+    VScrollBar_Recalculate(hVScrollBar);
 }
 
 
@@ -183,9 +179,10 @@ void HistoryPanel_ShowTickerTotals()
 void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
 {
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
+    HWND hListBoxSummary = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX_SUMMARY);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
 
-
+        
     // Default to opening the current date
     std::wstring selectedDate = AfxCurrentDate();
     bool isOpen = true;
@@ -209,8 +206,9 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     int nTopLine = ListBox_GetTopIndex(hListBox);
 
 
-    // Clear the current trade history table
+    // Clear the current history table
     ListBoxData_DestroyItemData(hListBox);
+    ListBoxData_DestroyItemData(hListBoxSummary);
 
 
     // Calculate the daily amounts
@@ -267,12 +265,16 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     }
 
 
+    // Output the data for the Daily Totals Summary
+    ListBoxData_OutputDailyTotalsSummary(hListBoxSummary, grandTotal, MTD, YTD);
+
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, TableType::DailyTotals, -1);
+    ListBoxData_ResizeColumnWidths(hListBoxSummary, TableType::DailyTotalsSummary, -1);
 
 
     SuperLabel_SetText(
@@ -286,23 +288,18 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
     ListBox_SetTopIndex(hListBox, nTopLine);
 
 
-    // Re-calculate scrollbar and show thumb if necessary
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
-    if (pData != nullptr) {
-        pData->calcVThumbRect();
-        AfxRedrawWindow(pData->hwnd);
-    }
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
-    // Resize the panel to ensure that the correct controls are shown and are
-    // positioned correctly.
+
+    // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
+    // and position the Summary listbox and daily detail listbox.
     RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
     HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
+    VScrollBar_Recalculate(hVScrollBar);
 }
 
 
@@ -341,12 +338,8 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
-        VScrollBar* pData = VScrollBar_GetPointer(hListBox);
-        if (pData != nullptr) {
-            pData->calcVThumbRect();
-            AfxRedrawWindow(pData->hwnd);
-        }
+        HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+        VScrollBar_Recalculate(hVScrollBar);
         break;
     }
 
@@ -472,8 +465,8 @@ void HistoryPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
-    VScrollBar* pData = VScrollBar_GetPointer(hListBox);
+    HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
+    HWND hVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_VSCROLLBAR);
 
     int margin = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
 
@@ -485,6 +478,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bShowScrollBar = false;
+    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
             bShowScrollBar = true;
@@ -493,7 +487,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(HISTORY_VSCROLLBAR_WIDTH) : 0;
+    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
@@ -502,23 +496,23 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
     if (menuId == IDC_MENUPANEL_DAILYTOTALS) {
+        nTop += AfxScaleY(6);
         nHeight = (HISTORY_LISTBOX_ROWHEIGHT * 2);
         SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), 0,
             nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = AfxScaleY(120);
+        nTop = AfxScaleY(80);
     } else {
         ShowWindow(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), SW_HIDE);
     }
 
     
-    nHeight = cy - margin;
-    SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX), 0,
-        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nHeight = cy - nTop;
+    SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, 
+        SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;
-    SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_VSCROLLBAR), 0,
-        nLeft, nTop, nWidth, nHeight,
+    SetWindowPos(hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 }
 

@@ -4,6 +4,8 @@
 #include "Themes/Themes.h"
 #include "Database/database.h"
 #include "MainWindow/MainWindow.h"
+#include "Utilities/UserMessages.h"
+
 
 
 
@@ -142,6 +144,13 @@ int APIENTRY wWinMain(
     // Show the window and update its client area
     ShowWindow(hWndMain, (nCmdShow == 0) ? SW_SHOW : nCmdShow);
     UpdateWindow(hWndMain);
+
+
+    // Now that the child panels are created we can *post* a message to MainWindow to ask
+    // to show any trades that already exist. We need to postmessage because we need for
+    // the ListBox to be shown and sized, otherwise the VScrollBar calculation will not
+    // correctly determine it's thumb size due to zero height ListBox.
+    PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
 
 
     // Call the main modal message pump and wait for it to end.

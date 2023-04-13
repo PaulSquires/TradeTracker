@@ -62,7 +62,8 @@ enum class TableType
     ClosedTrades,
     TradeHistory,
     TickerTotals,
-    DailyTotals
+    DailyTotals,
+    DailyTotalsSummary
 };
 
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);

@@ -9,8 +9,6 @@
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
-#include "..\Themes\Themes.h"
-#include "..\Database\database.h"
 #include "..\Utilities\UserMessages.h"
 
 HWND HWND_MAINWINDOW = NULL;
@@ -164,8 +162,6 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
-    MainWindow_StartupShowTrades();
-        
     return TRUE;
 }
 
@@ -311,6 +307,10 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_LBUTTONDOWN, MainWindow_OnLButtonDown);
         HANDLE_MSG(m_hwnd, WM_LBUTTONUP, MainWindow_OnLButtonUp);
         HANDLE_MSG(m_hwnd, WM_SETCURSOR, MainWindow_OnSetCursor);
+
+    case MSG_STARTUP_SHOWTRADES:
+        MainWindow_StartupShowTrades();
+        return 0;
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

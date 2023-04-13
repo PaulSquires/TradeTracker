@@ -579,11 +579,28 @@ std::wstring ansi2unicode(const std::string& str)
 // ========================================================================================
 std::wstring AfxMoney(double value)
 {
-    // j will include +1 for null terminator
-    std::string buffer(256, 0);
-    int j = snprintf(&buffer[0], 256, "%.2f\n", value);
-    std::wstring wszMoney = ansi2unicode(buffer);
-    return wszMoney.substr(0, j - 1);   // -1 to remove null terminator
+    static std::wstring DecimalSep = L".";
+    static std::wstring ThousandSep = L",";
+
+    static NUMBERFMTW num{};
+    num.NumDigits = 2;
+    num.LeadingZero = true;
+    num.Grouping = 3;
+    num.lpDecimalSep = (LPWSTR)DecimalSep.c_str();
+    num.lpThousandSep = (LPWSTR)ThousandSep.c_str();
+    num.NegativeOrder = 0;
+
+    std::wstring money(std::to_wstring(value));
+    std::wstring buffer(256, 0);
+    int j = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, money.c_str(), &num, (LPWSTR)buffer.c_str(), 256);
+
+    money = buffer.substr(0, j - 1);
+
+    // If value is negative then add a space after the negative parenthesis for visual purposes
+    if (value < 0) money.insert(1, L" ");
+
+    return money;   // -1 to remove null terminator
+
 }
 
 
