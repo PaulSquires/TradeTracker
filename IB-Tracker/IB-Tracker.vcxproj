@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ConfigDialog\ConfigDialog.h" />
+    <ClInclude Include="src\Config\Config.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
     <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
@@ -107,7 +107,7 @@
     <Image Include="src\Images\mainicon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ConfigDialog\ConfigDialog.cpp" />
+    <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\HistoryPanel\HistoryPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow\tws-client.cpp" />

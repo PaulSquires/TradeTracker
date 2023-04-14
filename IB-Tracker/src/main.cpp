@@ -3,6 +3,7 @@
 #include "Utilities/AfxWin.h"
 #include "Themes/Themes.h"
 #include "Database/database.h"
+#include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "Utilities/UserMessages.h"
 
@@ -87,14 +88,17 @@ int APIENTRY wWinMain(
 
     // Set the Trader's name that will display in the Navigation panel.
     // LoadDatabase may override this setting if a setting is found 
-    // in the database. Default to the name used to log into this computer.
+    // in the Config. Default to the name used to log into this computer.
     SetTraderName(AfxGetUserName());
 
 
+    // Load the Config file. Settings found in the Config file will override
+    // previusly set values from SetTheme, SetTraderName.
+    LoadConfig();
+
+
+
     // Load all transactions and configuration information. 
-    // If a Theme setting was found in the database then the Theme
-    // will override the default one that we just specified prior
-    // to calling this LoadDatabase function.
     LoadDatabase();
 
 

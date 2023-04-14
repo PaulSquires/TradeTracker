@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "..\Utilities\AfxWin.h"
-#include "..\Themes\Themes.h"
+//#include "..\Themes\Themes.h"
 #include "trade.h"
 #include "database.h"
 
@@ -84,32 +84,6 @@ std::wstring NumberToAction(int number)
     return L"STO";
 }
 
-// Function to split the string to words in a vector
-// separated by the delimiter
-std::vector<std::wstring> split(std::wstring str, std::wstring delimiter)
-{
-    std::vector<std::wstring> v;
-    if (!str.empty()) {
-        int start = 0;
-        do {
-            // Find the index of occurrence
-            int idx = str.find(delimiter, start);
-            if (idx == std::wstring::npos) {
-                break;
-            }
-
-            // If found add the substring till that
-            // occurrence in the vector
-            int length = idx - start;
-            v.push_back(str.substr(start, length));
-            start += (length + delimiter.size());
-        } while (true);
-        v.push_back(str.substr(start));
-    }
-
-    return v;
-}
-
 
 bool SaveDatabase()
 {
@@ -128,9 +102,6 @@ bool SaveDatabase()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "THEME|" << GetThemeName() << "\n"
-        << "TRADERNAME|" << GetTraderName() << "\n"
-        << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n"
         << "// TRADE  T|isOpen|TickerSymbol|TickerName|FutureExpiry\n"
         << "// TRANS  X|underlying|description|transDate|quantity|price|multiplier|fees|total\n"
         << "// LEG    L|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
@@ -210,7 +181,7 @@ bool LoadDatabase()
         if (line.compare(1, 3, L"// ") == 0) continue;
 
         // Tokenize the line into a vector based on the pipe delimiter
-        std::vector<std::wstring> st = split(line, L"|");
+        std::vector<std::wstring> st = AfxSplit(line, L"|");
 
         if (st.empty()) continue;
 
@@ -231,29 +202,6 @@ bool LoadDatabase()
             continue;
         }
 
-
-        // Check for configuration identifiers
-        if (st.at(0) == L"THEME") {
-            SetThemeName(st.at(1));
-            continue;
-        }
-
-        // Check for configuration identifiers
-        if (st.at(0) == L"TRADERNAME") {
-            std::wstring wszTraderName = st.at(1);
-            if (wszTraderName.length() == 0)
-                wszTraderName = AfxGetUserName();
-            SetTraderName(wszTraderName);
-            continue;
-        }
-
-        // Check for configuration identifiers
-        if (st.at(0) == L"STARTUPCONNECT") {
-            std::wstring wszConnect = st.at(1);
-            bool bConnect = AfxWStringCompareI(wszConnect, L"true");
-            SetStartupConnect(bConnect);
-            continue;
-        }
 
         // Check for Trades, Transactions, and Legs
 

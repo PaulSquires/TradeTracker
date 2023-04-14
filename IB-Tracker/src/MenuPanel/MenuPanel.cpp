@@ -6,7 +6,6 @@
 #include "..\MainWindow\tws-client.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\TradesPanel\TradesPanel.h"
-#include "..\ConfigDialog\ConfigDialog.h"
 #include "..\Utilities\ListBoxData.h"
 #include "MenuPanel.h"
 
@@ -15,7 +14,6 @@ extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
 extern void HistoryPanel_ShowTickerTotals();
 extern void HistoryPanel_ShowDailyTotals(const ListBoxData* ld);
-extern void ConfigDialog_Show();
 
 HWND HWND_MENUPANEL = NULL;
 
@@ -691,16 +689,6 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            case IDC_MENUPANEL_CONFIGURE:
-            {
-                // Save the currently selected menu item so that it can be restored
-                // once the Configuration dialog closes.
-                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
-                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                ConfigDialog_Show();
-                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
-                break;
-            }
 
             }  // switch
 

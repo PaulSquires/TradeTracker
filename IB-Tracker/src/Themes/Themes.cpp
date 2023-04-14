@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "Themes.h"
 #include "..\Utilities\AfxWin.h"
-#include "..\ConfigDialog\ConfigDialog.h"
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\SuperLabel\SuperLabel.h"
 
@@ -12,9 +11,6 @@ bool IsInitialized = false;
 
 DWORD clr[(int)ThemeElement::Count][(int)Themes::Count];
 Themes ActiveTheme = Themes::Dark;
-
-std::wstring wszTraderName;
-bool StartupConnect = true;
 
 extern HWND HWND_MENUPANEL;
 
@@ -111,33 +107,6 @@ std::wstring GetThemeName()
 
 
 // ========================================================================================
-// Return the current set Theme control ID. (IDC).
-// ========================================================================================
-int GetThemeControlId()
-{
-	if (!IsInitialized) InitializeThemeColors();
-
-	switch (ActiveTheme)
-	{
-	case Themes::Light:
-		return IDC_CONFIGDIALOG_LIGHTTHEME;
-		break;
-	case Themes::Dark:
-		return IDC_CONFIGDIALOG_DARKTHEME;
-		break;
-	case Themes::DarkPlus:
-		return IDC_CONFIGDIALOG_DARKPLUSTHEME;
-		break;
-	case Themes::Blue:
-		return IDC_CONFIGDIALOG_BLUETHEME;
-		break;
-	default:
-		return IDC_CONFIGDIALOG_DARKTHEME;
-	}
-}
-
-
-// ========================================================================================
 // Set the current Theme based on it's string name (std::wstring).
 // ========================================================================================
 void SetThemeName(std::wstring wszTheme)
@@ -168,46 +137,6 @@ void SetThemeName(std::wstring wszTheme)
 	}
 }
 
-
-// ========================================================================================
-// Get the Trader's name that displays in the Navigation Panel.
-// This value is saved and restored from database. 
-// ========================================================================================
-std::wstring GetTraderName()
-{
-	return wszTraderName;
-}
-
-
-// ========================================================================================
-// Set the Trader's name that displays in the Navigation Panel.
-// This value is saved and restored from database. 
-// ========================================================================================
-void SetTraderName(std::wstring wszName)
-{
-	wszTraderName = wszName;
-	HWND hCtl = GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_TRADERNAME);
-	if (IsWindow(hCtl))
-		SuperLabel_SetText(hCtl, wszName);
-}
-	
-	
-// ========================================================================================
-// Get the true/false to try to automatically connect on program startup.
-// ========================================================================================
-bool GetStartupConnect()
-{
-	return StartupConnect;
-}
-
-
-// ========================================================================================
-// Get the true/false to try to automatically connect on program startup.
-// ========================================================================================
-void SetStartupConnect(bool bConnect)
-{
-	StartupConnect = bConnect;
-}
 
 
 // ========================================================================================

@@ -659,3 +659,74 @@ int AfxLocalMonth()
     GetLocalTime(&st);
     return st.wMonth;
 }
+
+
+// ========================================================================================
+// Function to split the string to words in a vector
+// separated by the delimiter
+// ========================================================================================
+std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter)
+{
+    std::vector<std::wstring> v;
+    if (!str.empty()) {
+        int start = 0;
+        do {
+            // Find the index of occurrence
+            int idx = str.find(delimiter, start);
+            if (idx == std::wstring::npos) {
+                break;
+            }
+
+            // If found add the substring till that
+            // occurrence in the vector
+            int length = idx - start;
+            v.push_back(str.substr(start, length));
+            start += (length + delimiter.size());
+        } while (true);
+        v.push_back(str.substr(start));
+    }
+
+    return v;
+}
+
+
+// ========================================================================================
+// Searches a directory for a file or subdirectory with a name that matches a specific name
+// (or partial name if wildcards are used).
+// Parameter:
+// - pwszFileSpec: The directory or path, and the file name, which can include wildcard
+//   characters, for example, an asterisk (*) or a question mark (?).
+//   This parameter should not be NULL, an invalid string (for example, an empty string or a
+//   string that is missing the terminating null character), or end in a trailing backslash (\).
+//   If the string ends with a wildcard, period (.), or directory name, the user must have
+//   access permissions to the root and all subdirectories on the path. To extend the limit
+//   of MAX_PATH wide characters to 32,767 wide characters, prepend "\\?\" to the path.
+// Return value:
+//   Returns TRUE if the specified file exists or FALSE otherwise.
+// Remarks:
+//   Prepending the string "\\?\" does not allow access to the root directory.
+//   On network shares, you can use a pwszFileSpec in the form of the following:
+//   "\\server\service\*". However, you cannot use a pwszFileSpec that points to the share
+//   itself; for example, "\\server\service" is not valid.
+//   To examine a directory that is not a root directory, use the path to that directory,
+//   without a trailing backslash. For example, an argument of "C:\Windows" returns information
+//   about the directory "C:\Windows", not about a directory or file in "C:\Windows".
+//   To examine the files and directories in "C:\Windows", use an pwszFileSpec of "C:\Windows\*".
+//   Be aware that some other thread or process could create or delete a file with this name
+//   between the time you query for the result and the time you act on the information.
+//   If this is a potential concern for your application, one possible solution is to use
+//   the CreateFile function with CREATE_NEW (which fails if the file exists) or OPEN_EXISTING
+//   (which fails if the file does not exist).
+// ========================================================================================
+bool AfxFileExists(const std::wstring& wszFileSpec)
+{
+    WIN32_FIND_DATAW fd;
+    if (wszFileSpec.c_str() == NULL) return false;
+
+    HANDLE hFind = FindFirstFile(wszFileSpec.c_str(), &fd);
+    if (hFind == INVALID_HANDLE_VALUE) return false;
+    FindClose(hFind);
+    return true;
+}
+
+

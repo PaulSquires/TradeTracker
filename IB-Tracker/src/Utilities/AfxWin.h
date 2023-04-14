@@ -45,5 +45,7 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
 int AfxLocalYear();
 int AfxLocalMonth();
 std::wstring AfxGetShortDayName(std::wstring wszDate);
+std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter);
+bool AfxFileExists(const std::wstring& wszFileSpec);
 
 
