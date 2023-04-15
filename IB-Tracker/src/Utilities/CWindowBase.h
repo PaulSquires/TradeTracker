@@ -358,7 +358,12 @@ public:
 
         case Controls::DateTimePicker:
         {
-
+//            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | DTS_SHORTDATEFORMAT;
+            wszClassName = L"SysDateTimePick32";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
+            // Sets the font to be used by the date and time picker control's child month calendar control.
+            if (m_hFont) SendMessage(hCtl, DTM_SETMCFONT, (WPARAM)m_hFont, TRUE);
         }
         break;
 

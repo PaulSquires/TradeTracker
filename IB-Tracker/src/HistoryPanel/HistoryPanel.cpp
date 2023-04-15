@@ -609,8 +609,8 @@ LRESULT CHistoryPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, HistoryPanel_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, HistoryPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, HistoryPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, HistoryPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_COMMAND, HistoryPanel_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, HistoryPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

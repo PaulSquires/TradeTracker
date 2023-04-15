@@ -16,7 +16,7 @@ public:
     ThemeElement        textTheme = ThemeElement::TradesPanelText;;
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
-    int                 colWidth;
+    int                 colWidth = 0;
 };
 
 class ListBoxData {
@@ -63,7 +63,8 @@ enum class TableType
     TradeHistory,
     TickerTotals,
     DailyTotals,
-    DailyTotalsSummary
+    DailyTotalsSummary,
+    TradeTemplates
 };
 
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
@@ -78,5 +79,6 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
 void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
 void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transaction* trans);
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
+void ListBoxData_OutputTradesTemplates(HWND hListBox);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
 

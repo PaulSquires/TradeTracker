@@ -6,6 +6,7 @@
 #include "..\MainWindow\tws-client.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
+#include "..\Templates\Templates.h"
 
 
 int nHistoryMinColWidth[10] =
@@ -129,6 +130,20 @@ int nDailyTotalsSummaryMinColWidth[10] =
     0
 };
 
+int nTradeTemplatesMinColWidth[10] =
+{
+    100,    /* Description */
+    0,     
+    0,     
+    0,     
+    0,     
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
 int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 
 bool PrevMarketDataLoaded = false;
@@ -173,6 +188,11 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         case TableType::DailyTotalsSummary:
             nColWidth[i] = nDailyTotalsSummaryMinColWidth[i];
             break;
+
+        case TableType::TradeTemplates:
+            nColWidth[i] = nTradeTemplatesMinColWidth[i];
+            break;
+            
         }
     }
 
@@ -779,6 +799,26 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
 
 
 // ========================================================================================
+// Create the display data for the Trades Dialog Trade Templates.
+// ========================================================================================
+void ListBoxData_OutputTradesTemplates(HWND hListBox)
+{
+    ListBoxData* ld = nullptr;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+    REAL font9 = 9;
+
+    for (const auto& t : TradeTemplates) {
+        ld = new ListBoxData;
+        ld->SetData(0, nullptr, tickerId, t.name, StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular);
+        ListBox_AddString(hListBox, ld);
+    }
+}
+
+
+// ========================================================================================
 // Process WM_DRAWITEM message for window/dialog 
 // (common function for TradesPanel & HistoryPanel)
 // ========================================================================================
@@ -839,6 +879,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         // Draw each of the columns
         for (int i = 0; i < 8; i++) {
             if (ld == nullptr) break;
+            if (ld->col[i].colWidth == 0) break;
 
             wszText = ld->col[i].wszText;
 

@@ -70,7 +70,7 @@ bool LoadTemplates_Internal(const std::wstring& dbFilename)
         }
 
         
-        if (arg == L"MENU") {
+        if (arg == L"MAINMENU") {
             if (!readingTemplate) continue;
             ctrade.menu = AfxWStringCompareI(AfxTrim(st.at(1)), L"true");
             continue;

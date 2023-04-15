@@ -6,6 +6,7 @@
 #include "..\MainWindow\tws-client.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\TradeDialog\TradeDialog.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Templates\Templates.h"
 #include "MenuPanel.h"
@@ -526,9 +527,10 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
 
             // Deal with any Trade Templates in the menu
-            if (CtrlId > IDC_MENUPANEL_NEWTRADE && CtrlId < IDC_MENUPANEL_TICKERTOTALS)
+            if (CtrlId >= IDC_MENUPANEL_NEWTRADE && CtrlId < IDC_MENUPANEL_TICKERTOTALS)
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show();
                 break;
             }
 
@@ -568,12 +570,6 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 TradesPanel_ShowClosedTrades();
-                break;
-            }
-
-            case IDC_MENUPANEL_NEWTRADE:
-            {
-                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 break;
             }
 
