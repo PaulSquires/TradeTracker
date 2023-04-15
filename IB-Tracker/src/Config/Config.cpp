@@ -2,16 +2,22 @@
 
 #include "..\Utilities\AfxWin.h"
 #include "..\Themes\Themes.h"
+#include "..\MenuPanel\MenuPanel.h"
+#include "..\SuperLabel\SuperLabel.h"
+
 #include "Config.h"
 
 
-const std::wstring dbFilename = AfxGetExePath() + L"\\config.ini";
+const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 const std::wstring version = L"1.0.0";
 
 std::wstring wszTraderName;
 bool StartupConnect = true;
+
+extern HWND HWND_MENUPANEL;
+
 
 
 
@@ -63,7 +69,7 @@ bool SaveConfig()
 {
     std::wofstream db;
 
-    db.open(dbFilename, std::ios::out | std::ios::trunc);
+    db.open(dbConfig, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
         int msgboxID = MessageBox(
@@ -76,7 +82,7 @@ bool SaveConfig()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "THEME|" << GetThemeName() << "\n"
+        << "THEME|" << L"Dark" << "\n"
         << "TRADERNAME|" << GetTraderName() << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
@@ -91,15 +97,14 @@ bool SaveConfig()
 // ========================================================================================
 bool LoadConfig()
 {
-
     // If the Config does not exist then create a new one.
-    if (!AfxFileExists(dbFilename)) {
+    if (!AfxFileExists(dbConfig)) {
         SaveConfig();
     }
 
     std::wifstream db;
 
-    db.open(dbFilename, std::ios::in);
+    db.open(dbConfig, std::ios::in);
 
     if (!db.is_open())
         return false;
@@ -141,24 +146,29 @@ bool LoadConfig()
         }
 
 
+        std::wstring arg = AfxTrim(st.at(0));
+
+
         // Check for configuration identifiers
-        if (st.at(0) == L"THEME") {
-            SetThemeName(st.at(1));
+        if (arg == L"THEME") {
+            SetThemeName(AfxTrim(st.at(1)));
             continue;
         }
 
+
         // Check for configuration identifiers
-        if (st.at(0) == L"TRADERNAME") {
-            std::wstring wszTraderName = st.at(1);
+        if (arg == L"TRADERNAME") {
+            std::wstring wszTraderName = AfxTrim(st.at(1));
             if (wszTraderName.length() == 0)
                 wszTraderName = AfxGetUserName();
             SetTraderName(wszTraderName);
             continue;
         }
 
+
         // Check for configuration identifiers
-        if (st.at(0) == L"STARTUPCONNECT") {
-            std::wstring wszConnect = st.at(1);
+        if (arg == L"STARTUPCONNECT") {
+            std::wstring wszConnect = AfxTrim(st.at(1));
             bool bConnect = AfxWStringCompareI(wszConnect, L"true");
             SetStartupConnect(bConnect);
             continue;

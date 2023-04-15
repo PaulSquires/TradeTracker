@@ -17,13 +17,15 @@ const int IDC_MENUPANEL_APPNAME       = 104;
 const int IDC_MENUPANEL_ACTIVETRADES  = 105;
 const int IDC_MENUPANEL_CLOSEDTRADES  = 106;
 const int IDC_MENUPANEL_NEWTRADE      = 107;
-const int IDC_MENUPANEL_SHORTSTRANGLE = 108;
-const int IDC_MENUPANEL_SHORTPUT      = 109;
-const int IDC_MENUPANEL_SHORTCALL     = 110;
-const int IDC_MENUPANEL_TICKERTOTALS  = 111;
-const int IDC_MENUPANEL_DAILYTOTALS   = 112;
-const int IDC_MENUPANEL_RECONCILE     = 113;
-const int IDC_MENUPANEL_MESSAGES      = 114;
+
+// Constants between NEWTRADE and TICKERTOTALS are generated
+// automatically when the MenuPanel is being constructed and 
+// identified trade template items are being added.
+
+const int IDC_MENUPANEL_TICKERTOTALS  = 200;
+const int IDC_MENUPANEL_DAILYTOTALS   = 201;
+const int IDC_MENUPANEL_RECONCILE     = 202;
+const int IDC_MENUPANEL_MESSAGES      = 203;
 
 const int MENUPANEL_WIDTH = 180;
 

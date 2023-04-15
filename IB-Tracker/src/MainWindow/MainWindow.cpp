@@ -10,6 +10,8 @@
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\Utilities\UserMessages.h"
+#include "..\Config\Config.h"
+
 
 HWND HWND_MAINWINDOW = NULL;
 

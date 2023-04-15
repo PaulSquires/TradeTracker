@@ -730,3 +730,39 @@ bool AfxFileExists(const std::wstring& wszFileSpec)
 }
 
 
+// ========================================================================================
+// Remove all leading whitespace characters from a string
+// ========================================================================================
+std::wstring& AfxLTrim(std::wstring& s)
+{
+    auto it = std::find_if(s.begin(), s.end(),
+        [](wchar_t c) {
+            return !std::isspace<wchar_t>(c, std::locale::classic());
+        });
+    s.erase(s.begin(), it);
+    return s;
+}
+
+
+// ========================================================================================
+// Remove all trailing whitespace characters from a string
+// ========================================================================================
+std::wstring& AfxRTrim(std::wstring& s)
+{
+    auto it = std::find_if(s.rbegin(), s.rend(),
+        [](wchar_t c) {
+            return !std::isspace<wchar_t>(c, std::locale::classic());
+        });
+    s.erase(it.base(), s.end());
+    return s;
+}
+
+
+// ========================================================================================
+// Remove all leading and trailing whitespace characters from a string
+// ========================================================================================
+std::wstring& AfxTrim(std::wstring& s) {
+    return AfxLTrim(AfxRTrim(s));
+}
+
+

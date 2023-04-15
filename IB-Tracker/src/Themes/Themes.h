@@ -1,13 +1,5 @@
 #pragma once
 
-enum class Themes {
-	Light,
-	Dark,
-	DarkPlus,
-	Blue,
-	Count     // Returns the number of defined themes
-};
-
 enum class ThemeElement {
 	MenuPanelBack,
 	MenuPanelBackHot,
@@ -40,26 +32,17 @@ enum class ThemeElement {
 
 
 
+bool LoadTheme();
+void InitializeThemeColors();
+
 DWORD GetThemeColor(ThemeElement element);
 COLORREF GetThemeCOLORREF(ThemeElement element);
-void SetTheme(Themes theme);
+
 void ApplyActiveTheme();
 void SetThemeMainWindow(HWND hWndMain);
-Themes GetTheme();
-int GetThemeControlId();
-
-std::wstring GetThemeName();
 void SetThemeName(std::wstring wszTheme);
+std::wstring GetThemeName();
+void SetIsThemeDark(bool isDark);
+bool GetIsThemeDark();
 
-std::wstring GetTraderName();
-void SetTraderName(std::wstring wszName);
-
-bool GetStartupConnect();
-void SetStartupConnect(bool bConnect);
-
-void Initialize_Light_Theme(DWORD clr[][(int)Themes::Count]);
-void Initialize_Dark_Theme(DWORD clr[][(int)Themes::Count]);
-void Initialize_DarkPlus_Theme(DWORD clr[][(int)Themes::Count]);
-void Initialize_Blue_Theme(DWORD clr[][(int)Themes::Count]);
-
-
+extern std::vector<DWORD> clr;

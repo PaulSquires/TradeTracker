@@ -4,6 +4,7 @@
 #include "Themes/Themes.h"
 #include "Database/database.h"
 #include "Config/Config.h"
+#include "Templates/Templates.h"
 #include "MainWindow/MainWindow.h"
 #include "Utilities/UserMessages.h"
 
@@ -81,21 +82,30 @@ int APIENTRY wWinMain(
 
     // Set the Theme to use for all windows and controls. Remember to call
     // the SetThemeMainWindow() function after the application's main 
-    // window is created. LoadDatabase may override this setting if a Theme
-    // setting is found in the database.
-    SetTheme(Themes::Dark);
+    // window is created. LoadConfig may override this setting if a Theme
+    // setting is found in the database and can be loaded from the external
+    // theme disk file.
+    InitializeThemeColors();
 
 
-    // Set the Trader's name that will display in the Navigation panel.
-    // LoadDatabase may override this setting if a setting is found 
-    // in the Config. Default to the name used to log into this computer.
+    // Set the Trader's name that will display in the Menu panel.
+    // LoadConfig may override this setting if a setting is found.
+    // Default to the name used to log into this computer.
     SetTraderName(AfxGetUserName());
 
 
     // Load the Config file. Settings found in the Config file will override
-    // previusly set values from SetTheme, SetTraderName.
+    // previously set values from InitializeThemeColors, SetTraderName.
     LoadConfig();
 
+
+    // Load the Theme files (both pre-defined and any User defined) and attempt
+    // to match the selected Theme as defined in the Config file.
+    LoadTheme();
+
+
+    // Load the Trade Templates (both pre-defined and any User defined).
+    LoadTemplates();
 
 
     // Load all transactions and configuration information. 

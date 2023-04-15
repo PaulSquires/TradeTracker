@@ -2,11 +2,12 @@
 #include "pch.h"
 #include "..\SuperLabel\SuperLabel.h"
 #include "..\Utilities\UserMessages.h"
-#include "..\Themes\Themes.h"
+#include "..\Config\Config.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\Utilities\ListBoxData.h"
+#include "..\Templates\Templates.h"
 #include "MenuPanel.h"
 
 
@@ -254,79 +255,41 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
-        hwnd,
-        IDC_MENUPANEL_SHORTSTRANGLE,
-        SuperLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Short Strangle";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+    // Add any Trade Templates that have their MENU property set to True.
+    int ctrlId = IDC_MENUPANEL_NEWTRADE;
+
+    for (auto& t : TradeTemplates)
+    {
+        if (!t.menu) continue;
+
+        ctrlId++;
+        t.ctrlId = ctrlId;
+
+        nTop = nTop + nItemHeight;
+        hCtl = CreateSuperLabel(
+            hwnd, ctrlId,
+            SuperLabelType::TextOnly,
+            0, nTop, MENUPANEL_WIDTH, nItemHeight);
+        pData = SuperLabel_GetOptions(hCtl);
+        if (pData) {
+            pData->HotTestEnable = true;
+            pData->AllowSelect = true;
+            pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
+            pData->BackColor = ThemeElement::MenuPanelBack;
+            pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+            pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+            pData->TextColor = ThemeElement::MenuPanelText;
+            pData->TextColorHot = ThemeElement::MenuPanelText;
+            pData->TextOffsetLeft = nLeftOffset;
+            pData->FontSize = 10;
+            pData->FontSizeHot = 10;
+            pData->wszText = t.name;
+            pData->wszTextHot = pData->wszText;
+            SuperLabel_SetOptions(hCtl, pData);
+        }
+
     }
 
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
-        hwnd,
-        IDC_MENUPANEL_SHORTPUT,
-        SuperLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Short Put";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
-        hwnd,
-        IDC_MENUPANEL_SHORTCALL,
-        SuperLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Short Call";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
 
 
     // SEPARATOR
@@ -421,48 +384,6 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    // SEPARATOR
-    nTop = nTop + nItemHeight + 6;
-    hCtl = CreateSuperLabel(
-        hwnd, -1, 
-        SuperLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->LineColor = ThemeElement::MenuPanelSeparator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + 10;
-    hCtl = CreateSuperLabel(
-        hwnd,
-        IDC_MENUPANEL_CONFIGURE,
-        SuperLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::TradesPanelBack;
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Configuration";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
-
     hCtl = CreateSuperLabel(
         hwnd,
         IDC_MENUPANEL_GEARICON,
@@ -501,7 +422,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
 {
     HWND hCtrl = NULL;
-    for (int i = IDC_MENUPANEL_ACTIVETRADES; i <= IDC_MENUPANEL_CONFIGURE; i++) {
+    for (int i = IDC_MENUPANEL_ACTIVETRADES; i <= IDC_MENUPANEL_RECONCILE; i++) {
         hCtrl = GetDlgItem(hParent, i);
         SuperLabel_Select(hCtrl, false);
     }
@@ -517,7 +438,7 @@ void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
 int MenuPanel_GetActiveMenuItem(HWND hParent)
 {
     HWND hCtrl = NULL;
-    for (int ctrlId = IDC_MENUPANEL_ACTIVETRADES; ctrlId <= IDC_MENUPANEL_CONFIGURE; ctrlId++)
+    for (int ctrlId = IDC_MENUPANEL_ACTIVETRADES; ctrlId <= IDC_MENUPANEL_RECONCILE; ctrlId++)
     {
         hCtrl = GetDlgItem(hParent, ctrlId);
         SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
@@ -604,6 +525,14 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (pData) {
 
+            // Deal with any Trade Templates in the menu
+            if (CtrlId > IDC_MENUPANEL_NEWTRADE && CtrlId < IDC_MENUPANEL_TICKERTOTALS)
+            {
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                break;
+            }
+
+
             switch (CtrlId) {
 
             case IDC_MENUPANEL_MESSAGES:
@@ -643,24 +572,6 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
 
             case IDC_MENUPANEL_NEWTRADE:
-            {
-                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                break;
-            }
-
-            case IDC_MENUPANEL_SHORTSTRANGLE:
-            {
-                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                break;
-            }
-
-            case IDC_MENUPANEL_SHORTPUT:
-            {
-                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                break;
-            }
-
-            case IDC_MENUPANEL_SHORTCALL:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 break;

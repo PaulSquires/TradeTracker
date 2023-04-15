@@ -1,12 +1,12 @@
 #include "pch.h"
+
 #include "..\Utilities\AfxWin.h"
-//#include "..\Themes\Themes.h"
 #include "trade.h"
 #include "database.h"
 
 
 
-const std::wstring dbFilename = AfxGetExePath() + L"\\trades.db";
+const std::wstring dbFilename = AfxGetExePath() + L"\\IB-Tracker-database.db";
 
 const std::wstring idMagic = L"IB-TRACKER-DATABASE";
 const std::wstring version = L"1.0.0";
