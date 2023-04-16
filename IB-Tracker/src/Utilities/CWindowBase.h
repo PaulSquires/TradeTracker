@@ -323,7 +323,10 @@ public:
 
         case Controls::ComboBox:
         {
-
+            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWN | CBS_HASSTRINGS;
+            wszClassName = L"ComboBox";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
@@ -352,13 +355,17 @@ public:
 
         case Controls::ListView:
         {
-
+            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_TABSTOP | LVS_REPORT | 
+                LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_AUTOARRANGE | LVS_ALIGNTOP;
+            wszClassName = L"SysListView32";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
         case Controls::DateTimePicker:
         {
-//            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwExStyle == -1) dwExStyle = 0;
             if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | DTS_SHORTDATEFORMAT;
             wszClassName = L"SysDateTimePick32";
             hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);

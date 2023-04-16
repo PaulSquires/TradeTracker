@@ -234,7 +234,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_MENUPANEL_NEWTRADE,
+        IDC_MENUPANEL_NEWOPTIONSTRADE,
         SuperLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -250,14 +250,62 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
-        pData->wszText = L"New Trade";
+        pData->wszText = L"Options Trade";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+    nTop = nTop + nItemHeight;
+    hCtl = CreateSuperLabel(
+        hwnd,
+        IDC_MENUPANEL_NEWSHARESTRADE,
+        SuperLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Shares Trade";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+    nTop = nTop + nItemHeight;
+    hCtl = CreateSuperLabel(
+        hwnd,
+        IDC_MENUPANEL_NEWFUTURESTRADE,
+        SuperLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Futures Trade";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
 
 
     // Add any Trade Templates that have their MENU property set to True.
-    int ctrlId = IDC_MENUPANEL_NEWTRADE;
+    int ctrlId = IDC_MENUPANEL_NEWFUTURESTRADE;
 
     for (auto& t : TradeTemplates)
     {
@@ -290,7 +338,6 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         }
 
     }
-
 
 
     // SEPARATOR
@@ -527,7 +574,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
 
             // Deal with any Trade Templates in the menu
-            if (CtrlId >= IDC_MENUPANEL_NEWTRADE && CtrlId < IDC_MENUPANEL_TICKERTOTALS)
+            if (CtrlId >= IDC_MENUPANEL_NEWOPTIONSTRADE && CtrlId < IDC_MENUPANEL_TICKERTOTALS)
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 TradeDialog_Show();
