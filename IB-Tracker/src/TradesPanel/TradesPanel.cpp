@@ -324,7 +324,9 @@ void TradesPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
     // The ListBox was created using LBS_OWNERDRAWVARIABLE so that this OnMeasureItem
     // would get called for every item being drawn. This allows us to change the item
-    // height depending on what type of table data is being displayed.
+    // height depending on what type of table data is being displayed. We can't rely
+    // on lpMeasureItem->CtrlID because we are usign the same ListBox to display data
+    // for open and closed trades.
 
     int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
     switch (menuId)

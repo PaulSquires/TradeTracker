@@ -21,7 +21,16 @@ CTradeDialog TradeDialog;
 // ========================================================================================
 void TradeDialog_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(TRADEDIALOG_LISTBOX_ROWHEIGHT);
+    switch (lpMeasureItem->CtlID)
+    {
+    case IDC_TRADEDIALOG_TEMPLATES:
+        lpMeasureItem->itemHeight = AfxScaleY(TRADEDIALOG_TEMPLATES_ROWHEIGHT);
+        break;
+
+    case IDC_TRADEDIALOG_LISTBOX:
+        lpMeasureItem->itemHeight = AfxScaleY(TRADEDIALOG_LISTBOX_ROWHEIGHT);
+        break;
+    }
 }
 
 
@@ -139,7 +148,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CTLCOLOREDIT, TradeDialog_OnCtlColorEdit);
         HANDLE_MSG(m_hwnd, WM_CTLCOLORSTATIC, TradeDialog_OnCtlColorStatic);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeDialog_OnMeasureItem);
-        HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, TradeDialogControls_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

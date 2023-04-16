@@ -411,8 +411,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
 // ========================================================================================
 void HistoryPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
-    switch (menuId)
+    switch (lpMeasureItem->CtlID)
     {
     case IDC_MENUPANEL_TICKERTOTALS:
     case IDC_MENUPANEL_DAILYTOTALS:
