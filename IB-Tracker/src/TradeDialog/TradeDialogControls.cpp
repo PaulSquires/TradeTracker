@@ -5,12 +5,7 @@
 #include "..\Utilities\ListBoxData.h"
 
 struct LineCtrl {
-    HWND hQuantity{ NULL };
-    HWND hExpiry{ NULL };
-    HWND hDTE{ NULL };
-    HWND hStrike{ NULL };
-    HWND hPutCall{ NULL };
-    HWND hAction{ NULL };
+    HWND cols[6]{ NULL };
 };
 
 std::vector<LineCtrl> lCtrls;
@@ -231,16 +226,22 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 
 
 
+    // Position all of the controls for the Trade Management table
     nLeft = nStartLeft;
     nTop = nTop + nHeight + (vmargin * 2);
-    nWidth = AfxScaleX(560);
-    nHeight = AfxScaleY(300);
-    SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nWidth = AfxScaleX(90);
+    nHeight = AfxScaleY(24);
 
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = VScrollBarWidth2;
-    SetWindowPos(hVScrollBar2, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar2 ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+    for (int i = 0; i < 10; i++) {
+        for (int ii = 0; ii < 6; ii++) {
+            SetWindowPos(lCtrls.at(i).cols[ii], 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+            nLeft += nWidth;
+        }
+        nLeft = nStartLeft;
+        nTop = nTop + nHeight;
+    }
+
+
 
 
     int nStartTop = nTop + nHeight + (vmargin * 3);
@@ -296,6 +297,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nHeight = AfxScaleY(24);
     SetWindowPos(comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+ 
     VScrollBar_Recalculate(hVScrollBar1);
     VScrollBar_Recalculate(hVScrollBar2);
 }
@@ -344,6 +346,24 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION);
     Edit_SetCueBannerText(hCtl, L"Description");
 
+
+    // Create the Trade Management table controls 
+    lCtrls.reserve(20);
+
+    for (int i = 0; i < 20; i++) {
+        LineCtrl lc;
+
+        lc.cols[0] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1);
+        lc.cols[1] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1);
+        lc.cols[2] = TradeDialog.AddControl(Controls::Label, hwnd, -1);
+        lc.cols[3] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1);
+        lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+        lc.cols[5] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+
+        lCtrls.push_back(lc);
+    }
+
+
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLQUANTITY, L"Quantity");
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLPRICE, L"Price");
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees");
@@ -358,21 +378,5 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 640, 464, 74, 28);
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 640, 500, 74, 28);
-
-
-    // Create an Ownerdraw listbox that we will use for our Trade Management table.
-    hCtl =
-        TradeDialog.AddControl(Controls::ListBox, hwnd, IDC_TRADEDIALOG_LISTBOX, L"",
-            0, 0, 0, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
-            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)TradeDialog_ListBox_SubclassProc,
-            IDC_TRADEDIALOG_LISTBOX, NULL);
-
-    // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateVScrollBar(hwnd, IDC_TRADEDIALOG_LISTBOX, hCtl);
-
-    ListBoxData_OutputTradeManagementTable(hCtl);
 
 }

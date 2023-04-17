@@ -18,7 +18,6 @@ public:
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
     int                 colWidth = 0;
-    HWND                hCtl = NULL;      // Embedded child control in Trade Management table
 };
 
 class ListBoxData {
@@ -31,17 +30,11 @@ public:
     Trade*          trade = nullptr;
     ColumnData      col[10];
 
-    ~ListBoxData()
-    {
-        for (int i = 0; i < 8; i++) {
-            if (IsWindow(col[i].hCtl)) DestroyWindow(col[i].hCtl);
-        }
-    }
 
     void SetData(
         int index, Trade* tradeptr, TickerId tickId,
         std::wstring wszText, StringAlignment alignment, ThemeElement backTheme,
-        ThemeElement textTheme, REAL fontSize, int fontStyle, HWND hCtl = NULL)
+        ThemeElement textTheme, REAL fontSize, int fontStyle)
     {
         if (tickId != -1) isTickerLine = true;
         tickerId = tickId;
@@ -52,7 +45,6 @@ public:
         col[index].textTheme = textTheme;
         col[index].fontSize = fontSize;
         col[index].fontStyle = fontStyle;
-        col[index].hCtl = hCtl;
     }
 
     // Update Text & color only. This is called from tws-client when TWS
