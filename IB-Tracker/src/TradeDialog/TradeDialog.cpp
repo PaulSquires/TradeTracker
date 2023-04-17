@@ -26,10 +26,6 @@ void TradeDialog_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
     case IDC_TRADEDIALOG_TEMPLATES:
         lpMeasureItem->itemHeight = AfxScaleY(TRADEDIALOG_TEMPLATES_ROWHEIGHT);
         break;
-
-    case IDC_TRADEDIALOG_LISTBOX:
-        lpMeasureItem->itemHeight = AfxScaleY(TRADEDIALOG_LISTBOX_ROWHEIGHT);
-        break;
     }
 }
 
@@ -50,7 +46,7 @@ void TradeDialog_OnClose(HWND hwnd)
 void TradeDialog_OnDestroy(HWND hwnd)
 {
     // Clear the Trade Templates Linedata held in the ListBox
-    ListBoxData_DestroyItemData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LISTBOX));
+    ListBoxData_DestroyItemData(GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES));
 
     PostQuitMessage(0);
 }

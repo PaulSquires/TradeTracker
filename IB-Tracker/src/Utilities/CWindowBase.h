@@ -15,7 +15,7 @@ enum class Controls
     None = 0,
     Button, OptionButton, CheckBox, Label, Custom, Frame, Line, TextBox,
     MultilineTextBox, ComboBox, ListBox, ProgressBar, TreeView, ListView,
-    DateTimePicker, MonthCalendar, TabControl, StatusBar, SizeGrip,
+    Header, DateTimePicker, MonthCalendar, TabControl, StatusBar, SizeGrip,
     HScrollBar, VScrollBar, Slider, UpDown, RichEdit
 };
 
@@ -350,6 +350,14 @@ public:
         case Controls::TreeView:
         {
 
+        }
+        break;
+
+        case Controls::Header:
+        {
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | CCS_TOP | HDS_HORZ | HDS_BUTTONS;
+            wszClassName = L"SysHeader32";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
