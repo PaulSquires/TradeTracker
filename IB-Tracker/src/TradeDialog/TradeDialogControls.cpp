@@ -20,60 +20,6 @@ extern CTradeDialog TradeDialog;
 
 
 // ========================================================================================
-// Process WM_DRAWITEM message for window/dialog 
-// (common function for TradesPanel & HistoryPanel)
-// ========================================================================================
-void TradeDialogControls_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
-{
-    if (lpDrawItem->itemID == -1) return;
-
-    // If this is message is for the Templates listbox then simply forward it to
-    // our generic OnDrawItem handler for listboxes.
-    if (lpDrawItem->CtlID == IDC_TRADEDIALOG_TEMPLATES) {
-        ListBoxData_OnDrawItem(hwnd, lpDrawItem);
-        return;
-    }
-
-
-    // If reaching this point then the OnDrawItem message is intended for our
-    // main Trade Management ListBox.
-
-    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
-        lpDrawItem->itemAction == ODA_SELECT) {
-
-        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
-        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
-
-        // the ListBox will have 6 columns so we can create each of them using the
-        // same fixed width.
-
-        int nLeft = lpDrawItem->rcItem.left;
-        int nTop = lpDrawItem->rcItem.top;
-        int colWidths = (nWidth / 6);
-
-        // Output the controls for the line
-
-        std::cout << lCtrls.at(lpDrawItem->itemID).hQuantity << std::endl;
-
-        SetWindowPos(lCtrls.at(lpDrawItem->itemID).hQuantity, 0, nLeft, nTop, nHeight, nWidth, SWP_NOZORDER | SWP_SHOWWINDOW);
-/*
-        nLeft += nWidth;
-        SetWindowPos(lCtrls.at(lpDrawItem->itemID).hExpiry, 0, nLeft, nTop, nHeight, nWidth, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nLeft += nWidth;
-        SetWindowPos(lCtrls.at(lpDrawItem->itemID).hDTE, 0, nLeft, nTop, nHeight, nWidth, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nLeft += nWidth;
-        SetWindowPos(lCtrls.at(lpDrawItem->itemID).hStrike, 0, nLeft, nTop, nHeight, nWidth, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nLeft += nWidth;
-        SetWindowPos(lCtrls.at(lpDrawItem->itemID).hPutCall, 0, nLeft, nTop, nHeight, nWidth, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nLeft += nWidth;
-        SetWindowPos(lCtrls.at(lpDrawItem->itemID).hAction, 0, nLeft, nTop, nHeight, nWidth, SWP_NOZORDER | SWP_SHOWWINDOW);
-*/
-
-    }
-}
-
-
-// ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
@@ -427,20 +373,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateVScrollBar(hwnd, IDC_TRADEDIALOG_LISTBOX, hCtl);
 
-    // Reserve the exact needed space in our vector
-    lCtrls.reserve(20);
-
-        // Create the controls that are displayed in the Trade Management Listbox
-    for (int i = 0; i < 20; i++) {
-        LineCtrl lc;
-        lc.hQuantity = TradeDialog.AddControl(Controls::TextBox, hwnd, -1);
-        lc.hExpiry   = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1);
-        lc.hDTE      = TradeDialog.AddControl(Controls::Label, hwnd, -1);
-        lc.hStrike   = TradeDialog.AddControl(Controls::TextBox, hwnd, -1);
-        lc.hPutCall  = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
-        lc.hAction   = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
-        lCtrls.push_back(lc);
-        ListBox_AddString(hCtl, L"");
-    }
+    ListBoxData_OutputTradeManagementTable(hCtl);
 
 }

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ListBoxData.h"
+
 #include "..\Utilities\AfxWin.h"
 #include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
@@ -7,6 +8,11 @@
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\Templates\Templates.h"
+#include "..\TradeDialog\TradeDialog.h"
+
+
+extern CTradeDialog TradeDialog;
+
 
 
 int nHistoryMinColWidth[10] =
@@ -282,10 +288,8 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < lbCount; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->isTickerLine) {
-                if (PrevMarketDataLoaded) {
-                    tws_cancelMktData(ld->tickerId);
-                }
+            if (ld->isTickerLine && PrevMarketDataLoaded) {
+                tws_cancelMktData(ld->tickerId);
             }
             delete(ld);
         }
@@ -819,6 +823,52 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
 
 
 // ========================================================================================
+// Create the display data for the Trades Dialog Trade Templates.
+// ========================================================================================
+void ListBoxData_OutputTradeManagementTable(HWND hListBox)
+{
+    ListBoxData* ld = nullptr;
+
+    HWND hCtl = NULL;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+    REAL font9 = 9;
+
+    // Create the controls that are displayed in the Trade Management Listbox
+    for (int i = 0; i < 20; i++) {
+        ld = new ListBoxData;
+
+        hCtl = TradeDialog.AddControl(Controls::TextBox, hListBox, -1);
+        ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular, hCtl);
+
+        hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hListBox, -1);
+        ld->SetData(1, nullptr, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular, hCtl);
+
+        hCtl = TradeDialog.AddControl(Controls::Label, hListBox, -1);
+        ld->SetData(2, nullptr, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular, hCtl);
+
+        hCtl = TradeDialog.AddControl(Controls::TextBox, hListBox, -1);
+        ld->SetData(3, nullptr, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular, hCtl);
+
+        hCtl = TradeDialog.AddControl(Controls::ComboBox, hListBox, -1);
+        ld->SetData(4, nullptr, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular, hCtl);
+
+        hCtl = TradeDialog.AddControl(Controls::ComboBox, hListBox, -1);
+        ld->SetData(5, nullptr, tickerId, L"", StringAlignmentNear, ThemeElement::TradesPanelBack,
+            ThemeElement::TradesPanelText, font9, FontStyleRegular, hCtl);
+
+        ListBox_AddString(hListBox, ld);
+    }
+}
+
+
+// ========================================================================================
 // Process WM_DRAWITEM message for window/dialog 
 // (common function for TradesPanel & HistoryPanel)
 // ========================================================================================
@@ -876,6 +926,16 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
         int nLeft = 0;
 
+        // If this is the Trade Management table then calculate the
+        // columns now. They will be fixed width.
+        if (lpDrawItem->CtlID == IDC_TRADEDIALOG_LISTBOX) {
+            RECT rc; GetClientRect(lpDrawItem->hwndItem, &rc);
+            for (int i = 0; i < 6; i++) {
+                nColWidth[i] = (int)(rc.right / 6);
+            }
+        }
+
+
         // Draw each of the columns
         for (int i = 0; i < 8; i++) {
             if (ld == nullptr) break;
@@ -896,14 +956,20 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             backBrush.SetColor(nBackColor);
             graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
 
-            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            SolidBrush   textBrush(nTextColor);
-            StringFormat stringF(StringFormatFlagsNoWrap);
-            stringF.SetAlignment(alignment);
-            stringF.SetLineAlignment(StringAlignmentCenter);
 
-            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
-            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+            if (lpDrawItem->CtlID == IDC_TRADEDIALOG_LISTBOX) {
+                SetWindowPos(ld->col[i].hCtl, 0, nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+            }
+            else {
+                Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+                SolidBrush   textBrush(nTextColor);
+                StringFormat stringF(StringFormatFlagsNoWrap);
+                stringF.SetAlignment(alignment);
+                stringF.SetLineAlignment(StringAlignmentCenter);
+
+                RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
+                graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+            }
 
             nLeft += colWidth;
         }

@@ -3,10 +3,12 @@
 
 #include "..\Themes\Themes.h"
 #include "..\MainWindow\MainWindow.h"
+#include "..\Database\database.h"
 #include "..\Database\trade.h"
 
 #include "Reconcile.h"
 
+extern double intelDecimalToDouble(Decimal decimal);
 
 extern HWND HWND_MAINWINDOW;
 extern std::vector<Trade*> trades;
@@ -19,6 +21,7 @@ struct positionStruct {
     int openQuantity = 0;
     std::wstring tickerSymbol;
     std::wstring underlying;
+	std::wstring expiryDate;
     double strikePrice = 0;
     std::wstring PutCall;
 };
@@ -32,6 +35,7 @@ CReconcile Reconcile;
 
 
 
+
 // ========================================================================================
 // Information received from TwsClient::position callback
 // ========================================================================================
@@ -41,11 +45,11 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	if (position == 0) return;
 
 	positionStruct p;
-	p.openQuantity = (int)position;
+	p.openQuantity = (int)intelDecimalToDouble(position);
 	p.tickerSymbol = ansi2unicode(contract.symbol);
 	p.underlying = ansi2unicode(contract.secType);
+	p.expiryDate = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
 	p.strikePrice = contract.strike;
-	//p.expiryDate = contract.expiry;
 	p.PutCall = ansi2unicode(contract.right);
 	IBKRPositions.push_back(p);
 }
@@ -67,6 +71,7 @@ void Reconcile_positionEnd()
 			if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
 			if (leg->underlying == L"SHARES") p.underlying = L"STK";
 			p.strikePrice = stod(leg->strikePrice);
+			p.expiryDate = RemoveDateHyphens(leg->expiryDate);
 			p.PutCall = leg->PutCall;
 
 
@@ -102,8 +107,9 @@ void Reconcile_positionEnd()
 		for (const auto& l : LocalPositions) {
 			if (i.underlying == L"OPT") {
 				if (i.strikePrice == l.strikePrice &&
-					i.openQuantity == abs(l.openQuantity) &&  // need abs() b/c IBKR only reports positive position size (Decimal data type)
+					i.openQuantity == l.openQuantity &&  
 					i.tickerSymbol == l.tickerSymbol &&
+					i.expiryDate == l.expiryDate &&
 					i.PutCall == l.PutCall &&
 					i.underlying == l.underlying) {
 					found = true;
@@ -111,7 +117,7 @@ void Reconcile_positionEnd()
 				}
 			}
 			if (i.underlying == L"STK") {
-				if (i.openQuantity == abs(l.openQuantity) &&
+				if (i.openQuantity == l.openQuantity &&
 					i.tickerSymbol == l.tickerSymbol &&
 					i.underlying == l.underlying) {
 					found = true;
@@ -123,7 +129,7 @@ void Reconcile_positionEnd()
 			text = text + L"   " + std::to_wstring(i.openQuantity) + L" " +
 				i.tickerSymbol + L" " + i.underlying;
 			if (i.underlying == L"OPT") {
-				text = text + L" " + std::to_wstring(i.strikePrice) + L" " + i.PutCall;
+				text = text + L" " + i.expiryDate + L" " + std::to_wstring(i.strikePrice) + L" " + i.PutCall;
 			}
 			text = text + L"\r\n";
 		}
@@ -138,8 +144,9 @@ void Reconcile_positionEnd()
 		for (const auto& i : IBKRPositions) {
 			if (i.underlying == L"OPT") {
 				if (i.strikePrice == l.strikePrice &&
-					i.openQuantity == abs(l.openQuantity) &&
+					i.openQuantity == l.openQuantity &&
 					i.tickerSymbol == l.tickerSymbol &&
+					i.expiryDate == l.expiryDate &&
 					i.PutCall == l.PutCall &&
 					i.underlying == l.underlying) {
 					found = true;
@@ -147,7 +154,7 @@ void Reconcile_positionEnd()
 				}
 			}
 			if (i.underlying == L"STK") {
-				if (i.openQuantity == abs(l.openQuantity) &&
+				if (i.openQuantity == l.openQuantity &&
 					i.tickerSymbol == l.tickerSymbol &&
 					i.underlying == l.underlying) {
 					found = true;
@@ -160,7 +167,7 @@ void Reconcile_positionEnd()
 				text = text + L"   " + std::to_wstring(l.openQuantity) + L" " +
 					l.tickerSymbol + L" " + l.underlying;
 				if (l.underlying == L"OPT") {
-					text = text + L" " + std::to_wstring(l.strikePrice) + L" " + l.PutCall;
+					text = text + L" " + l.expiryDate + L" " + std::to_wstring(l.strikePrice) + L" " + l.PutCall;
 				}
 				text = text + L"\r\n";
 			}

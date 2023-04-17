@@ -3,6 +3,7 @@
 #include "..\Themes\Themes.h"
 #include "..\Database\trade.h"
 
+
 // ListBox data structure that will be directly accessed for each row 
 // during the WM_DRAWITEM notification. 
 
@@ -17,6 +18,7 @@ public:
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
     int                 colWidth = 0;
+    HWND                hCtl = NULL;      // Embedded child control in Trade Management table
 };
 
 class ListBoxData {
@@ -29,10 +31,17 @@ public:
     Trade*          trade = nullptr;
     ColumnData      col[10];
 
+    ~ListBoxData()
+    {
+        for (int i = 0; i < 8; i++) {
+            if (IsWindow(col[i].hCtl)) DestroyWindow(col[i].hCtl);
+        }
+    }
+
     void SetData(
         int index, Trade* tradeptr, TickerId tickId,
         std::wstring wszText, StringAlignment alignment, ThemeElement backTheme,
-        ThemeElement textTheme, REAL fontSize, int fontStyle)
+        ThemeElement textTheme, REAL fontSize, int fontStyle, HWND hCtl = NULL)
     {
         if (tickId != -1) isTickerLine = true;
         tickerId = tickId;
@@ -43,6 +52,7 @@ public:
         col[index].textTheme = textTheme;
         col[index].fontSize = fontSize;
         col[index].fontStyle = fontStyle;
+        col[index].hCtl = hCtl;
     }
 
     // Update Text & color only. This is called from tws-client when TWS
@@ -64,7 +74,8 @@ enum class TableType
     TickerTotals,
     DailyTotals,
     DailyTotalsSummary,
-    TradeTemplates
+    TradeTemplates,
+    TradeManagement
 };
 
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
@@ -81,4 +92,5 @@ void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transa
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
 void ListBoxData_OutputTradesTemplates(HWND hListBox);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
+void ListBoxData_OutputTradeManagementTable(HWND hListBox);
 

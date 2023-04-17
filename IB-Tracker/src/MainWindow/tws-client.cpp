@@ -60,7 +60,7 @@ void threadFunction(std::future<void> future) {
 
 	}
 	isMonitorThreadActive = false;
-	std::cout << "Thread Terminated" << std::endl;
+	 std::cout << "Thread Terminated" << std::endl;
 }
 
 

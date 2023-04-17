@@ -491,7 +491,7 @@ void TradesPanel_OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos
 {
     if (hwndContext == GetDlgItem(hwnd, IDC_TRADES_LISTBOX)) {
 
-        std::cout << "rclick popup menu" << " " << std::endl;
+        //std::cout << "rclick popup menu" << " " << std::endl;
         //m_hMenu = CreatePopupMenu();
         //InsertMenu(m_hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, "Hello");
         //TrackPopupMenu(m_hMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);

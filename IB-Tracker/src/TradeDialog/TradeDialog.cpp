@@ -148,7 +148,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CTLCOLOREDIT, TradeDialog_OnCtlColorEdit);
         HANDLE_MSG(m_hwnd, WM_CTLCOLORSTATIC, TradeDialog_OnCtlColorStatic);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeDialog_OnMeasureItem);
-        HANDLE_MSG(m_hwnd, WM_DRAWITEM, TradeDialogControls_OnDrawItem);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
