@@ -393,14 +393,14 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				ld->SetTextData(COLUMN_TICKER_ITM, wszText, themeEl);  // ITM
 
-				wszText = AfxMoney(delta);
+				wszText = AfxMoney(delta, true);
 				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
 				ld->SetTextData(COLUMN_TICKER_CHANGE, wszText, themeEl);  // price change
 
 				wszText = AfxMoney(ld->trade->tickerLastPrice);
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, ThemeElement::TradesPanelText);  // current price
 
-				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100) + L"%";
+				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100, true) + L"%";
 				themeEl = (delta >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
 				ld->SetTextData(COLUMN_TICKER_PERCENTAGE, wszText, themeEl);  // price percentage change
 

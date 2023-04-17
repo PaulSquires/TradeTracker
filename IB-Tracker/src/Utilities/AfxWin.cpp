@@ -575,9 +575,10 @@ std::wstring ansi2unicode(const std::string& str)
 
 
 // ========================================================================================
-// Format a numeric (double) string with twodecimalplaces.
+// Format a numeric (double) string with two decimal places.
+// Negative values will be encloses in parenthesis.
 // ========================================================================================
-std::wstring AfxMoney(double value)
+std::wstring AfxMoney(double value, bool UseMinusSign = false)
 {
     static std::wstring DecimalSep = L".";
     static std::wstring ThousandSep = L",";
@@ -588,7 +589,11 @@ std::wstring AfxMoney(double value)
     num.Grouping = 3;
     num.lpDecimalSep = (LPWSTR)DecimalSep.c_str();
     num.lpThousandSep = (LPWSTR)ThousandSep.c_str();
-    num.NegativeOrder = 0;
+
+    num.NegativeOrder = 0;   // Left parenthesis, number, right parenthesis; for example, (1.1)
+
+    if (UseMinusSign)
+        num.NegativeOrder = 1;   // Negative sign, number; for example, -1.1
 
     std::wstring money(std::to_wstring(value));
     std::wstring buffer(256, 0);
@@ -597,7 +602,9 @@ std::wstring AfxMoney(double value)
     money = buffer.substr(0, j - 1);
 
     // If value is negative then add a space after the negative parenthesis for visual purposes
-    if (value < 0) money.insert(1, L" ");
+    if (value < 0) {
+        if (UseMinusSign == false) money.insert(1, L" ");
+    }
 
     return money;   // -1 to remove null terminator
 
