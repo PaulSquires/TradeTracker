@@ -773,3 +773,33 @@ std::wstring& AfxTrim(std::wstring& s) {
 }
 
 
+//' ========================================================================================
+//' Removes a style from the specified window.
+//' - hwnd  = Window handle
+//' - dwStyle = Style to remove
+//' Return value:
+//'   The previous window styles
+//' ========================================================================================
+DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
+{
+    DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+    dwOldStyle &= ~(dwStyle);
+    SetWindowLongPtr(hwnd, GWL_STYLE, dwOldStyle);
+    return dwOldStyle;
+}
+
+//' ========================================================================================
+//' Removes an extended style from the specified window.
+//' - hwnd  = Window handle
+//' - dwExStyle = Style to remove
+//' Return value:
+//'   The previous window styles
+//' ========================================================================================
+DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
+{
+    DWORD dwOldExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    dwOldExStyle &= ~(dwExStyle);
+    SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwOldExStyle);
+    return dwOldExStyle;
+}
+

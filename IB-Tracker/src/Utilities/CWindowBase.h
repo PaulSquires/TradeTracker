@@ -76,6 +76,17 @@ public:
 
         // Generate class name based on unique memory address of class
         m_wszClassName = L"CWindowClass:" + std::to_wstring((unsigned long long)this);
+
+        INITCOMMONCONTROLSEX icc;
+        icc.dwSize = sizeof(icc);
+        icc.dwICC = ICC_NATIVEFNTCTL_CLASS | ICC_COOL_CLASSES | ICC_BAR_CLASSES |
+            ICC_TAB_CLASSES | ICC_USEREX_CLASSES | ICC_WIN95_CLASSES |
+            ICC_STANDARD_CLASSES | ICC_ANIMATE_CLASS | ICC_DATE_CLASSES |
+            ICC_HOTKEY_CLASS | ICC_INTERNET_CLASSES | ICC_LISTVIEW_CLASSES | 
+            ICC_PAGESCROLLER_CLASS | ICC_PROGRESS_CLASS | ICC_TREEVIEW_CLASSES |
+            ICC_UPDOWN_CLASS;
+        InitCommonControlsEx(&icc);
+
     }
 
 

@@ -76,6 +76,9 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
 
 
+    // Set the ListBox to the topline.
+    ListBox_SetTopIndex(hListBox, 0);
+
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
@@ -155,6 +158,10 @@ void HistoryPanel_ShowTickerTotals()
     SuperLabel_SetText(
         GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
         L"Ticker Totals");
+
+
+    // Set the ListBox to the topline.
+    ListBox_SetTopIndex(hListBox, 0);
 
 
     // Redraw the ListBox to ensure that any recalculated columns are 

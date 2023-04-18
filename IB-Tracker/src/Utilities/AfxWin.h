@@ -50,4 +50,6 @@ bool AfxFileExists(const std::wstring& wszFileSpec);
 std::wstring& AfxLTrim(std::wstring& s);
 std::wstring& AfxRTrim(std::wstring& s);
 std::wstring& AfxTrim(std::wstring& s);
+DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
+DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle);
 

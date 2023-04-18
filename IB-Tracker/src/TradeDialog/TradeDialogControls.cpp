@@ -4,6 +4,7 @@
 #include "..\VScrollBar\VScrollBar.h"
 #include "..\Utilities\ListBoxData.h"
 
+
 struct LineCtrl {
     HWND cols[6]{ NULL };
 };
@@ -121,6 +122,80 @@ LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
 
 
 // ========================================================================================
+// Generic Control subclass Window procedure to deal with centering vertical 
+// text in textboxes.
+// ========================================================================================
+LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+    case WM_NCCALCSIZE:
+    {
+        // If this is a TextBox then we need to vertically center the text. The text is
+        // already centered horizontally so we can simply push it down from the top slightly.
+        if (wParam) {
+            NCCALCSIZE_PARAMS* ncParams = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+            ncParams->rgrc[0].top += AfxScaleY(3);
+            return WVR_HREDRAW;
+        }
+        return 0;
+    }
+
+
+    case WM_DESTROY:
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, TradeDialog_TextBox_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
+
+// ========================================================================================
+// Generic Control subclass Window procedure to remove borders on DateTimePicker
+// and ComboBox.
+// ========================================================================================
+LRESULT CALLBACK TradeDialog_Control_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+    case WM_NCCREATE:
+    {
+    }
+    break;
+
+
+    case WM_NCPAINT:
+    {
+    }
+    break;
+
+    case WM_DESTROY:
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, TradeDialog_Control_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
+
+// ========================================================================================
 // Helper function for WM_SIZE message for window/dialog: TradeDialog
 // ========================================================================================
 void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
@@ -165,7 +240,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     int nLeft = 0;
     int nWidth = 0;
     int nHeight = cy - nTop;
-    int nCtlHeight = AfxScaleY(20);
+    int nCtlHeight = AfxScaleY(24);
 
     nWidth = AfxScaleX(180);
     SetWindowPos(hTemplates, 0, nLeft, nTop, nWidth, nHeight,
@@ -333,14 +408,25 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         LineCtrl lc;
 
         lc.cols[0] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"-1", 0, 0, 0, 0,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL | WS_BORDER, 0);
-        lc.cols[1] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1);
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, 0, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+
+        hCtl = lc.cols[1] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1, L"", 0, 0, 0, 0,
+            WS_VISIBLE | WS_TABSTOP | DTS_SHORTDATEFORMAT, 0, NULL,
+            (SUBCLASSPROC)TradeDialog_Control_SubclassProc, NULL, NULL);
+
         lc.cols[2] = TradeDialog.AddControl(Controls::Label, hwnd, -1, L"0d", 0, 0, 0, 0,
-            WS_VISIBLE | SS_CENTER | WS_GROUP | SS_NOTIFY | WS_BORDER);  
+            WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE | WS_GROUP | SS_NOTIFY, 0);
+
         lc.cols[3] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"45.5", 0, 0, 0, 0,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL | WS_BORDER, 0);
-        lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
-        lc.cols[5] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, 0, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+
+        lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"P", 0, 0, 0, 0,
+            WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0);
+
+        hCtl = lc.cols[5] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"P", 0, 0, 0, 0,
+            WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0);
 
         lCtrls.push_back(lc);
     }
