@@ -773,13 +773,13 @@ std::wstring& AfxTrim(std::wstring& s) {
 }
 
 
-//' ========================================================================================
-//' Removes a style from the specified window.
-//' - hwnd  = Window handle
-//' - dwStyle = Style to remove
-//' Return value:
-//'   The previous window styles
-//' ========================================================================================
+// ========================================================================================
+// Removes a style from the specified window.
+// - hwnd  = Window handle
+// - dwStyle = Style to remove
+// Return value:
+//   The previous window styles
+// ========================================================================================
 DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
 {
     DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
@@ -788,13 +788,13 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
     return dwOldStyle;
 }
 
-//' ========================================================================================
-//' Removes an extended style from the specified window.
-//' - hwnd  = Window handle
-//' - dwExStyle = Style to remove
-//' Return value:
-//'   The previous window styles
-//' ========================================================================================
+// ========================================================================================
+// Removes an extended style from the specified window.
+// - hwnd  = Window handle
+// - dwExStyle = Style to remove
+// Return value:
+//   The previous window styles
+// ========================================================================================
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
 {
     DWORD dwOldExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
@@ -803,3 +803,49 @@ DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
     return dwOldExStyle;
 }
 
+
+// ========================================================================================
+// Sets the width of the specified item of a header control.
+// Returns nonzero upon success, or zero otherwise.
+// ========================================================================================
+bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth)
+{
+    HDITEM hdi{};
+    hdi.mask = HDI_WIDTH;
+    hdi.cxy = nWidth;
+    return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+}
+
+
+// ========================================================================================
+// Sets the text of the specified item. Returns TRUE or FALSE.
+// ========================================================================================
+bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText)
+{
+    if (pwszText == nullptr) return 0;
+    HDITEM hdi{};
+    hdi.mask = HDI_TEXT;
+    hdi.cchTextMax = lstrlenW(pwszText);
+    hdi.pszText = (LPWSTR)pwszText;
+    return SendMessage(hwndHD, HDM_SETITEMW, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+}
+
+
+// ========================================================================================
+// Inserts an item into a header control. Returns the index of the new item.
+// hwndHeader - handle to the header control. 
+// iInsertAfter - index of the previous item. 
+// nWidth - width of the new item. 
+// lpsz - address of the item string. 
+// ========================================================================================
+bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText)
+{
+    HDITEM hdi{};
+    hdi.mask = HDI_TEXT | HDI_FORMAT | HDI_WIDTH;
+    hdi.cxy = nWidth;
+    hdi.pszText = (LPWSTR)pwszText; // lpsz;
+    hdi.cchTextMax = lstrlenW(pwszText);      //(sizeof(hdi.pszText) / sizeof(hdi.pszText[0]);
+    hdi.fmt = HDF_CENTER | HDF_STRING;
+
+    return SendMessage(hwndHD, HDM_INSERTITEM, (WPARAM)iInsertAfter, (LPARAM)&hdi);
+}

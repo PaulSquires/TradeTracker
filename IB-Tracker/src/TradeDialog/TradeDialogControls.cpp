@@ -3,6 +3,12 @@
 #include "TradeDialog.h"
 #include "..\VScrollBar\VScrollBar.h"
 #include "..\Utilities\ListBoxData.h"
+#include "..\SuperLabel\SuperLabel.h"
+
+#include <uxtheme.h>
+#include <vssym32.h>
+#include <vsstyle.h>
+
 
 
 struct LineCtrl {
@@ -53,7 +59,7 @@ LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
         switch (uIdSubclass)
         {
         case IDC_TRADEDIALOG_TEMPLATES:
-            VScrollBar_Recalculate(GetDlgItem(TradeDialog.WindowHandle(), IDC_TRADEDIALOG_VSCROLLBAR1));
+            VScrollBar_Recalculate(GetDlgItem(TradeDialog.WindowHandle(), IDC_TRADEDIALOG_VSCROLLBAR));
             break;
         }
         break;
@@ -136,12 +142,12 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
     {
         // If this is a TextBox then we need to vertically center the text. The text is
         // already centered horizontally so we can simply push it down from the top slightly.
-        if (wParam) {
-            NCCALCSIZE_PARAMS* ncParams = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
-            ncParams->rgrc[0].top += AfxScaleY(3);
-            return WVR_HREDRAW;
-        }
-        return 0;
+        //if (wParam) {
+        //    NCCALCSIZE_PARAMS* ncParams = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+        //    ncParams->rgrc[0].top += AfxScaleY(4);
+        //    return WVR_HREDRAW;
+        //}
+        //return 0;
     }
 
 
@@ -160,30 +166,207 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
 
 
 // ========================================================================================
-// Generic Control subclass Window procedure to remove borders on DateTimePicker
-// and ComboBox.
+// Generic ComboBox subclass Window procedure to remove borders because "borders" do
+// not actually exist for ComboBoxes. They are actually painted in the client area.
+// Not sure why Microsoft made this design choice.
 // ========================================================================================
-LRESULT CALLBACK TradeDialog_Control_SubclassProc(
+LRESULT CALLBACK TradeDialog_ComboBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
+
+    //HDC				hdc;
+    //PAINTSTRUCT		ps;
+    //RECT			rect;
+    //RECT			rect2;
+
+    static HTHEME   hTheme = NULL;   // theme handle (NULL when not themed)
+
+    switch (uMsg)
+    {
+/*
+    case WM_PAINT:
+    {
+        if (!hTheme)
+            hTheme = OpenThemeData(hWnd, VSCLASS_COMBOBOX);
+
+        if (wParam == 0)	hdc = BeginPaint(hWnd, &ps);
+        else				hdc = (HDC)wParam;
+
+        //
+        //	Mask off the borders and draw ComboBox normally
+        //
+        GetClientRect(hWnd, &rect);
+
+        InflateRect(&rect, -GetSystemMetrics(SM_CXEDGE), -GetSystemMetrics(SM_CYEDGE));
+
+        rect.right -= GetSystemMetrics(SM_CXVSCROLL);
+
+        IntersectClipRect(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+        // Draw the ComboBox
+        DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+        //
+        //	Now mask off inside and draw the borders
+        //
+        SelectClipRgn(hdc, NULL);
+        rect.right += GetSystemMetrics(SM_CXVSCROLL);
+
+        ExcludeClipRect(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+        // draw borders (same color as table background so they "disappear"
+        GetClientRect(hWnd, &rect2);
+        FillRect(hdc, &rect2, GetSysColorBrush(COLOR_WINDOW));
+
+        // now draw the button
+        SelectClipRgn(hdc, NULL);
+        rect.left = rect.right - GetSystemMetrics(SM_CXVSCROLL);
+
+         
+        if (hTheme) {
+            DrawThemeBackground(hTheme, hdc,
+                CP_DROPDOWNBUTTON, CBXSL_NORMAL, &rect, NULL);
+        } else {
+            DrawFrameControl(hdc, &rect, DFC_SCROLL, DFCS_SCROLLCOMBOBOX | DFCS_FLAT);
+        }
+
+        if (wParam == 0)
+            EndPaint(hWnd, &ps);
+
+        return 0;
+    }
+    break;
+
+
+    case WM_THEMECHANGED:
+        if (hTheme)
+            CloseThemeData(hTheme);
+        hTheme = OpenThemeData(hWnd, VSCLASS_COMBOBOX);
+        InvalidateRect(hWnd, NULL, TRUE);
+        return 0;
+*/
+
+
+    case WM_DESTROY:
+        if (hTheme)
+            CloseThemeData(hTheme);
+
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, TradeDialog_ComboBox_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
+
+// ========================================================================================
+// Generic DateTimePicker subclass Window procedure to remove borders.
+// ========================================================================================
+LRESULT CALLBACK TradeDialog_DateTimePicker_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+
+    //HDC				hdc;
+    //PAINTSTRUCT		ps;
+    //RECT			rect;
+    //RECT			rect2;
+
+    static HTHEME   hTheme = NULL;   // theme handle (NULL when not themed)
+
     switch (uMsg)
     {
 
-    case WM_NCCREATE:
+        /*
+    case WM_PAINT:
     {
-    }
-    break;
+       // if (!hTheme)
+       //     hTheme = OpenThemeData(hWnd, VSCLASS_COMBOBOX);
+
+        hdc = BeginPaint(hWnd, &ps);
+        
+        DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+        DATETIMEPICKERINFO dtpi;
+        dtpi.cbSize = sizeof(DATETIMEPICKERINFO);
+
+        DateTime_GetDateTimePickerInfo(hWnd, &dtpi);
 
 
-    case WM_NCPAINT:
-    {
+        std::cout << dtpi.hwndDropDown << std::endl;
+
+
+
+        //
+        //	Mask off the borders and draw ComboBox normally
+        //
+        //GetClientRect(hWnd, &rect);
+
+        //InflateRect(&rect, -GetSystemMetrics(SM_CXEDGE), -GetSystemMetrics(SM_CYEDGE));
+
+        //rect.right -= GetSystemMetrics(SM_CXVSCROLL);
+
+        //IntersectClipRect(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+        // Draw the ComboBox
+        //DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+        //
+        //	Now mask off inside and draw the borders
+        //
+        //SelectClipRgn(hdc, NULL);
+        //rect.right += GetSystemMetrics(SM_CXVSCROLL);
+
+        //ExcludeClipRect(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+        // draw borders (same color as table background so they "disappear"
+        //GetClientRect(hWnd, &rect2);
+        //FillRect(hdc, &rect2, GetSysColorBrush(COLOR_WINDOW));
+
+        // now draw the button
+        //SelectClipRgn(hdc, NULL);
+        //rect.left = rect.right - GetSystemMetrics(SM_CXVSCROLL);
+
+
+        //if (hTheme) {
+        //    DrawThemeBackground(hTheme, hdc,
+         //       CP_DROPDOWNBUTTON, CBXSL_NORMAL, &rect, NULL);
+        //}
+        //else {
+        //    DrawFrameControl(hdc, &rect, DFC_SCROLL, DFCS_SCROLLCOMBOBOX | DFCS_FLAT);
+        //}
+
+        //if (wParam == 0)
+            EndPaint(hWnd, &ps);
+
+        //return 0;
     }
-    break;
+        break;
+
+*/
+
+
+    case WM_THEMECHANGED:
+        //if (hTheme)
+        //    CloseThemeData(hTheme);
+        //hTheme = OpenThemeData(hWnd, VSCLASS_COMBOBOX);
+        //InvalidateRect(hWnd, NULL, TRUE);
+        //return 0;
+        break;
+
 
     case WM_DESTROY:
+        if (hTheme)
+            CloseThemeData(hTheme);
+
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TradeDialog_Control_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, TradeDialog_DateTimePicker_SubclassProc, uIdSubclass);
         break;
 
 
@@ -201,13 +384,12 @@ LRESULT CALLBACK TradeDialog_Control_SubclassProc(
 void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 {
     HWND hTemplates = GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES);
-    HWND hVScrollBar1 = GetDlgItem(hwnd, IDC_TRADEDIALOG_VSCROLLBAR1);
+    HWND hVScrollBar = GetDlgItem(hwnd, IDC_TRADEDIALOG_VSCROLLBAR);
     HWND hTransDate = GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE);
     HWND txtTicker = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER);
     HWND txtCompany = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY);
     HWND txtDescription = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION);
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADEDIALOG_HEADER);
-    HWND hVScrollBar2 = GetDlgItem(hwnd, IDC_TRADEDIALOG_VSCROLLBAR2);
     HWND lblQuantity = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLQUANTITY);
     HWND lblPrice = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLPRICE);
     HWND lblFees = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLFEES);
@@ -217,6 +399,8 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HWND txtFees = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES);
     HWND txtTotal = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL);
     HWND comboDRCR = GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR);
+    HWND hFrame1 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME1);
+    HWND hFrame2 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME2);
 
 
     int vmargin = AfxScaleY(6);
@@ -225,36 +409,33 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
-    bool bShowScrollBar1 = false;
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar1);
-    if (pData != nullptr) bShowScrollBar1 = (pData->bDragActive) ? true : pData->calcVThumbRect();
-    int VScrollBarWidth1 = bShowScrollBar1 ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
-
-    bool bShowScrollBar2 = false;
-    pData = VScrollBar_GetPointer(hVScrollBar2);
-    if (pData != nullptr) bShowScrollBar1 = (pData->bDragActive) ? true : pData->calcVThumbRect();
-    int VScrollBarWidth2 = bShowScrollBar2 ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+    bool bShowScrollBar = false;
+    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
+    if (pData != nullptr) bShowScrollBar = (pData->bDragActive) ? true : pData->calcVThumbRect();
+    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
 
 
     int nTop = (vmargin * 2);
     int nLeft = 0;
     int nWidth = 0;
     int nHeight = cy - nTop;
-    int nCtlHeight = AfxScaleY(24);
+    int nCtlHeight = AfxScaleY(TRADEDIALOG_TRADETABLE_ROWHEIGHT);
+    int nStartTop = 0;
+    int nStartLeft = 0;
 
-    nWidth = AfxScaleX(180);
+    nWidth = AfxScaleX(150);
     SetWindowPos(hTemplates, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = VScrollBarWidth1;
-    SetWindowPos(hVScrollBar1, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar1 ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+    nWidth = VScrollBarWidth;
+    SetWindowPos(hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
-    int nStartLeft = nLeft + nWidth + AfxScaleX(20) + hmargin;
+    nStartLeft = nLeft + nWidth + AfxScaleX(20) + hmargin;
     
     nLeft = nStartLeft;
-    nTop = (vmargin * 2);
+    nTop = (vmargin * 6);
     nWidth = AfxScaleX(100);
     nHeight = nCtlHeight;
     SetWindowPos(hTransDate, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -280,29 +461,48 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     // Position all of the controls for the Trade Management table
     nLeft = nStartLeft;
     nTop = nTop + nHeight + (vmargin * 2);
+    nStartTop = nTop;
+    int hsp = AfxScaleX(4);   // horizontal spacer
+    int vsp = AfxScaleX(4);   // vertical spacer
 
-    nWidth = AfxScaleX(480);
+
+    // Frame1 (around the table header)
+    nLeft = nStartLeft;
+    nTop = nStartTop;
+    nWidth = AfxScaleX(TRADEDIALOG_TRADETABLE_WIDTH);
+    nHeight = nCtlHeight + (vsp * 2);
+    SetWindowPos(hFrame1, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    // Table Header row (non-sizable)
+    nLeft = nStartLeft + hsp;
+    nTop = nStartTop + vsp;
+    nWidth = AfxScaleX(546); 
     nHeight = nCtlHeight;
     SetWindowPos(hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
-    nTop = nTop + nHeight;
+    // 10 rows of the Trade Management table controls
+    nLeft = nStartLeft;
+    nTop = nTop + nHeight + (vsp * 2);
     nWidth = AfxScaleX(90);
     nHeight = nCtlHeight;
 
     for (int i = 0; i < 10; i++) {
         for (int ii = 0; ii < 6; ii++) {
             SetWindowPos(lCtrls.at(i).cols[ii], 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-            nLeft += nWidth;
+            nLeft += nWidth + hsp;
         }
         nLeft = nStartLeft;
-        nTop = nTop + nHeight;
+        nTop = nTop + nHeight + vsp;
     }
 
+    // Frame2 (bottome of the table)
+    nLeft = nStartLeft;
+    nWidth = AfxScaleX(TRADEDIALOG_TRADETABLE_WIDTH);
+    nHeight = AfxScaleY(1);
+    SetWindowPos(hFrame2, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
-
-    int nStartTop = nTop + nHeight + (vmargin * 3);
+    nStartTop = nTop + nHeight + (vmargin * 3);
 
     nLeft = nStartLeft + AfxScaleX(100);
     nTop = nStartTop + AfxScaleY(4);
@@ -356,8 +556,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     SetWindowPos(comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
  
-    VScrollBar_Recalculate(hVScrollBar1);
-    VScrollBar_Recalculate(hVScrollBar2);
+    VScrollBar_Recalculate(hVScrollBar);
 }
 
 
@@ -379,7 +578,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             IDC_TRADEDIALOG_TEMPLATES, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateVScrollBar(hwnd, IDC_TRADEDIALOG_TEMPLATES, hCtl);
+    CreateVScrollBar(hwnd, IDC_TRADEDIALOG_VSCROLLBAR, hCtl);
 
     // Add all of our Trade Templates to the ListBox
     ListBoxData_OutputTradesTemplates(hCtl);
@@ -399,38 +598,62 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION);
     Edit_SetCueBannerText(hCtl, L"Description");
 
-    TradeDialog.AddControl(Controls::Header, hwnd, IDC_TRADEDIALOG_HEADER);
+
+    TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME1);
+    TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME2);
+
+
+    hCtl = TradeDialog.AddControl(Controls::Header, hwnd, IDC_TRADEDIALOG_HEADER);
+    int nWidth = AfxScaleX(91);
+    Header_InsertNewItem(hCtl, 0, nWidth, L"Action");
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Quantity");
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Strike Price");
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Expiry Date");
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Put/Call");
+    Header_InsertNewItem(hCtl, 5, nWidth, L"DTE");
+
 
     // Create the Trade Management table controls 
-    lCtrls.reserve(20);
+    lCtrls.reserve(10);
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10; i++) {
         LineCtrl lc;
 
-        lc.cols[0] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"-1", 0, 0, 0, 0,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, 0, NULL,
+        // ACTION
+        //hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"", 0, 0, 0, 0,
+        //    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0, NULL,
+        //    (SUBCLASSPROC)TradeDialog_ComboBox_SubclassProc, NULL, NULL);
+        hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+        ComboBox_AddString(hCtl, L"BTO");
+        ComboBox_AddString(hCtl, L"STO");
+        ComboBox_AddString(hCtl, L"BTC");
+        ComboBox_AddString(hCtl, L"STC");
+
+        // QUANTITY
+        lc.cols[1] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"", 0, 0, 0, 0,
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
             (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
 
-        hCtl = lc.cols[1] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1, L"", 0, 0, 0, 0,
-            WS_VISIBLE | WS_TABSTOP | DTS_SHORTDATEFORMAT, 0, NULL,
-            (SUBCLASSPROC)TradeDialog_Control_SubclassProc, NULL, NULL);
+        // STRIKE PRICE
+        lc.cols[2] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"", 0, 0, 0, 0,
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
 
-        lc.cols[2] = TradeDialog.AddControl(Controls::Label, hwnd, -1, L"0d", 0, 0, 0, 0,
+        // EXPIRY DATE
+        lc.cols[3] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1);
+
+
+        // PUT/CALL
+        hCtl = lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+        ComboBox_AddString(hCtl, L"PUT");
+        ComboBox_AddString(hCtl, L"CALL");
+
+        // DTE
+        lc.cols[5] = TradeDialog.AddControl(Controls::Label, hwnd, -1, L"0d", 0, 0, 0, 0,
             WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE | WS_GROUP | SS_NOTIFY, 0);
-
-        lc.cols[3] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"45.5", 0, 0, 0, 0,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, 0, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
-
-        lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"P", 0, 0, 0, 0,
-            WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0);
-
-        hCtl = lc.cols[5] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"P", 0, 0, 0, 0,
-            WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0);
 
         lCtrls.push_back(lc);
     }
-
 
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLQUANTITY, L"Quantity");
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLPRICE, L"Price");
@@ -442,7 +665,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES);
     TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL);
 
-    TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_COMBODRCR);
+    hCtl = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_COMBODRCR);
+    ComboBox_AddString(hCtl, L"CREDIT");
+    ComboBox_AddString(hCtl, L"DEBIT");
 
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 640, 464, 74, 28);
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 640, 500, 74, 28);

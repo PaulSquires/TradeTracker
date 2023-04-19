@@ -13,6 +13,7 @@ public:
     HWND hListBox = NULL;
     INT CtrlId = 0;
     bool bDragActive = false;
+
     POINT prev_pt{};
     int listBoxHeight = 0;
     int itemHeight = 0;
@@ -20,12 +21,13 @@ public:
     int itemsPerPage = 0;
     int thumbHeight = 0;
     RECT rc{};
+    
     ThemeElement ScrollBarLine = ThemeElement::TradesPanelScrollBarLine;
     ThemeElement ScrollBarBack = ThemeElement::TradesPanelScrollBarBack;
     ThemeElement ScrollBarThumb = ThemeElement::TradesPanelScrollBarThumb;
 
     bool calcVThumbRect();
-
+    
 };
 
 

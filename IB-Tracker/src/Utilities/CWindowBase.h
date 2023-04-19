@@ -300,12 +300,17 @@ public:
 
         case Controls::Frame:
         {
-
+            bSetFont = FALSE;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_CLIPSIBLINGS | WS_GROUP | SS_GRAYFRAME;
+            if (dwExStyle == -1) dwExStyle = WS_EX_TRANSPARENT;
+            wszClassName = L"Static";
+            hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
         break;
 
         case Controls::Line:
         {
+            bSetFont = FALSE;
             if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_ETCHEDFRAME;
             if (dwExStyle == -1) dwExStyle = WS_EX_TRANSPARENT;
             bSetFont = FALSE;
@@ -335,7 +340,7 @@ public:
         case Controls::ComboBox:
         {
             if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
-            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWN | CBS_HASSTRINGS;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS;
             wszClassName = L"ComboBox";
             hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
@@ -366,7 +371,7 @@ public:
 
         case Controls::Header:
         {
-            if (dwStyle == -1) dwStyle = WS_VISIBLE | CCS_TOP | HDS_HORZ | HDS_BUTTONS;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | CCS_TOP | HDS_HORZ | HDS_NOSIZING;  // HDS_BUTTONS HDS_FLAT  
             wszClassName = L"SysHeader32";
             hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }

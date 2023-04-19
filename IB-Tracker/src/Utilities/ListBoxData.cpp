@@ -138,7 +138,7 @@ int nDailyTotalsSummaryMinColWidth[10] =
 
 int nTradeTemplatesMinColWidth[10] =
 {
-    100,    /* Description */
+    80,    /* Description */
     0,     
     0,     
     0,     

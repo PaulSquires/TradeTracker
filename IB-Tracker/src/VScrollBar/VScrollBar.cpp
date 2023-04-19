@@ -6,6 +6,7 @@
 #include "pch.h"
 #include "..\Utilities\AfxWin.h"
 #include "VScrollBar.h"
+#include "..\TradeDialog\TradeDialog.h"
 
 
 // ========================================================================================
