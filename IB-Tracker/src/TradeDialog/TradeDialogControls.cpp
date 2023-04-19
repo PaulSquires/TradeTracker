@@ -128,8 +128,7 @@ LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Generic Control subclass Window procedure to deal with centering vertical 
-// text in textboxes.
+// Generic Control subclass Window procedure to deal filtering only numeric input.
 // ========================================================================================
 LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
@@ -138,16 +137,24 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
     switch (uMsg)
     {
 
-    case WM_NCCALCSIZE:
+    case WM_CHAR:
     {
-        // If this is a TextBox then we need to vertically center the text. The text is
-        // already centered horizontally so we can simply push it down from the top slightly.
-        //if (wParam) {
-        //    NCCALCSIZE_PARAMS* ncParams = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
-        //    ncParams->rgrc[0].top += AfxScaleY(4);
-        //    return WVR_HREDRAW;
-        //}
-        //return 0;
+        // wParam is the character code
+
+        // Allow 0 to 9
+        if (wParam >= 48 && wParam <= 57) break;
+        
+        // Allow backspace
+        if (wParam == 8) break;
+
+        // Allow decimal
+        if (wParam == 46) break;
+
+        // Allow negative sign
+        if (wParam == 45) break;
+
+        // Disallow everything else by skipping calling the DefSubclassProc
+        return 0;
     }
 
 
@@ -419,9 +426,11 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     int nLeft = 0;
     int nWidth = 0;
     int nHeight = cy - nTop;
-    int nCtlHeight = AfxScaleY(TRADEDIALOG_TRADETABLE_ROWHEIGHT);
     int nStartTop = 0;
     int nStartLeft = 0;
+
+    int nCtlHeight = AfxScaleY(TRADEDIALOG_TRADETABLE_ROWHEIGHT);
+    int nCtlWidth = AfxScaleY(90);
 
     nWidth = AfxScaleX(150);
     SetWindowPos(hTemplates, 0, nLeft, nTop, nWidth, nHeight,
@@ -483,7 +492,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     // 10 rows of the Trade Management table controls
     nLeft = nStartLeft;
     nTop = nTop + nHeight + (vsp * 2);
-    nWidth = AfxScaleX(90);
+    nWidth = nCtlWidth;
     nHeight = nCtlHeight;
 
     for (int i = 0; i < 10; i++) {
@@ -497,61 +506,55 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 
     // Frame2 (bottome of the table)
     nLeft = nStartLeft;
+    nTop = nTop + vsp;
     nWidth = AfxScaleX(TRADEDIALOG_TRADETABLE_WIDTH);
     nHeight = AfxScaleY(1);
     SetWindowPos(hFrame2, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
-    nStartTop = nTop + nHeight + (vmargin * 3);
+    nStartTop = nTop + nHeight + (vmargin * 4);
 
-    nLeft = nStartLeft + AfxScaleX(100);
-    nTop = nStartTop + AfxScaleY(4);
-    nWidth = AfxScaleX(75);
+    nLeft = nStartLeft + AfxScaleX(34);
+    nWidth = AfxScaleX(60);
     nHeight = nCtlHeight;
+    nStartLeft = nLeft;
+
+    nTop = nStartTop + AfxScaleY(4);
     SetWindowPos(lblQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nStartLeft + AfxScaleX(100);
     nTop = nTop + nHeight + vmargin;
-    nWidth = AfxScaleX(75);
-    nHeight = nCtlHeight;
     SetWindowPos(lblPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nStartLeft + AfxScaleX(100);
     nTop = nTop + nHeight + vmargin;
-    nWidth = AfxScaleX(75);
-    nHeight = nCtlHeight;
     SetWindowPos(lblFees, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nStartLeft + AfxScaleX(100);
     nTop = nTop + nHeight + vmargin;
-    nWidth = AfxScaleX(75);
-    nHeight = nCtlHeight;
     SetWindowPos(lblTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
-    nLeft = nStartLeft + AfxScaleX(100) + nWidth;
+    nLeft = nStartLeft + nWidth;
     nTop = nStartTop;
-    nWidth = AfxScaleX(80);
+    nWidth = nCtlWidth;
     nHeight = nCtlHeight;
     SetWindowPos(txtQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
-    nWidth = AfxScaleX(80);
+    nWidth = nCtlWidth;
     nHeight = nCtlHeight;
     SetWindowPos(txtPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
-    nWidth = AfxScaleX(80);
+    nWidth = nCtlWidth;
     nHeight = nCtlHeight;
     SetWindowPos(txtFees, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
-    nWidth = AfxScaleX(80);
+    nWidth = nCtlWidth;
     nHeight = nCtlHeight;
     SetWindowPos(txtTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nLeft + nWidth + hmargin;
-    nWidth = AfxScaleX(75);
+    nLeft = nLeft + nWidth + hsp;
+    nWidth = nCtlWidth;
     nHeight = nCtlHeight;
     SetWindowPos(comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -660,16 +663,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees");
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLTOTAL, L"Total");
 
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY);
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE);
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES);
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL);
+    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY, L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+
+    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE, L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+
+    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES, L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+
+    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL, L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
 
     hCtl = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_COMBODRCR);
     ComboBox_AddString(hCtl, L"CREDIT");
     ComboBox_AddString(hCtl, L"DEBIT");
 
-    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 640, 464, 74, 28);
-    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 640, 500, 74, 28);
+    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 650, 464, 74, 28);
+    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 650, 500, 74, 28);
 
 }

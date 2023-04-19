@@ -170,7 +170,7 @@ void TradeDialog_Show()
     ShowWindow(hwnd, SW_SHOWNORMAL);
 
     // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
-    // and position the Summary listbox and daily detail listbox.
+    // and position the listbox.
     RECT rc; GetClientRect(hwnd, &rc);
     TradeDialog_OnSize(hwnd, 0, rc.right, rc.bottom);
 
