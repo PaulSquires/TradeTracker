@@ -711,12 +711,12 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     hCtl = TradeDialog.AddControl(Controls::Header, hwnd, IDC_TRADEDIALOG_HEADER);
     int nWidth = AfxScaleX(91);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"Action");
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Quantity");
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Strike Price");
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Expiry Date");
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Put/Call");
-    Header_InsertNewItem(hCtl, 5, nWidth, L"DTE");
+    Header_InsertNewItem(hCtl, 0, nWidth, L"Action", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Quantity", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Strike Price", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Expiry Date", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Put/Call", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 5, nWidth, L"DTE", HDF_CENTER);
 
 
     // Create the Trade Management table controls 

@@ -14,6 +14,7 @@
 extern CTradeDialog TradeDialog;
 
 extern HWND HWND_MENUPANEL;
+extern HWND HWND_TRADESPANEL;
 
 
 int nHistoryMinColWidth[10] =
@@ -222,7 +223,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     int nStart = 0;
 
     // If a specific line number was passed into this function then we only
-    // test for that line rather than all lines (like when the arrays are first loaded.
+    // test for that line rather than all lines (like when the arrays are first loaded).
     // A value of -1 will iterate all strings the columns.
     if (nIndex != -1) {
         nStart = nIndex; nEnd = nIndex;
@@ -253,7 +254,6 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
                 bRedrawListBox = true;
             }
-
         }
 
             
@@ -268,6 +268,16 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
             ld->col[i].colWidth = nColWidth[i];
         }
         ListBox_SetItemData(hListBox, ii, ld);
+    }
+
+    // Update the widths of any asscociated Header control. 
+    if (tabletype == TableType::ClosedTrades) {
+        HWND hHeader = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_HEADER);
+        if (hHeader) {
+            for (int i = 0; i < 10; i++) {
+                Header_SetItemWidth(hHeader, i, AfxScaleX((float)nColWidth[i]));
+            }
+        }
     }
 
     ReleaseDC(hListBox, hdc);
@@ -885,22 +895,10 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         int nLeft = 0;
         int colWidth = 0;
 
-        HWND hHeader = NULL;
-        int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
-        if (menuId == IDC_MENUPANEL_CLOSEDTRADES) hHeader = GetDlgItem(TradeDialog.WindowHandle(), IDC_TRADES_HEADER);
-
-
         // Draw each of the columns
         for (int i = 0; i < 8; i++) {
             if (ld == nullptr) break;
             if (ld->col[i].colWidth == 0) break;
-
-
-            // Update the widths of any asscoiated Header control
-            if (hHeader) {
-                Header_SetItemWidth(hHeader, i, nColWidth[i]);
-            }
-
 
             // Prepare and draw the text
             wszText = ld->col[i].wszText;

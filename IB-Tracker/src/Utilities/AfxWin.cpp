@@ -838,14 +838,14 @@ bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText)
 // nWidth - width of the new item. 
 // lpsz - address of the item string. 
 // ========================================================================================
-bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText)
+bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment = HDF_LEFT)
 {
     HDITEM hdi{};
     hdi.mask = HDI_TEXT | HDI_FORMAT | HDI_WIDTH;
     hdi.cxy = nWidth;
     hdi.pszText = (LPWSTR)pwszText; // lpsz;
-    hdi.cchTextMax = lstrlenW(pwszText);      //(sizeof(hdi.pszText) / sizeof(hdi.pszText[0]);
-    hdi.fmt = HDF_CENTER | HDF_STRING;
+    hdi.cchTextMax = lstrlenW(pwszText);
+    hdi.fmt = Alignment | HDF_STRING;
 
     return SendMessage(hwndHD, HDM_INSERTITEM, (WPARAM)iInsertAfter, (LPARAM)&hdi);
 }

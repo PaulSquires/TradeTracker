@@ -480,11 +480,11 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER);
     int nWidth = AfxScaleX(50);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"");
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Date");
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker");
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name");
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Amount");
+    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
 
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
