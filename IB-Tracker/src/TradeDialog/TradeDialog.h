@@ -38,4 +38,5 @@ const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 22;
 const int TRADEDIALOG_TRADETABLE_WIDTH     = 550;
 
 void TradeDialog_Show();
-
+void FormatNumberFourDecimals(HWND hCtl);
+void CalculateTradeTotal();

@@ -7,7 +7,7 @@
 
 void AfxRedrawWindow(HWND hwnd);
 std::wstring AfxGetWindowText(HWND hwnd);
-bool AfxSetWindowText(HWND hwnd, LPCVOID pwszText);
+bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText);
 
 float AfxScaleRatioX();
 float AfxScaleRatioY();

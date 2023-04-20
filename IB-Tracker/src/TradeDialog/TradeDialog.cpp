@@ -124,6 +124,12 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         }
         break;
 
+    case (IDC_TRADEDIALOG_COMBODRCR):
+        if (codeNotify == CBN_SELCHANGE) {
+            CalculateTradeTotal();
+        }
+        break;
+
     }
 }
 

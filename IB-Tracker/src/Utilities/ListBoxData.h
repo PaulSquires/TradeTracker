@@ -12,7 +12,8 @@ typedef long TickerId;
 class ColumnData {
 public:
     std::wstring        wszText;
-    StringAlignment     alignment = StringAlignmentNear;  
+    StringAlignment     HAlignment = StringAlignmentNear;  
+    StringAlignment     VAlignment = StringAlignmentCenter;
     ThemeElement        backTheme = ThemeElement::TradesPanelBack;
     ThemeElement        textTheme = ThemeElement::TradesPanelText;;
     REAL                fontSize = 8;                    // 8, 10
@@ -33,14 +34,15 @@ public:
 
     void SetData(
         int index, Trade* tradeptr, TickerId tickId,
-        std::wstring wszText, StringAlignment alignment, ThemeElement backTheme,
-        ThemeElement textTheme, REAL fontSize, int fontStyle)
+        std::wstring wszText, StringAlignment HAlignment, StringAlignment VAlignment, 
+        ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
     {
         if (tickId != -1) isTickerLine = true;
         tickerId = tickId;
         trade = tradeptr;
         col[index].wszText = wszText;
-        col[index].alignment = alignment;
+        col[index].HAlignment = HAlignment;
+        col[index].VAlignment = VAlignment;
         col[index].backTheme = backTheme;
         col[index].textTheme = textTheme;
         col[index].fontSize = fontSize;
@@ -84,5 +86,4 @@ void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transa
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
 void ListBoxData_OutputTradesTemplates(HWND hListBox);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
-void ListBoxData_OutputTradeManagementTable(HWND hListBox);
 

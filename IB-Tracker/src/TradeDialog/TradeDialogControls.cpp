@@ -22,6 +22,53 @@ extern CTradeDialog TradeDialog;
 
 
 // ========================================================================================
+// Helper function to format certain TextBoxes to 4 decimal places
+// ========================================================================================
+void FormatNumberFourDecimals(HWND hCtl)
+{
+    static std::wstring DecimalSep = L".";
+    static std::wstring ThousandSep = L",";
+
+    static NUMBERFMTW num{};
+    num.NumDigits = 4;
+    num.LeadingZero = true;
+    num.Grouping = 0;
+    num.lpDecimalSep = (LPWSTR)DecimalSep.c_str();
+    num.lpThousandSep = (LPWSTR)ThousandSep.c_str();
+    num.NegativeOrder = 1;   // Negative sign, number; for example, -1.1
+
+    std::wstring money = AfxGetWindowText(hCtl);
+
+    std::wstring buffer(256, 0);
+    int j = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, money.c_str(), &num, (LPWSTR)buffer.c_str(), 256);
+
+    money = buffer.substr(0, j - 1);
+    AfxSetWindowText(hCtl, money.c_str());
+}
+
+
+
+// ========================================================================================
+// Helper function to calculate and update the Total TextBox
+// ========================================================================================
+void CalculateTradeTotal()
+{
+    HWND hWnd = TradeDialog.WindowHandle();
+    double total = 0;
+    double quantity = stod(AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+    double price = stod(AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTPRICE)));
+    double fees = stod(AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTFEES)));
+
+    std::wstring DRCR = AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_COMBODRCR));
+    if (DRCR == L"CREDIT") fees = fees * -1;
+
+    total = (quantity * 100 * price) + fees;
+    AfxSetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(total));
+    FormatNumberFourDecimals(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTTOTAL));
+}
+
+
+// ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
@@ -143,19 +190,75 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
 
         // Allow 0 to 9
         if (wParam >= 48 && wParam <= 57) break;
+
         
         // Allow backspace
         if (wParam == 8) break;
 
-        // Allow decimal
-        if (wParam == 46) break;
+        
+        // Allow decimal (but only once)
+        if (wParam == 46) {
+            std::wstring wszText = AfxGetWindowText(hWnd);
+            int nFoundAt = wszText.find(L".");
+            if (nFoundAt != std::wstring::npos) {
+                // Period already exists but we will allow it if the TextBox text
+                // is currently selected and entering the period will replace the
+                // previously entered period.
+                int nPos = SendMessage(hWnd, EM_GETSEL, 0, 0);
+                int nStartPos = LOWORD(nPos);
+                int nEndPos = HIWORD(nPos);
+                if (nStartPos != nEndPos) {   // we have selected text
+                    if (nFoundAt >= nStartPos && nFoundAt <= nEndPos) {
+                        break;   // allow
+                    }
+                }
 
-        // Allow negative sign
-        if (wParam == 45) break;
+                return 0;  // do not allow
+            }
+            // Allow the the decimal
+            break;
+        }
 
+        
+        // Negative sign 
+        if (wParam == 45) {
+
+            // Do not allow negative sign in the following textboxes 
+            switch (uIdSubclass)
+            {
+            case IDC_TRADEDIALOG_TXTQUANTITY:
+            case IDC_TRADEDIALOG_TXTPRICE:
+            case IDC_TRADEDIALOG_TXTFEES:
+                return 0;
+            }
+
+            // Only allow the negative sign for other textboxes if it is 
+            // the first character (position 0)
+            DWORD nPos = LOWORD(SendMessage(hWnd, EM_GETSEL, 0, 0));
+            if (nPos == 0) break; 
+
+            // Otherwise, disallow the negative sign
+            return 0;
+        }
+
+        
         // Disallow everything else by skipping calling the DefSubclassProc
         return 0;
     }
+
+
+    case WM_KILLFOCUS:
+        // We will use special 4 decimal place formatting on the following TextBoxes
+        switch (uIdSubclass)
+        {
+        case IDC_TRADEDIALOG_TXTQUANTITY:
+        case IDC_TRADEDIALOG_TXTPRICE:
+        case IDC_TRADEDIALOG_TXTFEES:
+            FormatNumberFourDecimals(hWnd);
+            CalculateTradeTotal();
+        }
+        break;
+
 
 
     case WM_DESTROY:
@@ -663,25 +766,30 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees");
     TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLTOTAL, L"Total");
 
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY, L"", 0, 0, 0, 0,
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY, L"", 0, 0, 0, 0,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTQUANTITY, NULL);
+    FormatNumberFourDecimals(hCtl);
 
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE, L"", 0, 0, 0, 0,
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE, L"", 0, 0, 0, 0,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTPRICE, NULL);
+    FormatNumberFourDecimals(hCtl);
 
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES, L"", 0, 0, 0, 0,
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES, L"", 0, 0, 0, 0,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTFEES, NULL);
+    FormatNumberFourDecimals(hCtl);
 
-    TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL, L"", 0, 0, 0, 0,
-        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL, L"", 0, 0, 0, 0,
+        WS_VISIBLE | ES_READONLY | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTOTAL, NULL);
+    FormatNumberFourDecimals(hCtl);
 
     hCtl = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_COMBODRCR);
     ComboBox_AddString(hCtl, L"CREDIT");
     ComboBox_AddString(hCtl, L"DEBIT");
+    ComboBox_SetCurSel(hCtl, 0);
 
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 650, 464, 74, 28);
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 650, 500, 74, 28);

@@ -89,9 +89,9 @@ std::wstring AfxGetWindowText(HWND hwnd)
 // ========================================================================================
 // Set text for the specified window
 // ========================================================================================
-bool AfxSetWindowText(HWND hwnd, LPCVOID pwszText)
+bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText)
 {
-    return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)pwszText);
+    return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)wszText.c_str());
 }
 
 
