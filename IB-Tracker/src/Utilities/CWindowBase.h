@@ -371,7 +371,7 @@ public:
 
         case Controls::Header:
         {
-            if (dwStyle == -1) dwStyle = WS_VISIBLE | CCS_TOP | HDS_HORZ | HDS_NOSIZING;  // HDS_BUTTONS HDS_FLAT  
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | CCS_TOP | HDS_HORZ | HDS_NOSIZING;
             wszClassName = L"SysHeader32";
             hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }

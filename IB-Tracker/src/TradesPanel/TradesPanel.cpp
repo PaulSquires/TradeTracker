@@ -20,6 +20,8 @@ extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 
 extern HWND HWND_MENUPANEL;
 
+void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
+
 
 
 // ========================================================================================
@@ -101,6 +103,12 @@ void TradesPanel_ShowActiveTrades()
     
     // Set the label text indicated the type of trades being listed
     SuperLabel_SetText(hLabel, L"Active Trades");
+
+
+    // Need to force a resize of the TradesPanel in order to properly show (or not show) 
+    // and position the Header control.
+    RECT rc; GetClientRect(HWND_TRADESPANEL, &rc);
+    TradesPanel_OnSize(HWND_TRADESPANEL, 0, rc.right, rc.bottom);
 
 
     // Redraw the ListBox to ensure that any recalculated columns are 
@@ -191,6 +199,12 @@ void TradesPanel_ShowClosedTrades()
     
     // Set the label text indicated the type of trades being listed
     SuperLabel_SetText(hLabel, L"Closed Trades");
+
+
+    // Need to force a resize of the TradesPanel in order to properly show (or not show) 
+    // and position the Header control.
+    RECT rc; GetClientRect(HWND_TRADESPANEL, &rc);
+    TradesPanel_OnSize(HWND_TRADESPANEL, 0, rc.right, rc.bottom);
 
 
     // Redraw the ListBox to ensure that any recalculated columns are 
@@ -384,6 +398,7 @@ void TradesPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
+    HWND hHeader = GetDlgItem(hwnd, IDC_TRADES_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
     HWND hVScrollBar = GetDlgItem(hwnd, IDC_TRADES_VSCROLLBAR);
         
@@ -413,7 +428,20 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nLeft = 0;
     int nTop = margin;
     int nWidth = cx - VScrollBarWidth;
-    int nHeight = cy - margin;
+    int nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
+
+    int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+    if (menuId == IDC_MENUPANEL_CLOSEDTRADES) {
+        SetWindowPos(hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight;
+    }
+    else {
+        ShowWindow(hHeader, SW_HIDE);
+    }
+
+
+    nWidth = cx - VScrollBarWidth;
+    nHeight = cy - margin;
     SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, 
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -449,6 +477,14 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
+
+    hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER);
+    int nWidth = AfxScaleX(50);
+    Header_InsertNewItem(hCtl, 0, nWidth, L"");
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Date");
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker");
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name");
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Amount");
 
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom

@@ -86,7 +86,7 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 
     
     // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
-     // and position the Summary listbox and daily detail listbox.
+    // and position the Summary listbox and daily detail listbox.
     RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
     HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
@@ -506,7 +506,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
         nHeight = (HISTORY_LISTBOX_ROWHEIGHT * 2);
         SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), 0,
             nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = AfxScaleY(80);
+        nTop = AfxScaleY(90);
     } else {
         ShowWindow(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), SW_HIDE);
     }

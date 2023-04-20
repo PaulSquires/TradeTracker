@@ -9,10 +9,11 @@
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\Templates\Templates.h"
 #include "..\TradeDialog\TradeDialog.h"
-
+#include "..\MenuPanel\MenuPanel.h"
 
 extern CTradeDialog TradeDialog;
 
+extern HWND HWND_MENUPANEL;
 
 
 int nHistoryMinColWidth[10] =
@@ -884,11 +885,24 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         int nLeft = 0;
         int colWidth = 0;
 
+        HWND hHeader = NULL;
+        int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+        if (menuId == IDC_MENUPANEL_CLOSEDTRADES) hHeader = GetDlgItem(TradeDialog.WindowHandle(), IDC_TRADES_HEADER);
+
+
         // Draw each of the columns
         for (int i = 0; i < 8; i++) {
             if (ld == nullptr) break;
             if (ld->col[i].colWidth == 0) break;
 
+
+            // Update the widths of any asscoiated Header control
+            if (hHeader) {
+                Header_SetItemWidth(hHeader, i, nColWidth[i]);
+            }
+
+
+            // Prepare and draw the text
             wszText = ld->col[i].wszText;
 
             HAlignment = ld->col[i].HAlignment;
