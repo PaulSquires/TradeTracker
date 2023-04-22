@@ -666,6 +666,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     (LPCWSTR)L"Information",
                     MB_ICONINFORMATION
                 );
+                SuperLabel_Select(GetDlgItem(m_hwnd, CtrlId), false);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
                 break;
             }

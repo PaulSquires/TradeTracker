@@ -479,9 +479,8 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
     nWidth = cx - VScrollBarWidth;
-    nHeight = cy - nTop; // margin;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | SWP_SHOWWINDOW);
+    nHeight = cy - nTop; 
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;

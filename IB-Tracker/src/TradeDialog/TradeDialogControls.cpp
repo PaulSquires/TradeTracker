@@ -527,17 +527,20 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
 
 
-    int nTop = (vmargin * 2);
+    int nTop = 0;
     int nLeft = 0;
     int nWidth = 0;
-    int nHeight = cy - nTop;
+    int nHeight = 0;
     int nStartTop = 0;
     int nStartLeft = 0;
 
     int nCtlHeight = AfxScaleY(TRADEDIALOG_TRADETABLE_ROWHEIGHT);
     int nCtlWidth = AfxScaleY(90);
 
+    nLeft = AfxScaleX(4);
+    nTop = (vmargin * 2);
     nWidth = AfxScaleX(150);
+    nHeight = cy - (nTop * 2);
     hdwp = DeferWindowPos(hdwp, hTemplates, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -659,8 +662,8 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nHeight = nCtlHeight;
     hdwp = DeferWindowPos(hdwp, txtTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nLeft + nWidth + hsp;
-    nWidth = nCtlWidth;
+    nLeft = nLeft + nWidth + AfxScaleX(20);
+    nWidth = AfxScaleX(70);
     nHeight = nCtlHeight;
     hdwp = DeferWindowPos(hdwp, comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 

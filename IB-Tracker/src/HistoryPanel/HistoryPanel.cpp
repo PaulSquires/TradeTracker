@@ -310,6 +310,43 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
 }
 
 
+// ========================================================================================
+// Header control subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK HistoryPanel_Header_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
+
+
+    case WM_PAINT:
+    {
+        Header_OnPaint(hWnd);
+        break;
+    }
+
+
+    case WM_DESTROY:
+
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, HistoryPanel_Header_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
 
 // ========================================================================================
 // Listbox subclass Window procedure
@@ -479,9 +516,10 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int margin = AfxScaleY(HISTORYPANEL_MARGIN);
 
+    HDWP hdwp = BeginDeferWindowPos(7);
 
     // Move and size the top label into place
-    SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_SYMBOL), 0,
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_HISTORY_SYMBOL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
@@ -501,14 +539,13 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int nTop = margin;
     int nLeft = 0;
-    int nWidth = cx - VScrollBarWidth;
+    int nWidth = cx;
     int nHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
-
 
     int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
     if (menuId == IDC_MENUPANEL_TICKERTOTALS) {
-        SetWindowPos(hHeaderTickerTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = nTop + nHeight;
+        hdwp = DeferWindowPos(hdwp, hHeaderTickerTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight + AfxScaleX(1);
     }
     else {
         ShowWindow(hHeaderTickerTotals, SW_HIDE);
@@ -517,16 +554,16 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
     if (menuId == IDC_MENUPANEL_DAILYTOTALS) {
         nTop += AfxScaleY(6);
-        SetWindowPos(hHeaderDailySummary, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = nTop + nHeight;
+        hdwp = DeferWindowPos(hdwp, hHeaderDailySummary, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight + AfxScaleX(1);
 
-        SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), 0,
+        hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), 0,
             nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
         nTop = AfxScaleY(90);
 
-        SetWindowPos(hHeaderDailyTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = nTop + nHeight;
+        hdwp = DeferWindowPos(hdwp, hHeaderDailyTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight + AfxScaleX(1);
 
     } else {
         ShowWindow(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), SW_HIDE);
@@ -535,14 +572,16 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
 
     
+    nWidth = cx - VScrollBarWidth;
     nHeight = cy - nTop;
-    SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, 
-        SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;
-    SetWindowPos(hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
+    EndDeferWindowPos(hdwp);
 }
 
 
@@ -591,7 +630,9 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // Create Header control for our Ticker Totals output
-    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_TICKERTOTALS);
+    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_TICKERTOTALS,
+        L"", 0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)HistoryPanel_Header_SubclassProc,
+        IDC_HISTORY_HEADER_TICKERTOTALS, NULL);
     int nWidth = AfxScaleX(50);
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_LEFT);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Ticker", HDF_LEFT);
@@ -599,7 +640,9 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Header_InsertNewItem(hCtl, 3, nWidth, L"Amount", HDF_RIGHT);
 
     // Create Header control for our Daily History Summary output
-    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_DAILYSUMMARY);
+    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_DAILYSUMMARY,
+        L"", 0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)HistoryPanel_Header_SubclassProc,
+        IDC_HISTORY_HEADER_DAILYSUMMARY, NULL);
     Header_InsertNewItem(hCtl, 0, nWidth, L"Profit/Loss", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Stock Value", HDF_CENTER);
     Header_InsertNewItem(hCtl, 2, nWidth, L"Net Profit", HDF_CENTER);
@@ -607,7 +650,9 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Header_InsertNewItem(hCtl, 4, nWidth, L"YTD", HDF_CENTER);
 
     // Create Header control for our Daily History Totals output
-    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_DAILYTOTALS);
+    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_DAILYTOTALS,
+        L"", 0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)HistoryPanel_Header_SubclassProc,
+        IDC_HISTORY_HEADER_DAILYTOTALS, NULL);
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_LEFT);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
     Header_InsertNewItem(hCtl, 2, nWidth, L"Day/Description", HDF_LEFT);

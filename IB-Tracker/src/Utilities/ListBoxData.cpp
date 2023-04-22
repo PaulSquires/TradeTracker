@@ -141,8 +141,8 @@ int nDailyTotalsSummaryMinColWidth[10] =
 
 int nTradeTemplatesMinColWidth[10] =
 {
+    5,     /* spacer */
     80,    /* Description */
-    0,     
     0,     
     0,     
     0,     
@@ -811,7 +811,9 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
 
     for (const auto& t : TradeTemplates) {
         ld = new ListBoxData;
-        ld->SetData(0, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter, 
+        ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+            ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font9, FontStyleRegular);
+        ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,
             ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font9, FontStyleRegular);
         ListBox_AddString(hListBox, ld);
     }

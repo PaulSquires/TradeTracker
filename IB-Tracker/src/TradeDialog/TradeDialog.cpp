@@ -175,6 +175,11 @@ void TradeDialog_Show()
     
     ShowWindow(hwnd, SW_SHOWNORMAL);
     
+    // Need to force a resize of the TradeDialog in order to properly show (or not show) 
+    // and position the Templates scrollbar.
+    RECT rc; GetClientRect(HWND_TRADEDIALOG, &rc);
+    TradeDialog_OnSize(HWND_TRADEDIALOG, 0, rc.right, rc.bottom);
+
 
     // Call modal message pump and wait for it to end.
     MSG msg{};
