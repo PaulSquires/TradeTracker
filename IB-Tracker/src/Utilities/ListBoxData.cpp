@@ -15,6 +15,7 @@ extern CTradeDialog TradeDialog;
 
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;
+extern HWND HWND_HISTORYPANEL;
 
 
 int nHistoryMinColWidth[10] =
@@ -270,13 +271,16 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         ListBox_SetItemData(hListBox, ii, ld);
     }
 
-    // Update the widths of any asscociated Header control. 
-    if (tabletype == TableType::ClosedTrades) {
-        HWND hHeader = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_HEADER);
-        if (hHeader) {
-            for (int i = 0; i < 10; i++) {
-                Header_SetItemWidth(hHeader, i, AfxScaleX((float)nColWidth[i]));
-            }
+    // Update the widths of any associated Header control. 
+    HWND hHeader = NULL;
+    if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_HEADER);
+    if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_HEADER_TICKERTOTALS);
+    if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_HEADER_DAILYSUMMARY);
+    if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_HEADER_DAILYTOTALS);
+    
+    if (hHeader) {
+        for (int i = 0; i < 10; i++) {
+            Header_SetItemWidth(hHeader, i, AfxScaleX((float)nColWidth[i]));
         }
     }
 
@@ -755,26 +759,6 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
     REAL font9 = 9;
 
 
-    // Header
-    ld->SetData(0, nullptr, tickerId, L"Profit/Loss", StringAlignmentCenter, StringAlignmentCenter, 
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
-
-    ld->SetData(1, nullptr, tickerId, L"Stock Value", StringAlignmentCenter, StringAlignmentCenter, 
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
-
-    ld->SetData(2, nullptr, tickerId, L"Net Profit", StringAlignmentCenter, StringAlignmentCenter, 
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
-
-    ld->SetData(3, nullptr, tickerId, L"MTD", StringAlignmentCenter, StringAlignmentCenter, 
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
-
-    ld->SetData(4, nullptr, tickerId, L"YTD", StringAlignmentCenter, StringAlignmentCenter, 
-        ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font8, FontStyleRegular);
-
-    ListBox_AddString(hListBox, ld);
-
-
-
     // Populate the summary data
     ld = new ListBoxData;
     
@@ -833,6 +817,75 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
     }
 }
 
+
+
+// ========================================================================================
+// Generic Header control WM_PAINT message handler (for all ListBox header controls)
+// ========================================================================================
+void Header_OnPaint(HWND hWnd)
+{
+    PAINTSTRUCT ps;
+
+    HDC hdc = BeginPaint(hWnd, &ps);
+
+    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+
+    Graphics graphics(hdc);
+    SolidBrush backBrush(GetThemeColor(ThemeElement::ListHeaderBack));
+    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+
+    graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+    std::wstring wszFontName = AfxGetDefaultFont();
+    FontFamily fontFamily(wszFontName.c_str());
+    Font       font(&fontFamily, 9, FontStyleRegular, Unit::UnitPoint);
+    SolidBrush textBrush(GetThemeColor(ThemeElement::ListHeaderText));
+
+    StringFormat stringF(StringFormatFlagsNoWrap);
+    stringF.SetTrimming(StringTrimmingEllipsisWord);
+    stringF.SetAlignment(StringAlignmentCenter);       // horizontal
+    stringF.SetLineAlignment(StringAlignmentCenter);   // vertical
+
+    RECT rcItem{};
+
+    int nCount = Header_GetItemCount(hWnd);
+
+    for (int i = 0; i < nCount; i++) {
+        Header_GetItemRect(hWnd, i, &rcItem);
+
+        switch (Header_GetItemAlignment(hWnd, i))
+        {
+        case HDF_LEFT:
+            stringF.SetAlignment(StringAlignmentNear);
+            break;
+        case HDF_CENTER:
+            stringF.SetAlignment(StringAlignmentCenter);
+            break;
+        case HDF_RIGHT:
+            stringF.SetAlignment(StringAlignmentFar);
+            break;
+        }
+
+        // Draw our right side separator line
+        if (i > 0 && i < nCount) {
+            ARGB clrPen = GetThemeColor(ThemeElement::ListHeaderBorder);
+            Pen pen(clrPen, 1);
+            graphics.DrawLine(&pen, (REAL)rcItem.right, (REAL)rcItem.top, (REAL)rcItem.right, (REAL)rcItem.bottom);
+        }
+
+        // Add left/right padding to our text rectangle
+        InflateRect(&rcItem, -AfxScaleX(4), 0);
+        RectF rcText((REAL)rcItem.left, (REAL)rcItem.top, (REAL)(rcItem.right - rcItem.left), (REAL)(rcItem.bottom - rcItem.top));
+        std::wstring wszText = Header_GetItemText(hWnd, i);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+
+    }
+
+    EndPaint(hWnd, &ps);
+
+}
 
 
 // ========================================================================================

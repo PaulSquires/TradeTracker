@@ -1,4 +1,3 @@
-
 #include "pch.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\Database\trade.h"
@@ -9,17 +8,17 @@
 #include "..\VScrollBar\VScrollBar.h"
 #include "TradesPanel.h"
 
-HWND HWND_TRADESPANEL = NULL;
 
-extern CTradesPanel TradesPanel;
+HWND HWND_TRADESPANEL = NULL;
 
 extern std::vector<Trade*> trades;
 
 extern HWND HWND_HISTORYPANEL;
-extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
-
 extern HWND HWND_MENUPANEL;
+extern CTradesPanel TradesPanel;
 
+
+extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
@@ -228,6 +227,43 @@ void TradesPanel_ShowClosedTrades()
 }
 
 
+// ========================================================================================
+// Header control subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK TradesPanel_Header_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
+
+
+    case WM_PAINT:
+    {
+        Header_OnPaint(hWnd);
+        break;
+    }
+
+
+    case WM_DESTROY:
+
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, TradesPanel_Header_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
 
 // ========================================================================================
 // Listbox subclass Window procedure
@@ -402,10 +438,12 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
     HWND hVScrollBar = GetDlgItem(hwnd, IDC_TRADES_VSCROLLBAR);
         
-    int margin = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
+    int margin = AfxScaleY(TRADESPANEL_MARGIN);
+
+    HDWP hdwp = BeginDeferWindowPos(4);
 
     // Move and size the top label into place
-    SetWindowPos(GetDlgItem(hwnd, IDC_TRADES_LABEL), 0,
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
@@ -427,13 +465,13 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int nLeft = 0;
     int nTop = margin;
-    int nWidth = cx - VScrollBarWidth;
+    int nWidth = cx;
     int nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
 
     int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
     if (menuId == IDC_MENUPANEL_CLOSEDTRADES) {
-        SetWindowPos(hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = nTop + nHeight;
+        hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight + AfxScaleY(1);
     }
     else {
         ShowWindow(hHeader, SW_HIDE);
@@ -441,14 +479,16 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
     nWidth = cx - VScrollBarWidth;
-    nHeight = cy - margin;
-    SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, 
+    nHeight = cy - nTop; // margin;
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;
-    SetWindowPos(hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
+    EndDeferWindowPos(hdwp);
 }
 
 
@@ -478,13 +518,18 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         SuperLabel_SetOptions(hCtl, pData);
     }
 
-    hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER);
+    
+    hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradesPanel_Header_SubclassProc,
+        IDC_TRADES_HEADER, NULL);
     int nWidth = AfxScaleX(50);
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
     Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
     Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name", HDF_LEFT);
     Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
+    // Must turn off Window Theming for the control in order to correctly apply colors via NM_CUSTOMDRAW
+    SetWindowTheme(hCtl, L"", L"");
 
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
@@ -521,6 +566,72 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
 
 // ========================================================================================
+// Process NM_CUSTOMDRAW (WM_NOTIFY) message for window/dialog: TradesPanel
+// ========================================================================================
+LRESULT TradesPanel_OnCustomDraw(HWND hwnd, int id, LPNMCUSTOMDRAW lpNMCD)
+{
+    LRESULT result = 0;
+
+    if (id == IDC_TRADES_HEADER) {
+        // First, the service tells us that it is about to paint the header (CDDS_PREPAINT). We reply 
+        // saying that we want to be notified for the painting of each item (CDRF_NOTIFYITEMDRAW).
+        // Next, the service tells us that it is about to paint an item (CDDS_ITEMPREPAINT). We change 
+        // the appropriate colors on the DC and reply saying that we did so (CDRF_NEWFONT). Note that we 
+        // could even have changed the font, specifying a different one per item.For all the other states 
+        // we don’t care about, we tell the service to do the default painting (CDRF_DODEFAULT).
+
+        DWORD dwDrawStage = lpNMCD->dwDrawStage;
+
+        if (dwDrawStage == CDDS_PREPAINT) {
+            std::cout << "CDDS_PREPAINT" << std::endl;
+
+            int nWidth = (lpNMCD->rc.right - lpNMCD->rc.left);
+            int nHeight = (lpNMCD->rc.bottom - lpNMCD->rc.top);
+
+            Graphics graphics(lpNMCD->hdc);
+            SolidBrush backBrush(GetThemeColor(ThemeElement::ListHeaderBack));
+            graphics.FillRectangle(&backBrush, lpNMCD->rc.left, lpNMCD->rc.top, nWidth, nHeight);
+
+            return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYPOSTPAINT;
+
+        } 
+        else if (dwDrawStage == CDDS_ITEMPREPAINT) {
+            HDC hDC = lpNMCD->hdc;
+            std::cout << "CDDS_ITEMPREPAINT" << std::endl;
+
+            SetTextColor(hDC, GetThemeCOLORREF(ThemeElement::ListHeaderText));
+            SetBkColor(hDC, GetThemeCOLORREF(ThemeElement::ListHeaderBack));
+
+            return CDRF_NEWFONT;
+
+        }
+        else if (dwDrawStage == CDDS_POSTPAINT) {
+            std::cout << "CDDS_POSTPAINT" << std::endl;
+            return CDRF_SKIPDEFAULT;
+        }
+    }
+
+    return 0;
+}
+
+
+// ========================================================================================
+// Process WM_NOTIFY message for window/dialog: TradesPanel
+// ========================================================================================
+LRESULT TradesPanel_OnNotify(HWND hwnd, int id, LPNMHDR pNMHDR)
+{
+
+    switch (pNMHDR->code)
+    {
+    case NM_CUSTOMDRAW:
+        return TradesPanel_OnCustomDraw(hwnd, pNMHDR->idFrom, (LPNMCUSTOMDRAW) pNMHDR);
+    }
+
+    return 0;
+}
+
+
+// ========================================================================================
 // Process WM_CONTEXTMENU message for window/dialog: TradesPanel
 // ========================================================================================
 void TradesPanel_OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
@@ -549,9 +660,8 @@ LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradesPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradesPanel_OnSize);
-
+       // HANDLE_MSG(m_hwnd, WM_NOTIFY, TradesPanel_OnNotify);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
-
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

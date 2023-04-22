@@ -54,6 +54,10 @@ void InitializeThemeColors()
 	clr[(int)ThemeElement::TradesPanelScrollBarThumb] = Color::MakeARGB(255, 51, 51, 51);
 	clr[(int)ThemeElement::TradesPanelHistoryText] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
 
+	clr[(int)ThemeElement::ListHeaderBack] = Color::MakeARGB(255, 51, 51, 51);
+	clr[(int)ThemeElement::ListHeaderText] = Color::MakeARGB(255, 212, 212, 212);
+	clr[(int)ThemeElement::ListHeaderBorder] = Color::MakeARGB(255, 64, 67, 73);
+
 	clr[(int)ThemeElement::valuePositive] = Color::MakeARGB(255, 72, 151, 13);
 	clr[(int)ThemeElement::valueNegative] = Color::MakeARGB(255, 255, 30, 0);
 
@@ -310,6 +314,15 @@ bool LoadTheme_Internal(const std::wstring& dbFilename)
 		}
 		else if (arg == L"TRADESPANELHISTORYTEXT") {
 			clr[(int)ThemeElement::TradesPanelHistoryText] = color;
+		}
+		else if (arg == L"LISTHEADERBACK") {
+			clr[(int)ThemeElement::ListHeaderBack] = color;
+		}
+		else if (arg == L"LISTHEADERTEXT") {
+			clr[(int)ThemeElement::ListHeaderText] = color;
+		}
+		else if (arg == L"LISTHEADERBORDER") {
+			clr[(int)ThemeElement::ListHeaderBorder] = color;
 		}
 		else if (arg == L"VALUEPOSITIVE") {
 			clr[(int)ThemeElement::valuePositive] = color;

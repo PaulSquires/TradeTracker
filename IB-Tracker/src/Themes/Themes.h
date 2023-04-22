@@ -24,6 +24,10 @@ enum class ThemeElement {
 	TradesPanelScrollBarThumb,
 	TradesPanelHistoryText,
 
+	ListHeaderBack,
+	ListHeaderText,
+	ListHeaderBorder,
+
 	valuePositive,    // usually green
 	valueNegative,    // usually red
 

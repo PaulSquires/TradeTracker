@@ -203,15 +203,10 @@ public:
 		// Create the background brush
 		SolidBrush backBrush(nBackColor);
 
-		// Paint the background using brush and default pen. Use RoundRect because 
-		// we may want to have rounded corners.
+		// Paint the background using brush and default pen. 
 		int nWidth = (m_rcClient.right - m_rcClient.left);
 		int nHeight = (m_rcClient.bottom - m_rcClient.top);
 		graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
-		//    RoundRect(memDC, 0, 0, rcClient.Right, rcClient.Bottom, _
-		//        pData->BorderRoundWidth * rx, pData->BorderRoundHeight * ry)
-
-
 	}
 
 

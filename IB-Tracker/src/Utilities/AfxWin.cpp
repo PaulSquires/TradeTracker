@@ -530,18 +530,17 @@ bool isWineActive()
 }
 
 
+
 // ========================================================================================
 // Retrieve name of font to use for GUI elements under Windows or Wine/Linux
 // ========================================================================================
 std::wstring AfxGetDefaultFont()
 {
-    // Windows 7 or Vista we'll use Tahoma. Everything above we'll use Segoe UI.
-    // Wine will always use Tahoma.
     // Tahoma seems to exist on base Windows and Wine installs.
     std::wstring wszFont = L"Tahoma";
 
     // Use macro from versionhelpers.h
-    if (IsWindows8OrGreater()) wszFont = L"Segoe UI";
+    if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   // Segoe has been default Windows font since Vista
     if (isWineActive()) wszFont = L"Tahoma";
 
     return wszFont;
@@ -818,7 +817,7 @@ bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth)
 
 
 // ========================================================================================
-// Sets the text of the specified item. Returns TRUE or FALSE.
+// Sets the Header text of the specified item. Returns TRUE or FALSE.
 // ========================================================================================
 bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText)
 {
@@ -827,7 +826,42 @@ bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText)
     hdi.mask = HDI_TEXT;
     hdi.cchTextMax = lstrlenW(pwszText);
     hdi.pszText = (LPWSTR)pwszText;
-    return SendMessage(hwndHD, HDM_SETITEMW, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+}
+
+
+// ========================================================================================
+// Gets the Header text of the specified item. 
+// ========================================================================================
+std::wstring Header_GetItemText(HWND hwndHD, int nItem)
+{
+    std::wstring buffer(MAX_PATH, NULL);
+
+    HDITEM hdi{};
+    hdi.mask = HDI_TEXT;
+    hdi.cchTextMax = MAX_PATH;
+    hdi.pszText = (LPWSTR)buffer.c_str();
+    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+
+    return buffer.substr(0, lstrlenW(buffer.c_str()));
+
+}
+
+
+// ========================================================================================
+// Gets the Header alignment of the specified item. 
+// ========================================================================================
+int Header_GetItemAlignment(HWND hwndHD, int nItem)
+{
+    HDITEM hdi{};
+    hdi.mask = HDI_FORMAT;
+    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+
+    if ((hdi.fmt & ~HDF_STRING) == HDF_LEFT) return HDF_LEFT;
+    if ((hdi.fmt & ~HDF_STRING) == HDF_CENTER) return HDF_CENTER;
+    if ((hdi.fmt & ~HDF_STRING) == HDF_RIGHT) return HDF_RIGHT;
+
+    return HDF_CENTER;
 }
 
 

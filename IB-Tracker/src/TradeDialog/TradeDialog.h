@@ -33,6 +33,14 @@ const int IDC_TRADEDIALOG_FRAME2         = 121;
 const int IDC_TRADEDIALOG_OK             = 130;
 const int IDC_TRADEDIALOG_CANCEL         = 131;
 
+const int IDC_TRADEDIALOG_TABLEACTION    = 140;   // 10 controls
+const int IDC_TRADEDIALOG_TABLEQUANTITY  = 160;   // 10 controls
+const int IDC_TRADEDIALOG_TABLESTRIKE    = 180;   // 10 controls
+const int IDC_TRADEDIALOG_TABLEEXPIRY    = 200;   // 10 controls
+const int IDC_TRADEDIALOG_TABLEPUTCALL   = 220;   // 10 controls
+const int IDC_TRADEDIALOG_TABLEDTE       = 240;   // 10 controls
+
+
 const int TRADEDIALOG_TEMPLATES_ROWHEIGHT  = 22;
 const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 22;
 const int TRADEDIALOG_TRADETABLE_WIDTH     = 550;

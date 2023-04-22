@@ -471,10 +471,14 @@ void HistoryPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
+    HWND hHeaderTickerTotals = GetDlgItem(hwnd, IDC_HISTORY_HEADER_TICKERTOTALS);
+    HWND hHeaderDailySummary = GetDlgItem(hwnd, IDC_HISTORY_HEADER_DAILYSUMMARY);
+    HWND hHeaderDailyTotals = GetDlgItem(hwnd, IDC_HISTORY_HEADER_DAILYTOTALS);
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_VSCROLLBAR);
 
-    int margin = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
+    int margin = AfxScaleY(HISTORYPANEL_MARGIN);
+
 
     // Move and size the top label into place
     SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_SYMBOL), 0,
@@ -498,17 +502,36 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nTop = margin;
     int nLeft = 0;
     int nWidth = cx - VScrollBarWidth;
-    int nHeight = 0;
+    int nHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
+
 
     int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+    if (menuId == IDC_MENUPANEL_TICKERTOTALS) {
+        SetWindowPos(hHeaderTickerTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight;
+    }
+    else {
+        ShowWindow(hHeaderTickerTotals, SW_HIDE);
+    }
+
+    menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
     if (menuId == IDC_MENUPANEL_DAILYTOTALS) {
         nTop += AfxScaleY(6);
-        nHeight = (HISTORY_LISTBOX_ROWHEIGHT * 2);
+        SetWindowPos(hHeaderDailySummary, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight;
+
         SetWindowPos(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), 0,
             nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
         nTop = AfxScaleY(90);
+
+        SetWindowPos(hHeaderDailyTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nTop = nTop + nHeight;
+
     } else {
         ShowWindow(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), SW_HIDE);
+        ShowWindow(hHeaderDailySummary, SW_HIDE);
+        ShowWindow(hHeaderDailyTotals, SW_HIDE);
     }
 
     
@@ -566,6 +589,29 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateVScrollBar(hwnd, IDC_HISTORY_VSCROLLBAR, hCtl);
 
+
+    // Create Header control for our Ticker Totals output
+    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_TICKERTOTALS);
+    int nWidth = AfxScaleX(50);
+    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Company Name", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Amount", HDF_RIGHT);
+
+    // Create Header control for our Daily History Summary output
+    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_DAILYSUMMARY);
+    Header_InsertNewItem(hCtl, 0, nWidth, L"Profit/Loss", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Stock Value", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Net Profit", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"MTD", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 4, nWidth, L"YTD", HDF_CENTER);
+
+    // Create Header control for our Daily History Totals output
+    hCtl = HistoryPanel.AddControl(Controls::Header, hwnd, IDC_HISTORY_HEADER_DAILYTOTALS);
+    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Day/Description", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Amount", HDF_RIGHT);
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
     // paint the Daily History Summary.

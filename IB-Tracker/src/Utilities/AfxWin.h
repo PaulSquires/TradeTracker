@@ -54,5 +54,7 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle);
 bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth);
 bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText);
+std::wstring Header_GetItemText(HWND hwndHD, int nItem);
+int Header_GetItemAlignment(HWND hwndHD, int nItem);
 bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment = HDF_LEFT);
 

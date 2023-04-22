@@ -86,4 +86,5 @@ void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transa
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
 void ListBoxData_OutputTradesTemplates(HWND hListBox);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
+void Header_OnPaint(HWND hWnd);
 

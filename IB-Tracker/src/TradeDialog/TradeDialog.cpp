@@ -163,7 +163,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 void TradeDialog_Show()
 {
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, 800, 600,
-        WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     HANDLE hIconSmall = LoadImage(TradeDialog.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
@@ -172,13 +172,9 @@ void TradeDialog_Show()
     AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
     EnableWindow(HWND_MAINWINDOW, FALSE);
-
+    
     ShowWindow(hwnd, SW_SHOWNORMAL);
-
-    // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
-    // and position the listbox.
-    RECT rc; GetClientRect(hwnd, &rc);
-    TradeDialog_OnSize(hwnd, 0, rc.right, rc.bottom);
+    
 
     // Call modal message pump and wait for it to end.
     MSG msg{};

@@ -512,6 +512,8 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HWND hFrame1 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME1);
     HWND hFrame2 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME2);
 
+    HDWP hdwp = BeginDeferWindowPos(100);
+
 
     int vmargin = AfxScaleY(6);
     int hmargin = AfxScaleX(10);
@@ -536,12 +538,12 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     int nCtlWidth = AfxScaleY(90);
 
     nWidth = AfxScaleX(150);
-    SetWindowPos(hTemplates, 0, nLeft, nTop, nWidth, nHeight,
+    hdwp = DeferWindowPos(hdwp, hTemplates, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = VScrollBarWidth;
-    SetWindowPos(hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     nStartLeft = nLeft + nWidth + AfxScaleX(20) + hmargin;
@@ -550,23 +552,23 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nTop = (vmargin * 6);
     nWidth = AfxScaleX(100);
     nHeight = nCtlHeight;
-    SetWindowPos(hTransDate, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hTransDate, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth + (hmargin * 2);
     nWidth = AfxScaleX(75);
     nHeight = nCtlHeight;
-    SetWindowPos(txtTicker, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtTicker, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth + hmargin;
     nWidth = AfxScaleX(235);
     nHeight = nCtlHeight;
-    SetWindowPos(txtCompany, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtCompany, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nStartLeft + AfxScaleX(100) + (hmargin * 2);
     nTop = nTop + nHeight + vmargin;
     nWidth = AfxScaleX(320);
     nHeight = nCtlHeight;
-    SetWindowPos(txtDescription, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtDescription, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
 
@@ -583,14 +585,14 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nTop = nStartTop;
     nWidth = AfxScaleX(TRADEDIALOG_TRADETABLE_WIDTH);
     nHeight = nCtlHeight + (vsp * 2);
-    SetWindowPos(hFrame1, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hFrame1, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Table Header row (non-sizable)
     nLeft = nStartLeft + hsp;
     nTop = nStartTop + vsp;
     nWidth = AfxScaleX(546); 
     nHeight = nCtlHeight;
-    SetWindowPos(hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // 10 rows of the Trade Management table controls
     nLeft = nStartLeft;
@@ -598,21 +600,22 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
 
+
     for (int i = 0; i < 10; i++) {
         for (int ii = 0; ii < 6; ii++) {
-            SetWindowPos(lCtrls.at(i).cols[ii], 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+           hdwp = DeferWindowPos(hdwp, lCtrls.at(i).cols[ii], 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
             nLeft += nWidth + hsp;
         }
         nLeft = nStartLeft;
         nTop = nTop + nHeight + vsp;
     }
 
-    // Frame2 (bottome of the table)
+    // Frame2 (bottom of the table)
     nLeft = nStartLeft;
     nTop = nTop + vsp;
     nWidth = AfxScaleX(TRADEDIALOG_TRADETABLE_WIDTH);
     nHeight = AfxScaleY(1);
-    SetWindowPos(hFrame2, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hFrame2, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     nStartTop = nTop + nHeight + (vmargin * 4);
@@ -623,45 +626,46 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nStartLeft = nLeft;
 
     nTop = nStartTop + AfxScaleY(4);
-    SetWindowPos(lblQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, lblQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
-    SetWindowPos(lblPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, lblPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
-    SetWindowPos(lblFees, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, lblFees, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
-    SetWindowPos(lblTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, lblTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     nLeft = nStartLeft + nWidth;
     nTop = nStartTop;
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
-    SetWindowPos(txtQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
-    SetWindowPos(txtPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
-    SetWindowPos(txtFees, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtFees, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
-    SetWindowPos(txtTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, txtTotal, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth + hsp;
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
-    SetWindowPos(comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
- 
+    EndDeferWindowPos(hdwp);
+
     VScrollBar_Recalculate(hVScrollBar);
 }
 
@@ -720,6 +724,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // Create the Trade Management table controls 
+    lCtrls.clear();
     lCtrls.reserve(10);
 
     for (int i = 0; i < 10; i++) {
@@ -729,33 +734,35 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         //hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"", 0, 0, 0, 0,
         //    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0, NULL,
         //    (SUBCLASSPROC)TradeDialog_ComboBox_SubclassProc, NULL, NULL);
-        hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+        hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEACTION + i);
         ComboBox_AddString(hCtl, L"BTO");
         ComboBox_AddString(hCtl, L"STO");
         ComboBox_AddString(hCtl, L"BTC");
         ComboBox_AddString(hCtl, L"STC");
 
         // QUANTITY
-        lc.cols[1] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"", 0, 0, 0, 0,
+        lc.cols[1] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLEQUANTITY + i, 
+            L"", 0, 0, 0, 0,
             WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
             (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
 
         // STRIKE PRICE
-        lc.cols[2] = TradeDialog.AddControl(Controls::TextBox, hwnd, -1, L"", 0, 0, 0, 0,
+        lc.cols[2] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + i , 
+            L"", 0, 0, 0, 0,
             WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
             (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
 
         // EXPIRY DATE
-        lc.cols[3] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, -1);
+        lc.cols[3] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i);
 
 
         // PUT/CALL
-        hCtl = lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1);
+        hCtl = lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEPUTCALL + i);
         ComboBox_AddString(hCtl, L"PUT");
         ComboBox_AddString(hCtl, L"CALL");
 
         // DTE
-        lc.cols[5] = TradeDialog.AddControl(Controls::Label, hwnd, -1, L"0d", 0, 0, 0, 0,
+        lc.cols[5] = TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_TABLEDTE + i, L"0d", 0, 0, 0, 0,
             WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE | WS_GROUP | SS_NOTIFY, 0);
 
         lCtrls.push_back(lc);
