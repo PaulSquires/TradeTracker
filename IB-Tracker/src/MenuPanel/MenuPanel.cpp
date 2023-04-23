@@ -286,14 +286,13 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // Add any Trade Templates that have their MENU property set to True.
-    int ctrlId = IDC_MENUPANEL_NEWFUTURESTRADE;
+    int ctrlId = IDC_MENUPANEL_FIRSTTEMPLATE;
 
     for (auto& t : TradeTemplates)
     {
         if (!t.menu) continue;
 
         ctrlId++;
-        t.ctrlId = ctrlId;
 
         nTop = nTop + nItemHeight;
         hCtl = CreateSuperLabel(
@@ -302,6 +301,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             0, nTop, MENUPANEL_WIDTH, nItemHeight);
         pData = SuperLabel_GetOptions(hCtl);
         if (pData) {
+            pData->pTradeTemplate = &t;
             pData->HotTestEnable = true;
             pData->AllowSelect = true;
             pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
@@ -494,7 +494,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
 {
     HWND hCtrl = NULL;
-    for (int i = IDC_MENUPANEL_ACTIVETRADES; i <= IDC_MENUPANEL_RECONCILE; i++) {
+    for (int i = IDC_MENUPANEL_FIRSTITEM; i <= IDC_MENUPANEL_LASTITEM; i++) {
         hCtrl = GetDlgItem(hParent, i);
         SuperLabel_Select(hCtrl, false);
     }
@@ -510,7 +510,7 @@ void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
 int MenuPanel_GetActiveMenuItem(HWND hParent)
 {
     HWND hCtrl = NULL;
-    for (int ctrlId = IDC_MENUPANEL_ACTIVETRADES; ctrlId <= IDC_MENUPANEL_RECONCILE; ctrlId++)
+    for (int ctrlId = IDC_MENUPANEL_FIRSTITEM; ctrlId <= IDC_MENUPANEL_LASTITEM; ctrlId++)
     {
         hCtrl = GetDlgItem(hParent, ctrlId);
         SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
@@ -597,11 +597,10 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
 
             // Deal with any Trade Templates in the menu
-            if (CtrlId >= IDC_MENUPANEL_NEWOPTIONSTRADE && CtrlId < IDC_MENUPANEL_TICKERTOTALS)
+            if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
             {
-                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show();
-                break;
+                TradeDialog_Show(pData->pTradeTemplate);
+                return 0;
             }
 
 

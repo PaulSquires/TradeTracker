@@ -14,7 +14,6 @@ class CTradeTemplate
 		std::wstring name;
 		std::vector<CTradeTemplateLeg> legs;
 		bool menu = false;
-		int ctrlId = 0;
 };
 
 

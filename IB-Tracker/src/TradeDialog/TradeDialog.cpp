@@ -89,6 +89,14 @@ HBRUSH TradeDialog_OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 // ========================================================================================
 HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
+    // If this is the Total TextBox then display text as Red/Green 
+    // depending on the status of the Debit/Credit combobox.
+    if (hwndChild == GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)) {
+        std::wstring wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
+        if (wszText == L"DEBIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valueNegative));
+        if (wszText == L"CREDIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valuePositive));
+    }
+
     SetBkColor(hdc, GetSysColor(COLOR_WINDOW));
     return GetSysColorBrush(COLOR_WINDOW);
 }
@@ -102,6 +110,28 @@ HBRUSH TradeDialog_OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int type
     SetBkColor(hdc, GetSysColor(COLOR_WINDOW));
     return GetSysColorBrush(COLOR_WINDOW);
 }
+
+
+
+// ========================================================================================
+// Process WM_NOTIFY message for window/dialog: TradeDialog
+// ========================================================================================
+LRESULT TradeDialog_OnNotify(HWND hwnd, int id, LPNMHDR lpNMHDR)
+{
+    switch (lpNMHDR->code)
+    {
+    case (DTN_DATETIMECHANGE):
+        if (lpNMHDR->idFrom == IDC_TRADEDIALOG_TRANSDATE ||
+            (lpNMHDR->idFrom >= IDC_TRADEDIALOG_TABLEEXPIRY && lpNMHDR->idFrom <= IDC_TRADEDIALOG_TABLEEXPIRY + 10)) {
+            CalculateTradeDTE(hwnd);
+            return 0;
+        }
+        break;
+    }
+
+    return 0;
+}
+
 
 
 // ========================================================================================
@@ -126,7 +156,18 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
     case (IDC_TRADEDIALOG_COMBODRCR):
         if (codeNotify == CBN_SELCHANGE) {
-            CalculateTradeTotal();
+            CalculateTradeTotal(hwnd);
+        }
+        break;
+
+    case (IDC_TRADEDIALOG_TEMPLATES):
+        if (codeNotify == LBN_SELCHANGE) {
+            int nCurSel = ListBox_GetCurSel(hwndCtl);
+            if (nCurSel == -1) break;
+            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
+            if (ld != nullptr) {
+                LoadTemplateInTradeTable(hwnd, ld->pTradeTemplate);
+            }
         }
         break;
 
@@ -144,6 +185,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CREATE, TradeDialog_OnCreate);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradeDialog_OnSize);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TradeDialog_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_NOTIFY, TradeDialog_OnNotify);
         HANDLE_MSG(m_hwnd, WM_DESTROY, TradeDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, TradeDialog_OnClose);
         HANDLE_MSG(m_hwnd, WM_CTLCOLORBTN, TradeDialog_OnCtlColorBtn);
@@ -160,7 +202,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
-void TradeDialog_Show()
+void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
 {
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, 800, 600,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -173,6 +215,11 @@ void TradeDialog_Show()
 
     EnableWindow(HWND_MAINWINDOW, FALSE);
     
+    // Show any selected Trade Template that might be coming from a selected menu
+    // item from the main application's navigation MenuPanel menu.
+    LoadTemplateInTradeTable(hwnd, pTradeTemplate);
+
+
     ShowWindow(hwnd, SW_SHOWNORMAL);
     
     // Need to force a resize of the TradeDialog in order to properly show (or not show) 

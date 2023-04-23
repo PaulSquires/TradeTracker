@@ -810,8 +810,9 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
     REAL font8 = 8;
     REAL font9 = 9;
 
-    for (const auto& t : TradeTemplates) {
+    for (auto& t : TradeTemplates) {
         ld = new ListBoxData;
+        ld->pTradeTemplate = &t;
         ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
             ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font9, FontStyleRegular);
         ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,

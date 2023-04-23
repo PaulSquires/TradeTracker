@@ -2,6 +2,7 @@
 
 #include "..\Themes\Themes.h"
 #include "..\Database\trade.h"
+#include "..\Templates\Templates.h"
 
 
 // ListBox data structure that will be directly accessed for each row 
@@ -29,6 +30,7 @@ public:
     std::wstring    DailyTotalsDate;
     TickerId        tickerId = -1;
     Trade*          trade = nullptr;
+    CTradeTemplate* pTradeTemplate = nullptr;
     ColumnData      col[10];
 
 

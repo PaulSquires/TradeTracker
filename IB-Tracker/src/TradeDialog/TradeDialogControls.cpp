@@ -6,8 +6,8 @@
 #include "..\SuperLabel\SuperLabel.h"
 
 #include <uxtheme.h>
-#include <vssym32.h>
-#include <vsstyle.h>
+//#include <vssym32.h>
+//#include <vsstyle.h>
 
 
 
@@ -51,20 +51,112 @@ void FormatNumberFourDecimals(HWND hCtl)
 // ========================================================================================
 // Helper function to calculate and update the Total TextBox
 // ========================================================================================
-void CalculateTradeTotal()
+void CalculateTradeTotal(HWND hwnd)
 {
-    HWND hWnd = TradeDialog.WindowHandle();
     double total = 0;
-    double quantity = stod(AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-    double price = stod(AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTPRICE)));
-    double fees = stod(AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTFEES)));
+    double quantity = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+    double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
+    double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
-    std::wstring DRCR = AfxGetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_COMBODRCR));
+    std::wstring DRCR = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     if (DRCR == L"CREDIT") fees = fees * -1;
 
     total = (quantity * 100 * price) + fees;
-    AfxSetWindowText(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(total));
-    FormatNumberFourDecimals(GetDlgItem(hWnd, IDC_TRADEDIALOG_TXTTOTAL));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(total));
+    FormatNumberFourDecimals(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL));
+}
+
+
+// ========================================================================================
+// Calculate Days To Expiration (DTE) and display it in the table
+// ========================================================================================
+void CalculateTradeDTE(HWND hwnd)
+{
+    std::wstring transDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
+
+    for (int i = 0; i < 10; ++i) {
+        std::wstring expiryDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i));
+        int days = AfxDaysBetween(transDate, expiryDate);
+        AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEDTE + i), std::to_wstring(days) + L"d");
+    }
+}
+
+
+// ========================================================================================
+// Reset all entries in the Trade Management table
+// ========================================================================================
+void ResetTradeTableControls(HWND hwnd)
+{
+    //AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), L"");
+    //AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), L"");
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), L"");
+
+    // Trade Management Table entries
+    for (int i = 0; i < 10; i++) {
+        LineCtrl lc = lCtrls.at(i);
+        ComboBox_SetCurSel(lc.cols[0], -1);  // action
+        AfxSetWindowText(lc.cols[1], L"");   // quantity
+        AfxSetWindowText(lc.cols[2], L"");   // strike price
+        AfxSetWindowText(lc.cols[3], L"");   // expiry date
+        ComboBox_SetCurSel(lc.cols[4], -1);  // put/call
+        AfxSetWindowText(lc.cols[5], L"");   // DTE
+    }
+
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), L"0.0000");
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE), L"0.0000");
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), L"0.0000");
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), L"0.0000");
+
+    ComboBox_SetCurSel(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), 0);
+    CalculateTradeDTE(hwnd);
+}
+
+
+// ========================================================================================
+// Load the data for the selected Trade Template into the Trade Management table
+// ========================================================================================
+void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate)
+{
+    if (pTradeTemplate == nullptr) return;
+
+    ResetTradeTableControls(hwnd);
+
+    // Select the Template in the listbox. The incoming pTradeTemplate could
+    // have been a selection from the MenuPanel menu.
+    HWND hTemplates = GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES);
+    int lbCount = ListBox_GetCount(hTemplates);
+    for (int i = 0; i < lbCount; i++) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hTemplates, i);
+        if (ld != nullptr) {
+            if (ld->pTradeTemplate == pTradeTemplate) {
+                ListBox_SetCurSel(hTemplates, i);
+                break;
+            }
+        }
+    }
+
+    // Update the Trade Management table with the details of the selected template.
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), pTradeTemplate->name);
+
+    int i = 0;
+    for (const auto& leg : pTradeTemplate->legs) {
+        LineCtrl lc = lCtrls.at(i);
+        i++;
+        
+        // action
+        int foundAt = ComboBox_FindStringExact(lc.cols[0], -1, leg.action.c_str());
+        ComboBox_SetCurSel(lc.cols[0], foundAt);
+
+        // quantity
+        AfxSetWindowText(lc.cols[1], leg.quantity.c_str());   
+        
+        // put/call
+        foundAt = ComboBox_FindStringExact(lc.cols[4], -1, leg.PutCall.c_str());
+        ComboBox_SetCurSel(lc.cols[4], foundAt);
+    }
+
+    // Set keyboard focus to the Transaction date control
+    SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
 }
 
 
@@ -175,7 +267,8 @@ LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Generic Control subclass Window procedure to deal filtering only numeric input.
+// Generic Control subclass Window procedure to deal TextBoxes filtering numeric input
+// and handling KILLFOCUS validation.
 // ========================================================================================
 LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
@@ -186,6 +279,12 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
 
     case WM_CHAR:
     {
+        // Allow any character for these TextBoxes
+        if (uIdSubclass == IDC_TRADEDIALOG_TXTTICKER) break;
+        if (uIdSubclass == IDC_TRADEDIALOG_TXTCOMPANY) break;
+        if (uIdSubclass == IDC_TRADEDIALOG_TXTDESCRIPTION) break;
+
+
         // wParam is the character code
 
         // Allow 0 to 9
@@ -247,6 +346,28 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
     }
 
 
+    case WM_KEYDOWN:
+    {
+        // Handle up/down arrowns for the Quantity and Allow any character for these TextBoxes
+        int i = 0;
+        if (wParam == VK_UP) i = -1;
+        if (wParam == VK_DOWN) i = 1;
+
+        if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + 10) {
+            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
+            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + 9) i = 0;
+            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+        }
+            
+        if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE && uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + 10) {
+            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
+            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + 9) i = 0;
+            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+        }
+    }
+    break;
+
+
     case WM_KILLFOCUS:
         // We will use special 4 decimal place formatting on the following TextBoxes
         switch (uIdSubclass)
@@ -255,10 +376,34 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
         case IDC_TRADEDIALOG_TXTPRICE:
         case IDC_TRADEDIALOG_TXTFEES:
             FormatNumberFourDecimals(hWnd);
-            CalculateTradeTotal();
+            CalculateTradeTotal(GetParent(hWnd));
+            break;
+
+        case IDC_TRADEDIALOG_TXTTICKER:
+            // If the Company Name textbox is empty then attempt to lookup the specified
+            // Ticker and fill in the corresponding Company Name.
+            std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY));
+            if (wszCompanyName.length() != 0) break;
+
+            std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTTICKER));
+
+            auto iter = std::find_if(trades.begin(), trades.end(),
+                [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
+
+            if (iter != trades.end()) {
+                auto index = std::distance(trades.begin(), iter);
+                AfxSetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
+            }
+            break;
+
         }
         break;
 
+
+    case WM_SETFOCUS:
+        // Highlight the text in the TextBox as it gains focus
+        Edit_SetSel(hWnd, 0, -1);
+        break;
 
 
     case WM_DESTROY:
@@ -702,14 +847,23 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE);
     DateTime_SetFormat(hCtl, L"yyyy-MM-dd");
 
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTICKER);
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTICKER,
+        L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTICKER, NULL);
     Edit_SetCueBannerText(hCtl, L"Ticker");
 
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTCOMPANY);
-    Edit_SetCueBannerText(hCtl, L"Company Name");
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTCOMPANY,
+        L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTCOMPANY, NULL);
+        Edit_SetCueBannerText(hCtl, L"Company Name");
 
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION);
-    Edit_SetCueBannerText(hCtl, L"Description");
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION,
+        L"", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTDESCRIPTION, NULL);
+        Edit_SetCueBannerText(hCtl, L"Description");
 
 
     TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME1);
@@ -738,22 +892,22 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         //    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0, NULL,
         //    (SUBCLASSPROC)TradeDialog_ComboBox_SubclassProc, NULL, NULL);
         hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEACTION + i);
-        ComboBox_AddString(hCtl, L"BTO");
         ComboBox_AddString(hCtl, L"STO");
         ComboBox_AddString(hCtl, L"BTC");
+        ComboBox_AddString(hCtl, L"BTO");
         ComboBox_AddString(hCtl, L"STC");
 
         // QUANTITY
         lc.cols[1] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLEQUANTITY + i, 
             L"", 0, 0, 0, 0,
             WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLEQUANTITY + i, NULL);
 
         // STRIKE PRICE
         lc.cols[2] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + i , 
             L"", 0, 0, 0, 0,
             WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, NULL, NULL);
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLESTRIKE + i, NULL);
 
         // EXPIRY DATE
         lc.cols[3] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i);
@@ -791,8 +945,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTFEES, NULL);
     FormatNumberFourDecimals(hCtl);
 
+    // Can not set the Totals as readonly because if we do then we won't be able to get the
+    // OnCtlColorEdit message to color the text red/green.
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL, L"", 0, 0, 0, 0,
-        WS_VISIBLE | ES_READONLY | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTOTAL, NULL);
     FormatNumberFourDecimals(hCtl);
 

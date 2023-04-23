@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\Utilities\CWindowBase.h"
+#include "..\Templates\Templates.h"
 
 
 class CTradeDialog : public CWindowBase<CTradeDialog>
@@ -45,6 +46,8 @@ const int TRADEDIALOG_TEMPLATES_ROWHEIGHT  = 22;
 const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 22;
 const int TRADEDIALOG_TRADETABLE_WIDTH     = 550;
 
-void TradeDialog_Show();
+void TradeDialog_Show(CTradeTemplate* pTradeTemplate = nullptr);
 void FormatNumberFourDecimals(HWND hCtl);
-void CalculateTradeTotal();
+void CalculateTradeTotal(HWND hwnd);
+void CalculateTradeDTE(HWND hwnd);
+void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate);

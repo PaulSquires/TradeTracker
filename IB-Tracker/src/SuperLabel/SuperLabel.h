@@ -3,6 +3,8 @@
 #include "..\Themes\Themes.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\Utilities\UserMessages.h"
+#include "..\Templates\Templates.h"
+
 
 #define IDB_GEAR                        103
 #define IDB_GEARHOT                     104
@@ -54,6 +56,8 @@ public:
 	HINSTANCE hInst = NULL;
 	HWND hToolTip = NULL;
 	std::wstring wszToolTip;
+
+	CTradeTemplate* pTradeTemplate = nullptr;
 
 	int CtrlId = 0;
 	SuperLabelType CtrlType = SuperLabelType::TextOnly;

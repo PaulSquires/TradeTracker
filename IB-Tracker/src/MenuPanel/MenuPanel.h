@@ -10,24 +10,29 @@ public:
 };
 
 
-const int IDC_MENUPANEL_LOGO            = 101;
-const int IDC_MENUPANEL_GEARICON        = 102;
-const int IDC_MENUPANEL_TRADERNAME      = 103;
-const int IDC_MENUPANEL_APPNAME         = 104;
-const int IDC_MENUPANEL_ACTIVETRADES    = 105;
-const int IDC_MENUPANEL_CLOSEDTRADES    = 106;
-const int IDC_MENUPANEL_NEWOPTIONSTRADE = 107;
-const int IDC_MENUPANEL_NEWSHARESTRADE  = 108;
-const int IDC_MENUPANEL_NEWFUTURESTRADE = 109;
+const int IDC_MENUPANEL_FIRSTITEM       = 100;
+const int IDC_MENUPANEL_LOGO            = IDC_MENUPANEL_FIRSTITEM;
+const int IDC_MENUPANEL_GEARICON        = 101;
+const int IDC_MENUPANEL_TRADERNAME      = 102;
+const int IDC_MENUPANEL_APPNAME         = 103;
+const int IDC_MENUPANEL_ACTIVETRADES    = 104;
+const int IDC_MENUPANEL_CLOSEDTRADES    = 105;
+const int IDC_MENUPANEL_TICKERTOTALS    = 106;
+const int IDC_MENUPANEL_DAILYTOTALS     = 107;
+const int IDC_MENUPANEL_RECONCILE       = 108;
+const int IDC_MENUPANEL_ACCOUNTING      = 109;
+const int IDC_MENUPANEL_NEWSHARESTRADE  = 110;
+const int IDC_MENUPANEL_NEWFUTURESTRADE = 111;
+const int IDC_MENUPANEL_NEWOPTIONSTRADE = 112;
 
-// Constants between NEWTRADE and TICKERTOTALS are generated
-// automatically when the MenuPanel is being constructed and 
-// identified trade template items are being added.
+const int IDC_MENUPANEL_FIRSTTEMPLATE = IDC_MENUPANEL_NEWOPTIONSTRADE;
+// Constants between NEWOPTIONSTRADE and TICKERTOTALS 
+// are generatedautomatically when the MenuPanel is 
+// being constructed and identified trade template 
+// items are being added.
+const int IDC_MENUPANEL_LASTTEMPLATE = IDC_MENUPANEL_FIRSTTEMPLATE + 20;
 
-const int IDC_MENUPANEL_TICKERTOTALS   = 200;
-const int IDC_MENUPANEL_DAILYTOTALS    = 201;
-const int IDC_MENUPANEL_RECONCILE      = 202;
-const int IDC_MENUPANEL_ACCOUNTING     = 203;
+const int IDC_MENUPANEL_LASTITEM = IDC_MENUPANEL_LASTTEMPLATE;
 
 const int MENUPANEL_WIDTH = 180;
 

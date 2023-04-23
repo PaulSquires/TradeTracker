@@ -243,9 +243,10 @@ void SuperLabel_Select(HWND hCtrl, bool IsSelected)
 {
     SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
+        bool redraw = pData->IsSelected != IsSelected ? true : false;
         pData->IsSelected = IsSelected;
         SuperLabel_SetOptions(hCtrl, pData);
-        AfxRedrawWindow(hCtrl);
+        if (redraw) AfxRedrawWindow(hCtrl);
     }
 }
 
