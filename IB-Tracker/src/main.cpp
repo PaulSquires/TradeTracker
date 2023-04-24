@@ -145,6 +145,12 @@ int APIENTRY wWinMain(
     SetThemeMainWindow(hWndMain);
 
 
+    // If we are using a dark theme then attempt to apply the standard Windows dark theme
+    // to the non-client areas of the main form.
+    BOOL value = GetIsThemeDark();
+    ::DwmSetWindowAttribute(hWndMain, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
+
     // Set the large and small application icons that will represent the application
     // in various area of Windows such as the title bar, task bar, and shortcuts.
     HANDLE hIconBig = LoadImage(Main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);

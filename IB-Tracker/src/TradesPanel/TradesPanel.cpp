@@ -565,72 +565,6 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
 
 // ========================================================================================
-// Process NM_CUSTOMDRAW (WM_NOTIFY) message for window/dialog: TradesPanel
-// ========================================================================================
-LRESULT TradesPanel_OnCustomDraw(HWND hwnd, int id, LPNMCUSTOMDRAW lpNMCD)
-{
-    LRESULT result = 0;
-
-    if (id == IDC_TRADES_HEADER) {
-        // First, the service tells us that it is about to paint the header (CDDS_PREPAINT). We reply 
-        // saying that we want to be notified for the painting of each item (CDRF_NOTIFYITEMDRAW).
-        // Next, the service tells us that it is about to paint an item (CDDS_ITEMPREPAINT). We change 
-        // the appropriate colors on the DC and reply saying that we did so (CDRF_NEWFONT). Note that we 
-        // could even have changed the font, specifying a different one per item.For all the other states 
-        // we don’t care about, we tell the service to do the default painting (CDRF_DODEFAULT).
-
-        DWORD dwDrawStage = lpNMCD->dwDrawStage;
-
-        if (dwDrawStage == CDDS_PREPAINT) {
-            std::cout << "CDDS_PREPAINT" << std::endl;
-
-            int nWidth = (lpNMCD->rc.right - lpNMCD->rc.left);
-            int nHeight = (lpNMCD->rc.bottom - lpNMCD->rc.top);
-
-            Graphics graphics(lpNMCD->hdc);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::ListHeaderBack));
-            graphics.FillRectangle(&backBrush, lpNMCD->rc.left, lpNMCD->rc.top, nWidth, nHeight);
-
-            return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYPOSTPAINT;
-
-        } 
-        else if (dwDrawStage == CDDS_ITEMPREPAINT) {
-            HDC hDC = lpNMCD->hdc;
-            std::cout << "CDDS_ITEMPREPAINT" << std::endl;
-
-            SetTextColor(hDC, GetThemeCOLORREF(ThemeElement::ListHeaderText));
-            SetBkColor(hDC, GetThemeCOLORREF(ThemeElement::ListHeaderBack));
-
-            return CDRF_NEWFONT;
-
-        }
-        else if (dwDrawStage == CDDS_POSTPAINT) {
-            std::cout << "CDDS_POSTPAINT" << std::endl;
-            return CDRF_SKIPDEFAULT;
-        }
-    }
-
-    return 0;
-}
-
-
-// ========================================================================================
-// Process WM_NOTIFY message for window/dialog: TradesPanel
-// ========================================================================================
-LRESULT TradesPanel_OnNotify(HWND hwnd, int id, LPNMHDR pNMHDR)
-{
-
-    switch (pNMHDR->code)
-    {
-    case NM_CUSTOMDRAW:
-        return TradesPanel_OnCustomDraw(hwnd, pNMHDR->idFrom, (LPNMCUSTOMDRAW) pNMHDR);
-    }
-
-    return 0;
-}
-
-
-// ========================================================================================
 // Process WM_CONTEXTMENU message for window/dialog: TradesPanel
 // ========================================================================================
 void TradesPanel_OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
@@ -656,10 +590,9 @@ LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CONTEXTMENU, TradesPanel_OnContextMenu);
         HANDLE_MSG(m_hwnd, WM_CREATE, TradesPanel_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesPanel_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradesPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradesPanel_OnSize);
-       // HANDLE_MSG(m_hwnd, WM_NOTIFY, TradesPanel_OnNotify);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradesPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

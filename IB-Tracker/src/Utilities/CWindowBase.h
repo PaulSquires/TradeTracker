@@ -136,9 +136,6 @@ public:
             (nHeight == CW_USEDEFAULT) ? CW_USEDEFAULT : (int)(nHeight * m_ry),
             hWndParent, NULL, m_hInstance, (HANDLE)this);
 
-        BOOL value = GetIsThemeDark();
-        ::DwmSetWindowAttribute(m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-
         // Set the font
         if (m_hFont) SendMessage(m_hwnd, WM_SETFONT, (WPARAM)m_hFont, false);
 

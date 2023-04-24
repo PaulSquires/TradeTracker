@@ -112,6 +112,40 @@ HBRUSH TradeDialog_OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int type
 }
 
 
+// ========================================================================================
+// Process WM_ERASEBKGND message for window/dialog: TradeDialog
+// ========================================================================================
+BOOL TradesDialog_OnEraseBkgnd(HWND hwnd, HDC hdc)
+{
+    // Handle all of the painting in WM_PAINT
+    return TRUE;
+}
+
+
+// ========================================================================================
+// Process WM_PAINT message for window/dialog: TradeDialog
+// ========================================================================================
+void TradesDialog_OnPaint(HWND hwnd)
+{
+    PAINTSTRUCT ps;
+
+    HDC hdc = BeginPaint(hwnd, &ps);
+
+    Graphics graphics(hdc);
+
+    DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+
+    // Create the background brush
+    SolidBrush backBrush(nBackColor);
+
+    // Paint the background using brush.
+    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+    EndPaint(hwnd, &ps);
+}
+
 
 // ========================================================================================
 // Process WM_NOTIFY message for window/dialog: TradeDialog
@@ -192,6 +226,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CTLCOLOREDIT, TradeDialog_OnCtlColorEdit);
         HANDLE_MSG(m_hwnd, WM_CTLCOLORSTATIC, TradeDialog_OnCtlColorStatic);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeDialog_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesDialog_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
