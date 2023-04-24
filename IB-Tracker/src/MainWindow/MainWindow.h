@@ -9,6 +9,12 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
+class CMainWindowShadow : public CWindowBase<CMainWindowShadow>
+{
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+};
+
 #define IDI_MAINICON           106
 
-void MainWindow_ShowPanels(int state);
+void MainWindow_BlurPanels(bool active);

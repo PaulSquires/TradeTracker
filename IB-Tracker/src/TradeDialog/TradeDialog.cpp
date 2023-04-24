@@ -35,7 +35,7 @@ void TradeDialog_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 void TradeDialog_OnClose(HWND hwnd)
 {
-    MainWindow_ShowPanels(SW_SHOW);
+    MainWindow_BlurPanels(false);
     EnableWindow(HWND_MAINWINDOW, TRUE);
     DestroyWindow(hwnd);
 }
@@ -257,11 +257,11 @@ void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
     LoadTemplateInTradeTable(hwnd, pTradeTemplate);
 
 
-    // Hide the underlying MainWindow panels in order to reduce "visual noise" while
+    // Blur the underlying MainWindow panels in order to reduce "visual noise" while
     // our Trade Management popup is active. The MainWindow panels are shown again
     // during our call to TradeDialog_OnClose() prior to enabling the MainWindow
     // and this popup closing.
-    MainWindow_ShowPanels(SW_HIDE);
+    MainWindow_BlurPanels(true);
 
 
     ShowWindow(hwnd, SW_SHOWNORMAL);

@@ -15,9 +15,10 @@
 
 HWND HWND_MAINWINDOW = NULL;
 
-CMenuPanel      MenuPanel;
-CHistoryPanel   HistoryPanel;
-CTradesPanel    TradesPanel;
+CMainWindowShadow Shadow;
+CMenuPanel        MenuPanel;
+CHistoryPanel     HistoryPanel;
+CTradesPanel      TradesPanel;
 
 
 extern void TradesPanel_ShowActiveTrades();
@@ -29,17 +30,40 @@ POINT prev_pt{};            // for tracking current splitter drag
 
 
 // ========================================================================================
-// Show/Hide panels that exist on the MainWindow. This function is called prior and after
+// Blur the MainWindow panels. This function is called prior and after
 // a popup dialog is shown in order to reduce the underlying "visual noise" for that 
 // popup window. For example, the Trade Management popup is easier to use and enter data
 // into if the user is not distracted by the MainWindow menu panel, trades and history
 // data displaying behind the popup.
 // ========================================================================================
-void MainWindow_ShowPanels(int state)
+void MainWindow_BlurPanels(bool active)
 {
-    ShowWindow(MenuPanel.WindowHandle(), state);
-    ShowWindow(TradesPanel.WindowHandle(), state);
-    ShowWindow(HistoryPanel.WindowHandle(), state);
+    if (active) {
+        RECT rc;       GetWindowRect(HWND_MAINWINDOW, &rc);
+        RECT rcClient; GetClientRect(HWND_MAINWINDOW, &rcClient);
+        
+        int border_thickness = ((rc.right - rc.left) - rcClient.right) / 2;
+        InflateRect(&rc, -border_thickness, -border_thickness);
+
+        HWND hWndShadow = 
+            Shadow.Create(HWND_MAINWINDOW, L"", 0, 0, 0, 0, 
+                WS_POPUP | WS_DISABLED | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_LAYERED | WS_EX_NOACTIVATE);
+        
+        HBRUSH hbrBackground = GetSysColorBrush(COLOR_WINDOWTEXT);
+        SetClassLongPtr(hWndShadow, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
+
+        // Make this window 50% alpha
+        SetLayeredWindowAttributes(hWndShadow, 0, (255 * 50) / 100, LWA_ALPHA);
+
+        SetWindowPos(hWndShadow, 0, 
+            rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 
+            SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        
+    }
+    else {
+        DestroyWindow(Shadow.WindowHandle());
+    }
+
 }
 
 
@@ -309,7 +333,7 @@ BOOL MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT m
 
 
 // ========================================================================================
-// Windows callback function.
+// Windows callback function (MainWindow).
 // ========================================================================================
 LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -334,4 +358,12 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
+
+// ========================================================================================
+// Windows callback function (MainWindowShadow).
+// ========================================================================================
+LRESULT CMainWindowShadow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
+}
 
