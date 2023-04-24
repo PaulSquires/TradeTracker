@@ -91,7 +91,7 @@ HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
     // If this is the Total TextBox then display text as Red/Green 
     // depending on the status of the Debit/Credit combobox.
-    if (hwndChild == GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)) {
+    if (GetDlgCtrlID(hwndChild) == IDC_TRADEDIALOG_TXTTOTAL) {
         std::wstring wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
         if (wszText == L"DEBIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valueNegative));
         if (wszText == L"CREDIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valuePositive));

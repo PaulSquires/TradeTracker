@@ -83,12 +83,10 @@ void CalculateTradeDTE(HWND hwnd)
 
 
 // ========================================================================================
-// Reset all entries in the Trade Management table
+// Reset all entries in the Trade Management table (except Ticker & Company Name)
 // ========================================================================================
 void ResetTradeTableControls(HWND hwnd)
 {
-    //AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), L"");
-    //AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), L"");
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), L"");
 
     // Trade Management Table entries
@@ -96,8 +94,8 @@ void ResetTradeTableControls(HWND hwnd)
         LineCtrl lc = lCtrls.at(i);
         ComboBox_SetCurSel(lc.cols[0], -1);  // action
         AfxSetWindowText(lc.cols[1], L"");   // quantity
-        AfxSetWindowText(lc.cols[2], L"");   // strike price
-        AfxSetWindowText(lc.cols[3], L"");   // expiry date
+        AfxSetWindowText(lc.cols[2], L"");   // expiry date
+        AfxSetWindowText(lc.cols[3], L"");   // strike price
         ComboBox_SetCurSel(lc.cols[4], -1);  // put/call
         AfxSetWindowText(lc.cols[5], L"");   // DTE
     }
@@ -874,8 +872,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int nWidth = AfxScaleX(91);
     Header_InsertNewItem(hCtl, 0, nWidth, L"Action", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Quantity", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Strike Price", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Expiry Date", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Expiry Date", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Strike Price", HDF_CENTER);
     Header_InsertNewItem(hCtl, 4, nWidth, L"Put/Call", HDF_CENTER);
     Header_InsertNewItem(hCtl, 5, nWidth, L"DTE", HDF_CENTER);
 
@@ -888,9 +886,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         LineCtrl lc;
 
         // ACTION
-        //hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, -1L, L"", 0, 0, 0, 0,
-        //    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_NOINTEGRALHEIGHT, 0, NULL,
-        //    (SUBCLASSPROC)TradeDialog_ComboBox_SubclassProc, NULL, NULL);
         hCtl = lc.cols[0] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEACTION + i);
         ComboBox_AddString(hCtl, L"STO");
         ComboBox_AddString(hCtl, L"BTC");
@@ -903,15 +898,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
             (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLEQUANTITY + i, NULL);
 
+        // EXPIRY DATE
+        lc.cols[2] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i);
+
         // STRIKE PRICE
-        lc.cols[2] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + i , 
+        lc.cols[3] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + i,
             L"", 0, 0, 0, 0,
             WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
             (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLESTRIKE + i, NULL);
-
-        // EXPIRY DATE
-        lc.cols[3] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i);
-
 
         // PUT/CALL
         hCtl = lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEPUTCALL + i);
