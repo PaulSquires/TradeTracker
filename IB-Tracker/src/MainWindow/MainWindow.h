@@ -10,3 +10,5 @@ public:
 };
 
 #define IDI_MAINICON           106
+
+void MainWindow_ShowPanels(int state);

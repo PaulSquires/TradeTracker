@@ -29,6 +29,21 @@ POINT prev_pt{};            // for tracking current splitter drag
 
 
 // ========================================================================================
+// Show/Hide panels that exist on the MainWindow. This function is called prior and after
+// a popup dialog is shown in order to reduce the underlying "visual noise" for that 
+// popup window. For example, the Trade Management popup is easier to use and enter data
+// into if the user is not distracted by the MainWindow menu panel, trades and history
+// data displaying behind the popup.
+// ========================================================================================
+void MainWindow_ShowPanels(int state)
+{
+    ShowWindow(MenuPanel.WindowHandle(), state);
+    ShowWindow(TradesPanel.WindowHandle(), state);
+    ShowWindow(HistoryPanel.WindowHandle(), state);
+}
+
+
+// ========================================================================================
 // Automatically show any existing trades on program startup & connect to TWS.
 // ========================================================================================
 void MainWindow_StartupShowTrades()

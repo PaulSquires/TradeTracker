@@ -35,6 +35,7 @@ void TradeDialog_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 void TradeDialog_OnClose(HWND hwnd)
 {
+    MainWindow_ShowPanels(SW_SHOW);
     EnableWindow(HWND_MAINWINDOW, TRUE);
     DestroyWindow(hwnd);
 }
@@ -256,6 +257,13 @@ void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
     LoadTemplateInTradeTable(hwnd, pTradeTemplate);
 
 
+    // Hide the underlying MainWindow panels in order to reduce "visual noise" while
+    // our Trade Management popup is active. The MainWindow panels are shown again
+    // during our call to TradeDialog_OnClose() prior to enabling the MainWindow
+    // and this popup closing.
+    MainWindow_ShowPanels(SW_HIDE);
+
+
     ShowWindow(hwnd, SW_SHOWNORMAL);
     
     // Need to force a resize of the TradeDialog in order to properly show (or not show) 
@@ -278,5 +286,6 @@ void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
         }
     }
 
+//    MainWindow_ShowPanels(SW_SHOW);
 }
 
