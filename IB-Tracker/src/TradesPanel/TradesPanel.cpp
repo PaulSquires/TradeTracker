@@ -266,6 +266,48 @@ LRESULT CALLBACK TradesPanel_Header_SubclassProc(
 
 
 // ========================================================================================
+// Select a line in the Listbox and deselect any other lines that do not match this
+// new line's Trade pointer.
+// ========================================================================================
+void TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
+{
+    // Show the trade history for the selected trade
+    TradesPanel_ShowListBoxItem(idx);
+
+    // Get the trade pointer for the newly selected line.
+    Trade* trade = nullptr;
+    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+    if (ld == nullptr) return;
+
+    trade = ld->trade;
+
+    // Check to see if other lines in the listbox are selected. We will deselect those other
+    // lines if they do not belong to the current trade being selected.
+
+    int nCount = ListBox_GetSelCount(hWnd);
+
+    if (nCount) {
+        int* selItems = new int[nCount]();
+        SendMessage(hWnd, LB_GETSELITEMS, (WPARAM)nCount, (LPARAM)selItems);
+
+        for (int i = 0; i < nCount; i++)
+        {
+            ld = (ListBoxData*)ListBox_GetItemData(hWnd, selItems[i]);
+            if (ld != nullptr) {
+                if (ld->trade != trade) {
+                    ListBox_SetSel(hWnd, false, selItems[i]);
+                }
+            }
+        }
+
+        delete[] selItems;
+    }
+}
+
+
+
+
+// ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
@@ -303,6 +345,47 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         VScrollBar_Recalculate(hVScrollBar);
         break;
     }
+
+
+    case WM_RBUTTONDOWN:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == -1) break;
+        
+        TradesPanel_SelectListBoxItem(hWnd, idx);
+        ListBox_SetSel(hWnd, true, idx);
+        
+        HMENU hMenu = CreatePopupMenu();
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, L"Menu-1");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 2, L"Menu-2");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 3, L"Menu-3");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 4, L"Menu-4");
+
+        POINT pt; GetCursorPos(&pt);
+        int selected = 
+            TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, NULL);
+
+        std::cout << "Menu Selected: " << selected << std::endl;
+
+
+    }
+    break;
+
+
+    case WM_LBUTTONDOWN:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == -1) break;
+        TradesPanel_SelectListBoxItem(hWnd, idx);
+    }
+    break;
 
 
     case WM_ERASEBKGND:
@@ -537,7 +620,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
+            LBS_NOINTEGRALHEIGHT | LBS_MULTIPLESEL | LBS_EXTENDEDSEL | 
             LBS_OWNERDRAWVARIABLE | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_ListBox_SubclassProc,
@@ -553,28 +636,12 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: TradesPanel
-// ========================================================================================
-void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-    if (id == IDC_TRADES_LISTBOX && codeNotify == LBN_SELCHANGE) {
-        int nIndex = ListBox_GetCurSel(hwndCtl);
-        TradesPanel_ShowListBoxItem(nIndex);
-    }
-}
-
-
-// ========================================================================================
 // Process WM_CONTEXTMENU message for window/dialog: TradesPanel
 // ========================================================================================
 void TradesPanel_OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
 {
     if (hwndContext == GetDlgItem(hwnd, IDC_TRADES_LISTBOX)) {
 
-        //std::cout << "rclick popup menu" << " " << std::endl;
-        //m_hMenu = CreatePopupMenu();
-        //InsertMenu(m_hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, "Hello");
-        //TrackPopupMenu(m_hMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
     }
 }
 
@@ -586,7 +653,6 @@ LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_COMMAND, TradesPanel_OnCommand); 
         HANDLE_MSG(m_hwnd, WM_CONTEXTMENU, TradesPanel_OnContextMenu);
         HANDLE_MSG(m_hwnd, WM_CREATE, TradesPanel_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesPanel_OnEraseBkgnd);

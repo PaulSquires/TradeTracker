@@ -45,23 +45,24 @@ void MainWindow_BlurPanels(bool active)
         int border_thickness = ((rc.right - rc.left) - rcClient.right) / 2;
         InflateRect(&rc, -border_thickness, -border_thickness);
 
-        HWND hWndShadow = 
-            Shadow.Create(HWND_MAINWINDOW, L"", 0, 0, 0, 0, 
+        if (Shadow.WindowHandle() == NULL) {
+            Shadow.Create(HWND_MAINWINDOW, L"", 0, 0, 0, 0,
                 WS_POPUP | WS_DISABLED | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_LAYERED | WS_EX_NOACTIVATE);
         
-        HBRUSH hbrBackground = GetSysColorBrush(COLOR_WINDOWTEXT);
-        SetClassLongPtr(hWndShadow, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
+            HBRUSH hbrBackground = GetSysColorBrush(COLOR_WINDOWTEXT);
+            SetClassLongPtr(Shadow.WindowHandle(), GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
 
-        // Make this window 50% alpha
-        SetLayeredWindowAttributes(hWndShadow, 0, (255 * 50) / 100, LWA_ALPHA);
+            // Make this window 50% alpha
+            SetLayeredWindowAttributes(Shadow.WindowHandle(), 0, (255 * 50) / 100, LWA_ALPHA);
+        }
 
-        SetWindowPos(hWndShadow, 0, 
+        SetWindowPos(Shadow.WindowHandle(), 0,
             rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
         
     }
     else {
-        DestroyWindow(Shadow.WindowHandle());
+        ShowWindow(Shadow.WindowHandle(), SW_HIDE);
     }
 
 }
@@ -95,6 +96,11 @@ void MainWindow_OnDestroy(HWND hwnd)
 {
     // Disconnect from IBKR TWS and shut down monitoring thread.
     tws_disconnect();
+
+    // Destroy the popup shadow window should it exist.
+    if (Shadow.WindowHandle()) DestroyWindow(Shadow.WindowHandle());
+
+    // Quit the application
     PostQuitMessage(0);
 }
 
