@@ -283,6 +283,11 @@ void TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
 
     // Check to see if other lines in the listbox are selected. We will deselect those other
     // lines if they do not belong to the current trade being selected.
+    // If the line being clicked on is the main header line for the trade (IsTickerLine)
+    // then we deselected everything else including legs of this same trade. We do this
+    // because there are different popup menu actions applicable to the main header line
+    // and/or the individual trade legs.
+    bool IsTickerLine = ld->isTickerLine;
 
     int nCount = ListBox_GetSelCount(hWnd);
 
@@ -297,6 +302,13 @@ void TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
                 if (ld->trade != trade) {
                     ListBox_SetSel(hWnd, false, selItems[i]);
                 }
+                else {
+                    // If selecting items within the same Trade then do not allow
+                    // mixing selections of the header line and individual legs.
+                    if (IsTickerLine != ld->isTickerLine) {
+                        ListBox_SetSel(hWnd, false, selItems[i]);
+                    }
+                }
             }
         }
 
@@ -305,6 +317,63 @@ void TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
 }
 
 
+// ========================================================================================
+// Handle the right-click popup menu on the ListBox's selected lines.
+// ========================================================================================
+void TradesPanel_RightClickMenu(HWND hWnd, int idx)
+{
+    HMENU hMenu = CreatePopupMenu();
+
+    std::wstring wszText;
+    std::wstring wszPlural;
+    int nCount = ListBox_GetSelCount(hWnd);
+
+    bool IsTickerLine = false;
+
+    if (nCount == 1) {
+        // Is this the Trade header line
+        int nCurSel = ListBox_GetCurSel(hWnd);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, nCurSel);
+        if (ld != nullptr) {
+            if (ld->isTickerLine) IsTickerLine = true;
+        }
+    }
+    else {
+        wszPlural = L"s";
+    }
+
+    if (IsTickerLine) {
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, L"Close Entire Trade");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 2, L"Expire Entire Trade");
+    }
+    else {
+        wszText = L"Roll Leg" + wszPlural;
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 3, wszText.c_str());
+
+        wszText = L"Close Leg" + wszPlural;
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 4, wszText.c_str());
+
+        wszText = L"Expire Leg" + wszPlural;
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 5, wszText.c_str());
+
+        if (nCount == 1) {
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, 6, L"");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 7, L"Shares Assignment");
+        }
+    }
+
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, 8, L"");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 9, L"Add Transaction to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 10, L"Add Put");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 11, L"Add Call");
+
+    POINT pt; GetCursorPos(&pt);
+    int selected =
+        TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, NULL);
+
+    std::cout << "Menu Selected: " << selected << std::endl;
+
+}
 
 
 // ========================================================================================
@@ -358,20 +427,8 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         
         TradesPanel_SelectListBoxItem(hWnd, idx);
         ListBox_SetSel(hWnd, true, idx);
-        
-        HMENU hMenu = CreatePopupMenu();
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, L"Menu-1");
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 2, L"Menu-2");
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 3, L"Menu-3");
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 4, L"Menu-4");
 
-        POINT pt; GetCursorPos(&pt);
-        int selected = 
-            TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, NULL);
-
-        std::cout << "Menu Selected: " << selected << std::endl;
-
-
+        TradesPanel_RightClickMenu(hWnd, idx);
     }
     break;
 
