@@ -398,9 +398,91 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
         break;
 
 
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
+
+
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        Graphics graphics(hdc);
+
+        DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+
+        // Create the background brush
+        SolidBrush backBrush(nBackColor);
+
+        // Paint the background using brush.
+        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+        EndPaint(hWnd, &ps);
+    }
+
+
     case WM_DESTROY:
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, TradeDialog_TextBox_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
+
+// ========================================================================================
+// Generic Control subclass Window procedure to deal Labels coloring
+// ========================================================================================
+LRESULT CALLBACK TradeDialog_Label_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+/*
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
+
+
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        Graphics graphics(hdc);
+
+        DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+
+        // Create the background brush
+        SolidBrush backBrush(nBackColor);
+
+        // Paint the background using brush.
+        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+        graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+        EndPaint(hWnd, &ps);
+    }
+*/
+
+
+    case WM_DESTROY:
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, TradeDialog_Label_SubclassProc, uIdSubclass);
         break;
 
 
@@ -439,7 +521,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HDWP hdwp = BeginDeferWindowPos(100);
 
 
-    int vmargin = AfxScaleY(6);
+    int vmargin = AfxScaleY(10);
     int hmargin = AfxScaleX(10);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
@@ -461,10 +543,10 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     int nCtlHeight = AfxScaleY(TRADEDIALOG_TRADETABLE_ROWHEIGHT);
     int nCtlWidth = AfxScaleY(90);
 
-    nLeft = AfxScaleX(4);
-    nTop = (vmargin * 2);
-    nWidth = AfxScaleX(150);
-    nHeight = cy - (nTop * 2);
+    nLeft = hmargin;
+    nTop = vmargin;
+    nWidth = AfxScaleX(180);
+    nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hTemplates, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -517,7 +599,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     // Table Header row (non-sizable)
     nLeft = nStartLeft + hsp;
     nTop = nStartTop + vsp;
-    nWidth = AfxScaleX(546); 
+    nWidth = AfxScaleX((float)(TRADEDIALOG_TRADETABLE_WIDTH - hsp));
     nHeight = nCtlHeight;
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -700,10 +782,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         lCtrls.push_back(lc);
     }
 
-    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLQUANTITY, L"Quantity");
-    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLPRICE, L"Price");
-    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees");
-    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLTOTAL, L"Total");
+    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLQUANTITY, L"Quantity",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradeDialog_Label_SubclassProc, IDC_TRADEDIALOG_LBLQUANTITY, NULL);
+    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLPRICE, L"Price",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradeDialog_Label_SubclassProc, IDC_TRADEDIALOG_LBLPRICE, NULL);
+    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradeDialog_Label_SubclassProc, IDC_TRADEDIALOG_LBLFEES, NULL);
+    TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_LBLTOTAL, L"Total",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradeDialog_Label_SubclassProc, IDC_TRADEDIALOG_LBLTOTAL, NULL);
 
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY, L"", 0, 0, 0, 0,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,

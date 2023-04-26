@@ -43,8 +43,8 @@ const int IDC_TRADEDIALOG_TABLEDTE       = 240;   // 10 controls
 
 
 const int TRADEDIALOG_TEMPLATES_ROWHEIGHT  = 22;
-const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 22;
-const int TRADEDIALOG_TRADETABLE_WIDTH     = 550;
+const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 20;
+const int TRADEDIALOG_TRADETABLE_WIDTH     = 560;
 
 void TradeDialog_Show(CTradeTemplate* pTradeTemplate = nullptr);
 void FormatNumberFourDecimals(HWND hCtl);

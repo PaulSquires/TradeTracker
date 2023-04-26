@@ -13,6 +13,9 @@ extern HWND HWND_MAINWINDOW;
 
 CTradeDialog TradeDialog;
 
+COLORREF CtrlTextColor = 0;
+COLORREF CtrlTextBack = 0;
+HBRUSH CtrlBackBrush = NULL;
 
 
 
@@ -49,6 +52,8 @@ void TradeDialog_OnDestroy(HWND hwnd)
     // Clear the Trade Templates Linedata held in the ListBox
     ListBoxData_DestroyItemData(GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES));
 
+    DeleteObject(CtrlBackBrush);
+
     PostQuitMessage(0);
 }
 
@@ -69,6 +74,10 @@ BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRADEDIALOG = hwnd;
 
+    CtrlTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
+    CtrlTextBack = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
+    CtrlBackBrush = CreateSolidBrush(CtrlTextColor);
+
     TradeDialogControls_CreateControls(hwnd);
 
     return TRUE;
@@ -80,7 +89,8 @@ BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 HBRUSH TradeDialog_OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
-    SetBkColor(hdc, GetSysColor(COLOR_WINDOW));
+    SetTextColor(hdc, CtrlTextColor);
+    SetBkColor(hdc, CtrlTextBack);
     return GetSysColorBrush(COLOR_WINDOW);
 }
 
@@ -90,6 +100,8 @@ HBRUSH TradeDialog_OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 // ========================================================================================
 HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
+    SetTextColor(hdc, CtrlTextColor);
+
     // If this is the Total TextBox then display text as Red/Green 
     // depending on the status of the Debit/Credit combobox.
     if (GetDlgCtrlID(hwndChild) == IDC_TRADEDIALOG_TXTTOTAL) {
@@ -98,8 +110,8 @@ HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
         if (wszText == L"CREDIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valuePositive));
     }
 
-    SetBkColor(hdc, GetSysColor(COLOR_WINDOW));
-    return GetSysColorBrush(COLOR_WINDOW);
+    SetBkColor(hdc, CtrlTextBack);
+    return CtrlBackBrush;
 }
 
 
@@ -108,8 +120,9 @@ HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 // ========================================================================================
 HBRUSH TradeDialog_OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
-    SetBkColor(hdc, GetSysColor(COLOR_WINDOW));
-    return GetSysColorBrush(COLOR_WINDOW);
+    SetTextColor(hdc, CtrlTextColor);
+    SetBkColor(hdc, CtrlTextBack);
+    return CtrlBackBrush;
 }
 
 
@@ -241,7 +254,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
 {
-    HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, 800, 600,
+    HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, 900, 640,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -286,6 +299,5 @@ void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
         }
     }
 
-//    MainWindow_ShowPanels(SW_SHOW);
 }
 

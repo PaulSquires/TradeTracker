@@ -814,9 +814,9 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
         ld = new ListBoxData;
         ld->pTradeTemplate = &t;
         ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
-            ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font9, FontStyleRegular);
+            ThemeElement::MenuPanelBack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
         ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,
-            ThemeElement::TradesPanelBack, ThemeElement::TradesPanelText, font9, FontStyleRegular);
+            ThemeElement::MenuPanelBack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
         ListBox_AddString(hListBox, ld);
     }
 }
@@ -930,8 +930,8 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         std::wstring wszText;
 
         DWORD nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-            : GetThemeColor(ThemeElement::TradesPanelBack);
+                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+                : GetThemeColor(ThemeElement::TradesPanelBack);
         DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
 
         std::wstring wszFontName = AfxGetDefaultFont();
