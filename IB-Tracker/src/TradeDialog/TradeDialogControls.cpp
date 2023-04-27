@@ -148,8 +148,6 @@ void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate)
         ComboBox_SetCurSel(lc.cols[4], foundAt);
     }
 
-    // Set keyboard focus to the Transaction date control
-    SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
 }
 
 
@@ -426,6 +424,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HWND txtTicker = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER);
     HWND txtCompany = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY);
     HWND txtDescription = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION);
+    HWND lblEditAction = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION);
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADEDIALOG_HEADER);
     HWND lblQuantity = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLQUANTITY);
     HWND lblPrice = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLPRICE);
@@ -499,6 +498,10 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nWidth = AfxScaleX(320);
     nHeight = nCtlHeight;
     hdwp = DeferWindowPos(hdwp, txtDescription, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft = nLeft + nWidth + hmargin;
+    hdwp = DeferWindowPos(hdwp, lblEditAction, 0, nLeft, vmargin,
+        AfxScaleX(110), AfxScaleY(60), SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
 
@@ -648,6 +651,20 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         Edit_SetCueBannerText(hCtl, L"Description");
 
 
+    hCtl = CreateSuperLabel(
+        hwnd, IDC_TRADEDIALOG_LBLEDITACTION, SuperLabelType::TextOnly,
+        0, 0, 0, 0);
+    SuperLabel* pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::TradesPanelBack;
+        pData->TextColor = ThemeElement::TradesPanelText;
+        pData->FontSize = 14;
+        pData->TextAlignment = SuperLabelAlignment::TopRight;
+        pData->wszText = L"NEW";
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+        
     TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME1);
     TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME2);
 

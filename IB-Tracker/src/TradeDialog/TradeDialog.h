@@ -30,6 +30,7 @@ const int IDC_TRADEDIALOG_TXTTOTAL       = 118;
 const int IDC_TRADEDIALOG_COMBODRCR      = 119;
 const int IDC_TRADEDIALOG_FRAME1         = 120;
 const int IDC_TRADEDIALOG_FRAME2         = 121;
+const int IDC_TRADEDIALOG_LBLEDITACTION  = 122;
 
 const int IDC_TRADEDIALOG_OK             = 130;
 const int IDC_TRADEDIALOG_CANCEL         = 131;
