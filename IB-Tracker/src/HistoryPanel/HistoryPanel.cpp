@@ -592,25 +592,8 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_HISTORYPANEL = hwnd;
 
-    SuperLabel* pData = nullptr;
-
-    HWND hCtl = CreateSuperLabel(
-        hwnd,
-        IDC_HISTORY_SYMBOL,
-        SuperLabelType::TextOnly,
-        0, 0, 0, 0);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->FontSize = 8;
-        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
-        pData->wszText = L"Trade History";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
+    HWND hCtl = SuperLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
+        ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
     // paint our various open trades.

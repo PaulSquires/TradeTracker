@@ -372,7 +372,11 @@ int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData);
 void SuperLabel_SetText(HWND hCtrl, std::wstring wszText);
 void SuperLabel_Select(HWND hCtrl, bool IsSelected);
 
-HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType, 
+HWND SuperLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
+	ThemeElement TextColor, ThemeElement BackColor, SuperLabelAlignment alignment = SuperLabelAlignment::MiddleLeft,
+	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+	
+HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType,
 	int nLeft, int nTop, int nWidth, int nHeight);
 
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype);

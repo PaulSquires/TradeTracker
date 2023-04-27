@@ -638,25 +638,8 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRADESPANEL = hwnd;
         
-    SuperLabel* pData = nullptr;
-
-    HWND hCtl = CreateSuperLabel(
-        hwnd,
-        IDC_TRADES_LABEL,
-        SuperLabelType::TextOnly,
-        0, 0, 0, 0);
-    pData = SuperLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->FontSize = 8;
-        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
-        pData->wszText = L"Active Trades";
-        pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
-    }
-
+    HWND hCtl = SuperLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
+        ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
     
     hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradesPanel_Header_SubclassProc,

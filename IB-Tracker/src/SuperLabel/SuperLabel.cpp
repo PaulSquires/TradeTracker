@@ -251,6 +251,33 @@ void SuperLabel_Select(HWND hCtrl, bool IsSelected)
 }
 
 
+
+//------------------------------------------------------------------------------ 
+HWND SuperLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
+    ThemeElement TextColor, ThemeElement BackColor, SuperLabelAlignment alignment, 
+    int nLeft, int nTop, int nWidth, int nHeight)
+{
+    // Creates a simple "dumb" label that basically just makes it easier to deal
+    // with theme coloring. No hot tracking or click notifications.
+    SuperLabel* pData = nullptr;
+
+    HWND hCtl = CreateSuperLabel(
+        hParent, CtrlId, SuperLabelType::TextOnly,
+        nLeft, nTop, nWidth, nHeight);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->wszText = wszText;
+        pData->HotTestEnable = false;
+        pData->BackColor = BackColor;
+        pData->TextColor = TextColor;
+        pData->TextAlignment = alignment;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+    return hCtl;
+}
+
+
 //------------------------------------------------------------------------------ 
 HWND CreateSuperLabel( 
     HWND hWndParent, 

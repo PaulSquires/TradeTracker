@@ -13,9 +13,9 @@ extern HWND HWND_MAINWINDOW;
 
 CTradeDialog TradeDialog;
 
-COLORREF CtrlTextColor = 0;
-COLORREF CtrlTextBack = 0;
-HBRUSH CtrlBackBrush = NULL;
+COLORREF CtrlTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
+COLORREF CtrlTextBack = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
+HBRUSH CtrlBackBrush = CreateSolidBrush(CtrlTextBack);
 
 
 
@@ -74,10 +74,6 @@ BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRADEDIALOG = hwnd;
 
-    CtrlTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
-    CtrlTextBack = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
-    CtrlBackBrush = CreateSolidBrush(CtrlTextColor);
-
     TradeDialogControls_CreateControls(hwnd);
 
     return TRUE;
@@ -111,6 +107,7 @@ HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
     }
 
     SetBkColor(hdc, CtrlTextBack);
+    SetBkMode(hdc, OPAQUE);
     return CtrlBackBrush;
 }
 

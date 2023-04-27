@@ -16,6 +16,8 @@ extern CTradeDialog TradeDialog;
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;
 extern HWND HWND_HISTORYPANEL;
+extern HWND HWND_TRADEDIALOG;
+
 
 
 int nHistoryMinColWidth[10] =
@@ -930,10 +932,19 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         std::wstring wszText;
 
         DWORD nBackColor = (bIsHot)
-                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
-                : GetThemeColor(ThemeElement::TradesPanelBack);
+            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+            : GetThemeColor(ThemeElement::TradesPanelBack);
+        DWORD nBackColorHot = GetThemeColor(ThemeElement::TradesPanelBackHot);
         DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
 
+        if (hwnd == HWND_TRADEDIALOG) {
+            nBackColor = (bIsHot)
+            ? GetThemeColor(ThemeElement::MenuPanelBackHot)
+            : GetThemeColor(ThemeElement::MenuPanelBack);
+        nTextColor = GetThemeColor(ThemeElement::MenuPanelText);
+        nBackColorHot = GetThemeColor(ThemeElement::MenuPanelBackHot);
+        }
+            
         std::wstring wszFontName = AfxGetDefaultFont();
         FontFamily   fontFamily(wszFontName.c_str());
         REAL fontSize = 10;
@@ -963,7 +974,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             HAlignment = ld->col[i].HAlignment;
             VAlignment = ld->col[i].VAlignment;
             nBackColor = (bIsHot)
-                ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+                ? nBackColorHot
                 : GetThemeColor(ld->col[i].backTheme);
             nTextColor = GetThemeColor(ld->col[i].textTheme);
             fontSize = ld->col[i].fontSize;
