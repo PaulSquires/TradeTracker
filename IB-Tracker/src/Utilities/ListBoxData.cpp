@@ -235,6 +235,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     for (int ii = nStart; ii <= nEnd; ii++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         for (int i = 0; i < 10; i++) {
+            if (nColWidth[i] == 0) continue;
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
             Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
@@ -941,8 +942,8 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             nBackColor = (bIsHot)
             ? GetThemeColor(ThemeElement::MenuPanelBackHot)
             : GetThemeColor(ThemeElement::MenuPanelBack);
-        nTextColor = GetThemeColor(ThemeElement::MenuPanelText);
-        nBackColorHot = GetThemeColor(ThemeElement::MenuPanelBackHot);
+            nBackColorHot = GetThemeColor(ThemeElement::MenuPanelBackHot);
+            nTextColor = GetThemeColor(ThemeElement::MenuPanelText);
         }
             
         std::wstring wszFontName = AfxGetDefaultFont();
@@ -974,7 +975,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             HAlignment = ld->col[i].HAlignment;
             VAlignment = ld->col[i].VAlignment;
             nBackColor = (bIsHot)
-                ? nBackColorHot
+                ? nBackColor
                 : GetThemeColor(ld->col[i].backTheme);
             nTextColor = GetThemeColor(ld->col[i].textTheme);
             fontSize = ld->col[i].fontSize;
