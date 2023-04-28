@@ -47,8 +47,9 @@ const int TRADEDIALOG_TEMPLATES_ROWHEIGHT  = 22;
 const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 20;
 const int TRADEDIALOG_TRADETABLE_WIDTH     = 560;
 const int TRADEDIALOG_TRADETABLE_NUMROWS   = 12;
+const int TRADEDIALOG_TRADETEMPLATES_WIDTH = 180;
 
-void TradeDialog_Show(CTradeTemplate* pTradeTemplate = nullptr);
+void TradeDialog_Show(int inTradeAction, CTradeTemplate* pTradeTemplate = nullptr);
 void FormatNumberFourDecimals(HWND hCtl);
 void CalculateTradeTotal(HWND hwnd);
 void CalculateTradeDTE(HWND hwnd);

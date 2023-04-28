@@ -31,3 +31,18 @@ const int COLUMN_TICKER_CHANGE       = 5;    // price change
 const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
 const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
+
+// Various actions that can be performed on selected Trade or Legs.
+const int ACTION_NEW_TRADE          = 1;
+const int ACTION_CLOSE_TRADE        = 2;
+const int ACTION_EXPIRE_TRADE       = 3;
+const int ACTION_ROLL_LEG           = 4;
+const int ACTION_CLOSE_LEG          = 5;
+const int ACTION_EXPIRE_LEG         = 6;
+const int ACTION_SHARE_ASSIGNMENT   = 7;
+const int ACTION_ADDTO_TRADE        = 8;
+const int ACTION_ADDPUTTO_TRADE     = 9;
+const int ACTION_ADDCALLTO_TRADE    = 10;
+const int ACTION_NOACTION           = 20;
+
+

@@ -599,7 +599,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             // Deal with any Trade Templates in the menu
             if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
             {
-                TradeDialog_Show(pData->pTradeTemplate);
+                TradeDialog_Show(ACTION_NEW_TRADE, pData->pTradeTemplate);
                 return 0;
             }
 

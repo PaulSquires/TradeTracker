@@ -5,6 +5,7 @@
 #include "TradeDialogControls.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\Utilities\ListBoxData.h"
+#include "..\TradesPanel\TradesPanel.h"
 
 
 HWND HWND_TRADEDIALOG = NULL;
@@ -15,8 +16,9 @@ CTradeDialog TradeDialog;
 
 COLORREF CtrlTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
 COLORREF CtrlTextBack = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
-HBRUSH CtrlBackBrush = CreateSolidBrush(CtrlTextBack);
+HBRUSH CtrlBackBrush = NULL;
 
+int tradeAction = ACTION_NOACTION;
 
 
 // ========================================================================================
@@ -74,6 +76,7 @@ BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRADEDIALOG = hwnd;
 
+    CtrlBackBrush = CreateSolidBrush(CtrlTextBack);
     TradeDialogControls_CreateControls(hwnd);
 
     return TRUE;
@@ -249,9 +252,17 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
-void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
+void TradeDialog_Show(int inTradeAction, CTradeTemplate* pTradeTemplate)
 {
-    HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, 900, 640,
+    tradeAction = inTradeAction;
+
+    int nWidth = 900;
+    int nHeight = 640;
+    if (tradeAction != ACTION_NEW_TRADE) {
+        nWidth = nWidth - TRADEDIALOG_TRADETEMPLATES_WIDTH;
+    }
+
+    HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 

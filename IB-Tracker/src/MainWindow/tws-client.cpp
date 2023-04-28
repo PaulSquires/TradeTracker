@@ -60,7 +60,6 @@ void threadFunction(std::future<void> future) {
 
 	}
 	isMonitorThreadActive = false;
-	SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 	std::cout << "Thread Terminated" << std::endl;
 }
 
@@ -330,6 +329,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 		int lbCount = ListBox_GetCount(hListBox);
 		
+		// TODO: Use a Map instead of looping the entire Listbox
 		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
 
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);

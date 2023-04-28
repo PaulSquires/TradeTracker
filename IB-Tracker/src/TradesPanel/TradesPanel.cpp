@@ -6,6 +6,7 @@
 #include "..\Themes\Themes.h"
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\VScrollBar\VScrollBar.h"
+#include "..\TradeDialog\TradeDialog.h"
 #include "TradesPanel.h"
 
 
@@ -20,6 +21,9 @@ extern CTradesPanel TradesPanel;
 
 extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
+
+// Vector to hold all selected legs that TradeDiaog will act on
+std::vector<Leg*> legsEdit;
 
 
 
@@ -269,11 +273,11 @@ LRESULT CALLBACK TradesPanel_Header_SubclassProc(
 // Select a line in the Listbox and deselect any other lines that do not match this
 // new line's Trade pointer.
 // ========================================================================================
-bool TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
+bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 {
     // Get the trade pointer for the newly selected line.
     Trade* trade = nullptr;
-    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
     if (ld == nullptr) return false;
 
     trade = ld->trade;
@@ -292,24 +296,24 @@ bool TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
     // and/or the individual trade legs.
     bool IsTickerLine = ld->isTickerLine;
 
-    int nCount = ListBox_GetSelCount(hWnd);
+    int nCount = ListBox_GetSelCount(hListBox);
 
     if (nCount) {
         int* selItems = new int[nCount]();
-        SendMessage(hWnd, LB_GETSELITEMS, (WPARAM)nCount, (LPARAM)selItems);
+        SendMessage(hListBox, LB_GETSELITEMS, (WPARAM)nCount, (LPARAM)selItems);
 
         for (int i = 0; i < nCount; i++)
         {
-            ld = (ListBoxData*)ListBox_GetItemData(hWnd, selItems[i]);
+            ld = (ListBoxData*)ListBox_GetItemData(hListBox, selItems[i]);
             if (ld != nullptr) {
                 if (ld->trade != trade) {
-                    ListBox_SetSel(hWnd, false, selItems[i]);
+                    ListBox_SetSel(hListBox, false, selItems[i]);
                 }
                 else {
                     // If selecting items within the same Trade then do not allow
                     // mixing selections of the header line and individual legs.
                     if (IsTickerLine != ld->isTickerLine) {
-                        ListBox_SetSel(hWnd, false, selItems[i]);
+                        ListBox_SetSel(hListBox, false, selItems[i]);
                     }
                 }
             }
@@ -320,6 +324,37 @@ bool TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
 
     return true;
 }
+
+
+
+// ========================================================================================
+// Populate vector that holds all selected lines/legs. This will be passed to the 
+// TradeDialog in order to perform actions on the legs.
+// ========================================================================================
+void TradesPanel_PopulateLegsEditVector(HWND hListBox)
+{
+    legsEdit.clear();
+
+    int nCount = ListBox_GetSelCount(hListBox);
+    legsEdit.reserve(nCount);
+
+    if (nCount) {
+        int* selItems = new int[nCount]();
+        SendMessage(hListBox, LB_GETSELITEMS, (WPARAM)nCount, (LPARAM)selItems);
+
+        for (int i = 0; i < nCount; i++)
+        {
+            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, selItems[i]);
+            if (ld != nullptr) {
+                legsEdit.push_back(ld->leg);
+            }
+        }
+
+        delete[] selItems;
+    }
+
+}
+
 
 
 // ========================================================================================
@@ -348,35 +383,53 @@ void TradesPanel_RightClickMenu(HWND hWnd, int idx)
     }
 
     if (IsTickerLine) {
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 1, L"Close Entire Trade");
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 2, L"Expire Entire Trade");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_CLOSE_TRADE, L"Close Entire Trade");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_EXPIRE_TRADE, L"Expire Entire Trade");
     }
     else {
         wszText = L"Roll Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 3, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ROLL_LEG, wszText.c_str());
 
         wszText = L"Close Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 4, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_CLOSE_LEG, wszText.c_str());
 
         wszText = L"Expire Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 5, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_EXPIRE_LEG, wszText.c_str());
 
         if (nCount == 1) {
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, 6, L"");
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 7, L"Shares Assignment");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 1, L"");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_SHARE_ASSIGNMENT, L"Shares Assignment");
         }
     }
 
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, 8, L"");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 9, L"Add Transaction to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 10, L"Add Put");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, 11, L"Add Call");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 2, L"");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDTO_TRADE, L"Add Transaction to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDPUTTO_TRADE, L"Add Put to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDCALLTO_TRADE, L"Add Call to Trade");
 
     POINT pt; GetCursorPos(&pt);
     int selected =
         TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, NULL);
 
-    std::cout << "Menu Selected: " << selected << std::endl;
+
+    switch (selected)
+    {
+    case ACTION_CLOSE_TRADE:
+    case ACTION_EXPIRE_TRADE:
+    case ACTION_ROLL_LEG:
+    case ACTION_CLOSE_LEG:
+    case ACTION_EXPIRE_LEG:
+        //TradesPanel_PopulateLegsEditVector
+        TradeDialog_Show(selected, nullptr);
+        break;
+    case ACTION_SHARE_ASSIGNMENT:
+        TradeDialog_Show(selected, nullptr);
+        break;
+    case ACTION_ADDTO_TRADE:
+    case ACTION_ADDPUTTO_TRADE:
+    case ACTION_ADDCALLTO_TRADE:
+        TradeDialog_Show(selected, nullptr);
+    }
 
 }
 

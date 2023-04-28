@@ -30,6 +30,7 @@ public:
     std::wstring    DailyTotalsDate;
     TickerId        tickerId = -1;
     Trade*          trade = nullptr;
+    Leg*            leg = nullptr;
     CTradeTemplate* pTradeTemplate = nullptr;
     ColumnData      col[10];
 

@@ -444,6 +444,8 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
         if (leg->underlying == L"OPTIONS") {
             ld = new ListBoxData;
 
+            ld->leg = leg;
+
             std::wstring currentDate = AfxCurrentDate();
             std::wstring expiryDate = leg->expiryDate;
             std::wstring wszShortDate = AfxShortDate(expiryDate);

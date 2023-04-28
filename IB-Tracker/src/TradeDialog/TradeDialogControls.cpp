@@ -4,6 +4,7 @@
 #include "..\VScrollBar\VScrollBar.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\SuperLabel\SuperLabel.h"
+#include "..\TradesPanel\TradesPanel.h"
 
 
 struct LineCtrl {
@@ -13,6 +14,7 @@ struct LineCtrl {
 std::vector<LineCtrl> lCtrls;
 
 extern CTradeDialog TradeDialog;
+extern int tradeAction;
 
 
 
@@ -437,6 +439,8 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HWND comboDRCR = GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR);
     HWND hFrame1 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME1);
     HWND hFrame2 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME2);
+    HWND cmdOK = GetDlgItem(hwnd, IDC_TRADEDIALOG_OK);
+    HWND cmdCancel = GetDlgItem(hwnd, IDC_TRADEDIALOG_CANCEL);
 
     HDWP hdwp = BeginDeferWindowPos(100);
 
@@ -465,15 +469,18 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 
     nLeft = hmargin;
     nTop = vmargin;
-    nWidth = AfxScaleX(180);
-    nHeight = cy - nTop - vmargin;
-    hdwp = DeferWindowPos(hdwp, hTemplates, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = VScrollBarWidth;
-    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+    if (tradeAction == ACTION_NEW_TRADE) {
+        nWidth = AfxScaleX(TRADEDIALOG_TRADETEMPLATES_WIDTH);
+        nHeight = cy - nTop - vmargin;
+        hdwp = DeferWindowPos(hdwp, hTemplates, 0, nLeft, nTop, nWidth, nHeight,
+            SWP_NOZORDER | SWP_SHOWWINDOW);
+
+        nLeft = nLeft + nWidth;   // right edge of ListBox
+        nWidth = VScrollBarWidth;
+        hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+            SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+    }
 
     nStartLeft = nLeft + nWidth + AfxScaleX(50) + hmargin;
     
@@ -597,6 +604,15 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nHeight = nCtlHeight;
     hdwp = DeferWindowPos(hdwp, comboDRCR, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+
+    // Position OK and Cancel buttons from the right edge
+    nLeft = nLeft + AfxScaleX(282);
+    nTop = nStartTop; // AfxScaleY(800);
+    hdwp = DeferWindowPos(hdwp, cmdOK, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOSIZE);
+
+    nTop = nTop + AfxScaleY(36);
+    hdwp = DeferWindowPos(hdwp, cmdCancel, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOSIZE);
+
     EndDeferWindowPos(hdwp);
 
     VScrollBar_Recalculate(hVScrollBar);
@@ -610,24 +626,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 {
     HWND hCtl = NULL;
 
-    // Create an Ownerdraw listbox that we will use to custom paint our various Trade Templates.
-    hCtl =
-        TradeDialog.AddControl(Controls::ListBox, hwnd, IDC_TRADEDIALOG_TEMPLATES, L"",
-            0, 0, 0, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
-            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)TradeDialog_ListBox_SubclassProc,
-            IDC_TRADEDIALOG_TEMPLATES, NULL);
+    if (tradeAction == ACTION_NEW_TRADE) {
+        // Create an Ownerdraw listbox that we will use to custom paint our various Trade Templates.
+        hCtl =
+            TradeDialog.AddControl(Controls::ListBox, hwnd, IDC_TRADEDIALOG_TEMPLATES, L"",
+                0, 0, 0, 0,
+                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+                LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+                WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+                (SUBCLASSPROC)TradeDialog_ListBox_SubclassProc,
+                IDC_TRADEDIALOG_TEMPLATES, NULL);
 
-    // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateVScrollBar(hwnd, IDC_TRADEDIALOG_VSCROLLBAR, hCtl);
+        // Create our custom vertical scrollbar and attach the ListBox to it.
+        CreateVScrollBar(hwnd, IDC_TRADEDIALOG_VSCROLLBAR, hCtl);
 
-    // Add all of our Trade Templates to the ListBox
-    ListBoxData_OutputTradesTemplates(hCtl);
+        // Add all of our Trade Templates to the ListBox
+        ListBoxData_OutputTradesTemplates(hCtl);
 
-    // Resize columns
-    ListBoxData_ResizeColumnWidths(hCtl, TableType::TradeTemplates, -1);
+        // Resize columns
+        ListBoxData_ResizeColumnWidths(hCtl, TableType::TradeTemplates, -1);
+
+    }
 
     hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE);
     DateTime_SetFormat(hCtl, L"yyyy-MM-dd");
@@ -660,7 +679,34 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData->TextColor = ThemeElement::TradesPanelText;
         pData->FontSize = 14;
         pData->TextAlignment = SuperLabelAlignment::TopRight;
-        pData->wszText = L"NEW";
+        
+        // Set the text based on the type of trade action
+        switch (tradeAction)
+        {
+        case ACTION_NEW_TRADE:
+            pData->wszText = L"NEW";
+            break;
+        case ACTION_CLOSE_TRADE:
+        case ACTION_CLOSE_LEG:
+            pData->wszText = L"CLOSE";
+            break;
+        case ACTION_EXPIRE_TRADE:
+        case ACTION_EXPIRE_LEG:
+            pData->wszText = L"EXPIRE";
+            break;
+        case ACTION_ROLL_LEG:
+            pData->wszText = L"ROLL";
+            break;
+        case ACTION_SHARE_ASSIGNMENT:
+            pData->wszText = L"ASSIGNMENT";
+            break;
+        case ACTION_ADDTO_TRADE:
+        case ACTION_ADDPUTTO_TRADE:
+        case ACTION_ADDCALLTO_TRADE:
+            pData->wszText = L"ADD TO";
+            break;
+        }
+
         SuperLabel_SetOptions(hCtl, pData);
     }
 
@@ -756,8 +802,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     ComboBox_AddString(hCtl, L"DEBIT");
     ComboBox_SetCurSel(hCtl, 0);
 
-    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 730, 509, 74, 28);
-    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 730, 547, 74, 28);
+    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 0, 0, 74, 28);
+    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 0, 0, 74, 28);
 }
 
 
