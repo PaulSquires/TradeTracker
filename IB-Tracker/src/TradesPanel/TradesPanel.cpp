@@ -269,17 +269,20 @@ LRESULT CALLBACK TradesPanel_Header_SubclassProc(
 // Select a line in the Listbox and deselect any other lines that do not match this
 // new line's Trade pointer.
 // ========================================================================================
-void TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
+bool TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
 {
-    // Show the trade history for the selected trade
-    TradesPanel_ShowListBoxItem(idx);
-
     // Get the trade pointer for the newly selected line.
     Trade* trade = nullptr;
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
-    if (ld == nullptr) return;
+    if (ld == nullptr) return false;
 
     trade = ld->trade;
+    if (trade == nullptr) return false;
+
+    
+    // Show the trade history for the selected trade
+    TradesPanel_ShowListBoxItem(idx);
+
 
     // Check to see if other lines in the listbox are selected. We will deselect those other
     // lines if they do not belong to the current trade being selected.
@@ -314,6 +317,8 @@ void TradesPanel_SelectListBoxItem(HWND hWnd, int idx)
 
         delete[] selItems;
     }
+
+    return true;
 }
 
 
@@ -425,7 +430,10 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == -1) break;
         
-        TradesPanel_SelectListBoxItem(hWnd, idx);
+        // Return to not select the line (eg. if a blank line was clicked on)
+        if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
+            return 0;
+        }
         ListBox_SetSel(hWnd, true, idx);
 
         TradesPanel_RightClickMenu(hWnd, idx);
@@ -440,7 +448,11 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == -1) break;
-        TradesPanel_SelectListBoxItem(hWnd, idx);
+
+        // Return to not select the line (eg. if a blank line was clicked on)
+        if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
+            return 0;
+        }
     }
     break;
 

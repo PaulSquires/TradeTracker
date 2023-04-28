@@ -60,7 +60,8 @@ void threadFunction(std::future<void> future) {
 
 	}
 	isMonitorThreadActive = false;
-	 std::cout << "Thread Terminated" << std::endl;
+	SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
+	std::cout << "Thread Terminated" << std::endl;
 }
 
 
@@ -98,7 +99,7 @@ bool tws_connect()
         // and poll if TWS remains connected.
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
-		std::chrono::milliseconds(500); //wait for 500 milliseconds to allow sockets to breath
+		std::chrono::milliseconds(500); //wait for 500 milliseconds to allow sockets to breathe
 
 		if (client.isConnected()) {
 			StartMonitorThread();

@@ -284,7 +284,12 @@ void TradeDialog_Show(CTradeTemplate* pTradeTemplate)
     RECT rc; GetClientRect(HWND_TRADEDIALOG, &rc);
     TradeDialog_OnSize(HWND_TRADEDIALOG, 0, rc.right, rc.bottom);
 
+    
+    // set focus to the Transaction date picker
+    SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
 
+     
+   
     // Call modal message pump and wait for it to end.
     MSG msg{};
     while (GetMessage(&msg, NULL, 0, 0))
