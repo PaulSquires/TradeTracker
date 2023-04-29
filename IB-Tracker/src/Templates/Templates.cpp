@@ -66,13 +66,44 @@ bool LoadTemplates_Internal(const std::wstring& dbFilename)
         if (arg == L"NAME") {
             if (!readingTemplate) continue;
             ctrade.name = AfxTrim(st.at(1));
+            // Also default the description to be the same as the name in the event
+            // that the user does not specify a description.
+            ctrade.description = ctrade.name;
             continue;
         }
 
         
+        if (arg == L"DESCRIPTION") {
+            if (!readingTemplate) continue;
+            ctrade.description = AfxTrim(st.at(1));
+            continue;
+        }
+
+
+        if (arg == L"TICKER") {
+            if (!readingTemplate) continue;
+            ctrade.ticker = AfxTrim(st.at(1));
+            continue;
+        }
+
+
+        if (arg == L"COMPANY") {
+            if (!readingTemplate) continue;
+            ctrade.company = AfxTrim(st.at(1));
+            continue;
+        }
+
+
         if (arg == L"MAINMENU") {
             if (!readingTemplate) continue;
             ctrade.menu = AfxWStringCompareI(AfxTrim(st.at(1)), L"true");
+            continue;
+        }
+
+
+        if (arg == L"MULTIPLIER") {
+            if (!readingTemplate) continue;
+            ctrade.multiplier = AfxTrim(st.at(1));
             continue;
         }
 

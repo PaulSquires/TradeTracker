@@ -12,6 +12,10 @@ class CTradeTemplate
 {
 	public:
 		std::wstring name;
+		std::wstring description;
+		std::wstring ticker;
+		std::wstring company;
+		std::wstring multiplier = L"100";
 		std::vector<CTradeTemplateLeg> legs;
 		bool menu = false;
 };

@@ -380,7 +380,6 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
     tickerId = -1;
 
     std::wstring wszDot = L"\u23FA";   // dot character (Segue UI Windows 10/11)
-    //std::wstring wszDot = L"\u26AB";   // dot character (Segue UI Symbols Windows 7)
     ThemeElement WarningDTE = ThemeElement::TradesPanelNormalDTE;
 
 

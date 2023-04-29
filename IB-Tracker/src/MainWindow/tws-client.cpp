@@ -265,7 +265,8 @@ void TwsClient::requestMktData(ListBoxData* ld)
 	contract.symbol = symbol;
 	contract.secType = "STK";
 	contract.currency = "USD";
-	contract.exchange = "SMART";  //"SMART" source code says not to use SMART but it seems to work;
+	contract.exchange = "SMART";  
+	contract.primaryExchange = "ISLAND";
 
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 
@@ -317,7 +318,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	// enum TickType { LAST, CLOSE, OPEN }
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
-		printf("Tick Price. Ticker Id: %ld, Field: %d, Price: %s, CanAutoExecute: %d, PastLimit: %d, PreOpen: %d\n", tickerId, (int)field, Utils::doubleMaxString(price).c_str(), attribs.canAutoExecute, attribs.pastLimit, attribs.preOpen);
 
 		// These columns in the table are updated in real time when connected
 		// to TWS. The LineData pointer is updated via a call to SetColumnData
@@ -336,6 +336,10 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 			if (ld == nullptr) continue;
 
 			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->isTickerLine == TRUE)) {
+
+				printf("Tick Price. Ticker Id: %ld, %s, Field: %d, Price: %s, PreOpen: %d\n", 
+					tickerId, ld->trade->tickerName.c_str(), (int)field,
+					Utils::doubleMaxString(price).c_str(), attribs.preOpen);
 
 				if (field == LAST) {
 					ld->trade->tickerLastPrice = price;

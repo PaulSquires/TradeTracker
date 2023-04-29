@@ -52,13 +52,14 @@ void CalculateTradeTotal(HWND hwnd)
 {
     double total = 0;
     double quantity = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+    double multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
     double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
     std::wstring DRCR = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     if (DRCR == L"CREDIT") fees = fees * -1;
 
-    total = (quantity * 100 * price) + fees;
+    total = (quantity * multiplier * price) + fees;
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(total));
     FormatNumberFourDecimals(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL));
 }
@@ -98,6 +99,7 @@ void ResetTradeTableControls(HWND hwnd)
     }
 
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), L"0.0000");
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), L"100.0000");
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE), L"0.0000");
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), L"0.0000");
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), L"0.0000");
@@ -131,7 +133,13 @@ void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate)
     }
 
     // Update the Trade Management table with the details of the selected template.
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), pTradeTemplate->name);
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), pTradeTemplate->ticker);
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), pTradeTemplate->company);
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), pTradeTemplate->description);
+
+    HWND hCtrl = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER);
+    AfxSetWindowText(hCtrl, pTradeTemplate->multiplier);
+    FormatNumberFourDecimals(hCtrl);
 
     int i = 0;
     for (const auto& leg : pTradeTemplate->legs) {
@@ -341,23 +349,38 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
 
     case WM_KEYDOWN:
     {
-        // Handle up/down arrowns for the Quantity and Allow any character for these TextBoxes
-        int i = 0;
-        if (wParam == VK_UP) i = -1;
-        if (wParam == VK_DOWN) i = 1;
+        // Handle up/down arrows to move vertical amongst legs textboxes.
+        if (wParam == VK_UP || wParam == VK_DOWN) {
+            int i = 0;
+            if (wParam == VK_UP) i = -1;
+            if (wParam == VK_DOWN) i = 1;
 
-        if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && 
-            uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + TRADEDIALOG_TRADETABLE_NUMROWS) {
-            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
-            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + TRADEDIALOG_TRADETABLE_NUMROWS - 1) i = 0;
-            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-        }
+            if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && 
+                uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + TRADEDIALOG_TRADETABLE_NUMROWS) {
+                if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
+                if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + TRADEDIALOG_TRADETABLE_NUMROWS - 1) i = 0;
+                SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+            }
             
-        if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE && 
-            uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + TRADEDIALOG_TRADETABLE_NUMROWS) {
-            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
-            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + TRADEDIALOG_TRADETABLE_NUMROWS - 1) i = 0;
-            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+            if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE && 
+                uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + TRADEDIALOG_TRADETABLE_NUMROWS) {
+                if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
+                if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + TRADEDIALOG_TRADETABLE_NUMROWS - 1) i = 0;
+                SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+            }
+        }
+
+    }
+    break;
+
+
+    case WM_KEYUP:
+    {
+        // Make the ENTER key behave like the TAB key. Need to catch VK_RETURN in the
+        // WM_KEYUP rather than WM_KEYDOWN.
+        if (wParam == VK_RETURN) {
+            HWND hNextCtrl = GetNextDlgTabItem(GetParent(hWnd), hWnd, false);
+            SetFocus(hNextCtrl);
         }
     }
     break;
@@ -368,6 +391,7 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
         switch (uIdSubclass)
         {
         case IDC_TRADEDIALOG_TXTQUANTITY:
+        case IDC_TRADEDIALOG_TXTMULTIPLIER:
         case IDC_TRADEDIALOG_TXTPRICE:
         case IDC_TRADEDIALOG_TXTFEES:
             FormatNumberFourDecimals(hWnd);
@@ -429,10 +453,12 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HWND lblEditAction = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION);
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADEDIALOG_HEADER);
     HWND lblQuantity = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLQUANTITY);
+    HWND lblMultiplier = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLMULTIPLIER);
     HWND lblPrice = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLPRICE);
     HWND lblFees = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLFEES);
     HWND lblTotal = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTOTAL);
     HWND txtQuantity = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY);
+    HWND txtMultiplier = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER);
     HWND txtPrice = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE);
     HWND txtFees = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES);
     HWND txtTotal = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL);
@@ -558,7 +584,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hFrame2, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
-    nStartTop = nTop + nHeight + (vmargin * 4);
+    nStartTop = nTop + nHeight + (vmargin * 2);
 
     nLeft = nStartLeft + AfxScaleX(34);
     nWidth = AfxScaleX(60);
@@ -567,6 +593,9 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 
     nTop = nStartTop;
     hdwp = DeferWindowPos(hdwp, lblQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeight + vmargin;
+    hdwp = DeferWindowPos(hdwp, lblMultiplier, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
     hdwp = DeferWindowPos(hdwp, lblPrice, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -583,6 +612,11 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
     hdwp = DeferWindowPos(hdwp, txtQuantity, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeight + vmargin;
+    nWidth = nCtlWidth;
+    nHeight = nCtlHeight;
+    hdwp = DeferWindowPos(hdwp, txtMultiplier, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop = nTop + nHeight + vmargin;
     nWidth = nCtlWidth;
@@ -607,7 +641,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 
     // Position OK and Cancel buttons from the right edge
     nLeft = nLeft + AfxScaleX(282);
-    nTop = nStartTop; // AfxScaleY(800);
+    nTop = nStartTop + AfxScaleY(76);
     hdwp = DeferWindowPos(hdwp, cmdOK, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOSIZE);
 
     nTop = nTop + AfxScaleY(36);
@@ -655,7 +689,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"", 0, 0, 0, 0,
         WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTICKER, NULL);
-    Edit_SetCueBannerText(hCtl, L"Ticker");
+        Edit_SetCueBannerText(hCtl, L"Ticker");
 
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTCOMPANY,
         L"", 0, 0, 0, 0,
@@ -771,6 +805,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     ThemeElement BackColor = ThemeElement::TradesPanelBack;
 
     SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLQUANTITY, L"Quantity", TextColor, BackColor);
+    SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLMULTIPLIER, L"Multiplier", TextColor, BackColor);
     SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLPRICE, L"Price", TextColor, BackColor);
     SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees", TextColor, BackColor);
     SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTOTAL, L"Total", TextColor, BackColor);
@@ -778,6 +813,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY, L"", 0, 0, 0, 0,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTQUANTITY, NULL);
+    FormatNumberFourDecimals(hCtl);
+
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, L"100.0000", 0, 0, 0, 0,
+        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
+        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTMULTIPLIER, NULL);
     FormatNumberFourDecimals(hCtl);
 
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE, L"", 0, 0, 0, 0,

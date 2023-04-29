@@ -360,7 +360,6 @@ bool LoadTheme()
 				(LPCWSTR)(msg.c_str()),
 				(LPCWSTR)L"IB-Tracker",
 				MB_ICONWARNING);
-
         }
     }
     return true;

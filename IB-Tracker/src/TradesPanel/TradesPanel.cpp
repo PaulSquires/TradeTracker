@@ -476,20 +476,24 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 
     case WM_RBUTTONDOWN:
     {
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
         
-        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-        // if the specified point is in the client area of the list box, or one if it is outside the 
-        // client area.
-        if (HIWORD(idx) == -1) break;
+        if (menuId == IDC_MENUPANEL_ACTIVETRADES) {
+            int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         
-        // Return to not select the line (eg. if a blank line was clicked on)
-        if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
-            return 0;
-        }
-        ListBox_SetSel(hWnd, true, idx);
+            // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+            // if the specified point is in the client area of the list box, or one if it is outside the 
+            // client area.
+            if (HIWORD(idx) == -1) break;
+        
+            // Return to not select the line (eg. if a blank line was clicked on)
+            if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
+                return 0;
+            }
+            ListBox_SetSel(hWnd, true, idx);
 
-        TradesPanel_RightClickMenu(hWnd, idx);
+            TradesPanel_RightClickMenu(hWnd, idx);
+        }
     }
     break;
 
@@ -741,11 +745,22 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
-// Process WM_CONTEXTMENU message for window/dialog: TradesPanel
+// Process WM_COMMAND message for window/dialog: TradesPanel
 // ========================================================================================
-void TradesPanel_OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
+void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    if (hwndContext == GetDlgItem(hwnd, IDC_TRADES_LISTBOX)) {
+    switch (codeNotify)
+    {
+
+    case (LBN_SELCHANGE):
+        int nCurSel = ListBox_GetCurSel(hwndCtl);
+        if (nCurSel == -1) break;
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
+        if (ld != nullptr) {
+            // Show the trade history for the selected trade
+            TradesPanel_ShowListBoxItem(nCurSel);
+        }
+        break;
 
     }
 }
@@ -758,8 +773,8 @@ LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CONTEXTMENU, TradesPanel_OnContextMenu);
         HANDLE_MSG(m_hwnd, WM_CREATE, TradesPanel_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, TradesPanel_OnCommand);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesPanel_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradesPanel_OnSize);
