@@ -7,6 +7,7 @@
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\VScrollBar\VScrollBar.h"
 #include "..\TradeDialog\TradeDialog.h"
+#include "..\Database\database.h"
 #include "TradesPanel.h"
 
 
@@ -25,6 +26,30 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // Vector to hold all selected legs that TradeDiaog will act on
 std::vector<Leg*> legsEdit;
 
+// Variable to hold which Trades listbox is showing data (Active Trades or
+// Closed Trades). Need this to ensure that the correct Menu item remains
+// active when a listbox line is clicked on.
+bool IsActiveTradesVisible = true;
+
+
+
+// ========================================================================================
+// Ensure that the correct MainMenu is selected. Necessary to ensure that when the right
+// click menu is shown that the MainMenu item has already been correctly set.
+// ========================================================================================
+void TradesPanel_EnsureMainMenuItem()
+{
+    // Ensure that the correct Menu item is selected
+    int activeTable = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+    if (IsActiveTradesVisible) {
+        if (activeTable != IDC_MENUPANEL_ACTIVETRADES)
+            MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES);
+    }
+    else {
+        if (activeTable != IDC_MENUPANEL_CLOSEDTRADES)
+            MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_CLOSEDTRADES);
+    }
+}
 
 
 // ========================================================================================
@@ -130,6 +155,8 @@ void TradesPanel_ShowActiveTrades()
 
     VScrollBar_Recalculate(hVScrollBar);
 
+    IsActiveTradesVisible = true;
+
     tws_ResumeTWS();
 }
 
@@ -225,6 +252,8 @@ void TradesPanel_ShowClosedTrades()
     }
 
     VScrollBar_Recalculate(hVScrollBar);
+
+    IsActiveTradesVisible = false;
 
     tws_ResumeTWS();
 
@@ -326,6 +355,56 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 }
 
 
+// ========================================================================================
+// Expire the selected legs. Basically, ask for confirmation via a messagebox and 
+// then take appropriate action.
+// ========================================================================================
+void TradesPanel_ExpireSelectedLegs(Trade* trade)
+{
+    int res = MessageBox(
+        HWND_MENUPANEL,
+        (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
+        (LPCWSTR)L"Confirm",
+        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+
+    if (res != IDYES) return;
+
+    Transaction* trans = new Transaction();
+
+    trans->transDate = AfxCurrentDate();
+    trans->description = L"Expiration";
+    trans->underlying = L"OPTIONS";
+    trade->transactions.push_back(trans);
+
+    for (auto leg : legsEdit) {
+
+        // Save this transaction's leg quantities
+        Leg* newleg = new Leg();
+
+        newleg->underlying = trans->underlying;
+
+        newleg->origQuantity = leg->openQuantity * -1;
+        newleg->openQuantity = 0;
+
+        if (leg->action == L"STO") newleg->action = L"BTC";
+        if (leg->action == L"BTO") newleg->action = L"STC"; 
+
+        newleg->expiryDate = leg->expiryDate;
+        newleg->strikePrice = leg->strikePrice;
+        newleg->PutCall = leg->PutCall;
+        trans->legs.push_back(newleg);
+    }
+
+    // Set the open status of the entire trade based on the new modified legs
+    trade->setTradeOpenStatus();
+
+    // Rebuild the openLegs position vector
+    trade->createOpenLegsVector();
+
+    // Save the new data to the database
+    SaveDatabase();
+}
+
 
 // ========================================================================================
 // Populate vector that holds all selected lines/legs. This will be passed to the 
@@ -360,20 +439,24 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
 // ========================================================================================
 // Handle the right-click popup menu on the ListBox's selected lines.
 // ========================================================================================
-void TradesPanel_RightClickMenu(HWND hWnd, int idx)
+void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 {
     HMENU hMenu = CreatePopupMenu();
 
     std::wstring wszText;
     std::wstring wszPlural;
-    int nCount = ListBox_GetSelCount(hWnd);
+    int nCount = ListBox_GetSelCount(hListBox);
+
+    Trade* trade = nullptr;
 
     bool IsTickerLine = false;
 
+    int nCurSel = ListBox_GetCurSel(hListBox);
+    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nCurSel);
+    trade = ld->trade;
+
     if (nCount == 1) {
         // Is this the Trade header line
-        int nCurSel = ListBox_GetCurSel(hWnd);
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, nCurSel);
         if (ld != nullptr) {
             if (ld->isTickerLine) IsTickerLine = true;
         }
@@ -409,7 +492,7 @@ void TradesPanel_RightClickMenu(HWND hWnd, int idx)
 
     POINT pt; GetCursorPos(&pt);
     int selected =
-        TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, NULL);
+        TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hListBox, NULL);
 
 
     switch (selected)
@@ -418,9 +501,12 @@ void TradesPanel_RightClickMenu(HWND hWnd, int idx)
     case ACTION_EXPIRE_TRADE:
     case ACTION_ROLL_LEG:
     case ACTION_CLOSE_LEG:
-    case ACTION_EXPIRE_LEG:
         //TradesPanel_PopulateLegsEditVector
         TradeDialog_Show(selected, nullptr);
+        break;
+    case ACTION_EXPIRE_LEG:
+        TradesPanel_PopulateLegsEditVector(hListBox);
+        TradesPanel_ExpireSelectedLegs(trade);
         break;
     case ACTION_SHARE_ASSIGNMENT:
         TradeDialog_Show(selected, nullptr);
@@ -476,6 +562,8 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 
     case WM_RBUTTONDOWN:
     {
+        TradesPanel_EnsureMainMenuItem();
+
         int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
         
         if (menuId == IDC_MENUPANEL_ACTIVETRADES) {
@@ -485,7 +573,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
             // if the specified point is in the client area of the list box, or one if it is outside the 
             // client area.
             if (HIWORD(idx) == -1) break;
-        
+            
             // Return to not select the line (eg. if a blank line was clicked on)
             if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
                 return 0;
@@ -505,6 +593,8 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == -1) break;
+
+        TradesPanel_EnsureMainMenuItem();
 
         // Return to not select the line (eg. if a blank line was clicked on)
         if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
@@ -719,7 +809,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
     Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name", HDF_LEFT);
     Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
-    // Must turn off Window Theming for the control in order to correctly apply colors via NM_CUSTOMDRAW
+    // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 
 
@@ -757,6 +847,8 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         if (nCurSel == -1) break;
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
         if (ld != nullptr) {
+            TradesPanel_EnsureMainMenuItem();
+
             // Show the trade history for the selected trade
             TradesPanel_ShowListBoxItem(nCurSel);
         }
