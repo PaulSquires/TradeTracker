@@ -158,6 +158,10 @@ void TradesPanel_ShowActiveTrades()
     IsActiveTradesVisible = true;
 
     tws_ResumeTWS();
+
+    // Start getting the price data for all of the tickers
+    ListBoxData_RequestMarketData(hListBox);
+
 }
 
 

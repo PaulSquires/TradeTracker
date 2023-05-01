@@ -324,17 +324,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// and the correct ListBox line is invalidated/redrawn in order to force
 		// display of the new price data. 
 
-		// TODO: Why do some tickers not get OPEN or LAST tick prices?
-		if (tickerId == 104 && field == OPEN) {
-			printf("Tick. Id: %ld, OPEN, Price: %s\n",
-				tickerId, Utils::doubleMaxString(price).c_str());
-		}
-		if (tickerId == 104 && field == CLOSE) {
-			printf("Tick. Id: %ld, CLOSE, Price: %s\n",
-				tickerId, Utils::doubleMaxString(price).c_str());
-		}
-
-
 		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
 		if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) != IDC_MENUPANEL_ACTIVETRADES) return;
 
@@ -353,11 +342,9 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				if (field == LAST) tickType = "LAST";
 				if (field == CLOSE) tickType = "CLOSE";
 				if (field == OPEN) tickType = "OPEN";
-				if (tickerId == 104) {
 				printf("Tick. Id: %ld, %s, Field: %s, Price: %s\n",
 					tickerId, tickerName.c_str(), tickType.c_str(),
 					Utils::doubleMaxString(price).c_str());
-				}
 
 				if (field == LAST) {
 					ld->trade->tickerLastPrice = price;

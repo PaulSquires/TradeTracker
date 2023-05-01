@@ -318,6 +318,27 @@ void ListBoxData_DestroyItemData(HWND hListBox)
 }
 
 
+// ========================================================================================
+// Loop through the ListBox data and request market data for tickers
+// ========================================================================================
+void ListBoxData_RequestMarketData(HWND hListBox)
+{
+    // Cancel any previous market data requests and delete any previously
+    // allocated ListBoxData structures.
+    int lbCount = ListBox_GetCount(hListBox);
+    for (int i = 0; i < lbCount; i++) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
+        if (ld != nullptr) {
+            if (ld->isTickerLine) {
+                tws_requestMktData(ld);
+            }
+        }
+    }
+
+    if (tws_isConnected())
+        PrevMarketDataLoaded = true;
+}
+
 
 // ========================================================================================
 // Create the display data for an Open Position that displays in Trades & History tables.
@@ -367,11 +388,6 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
             ThemeElement::TradesPanelText, font9, FontStyleRegular | FontStyleBold);   // current price
         ld->SetData(COLUMN_TICKER_PERCENTAGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::TradesPanelBack,
             ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // price percentage change
-
-        tws_requestMktData(ld);
-
-        if (tws_isConnected()) 
-            PrevMarketDataLoaded = true;
     }
     ListBox_AddString(hListBox, ld);
 

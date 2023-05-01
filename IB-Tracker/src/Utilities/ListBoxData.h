@@ -77,6 +77,7 @@ enum class TableType
 
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
+void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans);
 void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
