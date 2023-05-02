@@ -365,6 +365,17 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 // ========================================================================================
 void TradesPanel_ExpireSelectedLegs(Trade* trade)
 {
+    // Do a check to ensure that there is actually legs selected to expire. It could
+    // be that the user select SHARES or other non-options underlyings only.
+    if (legsEdit.size() == 0) {
+        MessageBox(
+            HWND_MENUPANEL,
+            (LPCWSTR)(L"No valid option legs have been selected for expiration."),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING | MB_OK);
+        return;
+    }
+        
     int res = MessageBox(
         HWND_MENUPANEL,
         (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
@@ -375,7 +386,6 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
 
     Transaction* trans = new Transaction();
 
-    trans->transDate = AfxCurrentDate();
     trans->description = L"Expiration";
     trans->underlying = L"OPTIONS";
     trade->transactions.push_back(trans);
@@ -387,8 +397,10 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
 
         newleg->underlying = trans->underlying;
 
+        trans->transDate = leg->expiryDate;
         newleg->origQuantity = leg->openQuantity * -1;
         newleg->openQuantity = 0;
+        leg->openQuantity = 0;
 
         if (leg->action == L"STO") newleg->action = L"BTC";
         if (leg->action == L"BTO") newleg->action = L"STC"; 
@@ -407,6 +419,30 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
 
     // Save the new data to the database
     SaveDatabase();
+
+    // Reload the trade list
+    TradesPanel_ShowActiveTrades();
+
+}
+
+
+// ========================================================================================
+// Populate vector based on all open legs of a trade.
+// ========================================================================================
+void TradesPanel_PopulateLegsEditVectorUsingTrade(Trade* trade)
+{
+    legsEdit.clear();
+
+    int nCount = trade->openLegs.size();
+    legsEdit.reserve(nCount);
+
+    if (nCount) {
+        for (const auto& leg : trade->openLegs) {
+            if (leg->underlying == L"OPTIONS") {
+                legsEdit.push_back(leg);
+            }
+        }
+    }
 }
 
 
@@ -429,7 +465,10 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
         {
             ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, selItems[i]);
             if (ld != nullptr) {
-                legsEdit.push_back(ld->leg);
+                // Only allow Option legs to be pushed to legEdit
+                if (ld->leg != nullptr) {
+                    legsEdit.push_back(ld->leg);
+                }
             }
         }
 
@@ -502,11 +541,14 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     switch (selected)
     {
     case ACTION_CLOSE_TRADE:
-    case ACTION_EXPIRE_TRADE:
     case ACTION_ROLL_LEG:
     case ACTION_CLOSE_LEG:
         //TradesPanel_PopulateLegsEditVector
         TradeDialog_Show(selected, nullptr);
+        break;
+    case ACTION_EXPIRE_TRADE:
+        TradesPanel_PopulateLegsEditVectorUsingTrade(trade);
+        TradesPanel_ExpireSelectedLegs(trade);
         break;
     case ACTION_EXPIRE_LEG:
         TradesPanel_PopulateLegsEditVector(hListBox);
