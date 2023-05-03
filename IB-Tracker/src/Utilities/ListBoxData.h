@@ -2,7 +2,6 @@
 
 #include "..\Themes\Themes.h"
 #include "..\Database\trade.h"
-#include "..\Templates\Templates.h"
 
 
 // ListBox data structure that will be directly accessed for each row 
@@ -31,7 +30,6 @@ public:
     TickerId        tickerId = -1;
     Trade*          trade = nullptr;
     Leg*            leg = nullptr;
-    CTradeTemplate* pTradeTemplate = nullptr;
     ColumnData      col[10];
 
 

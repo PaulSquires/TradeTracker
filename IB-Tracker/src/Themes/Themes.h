@@ -35,9 +35,11 @@ enum class ThemeElement {
 };
 
 
+enum class ActiveThemeColor {
+	Dark,
+	Light
+};
 
-bool LoadTheme();
-void InitializeThemeColors();
 
 DWORD GetThemeColor(ThemeElement element);
 COLORREF GetThemeCOLORREF(ThemeElement element);
@@ -48,5 +50,7 @@ void SetThemeName(std::wstring wszTheme);
 std::wstring GetThemeName();
 void SetIsThemeDark(bool isDark);
 bool GetIsThemeDark();
+void InitializeDarkThemeColors();
+void InitializeLightThemeColors();
 
 extern std::vector<DWORD> clr;

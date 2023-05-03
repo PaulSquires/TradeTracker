@@ -546,12 +546,12 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     {
     case ACTION_CLOSE_TRADE:
         TradesPanel_PopulateLegsEditVectorUsingTrade(trade);
-        TradeDialog_Show(selected, nullptr);
+        TradeDialog_Show(selected);
         break;
     case ACTION_ROLL_LEG:
     case ACTION_CLOSE_LEG:
         TradesPanel_PopulateLegsEditVector(hListBox);
-        TradeDialog_Show(selected, nullptr);
+        TradeDialog_Show(selected);
         break;
     case ACTION_EXPIRE_TRADE:
         TradesPanel_PopulateLegsEditVectorUsingTrade(trade);
@@ -562,12 +562,12 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
         TradesPanel_ExpireSelectedLegs(trade);
         break;
     case ACTION_SHARE_ASSIGNMENT:
-        TradeDialog_Show(selected, nullptr);
+        TradeDialog_Show(selected);
         break;
     case ACTION_ADDTO_TRADE:
     case ACTION_ADDPUTTO_TRADE:
     case ACTION_ADDCALLTO_TRADE:
-        TradeDialog_Show(selected, nullptr);
+        TradeDialog_Show(selected);
     }
 
 }

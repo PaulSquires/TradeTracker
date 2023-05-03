@@ -208,17 +208,6 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         }
         break;
 
-    case (IDC_TRADEDIALOG_TEMPLATES):
-        if (codeNotify == LBN_SELCHANGE) {
-            int nCurSel = ListBox_GetCurSel(hwndCtl);
-            if (nCurSel == -1) break;
-            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
-            if (ld != nullptr) {
-                LoadTemplateInTradeTable(hwnd, ld->pTradeTemplate);
-            }
-        }
-        break;
-
     }
 }
 
@@ -252,7 +241,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
-void TradeDialog_Show(int inTradeAction, CTradeTemplate* pTradeTemplate)
+void TradeDialog_Show(int inTradeAction)
 {
     tradeAction = inTradeAction;
 
@@ -278,7 +267,7 @@ void TradeDialog_Show(int inTradeAction, CTradeTemplate* pTradeTemplate)
     
     // Show any selected Trade Template that might be coming from a selected menu
     // item from the main application's navigation MenuPanel menu.
-    LoadTemplateInTradeTable(hwnd, pTradeTemplate);
+    //LoadTemplateInTradeTable(hwnd, pTradeTemplate);
 
     // Show the legsEdit legs (if any) based on the incoming action.
     LoadEditLegsInTradeTable(hwnd);

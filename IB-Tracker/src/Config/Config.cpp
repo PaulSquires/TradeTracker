@@ -14,7 +14,7 @@ const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 const std::wstring version = L"1.0.0";
 
 std::wstring wszTraderName;
-bool StartupConnect = true;
+bool StartupConnect = false;
 
 extern HWND HWND_MENUPANEL;
 
@@ -82,7 +82,7 @@ bool SaveConfig()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "THEME|" << L"Dark" << "\n"
+        << "THEME|" << GetThemeName() << "\n"
         << "TRADERNAME|" << GetTraderName() << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 

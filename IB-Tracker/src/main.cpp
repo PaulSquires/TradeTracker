@@ -4,7 +4,6 @@
 #include "Themes/Themes.h"
 #include "Database/database.h"
 #include "Config/Config.h"
-#include "Templates/Templates.h"
 #include "MainWindow/MainWindow.h"
 #include "Utilities/UserMessages.h"
 
@@ -88,9 +87,8 @@ int APIENTRY wWinMain(
     // Set the Theme to use for all windows and controls. Remember to call
     // the SetThemeMainWindow() function after the application's main 
     // window is created. LoadConfig may override this setting if a Theme
-    // setting is found in the database and can be loaded from the external
-    // theme disk file.
-    InitializeThemeColors();
+    // setting is found. 
+    InitializeDarkThemeColors();
 
 
     // Set the Trader's name that will display in the Menu panel.
@@ -100,17 +98,8 @@ int APIENTRY wWinMain(
 
 
     // Load the Config file. Settings found in the Config file will override
-    // previously set values from InitializeThemeColors, SetTraderName.
+    // previously set values from InitializeDarkThemeColors, SetTraderName.
     LoadConfig();
-
-
-    // Load the Theme files (both pre-defined and any User defined) and attempt
-    // to match the selected Theme as defined in the Config file.
-    LoadTheme();
-
-
-    // Load the Trade Templates (both pre-defined and any User defined).
-    LoadTemplates();
 
 
     // Load all transactions and configuration information. 

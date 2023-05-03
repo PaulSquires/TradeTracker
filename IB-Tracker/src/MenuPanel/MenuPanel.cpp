@@ -8,7 +8,6 @@
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\TradeDialog\TradeDialog.h"
 #include "..\Utilities\ListBoxData.h"
-#include "..\Templates\Templates.h"
 #include "MenuPanel.h"
 
 
@@ -286,6 +285,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // Add any Trade Templates that have their MENU property set to True.
+/*
     int ctrlId = IDC_MENUPANEL_FIRSTTEMPLATE;
 
     for (auto& t : TradeTemplates)
@@ -320,6 +320,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     }
 
+*/
 
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
@@ -597,11 +598,11 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
 
             // Deal with any Trade Templates in the menu
-            if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
-            {
-                TradeDialog_Show(ACTION_NEW_TRADE, pData->pTradeTemplate);
-                return 0;
-            }
+            //if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
+            //{
+            //    TradeDialog_Show(ACTION_NEW_TRADE, pData->pTradeTemplate);
+            //    return 0;
+            //}
 
 
             switch (CtrlId) {

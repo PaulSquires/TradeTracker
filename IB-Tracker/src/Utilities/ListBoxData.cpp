@@ -7,7 +7,6 @@
 #include "..\MainWindow\tws-client.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
-#include "..\Templates\Templates.h"
 #include "..\TradeDialog\TradeDialog.h"
 #include "..\MenuPanel\MenuPanel.h"
 
@@ -495,7 +494,7 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
             }
             col++;
 
-            ld->SetData(col, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, StringAlignmentCenter, 
+            ld->SetData(col, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, StringAlignmentCenter,
                 ThemeElement::TradesPanelColBackDark, ThemeElement::TradesPanelText, font8, FontStyleRegular);  // position quantity
             col++;
 
@@ -830,15 +829,15 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
     REAL font8 = 8;
     REAL font9 = 9;
 
-    for (auto& t : TradeTemplates) {
-        ld = new ListBoxData;
-        ld->pTradeTemplate = &t;
-        ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
-            ThemeElement::MenuPanelBack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
-        ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,
-            ThemeElement::MenuPanelBack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
-        ListBox_AddString(hListBox, ld);
-    }
+    //for (auto& t : TradeTemplates) {
+    //    ld = new ListBoxData;
+    //    ld->pTradeTemplate = &t;
+    //    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+    //        ThemeElement::MenuPanelBack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
+    //    ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,
+    //        ThemeElement::MenuPanelBack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
+    //    ListBox_AddString(hListBox, ld);
+    //}
 }
 
 
@@ -1009,7 +1008,12 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             stringF.SetAlignment(HAlignment);
             stringF.SetLineAlignment(VAlignment);
 
-            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth, (REAL)nHeight);
+            // If right alignment then add a very small amount of right side
+            // padding so that text is not pushed up right against the right side.
+            int rightPadding = 0;
+            if (HAlignment == StringAlignmentFar) rightPadding = AfxScaleX(2);
+
+            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth - rightPadding, (REAL)nHeight);
             graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
 
             nLeft += colWidth;

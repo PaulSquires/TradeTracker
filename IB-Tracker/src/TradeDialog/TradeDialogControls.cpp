@@ -194,8 +194,9 @@ void LoadEditLegsInTradeTable(HWND hwnd)
 // ========================================================================================
 // Load the data for the selected Trade Template into the Trade Management table
 // ========================================================================================
-void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate)
+void LoadTemplateInTradeTable(HWND hwnd)
 {
+/*
     if (pTradeTemplate == nullptr) return;
 
     ResetTradeTableControls(hwnd);
@@ -239,6 +240,7 @@ void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate)
         foundAt = ComboBox_FindStringExact(lc.cols[4], -1, leg.PutCall.c_str());
         ComboBox_SetCurSel(lc.cols[4], foundAt);
     }
+*/
 
 }
 
