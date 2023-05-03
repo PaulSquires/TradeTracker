@@ -56,3 +56,4 @@ void FormatNumberFourDecimals(HWND hCtl);
 void CalculateTradeTotal(HWND hwnd);
 void CalculateTradeDTE(HWND hwnd);
 void LoadTemplateInTradeTable(HWND hwnd, CTradeTemplate* pTradeTemplate);
+void LoadEditLegsInTradeTable(HWND hwnd);

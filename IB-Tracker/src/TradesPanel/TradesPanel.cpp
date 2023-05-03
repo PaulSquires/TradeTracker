@@ -25,6 +25,8 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 // Vector to hold all selected legs that TradeDiaog will act on
 std::vector<Leg*> legsEdit;
+Trade* tradeEdit = nullptr;
+
 
 // Variable to hold which Trades listbox is showing data (Active Trades or
 // Closed Trades). Need this to ensure that the correct Menu item remains
@@ -432,6 +434,7 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
 void TradesPanel_PopulateLegsEditVectorUsingTrade(Trade* trade)
 {
     legsEdit.clear();
+    tradeEdit = trade;
 
     int nCount = trade->openLegs.size();
     legsEdit.reserve(nCount);
@@ -468,6 +471,7 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
                 // Only allow Option legs to be pushed to legEdit
                 if (ld->leg != nullptr) {
                     legsEdit.push_back(ld->leg);
+                    tradeEdit = ld->trade;
                 }
             }
         }
@@ -541,9 +545,12 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     switch (selected)
     {
     case ACTION_CLOSE_TRADE:
+        TradesPanel_PopulateLegsEditVectorUsingTrade(trade);
+        TradeDialog_Show(selected, nullptr);
+        break;
     case ACTION_ROLL_LEG:
     case ACTION_CLOSE_LEG:
-        //TradesPanel_PopulateLegsEditVector
+        TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected, nullptr);
         break;
     case ACTION_EXPIRE_TRADE:

@@ -3,6 +3,7 @@
 #include "TradeDialog.h"
 #include "..\VScrollBar\VScrollBar.h"
 #include "..\Utilities\ListBoxData.h"
+#include "..\Utilities\AfxWin.h"
 #include "..\SuperLabel\SuperLabel.h"
 #include "..\TradesPanel\TradesPanel.h"
 
@@ -15,6 +16,9 @@ std::vector<LineCtrl> lCtrls;
 
 extern CTradeDialog TradeDialog;
 extern int tradeAction;
+extern std::vector<Leg*> legsEdit;
+extern Trade* tradeEdit;
+
 
 
 
@@ -106,6 +110,84 @@ void ResetTradeTableControls(HWND hwnd)
 
     ComboBox_SetCurSel(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), 0);
     CalculateTradeDTE(hwnd);
+}
+
+
+
+// ========================================================================================
+// Load the legs for the edit Action into the Trade Management table
+// ========================================================================================
+void LoadEditLegsInTradeTable(HWND hwnd)
+{
+    if (legsEdit.size() == 0) return;
+
+    // Update the Trade Management table with the details of the Trade.
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), tradeEdit->tickerSymbol);
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), tradeEdit->tickerName);
+    
+    int foundAt = ComboBox_FindStringExact(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), -1, L"DEBIT");
+    ComboBox_SetCurSel(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), foundAt);
+
+    int DefaultQuantity = 0;
+
+    // Display the legs being closed and set each to the needed inverse action.
+    int nextRow = 0;
+    for (const auto& leg : legsEdit) {
+        LineCtrl lc = lCtrls.at(nextRow);
+
+        // ACTION
+        std::wstring action = leg->action;
+        if (action == L"STO") action = L"BTC";
+        if (action == L"BTO") action = L"STC";
+        int foundAt = ComboBox_FindStringExact(lc.cols[0], -1, action.c_str());
+        ComboBox_SetCurSel(lc.cols[0], foundAt);
+
+        // QUANTITY
+        DefaultQuantity = leg->openQuantity;
+        std::wstring legQuantity = std::to_wstring(leg->openQuantity * -1);
+        AfxSetWindowText(lc.cols[1], legQuantity.c_str());
+
+        // EXPIRY DATE
+        AfxSetDateTimePickerDate(lc.cols[2], leg->expiryDate);
+
+        // STRIKE PRICE
+        AfxSetWindowText(lc.cols[3], leg->strikePrice.c_str());
+
+        // PUT/CALL
+        std::wstring PutCall = leg->PutCall;
+        if (PutCall == L"P") PutCall = L"PUT";
+        if (PutCall == L"C") PutCall = L"CALL";
+        foundAt = ComboBox_FindStringExact(lc.cols[4], -1, PutCall.c_str());
+        ComboBox_SetCurSel(lc.cols[4], foundAt);
+
+        nextRow++;
+    }
+    
+    // DTE
+    CalculateTradeDTE(hwnd);
+
+    // QUANTITY
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), std::to_wstring(abs(DefaultQuantity)));
+    FormatNumberFourDecimals(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));
+
+
+    // Add some default information for the new Roll transaction
+    //if (tradeAction == ACTION_ROLL_LEG) {
+    //    nextRow++;
+    //    nextRow++;
+    //    for (const auto& leg : legsEdit) {
+    //        LineCtrl lc = lCtrls.at(nextRow);
+    //        AfxSetWindowText(lc.cols[1], std::to_wstring(leg->openQuantity));
+    //        // Set the new expiry date to be 1 week from the current expiry date as a new default
+    //        QDate newExpiryDate = QDate::fromString(leg->expiryDate, "yyyy-MM-dd").addDays(7);
+    //        ui->tableLegs->cellWidget(i + nextRow, 1)->setProperty("date", newExpiryDate.toString("yyyy-MM-dd"));
+    //        ui->tableLegs->cellWidget(i + nextRow, 3)->setProperty("text", leg->strikePrice);
+    //        ui->tableLegs->cellWidget(i + nextRow, 4)->setProperty("currentText", leg->PutCall);
+    //        ui->tableLegs->cellWidget(i + nextRow, 5)->setProperty("currentText", leg->action);
+    //    }
+    //    ui->comboDRCR->setCurrentText("CR");
+    //}
+
 }
 
 
@@ -440,6 +522,54 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
 
 
 // ========================================================================================
+// Set the Edit label and the trade description based on the type of trade action.
+// ========================================================================================
+void TradeDialogControls_SetEditLabelAndDescription(HWND hwnd)
+{
+    std::wstring wszAction;
+    std::wstring wszDescription;
+
+    switch (tradeAction)
+    {
+    case ACTION_NEW_TRADE:
+        wszAction = L"NEW";
+        break;
+    case ACTION_CLOSE_TRADE:
+    case ACTION_CLOSE_LEG:
+        wszAction = L"CLOSE";
+        wszDescription = L"Close";
+        break;
+    case ACTION_EXPIRE_TRADE:
+    case ACTION_EXPIRE_LEG:
+        wszAction = L"EXPIRE";
+        wszDescription = L"Expiration";
+        break;
+    case ACTION_ROLL_LEG:
+        wszAction = L"ROLL";
+        wszDescription = L"Roll";
+        break;
+    case ACTION_SHARE_ASSIGNMENT:
+        wszAction = L"ASSIGNMENT";
+        break;
+    case ACTION_ADDTO_TRADE:
+    case ACTION_ADDPUTTO_TRADE:
+    case ACTION_ADDCALLTO_TRADE:
+        wszAction = L"ADD TO";
+        break;
+    }
+
+    HWND hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION);
+    SuperLabel * pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->wszText = wszAction;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), wszDescription);
+
+}
+
+
+// ========================================================================================
 // Helper function for WM_SIZE message for window/dialog: TradeDialog
 // ========================================================================================
 void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
@@ -713,34 +843,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData->TextColor = ThemeElement::TradesPanelText;
         pData->FontSize = 14;
         pData->TextAlignment = SuperLabelAlignment::TopRight;
-        
-        // Set the text based on the type of trade action
-        switch (tradeAction)
-        {
-        case ACTION_NEW_TRADE:
-            pData->wszText = L"NEW";
-            break;
-        case ACTION_CLOSE_TRADE:
-        case ACTION_CLOSE_LEG:
-            pData->wszText = L"CLOSE";
-            break;
-        case ACTION_EXPIRE_TRADE:
-        case ACTION_EXPIRE_LEG:
-            pData->wszText = L"EXPIRE";
-            break;
-        case ACTION_ROLL_LEG:
-            pData->wszText = L"ROLL";
-            break;
-        case ACTION_SHARE_ASSIGNMENT:
-            pData->wszText = L"ASSIGNMENT";
-            break;
-        case ACTION_ADDTO_TRADE:
-        case ACTION_ADDPUTTO_TRADE:
-        case ACTION_ADDCALLTO_TRADE:
-            pData->wszText = L"ADD TO";
-            break;
-        }
-
         SuperLabel_SetOptions(hCtl, pData);
     }
 
@@ -841,6 +943,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     ComboBox_AddString(hCtl, L"CREDIT");
     ComboBox_AddString(hCtl, L"DEBIT");
     ComboBox_SetCurSel(hCtl, 0);
+
+    TradeDialogControls_SetEditLabelAndDescription(hwnd);
 
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", 0, 0, 74, 28);
     TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", 0, 0, 74, 28);

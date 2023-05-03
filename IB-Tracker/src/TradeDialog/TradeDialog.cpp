@@ -280,7 +280,10 @@ void TradeDialog_Show(int inTradeAction, CTradeTemplate* pTradeTemplate)
     // item from the main application's navigation MenuPanel menu.
     LoadTemplateInTradeTable(hwnd, pTradeTemplate);
 
+    // Show the legsEdit legs (if any) based on the incoming action.
+    LoadEditLegsInTradeTable(hwnd);
 
+    
     // Blur the underlying MainWindow panels in order to reduce "visual noise" while
     // our Trade Management popup is active. The MainWindow panels are shown again
     // during our call to TradeDialog_OnClose() prior to enabling the MainWindow

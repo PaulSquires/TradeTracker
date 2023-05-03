@@ -386,43 +386,86 @@ std::wstring AfxGetUserName()
 
 
 // ========================================================================================
-// Returns the Astronomical Day for any given date.
-// Parameters:
-// - nDay: A number between 1-31.
-// - nMonth; A number between 1-12.
-// - nYear: A four digit year, e.g. 2011.
-// Return Value:
-// - The Astronomical Day.
-// See: http://support.microsoft.com/kb/109451/en-us
-// Note: Among other things, can be used to find the number of days between any two dates, e.g.:
-// PRINT AfxAstroDay(1, 3, -12400) - AfxAstroDay(28, 2, -12400)  ' Prints 2
-// PRINT AfxAstroDay(1, 3, 12000) - AfxAstroDay(28, 2, -12000) ' Prints 8765822
-// PRINT AfxAstroDay(28, 2, 1902) - AfxAstroDay(1, 3, 1898)  ' Prints 1459 days
+// Adds the specified number of days to the incoming date and returns the new date.
 // ========================================================================================
-int AfxAstroDay(int nDay, int nMonth, int nYear)
-{
-    double y = nYear + (nMonth - 2.85) / 12;
-    return INT(INT(INT(367 * y) - 1.75 * INT(y) + nDay) - 0.75 * INT(0.01 * y)) + 1721119;
-}
-
-
-// ========================================================================================
-// Returns the number of days between two ISO formatted dates.
-// ========================================================================================
-int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate)
+std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd)
 {
     // YYYY-MM-DD
     // 0123456789
 
-    int nYear1 = std::stoi(wszStartDate.substr(0, 4));
-    int nMonth1 = std::stoi(wszStartDate.substr(5, 2));
-    int nDay1 = std::stoi(wszStartDate.substr(8, 2));
+    SYSTEMTIME st = { 0 };
+    FILETIME ft = { 0 };
 
-    int nYear2 = std::stoi(wszEndDate.substr(0, 4));
-    int nMonth2 = std::stoi(wszEndDate.substr(5, 2));
-    int nDay2 = std::stoi(wszEndDate.substr(8, 2));
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
 
-    return AfxAstroDay(nDay2, nMonth2, nYear2) - AfxAstroDay(nDay1, nMonth1, nYear1);
+    SystemTimeToFileTime(&st, &ft);
+
+    ULARGE_INTEGER u = { 0 };
+    u.LowPart = ft.dwLowDateTime;
+    u.HighPart = ft.dwHighDateTime;
+
+    // Add seconds to our large integer
+    u.QuadPart += (60 * 60 * 24 * numDaysToAdd) * 10000000LLU;
+
+    ft.dwLowDateTime = u.LowPart;
+    ft.dwHighDateTime = u.HighPart;
+
+    FileTimeToSystemTime(&ft, &st);
+
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
+
+// ========================================================================================
+// Return the number of days between two dates (YYYY-MM-DD)
+// ========================================================================================
+int AfxDaysBetween(std::wstring date1, std::wstring date2)
+{
+    static const ULONGLONG FT_SECOND = ((ULONGLONG)10000000);
+    static const ULONGLONG FT_MINUTE = (60 * FT_SECOND);
+    static const ULONGLONG FT_HOUR = (60 * FT_MINUTE);
+    static const ULONGLONG FT_DAY = (24 * FT_HOUR);
+
+    SYSTEMTIME st1 = { 0 };
+    FILETIME ft1 = { 0 };
+    st1.wYear = std::stoi(date1.substr(0, 4));
+    st1.wMonth = std::stoi(date1.substr(5, 2));
+    st1.wDay = std::stoi(date1.substr(8, 2));
+
+    SystemTimeToFileTime(&st1, &ft1);
+
+    ULARGE_INTEGER u1 = { 0 };
+    u1.LowPart = ft1.dwLowDateTime;
+    u1.HighPart = ft1.dwHighDateTime;
+
+
+    SYSTEMTIME st2 = { 0 };
+    FILETIME ft2 = { 0 };
+    st2.wYear = std::stoi(date2.substr(0, 4));
+    st2.wMonth = std::stoi(date2.substr(5, 2));
+    st2.wDay = std::stoi(date2.substr(8, 2));
+
+    SystemTimeToFileTime(&st2, &ft2);
+
+    ULARGE_INTEGER u2 = { 0 };
+    u2.LowPart = ft2.dwLowDateTime;
+    u2.HighPart = ft2.dwHighDateTime;
+
+    // Subtract the two dates.
+    // FILETIME's measure the number of 100-nanosecond intervals. Convert this to days.
+    ULONGLONG ullNanoDiff = 0;
+    if (u2.QuadPart > u1.QuadPart) {
+        ullNanoDiff = u2.QuadPart - u1.QuadPart;
+        return (int)(ullNanoDiff / FT_DAY);
+    }
+    else {
+        ullNanoDiff = u1.QuadPart - u2.QuadPart;
+        return -(int)(ullNanoDiff / FT_DAY);
+    }
 }
 
 
@@ -467,6 +510,28 @@ int AfxGetDay(std::wstring wszDate)
     // YYYY-MM-DD
     // 0123456789
     return std::stoi(wszDate.substr(8, 2));
+}
+
+
+// ========================================================================================
+// Returns the current local year. The valid values are 1601 through 30827.
+// ========================================================================================
+int AfxLocalYear()
+{
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    return st.wYear;
+}
+
+
+// ========================================================================================
+// Returns the current local month. The valid values are 1 thorugh 12 (1 = January, etc.).
+// ========================================================================================
+int AfxLocalMonth()
+{
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    return st.wMonth;
 }
 
 
@@ -642,28 +707,6 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2)
 {
     return ((s1.size() == s2.size()) &&
     equal(s1.begin(), s1.end(), s2.begin(), caseInsCharCompareW));
-}
-
-
-// ========================================================================================
-// Returns the current local year. The valid values are 1601 through 30827.
-// ========================================================================================
-int AfxLocalYear()
-{
-    SYSTEMTIME st;
-    GetLocalTime(&st);
-    return st.wYear;
-}
-
-
-// ========================================================================================
-// Returns the current local month. The valid values are 1 thorugh 12 (1 = January, etc.).
-// ========================================================================================
-int AfxLocalMonth()
-{
-    SYSTEMTIME st;
-    GetLocalTime(&st);
-    return st.wMonth;
 }
 
 
@@ -872,7 +915,7 @@ int Header_GetItemAlignment(HWND hwndHD, int nItem)
 // nWidth - width of the new item. 
 // lpsz - address of the item string. 
 // ========================================================================================
-bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment = HDF_LEFT)
+bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment)
 {
     HDITEM hdi{};
     hdi.mask = HDI_TEXT | HDI_FORMAT | HDI_WIDTH;
@@ -883,5 +926,51 @@ bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pws
 
     return SendMessage(hwndHD, HDM_INSERTITEM, (WPARAM)iInsertAfter, (LPARAM)&hdi);
 }
+
+
+// ========================================================================================
+// Convert a string to uppercase or lowercase. 
+// ========================================================================================
+std::wstring AfxUpper(const std::wstring& wszText)
+{
+    // using transform() function and ::toupper in STL
+    std::wstring s = wszText;
+    transform(s.begin(), s.end(), s.begin(), ::toupper);
+    return s;
+}
+
+std::wstring AfxLower(const std::wstring& wszText)
+{
+    // using transform() function and ::tolower in STL
+    std::wstring s = wszText;
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+}
+
+
+// ========================================================================================
+// Set/Get the date for a DateTimePicker control. 
+// ========================================================================================
+void AfxSetDateTimePickerDate(HWND hCtl, std::wstring wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+
+    SYSTEMTIME st;
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+    DateTime_SetSystemtime(hCtl, GDT_VALID, &st);
+}
+
+std::wstring AfxGetDateTimePickerDate(HWND hCtl)
+{
+    SYSTEMTIME st;
+    DateTime_GetSystemtime(hCtl, &st);
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
 
 

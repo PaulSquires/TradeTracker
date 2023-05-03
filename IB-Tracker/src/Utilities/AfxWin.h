@@ -29,11 +29,17 @@ std::wstring AfxGetListBoxText(HWND hListBox, int nIndex);
 std::wstring AfxGetExePath();
 std::wstring AfxGetUserName();
 std::wstring AfxCurrentDate();
+
+std::wstring AfxShortDate(std::wstring wszDate);
+std::wstring AfxGetShortDayName(std::wstring wszDate);
 int AfxGetYear(std::wstring wszDate);
 int AfxGetMonth(std::wstring wszDate);
 int AfxGetDay(std::wstring wszDate);
-int AfxDaysBetween(std::wstring wszStartDate, std::wstring wszEndDate);
-std::wstring AfxShortDate(std::wstring wszDate);
+int AfxLocalYear();
+int AfxLocalMonth();
+int AfxDaysBetween(std::wstring date1, std::wstring date2);
+std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd);
+
 bool isWineActive();
 std::wstring AfxGetDefaultFont();
 std::string unicode2ansi(const std::wstring& wstr);
@@ -42,9 +48,6 @@ std::wstring AfxMoney(double value, bool UseMinusSign = false);
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y);
 bool AfxStringCompareI(const std::string& s1, const std::string& s2);
 bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
-int AfxLocalYear();
-int AfxLocalMonth();
-std::wstring AfxGetShortDayName(std::wstring wszDate);
 std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter);
 bool AfxFileExists(const std::wstring& wszFileSpec);
 std::wstring& AfxLTrim(std::wstring& s);
@@ -57,4 +60,9 @@ bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText);
 std::wstring Header_GetItemText(HWND hwndHD, int nItem);
 int Header_GetItemAlignment(HWND hwndHD, int nItem);
 bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment = HDF_LEFT);
+std::wstring AfxUpper(const std::wstring& wszText);
+std::wstring AfxLower(const std::wstring& wszText);
+void AfxSetDateTimePickerDate(HWND hCtl, std::wstring wszDate);
+std::wstring AfxGetDateTimePickerDate(HWND hCtl);
+
 
