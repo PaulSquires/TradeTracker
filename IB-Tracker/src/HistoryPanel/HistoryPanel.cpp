@@ -516,7 +516,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int margin = AfxScaleY(HISTORYPANEL_MARGIN);
 
-    HDWP hdwp = BeginDeferWindowPos(7);
+    HDWP hdwp = BeginDeferWindowPos(10);
 
     // Move and size the top label into place
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_HISTORY_SYMBOL), 0,
@@ -569,6 +569,8 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
         ShowWindow(GetDlgItem(hwnd, IDC_HISTORY_LISTBOX_SUMMARY), SW_HIDE);
         ShowWindow(hHeaderDailySummary, SW_HIDE);
         ShowWindow(hHeaderDailyTotals, SW_HIDE);
+
+        // 
     }
 
     
@@ -646,6 +648,19 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // paint the Daily History Summary.
     hCtl =
         HistoryPanel.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX_SUMMARY, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
+            LBS_OWNERDRAWVARIABLE | LBS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)HistoryPanel_ListBox_SubclassProc,
+            IDC_HISTORY_LISTBOX, NULL);
+    ListBox_AddString(hCtl, NULL);
+
+    // Create an Ownerdraw variable row sized listbox that we will use to custom
+    // paint the Transaction Details when a line is clicked on.
+    hCtl =
+        HistoryPanel.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX_TRANSDETAILS, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
