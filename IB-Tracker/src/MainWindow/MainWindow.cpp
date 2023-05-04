@@ -9,6 +9,8 @@
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\DailyPanel\DailyPanel.h"
+#include "..\TickerPanel\TickerPanel.h"
 #include "..\SuperLabel\SuperLabel.h"
 #include "..\Themes\Themes.h"
 #include "..\Utilities\UserMessages.h"
@@ -21,6 +23,8 @@ CMainWindowShadow Shadow;
 CMenuPanel        MenuPanel;
 CHistoryPanel     HistoryPanel;
 CTradesPanel      TradesPanel;
+CTickerPanel      TickerPanel;
+CDailyPanel       DailyPanel;
 
 
 extern void TradesPanel_ShowActiveTrades();
@@ -226,6 +230,14 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
+    TickerPanel.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    DailyPanel.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
     // Create a label that will display at the very bottom of the Main window
     // that allows toggling Dark Theme on/off. This label is always positioned
     // at the bottom of the window via On_Size().

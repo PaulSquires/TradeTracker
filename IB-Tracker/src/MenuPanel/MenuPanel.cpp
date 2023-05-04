@@ -13,8 +13,8 @@
 
 extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
-extern void HistoryPanel_ShowTickerTotals();
-extern void HistoryPanel_ShowDailyTotals(const ListBoxData* ld);
+extern void TickerPanel_ShowTickerTotals();
+extern void DailyPanel_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_MENUPANEL = NULL;
 
@@ -651,14 +651,14 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_TICKERTOTALS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                HistoryPanel_ShowTickerTotals();
+                TickerPanel_ShowTickerTotals();
                 break;
             }
 
             case IDC_MENUPANEL_DAILYTOTALS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                HistoryPanel_ShowDailyTotals(nullptr);
+                DailyPanel_ShowDailyTotals(nullptr);
                 break;
             }
 
