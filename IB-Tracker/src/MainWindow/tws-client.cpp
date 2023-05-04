@@ -61,23 +61,26 @@ void threadFunction(std::future<void> future) {
 	}
 	isMonitorThreadActive = false;
 	std::cout << "Thread Terminated" << std::endl;
+	PostMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
 
 void StartMonitorThread()
 {
 	if (isMonitorThreadActive) return;
-	future = signal_exit.get_future();//create future objects
-    my_thread = std::thread(&threadFunction, std::move(future)); //start thread, and move future
+	future = signal_exit.get_future();   //create future objects
+    my_thread = std::thread(&threadFunction, std::move(future));  //start thread, and move future
 }
 
 void EndMonitorThread()
 {
-	if (!isMonitorThreadActive) return;
-	isThreadPaused = true;   // prevent processing TickData, etc while thread is shutting down
-	std::cout << "Threads will be stopped soon...." << std::endl;
-    signal_exit.set_value(); //set value into promise
-    my_thread.join(); //join the thread with the main thread
+	if (isMonitorThreadActive) {
+		isThreadPaused = true;   // prevent processing TickData, etc while thread is shutting down
+		std::cout << "Threads will be stopped soon...." << std::endl;
+		signal_exit.set_value(); // set value into promise
+	}
+	if (my_thread.joinable())
+		my_thread.join(); // join the thread with the main thread
 }
 
 
@@ -98,7 +101,7 @@ bool tws_connect()
         // and poll if TWS remains connected.
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
-		std::chrono::milliseconds(500); //wait for 500 milliseconds to allow sockets to breathe
+		std::chrono::milliseconds(500); // wait for 500 milliseconds to allow sockets to breathe
 
 		if (client.isConnected()) {
 			StartMonitorThread();

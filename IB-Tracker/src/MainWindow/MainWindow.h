@@ -17,4 +17,8 @@ public:
 
 #define IDI_MAINICON           106
 
+const int IDC_MAINWINDOW_DARKMODE = 100;
+const int IDC_MAINWINDOW_AUTOCONNECT = 101;
+
+
 void MainWindow_BlurPanels(bool active);

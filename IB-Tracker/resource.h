@@ -2,8 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by IB-Tracker.rc
 //
-#define IDB_GEAR                        103
-#define IDB_GEARHOT                     104
 #define IDB_LOGO                        105
 #define IDI_MAINICON                    106
 

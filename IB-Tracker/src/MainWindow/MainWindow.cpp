@@ -9,6 +9,8 @@
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\SuperLabel\SuperLabel.h"
+#include "..\Themes\Themes.h"
 #include "..\Utilities\UserMessages.h"
 #include "..\Config\Config.h"
 
@@ -22,6 +24,7 @@ CTradesPanel      TradesPanel;
 
 
 extern void TradesPanel_ShowActiveTrades();
+extern ActiveThemeColor ActiveTheme;
 
 RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter
@@ -77,6 +80,7 @@ void MainWindow_StartupShowTrades()
         TradesPanel_ShowActiveTrades();
 
         if (GetStartupConnect()) {
+            SendMessage(MenuPanel.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
             bool res = tws_connect();
             if (tws_isConnected()) {
                 // Need to re-populate the Trades if successfully connected in order
@@ -154,7 +158,7 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int INNER_MARGIN = AfxScaleY(6);
     int SPLITTER_WIDTH = AfxScaleX(6);
 
-    HDWP hdwp = BeginDeferWindowPos(3);
+    HDWP hdwp = BeginDeferWindowPos(5);
 
     // Position the left hand side Navigation Panel
     HWND hWndMenuPanel = MenuPanel.WindowHandle();
@@ -178,6 +182,19 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hWndTradesPanel, 0,
                 nMenuPanelWidth, 0, nTradesPanelWidth, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    // Position the Autoconnect indicator label
+    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_AUTOCONNECT);
+    int nHeight = AfxScaleY(HISTORYPANEL_MARGIN);
+    int nWidth = AfxScaleX(100);
+    DeferWindowPos(hdwp, hCtl, 0, cx - nWidth, cy - nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    // Position the Dark mode indicator label
+    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_DARKMODE);
+    DeferWindowPos(hdwp, hCtl, 0, cx - (nWidth*2), cy - nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
 
     EndDeferWindowPos(hdwp);
 
@@ -209,6 +226,55 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
+    // Create a label that will display at the very bottom of the Main window
+    // that allows toggling Dark Theme on/off. This label is always positioned
+    // at the bottom of the window via On_Size().
+    SuperLabel* pData = nullptr;
+
+    HWND hCtl = CreateSuperLabel(
+        hwnd,
+        IDC_MAINWINDOW_DARKMODE,
+        SuperLabelType::TextOnly,
+        0, 0, 0, 0);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = false;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->TextColor = ThemeElement::MenuPanelTextDim;
+        pData->TextColorHot = ThemeElement::MenuPanelTextDim;
+        pData->FontSize = 8;
+        pData->FontSizeHot = 8;
+        pData->wszText = L"Dark Mode: ON";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    // Create a label that will display at the very bottom of the Main window
+    // that allows toggling Autoconnect on/off. This label is always positioned
+    // at the bottom of the window via On_Size().
+    hCtl = CreateSuperLabel(
+        hwnd,
+        IDC_MAINWINDOW_AUTOCONNECT,
+        SuperLabelType::TextOnly,
+        0, 0, 0, 0);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = false;
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->TextColor = ThemeElement::MenuPanelTextDim;
+        pData->TextColorHot = ThemeElement::MenuPanelTextDim;
+        pData->FontSize = 8;
+        pData->FontSizeHot = 8;
+        pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
+        pData->wszTextHot = pData->wszText;
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
     return TRUE;
 }
 
@@ -356,8 +422,47 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SETCURSOR, MainWindow_OnSetCursor);
 
     case MSG_STARTUP_SHOWTRADES:
+    {
         MainWindow_StartupShowTrades();
         return 0;
+    }
+
+    case MSG_SUPERLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtl, 0);
+
+        if (pData) {
+            if (CtrlId == IDC_MAINWINDOW_DARKMODE) {
+                if (ActiveTheme == ActiveThemeColor::Dark) {
+                    SetThemeName(L"Light");
+                    SuperLabel_SetText(hCtl, L"Dark Mode: OFF");
+                }
+                else {
+                    SetThemeName(L"Dark");
+                    SuperLabel_SetText(hCtl, L"Dark Mode: ON");
+                }
+                ApplyActiveTheme();
+                SaveConfig();
+            }
+
+            if (CtrlId == IDC_MAINWINDOW_AUTOCONNECT) {
+                SetStartupConnect(!GetStartupConnect());
+                if (GetStartupConnect()) {
+                    SuperLabel_SetText(hCtl, L"Autoconnect: ON");
+                }
+                else {
+                    SuperLabel_SetText(hCtl, L"Autoconnect: OFF");
+                }
+                SaveConfig();
+            }
+        }
+        return 0;
+
+    }
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Themes.h"
 #include "..\Utilities\AfxWin.h"
+#include "..\Utilities\CWindowBase.h"
 
 
 HWND hWndMainWindow = NULL;
@@ -109,7 +110,8 @@ void InitializeLightThemeColors()
 
 // ========================================================================================
 // Set the current Theme based on it's string name (std::wstring).
-// This value will have been read from the Config file.
+// This value will have been read from the Config file or set via clicking
+// on the Dark Mode label on the MainWindow.
 // ========================================================================================
 void SetThemeName(std::wstring wszTheme)
 {
@@ -215,9 +217,27 @@ void ApplyActiveTheme()
 
 	// Enumerate through all top level and child windows to invalidate
 	// and repaint them with the new current active theme.
+	//if (hWndMainWindow != NULL) {
+//		AfxRedrawWindow(hWndMainWindow);
+	//	EnumChildWindows(hWndMainWindow, EnumWindowsProc, 0);
+	//}
+	
 	if (hWndMainWindow != NULL) {
-		AfxRedrawWindow(hWndMainWindow);
-		EnumChildWindows(hWndMainWindow, EnumWindowsProc, 0);
+		// If we are using a dark theme then attempt to apply the standard Windows dark theme
+		// to the non-client areas of the main form.
+		BOOL value = GetIsThemeDark();
+		::DwmSetWindowAttribute(hWndMainWindow, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
+		// The normal methods to invalidate the non-client area does not seem to force the
+		// theme titlebar to repaint. Need to hide/show the window (not ideal). However, one
+		// good benefit is that the child windows will be forced to repaint when shown thereby
+		// eliminating our need to EnumChildWindows.
+		ShowWindow(hWndMainWindow, SW_HIDE);
+		ShowWindow(hWndMainWindow, SW_SHOW);
+
+		//RedrawWindow(hWndMainWindow, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+		//SetWindowPos(hWndMainWindow, 0, 0, 0, 0, 0,
+		//	SWP_DRAWFRAME | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 }
 

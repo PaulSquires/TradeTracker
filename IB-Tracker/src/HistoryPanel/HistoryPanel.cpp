@@ -205,6 +205,7 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
         }
     }
 
+
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
@@ -270,7 +271,6 @@ void HistoryPanel_ShowDailyTotals(const ListBoxData* ld)
         }
         grandTotal += dayTotal;
     }
-
 
     // Output the data for the Daily Totals Summary
     ListBoxData_OutputDailyTotalsSummary(hListBoxSummary, grandTotal, MTD, YTD);
@@ -580,6 +580,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nWidth = VScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
 
     EndDeferWindowPos(hdwp);
 }

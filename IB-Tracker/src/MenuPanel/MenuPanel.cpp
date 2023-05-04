@@ -456,37 +456,49 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    nTop = nTop + nItemHeight;
+    nTop = nTop + 10;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_MENUPANEL_GEARICON,
-        SuperLabelType::ImageAndText,  
-        0, nTop, MENUPANEL_WIDTH, 26);
+        IDC_MENUPANEL_CONNECTTWS,
+        SuperLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::TradesPanelBack;   // selector should be same color as middle panel
         pData->BackColor = ThemeElement::MenuPanelBack;
-        pData->BackColorHot = ThemeElement::MenuPanelBack;
-        pData->TextColor = ThemeElement::MenuPanelTextDim;
-        pData->TextColorHot = ThemeElement::MenuPanelTextDim;
-        pData->FontSize = 9;
-        pData->FontSizeHot = pData->FontSize;
-        pData->TextAlignment = SuperLabelAlignment::MiddleLeft;
-        pData->wszText = L"TWS not connected";
+        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
+        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
+        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Connect to TWS";
         pData->wszTextHot = pData->wszText;
-        pData->wszToolTip = L" Connect to TWS ";
-        pData->TextOffsetLeft = 4;
-        pData->ImageWidth = 20;
-        pData->ImageHeight = 20;
-        pData->ImageOffsetLeft = 10;
-        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEAR), L"PNG");
-        pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_GEARHOT), L"PNG");
+        SuperLabel_SetOptions(hCtl, pData);
+    }
+
+
+    // SEPARATOR
+    nTop = nTop + nItemHeight + 6;
+    hCtl = CreateSuperLabel(
+        hwnd, -1,
+        SuperLabelType::LineHorizontal,
+        0, nTop, MENUPANEL_WIDTH, 10);
+    pData = SuperLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->LineColor = ThemeElement::MenuPanelSeparator;
+        pData->LineWidth = 2;
+        pData->MarginLeft = 10;
+        pData->MarginRight = 10;
         SuperLabel_SetOptions(hCtl, pData);
     }
 
     return TRUE;
 }
-
 
 
 // ========================================================================================
@@ -538,10 +550,10 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_START:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connecting to TWS";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         break;
     }
@@ -550,35 +562,29 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_SUCCESS:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"TWS Connected";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
+            pData->TextColor = ThemeElement::valuePositive;
+            pData->TextColorHot = ThemeElement::valuePositive;
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         break;
     }
 
 
     case MSG_TWS_CONNECT_FAILURE:
-    {
-        SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
-        if (pData) {
-            pData->wszText = L"TWS connection failed";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
-        }
-        break;
-    }
-
-
     case MSG_TWS_CONNECT_DISCONNECT:
     {
         SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
+        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
-            pData->wszText = L"TWS Disonnected";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_GEARICON));
+            pData->wszText = L"Connect to TWS";
+            pData->TextColor = ThemeElement::MenuPanelText;
+            pData->TextColorHot = ThemeElement::MenuPanelText;
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
+        EndMonitorThread();
         break;
     }
 
@@ -598,16 +604,16 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
 
             // Deal with any Trade Templates in the menu
-            //if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
-            //{
-            //    TradeDialog_Show(ACTION_NEW_TRADE, pData->pTradeTemplate);
-            //    return 0;
-            //}
+            if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
+            {
+                TradeDialog_Show(ACTION_NEW_TRADE);
+                return 0;
+            }
 
 
             switch (CtrlId) {
 
-            case IDC_MENUPANEL_GEARICON:
+            case IDC_MENUPANEL_CONNECTTWS:
             {
                 // If already connected then don't try to connect again
                 if (tws_isConnected()) break;
