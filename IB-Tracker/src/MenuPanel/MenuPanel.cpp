@@ -392,7 +392,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop = nTop + nItemHeight;
     hCtl = CreateSuperLabel(
         hwnd,
-        IDC_MENUPANEL_ACCOUNTING,
+        IDC_MENUPANEL_TRANSACTIONS,
         SuperLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
     pData = SuperLabel_GetOptions(hCtl);
@@ -408,7 +408,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
-        pData->wszText = L"Accounting";
+        pData->wszText = L"Transactions";
         pData->wszTextHot = pData->wszText;
         SuperLabel_SetOptions(hCtl, pData);
     }
@@ -662,13 +662,13 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            case IDC_MENUPANEL_ACCOUNTING:
+            case IDC_MENUPANEL_TRANSACTIONS:
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 MessageBox(
                     m_hwnd,
-                    (LPCWSTR)(L"Accounting features not implemented yet."),
+                    (LPCWSTR)(L"Transactions features not implemented yet."),
                     (LPCWSTR)L"Information",
                     MB_ICONINFORMATION
                 );
