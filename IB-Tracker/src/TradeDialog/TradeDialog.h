@@ -11,8 +11,6 @@ public:
 };
 
 
-const int IDC_TRADEDIALOG_TEMPLATES      = 100;
-const int IDC_TRADEDIALOG_VSCROLLBAR     = 101;
 const int IDC_TRADEDIALOG_TRANSDATE      = 105;
 const int IDC_TRADEDIALOG_TXTTICKER      = 106;
 const int IDC_TRADEDIALOG_TXTCOMPANY     = 107;
@@ -31,28 +29,26 @@ const int IDC_TRADEDIALOG_TXTTOTAL       = 120;
 const int IDC_TRADEDIALOG_COMBODRCR      = 121;
 const int IDC_TRADEDIALOG_FRAME1         = 122;
 const int IDC_TRADEDIALOG_FRAME2         = 123;
-const int IDC_TRADEDIALOG_LBLEDITACTION  = 124;
+const int IDC_TRADEDIALOG_FRAMESEP       = 124;
+const int IDC_TRADEDIALOG_LBLEDITACTION  = 125;
 
 const int IDC_TRADEDIALOG_OK             = 130;
 const int IDC_TRADEDIALOG_CANCEL         = 131;
 
-const int IDC_TRADEDIALOG_TABLEACTION    = 140;   // 12 controls
-const int IDC_TRADEDIALOG_TABLEQUANTITY  = 160;   // 12 controls
-const int IDC_TRADEDIALOG_TABLESTRIKE    = 180;   // 12 controls
-const int IDC_TRADEDIALOG_TABLEEXPIRY    = 200;   // 12 controls
-const int IDC_TRADEDIALOG_TABLEPUTCALL   = 220;   // 12 controls
-const int IDC_TRADEDIALOG_TABLEDTE       = 240;   // 12 controls
+const int IDC_TRADEDIALOG_TABLEACTION    = 140;   // 8 controls
+const int IDC_TRADEDIALOG_TABLEQUANTITY  = 160;   // 8 controls
+const int IDC_TRADEDIALOG_TABLESTRIKE    = 180;   // 8 controls
+const int IDC_TRADEDIALOG_TABLEEXPIRY    = 200;   // 8 controls
+const int IDC_TRADEDIALOG_TABLEPUTCALL   = 220;   // 8 controls
+const int IDC_TRADEDIALOG_TABLEDTE       = 240;   // 8 controls
 
 
-const int TRADEDIALOG_TEMPLATES_ROWHEIGHT  = 22;
 const int TRADEDIALOG_TRADETABLE_ROWHEIGHT = 20;
 const int TRADEDIALOG_TRADETABLE_WIDTH     = 560;
-const int TRADEDIALOG_TRADETABLE_NUMROWS   = 12;
-const int TRADEDIALOG_TRADETEMPLATES_WIDTH = 180;
+const int TRADEDIALOG_TRADETABLE_NUMROWS   = 4;
 
 void TradeDialog_Show(int inTradeAction);
 void FormatNumberFourDecimals(HWND hCtl);
 void CalculateTradeTotal(HWND hwnd);
 void CalculateTradeDTE(HWND hwnd);
-void LoadTemplateInTradeTable(HWND hwnd);
 void LoadEditLegsInTradeTable(HWND hwnd);

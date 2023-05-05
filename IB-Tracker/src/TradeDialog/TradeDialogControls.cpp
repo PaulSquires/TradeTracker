@@ -192,154 +192,32 @@ void LoadEditLegsInTradeTable(HWND hwnd)
 
 
 // ========================================================================================
-// Load the data for the selected Trade Template into the Trade Management table
+// Header control subclass Window procedure
 // ========================================================================================
-void LoadTemplateInTradeTable(HWND hwnd)
-{
-/*
-    if (pTradeTemplate == nullptr) return;
-
-    ResetTradeTableControls(hwnd);
-
-    // Select the Template in the listbox. The incoming pTradeTemplate could
-    // have been a selection from the MenuPanel menu.
-    HWND hTemplates = GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES);
-    int lbCount = ListBox_GetCount(hTemplates);
-    for (int i = 0; i < lbCount; i++) {
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hTemplates, i);
-        if (ld != nullptr) {
-            if (ld->pTradeTemplate == pTradeTemplate) {
-                ListBox_SetCurSel(hTemplates, i);
-                break;
-            }
-        }
-    }
-
-    // Update the Trade Management table with the details of the selected template.
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), pTradeTemplate->ticker);
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), pTradeTemplate->company);
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), pTradeTemplate->description);
-
-    HWND hCtrl = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER);
-    AfxSetWindowText(hCtrl, pTradeTemplate->multiplier);
-    FormatNumberFourDecimals(hCtrl);
-
-    int i = 0;
-    for (const auto& leg : pTradeTemplate->legs) {
-        LineCtrl lc = lCtrls.at(i);
-        i++;
-        
-        // action
-        int foundAt = ComboBox_FindStringExact(lc.cols[0], -1, leg.action.c_str());
-        ComboBox_SetCurSel(lc.cols[0], foundAt);
-
-        // quantity
-        AfxSetWindowText(lc.cols[1], leg.quantity.c_str());   
-        
-        // put/call
-        foundAt = ComboBox_FindStringExact(lc.cols[4], -1, leg.PutCall.c_str());
-        ComboBox_SetCurSel(lc.cols[4], foundAt);
-    }
-*/
-
-}
-
-
-// ========================================================================================
-// Listbox subclass Window procedure
-// ========================================================================================
-LRESULT CALLBACK TradeDialog_ListBox_SubclassProc(
+LRESULT CALLBACK TradeDialog_Header_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    // Create static accumulation variable to collect the data from
-    // a series of middle mouse wheel scrolls.
-    static int accumDelta = 0;
-
     switch (uMsg)
     {
 
-    case WM_MOUSEWHEEL:
+    case WM_ERASEBKGND:
     {
-        // Accumulate delta until scroll one line (up +120, down -120). 
-        // 120 is the Microsoft default delta
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
-        accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
-            nTopIndex -= 3;
-            nTopIndex = max(0, nTopIndex);
-            SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
-            accumDelta = 0;
-        }
-        else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
-                nTopIndex += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
-                accumDelta = 0;
-            }
-        }
-
-        switch (uIdSubclass)
-        {
-        case IDC_TRADEDIALOG_TEMPLATES:
-            VScrollBar_Recalculate(GetDlgItem(TradeDialog.WindowHandle(), IDC_TRADEDIALOG_VSCROLLBAR));
-            break;
-        }
-        break;
+        return TRUE;
     }
 
 
-    case WM_ERASEBKGND:
+    case WM_PAINT:
     {
-        // If the number of lines in the listbox maybe less than the number per page then 
-        // calculate from last item to bottom of listbox, otherwise calculate based on
-        // the mod of the lineheight to listbox height so we can color the partial line
-        // that won't be displayed at the bottom of the list.
-        RECT rc; GetClientRect(hWnd, &rc);
-
-        RECT rcItem{};
-        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
-        int NumItems = ListBox_GetCount(hWnd);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
-        int visible_rows = 0;
-        int ItemsPerPage = 0;
-        int bottom_index = 0;
-        int nWidth = (rc.right - rc.left);
-        int nHeight = (rc.bottom - rc.top);
-
-        if (NumItems > 0) {
-            ItemsPerPage = (nHeight) / itemHeight;
-            bottom_index = (nTopIndex + ItemsPerPage);
-            if (bottom_index >= NumItems)
-                bottom_index = NumItems - 1;
-            visible_rows = (bottom_index - nTopIndex) + 1;
-            rc.top = visible_rows * itemHeight;
-        }
-
-        if (rc.top < rc.bottom) {
-            nHeight = (rc.bottom - rc.top);
-            HDC hDC = (HDC)wParam;
-            Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::MenuPanelBack));
-            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
-        }
-
-        ValidateRect(hWnd, &rc);
-        return TRUE;
+        Header_OnPaint(hWnd);
         break;
-
     }
 
 
     case WM_DESTROY:
-        // Destroy all manually allocated ListBox display data that is held
-        // in the LineData structures..
-        ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TradeDialog_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, TradeDialog_Header_SubclassProc, uIdSubclass);
         break;
 
 
@@ -576,8 +454,6 @@ void TradeDialogControls_SetEditLabelAndDescription(HWND hwnd)
 // ========================================================================================
 void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 {
-    HWND hTemplates = GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES);
-    HWND hVScrollBar = GetDlgItem(hwnd, IDC_TRADEDIALOG_VSCROLLBAR);
     HWND hTransDate = GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE);
     HWND txtTicker = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER);
     HWND txtCompany = GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY);
@@ -597,6 +473,7 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     HWND comboDRCR = GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR);
     HWND hFrame1 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME1);
     HWND hFrame2 = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAME2);
+    HWND hFrameSep = GetDlgItem(hwnd, IDC_TRADEDIALOG_FRAMESEP);
     HWND cmdOK = GetDlgItem(hwnd, IDC_TRADEDIALOG_OK);
     HWND cmdCancel = GetDlgItem(hwnd, IDC_TRADEDIALOG_CANCEL);
 
@@ -605,15 +482,6 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
 
     int vmargin = AfxScaleY(10);
     int hmargin = AfxScaleX(10);
-
-    // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
-    // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
-    // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
-    bool bShowScrollBar = false;
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
-    if (pData != nullptr) bShowScrollBar = (pData->bDragActive) ? true : pData->calcVThumbRect();
-    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
-
 
     int nTop = 0;
     int nLeft = 0;
@@ -629,15 +497,6 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nTop = vmargin;
 
     if (tradeAction == ACTION_NEW_TRADE) {
-        nWidth = AfxScaleX(TRADEDIALOG_TRADETEMPLATES_WIDTH);
-        nHeight = cy - nTop - vmargin;
-        hdwp = DeferWindowPos(hdwp, hTemplates, 0, nLeft, nTop, nWidth, nHeight,
-            SWP_NOZORDER | SWP_SHOWWINDOW);
-
-        nLeft = nLeft + nWidth;   // right edge of ListBox
-        nWidth = VScrollBarWidth;
-        hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-            SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
     }
 
     nStartLeft = nLeft + nWidth + AfxScaleX(50) + hmargin;
@@ -698,8 +557,20 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     nWidth = nCtlWidth;
     nHeight = nCtlHeight;
 
+    int NumTableRows = lCtrls.size();
+    for (int i = 0; i < NumTableRows; i++) {
+        // If we are rolling a trade then add a separator line after the first 4 lines
+        if (i == TRADEDIALOG_TRADETABLE_NUMROWS) {
+            nTop = nTop + vsp;
+            nWidth = AfxScaleX(TRADEDIALOG_TRADETABLE_WIDTH);
+            nHeight = AfxScaleY(1);
+            hdwp = DeferWindowPos(hdwp, hFrameSep, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+            nLeft = nStartLeft;
+            nTop = nTop + nHeight + (vsp * 2);
+            nWidth = nCtlWidth;
+            nHeight = nCtlHeight;
+        }
 
-    for (int i = 0; i < TRADEDIALOG_TRADETABLE_NUMROWS; i++) {
         for (int ii = 0; ii < 6; ii++) {
            hdwp = DeferWindowPos(hdwp, lCtrls.at(i).cols[ii], 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
             nLeft += nWidth + hsp;
@@ -780,8 +651,6 @@ void TradeDialogControls_SizeControls(HWND hwnd, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, cmdCancel, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOSIZE);
 
     EndDeferWindowPos(hdwp);
-
-    VScrollBar_Recalculate(hVScrollBar);
 }
 
 
@@ -793,25 +662,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     HWND hCtl = NULL;
 
     if (tradeAction == ACTION_NEW_TRADE) {
-        // Create an Ownerdraw listbox that we will use to custom paint our various Trade Templates.
-        hCtl =
-            TradeDialog.AddControl(Controls::ListBox, hwnd, IDC_TRADEDIALOG_TEMPLATES, L"",
-                0, 0, 0, 0,
-                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-                LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
-                WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-                (SUBCLASSPROC)TradeDialog_ListBox_SubclassProc,
-                IDC_TRADEDIALOG_TEMPLATES, NULL);
-
-        // Create our custom vertical scrollbar and attach the ListBox to it.
-        CreateVScrollBar(hwnd, IDC_TRADEDIALOG_VSCROLLBAR, hCtl);
-
-        // Add all of our Trade Templates to the ListBox
-        ListBoxData_OutputTradesTemplates(hCtl);
-
-        // Resize columns
-        ListBoxData_ResizeColumnWidths(hCtl, TableType::TradeTemplates, -1);
-
     }
 
     hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE);
@@ -851,9 +701,12 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         
     TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME1);
     TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME2);
+    TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAMESEP);
 
 
-    hCtl = TradeDialog.AddControl(Controls::Header, hwnd, IDC_TRADEDIALOG_HEADER);
+    hCtl = TradeDialog.AddControl(Controls::Header, hwnd, IDC_TRADEDIALOG_HEADER,
+        L"", 0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradeDialog_Header_SubclassProc,
+        IDC_TRADEDIALOG_HEADER, NULL);
     int nWidth = AfxScaleX(91);
     Header_InsertNewItem(hCtl, 0, nWidth, L"Action", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Quantity", HDF_CENTER);
@@ -864,10 +717,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // Create the Trade Management table controls 
-    lCtrls.clear();
-    lCtrls.reserve(TRADEDIALOG_TRADETABLE_NUMROWS);
+    int NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
+    if (tradeAction == ACTION_ROLL_LEG) {
+        NumTableRows *= 2;
+    }
 
-    for (int i = 0; i < TRADEDIALOG_TRADETABLE_NUMROWS; i++) {
+    lCtrls.clear();
+    lCtrls.reserve(NumTableRows);
+    
+    for (int i = 0; i < NumTableRows; i++) {
         LineCtrl lc;
 
         // ACTION

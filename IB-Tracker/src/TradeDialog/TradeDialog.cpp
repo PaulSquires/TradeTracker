@@ -22,20 +22,6 @@ int tradeAction = ACTION_NOACTION;
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: TradeDialog
-// ========================================================================================
-void TradeDialog_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
-{
-    switch (lpMeasureItem->CtlID)
-    {
-    case IDC_TRADEDIALOG_TEMPLATES:
-        lpMeasureItem->itemHeight = AfxScaleY(TRADEDIALOG_TEMPLATES_ROWHEIGHT);
-        break;
-    }
-}
-
-
-// ========================================================================================
 // Process WM_CLOSE message for window/dialog: TradeDialog
 // ========================================================================================
 void TradeDialog_OnClose(HWND hwnd)
@@ -51,9 +37,6 @@ void TradeDialog_OnClose(HWND hwnd)
 // ========================================================================================
 void TradeDialog_OnDestroy(HWND hwnd)
 {
-    // Clear the Trade Templates Linedata held in the ListBox
-    ListBoxData_DestroyItemData(GetDlgItem(hwnd, IDC_TRADEDIALOG_TEMPLATES));
-
     DeleteObject(CtrlBackBrush);
 
     PostQuitMessage(0);
@@ -228,10 +211,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CTLCOLORBTN, TradeDialog_OnCtlColorBtn);
         HANDLE_MSG(m_hwnd, WM_CTLCOLOREDIT, TradeDialog_OnCtlColorEdit);
         HANDLE_MSG(m_hwnd, WM_CTLCOLORSTATIC, TradeDialog_OnCtlColorStatic);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeDialog_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesDialog_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -245,15 +226,21 @@ void TradeDialog_Show(int inTradeAction)
 {
     tradeAction = inTradeAction;
 
-    int nWidth = 900;
-    int nHeight = 640;
-    if (tradeAction != ACTION_NEW_TRADE) {
-        nWidth = nWidth - TRADEDIALOG_TRADETEMPLATES_WIDTH;
+    int nWidth = 714;
+    int nHeight = 480;
+
+    if (inTradeAction == ACTION_ROLL_LEG) {
+        nHeight += 100;
     }
 
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    // If we are using a dark theme then attempt to apply the standard Windows dark theme
+    // to the non-client areas of the main form.
+    BOOL value = GetIsThemeDark();
+    ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
     HBRUSH hbrBackground = GetSysColorBrush(COLOR_WINDOWTEXT);
     SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
