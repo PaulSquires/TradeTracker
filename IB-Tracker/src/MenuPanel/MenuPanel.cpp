@@ -10,7 +10,7 @@
 #include "..\Utilities\ListBoxData.h"
 #include "MenuPanel.h"
 
-
+extern void MainWindow_SetRightPanel(HWND hPanel);
 extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
 extern void TickerPanel_ShowTickerTotals();
@@ -18,7 +18,9 @@ extern void DailyPanel_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_MENUPANEL = NULL;
 
-
+extern HWND HWND_HISTORYPANEL;
+extern HWND HWND_DAILYPANEL;
+extern HWND HWND_TICKERPANEL;
 
 
 // ========================================================================================
@@ -637,6 +639,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_ACTIVETRADES:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                MainWindow_SetRightPanel(HWND_HISTORYPANEL);
                 TradesPanel_ShowActiveTrades();
                 break;
             }
@@ -644,6 +647,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_CLOSEDTRADES:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                MainWindow_SetRightPanel(HWND_HISTORYPANEL);
                 TradesPanel_ShowClosedTrades();
                 break;
             }
@@ -651,6 +655,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_TICKERTOTALS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                MainWindow_SetRightPanel(HWND_TICKERPANEL);
                 TickerPanel_ShowTickerTotals();
                 break;
             }
@@ -658,6 +663,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_DAILYTOTALS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                MainWindow_SetRightPanel(HWND_DAILYPANEL);
                 DailyPanel_ShowDailyTotals(nullptr);
                 break;
             }

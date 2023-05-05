@@ -17,8 +17,6 @@ extern CDailyPanel DailyPanel;
 extern std::vector<Trade*> trades;
 extern int nColWidth[];
 
-extern HWND HWND_DAILYPANEL;
-
 void DailyPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
@@ -384,7 +382,6 @@ void DailyPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     hdwp = DeferWindowPos(hdwp, hHeaderDailyTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleX(1);
-
 
     nWidth = cx - VScrollBarWidth;
     nHeight = cy - nTop;

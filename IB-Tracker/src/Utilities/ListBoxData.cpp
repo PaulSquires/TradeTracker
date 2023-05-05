@@ -7,6 +7,8 @@
 #include "..\MainWindow\tws-client.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
+#include "..\TickerPanel\TickerPanel.h"
+#include "..\DailyPanel\DailyPanel.h"
 #include "..\TradeDialog\TradeDialog.h"
 #include "..\MenuPanel\MenuPanel.h"
 
@@ -15,6 +17,8 @@ extern CTradeDialog TradeDialog;
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;
 extern HWND HWND_HISTORYPANEL;
+extern HWND HWND_TICKERPANEL;
+extern HWND HWND_DAILYPANEL;
 extern HWND HWND_TRADEDIALOG;
 
 
@@ -276,9 +280,9 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     // Update the widths of any associated Header control. 
     HWND hHeader = NULL;
     if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_HEADER);
-    if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_HEADER_TICKERTOTALS);
-    if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_HEADER_DAILYSUMMARY);
-    if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_HEADER_DAILYTOTALS);
+    if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_HEADER_TOTALS);
+    if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_HEADER_SUMMARY);
+    if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_HEADER_TOTALS);
     
     if (hHeader) {
         for (int i = 0; i < 10; i++) {

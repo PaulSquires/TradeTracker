@@ -18,6 +18,9 @@
 
 
 HWND HWND_MAINWINDOW = NULL;
+HWND HWND_LEFTPANEL = NULL;
+HWND HWND_MIDDLEPANEL = NULL;
+HWND HWND_RIGHTPANEL = NULL;
 
 CMainWindowShadow Shadow;
 CMenuPanel        MenuPanel;
@@ -34,6 +37,23 @@ RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter
 POINT prev_pt{};            // for tracking current splitter drag
 
+
+// ========================================================================================
+// Set the HWND for the panel that will display on the right side of the MainWindow.
+// Also place it into position and hide previous HWND of right panel.
+// ========================================================================================
+void MainWindow_SetRightPanel(HWND hPanel)
+{
+    // Get the current position size of the current right panel.
+    RECT rc; GetWindowRect(HWND_RIGHTPANEL, &rc);
+    MapWindowPoints(HWND_DESKTOP, HWND_MAINWINDOW, (LPPOINT)&rc, 2);
+
+    ShowWindow(HWND_RIGHTPANEL, SW_HIDE);
+
+    HWND_RIGHTPANEL = hPanel;
+    SetWindowPos(HWND_RIGHTPANEL, 0, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+        SWP_NOZORDER | SWP_SHOWWINDOW);
+}
 
 
 // ========================================================================================
@@ -165,26 +185,22 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HDWP hdwp = BeginDeferWindowPos(5);
 
     // Position the left hand side Navigation Panel
-    HWND hWndMenuPanel = MenuPanel.WindowHandle();
-    int nMenuPanelWidth = AfxGetWindowWidth(hWndMenuPanel);
-    hdwp = DeferWindowPos(hdwp, hWndMenuPanel, 0,
-                0, 0, nMenuPanelWidth, cy,
-                SWP_NOZORDER | SWP_SHOWWINDOW);
+    int nLeftPanelWidth = AfxGetWindowWidth(HWND_LEFTPANEL);
+    hdwp = DeferWindowPos(hdwp, HWND_LEFTPANEL, 0,
+                0, 0, nLeftPanelWidth, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the right hand side History Panel
-    HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
-    int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel);
-    hdwp = DeferWindowPos(hdwp, hWndHistoryPanel, 0,
-                cx - nHistoryPanelWidth - INNER_MARGIN, 0, nHistoryPanelWidth, cy - MARGIN,
+    int nRightPanelWidth = AfxGetWindowWidth(HWND_RIGHTPANEL);
+    hdwp = DeferWindowPos(hdwp, HWND_RIGHTPANEL, 0,
+                cx - nRightPanelWidth - INNER_MARGIN, 0, nRightPanelWidth, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
         
     // Position the middle Trades Panel
-    HWND hWndTradesPanel = TradesPanel.WindowHandle();
-    int nTradesPanelWidth = (cx - nHistoryPanelWidth - nMenuPanelWidth - SPLITTER_WIDTH - INNER_MARGIN);
-    hdwp = DeferWindowPos(hdwp, hWndTradesPanel, 0,
-                nMenuPanelWidth, 0, nTradesPanelWidth, cy - MARGIN,
+    int nMiddlePanelWidth = (cx - nRightPanelWidth - nLeftPanelWidth - SPLITTER_WIDTH - INNER_MARGIN);
+    hdwp = DeferWindowPos(hdwp, HWND_MIDDLEPANEL, 0,
+                nLeftPanelWidth, 0, nMiddlePanelWidth, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
@@ -203,7 +219,7 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
-    rcSplitter.left = nMenuPanelWidth + nTradesPanelWidth;
+    rcSplitter.left = nLeftPanelWidth + nMiddlePanelWidth;
     rcSplitter.top = 0;
     rcSplitter.right = rcSplitter.left + SPLITTER_WIDTH;
     rcSplitter.bottom = cy;
@@ -218,15 +234,15 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_MAINWINDOW = hwnd;
 
-    MenuPanel.Create( hwnd, L"", 0, 0, MENUPANEL_WIDTH, 0,
-    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-    WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
-    HistoryPanel.Create(hwnd, L"", 0, 0, HISTORYPANEL_WIDTH, 0,
+    HWND_LEFTPANEL = MenuPanel.Create( hwnd, L"", 0, 0, MENUPANEL_WIDTH, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    TradesPanel.Create(hwnd, L"", 0, 0, 0, 0,
+    HWND_RIGHTPANEL = HistoryPanel.Create(hwnd, L"", 0, 0, HISTORYPANEL_WIDTH, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    HWND_MIDDLEPANEL = TradesPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
@@ -323,16 +339,15 @@ void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 
 void UpdateSplitterChildren(HWND hwnd, int xDelta)
 {
-    HWND hWndHistoryPanel = HistoryPanel.WindowHandle();
-    int nHistoryPanelWidth = AfxGetWindowWidth(hWndHistoryPanel) + xDelta;
-    int nHistoryPanelHeight = AfxGetWindowHeight(hWndHistoryPanel);
-    SetWindowPos(hWndHistoryPanel, 0,
-        0, 0, nHistoryPanelWidth, nHistoryPanelHeight, SWP_NOZORDER | SWP_NOMOVE);
+    int nRightPanelWidth = AfxGetWindowWidth(HWND_RIGHTPANEL) + xDelta;
+    int nRightPanelHeight = AfxGetWindowHeight(HWND_RIGHTPANEL);
+    SetWindowPos(HWND_RIGHTPANEL, 0,
+        0, 0, nRightPanelWidth, nRightPanelHeight, SWP_NOZORDER | SWP_NOMOVE);
 
     RECT rc; GetClientRect(hwnd, &rc);
     MainWindow_OnSize(hwnd, SIZE_RESTORED, rc.right, rc.bottom);
-    AfxRedrawWindow(TradesPanel.WindowHandle());
-    AfxRedrawWindow(HistoryPanel.WindowHandle());
+    AfxRedrawWindow(HWND_MIDDLEPANEL);
+    AfxRedrawWindow(HWND_RIGHTPANEL);
     AfxRedrawWindow(hwnd);
 }
 
