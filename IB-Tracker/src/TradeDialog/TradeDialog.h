@@ -31,6 +31,8 @@ const int IDC_TRADEDIALOG_FRAME1         = 122;
 const int IDC_TRADEDIALOG_FRAME2         = 123;
 const int IDC_TRADEDIALOG_FRAMESEP       = 124;
 const int IDC_TRADEDIALOG_LBLEDITACTION  = 125;
+const int IDC_TRADEDIALOG_LBLTICKER      = 126;
+const int IDC_TRADEDIALOG_LBLCOMPANY     = 127;
 
 const int IDC_TRADEDIALOG_OK             = 130;
 const int IDC_TRADEDIALOG_CANCEL         = 131;

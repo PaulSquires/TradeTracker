@@ -44,15 +44,6 @@ void TradeDialog_OnDestroy(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TradeDialog
-// ========================================================================================
-void TradeDialog_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
-    TradeDialogControls_SizeControls(hwnd, cx, cy);
-}
-
-
-// ========================================================================================
 // Process WM_CREATE message for window/dialog: TradeDialog
 // ========================================================================================
 BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
@@ -203,7 +194,6 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, TradeDialog_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TradeDialog_OnSize);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TradeDialog_OnCommand);
         HANDLE_MSG(m_hwnd, WM_NOTIFY, TradeDialog_OnNotify);
         HANDLE_MSG(m_hwnd, WM_DESTROY, TradeDialog_OnDestroy);
@@ -269,11 +259,6 @@ void TradeDialog_Show(int inTradeAction)
 
     ShowWindow(hwnd, SW_SHOWNORMAL);
     
-    // Need to force a resize of the TradeDialog in order to properly show (or not show) 
-    // and position the Templates scrollbar.
-    RECT rc; GetClientRect(HWND_TRADEDIALOG, &rc);
-    TradeDialog_OnSize(HWND_TRADEDIALOG, 0, rc.right, rc.bottom);
-
     
     // set focus to the Transaction date picker
     SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
