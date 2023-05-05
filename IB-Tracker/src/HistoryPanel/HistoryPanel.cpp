@@ -19,6 +19,8 @@ extern int nColWidth[];
 
 extern HWND HWND_MENUPANEL;
 
+extern void MainWindow_SetRightPanel(HWND hPanel);
+
 void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
@@ -32,6 +34,10 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+
+
+    // Ensure that the Trade History panel is set
+    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
 
 
     // Prevent ListBox redrawing until all calculations are completed

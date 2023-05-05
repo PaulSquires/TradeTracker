@@ -17,6 +17,8 @@ extern CTickerPanel TickerPanel;
 extern std::vector<Trade*> trades;
 extern int nColWidth[];
 
+extern void MainWindow_SetRightPanel(HWND hPanel);
+
 void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
@@ -28,6 +30,10 @@ void TickerPanel_ShowTickerTotals()
 {
     HWND hListBox = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_LISTBOX);
     HWND hVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_VSCROLLBAR);
+
+
+    // Ensure that the Ticker panel is set
+    MainWindow_SetRightPanel(HWND_TICKERPANEL);
 
 
     // Prevent ListBox redrawing until all calculations are completed

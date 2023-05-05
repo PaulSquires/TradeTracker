@@ -17,6 +17,8 @@ extern CDailyPanel DailyPanel;
 extern std::vector<Trade*> trades;
 extern int nColWidth[];
 
+extern void MainWindow_SetRightPanel(HWND hPanel);
+
 void DailyPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
@@ -29,6 +31,10 @@ void DailyPanel_ShowDailyTotals(const ListBoxData* ld)
     HWND hListBox = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_LISTBOX);
     HWND hListBoxSummary = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_LISTBOX_SUMMARY);
     HWND hVScrollBar = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_VSCROLLBAR);
+
+
+    // Ensure that the Daily panel is set
+    MainWindow_SetRightPanel(HWND_DAILYPANEL);
 
 
     // Default to opening the current date
