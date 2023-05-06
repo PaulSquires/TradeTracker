@@ -590,11 +590,11 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_CustomLabel_MOUSEMOVE:
+    case MSG_CUSTOMLABEL_MOUSEMOVE:
         break;
 
 
-    case MSG_CustomLabel_CLICK:
+    case MSG_CUSTOMLABEL_CLICK:
     {
         HWND hCtl = (HWND)lParam;
         int CtrlId = (int)wParam;

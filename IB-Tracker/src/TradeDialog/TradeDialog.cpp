@@ -119,17 +119,31 @@ void TradesDialog_OnPaint(HWND hwnd)
 
     HDC hdc = BeginPaint(hwnd, &ps);
 
-    Graphics graphics(hdc);
+    SaveDC(hdc);
+
+    HDC memDC = CreateCompatibleDC(hdc);
+    HBITMAP hbit = CreateCompatibleBitmap(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
+    SelectBitmap(memDC, hbit);
+
+    Graphics graphics(memDC);
+    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
-
-    // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+    // Copy the entire memory bitmap to the main display
+    BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
+
+    // Restore the original state of the DC
+    RestoreDC(hdc, -1);
+
+    // Cleanup
+    DeleteObject(hbit);
+    DeleteDC(memDC);
 
     EndPaint(hwnd, &ps);
 }
@@ -170,11 +184,11 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         }
         break;
 
-    case (IDC_TRADEDIALOG_CANCEL):
-        if (codeNotify == BN_CLICKED) {
-            SendMessage(hwnd, WM_CLOSE, 0, 0);
-        }
-        break;
+    //case (IDC_TRADEDIALOG_CANCEL):
+    //    if (codeNotify == BN_CLICKED) {
+    //        SendMessage(hwnd, WM_CLOSE, 0, 0);
+    //    }
+    //    break;
 
     case (IDC_TRADEDIALOG_COMBODRCR):
         if (codeNotify == CBN_SELCHANGE) {

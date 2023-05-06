@@ -1,11 +1,8 @@
 
 #include "pch.h"
 #include "..\CustomLabel\CustomLabel.h"
-#include "..\Utilities\ListBoxData.h"
-#include "..\Database\trade.h"
-#include "..\Themes\Themes.h"
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
-#include "..\MenuPanel\MenuPanel.h"
+#include "..\Utilities\ListBoxData.h"
 
 #include "TickerPanel.h"
 

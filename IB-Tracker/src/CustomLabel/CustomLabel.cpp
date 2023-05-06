@@ -108,7 +108,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_MOUSEMOVE:
     {
         if (pData == nullptr) return 0;
-        SendMessage(pData->hParent, MSG_CustomLabel_MOUSEMOVE, (WPARAM)hWnd, 0);
+        SendMessage(pData->hParent, MSG_CUSTOMLABEL_MOUSEMOVE, (WPARAM)hWnd, 0);
 
         // Tracks the mouse movement and stores the hot state
         TRACKMOUSEEVENT trackMouse;
@@ -144,7 +144,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
             // We do not set the button IsSelected to true here because we leave it to 
             // the user to decide if after clicking the label whether to set the label
             // to selected or not.
-            PostMessage(pData->hParent, MSG_CustomLabel_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+            PostMessage(pData->hParent, MSG_CUSTOMLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
         }
         return 0;
         break;
@@ -288,7 +288,7 @@ HWND CreateCustomLabel(
     int nWidth, 
     int nHeight )
 {
-    std::wstring wszClassName(L"CustomLabel_CONTROL");
+    std::wstring wszClassName(L"CUSTOMLABEL_CONTROL");
 
     WNDCLASSEX wcex{};
     

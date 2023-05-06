@@ -8,6 +8,9 @@
 #include "Utilities/UserMessages.h"
 
 
+CMainWindow Main;
+
+
 // Use the following pragma instead of havign to include a manifest with the application
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -118,8 +121,6 @@ int APIENTRY wWinMain(
     if (InitalMainWidth > 1280) InitalMainWidth = 1280;
     if (InitalMainHeight > 720) InitalMainHeight = 720;
 
-
-    CMainWindow Main;
 
     HWND hWndMain = Main.Create(
                         HWND_DESKTOP,

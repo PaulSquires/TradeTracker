@@ -4,6 +4,7 @@
 #include "..\Utilities\ListBoxData.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\CustomLabel\CustomLabel.h"
+#include "..\CustomTextBox\CustomTextBox.h"
 #include "..\TradesPanel\TradesPanel.h"
 
 
@@ -201,179 +202,67 @@ LRESULT CALLBACK TradeDialog_Header_SubclassProc(
 }
 
 
-// ========================================================================================
-// Generic Control subclass Window procedure to deal TextBoxes filtering numeric input
-// and handling KILLFOCUS validation.
-// ========================================================================================
-LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
-    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-{
-    switch (uMsg)
-    {
+    //case WM_KEYDOWN:
+    //{
+    //    // Handle up/down arrows to move vertical amongst legs textboxes.
+    //    if (wParam == VK_UP || wParam == VK_DOWN) {
+    //        int i = 0;
+    //        if (wParam == VK_UP) i = -1;
+    //        if (wParam == VK_DOWN) i = 1;
 
-    case WM_CHAR:
-    {
-        // Allow any character for these TextBoxes
-        if (uIdSubclass == IDC_TRADEDIALOG_TXTTICKER) break;
-        if (uIdSubclass == IDC_TRADEDIALOG_TXTCOMPANY) break;
-        if (uIdSubclass == IDC_TRADEDIALOG_TXTDESCRIPTION) break;
+    //        DWORD NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
+    //        if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
 
+    //        if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && 
+    //            uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows) {
+    //            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
+    //            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows - 1) i = 0;
+    //            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+    //        }
+    //        
+    //        if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE && 
+    //            uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows) {
+    //            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
+    //            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows - 1) i = 0;
+    //            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
+    //        }
+    //    }
 
-        // wParam is the character code
-
-        // Allow 0 to 9
-        if (wParam >= 48 && wParam <= 57) break;
-
-        
-        // Allow backspace
-        if (wParam == 8) break;
-
-        
-        // Allow decimal (but only once)
-        if (wParam == 46) {
-            std::wstring wszText = AfxGetWindowText(hWnd);
-            int nFoundAt = wszText.find(L".");
-            if (nFoundAt != std::wstring::npos) {
-                // Period already exists but we will allow it if the TextBox text
-                // is currently selected and entering the period will replace the
-                // previously entered period.
-                int nPos = SendMessage(hWnd, EM_GETSEL, 0, 0);
-                int nStartPos = LOWORD(nPos);
-                int nEndPos = HIWORD(nPos);
-                if (nStartPos != nEndPos) {   // we have selected text
-                    if (nFoundAt >= nStartPos && nFoundAt <= nEndPos) {
-                        break;   // allow
-                    }
-                }
-
-                return 0;  // do not allow
-            }
-            // Allow the the decimal
-            break;
-        }
-
-        
-        // Negative sign 
-        if (wParam == 45) {
-
-            // Do not allow negative sign in the following textboxes 
-            switch (uIdSubclass)
-            {
-            case IDC_TRADEDIALOG_TXTQUANTITY:
-            case IDC_TRADEDIALOG_TXTPRICE:
-            case IDC_TRADEDIALOG_TXTFEES:
-                return 0;
-            }
-
-            // Only allow the negative sign for other textboxes if it is 
-            // the first character (position 0)
-            DWORD nPos = LOWORD(SendMessage(hWnd, EM_GETSEL, 0, 0));
-            if (nPos == 0) break; 
-
-            // Otherwise, disallow the negative sign
-            return 0;
-        }
-
-        
-        // Disallow everything else by skipping calling the DefSubclassProc
-        return 0;
-    }
+    //}
+    //break;
 
 
-    case WM_KEYDOWN:
-    {
-        // Handle up/down arrows to move vertical amongst legs textboxes.
-        if (wParam == VK_UP || wParam == VK_DOWN) {
-            int i = 0;
-            if (wParam == VK_UP) i = -1;
-            if (wParam == VK_DOWN) i = 1;
-
-            DWORD NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
-            if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
-
-            if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && 
-                uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows) {
-                if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
-                if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows - 1) i = 0;
-                SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-            }
-            
-            if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE && 
-                uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows) {
-                if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
-                if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows - 1) i = 0;
-                SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-            }
-        }
-
-    }
-    break;
+    //case WM_KEYUP:
+    //{
+    //    // Make the ENTER key behave like the TAB key. Need to catch VK_RETURN in the
+    //    // WM_KEYUP rather than WM_KEYDOWN.
+    //    if (wParam == VK_RETURN) {
+    //        HWND hNextCtrl = GetNextDlgTabItem(GetParent(hWnd), hWnd, false);
+    //        SetFocus(hNextCtrl);
+    //    }
+    //}
+    //break;
 
 
-    case WM_KEYUP:
-    {
-        // Make the ENTER key behave like the TAB key. Need to catch VK_RETURN in the
-        // WM_KEYUP rather than WM_KEYDOWN.
-        if (wParam == VK_RETURN) {
-            HWND hNextCtrl = GetNextDlgTabItem(GetParent(hWnd), hWnd, false);
-            SetFocus(hNextCtrl);
-        }
-    }
-    break;
+//    case WM_KILLFOCUS:
+        //case IDC_TRADEDIALOG_TXTTICKER:
+        //    // If the Company Name textbox is empty then attempt to lookup the specified
+        //    // Ticker and fill in the corresponding Company Name.
+        //    std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY));
+        //    if (wszCompanyName.length() != 0) break;
+
+        //    std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTTICKER));
+
+        //    auto iter = std::find_if(trades.begin(), trades.end(),
+        //        [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
+
+        //    if (iter != trades.end()) {
+        //        auto index = std::distance(trades.begin(), iter);
+        //        AfxSetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
+        //    }
+        //    break;
 
 
-    case WM_KILLFOCUS:
-        // We will use special 4 decimal place formatting on the following TextBoxes
-        switch (uIdSubclass)
-        {
-        case IDC_TRADEDIALOG_TXTQUANTITY:
-        case IDC_TRADEDIALOG_TXTMULTIPLIER:
-        case IDC_TRADEDIALOG_TXTPRICE:
-        case IDC_TRADEDIALOG_TXTFEES:
-            FormatNumberFourDecimals(hWnd);
-            CalculateTradeTotal(GetParent(hWnd));
-            break;
-
-        case IDC_TRADEDIALOG_TXTTICKER:
-            // If the Company Name textbox is empty then attempt to lookup the specified
-            // Ticker and fill in the corresponding Company Name.
-            std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY));
-            if (wszCompanyName.length() != 0) break;
-
-            std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTTICKER));
-
-            auto iter = std::find_if(trades.begin(), trades.end(),
-                [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
-
-            if (iter != trades.end()) {
-                auto index = std::distance(trades.begin(), iter);
-                AfxSetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
-            }
-            break;
-
-        }
-        break;
-
-
-    case WM_SETFOCUS:
-        // Highlight the text in the TextBox as it gains focus
-        Edit_SetSel(hWnd, 0, -1);
-        break;
-
-
-    case WM_DESTROY:
-        // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TradeDialog_TextBox_SubclassProc, uIdSubclass);
-        break;
-
-
-    }   // end of switch statment
-
-    // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
-}
 
 
 // ========================================================================================
@@ -442,13 +331,17 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int vsp = 4;   // vertical spacer
 
     ThemeElement TextColor = ThemeElement::TradesPanelText;
+    ThemeElement TextColorDim = ThemeElement::TradesPanelTextDim;
     ThemeElement BackColor = ThemeElement::TradesPanelBack;
+
+    COLORREF BorderColor = GetThemeCOLORREF(ThemeElement::MenuPanelTextDim);
+    COLORREF BorderColorFocus = GetThemeCOLORREF(ThemeElement::MenuPanelText);
 
 
     // EDIT ACTION LABEL
     hCtl = CreateCustomLabel(
         hwnd, IDC_TRADEDIALOG_LBLEDITACTION, CustomLabelType::TextOnly,
-        400, 10, 106, 60);
+        400, 10, 106, 40);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::TradesPanelBack;
@@ -461,27 +354,19 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // NEW TRADE SHOWS TEXTBOXES, OTHERS JUST LABELS
     if (tradeAction == ACTION_NEW_TRADE) {
-        CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColor, BackColor,
+        CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 60, 30, 65, 22);
 
-        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTICKER,
-            L"", 60, 55, 65, 22,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTICKER, NULL);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_CENTER, L"", 60, 55, 65, 22);
+        CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+        CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
-        CustomLabel_SimpleLabel(hwnd, -1, L"Company Name", TextColor, BackColor,
+        CustomLabel_SimpleLabel(hwnd, -1, L"Company Name", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 133, 30, 115, 22);
 
-        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTCOMPANY,
-            L"", 133, 55, 252, 22,
-            WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTCOMPANY, NULL);
-
-        //hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION,
-        //    L"", 180, 60, 322, 22,
-        //    WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
-        //    (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTDESCRIPTION, NULL);
-        //    Edit_SetCueBannerText(hCtl, L"Description");
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 133, 55, 252, 22);
+        CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+        CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
     }
     else {
@@ -572,10 +457,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         // QUANTITY
         nWidth = 65;
-        lc.cols[0] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLEQUANTITY + row,
-            L"", nLeft, nTop, nWidth, nHeight,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLEQUANTITY + row, NULL);
+        hCtl = lc.cols[0] = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TABLEQUANTITY + row, ES_CENTER, 
+            L"0", nLeft, nTop, nWidth, nHeight);
+        CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+        CustomTextBox_SetNumericAttributes(hCtl, 0, false);
         nLeft += nWidth + hsp;
 
         // EXPIRY DATE
@@ -587,16 +472,16 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         // DTE
         nWidth = 65;
-        lc.cols[2] = TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_TABLEDTE + row,
+        hCtl = lc.cols[2] = TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_TABLEDTE + row,
             L"0d", nLeft, nTop, nWidth, nHeight, WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE | WS_GROUP | SS_NOTIFY, 0);
         nLeft += nWidth + hsp;
 
         // STRIKE PRICE
         nWidth = 65;
-        lc.cols[3] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + row,
-            L"", nLeft, nTop, nWidth, nHeight,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLESTRIKE + row, NULL);
+        hCtl = lc.cols[3] = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TABLESTRIKE + row, ES_CENTER, 
+            L"0", nLeft, nTop, nWidth, nHeight);
+        CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+        CustomTextBox_SetNumericAttributes(hCtl, 1, false);
         nLeft += nWidth + hsp;
 
         // PUT/CALL
@@ -639,55 +524,50 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     
     nWidth = 80;
-    CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColor, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY,
-        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
-        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTQUANTITY, NULL);
-    FormatNumberFourDecimals(hCtl);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT, 
+        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+    CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
 
     nLeft = nLeft + nWidth + hmargin;
-    CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER,
-        L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
-        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTMULTIPLIER, NULL);
-    FormatNumberFourDecimals(hCtl);
+    CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT, 
+        L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+    CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
 
     nLeft = nLeft + nWidth + hmargin;
-    CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE,
-        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
-        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTPRICE, NULL);
-    FormatNumberFourDecimals(hCtl);
+    CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
+        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+    CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
 
     nLeft = nLeft + nWidth + hmargin;
-    CustomLabel_SimpleLabel(hwnd, -1, L"Fees", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES,
-        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
-        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTFEES, NULL);
-    FormatNumberFourDecimals(hCtl);
+    CustomLabel_SimpleLabel(hwnd, -1, L"Fees", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, ES_RIGHT,
+        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+    CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
 
     nLeft = nLeft + nWidth + hmargin;
-    CustomLabel_SimpleLabel(hwnd, -1, L"Total", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
+    CustomLabel_SimpleLabel(hwnd, -1, L"Total", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
     // Can not set the Totals as readonly because if we do then we won't be able to get the
     // OnCtlColorEdit message to color the text red/green.
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL, 
-        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
-        WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
-        (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTOTAL, NULL);
-    FormatNumberFourDecimals(hCtl);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, ES_RIGHT,
+        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
+    CustomTextBox_SetNumericAttributes(hCtl, 4, false);
 
 
     nTop = nStartTop + ((nHeight + vsp) * 2) + vsp;
@@ -702,8 +582,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nLeft = 60;
     hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE", nLeft, nTop, 80, nHeight);
 
-    nLeft = nLeft + 80 + hmargin;
-    hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", nLeft, nTop, 80, nHeight);
+    //nLeft = nLeft + 80 + hmargin;
+    //hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", nLeft, nTop, 80, nHeight);
 }
 
 

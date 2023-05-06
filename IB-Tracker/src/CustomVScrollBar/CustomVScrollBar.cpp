@@ -199,7 +199,7 @@ HWND CreateCustomVScrollBar(
     HWND hListBox
     )
 {
-    std::wstring wszClassName(L"CustomVScrollBar_CONTROL");
+    std::wstring wszClassName(L"CUSTOMVSCROLLBAR_CONTROL");
 
     WNDCLASSEX wcex{};
 
