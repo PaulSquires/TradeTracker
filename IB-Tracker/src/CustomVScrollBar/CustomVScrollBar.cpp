@@ -1,11 +1,11 @@
 //
-// VSCROLLBAR CONTROL
+// CustomVScrollBar CONTROL
 // Copyright (C) 2023 Paul Squires, PlanetSquires Software
 //
 
 #include "pch.h"
 #include "..\Utilities\AfxWin.h"
-#include "VScrollBar.h"
+#include "CustomVScrollBar.h"
 #include "..\TradeDialog\TradeDialog.h"
 
 
@@ -13,7 +13,7 @@
 // Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
 // Will return TRUE if RECT is not empty. 
 // ========================================================================================
-bool VScrollBar::calcVThumbRect()
+bool CustomVScrollBar::calcVThumbRect()
 {
     // calculate the vertical scrollbar in client coordinates
     SetRectEmpty(&rc);
@@ -45,12 +45,12 @@ bool VScrollBar::calcVThumbRect()
 // ========================================================================================
 // Windows message callback for the custom ScrollBar control.
 // ========================================================================================
-LRESULT CALLBACK VScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    VScrollBar* pData = nullptr;
+    CustomVScrollBar* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
-        pData = (VScrollBar*)GetWindowLongPtr(hWnd, 0);
+        pData = (CustomVScrollBar*)GetWindowLongPtr(hWnd, 0);
     }
 
     switch (uMsg)
@@ -193,13 +193,13 @@ LRESULT CALLBACK VScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 
 //------------------------------------------------------------------------------ 
-HWND CreateVScrollBar(
+HWND CreateCustomVScrollBar(
     HWND hWndParent,
     LONG_PTR CtrlId,
     HWND hListBox
     )
 {
-    std::wstring wszClassName(L"VSCROLLBAR_CONTROL");
+    std::wstring wszClassName(L"CustomVScrollBar_CONTROL");
 
     WNDCLASSEX wcex{};
 
@@ -208,7 +208,7 @@ HWND CreateVScrollBar(
     if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = VScrollBarProc;
+        wcex.lpfnWndProc = CustomVScrollBarProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class
         wcex.hInstance = hInst;
@@ -228,7 +228,7 @@ HWND CreateVScrollBar(
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
-        VScrollBar* pData = new VScrollBar;
+        CustomVScrollBar* pData = new CustomVScrollBar;
 
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
@@ -246,9 +246,9 @@ HWND CreateVScrollBar(
 // ========================================================================================
 // Retrieve the stored data pointer from the custom ScrollBar
 // ========================================================================================
-VScrollBar* VScrollBar_GetPointer(HWND hCtrl)
+CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl)
 {
-    VScrollBar* pData = (VScrollBar*)GetWindowLongPtr(hCtrl, 0);
+    CustomVScrollBar* pData = (CustomVScrollBar*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
 
@@ -256,9 +256,9 @@ VScrollBar* VScrollBar_GetPointer(HWND hCtrl)
 // ========================================================================================
 // Recalculate the ScrollBar thumb size and refresh display.
 // ========================================================================================
-void VScrollBar_Recalculate(HWND hCtrl)
+void CustomVScrollBar_Recalculate(HWND hCtrl)
 {
-    VScrollBar* pData = VScrollBar_GetPointer(hCtrl);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCtrl);
     if (pData != nullptr) {
         pData->calcVThumbRect();
         AfxRedrawWindow(pData->hwnd);

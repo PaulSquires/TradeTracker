@@ -5,7 +5,7 @@
 #include "..\Utilities\AfxWin.h"
 
 
-class VScrollBar
+class CustomVScrollBar
 {
 public:
     HWND hwnd = NULL;
@@ -31,9 +31,9 @@ public:
 };
 
 
-const int VSCROLLBAR_WIDTH = 14;
+const int CustomVScrollBar_WIDTH = 14;
 
-HWND CreateVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hListBox);
-VScrollBar* VScrollBar_GetPointer(HWND hCtrl);
-void VScrollBar_Recalculate(HWND hCtrl);
+HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hListBox);
+CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl);
+void CustomVScrollBar_Recalculate(HWND hCtrl);
 

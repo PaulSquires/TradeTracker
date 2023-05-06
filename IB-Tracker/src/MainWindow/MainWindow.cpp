@@ -11,7 +11,7 @@
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\DailyPanel\DailyPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 #include "..\Themes\Themes.h"
 #include "..\Utilities\UserMessages.h"
 #include "..\Config\Config.h"
@@ -257,14 +257,14 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create a label that will display at the very bottom of the Main window
     // that allows toggling Dark Theme on/off. This label is always positioned
     // at the bottom of the window via On_Size().
-    SuperLabel* pData = nullptr;
+    CustomLabel* pData = nullptr;
 
-    HWND hCtl = CreateSuperLabel(
+    HWND hCtl = CreateCustomLabel(
         hwnd,
         IDC_MAINWINDOW_DARKMODE,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, 0, 0, 0);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
@@ -276,19 +276,19 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 8;
         pData->wszText = L"Dark Mode: ON";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     // Create a label that will display at the very bottom of the Main window
     // that allows toggling Autoconnect on/off. This label is always positioned
     // at the bottom of the window via On_Size().
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MAINWINDOW_AUTOCONNECT,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, 0, 0, 0);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
@@ -300,7 +300,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 8;
         pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
     return TRUE;
@@ -454,23 +454,23 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    case MSG_SUPERLABEL_CLICK:
+    case MSG_CustomLabel_CLICK:
     {
         HWND hCtl = (HWND)lParam;
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
-        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtl, 0);
+        CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtl, 0);
 
         if (pData) {
             if (CtrlId == IDC_MAINWINDOW_DARKMODE) {
                 if (ActiveTheme == ActiveThemeColor::Dark) {
                     SetThemeName(L"Light");
-                    SuperLabel_SetText(hCtl, L"Dark Mode: OFF");
+                    CustomLabel_SetText(hCtl, L"Dark Mode: OFF");
                 }
                 else {
                     SetThemeName(L"Dark");
-                    SuperLabel_SetText(hCtl, L"Dark Mode: ON");
+                    CustomLabel_SetText(hCtl, L"Dark Mode: ON");
                 }
                 ApplyActiveTheme();
                 SaveConfig();
@@ -479,10 +479,10 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             if (CtrlId == IDC_MAINWINDOW_AUTOCONNECT) {
                 SetStartupConnect(!GetStartupConnect());
                 if (GetStartupConnect()) {
-                    SuperLabel_SetText(hCtl, L"Autoconnect: ON");
+                    CustomLabel_SetText(hCtl, L"Autoconnect: ON");
                 }
                 else {
-                    SuperLabel_SetText(hCtl, L"Autoconnect: OFF");
+                    CustomLabel_SetText(hCtl, L"Autoconnect: OFF");
                 }
                 SaveConfig();
             }

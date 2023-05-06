@@ -13,7 +13,7 @@ public:
 
 const int IDC_HISTORY_LISTBOX = 110;
 const int IDC_HISTORY_SYMBOL = 111;
-const int IDC_HISTORY_VSCROLLBAR = 112;
+const int IDC_HISTORY_CustomVScrollBar = 112;
 const int IDC_HISTORY_LISTBOX_SUMMARY = 113;
 const int IDC_HISTORY_LISTBOX_TRANSDETAILS = 117;
 

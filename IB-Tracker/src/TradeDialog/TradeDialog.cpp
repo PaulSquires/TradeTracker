@@ -163,7 +163,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     switch (id)
     {
-    case (IDC_TRADEDIALOG_OK):
+    case (IDC_TRADEDIALOG_SAVE):
         if (codeNotify == BN_CLICKED) {
             // SaveDatabase();
             SendMessage(hwnd, WM_CLOSE, 0, 0);
@@ -216,12 +216,10 @@ void TradeDialog_Show(int inTradeAction)
 {
     tradeAction = inTradeAction;
 
-    int nWidth = 714;
-    int nHeight = 480;
+    int nWidth = 575;
+    int nHeight = 405;
 
-    if (inTradeAction == ACTION_ROLL_LEG) {
-        nHeight += 100;
-    }
+    if (inTradeAction == ACTION_ROLL_LEG) nHeight += 100;
 
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -232,7 +230,7 @@ void TradeDialog_Show(int inTradeAction)
     BOOL value = GetIsThemeDark();
     ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
-    HBRUSH hbrBackground = GetSysColorBrush(COLOR_WINDOWTEXT);
+    HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
     SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
 
     HANDLE hIconSmall = LoadImage(TradeDialog.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
@@ -242,9 +240,6 @@ void TradeDialog_Show(int inTradeAction)
 
     EnableWindow(HWND_MAINWINDOW, FALSE);
     
-    // Show any selected Trade Template that might be coming from a selected menu
-    // item from the main application's navigation MenuPanel menu.
-    //LoadTemplateInTradeTable(hwnd, pTradeTemplate);
 
     // Show the legsEdit legs (if any) based on the incoming action.
     LoadEditLegsInTradeTable(hwnd);
@@ -261,8 +256,12 @@ void TradeDialog_Show(int inTradeAction)
     
     
     // set focus to the Transaction date picker
-    SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
-
+    if (inTradeAction == ACTION_ROLL_LEG) {
+        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
+    }
+    else {
+        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+    }
      
    
     // Call modal message pump and wait for it to end.

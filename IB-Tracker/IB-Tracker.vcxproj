@@ -94,9 +94,9 @@
     <ClInclude Include="src\Utilities\AfxWin.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Utilities\CWindowBase.h" />
-    <ClInclude Include="src\SuperLabel\SuperLabel.h" />
+    <ClInclude Include="src\CustomLabel\CustomLabel.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
-    <ClInclude Include="src\VScrollBar\VScrollBar.h" />
+    <ClInclude Include="src\CustomVScrollBar\CustomVScrollBar.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />
@@ -156,8 +156,8 @@
     </ClCompile>
     <ClCompile Include="src\Utilities\IntelDecimal.cpp" />
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
-    <ClCompile Include="src\SuperLabel\SuperLabel.cpp" />
-    <ClCompile Include="src\VScrollBar\VScrollBar.cpp" />
+    <ClCompile Include="src\CustomLabel\CustomLabel.cpp" />
+    <ClCompile Include="src\CustomVScrollBar\CustomVScrollBar.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

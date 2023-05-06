@@ -1,10 +1,9 @@
 #include "pch.h"
 
 #include "TradeDialog.h"
-#include "..\VScrollBar\VScrollBar.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Utilities\AfxWin.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 #include "..\TradesPanel\TradesPanel.h"
 
 
@@ -76,42 +75,15 @@ void CalculateTradeDTE(HWND hwnd)
 {
     std::wstring transDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
 
-    for (int i = 0; i < TRADEDIALOG_TRADETABLE_NUMROWS; ++i) {
+    int NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
+    if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
+
+    for (int i = 0; i < NumTableRows; ++i) {
         std::wstring expiryDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i));
         int days = AfxDaysBetween(transDate, expiryDate);
         AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEDTE + i), std::to_wstring(days) + L"d");
     }
 }
-
-
-// ========================================================================================
-// Reset all entries in the Trade Management table (except Ticker & Company Name)
-// ========================================================================================
-void ResetTradeTableControls(HWND hwnd)
-{
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), L"");
-
-    // Trade Management Table entries
-    for (int i = 0; i < TRADEDIALOG_TRADETABLE_NUMROWS; i++) {
-        LineCtrl lc = lCtrls.at(i);
-        ComboBox_SetCurSel(lc.cols[0], -1);  // action
-        AfxSetWindowText(lc.cols[1], L"");   // quantity
-        AfxSetWindowText(lc.cols[2], L"");   // expiry date
-        AfxSetWindowText(lc.cols[3], L"");   // strike price
-        ComboBox_SetCurSel(lc.cols[4], -1);  // put/call
-        AfxSetWindowText(lc.cols[5], L"");   // DTE
-    }
-
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), L"0.0000");
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), L"100.0000");
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE), L"0.0000");
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), L"0.0000");
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), L"0.0000");
-
-    ComboBox_SetCurSel(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), 0);
-    CalculateTradeDTE(hwnd);
-}
-
 
 
 // ========================================================================================
@@ -135,20 +107,13 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     for (const auto& leg : legsEdit) {
         LineCtrl lc = lCtrls.at(nextRow);
 
-        // ACTION
-        std::wstring action = leg->action;
-        if (action == L"STO") action = L"BTC";
-        if (action == L"BTO") action = L"STC";
-        int foundAt = ComboBox_FindStringExact(lc.cols[0], -1, action.c_str());
-        ComboBox_SetCurSel(lc.cols[0], foundAt);
-
         // QUANTITY
         DefaultQuantity = leg->openQuantity;
         std::wstring legQuantity = std::to_wstring(leg->openQuantity * -1);
-        AfxSetWindowText(lc.cols[1], legQuantity.c_str());
+        AfxSetWindowText(lc.cols[0], legQuantity.c_str());
 
         // EXPIRY DATE
-        AfxSetDateTimePickerDate(lc.cols[2], leg->expiryDate);
+        AfxSetDateTimePickerDate(lc.cols[1], leg->expiryDate);
 
         // STRIKE PRICE
         AfxSetWindowText(lc.cols[3], leg->strikePrice.c_str());
@@ -159,6 +124,13 @@ void LoadEditLegsInTradeTable(HWND hwnd)
         if (PutCall == L"C") PutCall = L"CALL";
         foundAt = ComboBox_FindStringExact(lc.cols[4], -1, PutCall.c_str());
         ComboBox_SetCurSel(lc.cols[4], foundAt);
+
+        // ACTION
+        std::wstring action = leg->action;
+        if (action == L"STO") action = L"BTC";
+        if (action == L"BTO") action = L"STC";
+        int foundAt = ComboBox_FindStringExact(lc.cols[0], -1, action.c_str());
+        ComboBox_SetCurSel(lc.cols[5], foundAt);
 
         nextRow++;
     }
@@ -318,9 +290,7 @@ LRESULT CALLBACK TradeDialog_TextBox_SubclassProc(
             if (wParam == VK_DOWN) i = 1;
 
             DWORD NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
-            if (tradeAction == ACTION_ROLL_LEG) {
-                NumTableRows *= 2;
-            }
+            if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
 
             if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && 
                 uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows) {
@@ -444,10 +414,10 @@ void TradeDialogControls_SetEditLabelAndDescription(HWND hwnd)
     }
 
     HWND hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION);
-    SuperLabel * pData = SuperLabel_GetOptions(hCtl);
+    CustomLabel * pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->wszText = wszAction;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION), wszDescription);
 
@@ -460,7 +430,7 @@ void TradeDialogControls_SetEditLabelAndDescription(HWND hwnd)
 void TradeDialogControls_CreateControls(HWND hwnd)
 {
     HWND hCtl = NULL;
-    SuperLabel* pData = nullptr;
+    CustomLabel* pData = nullptr;
 
     int vmargin = 10;
     int hmargin = 10;
@@ -468,91 +438,94 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int nTop = 0;
     int nWidth = 0;
     int nHeight = 0;
+    int hsp = 8;   // horizontal spacer
+    int vsp = 4;   // vertical spacer
 
-
-    // TRANSACTION DATE PICKER
-    hCtl = TradeDialog.AddControl(
-        Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE, L"", 60, 30, 100, 22);
-    DateTime_SetFormat(hCtl, L"yyyy-MM-dd");
-
-    
-    // NEW TRADE SHOWS TEXTBOXES, OTHERS JUST LABELS
-    if (tradeAction == ACTION_NEW_TRADE) {
-        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTICKER,
-            L"", 180, 30, 75, 22,
-            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTICKER, NULL);
-            Edit_SetCueBannerText(hCtl, L"Ticker");
-
-        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTCOMPANY,
-            L"", 265, 30, 235, 22,
-            WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTCOMPANY, NULL);
-            Edit_SetCueBannerText(hCtl, L"Company Name");
-
-        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION,
-            L"", 180, 60, 320, 22,
-            WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
-            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTDESCRIPTION, NULL);
-            Edit_SetCueBannerText(hCtl, L"Description");
-
-    }
-    else {
-
-        hCtl = CreateSuperLabel(
-            hwnd, IDC_TRADEDIALOG_LBLTICKER, SuperLabelType::TextOnly,
-            180, 30, 75, 20);
-        pData = SuperLabel_GetOptions(hCtl);
-        if (pData) {
-            pData->BackColor = ThemeElement::TradesPanelBack;
-            pData->TextColor = ThemeElement::TradesPanelText;
-            pData->FontSize = 12;
-            pData->TextAlignment = SuperLabelAlignment::TopLeft;
-            pData->wszText = L"AAPL";
-            SuperLabel_SetOptions(hCtl, pData);
-        }
-
-        hCtl = CreateSuperLabel(
-            hwnd, IDC_TRADEDIALOG_LBLCOMPANY, SuperLabelType::TextOnly,
-            265, 30, 235, 20);
-        pData = SuperLabel_GetOptions(hCtl);
-        if (pData) {
-            pData->BackColor = ThemeElement::TradesPanelBack;
-            pData->TextColor = ThemeElement::TradesPanelText;
-            pData->FontSize = 14;
-            pData->TextAlignment = SuperLabelAlignment::TopLeft;
-            pData->wszText = L"Apple Inc.";
-            SuperLabel_SetOptions(hCtl, pData);
-        }
-        
-    }
-
+    ThemeElement TextColor = ThemeElement::TradesPanelText;
+    ThemeElement BackColor = ThemeElement::TradesPanelBack;
 
 
     // EDIT ACTION LABEL
-    hCtl = CreateSuperLabel(
-        hwnd, IDC_TRADEDIALOG_LBLEDITACTION, SuperLabelType::TextOnly,
-        540, 10, 110, 60);
-    pData = SuperLabel_GetOptions(hCtl);
+    hCtl = CreateCustomLabel(
+        hwnd, IDC_TRADEDIALOG_LBLEDITACTION, CustomLabelType::TextOnly,
+        400, 10, 106, 60);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::TradesPanelBack;
         pData->TextColor = ThemeElement::TradesPanelText;
         pData->FontSize = 14;
-        pData->TextAlignment = SuperLabelAlignment::TopRight;
-        SuperLabel_SetOptions(hCtl, pData);
+        pData->TextAlignment = CustomLabelAlignment::TopRight;
+        CustomLabel_SetOptions(hCtl, pData);
     }
+
+
+    // NEW TRADE SHOWS TEXTBOXES, OTHERS JUST LABELS
+    if (tradeAction == ACTION_NEW_TRADE) {
+        CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColor, BackColor,
+            CustomLabelAlignment::MiddleLeft, 60, 30, 65, 22);
+
+        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTICKER,
+            L"", 60, 55, 65, 22,
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTICKER, NULL);
+
+        CustomLabel_SimpleLabel(hwnd, -1, L"Company Name", TextColor, BackColor,
+            CustomLabelAlignment::MiddleLeft, 133, 30, 115, 22);
+
+        hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTCOMPANY,
+            L"", 133, 55, 252, 22,
+            WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTCOMPANY, NULL);
+
+        //hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTDESCRIPTION,
+        //    L"", 180, 60, 322, 22,
+        //    WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL, -1, NULL,
+        //    (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTDESCRIPTION, NULL);
+        //    Edit_SetCueBannerText(hCtl, L"Description");
+
+    }
+    else {
+
+        hCtl = CreateCustomLabel(
+            hwnd, IDC_TRADEDIALOG_LBLTICKER, CustomLabelType::TextOnly,
+            60, 55, 75, 26);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (pData) {
+            pData->BackColor = ThemeElement::TradesPanelBack;
+            pData->TextColor = ThemeElement::TradesPanelText;
+            pData->FontSize = 14;
+            pData->TextAlignment = CustomLabelAlignment::TopLeft;
+            pData->wszText = L"AAPL";
+            CustomLabel_SetOptions(hCtl, pData);
+        }
+
+        hCtl = CreateCustomLabel(
+            hwnd, IDC_TRADEDIALOG_LBLCOMPANY, CustomLabelType::TextOnly,
+            135, 55, 235, 26);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (pData) {
+            pData->BackColor = ThemeElement::TradesPanelBack;
+            pData->TextColor = ThemeElement::TradesPanelText;
+            pData->FontSize = 14;
+            pData->TextAlignment = CustomLabelAlignment::TopLeft;
+            pData->wszText = L"Apple Inc.";
+            CustomLabel_SetOptions(hCtl, pData);
+        }
+        
+    }
+
     TradeDialogControls_SetEditLabelAndDescription(hwnd);
 
 
-
-    // Position all of the controls for the Trade Management table
-    int hsp = 4;   // horizontal spacer
-    int vsp = 4;   // vertical spacer
+    CustomLabel_SimpleLabel(hwnd, -1, L"Transaction Date", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 402, 30, 100, 22);
+    hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE,
+        L"", 402, 55, 100, 22);
+    DateTime_SetFormat(hCtl, L"yyyy-MM-dd");
 
 
     // Frame1 (around the table header)
-    TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME1,
-        L"", 60, 100, TRADEDIALOG_TRADETABLE_WIDTH, 23);
+    TradeDialog.AddControl(Controls::Frame, hwnd, -1, L"", 60, 100, TRADEDIALOG_TRADETABLE_WIDTH, 23);
 
 
     // Table Header row (non-sizable)
@@ -563,24 +536,22 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = TradeDialog.AddControl(Controls::Header, hwnd, IDC_TRADEDIALOG_HEADER,
         L"", nLeft, nTop, nWidth, nHeight, -1, -1, NULL, (SUBCLASSPROC)TradeDialog_Header_SubclassProc,
         IDC_TRADEDIALOG_HEADER, NULL);
-    nWidth = AfxScaleX(91);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"Action", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Quantity", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Expiry Date", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Strike Price", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Put/Call", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 5, nWidth, L"DTE", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 0, 0, L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(65), L"Quantity", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(92), L"Expiry Date", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(76), L"DTE", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(70), L"Strike", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 5, AfxScaleX(70), L"Put/Call", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 6, AfxScaleX(70), L"Action", HDF_CENTER);
 
 
     // Create the Trade Management table controls 
     nLeft = 60;
-    nTop = 125;
-    nWidth = 90;
-    nHeight = 22;
+    nTop = 130;
+    nHeight = 20;
+
     int NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
-    if (tradeAction == ACTION_ROLL_LEG) {
-        NumTableRows *= 2;
-    }
+    if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
 
     lCtrls.clear();
     lCtrls.reserve(NumTableRows);
@@ -593,55 +564,59 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             nTop = nTop + vsp;
             nWidth = TRADEDIALOG_TRADETABLE_WIDTH;
             nHeight = 1;
-            TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAMESEP, L"", nLeft, nTop, nWidth, nHeight);
+            TradeDialog.AddControl(Controls::Frame, hwnd, -1, L"", nLeft, nTop, nWidth, nHeight);
             nLeft = 60;
             nTop = nTop + nHeight + (vsp * 2);
-            nWidth = 90;
-            nHeight = 22;
+            nHeight = 20;
         }
 
-        for (int col = 0; col < 6; col++) {
-            // ACTION
-            hCtl = lc.cols[col] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEACTION + row,
-                L"", nLeft, nTop, nWidth, nHeight);
-            ComboBox_AddString(hCtl, L"STO");
-            ComboBox_AddString(hCtl, L"BTC");
-            ComboBox_AddString(hCtl, L"BTO");
-            ComboBox_AddString(hCtl, L"STC");
-            nLeft += nWidth + hsp;
+        // QUANTITY
+        nWidth = 65;
+        lc.cols[0] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLEQUANTITY + row,
+            L"", nLeft, nTop, nWidth, nHeight,
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLEQUANTITY + row, NULL);
+        nLeft += nWidth + hsp;
 
-            // QUANTITY
-            lc.cols[col] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLEQUANTITY + row,
-                L"", nLeft, nTop, nWidth, nHeight,
-                WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-                (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLEQUANTITY + row, NULL);
-            nLeft += nWidth + hsp;
+        // EXPIRY DATE
+        nWidth = 85;
+        hCtl = lc.cols[1] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + row,
+            L"", nLeft, nTop, nWidth, nHeight);
+        DateTime_SetFormat(hCtl, L"yyyy-MM-dd");
+        nLeft += nWidth + hsp;
 
-            // EXPIRY DATE
-            lc.cols[col] = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + row,
-                L"", nLeft, nTop, nWidth, nHeight);
-            nLeft += nWidth + hsp;
+        // DTE
+        nWidth = 65;
+        lc.cols[2] = TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_TABLEDTE + row,
+            L"0d", nLeft, nTop, nWidth, nHeight, WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE | WS_GROUP | SS_NOTIFY, 0);
+        nLeft += nWidth + hsp;
 
-            // STRIKE PRICE
-            lc.cols[col] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + row,
-                L"", nLeft, nTop, nWidth, nHeight,
-                WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
-                (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLESTRIKE + row, NULL);
-            nLeft += nWidth + hsp;
+        // STRIKE PRICE
+        nWidth = 65;
+        lc.cols[3] = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TABLESTRIKE + row,
+            L"", nLeft, nTop, nWidth, nHeight,
+            WS_VISIBLE | WS_TABSTOP | ES_CENTER | ES_AUTOHSCROLL, -1, NULL,
+            (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TABLESTRIKE + row, NULL);
+        nLeft += nWidth + hsp;
 
-            // PUT/CALL
-            hCtl = lc.cols[col] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEPUTCALL + row,
-                L"", nLeft, nTop, nWidth, nHeight);
-            ComboBox_AddString(hCtl, L"PUT");
-            ComboBox_AddString(hCtl, L"CALL");
-            nLeft += nWidth + hsp;
+        // PUT/CALL
+        nWidth = 61;
+        hCtl = lc.cols[4] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEPUTCALL + row,
+            L"", nLeft, nTop, nWidth, nHeight);
+        ComboBox_AddString(hCtl, L"PUT");
+        ComboBox_AddString(hCtl, L"CALL");
+        nLeft += nWidth + hsp;
 
-            // DTE
-            lc.cols[col] = TradeDialog.AddControl(Controls::Label, hwnd, IDC_TRADEDIALOG_TABLEDTE + row, 
-                L"0d", nLeft, nTop, nWidth, nHeight, WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE | WS_GROUP | SS_NOTIFY, 0);
+        // ACTION
+        nWidth = 61;
+        hCtl = lc.cols[5] = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_TABLEACTION + row,
+            L"", nLeft, nTop, nWidth, nHeight);
+        ComboBox_AddString(hCtl, L"STO");
+        ComboBox_AddString(hCtl, L"BTC");
+        ComboBox_AddString(hCtl, L"BTO");
+        ComboBox_AddString(hCtl, L"STC");
 
-            lCtrls.push_back(lc);
-        }
+        lCtrls.push_back(lc);
 
         nLeft = 60;
         nTop = nTop + nHeight + vsp;
@@ -653,82 +628,69 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nTop = nTop + vsp;
     nWidth = TRADEDIALOG_TRADETABLE_WIDTH;
     nHeight = 1;
-    TradeDialog.AddControl(Controls::Frame, hwnd, IDC_TRADEDIALOG_FRAME2, L"", nLeft, nTop, nWidth, nHeight);
+    TradeDialog.AddControl(Controls::Frame, hwnd, -1, L"", nLeft, nTop, nWidth, nHeight);
 
 
-    ThemeElement TextColor = ThemeElement::TradesPanelText;
-    ThemeElement BackColor = ThemeElement::TradesPanelBack;
-
-    nTop = 300;
-
-    nLeft = 60 + 34;
-    nWidth = 60;
+    nTop = nTop + 20 + vsp;
+    nLeft = 60;
     nHeight = 20;
 
-    SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLQUANTITY, L"Quantity", TextColor, BackColor,
-        SuperLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
+    int nStartTop = nTop;
 
-    nTop = nTop + nHeight + vmargin;
-    SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLMULTIPLIER, L"Multiplier", TextColor, BackColor,
-        SuperLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-
-    nTop = nTop + nHeight + vmargin;
-    SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLPRICE, L"Price", TextColor, BackColor,
-        SuperLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-
-    nTop = nTop + nHeight + vmargin;
-    SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLFEES, L"Fees", TextColor, BackColor,
-        SuperLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-
-    nTop = nTop + nHeight + vmargin;
-    SuperLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTOTAL, L"Total", TextColor, BackColor,
-        SuperLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
-
-
-    nLeft = nLeft + nWidth;
-    nTop = 300;
-    nWidth = 90;
-    nHeight = 20;
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY, 
-        L"", nLeft, nTop, nWidth, nHeight,
+    
+    nWidth = 80;
+    CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTQUANTITY,
+        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTQUANTITY, NULL);
     FormatNumberFourDecimals(hCtl);
 
-    nTop = nTop + nHeight + vmargin;
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, 
-        L"100.0000", nLeft, nTop, nWidth, nHeight,
+
+    nLeft = nLeft + nWidth + hmargin;
+    CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER,
+        L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTMULTIPLIER, NULL);
     FormatNumberFourDecimals(hCtl);
 
-    nTop = nTop + nHeight + vmargin;
-    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE, 
-        L"", nLeft, nTop, nWidth, nHeight,
+
+    nLeft = nLeft + nWidth + hmargin;
+    CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
+    hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTPRICE,
+        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTPRICE, NULL);
     FormatNumberFourDecimals(hCtl);
 
-    nTop = nTop + nHeight + vmargin;
+
+    nLeft = nLeft + nWidth + hmargin;
+    CustomLabel_SimpleLabel(hwnd, -1, L"Fees", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTFEES,
-        L"", nLeft, nTop, nWidth, nHeight,
+        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTFEES, NULL);
     FormatNumberFourDecimals(hCtl);
 
+
+    nLeft = nLeft + nWidth + hmargin;
+    CustomLabel_SimpleLabel(hwnd, -1, L"Total", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
     // Can not set the Totals as readonly because if we do then we won't be able to get the
     // OnCtlColorEdit message to color the text red/green.
-    nTop = nTop + nHeight + vmargin;
     hCtl = TradeDialog.AddControl(Controls::TextBox, hwnd, IDC_TRADEDIALOG_TXTTOTAL, 
-        L"", nLeft, nTop, nWidth, nHeight,
+        L"", nLeft, nTop + nHeight + vsp, nWidth, nHeight,
         WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL, -1, NULL,
         (SUBCLASSPROC)TradeDialog_TextBox_SubclassProc, IDC_TRADEDIALOG_TXTTOTAL, NULL);
     FormatNumberFourDecimals(hCtl);
 
 
-    nLeft = nLeft + nWidth + 20;
-    nWidth = 70;
-    nHeight = 20;
+    nTop = nStartTop + ((nHeight + vsp) * 2) + vsp;
     hCtl = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_COMBODRCR,
         L"", nLeft, nTop, nWidth, nHeight);
     ComboBox_AddString(hCtl, L"CREDIT");
@@ -737,12 +699,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // Position OK and Cancel buttons from the right edge
-    nLeft = nLeft + 282;
-    nTop = 300 + 76;
-    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_OK, L"OK", nLeft, nTop, 74, 28);
+    nLeft = 60;
+    hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE", nLeft, nTop, 80, nHeight);
 
-    nTop = nTop + 36;
-    TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", nLeft, nTop, 74, 28);
+    nLeft = nLeft + 80 + hmargin;
+    hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", nLeft, nTop, 80, nHeight);
 }
 
 

@@ -1,10 +1,10 @@
 
 #include "pch.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
-#include "..\VScrollBar\VScrollBar.h"
+#include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\MenuPanel\MenuPanel.h"
 
 #include "TickerPanel.h"
@@ -29,7 +29,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 void TickerPanel_ShowTickerTotals()
 {
     HWND hListBox = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CustomVScrollBar);
 
 
     // Ensure that the Ticker panel is set
@@ -103,7 +103,7 @@ void TickerPanel_ShowTickerTotals()
     TickerPanel_OnSize(HWND_TICKERPANEL, 0, rc.right, rc.bottom);
 
 
-    VScrollBar_Recalculate(hVScrollBar);
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 }
 
 
@@ -180,8 +180,8 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_VSCROLLBAR);
-        VScrollBar_Recalculate(hVScrollBar);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CustomVScrollBar);
+        CustomVScrollBar_Recalculate(hCustomVScrollBar);
         break;
     }
 
@@ -299,7 +299,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeaderTickerTotals = GetDlgItem(hwnd, IDC_TICKER_HEADER_TOTALS);
     HWND hListBox = GetDlgItem(hwnd, IDC_TICKER_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(hwnd, IDC_TICKER_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TICKER_CustomVScrollBar);
 
     int margin = AfxScaleY(TICKERPANEL_MARGIN);
 
@@ -313,7 +313,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bShowScrollBar = false;
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
             bShowScrollBar = true;
@@ -322,7 +322,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CustomVScrollBar_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
@@ -332,13 +332,13 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hHeaderTickerTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleX(1);
 
-    nWidth = cx - VScrollBarWidth;
+    nWidth = cx - CustomVScrollBarWidth;
     nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = VScrollBarWidth;
-    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    nWidth = CustomVScrollBarWidth;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
 
@@ -353,7 +353,7 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TICKERPANEL = hwnd;
 
-    HWND hCtl = SuperLabel_SimpleLabel(hwnd, IDC_TICKER_SYMBOL, L"Ticker Totals",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TICKER_SYMBOL, L"Ticker Totals",
         ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
 
     // Create an Ownerdraw listbox that we will use to custom paint ticker names.
@@ -369,7 +369,7 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     ListBox_AddString(hCtl, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateVScrollBar(hwnd, IDC_TICKER_VSCROLLBAR, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_TICKER_CustomVScrollBar, hCtl);
 
 
     // Create Header control for our Ticker Totals output

@@ -162,7 +162,7 @@ int APIENTRY wWinMain(
 
     // Now that the child panels are created we can *post* a message to MainWindow to ask
     // to show any trades that already exist. We need to postmessage because we need for
-    // the ListBox to be shown and sized, otherwise the VScrollBar calculation will not
+    // the ListBox to be shown and sized, otherwise the CustomVScrollBar calculation will not
     // correctly determine it's thumb size due to zero height ListBox.
     PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
 

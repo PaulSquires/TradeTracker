@@ -1,6 +1,6 @@
 
 #include "pch.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 #include "..\Utilities\UserMessages.h"
 #include "..\Config\Config.h"
 #include "..\MainWindow\tws-client.h"
@@ -69,16 +69,16 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     HWND hCtl;
 
-    SuperLabel* pData = nullptr;
+    CustomLabel* pData = nullptr;
 
     // HEADER CONTROLS
     nLeft = (MENUPANEL_WIDTH - 68) / 2;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_LOGO,
-        SuperLabelType::ImageOnly,
+        CustomLabelType::ImageOnly,
         nLeft, 20, 68, 68);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
         pData->BackColor = ThemeElement::MenuPanelBack;
@@ -86,72 +86,72 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
         pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_TRADERNAME,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, 100, MENUPANEL_WIDTH, 18);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->TextColor = ThemeElement::MenuPanelTextDim;
         pData->FontSize = 10;
-        pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
+        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = GetTraderName();
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_APPNAME,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, 118, MENUPANEL_WIDTH, 18);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->TextColor = ThemeElement::MenuPanelText;
         pData->FontSize = 10;
-        pData->TextAlignment = SuperLabelAlignment::MiddleCenter;
+        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = L"IB-Tracker v1.0";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     // SEPARATOR
     nTop = 150;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd, -1,
-        SuperLabelType::LineHorizontal,
+        CustomLabelType::LineHorizontal,
         0, nTop, MENUPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     // MENU ITEMS
     nLeftOffset = 0;
     nTop = nTop + 10;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_ACTIVETRADES,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -166,17 +166,17 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Active Trades";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_CLOSEDTRADES,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -191,34 +191,34 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Closed Trades";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd, -1,
-        SuperLabelType::LineHorizontal,
+        CustomLabelType::LineHorizontal,
         0, nTop, MENUPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + 10;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_NEWOPTIONSTRADE,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -233,16 +233,16 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Options Trade";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
     nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_NEWSHARESTRADE,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -257,16 +257,16 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Shares Trade";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
     nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_NEWFUTURESTRADE,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -281,7 +281,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Futures Trade";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
@@ -296,11 +296,11 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ctrlId++;
 
         nTop = nTop + nItemHeight;
-        hCtl = CreateSuperLabel(
+        hCtl = CreateCustomLabel(
             hwnd, ctrlId,
-            SuperLabelType::TextOnly,
+            CustomLabelType::TextOnly,
             0, nTop, MENUPANEL_WIDTH, nItemHeight);
-        pData = SuperLabel_GetOptions(hCtl);
+        pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
             pData->pTradeTemplate = &t;
             pData->HotTestEnable = true;
@@ -316,7 +316,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             pData->FontSizeHot = 10;
             pData->wszText = t.name;
             pData->wszTextHot = pData->wszText;
-            SuperLabel_SetOptions(hCtl, pData);
+            CustomLabel_SetOptions(hCtl, pData);
         }
 
     }
@@ -325,28 +325,28 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd, -1,
-        SuperLabelType::LineHorizontal,
+        CustomLabelType::LineHorizontal,
         0, nTop, MENUPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + 10;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_TICKERTOTALS,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -361,17 +361,17 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Ticker Totals";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_DAILYTOTALS,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -386,17 +386,17 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Daily Totals";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_TRANSACTIONS,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -411,17 +411,17 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Transactions";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + nItemHeight;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_RECONCILE,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -436,34 +436,34 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Reconcile";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd, -1,
-        SuperLabelType::LineHorizontal,
+        CustomLabelType::LineHorizontal,
         0, nTop, MENUPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     nTop = nTop + 10;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd,
         IDC_MENUPANEL_CONNECTTWS,
-        SuperLabelType::TextOnly,
+        CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
@@ -478,24 +478,24 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->FontSizeHot = 10;
         pData->wszText = L"Connect to TWS";
         pData->wszTextHot = pData->wszText;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
 
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
-    hCtl = CreateSuperLabel(
+    hCtl = CreateCustomLabel(
         hwnd, -1,
-        SuperLabelType::LineHorizontal,
+        CustomLabelType::LineHorizontal,
         0, nTop, MENUPANEL_WIDTH, 10);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::MenuPanelBack;
         pData->LineColor = ThemeElement::MenuPanelSeparator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
     return TRUE;
@@ -510,11 +510,11 @@ void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
     HWND hCtrl = NULL;
     for (int i = IDC_MENUPANEL_FIRSTITEM; i <= IDC_MENUPANEL_LASTITEM; i++) {
         hCtrl = GetDlgItem(hParent, i);
-        SuperLabel_Select(hCtrl, false);
+        CustomLabel_Select(hCtrl, false);
     }
 
     hCtrl = GetDlgItem(hParent, CtrlId);
-    SuperLabel_Select(hCtrl, true);
+    CustomLabel_Select(hCtrl, true);
 }
 
 
@@ -527,7 +527,7 @@ int MenuPanel_GetActiveMenuItem(HWND hParent)
     for (int ctrlId = IDC_MENUPANEL_FIRSTITEM; ctrlId <= IDC_MENUPANEL_LASTITEM; ctrlId++)
     {
         hCtrl = GetDlgItem(hParent, ctrlId);
-        SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
+        CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
         if (pData != nullptr) {
             if (pData->IsSelected) return ctrlId;
         }
@@ -550,8 +550,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_TWS_CONNECT_START:
     {
-        SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
+        CustomLabel* pData = nullptr;
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connecting to TWS";
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
@@ -562,8 +562,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_TWS_CONNECT_SUCCESS:
     {
-        SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
+        CustomLabel* pData = nullptr;
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"TWS Connected";
             pData->TextColor = ThemeElement::valuePositive;
@@ -577,8 +577,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_FAILURE:
     case MSG_TWS_CONNECT_DISCONNECT:
     {
-        SuperLabel* pData = nullptr;
-        pData = SuperLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
+        CustomLabel* pData = nullptr;
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connect to TWS";
             pData->TextColor = ThemeElement::MenuPanelText;
@@ -590,17 +590,17 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_SUPERLABEL_MOUSEMOVE:
+    case MSG_CustomLabel_MOUSEMOVE:
         break;
 
 
-    case MSG_SUPERLABEL_CLICK:
+    case MSG_CustomLabel_CLICK:
     {
         HWND hCtl = (HWND)lParam;
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
-        SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtl, 0);
+        CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtl, 0);
 
         if (pData) {
 
@@ -673,7 +673,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     (LPCWSTR)L"Information",
                     MB_ICONINFORMATION
                 );
-                SuperLabel_Select(GetDlgItem(m_hwnd, CtrlId), false);
+                CustomLabel_Select(GetDlgItem(m_hwnd, CtrlId), false);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
                 break;
             }

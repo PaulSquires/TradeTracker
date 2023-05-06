@@ -1,5 +1,5 @@
 //
-// SUPER LABEL CONTROL
+// CUSTOM LABEL CONTROL
 // Copyright (C) 2023 Paul Squires, PlanetSquires Software
 // This control should be able to handle all different types of labels and will act
 // like a button, hot tracking, pictures, etc.
@@ -7,7 +7,7 @@
 
 #include "pch.h"
 #include "..\Utilities\AfxWin.h"
-#include "SuperLabel.h"
+#include "CustomLabel.h"
 
 
 
@@ -74,13 +74,13 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
 
 
 //------------------------------------------------------------------------------ 
-LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    static SuperLabel* pDataSelected = nullptr;
-    SuperLabel* pData = nullptr;
+    static CustomLabel* pDataSelected = nullptr;
+    CustomLabel* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
-        pData = (SuperLabel*)GetWindowLongPtr(hWnd, 0);
+        pData = (CustomLabel*)GetWindowLongPtr(hWnd, 0);
     }
                  
 
@@ -93,10 +93,10 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
         if (pData) {
             if (pData->HotTestEnable) {
-                IDCPointer = (pData->PointerHot == SuperLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
+                IDCPointer = (pData->PointerHot == CustomLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
             }
             else {
-                IDCPointer = (pData->Pointer == SuperLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
+                IDCPointer = (pData->Pointer == CustomLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
             }
         }
         SetCursor(LoadCursor(NULL, (LPCWSTR)IDCPointer));
@@ -108,7 +108,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_MOUSEMOVE:
     {
         if (pData == nullptr) return 0;
-        SendMessage(pData->hParent, MSG_SUPERLABEL_MOUSEMOVE, (WPARAM)hWnd, 0);
+        SendMessage(pData->hParent, MSG_CustomLabel_MOUSEMOVE, (WPARAM)hWnd, 0);
 
         // Tracks the mouse movement and stores the hot state
         TRACKMOUSEEVENT trackMouse;
@@ -144,7 +144,7 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             // We do not set the button IsSelected to true here because we leave it to 
             // the user to decide if after clicking the label whether to set the label
             // to selected or not.
-            PostMessage(pData->hParent, MSG_SUPERLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+            PostMessage(pData->hParent, MSG_CustomLabel_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
         }
         return 0;
         break;
@@ -200,15 +200,15 @@ LRESULT CALLBACK SuperLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 
 //------------------------------------------------------------------------------ 
-SuperLabel* SuperLabel_GetOptions(HWND hCtrl)
+CustomLabel* CustomLabel_GetOptions(HWND hCtrl)
 {
-    SuperLabel* pData = (SuperLabel*)GetWindowLongPtr(hCtrl, 0);
+    CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
 
 
 //------------------------------------------------------------------------------ 
-int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData)
+int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
 {
     if (pData == nullptr) return 0;
 
@@ -226,26 +226,26 @@ int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData)
 
 
 //------------------------------------------------------------------------------ 
-void SuperLabel_SetText(HWND hCtrl, std::wstring wszText)
+void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
 {
-    SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
         pData->wszText = wszText;
         pData->wszTextHot = wszText;
-        SuperLabel_SetOptions(hCtrl, pData);
+        CustomLabel_SetOptions(hCtrl, pData);
         AfxRedrawWindow(hCtrl);
     }
 }
 
 
 //------------------------------------------------------------------------------ 
-void SuperLabel_Select(HWND hCtrl, bool IsSelected)
+void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 {
-    SuperLabel* pData = SuperLabel_GetOptions(hCtrl);
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
         bool redraw = pData->IsSelected != IsSelected ? true : false;
         pData->IsSelected = IsSelected;
-        SuperLabel_SetOptions(hCtrl, pData);
+        CustomLabel_SetOptions(hCtrl, pData);
         if (redraw) AfxRedrawWindow(hCtrl);
     }
 }
@@ -253,25 +253,25 @@ void SuperLabel_Select(HWND hCtrl, bool IsSelected)
 
 
 //------------------------------------------------------------------------------ 
-HWND SuperLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
-    ThemeElement TextColor, ThemeElement BackColor, SuperLabelAlignment alignment, 
+HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
+    ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment, 
     int nLeft, int nTop, int nWidth, int nHeight)
 {
     // Creates a simple "dumb" label that basically just makes it easier to deal
     // with theme coloring. No hot tracking or click notifications.
-    SuperLabel* pData = nullptr;
+    CustomLabel* pData = nullptr;
 
-    HWND hCtl = CreateSuperLabel(
-        hParent, CtrlId, SuperLabelType::TextOnly,
+    HWND hCtl = CreateCustomLabel(
+        hParent, CtrlId, CustomLabelType::TextOnly,
         nLeft, nTop, nWidth, nHeight);
-    pData = SuperLabel_GetOptions(hCtl);
+    pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->wszText = wszText;
         pData->HotTestEnable = false;
         pData->BackColor = BackColor;
         pData->TextColor = TextColor;
         pData->TextAlignment = alignment;
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
     return hCtl;
@@ -279,16 +279,16 @@ HWND SuperLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 
 
 //------------------------------------------------------------------------------ 
-HWND CreateSuperLabel( 
+HWND CreateCustomLabel( 
     HWND hWndParent, 
     LONG_PTR CtrlId,
-    SuperLabelType nCtrlType,
+    CustomLabelType nCtrlType,
     int nLeft, 
     int nTop, 
     int nWidth, 
     int nHeight )
 {
-    std::wstring wszClassName(L"SUPERLABEL_CONTROL");
+    std::wstring wszClassName(L"CustomLabel_CONTROL");
 
     WNDCLASSEX wcex{};
     
@@ -297,7 +297,7 @@ HWND CreateSuperLabel(
     if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = SuperLabelProc;
+        wcex.lpfnWndProc = CustomLabelProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class
         wcex.hInstance = hInst;
@@ -321,7 +321,7 @@ HWND CreateSuperLabel(
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
-        SuperLabel* pData = new SuperLabel;
+        CustomLabel* pData = new CustomLabel;
 
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
@@ -336,16 +336,16 @@ HWND CreateSuperLabel(
 
         pData->hToolTip = AfxAddTooltip(hCtl, L"", FALSE, FALSE);
 
-        if (nCtrlType == SuperLabelType::LineHorizontal || 
-            nCtrlType == SuperLabelType::LineVertical) {
+        if (nCtrlType == CustomLabelType::LineHorizontal || 
+            nCtrlType == CustomLabelType::LineVertical) {
             pData->HotTestEnable = false;
             pData->BorderVisible = false;
         }
 
-        pData->Pointer = SuperLabelPointer::Arrow;
-        pData->PointerHot = SuperLabelPointer::Hand;
+        pData->Pointer = CustomLabelPointer::Arrow;
+        pData->PointerHot = CustomLabelPointer::Hand;
 
-        SuperLabel_SetOptions(hCtl, pData);
+        CustomLabel_SetOptions(hCtl, pData);
     }
    
     return hCtl;

@@ -1,10 +1,10 @@
 
 #include "pch.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Database\trade.h"
 #include "..\Themes\Themes.h"
-#include "..\VScrollBar\VScrollBar.h"
+#include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\MenuPanel\MenuPanel.h"
 
 #include "HistoryPanel.h"
@@ -33,7 +33,7 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     if (trade == nullptr) return;
 
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CustomVScrollBar);
 
 
     // Ensure that the Trade History panel is set
@@ -48,7 +48,7 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     ListBoxData_DestroyItemData(hListBox);
 
 
-    SuperLabel_SetText(
+    CustomLabel_SetText(
         GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
         trade->tickerSymbol + L": " + trade->tickerName);
 
@@ -96,7 +96,7 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
     RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
     HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
 
-    VScrollBar_Recalculate(hVScrollBar);
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
 }
 
@@ -136,8 +136,8 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_VSCROLLBAR);
-        VScrollBar_Recalculate(hVScrollBar);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CustomVScrollBar);
+        CustomVScrollBar_Recalculate(hCustomVScrollBar);
         break;
     }
 
@@ -254,7 +254,7 @@ void HistoryPanel_OnPaint(HWND hwnd)
 void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CustomVScrollBar);
 
     int margin = AfxScaleY(HISTORYPANEL_MARGIN);
 
@@ -268,7 +268,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bShowScrollBar = false;
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
             bShowScrollBar = true;
@@ -277,17 +277,17 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CustomVScrollBar_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
-    int nWidth = cx - VScrollBarWidth;
+    int nWidth = cx - CustomVScrollBarWidth;
     int nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = VScrollBarWidth;
-    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    nWidth = CustomVScrollBarWidth;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
 
@@ -302,7 +302,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_HISTORYPANEL = hwnd;
 
-    HWND hCtl = SuperLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
         ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
 
     // Create an Ownerdraw listbox that we will use to custom paint our various open trades.
@@ -318,7 +318,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     ListBox_AddString(hCtl, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateVScrollBar(hwnd, IDC_HISTORY_VSCROLLBAR, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_HISTORY_CustomVScrollBar, hCtl);
 
     return TRUE;
 }

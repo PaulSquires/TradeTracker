@@ -3,7 +3,7 @@
 #include "..\Utilities\AfxWin.h"
 #include "..\Themes\Themes.h"
 #include "..\MenuPanel\MenuPanel.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 
 #include "Config.h"
 
@@ -40,7 +40,7 @@ void SetTraderName(std::wstring wszName)
     wszTraderName = wszName;
     HWND hCtl = GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_TRADERNAME);
     if (IsWindow(hCtl))
-        SuperLabel_SetText(hCtl, wszName);
+        CustomLabel_SetText(hCtl, wszName);
 }
 
 

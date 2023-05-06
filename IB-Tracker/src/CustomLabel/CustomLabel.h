@@ -9,7 +9,7 @@
 #define IDB_GEARHOT                     104
 #define IDB_LOGO                        105
 
-enum class SuperLabelType
+enum class CustomLabelType
 {
 	TextOnly,
 	ImageOnly,
@@ -18,7 +18,7 @@ enum class SuperLabelType
 	LineVertical
 };
 
-enum class SuperLabelAlignment
+enum class CustomLabelAlignment
 {
 	// Text alignment
 	MiddleCenter,
@@ -32,14 +32,14 @@ enum class SuperLabelAlignment
 	BottomRight
 };
 
-enum class SuperLabelPointer
+enum class CustomLabelPointer
 {
 	Arrow,
 	Hand
 };
 
 
-class SuperLabel
+class CustomLabel
 {
 private:
 	HDC m_memDC = NULL;           // Double buffering
@@ -57,7 +57,7 @@ public:
 	std::wstring wszToolTip;
 
 	int CtrlId = 0;
-	SuperLabelType CtrlType = SuperLabelType::TextOnly;
+	CustomLabelType CtrlType = CustomLabelType::TextOnly;
 	bool HotTestEnable = false;
 	ThemeElement BackColor{};
 	ThemeElement BackColorHot{};
@@ -96,7 +96,7 @@ public:
 	int ImageOffsetTop = 0;
 
 	// Text General
-	SuperLabelAlignment TextAlignment = SuperLabelAlignment::MiddleCenter;
+	CustomLabelAlignment TextAlignment = CustomLabelAlignment::MiddleCenter;
 	int TextOffsetLeft = 0;
 	int TextOffsetTop = 0;
 	int TextCharacterExtra = 0;
@@ -109,7 +109,7 @@ public:
 	bool FontItalic = false;
 	bool FontUnderline = false;
 	ThemeElement TextColor{};
-	SuperLabelPointer Pointer = SuperLabelPointer::Arrow;
+	CustomLabelPointer Pointer = CustomLabelPointer::Arrow;
 
 	// Text Hot
 	std::wstring wszTextHot;
@@ -119,7 +119,7 @@ public:
 	bool FontItalicHot = false;
 	bool FontUnderlineHot = false;
 	ThemeElement TextColorHot{};
-	SuperLabelPointer PointerHot = SuperLabelPointer::Hand;
+	CustomLabelPointer PointerHot = CustomLabelPointer::Hand;
 
 
 
@@ -127,47 +127,47 @@ public:
 	{
 		switch (TextAlignment)
 		{
-		case SuperLabelAlignment::BottomCenter:
+		case CustomLabelAlignment::BottomCenter:
 			stringF->SetAlignment(StringAlignmentCenter);
 			stringF->SetLineAlignment(StringAlignmentFar);
 			break;
 
-		case SuperLabelAlignment::BottomLeft:
+		case CustomLabelAlignment::BottomLeft:
 			stringF->SetAlignment(StringAlignmentNear);
 			stringF->SetLineAlignment(StringAlignmentFar);
 			break;
 
-		case SuperLabelAlignment::BottomRight:
+		case CustomLabelAlignment::BottomRight:
 			stringF->SetAlignment(StringAlignmentFar);
 			stringF->SetLineAlignment(StringAlignmentFar);
 			break;
 
-		case SuperLabelAlignment::MiddleCenter:
+		case CustomLabelAlignment::MiddleCenter:
 			stringF->SetAlignment(StringAlignmentCenter);
 			stringF->SetLineAlignment(StringAlignmentCenter);
 			break;
 
-		case SuperLabelAlignment::MiddleLeft:
+		case CustomLabelAlignment::MiddleLeft:
 			stringF->SetAlignment(StringAlignmentNear);
 			stringF->SetLineAlignment(StringAlignmentCenter);
 			break;
 
-		case SuperLabelAlignment::MiddleRight:
+		case CustomLabelAlignment::MiddleRight:
 			stringF->SetAlignment(StringAlignmentFar);
 			stringF->SetLineAlignment(StringAlignmentCenter);
 			break;
 
-		case SuperLabelAlignment::TopCenter:
+		case CustomLabelAlignment::TopCenter:
 			stringF->SetAlignment(StringAlignmentCenter);
 			stringF->SetLineAlignment(StringAlignmentNear);
 			break;
 
-		case SuperLabelAlignment::TopLeft:
+		case CustomLabelAlignment::TopLeft:
 			stringF->SetAlignment(StringAlignmentNear);
 			stringF->SetLineAlignment(StringAlignmentNear);
 			break;
 
-		case SuperLabelAlignment::TopRight:
+		case CustomLabelAlignment::TopRight:
 			stringF->SetAlignment(StringAlignmentFar);
 			stringF->SetLineAlignment(StringAlignmentNear);
 			break;
@@ -215,8 +215,8 @@ public:
 	{
 		switch (CtrlType)
 		{
-		case SuperLabelType::ImageOnly:
-		case SuperLabelType::ImageAndText:
+		case CustomLabelType::ImageOnly:
+		case CustomLabelType::ImageAndText:
 			REAL nLeft = (MarginLeft + ImageOffsetLeft) * m_rx;
 			REAL nTop = (MarginTop + ImageOffsetTop) * m_ry;
 			REAL nRight = nLeft + (ImageWidth * m_rx);
@@ -235,8 +235,8 @@ public:
 	{
 		switch (CtrlType)
 		{
-		case SuperLabelType::TextOnly:
-		case SuperLabelType::ImageAndText:
+		case CustomLabelType::TextOnly:
+		case CustomLabelType::ImageAndText:
 
 			wszFontName = AfxGetDefaultFont();
 
@@ -286,7 +286,7 @@ public:
 	{
 		switch (CtrlType)
 		{
-			case SuperLabelType::LineHorizontal:
+			case CustomLabelType::LineHorizontal:
 				REAL nLeft = MarginLeft * m_rx;
 				REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
 				REAL nRight = m_rcClient.right - (MarginRight * m_rx);
@@ -297,7 +297,7 @@ public:
 				Graphics graphics(m_memDC);
 				graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
 
-			//case SuperLabelType::LineVertical:
+			//case CustomLabelType::LineVertical:
 			//	ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
 			//	Pen pen(clrPen, pData->LineWidth);
 				// Draw the vertical line centered taking margins into account
@@ -332,9 +332,9 @@ public:
 		// else has been painted.
 		switch (CtrlType)
 		{
-		case SuperLabelType::ImageOnly:
-		case SuperLabelType::ImageAndText:
-		case SuperLabelType::TextOnly:
+		case CustomLabelType::ImageOnly:
+		case CustomLabelType::ImageAndText:
+		case CustomLabelType::TextOnly:
 		{
 			ARGB clrPen = (m_bIsHot ? GetThemeColor(BorderColorHot) : GetThemeColor(BorderColor));
 			if (!BorderVisible) clrPen = GetThemeColor(BackColor);
@@ -364,16 +364,16 @@ public:
 };
 
 
-SuperLabel* SuperLabel_GetOptions(HWND hCtrl);
-int SuperLabel_SetOptions(HWND hCtrl, SuperLabel* pData);
-void SuperLabel_SetText(HWND hCtrl, std::wstring wszText);
-void SuperLabel_Select(HWND hCtrl, bool IsSelected);
+CustomLabel* CustomLabel_GetOptions(HWND hCtrl);
+int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
+void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
+void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 
-HWND SuperLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
-	ThemeElement TextColor, ThemeElement BackColor, SuperLabelAlignment alignment = SuperLabelAlignment::MiddleLeft,
+HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
+	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 	
-HWND CreateSuperLabel(HWND hWndParent, LONG_PTR CtrlId,	SuperLabelType nCtrlType,
+HWND CreateCustomLabel(HWND hWndParent, LONG_PTR CtrlId,	CustomLabelType nCtrlType,
 	int nLeft, int nTop, int nWidth, int nHeight);
 
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype);

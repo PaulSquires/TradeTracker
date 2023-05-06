@@ -16,7 +16,7 @@ enum class Controls
     Button, OptionButton, CheckBox, Label, Custom, Frame, Line, TextBox,
     MultilineTextBox, ComboBox, ListBox, ProgressBar, TreeView, ListView,
     Header, DateTimePicker, MonthCalendar, TabControl, StatusBar, SizeGrip,
-    HScrollBar, VScrollBar, Slider, UpDown, RichEdit
+    HScrollBar, CustomVScrollBar, Slider, UpDown, RichEdit
 };
 
 
@@ -297,7 +297,7 @@ public:
 
         case Controls::Frame:
         {
-            bSetFont = FALSE;
+            bSetFont = false;
             if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_CLIPSIBLINGS | WS_GROUP | SS_GRAYFRAME;
             if (dwExStyle == -1) dwExStyle = WS_EX_TRANSPARENT;
             wszClassName = L"Static";
@@ -307,10 +307,9 @@ public:
 
         case Controls::Line:
         {
-            bSetFont = FALSE;
+            bSetFont = false;
             if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_ETCHEDFRAME;
             if (dwExStyle == -1) dwExStyle = WS_EX_TRANSPARENT;
-            bSetFont = FALSE;
             wszClassName = L"Static";
             hCtl = CreateControl(wszClassName, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
         }
@@ -425,7 +424,7 @@ public:
         }
         break;
 
-        case Controls::VScrollBar:
+        case Controls::CustomVScrollBar:
         {
 
         }

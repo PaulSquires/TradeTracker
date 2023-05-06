@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\Database\trade.h"
-#include "..\SuperLabel\SuperLabel.h"
+#include "..\CustomLabel\CustomLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\Themes\Themes.h"
 #include "..\MenuPanel\MenuPanel.h"
-#include "..\VScrollBar\VScrollBar.h"
+#include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\TradeDialog\TradeDialog.h"
 #include "..\Database\database.h"
 #include "TradesPanel.h"
@@ -60,12 +60,12 @@ void TradesPanel_EnsureMainMenuItem()
 void TradesPanel_ShowListBoxItem(int index)
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
 
     ListBox_SetCurSel(hListBox, index);
 
     //  update the scrollbar position if necessary
-    VScrollBar_Recalculate(hVScrollBar);
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     // Get the current line to determine if a valid Trade pointer exists so that we
     // can show the trade history.
@@ -85,7 +85,7 @@ void TradesPanel_ShowListBoxItem(int index)
 void TradesPanel_ShowActiveTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
@@ -132,7 +132,7 @@ void TradesPanel_ShowActiveTrades()
 
     
     // Set the label text indicated the type of trades being listed
-    SuperLabel_SetText(hLabel, L"Active Trades");
+    CustomLabel_SetText(hLabel, L"Active Trades");
 
 
     // Need to force a resize of the TradesPanel in order to properly show (or not show) 
@@ -155,7 +155,7 @@ void TradesPanel_ShowActiveTrades()
     }
     
 
-    VScrollBar_Recalculate(hVScrollBar);
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     IsActiveTradesVisible = true;
 
@@ -173,7 +173,7 @@ void TradesPanel_ShowActiveTrades()
 void TradesPanel_ShowClosedTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
@@ -234,7 +234,7 @@ void TradesPanel_ShowClosedTrades()
 
     
     // Set the label text indicated the type of trades being listed
-    SuperLabel_SetText(hLabel, L"Closed Trades");
+    CustomLabel_SetText(hLabel, L"Closed Trades");
 
 
     // Need to force a resize of the TradesPanel in order to properly show (or not show) 
@@ -257,7 +257,7 @@ void TradesPanel_ShowClosedTrades()
         ListBoxData_HistoryBlankLine(hListBox);
     }
 
-    VScrollBar_Recalculate(hVScrollBar);
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     IsActiveTradesVisible = false;
 
@@ -607,8 +607,8 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_VSCROLLBAR);
-        VScrollBar_Recalculate(hVScrollBar);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
+        CustomVScrollBar_Recalculate(hCustomVScrollBar);
         break;
     }
 
@@ -788,7 +788,7 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADES_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
-    HWND hVScrollBar = GetDlgItem(hwnd, IDC_TRADES_VSCROLLBAR);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADES_CustomVScrollBar);
         
     int margin = AfxScaleY(TRADESPANEL_MARGIN);
 
@@ -803,7 +803,7 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bShowScrollBar = false;
-    VScrollBar* pData = VScrollBar_GetPointer(hVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
             bShowScrollBar = true;
@@ -812,7 +812,7 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int VScrollBarWidth = bShowScrollBar ? AfxScaleX(VSCROLLBAR_WIDTH) : 0;
+    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CustomVScrollBar_WIDTH) : 0;
 
 
     int nLeft = 0;
@@ -830,13 +830,13 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
 
 
-    nWidth = cx - VScrollBarWidth;
+    nWidth = cx - CustomVScrollBarWidth;
     nHeight = cy - nTop; 
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = VScrollBarWidth;
-    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    nWidth = CustomVScrollBarWidth;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
@@ -850,7 +850,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRADESPANEL = hwnd;
         
-    HWND hCtl = SuperLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
         ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
     
     hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
@@ -881,7 +881,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateVScrollBar(hwnd, IDC_TRADES_VSCROLLBAR, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_TRADES_CustomVScrollBar, hCtl);
 
     return TRUE;
 }
