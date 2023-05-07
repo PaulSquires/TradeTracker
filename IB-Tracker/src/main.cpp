@@ -156,10 +156,18 @@ int APIENTRY wWinMain(
 
     if (hWndMain == NULL) return 0;
 
+
+    // Workaround for the Windows white flashing bug.
+    // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+    BOOL cloak = TRUE;
+    DwmSetWindowAttribute(hWndMain, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
     // Show the window and update its client area
     ShowWindow(hWndMain, (nCmdShow == 0) ? SW_SHOW : nCmdShow);
     UpdateWindow(hWndMain);
 
+    cloak = FALSE;
+    DwmSetWindowAttribute(hWndMain, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
     // Now that the child panels are created we can *post* a message to MainWindow to ask
     // to show any trades that already exist. We need to postmessage because we need for

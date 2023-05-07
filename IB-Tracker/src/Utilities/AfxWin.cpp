@@ -96,9 +96,29 @@ bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText)
 
 
 // ========================================================================================
+// Gets the client width in pixels of a window.
+// ========================================================================================
+int AfxGetClientWidth(HWND hwnd)
+{
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+    return rc.right - rc.left;
+}
+
+
+// ========================================================================================
+// Gets the client height in pixels of a window.
+// ========================================================================================
+int AfxGetClientHeight(HWND hwnd)
+{
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+    return rc.bottom - rc.top;
+}
+
+
+// ========================================================================================
 // Gets the width in pixels of a window.
-// Note: To retrieve the height of the desktop window pass the handle returned by the
-// API function GetDesktopWindow.
 // ========================================================================================
 int AfxGetWindowWidth(HWND hwnd)
 {
@@ -110,8 +130,6 @@ int AfxGetWindowWidth(HWND hwnd)
 
 // ========================================================================================
 // Gets the height in pixels of a window.
-// Note: To retrieve the height of the desktop window pass the handle returned by the
-// API function GetDesktopWindow.
 // ========================================================================================
 int AfxGetWindowHeight(HWND hwnd)
 {

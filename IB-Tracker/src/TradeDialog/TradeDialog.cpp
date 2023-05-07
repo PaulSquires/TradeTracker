@@ -283,7 +283,7 @@ void TradeDialog_Show(int inTradeAction)
     int nWidth = 575;
     int nHeight = 405;
 
-    if (inTradeAction == ACTION_ROLL_LEG) nHeight += 100;
+    if (tradeAction == ACTION_ROLL_LEG) nWidth += 100;
 
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -312,13 +312,22 @@ void TradeDialog_Show(int inTradeAction)
     // and this popup closing.
     MainWindow_BlurPanels(true);
 
-
     AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
     EnableWindow(HWND_MAINWINDOW, FALSE);
 
+
+    // Workaround for the Windows white flashing bug.
+    // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+    BOOL cloak = TRUE;
+    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
     ShowWindow(hwnd, SW_SHOWNORMAL);
-    
+    UpdateWindow(hwnd);
+
+    cloak = FALSE;
+    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
     
     // set focus to the Transaction date picker
     if (inTradeAction == ACTION_ROLL_LEG) {

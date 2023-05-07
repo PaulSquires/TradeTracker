@@ -16,6 +16,8 @@ int AfxScaleY(float cy);
 int AfxUnScaleX(float cx);
 int AfxUnScaleY(float cy);
 
+int AfxGetClientWidth(HWND hwnd);
+int AfxGetClientHeight(HWND hwnd);
 int AfxGetWindowWidth(HWND hwnd);
 int AfxGetWindowHeight(HWND hwnd);
 void AfxCenterWindow(HWND hwnd = NULL, HWND hwndParent = NULL);

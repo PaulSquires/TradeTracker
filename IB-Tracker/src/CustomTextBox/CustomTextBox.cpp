@@ -415,6 +415,7 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
         pData->wszText = wszText;
         AfxSetWindowText(pData->hTextBox, wszText);
         CustomTextBox_SetOptions(hCtrl, pData);
+        CustomTextBox_FormatDisplayDecimalPlaces(pData);
         AfxRedrawWindow(hCtrl);
     }
 }
