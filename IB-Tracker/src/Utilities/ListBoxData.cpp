@@ -502,20 +502,20 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
                 ThemeElement::TradesPanelColBackDark, ThemeElement::TradesPanelText, font8, FontStyleRegular);  // position quantity
             col++;
 
-            ld->SetData(col, trade, tickerId, wszShortDate, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
-                ThemeElement::TradesPanelText, font8, FontStyleRegular);   // expiry date
+            ld->SetData(col, trade, tickerId, wszShortDate, StringAlignmentCenter, StringAlignmentCenter,
+                ThemeElement::TradesPanelColBackLight, ThemeElement::TradesPanelText, font8, FontStyleRegular);   // expiry date
             col++;
 
             ld->SetData(col, trade, tickerId, wszDTE, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
                 ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // DTE
             col++;
 
-            ld->SetData(col, trade, tickerId, leg->strikePrice, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::TradesPanelColBackLight,
-                ThemeElement::TradesPanelText, font8, FontStyleRegular);   // strike price
+            ld->SetData(col, trade, tickerId, leg->strikePrice, StringAlignmentCenter, StringAlignmentCenter,
+                ThemeElement::TradesPanelColBackLight, ThemeElement::TradesPanelText, font8, FontStyleRegular);   // strike price
             col++;
 
-            ld->SetData(col, trade, tickerId, L"  " + leg->PutCall, StringAlignmentNear, StringAlignmentCenter, ThemeElement::TradesPanelColBackDark,
-                ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // PutCall
+            ld->SetData(col, trade, tickerId, L"  " + leg->PutCall, StringAlignmentNear, StringAlignmentCenter, 
+                ThemeElement::TradesPanelColBackDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // PutCall
 
             ListBox_AddString(hListBox, ld);
         }

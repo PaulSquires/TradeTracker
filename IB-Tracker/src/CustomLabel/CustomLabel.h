@@ -368,6 +368,7 @@ CustomLabel* CustomLabel_GetOptions(HWND hCtrl);
 int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
 void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
+void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,

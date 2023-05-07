@@ -7,8 +7,21 @@
 
 enum class CustomTextBoxBorder
 {
+	BorderNone,
 	BorderBox,
 	BorderUnderline
+};
+
+enum class CustomTextBoxNegative
+{
+	Allow,
+	Disallow
+};
+
+enum class CustomTextBoxFormatting
+{
+	Allow,
+	Disallow
 };
 
 
@@ -34,14 +47,16 @@ public:
 	std::wstring wszFontName;
 	int FontSize = 0;
 	HFONT hFontText = NULL;
-	int TextMargin = 0;
+	int HTextMargin = 0;
+	int VTextMargin = 0;
 	COLORREF TextColor{};
 	int Alignment;
 
 	// Numeric
 	bool isNumeric = false;
 	int NumDecimals = 0;
-	bool AllowNegative = true;
+	CustomTextBoxNegative AllowNegative = CustomTextBoxNegative::Disallow;
+	CustomTextBoxFormatting AllowFormatting = CustomTextBoxFormatting::Disallow;
 
 	// Border
 	CustomTextBoxBorder BorderStyle;
@@ -58,7 +73,10 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText);
 void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
 void CustomTextBox_SetBorderAttributes(
 	HWND hCtrl, int BorderWidth, COLORREF clrGotFocus, COLORREF clrLostFocus, CustomTextBoxBorder BorderStyle);
-void CustomTextBox_SetNumericAttributes(HWND hCtrl, int DecimalPlaces, bool AllowNegative);
+void CustomTextBox_SetNumericAttributes(
+	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
+void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor);
+void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
 
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, 
 	int Alignment, std::wstring wszText, int nLeft, int nTop, int nWidth, int nHeight);

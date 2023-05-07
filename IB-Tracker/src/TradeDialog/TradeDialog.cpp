@@ -154,16 +154,16 @@ void TradesDialog_OnPaint(HWND hwnd)
 // ========================================================================================
 LRESULT TradeDialog_OnNotify(HWND hwnd, int id, LPNMHDR lpNMHDR)
 {
-    switch (lpNMHDR->code)
-    {
-    case (DTN_DATETIMECHANGE):
-        if (lpNMHDR->idFrom == IDC_TRADEDIALOG_TRANSDATE ||
-            (lpNMHDR->idFrom >= IDC_TRADEDIALOG_TABLEEXPIRY && lpNMHDR->idFrom <= IDC_TRADEDIALOG_TABLEEXPIRY + 10)) {
-            CalculateTradeDTE(hwnd);
-            return 0;
-        }
-        break;
-    }
+    //switch (lpNMHDR->code)
+    //{
+    //case (DTN_DATETIMECHANGE):
+    //    if (lpNMHDR->idFrom == IDC_TRADEDIALOG_TRANSDATE ||
+    //        (lpNMHDR->idFrom >= IDC_TRADEDIALOG_TABLEEXPIRY && lpNMHDR->idFrom <= IDC_TRADEDIALOG_TABLEEXPIRY + 10)) {
+    //        CalculateTradeDTE(hwnd);
+    //        return 0;
+    //    }
+    //    break;
+    //}
 
     return 0;
 }

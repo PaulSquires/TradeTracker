@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="src\Config\Config.h" />
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
+    <ClInclude Include="src\CustomTradeGrid\CustomTradeGrid.h" />
     <ClInclude Include="src\DailyPanel\DailyPanel.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
     <ClInclude Include="src\TickerPanel\TickerPanel.h" />
@@ -114,6 +115,7 @@
   <ItemGroup>
     <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
+    <ClCompile Include="src\CustomTradeGrid\CustomTradeGrid.cpp" />
     <ClCompile Include="src\DailyPanel\DailyPanel.cpp" />
     <ClCompile Include="src\HistoryPanel\HistoryPanel.cpp" />
     <ClCompile Include="src\main.cpp" />

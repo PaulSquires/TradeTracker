@@ -29,9 +29,14 @@ void CustomTextBox_OnSize(HWND hCtrl)
             int BorderWidth = AfxScaleX((float)pData->BorderWidth);
             InflateRect(&rc, -BorderWidth, -BorderWidth);
         }
-        if (pData->TextMargin) {
-            int MarginWidth = AfxScaleX((float)pData->TextMargin);
-            InflateRect(&rc, -MarginWidth, -MarginWidth);
+        if (pData->HTextMargin) {
+            int HMarginWidth = AfxScaleX((float)pData->HTextMargin);
+            InflateRect(&rc, -HMarginWidth, 0);
+        }
+        if (pData->VTextMargin) {
+            int VMarginWidth = AfxScaleY((float)pData->VTextMargin);
+            //InflateRect(&rc, 0, -VMarginWidth);
+            rc.top += VMarginWidth;
         }
         SetWindowPos(pData->hTextBox, HWND_TOP,
             rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_SHOWWINDOW);
@@ -44,6 +49,7 @@ void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData)
 {
     if (pData == nullptr) return;
     if (pData->isNumeric == false) return;
+    if (pData->AllowFormatting == CustomTextBoxFormatting::Disallow) return;
 
     if (pData->NumDecimals > 0) {
         static std::wstring DecimalSep = L".";
@@ -137,7 +143,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
         // Negative sign 
         if (wParam == 45) {
-            if (pData->AllowNegative == false) return 0;
+            if (pData->AllowNegative == CustomTextBoxNegative::Disallow) return 0;
 
             // Only allow the negative sign for other textboxes if it is 
             // the first character (position 0)
@@ -239,6 +245,12 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     }
     break;
 
+    
+    case WM_LBUTTONDOWN:
+    {
+        std::cout << "lbuttondown" << std::endl;
+    }
+    break;
 
     case WM_DESTROY:
         // REQUIRED: Remove control subclassing
@@ -330,7 +342,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
-            if (pData->BorderWidth) {
+            if (pData->BorderWidth > 0 && pData->BorderStyle != CustomTextBoxBorder::BorderNone) {
                 Color clrPen; 
                 if (GetFocus() == pData->hTextBox) {
                     clrPen.SetFromCOLORREF(pData->BorderColorFocus);
@@ -415,6 +427,35 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
 
 
 //------------------------------------------------------------------------------ 
+void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
+{
+    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->HTextMargin = HTextMargin;
+        pData->VTextMargin = VTextMargin;
+        CustomTextBox_SetOptions(hCtrl, pData);
+        CustomTextBox_OnSize(hCtrl);
+        AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor)
+{
+    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
+        pData->hBackBrush = CreateSolidBrush(BackColor);
+        pData->BackColor = BackColor;
+        pData->TextColor = TextColor;
+        CustomTextBox_SetOptions(hCtrl, pData);
+        AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
 void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -445,15 +486,16 @@ void CustomTextBox_SetBorderAttributes(
     }
 }
 
-
 //------------------------------------------------------------------------------ 
-void CustomTextBox_SetNumericAttributes(HWND hCtrl, int NumDecimals, bool AllowNegative)
+void CustomTextBox_SetNumericAttributes(
+    HWND hCtrl, int NumDecimals, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
         pData->isNumeric = true;
         pData->NumDecimals = NumDecimals;
         pData->AllowNegative = AllowNegative;
+        pData->AllowFormatting = AllowFormatting;
         CustomTextBox_FormatDisplayDecimalPlaces(pData);
         CustomTextBox_SetOptions(hCtrl, pData);
     }
@@ -515,12 +557,13 @@ HWND CreateCustomTextBox(
         pData->BackColor = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
         pData->hBackBrush = CreateSolidBrush(pData->BackColor);
         pData->TextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
-        pData->TextMargin = 0;
-        pData->BorderWidth = 1;
+        pData->HTextMargin = 0;
+        pData->VTextMargin = 0;
+        pData->BorderWidth = 0;
         pData->BorderColorFocus = GetThemeCOLORREF(ThemeElement::TradesPanelText);
         pData->BorderColor = GetThemeCOLORREF(ThemeElement::TradesPanelTextDim);
         pData->Alignment = Alignment;
-        pData->BorderStyle = CustomTextBoxBorder::BorderBox;
+        pData->BorderStyle = CustomTextBoxBorder::BorderNone;
 
 
         // Create the child embedded TextBox control

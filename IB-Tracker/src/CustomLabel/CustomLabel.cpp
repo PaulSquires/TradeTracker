@@ -239,6 +239,21 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
 
 
 //------------------------------------------------------------------------------ 
+void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->wszFontName = wszFontName;
+        pData->wszFontNameHot = wszFontName;
+        pData->FontSize = (REAL)FontSize;
+        pData->FontSizeHot = (REAL)FontSize;
+        CustomLabel_SetOptions(hCtrl, pData);
+        AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
 void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);

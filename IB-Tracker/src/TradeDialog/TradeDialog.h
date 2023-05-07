@@ -27,14 +27,8 @@ const int IDC_TRADEDIALOG_LBLTICKER      = 126;
 const int IDC_TRADEDIALOG_LBLCOMPANY     = 127;
 
 const int IDC_TRADEDIALOG_SAVE           = 130;
-const int IDC_TRADEDIALOG_CANCEL         = 131;
 
-const int IDC_TRADEDIALOG_TABLEACTION    = 140;   // 8 controls
-const int IDC_TRADEDIALOG_TABLEQUANTITY  = 160;   // 8 controls
-const int IDC_TRADEDIALOG_TABLESTRIKE    = 180;   // 8 controls
-const int IDC_TRADEDIALOG_TABLEEXPIRY    = 200;   // 8 controls
-const int IDC_TRADEDIALOG_TABLEPUTCALL   = 220;   // 8 controls
-const int IDC_TRADEDIALOG_TABLEDTE       = 240;   // 8 controls
+const int IDC_TRADEDIALOG_TABLEGRID      = 140;
 
 
 const int TRADEDIALOG_TRADETABLE_WIDTH     = 442;
