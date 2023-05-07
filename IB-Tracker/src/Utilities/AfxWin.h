@@ -53,6 +53,7 @@ bool AfxFileExists(const std::wstring& wszFileSpec);
 std::wstring& AfxLTrim(std::wstring& s);
 std::wstring& AfxRTrim(std::wstring& s);
 std::wstring& AfxTrim(std::wstring& s);
+DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle);
 bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth);

@@ -78,6 +78,7 @@ void CustomTextBox_SetNumericAttributes(
 void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor);
 void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
 
+
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, 
 	int Alignment, std::wstring wszText, int nLeft, int nTop, int nWidth, int nHeight);
 

@@ -208,26 +208,6 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     //break;
 
 
-//    case WM_KILLFOCUS:
-        //case IDC_TRADEDIALOG_TXTTICKER:
-        //    // If the Company Name textbox is empty then attempt to lookup the specified
-        //    // Ticker and fill in the corresponding Company Name.
-        //    std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY));
-        //    if (wszCompanyName.length() != 0) break;
-
-        //    std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTTICKER));
-
-        //    auto iter = std::find_if(trades.begin(), trades.end(),
-        //        [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
-
-        //    if (iter != trades.end()) {
-        //        auto index = std::distance(trades.begin(), iter);
-        //        AfxSetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
-        //    }
-        //    break;
-
-
-
 
 // ========================================================================================
 // Set the Edit label and the trade description based on the type of trade action.
@@ -331,7 +311,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 40, 30, 65, 22);
 
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT, L"", 40, 55, 65, 24);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 55, 65, 24);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
@@ -397,7 +377,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     
     nWidth = 80;
     CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT, 
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
@@ -406,7 +386,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT, 
         L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
@@ -415,7 +395,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
@@ -424,7 +404,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Fees", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);

@@ -184,11 +184,36 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         }
         break;
 
-    //case (IDC_TRADEDIALOG_CANCEL):
-    //    if (codeNotify == BN_CLICKED) {
-    //        SendMessage(hwnd, WM_CLOSE, 0, 0);
-    //    }
-    //    break;
+    case (IDC_TRADEDIALOG_TXTTICKER):
+        if (codeNotify == EN_KILLFOCUS) {
+
+            // If the Company Name textbox is empty then attempt to lookup the specified
+            // Ticker and fill in the corresponding Company Name.
+            std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
+            if (wszCompanyName.length() != 0) break;
+
+            std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+
+            auto iter = std::find_if(trades.begin(), trades.end(),
+                [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
+
+            if (iter != trades.end()) {
+                auto index = std::distance(trades.begin(), iter);
+                AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
+            }
+        }
+        break;
+
+
+    case (IDC_TRADEDIALOG_TXTQUANTITY):
+    case (IDC_TRADEDIALOG_TXTMULTIPLIER):
+    case (IDC_TRADEDIALOG_TXTPRICE):
+    case (IDC_TRADEDIALOG_TXTFEES):
+        if (codeNotify == EN_KILLFOCUS) {
+            CalculateTradeTotal(hwnd);
+        }
+        break;
+
 
     case (IDC_TRADEDIALOG_COMBODRCR):
         if (codeNotify == CBN_SELCHANGE) {
@@ -250,21 +275,20 @@ void TradeDialog_Show(int inTradeAction)
     HANDLE hIconSmall = LoadImage(TradeDialog.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
-    AfxCenterWindow(hwnd, HWND_MAINWINDOW);
-
-    EnableWindow(HWND_MAINWINDOW, FALSE);
-    
 
     // Show the legsEdit legs (if any) based on the incoming action.
     LoadEditLegsInTradeTable(hwnd);
 
-    
     // Blur the underlying MainWindow panels in order to reduce "visual noise" while
     // our Trade Management popup is active. The MainWindow panels are shown again
     // during our call to TradeDialog_OnClose() prior to enabling the MainWindow
     // and this popup closing.
     MainWindow_BlurPanels(true);
 
+
+    AfxCenterWindow(hwnd, HWND_MAINWINDOW);
+
+    EnableWindow(HWND_MAINWINDOW, FALSE);
 
     ShowWindow(hwnd, SW_SHOWNORMAL);
     

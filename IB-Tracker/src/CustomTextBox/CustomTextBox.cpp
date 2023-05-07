@@ -135,6 +135,8 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 }
             }
 
+            PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
+
             // Allow the number or decimal
             break;
         }
@@ -211,28 +213,12 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         CustomTextBox_FormatDisplayDecimalPlaces(pData);
 
         // Ensure any border is colored correctly
-        AfxRedrawWindow(GetParent(hWnd));
+        AfxRedrawWindow(pData->hWindow);
+
+        SendMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_KILLFOCUS), (LPARAM)pData->hWindow);
+
     }
-
-        //case IDC_TRADEDIALOG_TXTTICKER:
-        //    // If the Company Name textbox is empty then attempt to lookup the specified
-        //    // Ticker and fill in the corresponding Company Name.
-        //    std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY));
-        //    if (wszCompanyName.length() != 0) break;
-
-        //    std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTTICKER));
-
-        //    auto iter = std::find_if(trades.begin(), trades.end(),
-        //        [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
-
-        //    if (iter != trades.end()) {
-        //        auto index = std::distance(trades.begin(), iter);
-        //        AfxSetWindowText(GetDlgItem(GetParent(hWnd), IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
-        //    }
-        //    break;
-
-        //}
-        break;
+    break;
 
 
     case WM_SETFOCUS:
@@ -242,16 +228,13 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     
         // Ensure any border is colored correctly
         AfxRedrawWindow(GetParent(hWnd));
+
+        SendMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_SETFOCUS), (LPARAM)pData->hWindow);
+
     }
     break;
 
     
-    case WM_LBUTTONDOWN:
-    {
-        std::cout << "lbuttondown" << std::endl;
-    }
-    break;
-
     case WM_DESTROY:
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, CustomTextBox_SubclassProc, uIdSubclass);
@@ -278,6 +261,16 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
     switch (uMsg)
     {
+
+
+    case WM_GETTEXT:
+    case WM_SETTEXT:
+    case WM_GETTEXTLENGTH:
+    {
+        return SendMessage(pData->hTextBox, uMsg, wParam, lParam);
+    }
+    break;
+
 
     case WM_CTLCOLOREDIT:
     {
