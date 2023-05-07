@@ -39,3 +39,4 @@ void FormatNumberFourDecimals(HWND hCtl);
 void CalculateTradeTotal(HWND hwnd);
 void CalculateTradeDTE(HWND hwnd);
 void LoadEditLegsInTradeTable(HWND hwnd);
+void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText);

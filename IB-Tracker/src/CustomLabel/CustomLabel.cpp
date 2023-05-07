@@ -233,7 +233,60 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
         pData->wszText = wszText;
         pData->wszTextHot = wszText;
         CustomLabel_SetOptions(hCtrl, pData);
-        AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->TextColor = TextColor;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->BackColor = BackColor;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+std::wstring CustomLabel_GetText(HWND hCtrl)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        return pData->wszText;
+    }
+    return L"";
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetUserData(HWND hCtrl, int UserData)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->UserData = UserData;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+int CustomLabel_GetUserData(HWND hCtrl)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        return pData->UserData;
     }
 }
 
@@ -248,7 +301,6 @@ void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
         pData->FontSize = (REAL)FontSize;
         pData->FontSizeHot = (REAL)FontSize;
         CustomLabel_SetOptions(hCtrl, pData);
-        AfxRedrawWindow(hCtrl);
     }
 }
 

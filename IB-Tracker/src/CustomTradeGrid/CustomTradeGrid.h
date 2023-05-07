@@ -7,6 +7,26 @@
 #include "..\CustomLabel\CustomLabel.h"
 
 
+enum class GridColType
+{
+	Label,
+	TextBox,
+	DatePicker,
+	PutCallCombo,
+	ActionCombo
+};
+
+
+
+class GridColInfo
+{
+public:
+	HWND hCtl = NULL;
+	int idCtrl = 0;
+	GridColType colType = GridColType::TextBox;
+	std::wstring colValue;
+};
+
 
 class CustomTradeGrid
 {
@@ -25,16 +45,13 @@ public:
 	HBRUSH hBackBrush = NULL;
 	HFONT hFont = NULL;
 
-	// The grid consists of 4 rows each with 6 columns, therefore
-	// we need an array of 24 TextBoxes.
-
-	std::vector<HWND> gridCols;
+	std::vector<GridColInfo*> gridCols;
 
 
 	~CustomTradeGrid()
 	{
 		for (const auto& col : gridCols) {
-			DestroyWindow(col);
+			DestroyWindow(col->hCtl);
 		}
 	}
 
@@ -43,6 +60,7 @@ public:
 
 CustomTradeGrid* CustomTradeGrid_GetOptions(HWND hCtrl);
 int CustomTradeGrid_SetOptions(HWND hCtrl, CustomTradeGrid* pData);
+void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText);
 
 HWND CreateCustomTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight);
 

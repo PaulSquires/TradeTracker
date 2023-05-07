@@ -413,8 +413,30 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
         pData->wszText = wszText;
+        AfxSetWindowText(pData->hTextBox, wszText);
         CustomTextBox_SetOptions(hCtrl, pData);
         AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomTextBox_SetUserData(HWND hCtrl, int UserData)
+{
+    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->UserData = UserData;
+        CustomTextBox_SetOptions(hCtrl, pData);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+int CustomTextBox_GetUserData(HWND hCtrl)
+{
+    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        return pData->UserData;
     }
 }
 

@@ -55,6 +55,7 @@ public:
 	HINSTANCE hInst = NULL;
 	HWND hToolTip = NULL;
 	std::wstring wszToolTip;
+	int UserData = 0;
 
 	int CtrlId = 0;
 	CustomLabelType CtrlType = CustomLabelType::TextOnly;
@@ -367,8 +368,13 @@ public:
 CustomLabel* CustomLabel_GetOptions(HWND hCtrl);
 int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
 void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
+std::wstring CustomLabel_GetText(HWND hCtrl);
+void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor);
+void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
+void CustomLabel_SetUserData(HWND hCtrl, int UserData);
+int CustomLabel_GetUserData(HWND hCtrl);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,

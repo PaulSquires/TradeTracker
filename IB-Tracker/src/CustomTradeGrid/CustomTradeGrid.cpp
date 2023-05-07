@@ -22,6 +22,9 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     if (pData == nullptr) return;
 
     // Setup the lines and columns
+
+    // The grid consists of 4 rows each with 6 columns, therefore
+    // we need an array of 24 TextBoxes.
     pData->gridCols.reserve(24);
 
     HWND hCtl = NULL;
@@ -53,6 +56,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
     for (int row = 0; row < 4; ++row) {
         // All are center except Quantity which is right align.
+        GridColInfo* col;
 
         // QUANTITY
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_RIGHT, L"-1", nLeft, nTop, nWidth, nHeight);
@@ -60,7 +64,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
         CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-        pData->gridCols.push_back(hCtl);
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::TextBox;
+        pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
 
@@ -69,7 +77,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
             L"May 30", ThemeElement::TradesPanelText, ThemeElement::TradesPanelColBackLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
-        pData->gridCols.push_back(hCtl);
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::Label;
+        pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
 
@@ -78,7 +90,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
             L"24d", ThemeElement::TradesPanelTextDim, ThemeElement::TradesPanelColBackDark,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
-        pData->gridCols.push_back(hCtl);
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::Label;
+        pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
 
@@ -88,7 +104,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
         CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, lightBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-        pData->gridCols.push_back(hCtl);
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::TextBox;
+        pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
 
@@ -97,7 +117,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
             L"P", ThemeElement::TradesPanelTextDim, ThemeElement::TradesPanelColBackDark,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
-        pData->gridCols.push_back(hCtl);
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::PutCallCombo;
+        pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + (nWidth/2) + hsp;
 
@@ -106,7 +130,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
             L"STO", ThemeElement::TradesPanelText, ThemeElement::TradesPanelColBackLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
-        pData->gridCols.push_back(hCtl);
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::ActionCombo;
+        pData->gridCols.push_back(col);
         idCtrl++;
         
         nTop = nTop + nHeight + vsp;
@@ -120,6 +148,59 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     // Resize the control container to fit the size of the trade grid.
     SetWindowPos(pData->hWindow, 0, 0, 0, nTotalWidth, nTotalHeight, SWP_NOMOVE | SWP_NOZORDER);
 
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText)
+{
+    if (col == nullptr) return;
+
+    CustomLabel_SetText(col->hCtl, wszText);
+
+    if (col->colType == GridColType::ActionCombo) {
+        ThemeElement clr = ThemeElement::valueNegative;
+        if (wszText == L"BTO" || wszText == L"BTC") clr = ThemeElement::valuePositive;
+        CustomLabel_SetTextColor(col->hCtl, clr);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomTradeGrid_OnClickPutCall(CustomTradeGrid* pData, GridColInfo* col)
+{
+    if (pData == nullptr) return;
+    if (col == nullptr) return;
+
+    std::wstring PutCall = CustomLabel_GetText(col->hCtl);
+    PutCall = (PutCall == L"P") ? L"C" : L"P";
+    CustomTradeGrid_SetText(col, PutCall);
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomTradeGrid_OnClickAction(CustomTradeGrid* pData, GridColInfo* col)
+{
+    if (pData == nullptr) return;
+    if (col == nullptr) return;
+
+    // STO,BTO,STC,BTC
+
+    std::wstring action = CustomLabel_GetText(col->hCtl);
+    if (action == L"STO") {
+        action = L"BTO";
+    }
+    else if (action == L"BTO") {
+        action = L"STC";
+    }
+    else if (action == L"STC") {
+        action = L"BTC";
+    }
+    else if (action == L"BTC") {
+        action = L"STO";
+    }
+
+    CustomTradeGrid_SetText(col, action);
 }
 
 
@@ -138,7 +219,23 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
     case MSG_CUSTOMLABEL_CLICK:
     {
-        std::cout << "custom label click  id: " << wParam << std::endl;
+        // Find the data for the table cell that was clicked on
+        for (const auto& col : pData->gridCols) {
+            if (col->idCtrl == wParam) {
+
+                if (col->colType == GridColType::PutCallCombo) {
+                    CustomTradeGrid_OnClickPutCall(pData, col);
+                    break;
+                }
+
+                if (col->colType == GridColType::ActionCombo) {
+                    CustomTradeGrid_OnClickAction(pData, col);
+                    break;
+                }
+        
+                break;
+            }
+        }
     }
     break;
 

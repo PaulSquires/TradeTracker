@@ -6,6 +6,8 @@
 #include "..\MainWindow\MainWindow.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\CustomLabel\CustomLabel.h"
+#include "..\Utilities\UserMessages.h"
 
 
 HWND HWND_TRADEDIALOG = NULL;
@@ -214,14 +216,19 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         }
         break;
 
-
-    case (IDC_TRADEDIALOG_COMBODRCR):
-        if (codeNotify == CBN_SELCHANGE) {
-            CalculateTradeTotal(hwnd);
-        }
-        break;
-
     }
+}
+
+
+//------------------------------------------------------------------------------ 
+void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
+{
+    CustomLabel_SetText(hCtl, wszText);
+
+    ThemeElement clr = ThemeElement::valueNegative;
+    if (wszText == L"CR") clr = ThemeElement::valuePositive;
+    CustomLabel_SetBackColor(hCtl, clr);
+    CalculateTradeTotal(HWND_TRADEDIALOG);
 }
 
 
@@ -242,6 +249,24 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CTLCOLORSTATIC, TradeDialog_OnCtlColorStatic);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesDialog_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
+
+    
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_TRADEDIALOG_COMBODRCR) {
+            // Clicked on the DRCR combo so cycle through the choices
+            std::wstring wszText = CustomLabel_GetText(hCtl);
+            wszText = (wszText == L"DR") ? L"CR" : L"DR";
+            TradeDialog_SetComboDRCR(hCtl, wszText);
+        }
+        return 0;
+    }
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -278,6 +303,8 @@ void TradeDialog_Show(int inTradeAction)
 
     // Show the legsEdit legs (if any) based on the incoming action.
     LoadEditLegsInTradeTable(hwnd);
+    
+    CalculateTradeTotal(hwnd);
 
     // Blur the underlying MainWindow panels in order to reduce "visual noise" while
     // our Trade Management popup is active. The MainWindow panels are shown again

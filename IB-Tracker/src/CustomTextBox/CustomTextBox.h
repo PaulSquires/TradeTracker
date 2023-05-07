@@ -36,6 +36,7 @@ public:
 	HWND hParent = NULL;
 	HWND hTextBox = NULL;    // the actual child textbox
 	HINSTANCE hInst = NULL;
+	int UserData = 0;
 
 	int CtrlId = 0;
 
@@ -50,7 +51,7 @@ public:
 	int HTextMargin = 0;
 	int VTextMargin = 0;
 	COLORREF TextColor{};
-	int Alignment;
+	int Alignment = ES_LEFT;
 
 	// Numeric
 	bool isNumeric = false;
@@ -59,8 +60,8 @@ public:
 	CustomTextBoxFormatting AllowFormatting = CustomTextBoxFormatting::Disallow;
 
 	// Border
-	CustomTextBoxBorder BorderStyle;
-	int BorderWidth = 1;
+	CustomTextBoxBorder BorderStyle = CustomTextBoxBorder::BorderNone;
+	int BorderWidth = 0;
 	COLORREF BorderColor{};
 	COLORREF BorderColorFocus = BorderColor;
 
@@ -77,6 +78,8 @@ void CustomTextBox_SetNumericAttributes(
 	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
 void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor);
 void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
+void CustomTextBox_SetUserData(HWND hCtrl, int UserData);
+int CustomTextBox_GetUserData(HWND hCtrl);
 
 
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, 

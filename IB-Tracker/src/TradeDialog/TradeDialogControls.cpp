@@ -61,12 +61,19 @@ void CalculateTradeTotal(HWND hwnd)
     double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
-    std::wstring DRCR = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-    if (DRCR == L"CREDIT") fees = fees * -1;
+    COLORREF TextColor = GetThemeCOLORREF(ThemeElement::valuePositive);
+    COLORREF BackColor = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
+
+    std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
+    if (DRCR == L"DR") {
+        fees = fees * -1;
+        TextColor = GetThemeCOLORREF(ThemeElement::valueNegative);
+    }
 
     total = (quantity * multiplier * price) + fees;
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(total));
-    FormatNumberFourDecimals(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL));
+
+    CustomTextBox_SetColors(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), TextColor, BackColor);
+    CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(total));
 }
 
 
@@ -422,20 +429,17 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
-    nTop = nStartTop + ((nHeight + vsp) * 2) + vsp;
-    hCtl = TradeDialog.AddControl(Controls::ComboBox, hwnd, IDC_TRADEDIALOG_COMBODRCR,
-        L"", nLeft, nTop, nWidth, nHeight);
-    ComboBox_AddString(hCtl, L"CREDIT");
-    ComboBox_AddString(hCtl, L"DEBIT");
-    ComboBox_SetCurSel(hCtl, 0);
+    // DR / CR toggle label
+    nLeft = nLeft + nWidth + hmargin;
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"", TextColor, BackColor,
+        CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
+    TradeDialog_SetComboDRCR(hCtl, L"CR");
 
 
     // Position OK and Cancel buttons from the right edge
+    nTop = nStartTop + (nHeight + vsp) * 2;
     nLeft = 60;
     hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE", nLeft, nTop, 80, nHeight);
-
-    //nLeft = nLeft + 80 + hmargin;
-    //hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel", nLeft, nTop, 80, nHeight);
 
 }
 
