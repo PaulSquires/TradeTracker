@@ -29,7 +29,8 @@ void InitializeDarkThemeColors()
 
 	ActiveTheme = ActiveThemeColor::Dark;
 
-	clr[(int)ThemeElement::MenuPanelBack] = Color::MakeARGB(255, 0, 0, 0);
+
+	clr[(int)ThemeElement::BaseBlack] = Color::MakeARGB(255, 0, 0, 0);
 	clr[(int)ThemeElement::MenuPanelBackHot] = Color::MakeARGB(255, 44, 49, 58);
 	clr[(int)ThemeElement::MenuPanelText] = Color::MakeARGB(255, 212, 212, 212);
 	clr[(int)ThemeElement::MenuPanelTextDim] = Color::MakeARGB(255, 157, 165, 180);
@@ -39,12 +40,12 @@ void InitializeDarkThemeColors()
 	clr[(int)ThemeElement::MenuPanelTextSelected] = Color::MakeARGB(255, 212, 212, 212);
 	clr[(int)ThemeElement::MenuPanelSelector] = Color::MakeARGB(255, 38, 38, 38);
 
-	clr[(int)ThemeElement::TradesPanelBack] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::GrayDark] = Color::MakeARGB(255, 38, 38, 38);
 	clr[(int)ThemeElement::TradesPanelBackHot] = Color::MakeARGB(255, 44, 49, 58);
 	clr[(int)ThemeElement::TradesPanelText] = Color::MakeARGB(255, 212, 212, 212);
 	clr[(int)ThemeElement::TradesPanelTextDim] = Color::Gray;
-	clr[(int)ThemeElement::TradesPanelColBackLight] = Color::MakeARGB(255, 68, 68, 68);
-	clr[(int)ThemeElement::TradesPanelColBackDark] = Color::MakeARGB(255, 51, 51, 51);
+	clr[(int)ThemeElement::GrayLight] = Color::MakeARGB(255, 68, 68, 68);
+	clr[(int)ThemeElement::GrayMedium] = Color::MakeARGB(255, 51, 51, 51);
 	clr[(int)ThemeElement::TradesPanelNormalDTE] = Color::Magenta;
 	clr[(int)ThemeElement::TradesPanelWarningDTE] = Color::Yellow;
 	clr[(int)ThemeElement::TradesPanelScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);
@@ -75,7 +76,7 @@ void InitializeLightThemeColors()
 
 	ActiveTheme = ActiveThemeColor::Light;
 
-	clr[(int)ThemeElement::MenuPanelBack] = Color::MakeARGB(255, 243, 243, 243);
+	clr[(int)ThemeElement::BaseBlack] = Color::MakeARGB(255, 243, 243, 243);
 	clr[(int)ThemeElement::MenuPanelBackHot] = Color::MakeARGB(255, 232, 232, 232);
 	clr[(int)ThemeElement::MenuPanelText] = Color::MakeARGB(255, 97, 97, 97);
 	clr[(int)ThemeElement::MenuPanelTextDim] = Color::MakeARGB(255, 157, 165, 180);
@@ -85,12 +86,12 @@ void InitializeLightThemeColors()
 	clr[(int)ThemeElement::MenuPanelTextSelected] = Color::MakeARGB(255, 97, 97, 97);
 	clr[(int)ThemeElement::MenuPanelSelector] = Color::MakeARGB(255, 255, 255, 255);
 
-	clr[(int)ThemeElement::TradesPanelBack] = Color::MakeARGB(255, 255, 255, 255);
+	clr[(int)ThemeElement::GrayDark] = Color::MakeARGB(255, 255, 255, 255);
 	clr[(int)ThemeElement::TradesPanelBackHot] = Color::MakeARGB(255, 232, 232, 232);
 	clr[(int)ThemeElement::TradesPanelText] = Color::MakeARGB(255, 128, 128, 128);
 	clr[(int)ThemeElement::TradesPanelTextDim] = Color::MakeARGB(255, 158, 158, 158);
-	clr[(int)ThemeElement::TradesPanelColBackLight] = Color::MakeARGB(255, 238, 238, 238);
-	clr[(int)ThemeElement::TradesPanelColBackDark] = Color::MakeARGB(255, 224, 224, 224);
+	clr[(int)ThemeElement::GrayLight] = Color::MakeARGB(255, 238, 238, 238);
+	clr[(int)ThemeElement::GrayMedium] = Color::MakeARGB(255, 224, 224, 224);
 	clr[(int)ThemeElement::TradesPanelNormalDTE] = Color::MakeARGB(255, 255, 0, 255);
 	clr[(int)ThemeElement::TradesPanelWarningDTE] = Color::MakeARGB(255, 255, 214, 0);
 	clr[(int)ThemeElement::TradesPanelScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);

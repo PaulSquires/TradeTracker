@@ -36,7 +36,7 @@ void CalculateTradeTotal(HWND hwnd)
     double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
     COLORREF TextColor = GetThemeCOLORREF(ThemeElement::valueNegative);
-    COLORREF BackColor = GetThemeCOLORREF(ThemeElement::TradesPanelColBackDark);
+    COLORREF BackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     if (DRCR == L"CR") {
@@ -251,15 +251,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int HTextMargin = 0;
     int VTextMargin = 3;
 
-    COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::TradesPanelColBackLight);
+    COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
     COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
 
-    COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::TradesPanelColBackDark);
+    COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
     COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelTextDim);
 
     ThemeElement TextColor = ThemeElement::TradesPanelText;
     ThemeElement TextColorDim = ThemeElement::TradesPanelTextDim;
-    ThemeElement BackColor = ThemeElement::TradesPanelBack;
+    ThemeElement BackColor = ThemeElement::GrayDark;
 
     COLORREF BorderColor = GetThemeCOLORREF(ThemeElement::MenuPanelTextDim);
     COLORREF BorderColorFocus = GetThemeCOLORREF(ThemeElement::MenuPanelText);
@@ -272,7 +272,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         nLeft - 146, 10, 106, 20);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::TradesPanelBack;
+        pData->BackColor = ThemeElement::GrayDark;
         pData->TextColor = ThemeElement::TradesPanelText;
         pData->FontSize = 14;
         pData->wszText = AfxUpper(TradeDialogControls_GetTradeDescription());
@@ -305,7 +305,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             40, 20, 75, 26);
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
-            pData->BackColor = ThemeElement::TradesPanelBack;
+            pData->BackColor = ThemeElement::GrayDark;
             pData->TextColor = ThemeElement::TradesPanelText;
             pData->FontSize = 14;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
@@ -318,7 +318,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             115, 20, 235, 26);
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
-            pData->BackColor = ThemeElement::TradesPanelBack;
+            pData->BackColor = ThemeElement::GrayDark;
             pData->TextColor = ThemeElement::TradesPanelText;
             pData->FontSize = 14;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
@@ -332,7 +332,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nTop = 72;
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
-    CustomLabel_SimpleLabel(hwnd, -1, L"May 7, 2023", TextColorDim, ThemeElement::TradesPanelColBackDark,
+    CustomLabel_SimpleLabel(hwnd, -1, L"May 7, 2023", TextColorDim, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 100, 24);
     //hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE,
     //    L"", 40, 87, 100, 24);
@@ -352,7 +352,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // SAVE button
-    CustomLabel_SimpleLabel(hwnd, -1, L"Save", ThemeElement::TradesPanelColBackLight, ThemeElement::valuePositive,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Save", ThemeElement::GrayLight, ThemeElement::valuePositive,
         CustomLabelAlignment::MiddleCenter, 450, 97, 80, 24);
 
     

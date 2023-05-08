@@ -156,7 +156,7 @@ void MainWindow_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::MenuPanelBack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::BaseBlack);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -268,7 +268,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
-        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColor = ThemeElement::BaseBlack;
         pData->BackColorHot = ThemeElement::MenuPanelBackHot;
         pData->TextColor = ThemeElement::MenuPanelTextDim;
         pData->TextColorHot = ThemeElement::MenuPanelTextDim;
@@ -292,7 +292,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
-        pData->BackColor = ThemeElement::MenuPanelBack;
+        pData->BackColor = ThemeElement::BaseBlack;
         pData->BackColorHot = ThemeElement::MenuPanelBackHot;
         pData->TextColor = ThemeElement::MenuPanelTextDim;
         pData->TextColorHot = ThemeElement::MenuPanelTextDim;

@@ -171,7 +171,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));
+            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -231,7 +231,7 @@ void HistoryPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -300,7 +300,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_HISTORYPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
-        ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
+        ThemeElement::MenuPanelText, ThemeElement::BaseBlack);
 
     // Create an Ownerdraw listbox that we will use to custom paint our various open trades.
     hCtl =

@@ -17,7 +17,7 @@ extern HWND HWND_MAINWINDOW;
 CTradeDialog TradeDialog;
 
 COLORREF CtrlTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
-COLORREF CtrlTextBack = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
+COLORREF CtrlTextBack = GetThemeCOLORREF(ThemeElement::GrayDark);
 HBRUSH CtrlBackBrush = NULL;
 
 int tradeAction = ACTION_NOACTION;
@@ -131,7 +131,7 @@ void TradesDialog_OnPaint(HWND hwnd)
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);

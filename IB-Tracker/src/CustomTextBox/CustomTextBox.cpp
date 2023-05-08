@@ -570,7 +570,7 @@ HWND CreateCustomTextBox(
         pData->CtrlId = CtrlId;
         pData->wszFontName = L"Segoe UI";
         pData->FontSize = 9;
-        pData->BackColor = GetThemeCOLORREF(ThemeElement::TradesPanelBack);
+        pData->BackColor = GetThemeCOLORREF(ThemeElement::GrayDark);
         pData->hBackBrush = CreateSolidBrush(pData->BackColor);
         pData->TextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
         pData->HTextMargin = 0;

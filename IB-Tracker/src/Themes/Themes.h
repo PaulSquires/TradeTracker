@@ -1,7 +1,7 @@
 #pragma once
 
 enum class ThemeElement {
-	MenuPanelBack,
+	BaseBlack,
 	MenuPanelBackHot,
 	MenuPanelText,
 	MenuPanelTextDim,
@@ -11,12 +11,12 @@ enum class ThemeElement {
 	MenuPanelSeparator,
 	MenuPanelSelector,
 
-	TradesPanelBack,
+	GrayDark,
 	TradesPanelBackHot,
 	TradesPanelText,
 	TradesPanelTextDim,
-	TradesPanelColBackLight,
-	TradesPanelColBackDark,
+	GrayLight,
+	GrayMedium,
 	TradesPanelNormalDTE,
 	TradesPanelWarningDTE,
 	TradesPanelScrollBarBack,

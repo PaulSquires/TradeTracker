@@ -689,7 +689,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::TradesPanelBack));
+            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -767,7 +767,7 @@ void TradesPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::TradesPanelBack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -851,7 +851,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_TRADESPANEL = hwnd;
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
-        ThemeElement::MenuPanelText, ThemeElement::MenuPanelBack);
+        ThemeElement::MenuPanelText, ThemeElement::BaseBlack);
     
     hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradesPanel_Header_SubclassProc,

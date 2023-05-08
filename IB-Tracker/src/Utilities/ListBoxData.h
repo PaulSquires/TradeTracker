@@ -14,7 +14,7 @@ public:
     std::wstring        wszText;
     StringAlignment     HAlignment = StringAlignmentNear;  
     StringAlignment     VAlignment = StringAlignmentCenter;
-    ThemeElement        backTheme = ThemeElement::TradesPanelBack;
+    ThemeElement        backTheme = ThemeElement::GrayDark;
     ThemeElement        textTheme = ThemeElement::TradesPanelText;;
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
