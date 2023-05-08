@@ -43,7 +43,7 @@ void MenuPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::BaseBlack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -81,7 +81,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::BaseBlack;
+        pData->BackColor = ThemeElement::Black;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
@@ -98,8 +98,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->TextColor = ThemeElement::MenuPanelTextDim;
+        pData->BackColor = ThemeElement::Black;
+        pData->TextColor = ThemeElement::WhiteMedium;
         pData->FontSize = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = GetTraderName();
@@ -116,8 +116,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->TextColor = ThemeElement::MenuPanelText;
+        pData->BackColor = ThemeElement::Black;
+        pData->TextColor = ThemeElement::WhiteLight;
         pData->FontSize = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = L"IB-Tracker v1.0";
@@ -134,8 +134,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, nTop, MENUPANEL_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->LineColor = ThemeElement::MenuPanelSeparator;
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -155,12 +155,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -180,12 +180,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -203,8 +203,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, nTop, MENUPANEL_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->LineColor = ThemeElement::MenuPanelSeparator;
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -222,12 +222,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -246,12 +246,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -270,12 +270,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -305,12 +305,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             pData->pTradeTemplate = &t;
             pData->HotTestEnable = true;
             pData->AllowSelect = true;
-            pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-            pData->BackColor = ThemeElement::BaseBlack;
-            pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-            pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-            pData->TextColor = ThemeElement::MenuPanelText;
-            pData->TextColorHot = ThemeElement::MenuPanelText;
+            pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+            pData->BackColor = ThemeElement::Black;
+            pData->BackColorHot = ThemeElement::Selection;
+            pData->BackColorSelected = ThemeElement::Selection;
+            pData->TextColor = ThemeElement::WhiteLight;
+            pData->TextColorHot = ThemeElement::WhiteLight;
             pData->TextOffsetLeft = nLeftOffset;
             pData->FontSize = 10;
             pData->FontSizeHot = 10;
@@ -331,8 +331,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, nTop, MENUPANEL_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->LineColor = ThemeElement::MenuPanelSeparator;
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -350,12 +350,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -375,12 +375,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -400,12 +400,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -426,11 +426,11 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->SelectorColor = ThemeElement::GrayDark;
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -448,8 +448,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, nTop, MENUPANEL_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->LineColor = ThemeElement::MenuPanelSeparator;
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -467,12 +467,12 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // selector should be same color as middle panel
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->BackColorSelected = ThemeElement::MenuPanelBackSelected;
-        pData->TextColor = ThemeElement::MenuPanelText;
-        pData->TextColorHot = ThemeElement::MenuPanelText;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
         pData->TextOffsetLeft = nLeftOffset;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
@@ -490,8 +490,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, nTop, MENUPANEL_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->LineColor = ThemeElement::MenuPanelSeparator;
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -566,8 +566,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"TWS Connected";
-            pData->TextColor = ThemeElement::valuePositive;
-            pData->TextColorHot = ThemeElement::valuePositive;
+            pData->TextColor = ThemeElement::Green;
+            pData->TextColorHot = ThemeElement::Green;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         break;
@@ -581,8 +581,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connect to TWS";
-            pData->TextColor = ThemeElement::MenuPanelText;
-            pData->TextColorHot = ThemeElement::MenuPanelText;
+            pData->TextColor = ThemeElement::WhiteLight;
+            pData->TextColorHot = ThemeElement::WhiteLight;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         EndMonitorThread();

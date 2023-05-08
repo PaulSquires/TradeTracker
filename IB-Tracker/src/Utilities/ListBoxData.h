@@ -15,7 +15,7 @@ public:
     StringAlignment     HAlignment = StringAlignmentNear;  
     StringAlignment     VAlignment = StringAlignmentCenter;
     ThemeElement        backTheme = ThemeElement::GrayDark;
-    ThemeElement        textTheme = ThemeElement::TradesPanelText;;
+    ThemeElement        textTheme = ThemeElement::WhiteLight;;
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
     int                 colWidth = 0;

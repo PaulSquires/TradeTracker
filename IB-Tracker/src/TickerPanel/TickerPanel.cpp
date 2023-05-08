@@ -351,7 +351,7 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_TICKERPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TICKER_SYMBOL, L"Ticker Totals",
-        ThemeElement::MenuPanelText, ThemeElement::BaseBlack);
+        ThemeElement::WhiteLight, ThemeElement::Black);
 
     // Create an Ownerdraw listbox that we will use to custom paint ticker names.
     hCtl =

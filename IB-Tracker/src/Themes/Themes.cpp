@@ -29,36 +29,29 @@ void InitializeDarkThemeColors()
 
 	ActiveTheme = ActiveThemeColor::Dark;
 
-
-	clr[(int)ThemeElement::BaseBlack] = Color::MakeARGB(255, 0, 0, 0);
-	clr[(int)ThemeElement::MenuPanelBackHot] = Color::MakeARGB(255, 44, 49, 58);
-	clr[(int)ThemeElement::MenuPanelText] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::MenuPanelTextDim] = Color::MakeARGB(255, 157, 165, 180);
-	clr[(int)ThemeElement::MenuPanelTextHot] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::MenuPanelSeparator] = Color::MakeARGB(255, 53, 59, 69);
-	clr[(int)ThemeElement::MenuPanelBackSelected] = Color::MakeARGB(255, 44, 49, 58);
-	clr[(int)ThemeElement::MenuPanelTextSelected] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::MenuPanelSelector] = Color::MakeARGB(255, 38, 38, 38);
-
+	clr[(int)ThemeElement::Black] = Color::MakeARGB(255, 0, 0, 0);
 	clr[(int)ThemeElement::GrayDark] = Color::MakeARGB(255, 38, 38, 38);
-	clr[(int)ThemeElement::TradesPanelBackHot] = Color::MakeARGB(255, 44, 49, 58);
-	clr[(int)ThemeElement::TradesPanelText] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::TradesPanelTextDim] = Color::Gray;
-	clr[(int)ThemeElement::GrayLight] = Color::MakeARGB(255, 68, 68, 68);
 	clr[(int)ThemeElement::GrayMedium] = Color::MakeARGB(255, 51, 51, 51);
-	clr[(int)ThemeElement::TradesPanelNormalDTE] = Color::Magenta;
-	clr[(int)ThemeElement::TradesPanelWarningDTE] = Color::Yellow;
-	clr[(int)ThemeElement::TradesPanelScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);
-	clr[(int)ThemeElement::TradesPanelScrollBarLine] = Color::MakeARGB(255, 64, 67, 73);
-	clr[(int)ThemeElement::TradesPanelScrollBarThumb] = Color::MakeARGB(255, 51, 51, 51);
-	clr[(int)ThemeElement::TradesPanelHistoryText] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
+	clr[(int)ThemeElement::GrayLight] = Color::MakeARGB(255, 68, 68, 68);
 
-	clr[(int)ThemeElement::ListHeaderBack] = Color::MakeARGB(255, 51, 51, 51);
-	clr[(int)ThemeElement::ListHeaderText] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::ListHeaderBorder] = Color::MakeARGB(255, 64, 67, 73);
+	clr[(int)ThemeElement::WhiteDark] = Color::Gray;
+	clr[(int)ThemeElement::WhiteMedium] = Color::MakeARGB(255, 157, 165, 180);
+	clr[(int)ThemeElement::WhiteLight] = Color::MakeARGB(255, 212, 212, 212);
 
-	clr[(int)ThemeElement::valuePositive] = Color::MakeARGB(255, 72, 151, 13);
-	clr[(int)ThemeElement::valueNegative] = Color::MakeARGB(255, 255, 30, 0);
+	clr[(int)ThemeElement::Magenta] = Color::Magenta;
+	clr[(int)ThemeElement::Yellow] = Color::Yellow;
+	clr[(int)ThemeElement::Green] = Color::MakeARGB(255, 72, 151, 13);
+	clr[(int)ThemeElement::Red] = Color::MakeARGB(255, 255, 30, 0);
+	clr[(int)ThemeElement::Orange] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
+
+	clr[(int)ThemeElement::MenuNotch] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::Separator] = Color::MakeARGB(255, 53, 59, 69);
+	clr[(int)ThemeElement::Selection] = Color::MakeARGB(255, 44, 49, 58);
+
+	clr[(int)ThemeElement::ScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::ScrollBarDivider] = Color::MakeARGB(255, 64, 67, 73);
+	clr[(int)ThemeElement::ScrollBarThumb] = Color::MakeARGB(255, 51, 51, 51);
+
 }
 
 
@@ -76,35 +69,28 @@ void InitializeLightThemeColors()
 
 	ActiveTheme = ActiveThemeColor::Light;
 
-	clr[(int)ThemeElement::BaseBlack] = Color::MakeARGB(255, 243, 243, 243);
-	clr[(int)ThemeElement::MenuPanelBackHot] = Color::MakeARGB(255, 232, 232, 232);
-	clr[(int)ThemeElement::MenuPanelText] = Color::MakeARGB(255, 97, 97, 97);
-	clr[(int)ThemeElement::MenuPanelTextDim] = Color::MakeARGB(255, 157, 165, 180);
-	clr[(int)ThemeElement::MenuPanelTextHot] = Color::MakeARGB(255, 97, 97, 97);
-	clr[(int)ThemeElement::MenuPanelSeparator] = Color::MakeARGB(255, 157, 165, 180);
-	clr[(int)ThemeElement::MenuPanelBackSelected] = Color::MakeARGB(255, 232, 232, 232);
-	clr[(int)ThemeElement::MenuPanelTextSelected] = Color::MakeARGB(255, 97, 97, 97);
-	clr[(int)ThemeElement::MenuPanelSelector] = Color::MakeARGB(255, 255, 255, 255);
-
+	clr[(int)ThemeElement::Black] = Color::MakeARGB(255, 243, 243, 243);
 	clr[(int)ThemeElement::GrayDark] = Color::MakeARGB(255, 255, 255, 255);
-	clr[(int)ThemeElement::TradesPanelBackHot] = Color::MakeARGB(255, 232, 232, 232);
-	clr[(int)ThemeElement::TradesPanelText] = Color::MakeARGB(255, 128, 128, 128);
-	clr[(int)ThemeElement::TradesPanelTextDim] = Color::MakeARGB(255, 158, 158, 158);
-	clr[(int)ThemeElement::GrayLight] = Color::MakeARGB(255, 238, 238, 238);
 	clr[(int)ThemeElement::GrayMedium] = Color::MakeARGB(255, 224, 224, 224);
-	clr[(int)ThemeElement::TradesPanelNormalDTE] = Color::MakeARGB(255, 255, 0, 255);
-	clr[(int)ThemeElement::TradesPanelWarningDTE] = Color::MakeARGB(255, 255, 214, 0);
-	clr[(int)ThemeElement::TradesPanelScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);
-	clr[(int)ThemeElement::TradesPanelScrollBarLine] = Color::MakeARGB(255, 64, 67, 73);
-	clr[(int)ThemeElement::TradesPanelScrollBarThumb] = Color::MakeARGB(255, 51, 51, 51);
-	clr[(int)ThemeElement::TradesPanelHistoryText] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
+	clr[(int)ThemeElement::GrayLight] = Color::MakeARGB(255, 238, 238, 238);
 
-	clr[(int)ThemeElement::ListHeaderBack] = Color::MakeARGB(255, 51, 51, 51);
-	clr[(int)ThemeElement::ListHeaderText] = Color::MakeARGB(255, 212, 212, 212);
-	clr[(int)ThemeElement::ListHeaderBorder] = Color::MakeARGB(255, 64, 67, 73);
+	clr[(int)ThemeElement::WhiteDark] = Color::MakeARGB(255, 158, 158, 158);
+	clr[(int)ThemeElement::WhiteMedium] = Color::MakeARGB(255, 157, 165, 180);
+	clr[(int)ThemeElement::WhiteLight] = Color::MakeARGB(255, 97, 97, 97);
 
-	clr[(int)ThemeElement::valuePositive] = Color::MakeARGB(255, 72, 151, 13);
-	clr[(int)ThemeElement::valueNegative] = Color::MakeARGB(255, 255, 30, 0);
+	clr[(int)ThemeElement::MenuNotch] = Color::MakeARGB(255, 255, 255, 255);
+	clr[(int)ThemeElement::Selection] = Color::MakeARGB(255, 232, 232, 232);
+	clr[(int)ThemeElement::Separator] = Color::MakeARGB(255, 157, 165, 180);
+
+	clr[(int)ThemeElement::Magenta] = Color::MakeARGB(255, 255, 0, 255);
+	clr[(int)ThemeElement::Yellow] = Color::MakeARGB(255, 255, 214, 0);
+	clr[(int)ThemeElement::Green] = Color::MakeARGB(255, 72, 151, 13);
+	clr[(int)ThemeElement::Red] = Color::MakeARGB(255, 255, 30, 0);
+	clr[(int)ThemeElement::Orange] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
+
+	clr[(int)ThemeElement::ScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);
+	clr[(int)ThemeElement::ScrollBarDivider] = Color::MakeARGB(255, 64, 67, 73);
+	clr[(int)ThemeElement::ScrollBarThumb] = Color::MakeARGB(255, 51, 51, 51);
 }
 
 
@@ -116,9 +102,7 @@ void InitializeLightThemeColors()
 // ========================================================================================
 void SetThemeName(std::wstring wszTheme)
 {
-	wszTheme = AfxUpper(wszTheme);
-
-	if (wszTheme == L"LIGHT") {
+	if (AfxWStringCompareI(wszTheme, L"LIGHT")) {
 		ActiveTheme = ActiveThemeColor::Light;
 		wszThemeName = L"Light";
 		InitializeLightThemeColors();

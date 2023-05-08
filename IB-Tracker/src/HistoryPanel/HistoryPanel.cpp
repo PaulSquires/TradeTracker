@@ -300,7 +300,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_HISTORYPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
-        ThemeElement::MenuPanelText, ThemeElement::BaseBlack);
+        ThemeElement::WhiteLight, ThemeElement::Black);
 
     // Create an Ownerdraw listbox that we will use to custom paint our various open trades.
     hCtl =

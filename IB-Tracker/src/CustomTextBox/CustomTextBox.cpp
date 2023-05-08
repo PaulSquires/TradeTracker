@@ -572,12 +572,12 @@ HWND CreateCustomTextBox(
         pData->FontSize = 9;
         pData->BackColor = GetThemeCOLORREF(ThemeElement::GrayDark);
         pData->hBackBrush = CreateSolidBrush(pData->BackColor);
-        pData->TextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
+        pData->TextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
         pData->HTextMargin = 0;
         pData->VTextMargin = 0;
         pData->BorderWidth = 0;
-        pData->BorderColorFocus = GetThemeCOLORREF(ThemeElement::TradesPanelText);
-        pData->BorderColor = GetThemeCOLORREF(ThemeElement::TradesPanelTextDim);
+        pData->BorderColorFocus = GetThemeCOLORREF(ThemeElement::WhiteLight);
+        pData->BorderColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
         pData->Alignment = Alignment;
         pData->BorderStyle = CustomTextBoxBorder::BorderNone;
 

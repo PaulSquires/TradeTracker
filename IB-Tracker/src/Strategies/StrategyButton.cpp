@@ -42,7 +42,7 @@ void StrategyButton_OnPaint(HWND hwnd)
 /*
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::BaseBlack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -78,10 +78,10 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = NULL;
     std::wstring wszFontName = L"Segoe UI";
     int FontSize = 8;
-    ThemeElement BorderColor = ThemeElement::MenuPanelText;
+    ThemeElement BorderColor = ThemeElement::GrayLight;
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_SHORTLONG, L"SHORT",
-        ThemeElement::TradesPanelText, ThemeElement::GrayDark,
+        ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleLeft, 0, 0, 50, nHeight);
     HWND_SHORTLONG = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);
@@ -89,14 +89,14 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetTextOffset(hCtl, 5, 0);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"PUT",
-        ThemeElement::TradesPanelText, ThemeElement::GrayDark,
+        ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 50, 0, 50, nHeight);
     HWND_PUTCALL = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_STRATEGY, L"IRON CONDOR",
-        ThemeElement::TradesPanelText, ThemeElement::GrayDark,
+        ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleLeft, 100, 0, 100, nHeight);
     HWND_STRATEGY = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);
@@ -104,14 +104,14 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetTextOffset(hCtl, 5, 0);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_GO, L"GO",
-        ThemeElement::TradesPanelText, ThemeElement::GrayDark,
+        ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 200, 0, 30, nHeight);
     HWND_GO = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, L"V",
-        ThemeElement::TradesPanelText, ThemeElement::GrayDark,
+        ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 230, 0, 30, nHeight);
     HWND_DROPDOWN = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);

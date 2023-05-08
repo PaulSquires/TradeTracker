@@ -16,7 +16,7 @@ extern HWND HWND_MAINWINDOW;
 
 CTradeDialog TradeDialog;
 
-COLORREF CtrlTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
+COLORREF CtrlTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
 COLORREF CtrlTextBack = GetThemeCOLORREF(ThemeElement::GrayDark);
 HBRUSH CtrlBackBrush = NULL;
 
@@ -81,8 +81,8 @@ HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
     // depending on the status of the Debit/Credit combobox.
     if (GetDlgCtrlID(hwndChild) == IDC_TRADEDIALOG_TXTTOTAL) {
         std::wstring wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-        if (wszText == L"DEBIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valueNegative));
-        if (wszText == L"CREDIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::valuePositive));
+        if (wszText == L"DEBIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::Red));
+        if (wszText == L"CREDIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::Green));
     }
 
     SetBkColor(hdc, CtrlTextBack);
@@ -225,8 +225,8 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
 {
     CustomLabel_SetText(hCtl, wszText);
 
-    ThemeElement clr = ThemeElement::valueNegative;
-    if (wszText == L"CR") clr = ThemeElement::valuePositive;
+    ThemeElement clr = ThemeElement::Red;
+    if (wszText == L"CR") clr = ThemeElement::Green;
     CustomLabel_SetBackColor(hCtl, clr);
     CalculateTradeTotal(HWND_TRADEDIALOG);
 }

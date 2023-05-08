@@ -35,13 +35,13 @@ void CalculateTradeTotal(HWND hwnd)
     double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
-    COLORREF TextColor = GetThemeCOLORREF(ThemeElement::valueNegative);
+    COLORREF TextColor = GetThemeCOLORREF(ThemeElement::Red);
     COLORREF BackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     if (DRCR == L"CR") {
         fees = fees * -1;
-        TextColor = GetThemeCOLORREF(ThemeElement::valuePositive);
+        TextColor = GetThemeCOLORREF(ThemeElement::Green);
     }
 
     total = (quantity * multiplier * price) + fees;
@@ -252,17 +252,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int VTextMargin = 3;
 
     COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
-    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
+    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
 
     COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
-    COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelTextDim);
+    COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
 
-    ThemeElement TextColor = ThemeElement::TradesPanelText;
-    ThemeElement TextColorDim = ThemeElement::TradesPanelTextDim;
+    ThemeElement TextColor = ThemeElement::WhiteLight;
+    ThemeElement TextColorDim = ThemeElement::WhiteDark;
     ThemeElement BackColor = ThemeElement::GrayDark;
-
-    COLORREF BorderColor = GetThemeCOLORREF(ThemeElement::MenuPanelTextDim);
-    COLORREF BorderColorFocus = GetThemeCOLORREF(ThemeElement::MenuPanelText);
 
 
     // EDIT ACTION LABEL
@@ -273,7 +270,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::GrayDark;
-        pData->TextColor = ThemeElement::TradesPanelText;
+        pData->TextColor = ThemeElement::WhiteLight;
         pData->FontSize = 14;
         pData->wszText = AfxUpper(TradeDialogControls_GetTradeDescription());
         pData->TextAlignment = CustomLabelAlignment::TopRight;
@@ -306,7 +303,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
             pData->BackColor = ThemeElement::GrayDark;
-            pData->TextColor = ThemeElement::TradesPanelText;
+            pData->TextColor = ThemeElement::WhiteLight;
             pData->FontSize = 14;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
             pData->wszText = L"AAPL";
@@ -319,7 +316,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
             pData->BackColor = ThemeElement::GrayDark;
-            pData->TextColor = ThemeElement::TradesPanelText;
+            pData->TextColor = ThemeElement::WhiteLight;
             pData->FontSize = 14;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
             pData->wszText = L"Apple Inc.";
@@ -344,15 +341,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             CustomLabelAlignment::MiddleLeft, 160, nTop, 100, 22);
         hCtl = StrategyButton.Create(hwnd, L"", 160, 97, 260, 24,
             WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
-
-        std::cout << hCtl << std::endl;
-
-
     }
 
 
     // SAVE button
-    CustomLabel_SimpleLabel(hwnd, -1, L"Save", ThemeElement::GrayLight, ThemeElement::valuePositive,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Save", ThemeElement::GrayLight, ThemeElement::Green,
         CustomLabelAlignment::MiddleCenter, 450, 97, 80, 24);
 
     
@@ -381,7 +374,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT, 
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
@@ -391,7 +383,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT, 
         L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
@@ -401,7 +392,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
@@ -411,7 +401,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
@@ -423,7 +412,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-    CustomTextBox_SetBorderAttributes(hCtl, 1, BorderColorFocus, BorderColor, CustomTextBoxBorder::BorderUnderline);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
@@ -432,12 +420,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"", TextColor, BackColor,
         CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
     TradeDialog_SetComboDRCR(hCtl, L"CR");
-
-
-    // Position OK and Cancel buttons from the right edge
-    //nTop = nStartTop + (nHeight + vsp) * 2;
-    //nLeft = 60;
-    //hCtl = TradeDialog.AddControl(Controls::Button, hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE", nLeft, nTop, 80, nHeight);
 
 }
 

@@ -361,36 +361,36 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
         font9 = 8;
 
         ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
 
         std::wstring text = (trade->isOpen ? L"Open Pos" : L"Closed Pos");
         ld->SetData(1, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);   // orange
+            ThemeElement::Orange, font8, FontStyleRegular);   // orange
 
         text = AfxMoney(std::abs(trade->ACB));
-        ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+        ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::Green : ThemeElement::Red;
         ld->SetData(7, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
             clr, font8, FontStyleRegular);  
 
     }
     else {
         ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelText, font9, FontStyleRegular | FontStyleBold);
+            ThemeElement::WhiteLight, font9, FontStyleRegular | FontStyleBold);
         // Col 1 to 6 are set based on incoming TWS price data 
         ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelText, font8, FontStyleRegular);   // ITM
+            ThemeElement::WhiteLight, font8, FontStyleRegular);   // ITM
         ld->SetData(3, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelText, font8, FontStyleRegular);
+            ThemeElement::WhiteLight, font8, FontStyleRegular);
         ld->SetData(4, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelText, font8, FontStyleRegular);
+            ThemeElement::WhiteLight, font8, FontStyleRegular);
         ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // price change
+            ThemeElement::WhiteDark, font8, FontStyleRegular);   // price change
         ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, L"0.00", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelText, font9, FontStyleRegular | FontStyleBold);   // current price
+            ThemeElement::WhiteLight, font9, FontStyleRegular | FontStyleBold);   // current price
         ld->SetData(COLUMN_TICKER_PERCENTAGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // price percentage change
+            ThemeElement::WhiteDark, font8, FontStyleRegular);   // price percentage change
     }
     ListBox_AddString(hListBox, ld);
 
@@ -399,7 +399,7 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
     tickerId = -1;
 
     std::wstring wszDot = L"\u23FA";   // dot character (Segue UI Windows 10/11)
-    ThemeElement WarningDTE = ThemeElement::TradesPanelNormalDTE;
+    ThemeElement Yellow = ThemeElement::Magenta;
 
 
 
@@ -422,36 +422,36 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
         ld = new ListBoxData;
 
         ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::TradesPanelText, font8, FontStyleRegular);
+            ThemeElement::WhiteLight, font8, FontStyleRegular);
 
         int col = 1;
         if (!isHistory) {
             ld->SetData(col, trade, tickerId, wszDot, StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
-                ThemeElement::TradesPanelNormalDTE, font8, FontStyleRegular);
+                ThemeElement::Magenta, font8, FontStyleRegular);
             col++;
         }
         col++;
 
         ld->SetData(col, trade, tickerId, textShares, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayMedium,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
         col++;
 
         ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayMedium,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
         col++;
 
         ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayMedium,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
         col++;
 
         text = AfxMoney(std::abs(trade->ACB / aggregate));
         ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayMedium,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
         col++;
 
         text = std::to_wstring(aggregate);
         ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayMedium,
-            ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::WhiteDark, font8, FontStyleRegular);
 
         ListBox_AddString(hListBox, ld);
     }
@@ -475,7 +475,7 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
             wszDTE = std::to_wstring(DTE) + L"d";
 
             if (DTE < 3) {
-                WarningDTE = ThemeElement::TradesPanelWarningDTE;
+                Yellow = ThemeElement::Yellow;
             }
 
             // If the expiry year is greater than current year + 1 then add
@@ -490,32 +490,32 @@ void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
 
             if (!isHistory) {
                 ld->SetData(col, trade, tickerId, wszDot, StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
-                    WarningDTE, font8, FontStyleRegular);
+                    Yellow, font8, FontStyleRegular);
                 col++;
 
                 ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-                    ThemeElement::TradesPanelText, font8, FontStyleRegular);  // empty column
+                    ThemeElement::WhiteLight, font8, FontStyleRegular);  // empty column
             }
             col++;
 
             ld->SetData(col, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, StringAlignmentCenter,
-                ThemeElement::GrayMedium, ThemeElement::TradesPanelText, font8, FontStyleRegular);  // position quantity
+                ThemeElement::GrayMedium, ThemeElement::WhiteLight, font8, FontStyleRegular);  // position quantity
             col++;
 
             ld->SetData(col, trade, tickerId, wszShortDate, StringAlignmentCenter, StringAlignmentCenter,
-                ThemeElement::GrayLight, ThemeElement::TradesPanelText, font8, FontStyleRegular);   // expiry date
+                ThemeElement::GrayLight, ThemeElement::WhiteLight, font8, FontStyleRegular);   // expiry date
             col++;
 
             ld->SetData(col, trade, tickerId, wszDTE, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayMedium,
-                ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // DTE
+                ThemeElement::WhiteDark, font8, FontStyleRegular);   // DTE
             col++;
 
             ld->SetData(col, trade, tickerId, leg->strikePrice, StringAlignmentCenter, StringAlignmentCenter,
-                ThemeElement::GrayLight, ThemeElement::TradesPanelText, font8, FontStyleRegular);   // strike price
+                ThemeElement::GrayLight, ThemeElement::WhiteLight, font8, FontStyleRegular);   // strike price
             col++;
 
             ld->SetData(col, trade, tickerId, L"  " + leg->PutCall, StringAlignmentNear, StringAlignmentCenter, 
-                ThemeElement::GrayMedium, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);   // PutCall
+                ThemeElement::GrayMedium, ThemeElement::WhiteDark, font8, FontStyleRegular);   // PutCall
 
             ListBox_AddString(hListBox, ld);
         }
@@ -554,18 +554,18 @@ void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans)
     TickerId tickerId = -1;
 
     ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
-        ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     text = trans->description;
     ld->SetData(1, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-        ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);   // orange
+        ThemeElement::Orange, font8, FontStyleRegular);   // orange
 
     text = trans->transDate;
     ld->SetData(2, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
-        ThemeElement::TradesPanelText, font8, FontStyleRegular);
+        ThemeElement::WhiteLight, font8, FontStyleRegular);
 
     text = AfxMoney(std::abs(trans->total));
-    ThemeElement clr = (trans->total >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ThemeElement clr = (trans->total >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(7, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
         clr, font8, FontStyleRegular);   // green/red
 
@@ -585,15 +585,15 @@ void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* tran
     REAL font8 = 8;
 
     ld->SetData(2, trade, tickerId, trans->underlying, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayMedium, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayMedium, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     for (int i = 3; i < 7; i++) {
         ld->SetData(i, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
-            ThemeElement::GrayMedium, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+            ThemeElement::GrayMedium, ThemeElement::WhiteDark, font8, FontStyleRegular);
     }
     
     ld->SetData(7, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, StringAlignmentCenter,
-        ThemeElement::GrayMedium, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayMedium, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }
@@ -611,7 +611,7 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
 
     std::wstring text = std::to_wstring(leg->origQuantity);
     ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
-        ThemeElement::GrayMedium, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+        ThemeElement::GrayMedium, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
 
     int DTE = AfxDaysBetween(trans->transDate, leg->expiryDate);
@@ -626,19 +626,19 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
     }
 
     ld->SetData(3, trade, tickerId, wszShortDate, StringAlignmentCenter, StringAlignmentCenter,
-        ThemeElement::GrayLight, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+        ThemeElement::GrayLight, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
     ld->SetData(4, trade, tickerId, wszDays, StringAlignmentCenter, StringAlignmentCenter,
-        ThemeElement::GrayMedium, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayMedium, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     ld->SetData(5, trade, tickerId, leg->strikePrice, StringAlignmentCenter, StringAlignmentCenter,
-        ThemeElement::GrayLight, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+        ThemeElement::GrayLight, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
     ld->SetData(6, trade, tickerId, L" " + leg->PutCall, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayMedium, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayMedium, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
-    ThemeElement clr = ThemeElement::valueNegative;
-    if (leg->action == L"BTO" || leg->action == L"BTC") clr = ThemeElement::valuePositive;
+    ThemeElement clr = ThemeElement::Red;
+    if (leg->action == L"BTO" || leg->action == L"BTC") clr = ThemeElement::Green;
 
     ld->SetData(7, trade, tickerId, leg->action, StringAlignmentCenter, StringAlignmentCenter,
         ThemeElement::GrayLight, clr, font8, FontStyleRegular);
@@ -658,18 +658,18 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring 
     REAL font8 = 8;
 
     ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
     ld->SetData(1, trade, tickerId, closedDate, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
     ld->SetData(2, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
     ld->SetData(3, trade, tickerId, trade->tickerName, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
-    ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(4, trade, tickerId, AfxMoney(trade->ACB), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
@@ -689,7 +689,7 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
     REAL font9 = 9;
 
     ld->SetData(1, nullptr, tickerId, ticker, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
     // Look up the Company name based on the tickerid
     auto iter = std::find_if(trades.begin(), trades.end(),
@@ -698,10 +698,10 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
     if (iter != trades.end()) {
         auto index = std::distance(trades.begin(), iter);
         ld->SetData(2, nullptr, tickerId, trades.at(index)->tickerName, StringAlignmentNear, StringAlignmentCenter,
-            ThemeElement::GrayDark, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+            ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
     }
 
-    ThemeElement clr = (amount >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ThemeElement clr = (amount >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(3, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
@@ -726,17 +726,17 @@ void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, d
 
     // Triangle open/closed
     ld->SetData(0, nullptr, tickerId, (isOpen ? L"\u23F7" : L"\u23F5"), StringAlignmentCenter, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     std::wstring wszText = date;
     ld->SetData(1, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
     wszText = AfxGetShortDayName(date);
     ld->SetData(2, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelHistoryText, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
-    ThemeElement clr = (amount >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ThemeElement clr = (amount >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(3, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
@@ -756,16 +756,16 @@ void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transa
     REAL font9 = 9;
 
     ld->SetData(0, nullptr, tickerId, L"", StringAlignmentCenter, StringAlignmentCenter, 
-        ThemeElement::GrayDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     ld->SetData(1, nullptr, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     ld->SetData(2, nullptr, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     ld->SetData(3, nullptr, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::TradesPanelTextDim, font8, FontStyleRegular);
+        ThemeElement::GrayDark, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }
@@ -796,24 +796,24 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
         }
     }
 
-    ThemeElement clr = (grandTotal >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    ThemeElement clr = (grandTotal >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(0, nullptr, tickerId, AfxMoney(grandTotal), StringAlignmentCenter, StringAlignmentCenter, 
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
-    clr = (stockValue >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    clr = (stockValue >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(1, nullptr, tickerId, AfxMoney(stockValue), StringAlignmentCenter, StringAlignmentCenter, 
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
     double netValue = grandTotal + stockValue;
-    clr = (netValue >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    clr = (netValue >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(2, nullptr, tickerId, AfxMoney(netValue), StringAlignmentCenter, StringAlignmentCenter, 
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
-    clr = (MTD >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    clr = (MTD >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(3, nullptr, tickerId, AfxMoney(MTD), StringAlignmentCenter, StringAlignmentCenter, 
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
-    clr = (YTD >= 0) ? ThemeElement::valuePositive : ThemeElement::valueNegative;
+    clr = (YTD >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(4, nullptr, tickerId, AfxMoney(YTD), StringAlignmentCenter, StringAlignmentCenter, 
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
@@ -837,9 +837,9 @@ void ListBoxData_OutputTradesTemplates(HWND hListBox)
     //    ld = new ListBoxData;
     //    ld->pTradeTemplate = &t;
     //    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
-    //        ThemeElement::BaseBlack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
+    //        ThemeElement::Black, ThemeElement::WhiteLight, font9, FontStyleRegular);
     //    ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,
-    //        ThemeElement::BaseBlack, ThemeElement::MenuPanelText, font9, FontStyleRegular);
+    //        ThemeElement::Black, ThemeElement::WhiteLight, font9, FontStyleRegular);
     //    ListBox_AddString(hListBox, ld);
     //}
 }
@@ -859,7 +859,7 @@ void Header_OnPaint(HWND hWnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     Graphics graphics(hdc);
-    SolidBrush backBrush(GetThemeColor(ThemeElement::ListHeaderBack));
+    SolidBrush backBrush(GetThemeColor(ThemeElement::GrayMedium));
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
 
@@ -868,7 +868,7 @@ void Header_OnPaint(HWND hWnd)
     std::wstring wszFontName = AfxGetDefaultFont();
     FontFamily fontFamily(wszFontName.c_str());
     Font       font(&fontFamily, 9, FontStyleRegular, Unit::UnitPoint);
-    SolidBrush textBrush(GetThemeColor(ThemeElement::ListHeaderText));
+    SolidBrush textBrush(GetThemeColor(ThemeElement::WhiteLight));
 
     StringFormat stringF(StringFormatFlagsNoWrap);
     stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -897,7 +897,7 @@ void Header_OnPaint(HWND hWnd)
 
         // Draw our right side separator line
         if (i > 0 && i < nCount) {
-            ARGB clrPen = GetThemeColor(ThemeElement::ListHeaderBorder);
+            ARGB clrPen = GetThemeColor(ThemeElement::ScrollBarDivider);
             Pen pen(clrPen, 1);
             graphics.DrawLine(&pen, (REAL)rcItem.right, (REAL)rcItem.top, (REAL)rcItem.right, (REAL)rcItem.bottom);
         }
@@ -953,17 +953,17 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         std::wstring wszText;
 
         DWORD nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::TradesPanelBackHot)
+            ? GetThemeColor(ThemeElement::Selection)
             : GetThemeColor(ThemeElement::GrayDark);
-        DWORD nBackColorHot = GetThemeColor(ThemeElement::TradesPanelBackHot);
-        DWORD nTextColor = GetThemeColor(ThemeElement::TradesPanelText);
+        DWORD nBackColorHot = GetThemeColor(ThemeElement::Selection);
+        DWORD nTextColor = GetThemeColor(ThemeElement::WhiteLight);
 
         if (hwnd == HWND_TRADEDIALOG) {
             nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::MenuPanelBackHot)
-            : GetThemeColor(ThemeElement::BaseBlack);
-            nBackColorHot = GetThemeColor(ThemeElement::MenuPanelBackHot);
-            nTextColor = GetThemeColor(ThemeElement::MenuPanelText);
+            ? GetThemeColor(ThemeElement::Selection)
+            : GetThemeColor(ThemeElement::Black);
+            nBackColorHot = GetThemeColor(ThemeElement::Selection);
+            nTextColor = GetThemeColor(ThemeElement::WhiteLight);
         }
             
         std::wstring wszFontName = AfxGetDefaultFont();

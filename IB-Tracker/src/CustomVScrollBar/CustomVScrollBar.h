@@ -22,9 +22,9 @@ public:
     int thumbHeight = 0;
     RECT rc{};
     
-    ThemeElement ScrollBarLine = ThemeElement::TradesPanelScrollBarLine;
-    ThemeElement ScrollBarBack = ThemeElement::TradesPanelScrollBarBack;
-    ThemeElement ScrollBarThumb = ThemeElement::TradesPanelScrollBarThumb;
+    ThemeElement ScrollBarLine = ThemeElement::ScrollBarDivider;
+    ThemeElement ScrollBarBack = ThemeElement::ScrollBarBack;
+    ThemeElement ScrollBarThumb = ThemeElement::ScrollBarThumb;
 
     bool calcVThumbRect();
     

@@ -1,35 +1,28 @@
 #pragma once
 
 enum class ThemeElement {
-	BaseBlack,
-	MenuPanelBackHot,
-	MenuPanelText,
-	MenuPanelTextDim,
-	MenuPanelTextHot,
-	MenuPanelBackSelected,
-	MenuPanelTextSelected,
-	MenuPanelSeparator,
-	MenuPanelSelector,
-
+	Black,
 	GrayDark,
-	TradesPanelBackHot,
-	TradesPanelText,
-	TradesPanelTextDim,
-	GrayLight,
 	GrayMedium,
-	TradesPanelNormalDTE,
-	TradesPanelWarningDTE,
-	TradesPanelScrollBarBack,
-	TradesPanelScrollBarLine,
-	TradesPanelScrollBarThumb,
-	TradesPanelHistoryText,
+	GrayLight,
+	
+	WhiteLight,
+	WhiteMedium,
+	WhiteDark,
+	
+	Red,   
+	Yellow,
+	Green,   
+	Magenta,
+	Orange,
 
-	ListHeaderBack,
-	ListHeaderText,
-	ListHeaderBorder,
+	MenuNotch,
+	Separator,
+	Selection,
 
-	valuePositive,    // usually green
-	valueNegative,    // usually red
+	ScrollBarBack,
+	ScrollBarDivider,
+	ScrollBarThumb,
 
 	Count     // Returns the number of defined theme elements
 };

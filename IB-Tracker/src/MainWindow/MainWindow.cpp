@@ -156,7 +156,7 @@ void MainWindow_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::BaseBlack);
+    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -268,10 +268,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->TextColor = ThemeElement::MenuPanelTextDim;
-        pData->TextColorHot = ThemeElement::MenuPanelTextDim;
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteMedium;
+        pData->TextColorHot = ThemeElement::WhiteMedium;
         pData->FontSize = 8;
         pData->FontSizeHot = 8;
         pData->wszText = L"Dark Mode: ON";
@@ -292,10 +292,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
-        pData->BackColor = ThemeElement::BaseBlack;
-        pData->BackColorHot = ThemeElement::MenuPanelBackHot;
-        pData->TextColor = ThemeElement::MenuPanelTextDim;
-        pData->TextColorHot = ThemeElement::MenuPanelTextDim;
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteMedium;
+        pData->TextColorHot = ThemeElement::WhiteMedium;
         pData->FontSize = 8;
         pData->FontSizeHot = 8;
         pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";

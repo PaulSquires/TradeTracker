@@ -32,10 +32,10 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
 
     COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
-    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelText);
+    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
 
     COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
-    COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::TradesPanelTextDim);
+    COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
 
     int nTop = 0;
     int nLeft = 0;
@@ -74,7 +74,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
         // EXPIRY DATE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
-            L"May 30", ThemeElement::TradesPanelText, ThemeElement::GrayLight,
+            L"May 30", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
         col = new GridColInfo;
@@ -87,7 +87,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
         // DTE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"24d", ThemeElement::TradesPanelTextDim, ThemeElement::GrayMedium,
+            L"24d", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
         col = new GridColInfo;
@@ -114,7 +114,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
         // PUT/CALL
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"P", ThemeElement::TradesPanelTextDim, ThemeElement::GrayMedium,
+            L"P", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
         col = new GridColInfo;
@@ -127,7 +127,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
         // ACTION
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"STO", ThemeElement::TradesPanelText, ThemeElement::GrayLight,
+            L"STO", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize);
         col = new GridColInfo;
@@ -159,8 +159,8 @@ void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText)
     CustomLabel_SetText(col->hCtl, wszText);
 
     if (col->colType == GridColType::ActionCombo) {
-        ThemeElement clr = ThemeElement::valueNegative;
-        if (wszText == L"BTO" || wszText == L"BTC") clr = ThemeElement::valuePositive;
+        ThemeElement clr = ThemeElement::Red;
+        if (wszText == L"BTO" || wszText == L"BTC") clr = ThemeElement::Green;
         CustomLabel_SetTextColor(col->hCtl, clr);
     }
 }
@@ -368,7 +368,7 @@ HWND CreateCustomTradeGrid(
         pData->hParent = hWndParent;
         pData->hInst = hInst;
         pData->CtrlId = CtrlId;
-        pData->BackColor = GetThemeCOLORREF(ThemeElement::BaseBlack);
+        pData->BackColor = GetThemeCOLORREF(ThemeElement::Black);
         pData->hBackBrush = CreateSolidBrush(pData->BackColor);
 
         CustomTradeGrid_PopulateColumns(pData);

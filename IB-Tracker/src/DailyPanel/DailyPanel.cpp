@@ -408,7 +408,7 @@ BOOL DailyPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_DAILYPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_DAILY_SYMBOL, L"Daily Totals",
-        ThemeElement::MenuPanelText, ThemeElement::BaseBlack);
+        ThemeElement::WhiteLight, ThemeElement::Black);
 
     // Create an listbox that we will use to custom paint our various open trades.
     hCtl =

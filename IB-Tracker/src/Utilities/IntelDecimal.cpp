@@ -166,28 +166,28 @@ typedef struct BID_ALIGN(16)
 
 
 static const BID_UINT128 bid_roundbound_128[] =
-{ {{0ull, (1ull << 63)}},       // BID_ROUNDING_TO_NEAREST | positive | even
-{{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TO_NEAREST | positive | odd
+{ {{0ull, (1ull << 63)}},       // BID_ROUNDING_TO_NEAREST | Green | even
+{{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TO_NEAREST | Green | odd
 {{0ull, (1ull << 63)}}, // BID_ROUNDING_TO_NEAREST | negative | even
 {{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TO_NEAREST | negative | odd
 
-{{~0ull, ~0ull}},       // BID_ROUNDING_DOWN       | positive | even
-{{~0ull, ~0ull}},       // BID_ROUNDING_DOWN       | positive | odd
+{{~0ull, ~0ull}},       // BID_ROUNDING_DOWN       | Green | even
+{{~0ull, ~0ull}},       // BID_ROUNDING_DOWN       | Green | odd
 {{0ull, 0ull}}, // BID_ROUNDING_DOWN       | negative | even
 {{0ull, 0ull}}, // BID_ROUNDING_DOWN       | negative | odd
 
-{{0ull, 0ull}}, // BID_ROUNDING_UP         | positive | even
-{{0ull, 0ull}}, // BID_ROUNDING_UP         | positive | odd
+{{0ull, 0ull}}, // BID_ROUNDING_UP         | Green | even
+{{0ull, 0ull}}, // BID_ROUNDING_UP         | Green | odd
 {{~0ull, ~0ull}},       // BID_ROUNDING_UP         | negative | even
 {{~0ull, ~0ull}},       // BID_ROUNDING_UP         | negative | odd
 
-{{~0ull, ~0ull}},       // BID_ROUNDING_TO_ZERO    | positive | even
-{{~0ull, ~0ull}},       // BID_ROUNDING_TO_ZERO    | positive | odd
+{{~0ull, ~0ull}},       // BID_ROUNDING_TO_ZERO    | Green | even
+{{~0ull, ~0ull}},       // BID_ROUNDING_TO_ZERO    | Green | odd
 {{~0ull, ~0ull}},       // BID_ROUNDING_TO_ZERO    | negative | even
 {{~0ull, ~0ull}},       // BID_ROUNDING_TO_ZERO    | negative | odd
 
-{{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TIES_AWAY  | positive | even
-{{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TIES_AWAY  | positive | odd
+{{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TIES_AWAY  | Green | even
+{{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TIES_AWAY  | Green | odd
 {{~0ull, (1ull << 63) - 1}},    // BID_ROUNDING_TIES_AWAY  | negative | even
 {{~0ull, (1ull << 63) - 1}}     // BID_ROUNDING_TIES_AWAY  | negative | odd
 };

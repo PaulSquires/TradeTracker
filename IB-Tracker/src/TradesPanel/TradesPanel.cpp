@@ -851,7 +851,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_TRADESPANEL = hwnd;
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
-        ThemeElement::MenuPanelText, ThemeElement::BaseBlack);
+        ThemeElement::WhiteLight, ThemeElement::Black);
     
     hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradesPanel_Header_SubclassProc,
