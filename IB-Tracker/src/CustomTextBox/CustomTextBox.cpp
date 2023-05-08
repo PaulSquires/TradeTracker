@@ -25,7 +25,7 @@ void CustomTextBox_OnSize(HWND hCtrl)
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData) {
         RECT rc; GetClientRect(hCtrl, &rc);
-        if (pData->BorderWidth) {
+        if (pData->BorderStyle != CustomTextBoxBorder::BorderNone && pData->BorderWidth) {
             int BorderWidth = AfxScaleX((float)pData->BorderWidth);
             InflateRect(&rc, -BorderWidth, -BorderWidth);
         }
@@ -35,7 +35,6 @@ void CustomTextBox_OnSize(HWND hCtrl)
         }
         if (pData->VTextMargin) {
             int VMarginWidth = AfxScaleY((float)pData->VTextMargin);
-            //InflateRect(&rc, 0, -VMarginWidth);
             rc.top += VMarginWidth;
         }
         SetWindowPos(pData->hTextBox, HWND_TOP,

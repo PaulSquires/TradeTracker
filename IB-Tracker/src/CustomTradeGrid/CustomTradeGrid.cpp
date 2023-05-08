@@ -40,7 +40,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     int nTop = 0;
     int nLeft = 0;
     int nWidth = 50;
-    int nHeight = 24;
+    int nHeight = 23;
     
     int vsp = 3;
     int hsp = 2;

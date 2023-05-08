@@ -528,7 +528,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
         if (nCount == 1) {
             InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 1, L"");
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_SHARE_ASSIGNMENT, L"Shares Assignment");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_SHARE_ASSIGNMENT, L"Assignment");
         }
     }
 
