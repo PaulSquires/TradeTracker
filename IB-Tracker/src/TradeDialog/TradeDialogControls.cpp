@@ -6,6 +6,7 @@
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\CustomTextBox\CustomTextBox.h"
 #include "..\CustomTradeGrid\CustomTradeGrid.h"
+#include "..\Strategies\StrategyButton.h"
 #include "..\TradesPanel\TradesPanel.h"
 
 
@@ -19,6 +20,7 @@ extern CTradeDialog TradeDialog;
 extern int tradeAction;
 extern std::vector<Leg*> legsEdit;
 extern Trade* tradeEdit;
+CStrategyButton StrategyButton;
 
 
 
@@ -340,8 +342,12 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         nTop = 72;
         CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 160, nTop, 100, 22);
-        CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, ThemeElement::TradesPanelColBackDark,
-            CustomLabelAlignment::MiddleLeft, 160, 97, 200, 24);
+        hCtl = StrategyButton.Create(hwnd, L"", 160, 97, 260, 24,
+            WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
+
+        std::cout << hCtl << std::endl;
+
+
     }
 
 

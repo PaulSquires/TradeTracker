@@ -271,6 +271,31 @@ std::wstring CustomLabel_GetText(HWND hCtrl)
 
 
 //------------------------------------------------------------------------------ 
+void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColor, ThemeElement BorderColorHot)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->BorderVisible = true;
+        pData->BorderWidth = BorderWidth;
+        pData->BorderColor = BorderColor;
+        pData->BorderColorHot = BorderColorHot;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->TextOffsetLeft = OffsetLeft;
+        pData->TextOffsetTop = OffsetTop;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+//------------------------------------------------------------------------------ 
 void CustomLabel_SetUserData(HWND hCtrl, int UserData)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);

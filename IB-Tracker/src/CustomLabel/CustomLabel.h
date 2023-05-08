@@ -341,7 +341,7 @@ public:
 			if (!BorderVisible) clrPen = GetThemeColor(BackColor);
 			Pen pen(clrPen, BorderWidth);
 
-			RectF rectF(0, 0, (REAL)m_rcClient.right, (REAL)m_rcClient.bottom);
+			RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
 			Graphics graphics(m_memDC);
 			graphics.DrawRectangle(&pen, rectF);
 		}
@@ -375,6 +375,8 @@ void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
 void CustomLabel_SetUserData(HWND hCtrl, int UserData);
 int CustomLabel_GetUserData(HWND hCtrl);
+void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColor, ThemeElement BorderColorHot);
+void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
