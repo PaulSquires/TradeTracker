@@ -195,19 +195,25 @@ void LoadEditLegsInTradeTable(HWND hwnd)
 
 // ========================================================================================
 // Get the description for the type of action being performed.
+// Also sets the descriptin labels above the Table main grid and Table roll grid.
+// Also sets the Action label (in uppercase)
 // ========================================================================================
-std::wstring TradeDialogControls_GetTradeDescription()
+std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
 {
     std::wstring wszDescription;
+    std::wstring wszGridMain;
+    std::wstring wszGridRoll;
 
     switch (tradeAction)
     {
     case ACTION_NEW_TRADE:
         wszDescription = L"New";
+        wszGridMain = L"New Transaction";
         break;
     case ACTION_CLOSE_TRADE:
     case ACTION_CLOSE_LEG:
         wszDescription = L"Close";
+        wszGridMain = L"Close Transaction";
         break;
     case ACTION_EXPIRE_TRADE:
     case ACTION_EXPIRE_LEG:
@@ -215,6 +221,8 @@ std::wstring TradeDialogControls_GetTradeDescription()
         break;
     case ACTION_ROLL_LEG:
         wszDescription = L"Roll";
+        wszGridMain = L"Close Transaction";
+        wszGridRoll = L"Rolled Transaction";
         break;
     case ACTION_SHARE_ASSIGNMENT:
         wszDescription = L"Assignment";
@@ -223,8 +231,13 @@ std::wstring TradeDialogControls_GetTradeDescription()
     case ACTION_ADDPUTTO_TRADE:
     case ACTION_ADDCALLTO_TRADE:
         wszDescription = L"Add To";
+        wszGridMain = L"New Transaction";
         break;
     }
+
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION), AfxUpper(wszDescription));
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN), wszGridMain);
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL), wszGridRoll);
 
     return wszDescription;
 }
@@ -272,7 +285,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData->BackColor = ThemeElement::GrayDark;
         pData->TextColor = ThemeElement::WhiteLight;
         pData->FontSize = 14;
-        pData->wszText = AfxUpper(TradeDialogControls_GetTradeDescription());
         pData->TextAlignment = CustomLabelAlignment::TopRight;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -352,13 +364,18 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // Create the main trade grid
     nTop = 120;
     nTop += 25;
-    HWND hGridMain = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop, 0, 0);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, nTop, 300, 22);
+    HWND hGridMain = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
 
     // If we are rolling then create the second trade grid.
     if (tradeAction == ACTION_ROLL_LEG) {
         nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 20;
-        HWND hGridRoll = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, 40 + nWidth, nTop, 0, 0);
+        CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", TextColorDim, BackColor,
+            CustomLabelAlignment::MiddleLeft, 40 + nWidth, nTop, 300, 22);
+        HWND hGridRoll = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, 40 + nWidth, nTop + 25, 0, 0);
     }
+    nTop += 25;
 
 
     nTop += AfxUnScaleY((float)AfxGetWindowHeight(hGridMain)) + 30;
@@ -426,6 +443,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
     TradeDialog_SetComboDRCR(hCtl, L"CR");
 
-}
+    TradeDialogControls_GetTradeDescription(hwnd);
+
+ }
 
 
