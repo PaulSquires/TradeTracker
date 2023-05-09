@@ -178,7 +178,6 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
     // Resize the control container to fit the size of the trade grid.
     SetWindowPos(pData->hWindow, 0, 0, 0, nTotalWidth, nTotalHeight, SWP_NOMOVE | SWP_NOZORDER);
-
 }
 
 
