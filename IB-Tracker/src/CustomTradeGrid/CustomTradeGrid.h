@@ -25,7 +25,7 @@ public:
 	HWND hCtl = NULL;
 	int idCtrl = 0;
 	GridColType colType = GridColType::TextBox;
-	int colData;  // holds LineReset line number
+	int colData = 0;  // holds LineReset line number
 };
 
 
