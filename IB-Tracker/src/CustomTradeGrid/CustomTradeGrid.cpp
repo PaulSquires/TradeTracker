@@ -41,7 +41,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     int nWidth = 50;
     int nHeight = 23;
     
-    int vsp = 3;
+    int vsp = 2;
     int hsp = 2;
     
     int HTextMargin = 0;
@@ -149,10 +149,11 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
             pLabelData->wszTextHot = L"x";
             pLabelData->HotTestEnable = true;
             pLabelData->BackColor = ThemeElement::GrayDark; 
+            pLabelData->BackColorHot = ThemeElement::GrayMedium;
+            pLabelData->BackColorButtonDown = ThemeElement::GrayLight; 
             pLabelData->TextColor = ThemeElement::WhiteDark;
-            pLabelData->BackColorHot = ThemeElement::GrayDark;
             pLabelData->TextColorHot = ThemeElement::WhiteLight;
-            pLabelData->TextAlignment = CustomLabelAlignment::MiddleLeft;
+            pLabelData->TextAlignment = CustomLabelAlignment::MiddleCenter;
             pLabelData->wszToolTip = L"Reset line";
             pLabelData->PointerHot = CustomLabelPointer::Arrow;
             CustomLabel_SetOptions(hCtl, pLabelData);
@@ -254,7 +255,7 @@ void CustomTradeGrid_OnClickLineReset(CustomTradeGrid* pData, GridColInfo* col)
 
     CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // Quantity
     CustomLabel_SetText(pData->gridCols.at(colStart+1)->hCtl, L"");     // Expiry Date
-    CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"0d");   // DTE
+    CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"");   // DTE
     CustomTextBox_SetText(pData->gridCols.at(colStart+3)->hCtl, L"");   // Strike Price
     CustomLabel_SetText(pData->gridCols.at(colStart+4)->hCtl, L"");     // Put/Call
     CustomLabel_SetText(pData->gridCols.at(colStart+5)->hCtl, L"");     // Action

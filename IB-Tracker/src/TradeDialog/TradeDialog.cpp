@@ -281,9 +281,9 @@ void TradeDialog_Show(int inTradeAction)
     tradeAction = inTradeAction;
 
     int nWidth = 575;
-    int nHeight = 405;
+    int nHeight = 415;
 
-    if (tradeAction == ACTION_ROLL_LEG) nWidth += 100;
+    if (tradeAction == ACTION_ROLL_LEG) nWidth += 140;
 
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

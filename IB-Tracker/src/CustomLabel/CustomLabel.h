@@ -62,6 +62,7 @@ public:
 	bool HotTestEnable = false;
 	ThemeElement BackColor{};
 	ThemeElement BackColorHot{};
+	ThemeElement BackColorButtonDown{};
 
 	// Selection
 	bool AllowSelect = false;
@@ -201,6 +202,10 @@ public:
 		DWORD nBackColor = (m_bIsHot ? GetThemeColor(BackColorHot) : GetThemeColor(BackColor));
 		if (IsSelected && AllowSelect)
 			nBackColor = GetThemeColor(BackColorSelected);
+
+		if (GetAsyncKeyState(VK_LBUTTON) & 0x01) {
+			nBackColor = GetThemeColor(BackColorButtonDown);
+		}
 
 		// Create the background brush
 		SolidBrush backBrush(nBackColor);
@@ -382,6 +387,12 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+
+HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
+	ThemeElement TextColor, ThemeElement BackColor, ThemeElement BackColorHot, ThemeElement BackColorButtonDown,
+	CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
+	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+
 	
 HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
 	std::wstring wszImage, std::wstring wszImageHot,

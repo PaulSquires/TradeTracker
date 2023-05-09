@@ -141,6 +141,10 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     case WM_LBUTTONDOWN:
         if (pData) {
+            // Allow the label to repaint in case different color has been specified
+            // for button down (eg. if label is acting like a button).
+            AfxRedrawWindow(hWnd);
+
             // We do not set the button IsSelected to true here because we leave it to 
             // the user to decide if after clicking the label whether to set the label
             // to selected or not.
@@ -149,7 +153,17 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         return 0;
         break;
 
-                
+
+    case WM_LBUTTONUP:
+        if (pData) {
+            // Allow the label to repaint in case different color has been specified
+            // for button down (eg. if label is acting like a button).
+            AfxRedrawWindow(hWnd);
+        }
+        return 0;
+        break;
+
+
     case WM_ERASEBKGND:
     {
         // Handle all of the painting in WM_PAINT
@@ -373,12 +387,45 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
         pData->HotTestEnable = false;
         pData->BackColor = BackColor;
         pData->TextColor = TextColor;
+        pData->BackColorButtonDown = BackColor;
         pData->TextAlignment = alignment;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
     return hCtl;
 }
+
+
+
+//------------------------------------------------------------------------------ 
+HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
+    ThemeElement TextColor, ThemeElement BackColor, ThemeElement BackColorHot, ThemeElement BackColorButtonDown,
+    CustomLabelAlignment alignment, int nLeft, int nTop, int nWidth, int nHeight)
+{
+    // Creates a simple button type of label
+    CustomLabel* pData = nullptr;
+
+    HWND hCtl = CreateCustomLabel(
+        hParent, CtrlId, CustomLabelType::TextOnly,
+        nLeft, nTop, nWidth, nHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->wszText = wszText;
+        pData->wszTextHot = wszText;
+        pData->HotTestEnable = true;
+        pData->BackColor = BackColor;
+        pData->BackColorHot = BackColorHot;
+        pData->BackColorButtonDown = BackColorButtonDown;
+        pData->TextColor = TextColor;
+        pData->TextColorHot = TextColor;
+        pData->TextAlignment = alignment;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+    return hCtl;
+}
+
+
 
 
 //------------------------------------------------------------------------------ 
@@ -399,6 +446,7 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     if (pData) {
         pData->HotTestEnable = false;
         pData->BackColor = ThemeElement::Black;
+        pData->BackColorButtonDown = pData->BackColor;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");

@@ -22,6 +22,9 @@ extern std::vector<Leg*> legsEdit;
 extern Trade* tradeEdit;
 CStrategyButton StrategyButton;
 
+extern std::shared_ptr<Trade> tradeE;
+
+
 
 
 // ========================================================================================
@@ -281,6 +284,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::GrayDark;
+        pData->BackColorButtonDown = ThemeElement::GrayDark;
         pData->TextColor = ThemeElement::WhiteLight;
         pData->FontSize = 14;
         pData->TextAlignment = CustomLabelAlignment::TopRight;
@@ -313,6 +317,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
             pData->BackColor = ThemeElement::GrayDark;
+            pData->BackColorButtonDown = ThemeElement::GrayDark;
             pData->TextColor = ThemeElement::WhiteLight;
             pData->FontSize = 14;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
@@ -326,6 +331,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
             pData->BackColor = ThemeElement::GrayDark;
+            pData->BackColorButtonDown = ThemeElement::GrayDark;
             pData->TextColor = ThemeElement::WhiteLight;
             pData->FontSize = 14;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
@@ -355,13 +361,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // SAVE button
-    CustomLabel_SimpleLabel(hwnd, -1, L"Save", ThemeElement::GrayLight, ThemeElement::Green,
+    CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"Save",
+        ThemeElement::GrayLight, ThemeElement::Green, ThemeElement::Magenta, ThemeElement::Red,
         CustomLabelAlignment::MiddleCenter, 450, 97, 80, 24);
 
     
     // Create the main trade grid
-    nTop = 120;
-    nTop += 25;
+    nTop = 145;
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 300, 22);
     HWND hGridMain = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
