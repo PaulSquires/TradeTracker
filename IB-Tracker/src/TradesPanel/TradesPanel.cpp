@@ -428,26 +428,6 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
 }
 
 
-// ========================================================================================
-// Populate vector based on all open legs of a trade.
-// ========================================================================================
-void TradesPanel_PopulateLegsEditVectorUsingTrade(Trade* trade)
-{
-    legsEdit.clear();
-    tradeEdit = trade;
-
-    int nCount = trade->openLegs.size();
-    legsEdit.reserve(nCount);
-
-    if (nCount) {
-        for (const auto& leg : trade->openLegs) {
-            if (leg->underlying == L"OPTIONS") {
-                legsEdit.push_back(leg);
-            }
-        }
-    }
-}
-
 
 // ========================================================================================
 // Populate vector that holds all selected lines/legs. This will be passed to the 
@@ -512,11 +492,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
         wszPlural = L"s";
     }
 
-    if (IsTickerLine) {
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_CLOSE_TRADE, L"Close Entire Trade");
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_EXPIRE_TRADE, L"Expire Entire Trade");
-    }
-    else {
+    if (!IsTickerLine) {
         wszText = L"Roll Leg" + wszPlural;
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ROLL_LEG, wszText.c_str());
 
@@ -530,9 +506,9 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
             InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 1, L"");
             InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_SHARE_ASSIGNMENT, L"Assignment");
         }
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 2, L"");
     }
 
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 2, L"");
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDTO_TRADE, L"Add Transaction to Trade");
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDPUTTO_TRADE, L"Add Put to Trade");
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDCALLTO_TRADE, L"Add Call to Trade");
@@ -544,18 +520,10 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
     switch (selected)
     {
-    case ACTION_CLOSE_TRADE:
-        TradesPanel_PopulateLegsEditVectorUsingTrade(trade);
-        TradeDialog_Show(selected);
-        break;
     case ACTION_ROLL_LEG:
     case ACTION_CLOSE_LEG:
         TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
-        break;
-    case ACTION_EXPIRE_TRADE:
-        TradesPanel_PopulateLegsEditVectorUsingTrade(trade);
-        TradesPanel_ExpireSelectedLegs(trade);
         break;
     case ACTION_EXPIRE_LEG:
         TradesPanel_PopulateLegsEditVector(hListBox);

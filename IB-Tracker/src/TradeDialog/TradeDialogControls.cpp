@@ -210,12 +210,10 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
         wszDescription = L"New";
         wszGridMain = L"New Transaction";
         break;
-    case ACTION_CLOSE_TRADE:
     case ACTION_CLOSE_LEG:
         wszDescription = L"Close";
         wszGridMain = L"Close Transaction";
         break;
-    case ACTION_EXPIRE_TRADE:
     case ACTION_EXPIRE_LEG:
         wszDescription = L"Expire";
         break;
