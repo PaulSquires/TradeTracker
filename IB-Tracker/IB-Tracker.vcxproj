@@ -113,6 +113,7 @@
     <Image Include="src\Images\gearhot32.png" />
     <Image Include="src\Images\logo.png" />
     <Image Include="src\Images\mainicon.ico" />
+    <Image Include="src\images\png1.png" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config\Config.cpp" />

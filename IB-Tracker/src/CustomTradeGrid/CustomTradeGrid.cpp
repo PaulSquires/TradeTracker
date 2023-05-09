@@ -28,8 +28,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     pData->gridCols.reserve(24);
 
     HWND hCtl = NULL;
-    int idCtrl = 100;
-
+    int idCtrl = IDC_CUSTOMTRADEGRID_FIRSTCONTROL;
 
     COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
     COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
@@ -53,6 +52,8 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
     std::wstring wszFontName = L"Segoe UI";
     int FontSize = 8;
+
+    CustomLabel* pLabelData = nullptr;
 
     for (int row = 0; row < 4; ++row) {
         // All are center except Quantity which is right align.
@@ -136,7 +137,34 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
         col->colType = GridColType::ActionCombo;
         pData->gridCols.push_back(col);
         idCtrl++;
-        
+        nLeft = nLeft + nWidth + hsp;
+
+
+        // RESET LINE INDICATOR
+        hCtl = CreateCustomLabel(pData->hWindow, idCtrl,
+            CustomLabelType::TextOnly, nLeft, nTop, CUSTOMTRADEGRID_LINERESETICONWIDTH, nHeight);
+        pLabelData = CustomLabel_GetOptions(hCtl);
+        if (pLabelData) {
+            pLabelData->wszText = L"x";
+            pLabelData->wszTextHot = L"x";
+            pLabelData->HotTestEnable = true;
+            pLabelData->BackColor = ThemeElement::GrayDark; 
+            pLabelData->TextColor = ThemeElement::WhiteDark;
+            pLabelData->BackColorHot = ThemeElement::GrayDark;
+            pLabelData->TextColorHot = ThemeElement::WhiteLight;
+            pLabelData->TextAlignment = CustomLabelAlignment::MiddleLeft;
+            pLabelData->wszToolTip = L"Reset line";
+            pLabelData->PointerHot = CustomLabelPointer::Arrow;
+            CustomLabel_SetOptions(hCtl, pLabelData);
+        }
+        col = new GridColInfo;
+        col->hCtl = hCtl;
+        col->idCtrl = idCtrl;
+        col->colType = GridColType::LineReset;
+        col->colData = row;
+        pData->gridCols.push_back(col);
+        idCtrl++;
+
         nTop = nTop + nHeight + vsp;
         nLeft = 0;
         
@@ -144,6 +172,9 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
     nTotalWidth = AfxScaleX((float)5 * (nWidth + hsp)) + AfxScaleX((float)nWidth/2);
     nTotalHeight = AfxScaleY((float)4 * (nHeight + vsp) - vsp);
+
+    // Add width for the line reset indicators
+    nTotalWidth += AfxScaleX(CUSTOMTRADEGRID_LINERESETICONWIDTH);
 
     // Resize the control container to fit the size of the trade grid.
     SetWindowPos(pData->hWindow, 0, 0, 0, nTotalWidth, nTotalHeight, SWP_NOMOVE | SWP_NOZORDER);
@@ -173,7 +204,12 @@ void CustomTradeGrid_OnClickPutCall(CustomTradeGrid* pData, GridColInfo* col)
     if (col == nullptr) return;
 
     std::wstring PutCall = CustomLabel_GetText(col->hCtl);
-    PutCall = (PutCall == L"P") ? L"C" : L"P";
+    if (PutCall.length() == 0) {
+        PutCall = L"P";
+    }
+    else {
+        PutCall = (PutCall == L"P") ? L"C" : L"P";
+    }
     CustomTradeGrid_SetText(col, PutCall);
 }
 
@@ -199,8 +235,29 @@ void CustomTradeGrid_OnClickAction(CustomTradeGrid* pData, GridColInfo* col)
     else if (action == L"BTC") {
         action = L"STO";
     }
+    else {
+        action = L"STO";
+    }
 
     CustomTradeGrid_SetText(col, action);
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomTradeGrid_OnClickLineReset(CustomTradeGrid* pData, GridColInfo* col)
+{
+    if (pData == nullptr) return;
+    if (col == nullptr) return;
+
+    // Determine the line being reset
+    int colStart = (col->colData * 7);
+
+    CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // Quantity
+    CustomLabel_SetText(pData->gridCols.at(colStart+1)->hCtl, L"");     // Expiry Date
+    CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"0d");   // DTE
+    CustomTextBox_SetText(pData->gridCols.at(colStart+3)->hCtl, L"");   // Strike Price
+    CustomLabel_SetText(pData->gridCols.at(colStart+4)->hCtl, L"");     // Put/Call
+    CustomLabel_SetText(pData->gridCols.at(colStart+5)->hCtl, L"");     // Action
 }
 
 
@@ -233,6 +290,11 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
                     break;
                 }
         
+                if (col->colType == GridColType::LineReset) {
+                    CustomTradeGrid_OnClickLineReset(pData, col);
+                    break;
+                }
+
                 break;
             }
         }
@@ -268,6 +330,13 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
             backColor.SetFromCOLORREF(pData->BackColor);
             SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+            // Portion that displays behind the grid reset icons must be the same color
+            // as the main TradeDialog.
+            int nIconWidth = AfxScaleX(CUSTOMTRADEGRID_LINERESETICONWIDTH);
+            backColor.SetFromCOLORREF(GetThemeCOLORREF(ThemeElement::GrayDark));
+            backBrush.SetColor(backColor);
+            graphics.FillRectangle(&backBrush, ps.rcPaint.right - nIconWidth, ps.rcPaint.top, nIconWidth, nHeight);
 
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);

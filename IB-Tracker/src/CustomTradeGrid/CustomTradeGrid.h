@@ -13,7 +13,8 @@ enum class GridColType
 	TextBox,
 	DatePicker,
 	PutCallCombo,
-	ActionCombo
+	ActionCombo,
+	LineReset
 };
 
 
@@ -24,7 +25,7 @@ public:
 	HWND hCtl = NULL;
 	int idCtrl = 0;
 	GridColType colType = GridColType::TextBox;
-	std::wstring colValue;
+	int colData;  // holds LineReset line number
 };
 
 
@@ -57,6 +58,10 @@ public:
 
 };
 
+
+const int IDC_CUSTOMTRADEGRID_FIRSTCONTROL = 100;
+
+const int CUSTOMTRADEGRID_LINERESETICONWIDTH = 24;
 
 CustomTradeGrid* CustomTradeGrid_GetOptions(HWND hCtrl);
 int CustomTradeGrid_SetOptions(HWND hCtrl, CustomTradeGrid* pData);

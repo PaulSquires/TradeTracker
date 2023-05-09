@@ -260,6 +260,17 @@ void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
 
 
 //------------------------------------------------------------------------------ 
+ThemeElement CustomLabel_GetBackColor(HWND hCtrl)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        return pData->BackColor;
+    }
+    return ThemeElement::Black;
+}
+
+
+//------------------------------------------------------------------------------ 
 std::wstring CustomLabel_GetText(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -366,6 +377,34 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
         CustomLabel_SetOptions(hCtl, pData);
     }
 
+    return hCtl;
+}
+
+
+//------------------------------------------------------------------------------ 
+HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId, 
+    std::wstring wszImage, std::wstring wszImageHot, 
+    int ImageWidth, int ImageHeight,
+    int nLeft, int nTop, int nWidth, int nHeight)
+{
+    // Creates a simple "dumb" label that basically just makes it easier to deal
+    // with theme coloring. No hot tracking or click notifications.
+    CustomLabel* pData = nullptr;
+    
+    HWND hCtl = CreateCustomLabel(
+    hParent, CtrlId,
+    CustomLabelType::ImageOnly,
+    nLeft, nTop, nWidth, nHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = false;
+        pData->BackColor = ThemeElement::Black;
+        pData->ImageWidth = 68;
+        pData->ImageHeight = 68;
+        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
+        pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
+        CustomLabel_SetOptions(hCtl, pData);
+    }
     return hCtl;
 }
 

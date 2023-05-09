@@ -371,6 +371,7 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
 std::wstring CustomLabel_GetText(HWND hCtrl);
 void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor);
 void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor);
+ThemeElement CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
 void CustomLabel_SetUserData(HWND hCtrl, int UserData);
@@ -382,6 +383,11 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 	
+HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
+	std::wstring wszImage, std::wstring wszImageHot,
+	int ImageWidth, int ImageHeight,
+	int nLeft, int nTop, int nWidth, int nHeight);
+
 HWND CreateCustomLabel(HWND hWndParent, LONG_PTR CtrlId, CustomLabelType nCtrlType,
 	int nLeft, int nTop, int nWidth, int nHeight);
 
