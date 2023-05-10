@@ -5,8 +5,6 @@
 #include "..\Utilities\UserMessages.h"
 
 
-#define IDB_GEAR                        103
-#define IDB_GEARHOT                     104
 #define IDB_LOGO                        105
 
 enum class CustomLabelType
@@ -245,6 +243,9 @@ public:
 		case CustomLabelType::ImageAndText:
 
 			wszFontName = AfxGetDefaultFont();
+			if (wszText.substr(0, 2) == L"\\u") {
+				wszFontName = L"Segoe UI Symbol";
+			}
 
 			wszFontNameHot = wszFontName;
 			FontFamily fontFamily(m_bIsHot ? wszFontNameHot.c_str() : wszFontName.c_str());

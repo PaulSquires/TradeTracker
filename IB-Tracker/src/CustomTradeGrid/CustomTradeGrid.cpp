@@ -150,8 +150,8 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
             CustomLabelType::TextOnly, nLeft, nTop, CUSTOMTRADEGRID_LINERESETICONWIDTH, nHeight);
         pLabelData = CustomLabel_GetOptions(hCtl);
         if (pLabelData) {
-            pLabelData->wszText = L"x";
-            pLabelData->wszTextHot = L"x";
+            pLabelData->wszText = L"\u2B8C";
+            pLabelData->wszTextHot = L"\u2B8C";
             pLabelData->HotTestEnable = true;
             pLabelData->BackColor = ThemeElement::GrayDark; 
             pLabelData->BackColorHot = ThemeElement::GrayMedium;

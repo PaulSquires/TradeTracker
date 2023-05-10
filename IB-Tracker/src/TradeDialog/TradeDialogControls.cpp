@@ -185,7 +185,7 @@ void CalculateTradeTotal(HWND hwnd)
 // ========================================================================================
 void CalculateTradeDTE(HWND hwnd)
 {
-    std::wstring transDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
+    //std::wstring transDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
 
     //int NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
     //if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
@@ -428,8 +428,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nTop = 72;
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
-    CustomLabel_SimpleLabel(hwnd, -1, L"May 7, 2023", TextColorDim, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleLeft, 40, 97, 100, 24);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, L"May 7, 2023", TextColorDim, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleLeft, 40, 97, 76, 24);
+    CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
+        TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 116, 97, 24, 24);
 
     if (tradeAction == ACTION_NEW_TRADE) {
         nTop = 72;

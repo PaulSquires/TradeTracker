@@ -7,6 +7,7 @@
 #include "..\Utilities\ListBoxData.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
+#include "..\CustomCalendar\CustomCalendar.h"
 #include "..\Utilities\UserMessages.h"
 
 
@@ -270,6 +271,12 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             TradeDialog_SetComboDRCR(hCtl, wszText);
         }
 
+        if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE) {
+            // Clicked on the Transaction Date dropdown
+            HWND hMonthCal = CreateCustomCalendar(
+                GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), 100, L"");
+        }
+
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
             TradeDialog_CreateTradeData(m_hwnd);
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
@@ -342,7 +349,7 @@ void TradeDialog_Show(int inTradeAction)
     
     // set focus to the Transaction date picker
     if (inTradeAction == ACTION_ROLL_LEG) {
-        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
+ //       SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
     }
     else {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));

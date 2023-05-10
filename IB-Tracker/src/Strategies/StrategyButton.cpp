@@ -110,8 +110,8 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, L"V",
-        ThemeElement::WhiteLight, ThemeElement::GrayDark,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, L"\uE015",
+        ThemeElement::WhiteMedium, ThemeElement::GrayDark, ThemeElement::GrayMedium, ThemeElement::GrayLight,
         CustomLabelAlignment::MiddleCenter, 230, 0, 30, nHeight);
     HWND_DROPDOWN = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize);
