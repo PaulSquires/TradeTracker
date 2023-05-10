@@ -26,6 +26,7 @@ public:
 	int idCtrl = 0;
 	GridColType colType = GridColType::TextBox;
 	int colData = 0;  // holds LineReset line number
+	std::wstring wszDate;   // holds the ISO date (whereas short date is displayed)
 };
 
 
@@ -66,6 +67,7 @@ const int CUSTOMTRADEGRID_LINERESETICONWIDTH = 24;
 CustomTradeGrid* CustomTradeGrid_GetOptions(HWND hCtrl);
 int CustomTradeGrid_SetOptions(HWND hCtrl, CustomTradeGrid* pData);
 void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText);
+std::wstring CustomTradeGrid_GetText(HWND hCtl, int row, int col);
 
 HWND CreateCustomTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight);
 

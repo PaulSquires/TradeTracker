@@ -94,7 +94,6 @@ void TradesPanel_ShowActiveTrades()
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
 
-    // TODO: optimize this by sorting after initial database load and after
     // newly added/deleted data, rather than here every time we display the
     // active trades.
     // Sort the trades vector based on ticker symbol

@@ -163,30 +163,12 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
     case WM_KEYDOWN:
     {
-        // Handle up/down arrows to move vertical amongst legs textboxes.
-        //if (wParam == VK_UP || wParam == VK_DOWN) {
-        //    int i = 0;
-        //    if (wParam == VK_UP) i = -1;
-        //    if (wParam == VK_DOWN) i = 1;
-
-        //    DWORD NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
-        //    if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
-
-        //    if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY &&
-        //        uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows) {
-        //        if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
-        //        if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows - 1) i = 0;
-        //        SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-        //    }
-
-        //    if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE &&
-        //        uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows) {
-        //        if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
-        //        if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows - 1) i = 0;
-        //        SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-        //    }
-        //}
-
+        // Handle up/down arrows by sending notification to parent. CustomTradeGrid will
+        // act on up/down arrows by moving the focus amongst the grid textboxes.
+        if (wParam == VK_UP || wParam == VK_DOWN) {
+            if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
+                return 0;
+        }
     }
     break;
 

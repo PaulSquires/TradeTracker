@@ -8,6 +8,8 @@
 #include "..\CustomTradeGrid\CustomTradeGrid.h"
 #include "..\Strategies\StrategyButton.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\MainWindow\tws-client.h"
+#include "..\Database\database.h"
 
 
 struct LineCtrl {
@@ -20,11 +22,135 @@ extern CTradeDialog TradeDialog;
 extern int tradeAction;
 extern std::vector<Leg*> legsEdit;
 extern Trade* tradeEdit;
+
+extern void TradesPanel_ShowActiveTrades();
+
 CStrategyButton StrategyButton;
 
-extern std::shared_ptr<Trade> tradeE;
+
+// ========================================================================================
+// Create the trade transaction data and save it to the database
+// ========================================================================================
+void TradeDialog_CreateTradeData(HWND hwnd)
+{
+    tws_PauseTWS();
+
+    Trade* trade;
+
+    if (tradeAction == ACTION_NEW_TRADE) {
+        trade = new Trade();
+        trades.push_back(trade);
+        trade->tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+        trade->tickerName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
+        //trade->futureExpiry = ui->txtExpiry->text();
+    }
+    else {
+        trade = tradeEdit;
+    }
 
 
+    Transaction* trans = new Transaction();
+
+    trans->transDate = L"2023-05-09";   // ui->dateTransaction->text();
+    trans->description = L"Strangle";  // RemovePipeChar(ui->txtDescription->text());
+    trans->underlying = L"OPTIONS";    // ui->comboUnderlying->currentText();
+    trans->quantity = stoi(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+    trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
+    trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
+    trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
+    trade->transactions.push_back(trans);
+
+    std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
+    trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+    if (DRCR == L"DR") { trans->total = trans->total * -1; }
+    trade->ACB = trade->ACB + trans->total;
+
+
+    for (int row = 0; row < 4; ++row) {
+        std::wstring legQuantity = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
+        std::wstring legExpiry = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+        std::wstring legStrike = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
+        std::wstring legPutCall = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+        std::wstring legAction = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+
+        if (legQuantity.length() == 0) continue;
+        int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
+        if (intQuantity == 0) continue;
+
+        Leg* leg = new Leg();
+
+        leg->underlying = trans->underlying;
+        leg->expiryDate = legExpiry;
+        leg->strikePrice = legStrike;
+        leg->PutCall = legPutCall;
+        leg->action = legAction;
+
+
+        switch (tradeAction) {
+
+        case ACTION_NEW_TRADE:
+        case ACTION_ADDTO_TRADE:
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = intQuantity;
+            break;
+
+        case ACTION_ROLL_LEG:
+            // If this is a rolled trade then all table rows representing the old legs to roll will be
+            // displayed first in the table. Those rows are dealt with after this new transaction
+            // is created so we only now need to be concered with the table rows beyond the first
+            // number of rolled legs.
+/*
+            if (i < legsEdit.count()) {
+                // Update the original transaction being Closed/Expired quantities
+                if (!legsEdit.empty()) {
+                    if (i < legsEdit.size()) {
+                        legsEdit.at(i)->openQuantity = legsEdit.at(i)->openQuantity + quantity.toInt();
+                    }
+                }
+
+                leg->origQuantity = quantity.toInt();
+                leg->openQuantity = 0;
+            }
+            else {
+                leg->origQuantity = quantity.toInt();
+                leg->openQuantity = quantity.toInt();
+            }
+*/
+            break;
+
+
+        case ACTION_CLOSE_LEG:
+            // Save this transaction's leg quantities
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = 0;
+
+            // Update the original transaction being Closed quantities
+            if (!legsEdit.empty()) {
+                legsEdit.at(row)->openQuantity = legsEdit.at(row)->openQuantity + intQuantity;
+            }
+
+            break;
+        }
+
+        trans->legs.push_back(leg);
+
+    }
+
+    // Save the new data
+    SaveDatabase();
+        
+    // Set the open status of the entire trade based on the new modified legs
+    trade->setTradeOpenStatus();
+
+    // Rebuild the openLegs position vector
+    trade->createOpenLegsVector();
+
+    // Show our new list of open trades
+    TradesPanel_ShowActiveTrades();
+
+    tws_ResumeTWS();
+
+}
 
 
 // ========================================================================================
@@ -150,49 +276,6 @@ void LoadEditLegsInTradeTable(HWND hwnd)
 
 */
 }
-
-
-
-    //case WM_KEYDOWN:
-    //{
-    //    // Handle up/down arrows to move vertical amongst legs textboxes.
-    //    if (wParam == VK_UP || wParam == VK_DOWN) {
-    //        int i = 0;
-    //        if (wParam == VK_UP) i = -1;
-    //        if (wParam == VK_DOWN) i = 1;
-
-    //        DWORD NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
-    //        if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
-
-    //        if (uIdSubclass >= IDC_TRADEDIALOG_TABLEQUANTITY && 
-    //            uIdSubclass <= IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows) {
-    //            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLEQUANTITY) i = 0;
-    //            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLEQUANTITY + NumTableRows - 1) i = 0;
-    //            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-    //        }
-    //        
-    //        if (uIdSubclass >= IDC_TRADEDIALOG_TABLESTRIKE && 
-    //            uIdSubclass <= IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows) {
-    //            if (uIdSubclass + i < IDC_TRADEDIALOG_TABLESTRIKE) i = 0;
-    //            if (uIdSubclass + i > IDC_TRADEDIALOG_TABLESTRIKE + NumTableRows - 1) i = 0;
-    //            SetFocus(GetDlgItem(GetParent(hWnd), uIdSubclass + i));
-    //        }
-    //    }
-
-    //}
-    //break;
-
-
-    //case WM_KEYUP:
-    //{
-    //    // Make the ENTER key behave like the TAB key. Need to catch VK_RETURN in the
-    //    // WM_KEYUP rather than WM_KEYDOWN.
-    //    if (wParam == VK_RETURN) {
-    //        HWND hNextCtrl = GetNextDlgTabItem(GetParent(hWnd), hWnd, false);
-    //        SetFocus(hNextCtrl);
-    //    }
-    //}
-    //break;
 
 
 
@@ -347,9 +430,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
     CustomLabel_SimpleLabel(hwnd, -1, L"May 7, 2023", TextColorDim, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 100, 24);
-    //hCtl = TradeDialog.AddControl(Controls::DateTimePicker, hwnd, IDC_TRADEDIALOG_TRANSDATE,
-    //    L"", 40, 87, 100, 24);
-    //DateTime_SetFormat(hCtl, L"yyyy-MM-dd");
 
     if (tradeAction == ACTION_NEW_TRADE) {
         nTop = 72;

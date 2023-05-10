@@ -22,6 +22,9 @@ HBRUSH CtrlBackBrush = NULL;
 
 int tradeAction = ACTION_NOACTION;
 
+extern void TradeDialog_CreateTradeData(HWND hwnd);
+
+
 
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: TradeDialog
@@ -232,6 +235,8 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
 }
 
 
+
+
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
@@ -264,6 +269,12 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             wszText = (wszText == L"DR") ? L"CR" : L"DR";
             TradeDialog_SetComboDRCR(hCtl, wszText);
         }
+
+        if (CtrlId == IDC_TRADEDIALOG_SAVE) {
+            TradeDialog_CreateTradeData(m_hwnd);
+            SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+        }
+
         return 0;
     }
 

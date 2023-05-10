@@ -81,7 +81,12 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
-        col->colType = GridColType::Label;
+        col->colType = GridColType::DatePicker;
+
+        // TODO: Remove this setting of the wszDate 
+        col->wszDate = L"2023-05-30";
+
+
         pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
@@ -263,6 +268,35 @@ void CustomTradeGrid_OnClickLineReset(CustomTradeGrid* pData, GridColInfo* col)
 
 
 //------------------------------------------------------------------------------ 
+std::wstring CustomTradeGrid_GetText(HWND hCtl, int row, int col)
+{
+    std::wstring wszText;
+    CustomTradeGrid* pData = CustomTradeGrid_GetOptions(hCtl);
+    if (pData == nullptr) return wszText;
+
+    if (row < 0 || row > 3) return wszText;
+    if (col < 0 || col > 5) return wszText;
+
+    // Determine the cell index
+    int idx = (row * 7) + col;
+
+    if (pData->gridCols.at(idx)->colType == GridColType::TextBox) {
+        wszText = AfxGetWindowText(pData->gridCols.at(idx)->hCtl);
+    }
+    else if (pData->gridCols.at(idx)->colType == GridColType::DatePicker) {
+        // If the column is a DatePicker then return the ISO date rather
+        // the wszText which would be the short display date.
+        wszText = pData->gridCols.at(idx)->wszDate;
+    } 
+    else {
+        wszText = CustomLabel_GetText(pData->gridCols.at(idx)->hCtl);
+    }
+
+    return wszText;
+}
+
+
+//------------------------------------------------------------------------------ 
 LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     CustomTradeGrid* pData = nullptr;
@@ -350,6 +384,39 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
             DeleteDC(memDC);
         }
         EndPaint(hWnd, &ps);
+    }
+    break;
+
+
+    case WM_KEYDOWN:
+    {
+        if (wParam == VK_UP || wParam == VK_DOWN) {
+            int direction = 0;
+            if (wParam == VK_UP) direction = -7;   // up 1 row (minus 7 columns)
+            if (wParam == VK_DOWN) direction = 7;  // down 1 row (plus 7 columns)
+
+            HWND hFocus = GetParent(GetFocus());
+
+            // Get the index of the current grid cell
+            int idx = -1;
+            for (int i = 0; i < (int)pData->gridCols.size(); ++i) {
+                auto col = pData->gridCols.at(i);
+                if (col->hCtl == hFocus) {
+                    idx = i;
+                    break;
+                }
+            }
+
+            // Continue only if valid index found.
+            if (idx == -1) return 0;
+
+            idx += direction;
+            if (idx >= 0 && idx < (int)pData->gridCols.size()) {
+                SetFocus(pData->gridCols.at(idx)->hCtl);
+            }
+
+            return TRUE;
+        }
     }
     break;
 
