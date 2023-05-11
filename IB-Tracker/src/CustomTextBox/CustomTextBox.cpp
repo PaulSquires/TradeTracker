@@ -167,7 +167,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
     case WM_KEYDOWN:
     {
-        // Handle up/down arrows by sending notification to parent. CustomTradeGrid will
+        // Handle up/down arrows by sending notification to parent. TradeGrid will
         // act on up/down arrows by moving the focus amongst the grid textboxes.
         if (wParam == VK_UP || wParam == VK_DOWN) {
             if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)

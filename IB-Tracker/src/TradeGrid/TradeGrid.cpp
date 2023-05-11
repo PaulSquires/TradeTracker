@@ -9,7 +9,7 @@
 #include "..\Utilities\CWindowBase.h"
 #include "..\MainWindow\MainWindow.h"
 
-#include "CustomTradeGrid.h"
+#include "TradeGrid.h"
 
 
 extern CMainWindow Main;
@@ -17,7 +17,7 @@ extern CMainWindow Main;
 
 
 //------------------------------------------------------------------------------ 
-void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
+void TradeGrid_PopulateColumns(TradeGrid* pData)
 {
     if (pData == nullptr) return;
 
@@ -28,7 +28,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     pData->gridCols.reserve(24);
 
     HWND hCtl = NULL;
-    int idCtrl = IDC_CUSTOMTRADEGRID_FIRSTCONTROL;
+    int idCtrl = IDC_TRADEGRID_FIRSTCONTROL;
 
     COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
     COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
@@ -147,7 +147,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
         // RESET LINE INDICATOR
         hCtl = CreateCustomLabel(pData->hWindow, idCtrl,
-            CustomLabelType::TextOnly, nLeft, nTop, CUSTOMTRADEGRID_LINERESETICONWIDTH, nHeight);
+            CustomLabelType::TextOnly, nLeft, nTop, TRADEGRID_LINERESETICONWIDTH, nHeight);
         pLabelData = CustomLabel_GetOptions(hCtl);
         if (pLabelData) {
             pLabelData->wszText = L"\u2B8C";
@@ -180,7 +180,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
     nTotalHeight = AfxScaleY((float)4 * (nHeight + vsp) - vsp);
 
     // Add width for the line reset indicators
-    nTotalWidth += AfxScaleX(CUSTOMTRADEGRID_LINERESETICONWIDTH);
+    nTotalWidth += AfxScaleX(TRADEGRID_LINERESETICONWIDTH);
 
     // Resize the control container to fit the size of the trade grid.
     SetWindowPos(pData->hWindow, 0, 0, 0, nTotalWidth, nTotalHeight, SWP_NOMOVE | SWP_NOZORDER);
@@ -189,7 +189,7 @@ void CustomTradeGrid_PopulateColumns(CustomTradeGrid* pData)
 
 
 //------------------------------------------------------------------------------ 
-void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText)
+void TradeGrid_SetText(GridColInfo* col, std::wstring wszText)
 {
     if (col == nullptr) return;
 
@@ -204,7 +204,7 @@ void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText)
 
 
 //------------------------------------------------------------------------------ 
-void CustomTradeGrid_OnClickPutCall(CustomTradeGrid* pData, GridColInfo* col)
+void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
     if (col == nullptr) return;
@@ -216,12 +216,12 @@ void CustomTradeGrid_OnClickPutCall(CustomTradeGrid* pData, GridColInfo* col)
     else {
         PutCall = (PutCall == L"P") ? L"C" : L"P";
     }
-    CustomTradeGrid_SetText(col, PutCall);
+    TradeGrid_SetText(col, PutCall);
 }
 
 
 //------------------------------------------------------------------------------ 
-void CustomTradeGrid_OnClickAction(CustomTradeGrid* pData, GridColInfo* col)
+void TradeGrid_OnClickAction(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
     if (col == nullptr) return;
@@ -245,12 +245,12 @@ void CustomTradeGrid_OnClickAction(CustomTradeGrid* pData, GridColInfo* col)
         action = L"STO";
     }
 
-    CustomTradeGrid_SetText(col, action);
+    TradeGrid_SetText(col, action);
 }
 
 
 //------------------------------------------------------------------------------ 
-void CustomTradeGrid_OnClickLineReset(CustomTradeGrid* pData, GridColInfo* col)
+void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
     if (col == nullptr) return;
@@ -268,10 +268,10 @@ void CustomTradeGrid_OnClickLineReset(CustomTradeGrid* pData, GridColInfo* col)
 
 
 //------------------------------------------------------------------------------ 
-std::wstring CustomTradeGrid_GetText(HWND hCtl, int row, int col)
+std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 {
     std::wstring wszText;
-    CustomTradeGrid* pData = CustomTradeGrid_GetOptions(hCtl);
+    TradeGrid* pData = TradeGrid_GetOptions(hCtl);
     if (pData == nullptr) return wszText;
 
     if (row < 0 || row > 3) return wszText;
@@ -297,12 +297,12 @@ std::wstring CustomTradeGrid_GetText(HWND hCtl, int row, int col)
 
 
 //------------------------------------------------------------------------------ 
-LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CustomTradeGrid* pData = nullptr;
+    TradeGrid* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
-        pData = (CustomTradeGrid*)GetWindowLongPtr(hWnd, 0);
+        pData = (TradeGrid*)GetWindowLongPtr(hWnd, 0);
     }
 
 
@@ -316,17 +316,17 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
             if (col->idCtrl == wParam) {
 
                 if (col->colType == GridColType::PutCallCombo) {
-                    CustomTradeGrid_OnClickPutCall(pData, col);
+                    TradeGrid_OnClickPutCall(pData, col);
                     break;
                 }
 
                 if (col->colType == GridColType::ActionCombo) {
-                    CustomTradeGrid_OnClickAction(pData, col);
+                    TradeGrid_OnClickAction(pData, col);
                     break;
                 }
         
                 if (col->colType == GridColType::LineReset) {
-                    CustomTradeGrid_OnClickLineReset(pData, col);
+                    TradeGrid_OnClickLineReset(pData, col);
                     break;
                 }
 
@@ -368,7 +368,7 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
             // Portion that displays behind the grid reset icons must be the same color
             // as the main TradeDialog.
-            int nIconWidth = AfxScaleX(CUSTOMTRADEGRID_LINERESETICONWIDTH);
+            int nIconWidth = AfxScaleX(TRADEGRID_LINERESETICONWIDTH);
             backColor.SetFromCOLORREF(GetThemeCOLORREF(ThemeElement::GrayDark));
             backBrush.SetColor(backColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.right - nIconWidth, ps.rcPaint.top, nIconWidth, nHeight);
@@ -451,15 +451,15 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
 
 //------------------------------------------------------------------------------ 
-CustomTradeGrid* CustomTradeGrid_GetOptions(HWND hCtrl)
+TradeGrid* TradeGrid_GetOptions(HWND hCtrl)
 {
-    CustomTradeGrid* pData = (CustomTradeGrid*)GetWindowLongPtr(hCtrl, 0);
+    TradeGrid* pData = (TradeGrid*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
 
 
 //------------------------------------------------------------------------------ 
-int CustomTradeGrid_SetOptions(HWND hCtrl, CustomTradeGrid* pData)
+int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData)
 {
     if (pData == nullptr) return 0;
 
@@ -471,7 +471,7 @@ int CustomTradeGrid_SetOptions(HWND hCtrl, CustomTradeGrid* pData)
 
 
 //------------------------------------------------------------------------------ 
-HWND CreateCustomTradeGrid(
+HWND CreateTradeGrid(
     HWND hWndParent,
     LONG_PTR CtrlId,
     int nLeft,
@@ -479,7 +479,7 @@ HWND CreateCustomTradeGrid(
     int nWidth,
     int nHeight)
 {
-    std::wstring wszClassName(L"CUSTOMTRADEGRID_CONTROL");
+    std::wstring wszClassName(L"TRADEGRID_CONTROL");
 
     WNDCLASSEX wcex{};
 
@@ -488,7 +488,7 @@ HWND CreateCustomTradeGrid(
     if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = CustomTradeGridProc;
+        wcex.lpfnWndProc = TradeGridProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class
         wcex.hInstance = hInst;
@@ -512,7 +512,7 @@ HWND CreateCustomTradeGrid(
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
-        CustomTradeGrid* pData = new CustomTradeGrid;
+        TradeGrid* pData = new TradeGrid;
 
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
@@ -521,8 +521,8 @@ HWND CreateCustomTradeGrid(
         pData->BackColor = GetThemeCOLORREF(ThemeElement::Black);
         pData->hBackBrush = CreateSolidBrush(pData->BackColor);
 
-        CustomTradeGrid_PopulateColumns(pData);
-        CustomTradeGrid_SetOptions(hCtl, pData);
+        TradeGrid_PopulateColumns(pData);
+        TradeGrid_SetOptions(hCtl, pData);
     }
 
     return hCtl;

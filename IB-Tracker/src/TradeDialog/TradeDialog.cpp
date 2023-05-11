@@ -7,7 +7,7 @@
 #include "..\Utilities\ListBoxData.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
-#include "..\CustomCalendar\CustomCalendar.h"
+#include "..\DatePicker\DatePicker.h"
 #include "..\Utilities\UserMessages.h"
 
 
@@ -25,6 +25,10 @@ int tradeAction = ACTION_NOACTION;
 
 extern void TradeDialog_CreateTradeData(HWND hwnd);
 extern void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
+
+extern HWND HWND_DATEPICKER;
+extern CDatePicker DatePicker;
+extern void DatePicker_SetPosition(HWND hParentCtl);
 
 
 
@@ -295,8 +299,11 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE) {
             // Clicked on the Transaction Date dropdown
-            HWND hMonthCal = CreateCustomCalendar(
-                GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), 100, L"");
+            DatePicker.Create(m_hwnd, L"", 0, 0, 0, 0,
+                WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
+                WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+            
+            DatePicker_SetPosition(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {

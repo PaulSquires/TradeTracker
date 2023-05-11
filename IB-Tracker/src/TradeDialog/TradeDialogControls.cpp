@@ -5,7 +5,7 @@
 #include "..\Utilities\AfxWin.h"
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\CustomTextBox\CustomTextBox.h"
-#include "..\CustomTradeGrid\CustomTradeGrid.h"
+#include "..\TradeGrid\TradeGrid.h"
 #include "..\Strategies\StrategyButton.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\MainWindow\tws-client.h"
@@ -87,11 +87,11 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 
 
     for (int row = 0; row < 4; ++row) {
-        std::wstring legQuantity = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
-        std::wstring legExpiry = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
-        std::wstring legStrike = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
-        std::wstring legPutCall = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
-        std::wstring legAction = CustomTradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
 
         if (legQuantity.length() == 0) continue;
         int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
@@ -223,12 +223,13 @@ void CalculateTradeDTE(HWND hwnd)
 // ========================================================================================
 void LoadEditLegsInTradeTable(HWND hwnd)
 {
+    if (tradeAction == ACTION_NEW_TRADE) return;
+
     // Update the Trade Management table with the details of the Trade.
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), tradeEdit->tickerSymbol);
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
     
     if (legsEdit.size() == 0) return;
-    if (tradeAction == ACTION_NEW_TRADE) return;
 
     int DefaultQuantity = 0;
 
@@ -479,14 +480,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nTop = 145;
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 300, 22);
-    HWND hGridMain = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
+    HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
 
     // If we are rolling then create the second trade grid.
     if (tradeAction == ACTION_ROLL_LEG) {
         nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 20;
         CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 40 + nWidth, nTop, 300, 22);
-        HWND hGridRoll = CreateCustomTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, 40 + nWidth, nTop + 25, 0, 0);
+        HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, 40 + nWidth, nTop + 25, 0, 0);
     }
     nTop += 25;
 

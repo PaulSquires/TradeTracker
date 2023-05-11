@@ -30,7 +30,7 @@ public:
 };
 
 
-class CustomTradeGrid
+class TradeGrid
 {
 private:
 	float m_rx = 0;
@@ -50,7 +50,7 @@ public:
 	std::vector<GridColInfo*> gridCols;
 
 
-	~CustomTradeGrid()
+	~TradeGrid()
 	{
 		for (const auto& col : gridCols) {
 			DestroyWindow(col->hCtl);
@@ -60,14 +60,14 @@ public:
 };
 
 
-const int IDC_CUSTOMTRADEGRID_FIRSTCONTROL = 100;
+const int IDC_TRADEGRID_FIRSTCONTROL = 100;
 
-const int CUSTOMTRADEGRID_LINERESETICONWIDTH = 24;
+const int TRADEGRID_LINERESETICONWIDTH = 24;
 
-CustomTradeGrid* CustomTradeGrid_GetOptions(HWND hCtrl);
-int CustomTradeGrid_SetOptions(HWND hCtrl, CustomTradeGrid* pData);
-void CustomTradeGrid_SetText(GridColInfo* col, std::wstring wszText);
-std::wstring CustomTradeGrid_GetText(HWND hCtl, int row, int col);
+TradeGrid* TradeGrid_GetOptions(HWND hCtrl);
+int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData);
+void TradeGrid_SetText(GridColInfo* col, std::wstring wszText);
+std::wstring TradeGrid_GetText(HWND hCtl, int row, int col);
 
-HWND CreateCustomTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight);
+HWND CreateTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight);
 

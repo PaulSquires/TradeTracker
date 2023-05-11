@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config\Config.h" />
-    <ClInclude Include="src\CustomCalendar\CustomCalendar.h" />
+    <ClInclude Include="src\DatePicker\DatePicker.h" />
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
-    <ClInclude Include="src\CustomTradeGrid\CustomTradeGrid.h" />
+    <ClInclude Include="src\TradeGrid\TradeGrid.h" />
     <ClInclude Include="src\DailyPanel\DailyPanel.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
     <ClInclude Include="src\Strategies\StrategyButton.h" />
@@ -118,9 +118,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config\Config.cpp" />
-    <ClCompile Include="src\CustomCalendar\CustomCalendar.cpp" />
+    <ClCompile Include="src\DatePicker\DatePicker.cpp" />
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
-    <ClCompile Include="src\CustomTradeGrid\CustomTradeGrid.cpp" />
+    <ClCompile Include="src\TradeGrid\TradeGrid.cpp" />
     <ClCompile Include="src\DailyPanel\DailyPanel.cpp" />
     <ClCompile Include="src\HistoryPanel\HistoryPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
