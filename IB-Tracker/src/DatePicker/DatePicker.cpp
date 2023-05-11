@@ -8,6 +8,90 @@ HWND HWND_DATEPICKER = NULL;
 
 CDatePicker DatePicker;
 
+
+// ========================================================================================
+// Load Month ListBox data
+// ========================================================================================
+void DatePicker_LoadMonthListBox(HWND hListBox)
+{
+    int idx = 0;
+
+    ListBox_ResetContent(hListBox);
+    idx = ListBox_AddString(hListBox, L"January");
+    ListBox_SetItemData(hListBox, idx, 0);
+    
+    idx = ListBox_AddString(hListBox, L"February");
+    ListBox_SetItemData(hListBox, idx, 1);
+    
+    idx = ListBox_AddString(hListBox, L"March");
+    ListBox_SetItemData(hListBox, idx, 2);
+    
+    idx = ListBox_AddString(hListBox, L"April");
+    ListBox_SetItemData(hListBox, idx, 3);
+    
+    idx = ListBox_AddString(hListBox, L"May");
+    ListBox_SetItemData(hListBox, idx, 4);
+    
+    idx = ListBox_AddString(hListBox, L"June");
+    ListBox_SetItemData(hListBox, idx, 5);
+    
+    idx = ListBox_AddString(hListBox, L"July");
+    ListBox_SetItemData(hListBox, idx, 6);
+    
+    idx = ListBox_AddString(hListBox, L"August");
+    ListBox_SetItemData(hListBox, idx, 7);
+    
+    idx = ListBox_AddString(hListBox, L"September");
+    ListBox_SetItemData(hListBox, idx, 8);
+    
+    idx = ListBox_AddString(hListBox, L"October");
+    ListBox_SetItemData(hListBox, idx, 9);
+    
+    idx = ListBox_AddString(hListBox, L"November");
+    ListBox_SetItemData(hListBox, idx, 10);
+    
+    idx = ListBox_AddString(hListBox, L"December");
+    ListBox_SetItemData(hListBox, idx, 11);
+}
+
+
+// ========================================================================================
+// Load Day ListBox data
+// ========================================================================================
+void DatePicker_LoadDayListBox(HWND hListBox)
+{
+    int idx = 0;
+
+    ListBox_ResetContent(hListBox);
+
+    for (int i = 1; i <= 31; ++i) {
+        idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
+        ListBox_SetItemData(hListBox, idx, 0);
+    }
+}
+
+
+// ========================================================================================
+// Load Year ListBox data
+// ========================================================================================
+void DatePicker_LoadYearListBox(HWND hListBox)
+{
+    int idx = 0;
+
+    ListBox_ResetContent(hListBox);
+
+    // 100 years before and after the current year
+    int curYear = AfxLocalYear();
+    int startYear = curYear - 100;
+    int endYear = curYear + 100;
+
+    for (int i = startYear; i <= endYear; ++i) {
+        idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
+        ListBox_SetItemData(hListBox, idx, 0);
+    }
+}
+
+
 // ========================================================================================
 // Process WM_DRAWITEM message for window/dialog 
 // ========================================================================================
@@ -40,9 +124,11 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
+        std::wstring wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
 
-        // Set some defaults in case there is no valid ListBox line number
-        std::wstring wszText;
+        //if (lpDrawItem->CtlID == IDC_DATEPICKER_MONTHLISTBOX) {
+        //    wszText = MonthData.at(lpDrawItem->itemID);
+        //}
 
         DWORD nBackColor = (bIsHot)
             ? GetThemeColor(ThemeElement::Selection)
@@ -55,60 +141,22 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         REAL fontSize = 10;
         int fontStyle = FontStyleRegular;
 
-        StringAlignment HAlignment = StringAlignmentNear;
+        StringAlignment HAlignment = StringAlignmentCenter;
         StringAlignment VAlignment = StringAlignmentCenter;
 
         // Paint the full width background using brush 
         SolidBrush backBrush(nBackColor);
         graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
 
-        // Get the current ListBox line data should a valid line exist
-        // Paint the individual columns with the specific data.
+        Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+        SolidBrush   textBrush(nTextColor);
+        StringFormat stringF(StringFormatFlagsNoWrap);
+        stringF.SetAlignment(HAlignment);
+        stringF.SetLineAlignment(VAlignment);
 
-/*
-        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
-        int nLeft = 0;
-        int colWidth = 0;
+        RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
 
-        // Draw each of the columns
-        for (int i = 0; i < 8; i++) {
-            if (ld == nullptr) break;
-            if (ld->col[i].colWidth == 0) break;
-
-            // Prepare and draw the text
-            wszText = ld->col[i].wszText;
-
-            HAlignment = ld->col[i].HAlignment;
-            VAlignment = ld->col[i].VAlignment;
-            nBackColor = (bIsHot)
-                ? nBackColor
-                : GetThemeColor(ld->col[i].backTheme);
-            nTextColor = GetThemeColor(ld->col[i].textTheme);
-            fontSize = ld->col[i].fontSize;
-            fontStyle = ld->col[i].fontStyle;
-
-            colWidth = AfxScaleX((float)ld->col[i].colWidth);
-
-            backBrush.SetColor(nBackColor);
-            graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
-
-            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            SolidBrush   textBrush(nTextColor);
-            StringFormat stringF(StringFormatFlagsNoWrap);
-            stringF.SetAlignment(HAlignment);
-            stringF.SetLineAlignment(VAlignment);
-
-            // If right alignment then add a very small amount of right side
-            // padding so that text is not pushed up right against the right side.
-            int rightPadding = 0;
-            if (HAlignment == StringAlignmentFar) rightPadding = AfxScaleX(2);
-
-            RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth - rightPadding, (REAL)nHeight);
-            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
-
-            nLeft += colWidth;
-        }
-*/
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
             lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
@@ -160,10 +208,52 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
     }
 
 
+    case WM_ERASEBKGND:
+    {
+        // If the number of lines in the listbox maybe less than the number per page then 
+        // calculate from last item to bottom of listbox, otherwise calculate based on
+        // the mod of the lineheight to listbox height so we can color the partial line
+        // that won't be displayed at the bottom of the list.
+        RECT rc; GetClientRect(hWnd, &rc);
+
+        RECT rcItem{};
+        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int itemHeight = (rcItem.bottom - rcItem.top);
+        int NumItems = ListBox_GetCount(hWnd);
+        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int visible_rows = 0;
+        int ItemsPerPage = 0;
+        int bottom_index = 0;
+        int nWidth = (rc.right - rc.left);
+        int nHeight = (rc.bottom - rc.top);
+
+        if (NumItems > 0) {
+            ItemsPerPage = (nHeight) / itemHeight;
+            bottom_index = (nTopIndex + ItemsPerPage);
+            if (bottom_index >= NumItems)
+                bottom_index = NumItems - 1;
+            visible_rows = (bottom_index - nTopIndex) + 1;
+            rc.top = visible_rows * itemHeight;
+        }
+
+        if (rc.top < rc.bottom) {
+            nHeight = (rc.bottom - rc.top);
+            HDC hDC = (HDC)wParam;
+            Graphics graphics(hDC);
+            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
+        }
+
+        ValidateRect(hWnd, &rc);
+        return TRUE;
+    }
+    break;
+
+
     case WM_DESTROY:
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
-        //ListBoxData_DestroyItemData(hWnd);
+        //DatePicker_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, DatePicker_ListBox_SubclassProc, uIdSubclass);
@@ -229,36 +319,76 @@ void DatePicker_OnPaint(HWND hwnd)
 // ========================================================================================
 void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    HWND hMonthListBox = GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX);
-    HWND hDayListBox = GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX);
-    HWND hYearListBox = GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX);
+    int nTop = 0;
+    int nLeft = 0;
+    int nWidth = 0;
+    int nHeightListBox = cy;
+    int nHeightButton = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
-    // Move and size the top label into place
-//    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_HISTORY_SYMBOL), 0,
-//        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+    // MONTH CONTROLS
+    nLeft = 0;
+    nTop = 0;
+    nWidth = AfxScaleX(DATEPICKER_PANEL_MONTHWIDTH);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHUP),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    int nTop = 0;
-    int nLeft = 0;
-    int nWidth = AfxScaleX(DATEPICKER_PANEL_MONTHWIDTH);
-    int nHeight = cy;
-    hdwp = DeferWindowPos(hdwp, hMonthListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nTop = nTop + nHeightButton;
+    nHeightListBox = cy - (nHeightButton * 2);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX), 
+        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    nTop = nTop + nHeightListBox;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHDOWN),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    // DAY CONTROLS
     nTop = 0;
     nLeft = nLeft + nWidth;
     nWidth = AfxScaleX(DATEPICKER_PANEL_DAYWIDTH);
-    nHeight = cy;
-    hdwp = DeferWindowPos(hdwp, hDayListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYUP),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    nTop = nTop + nHeightButton;
+    nHeightListBox = cy - (nHeightButton * 2);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX),
+        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeightListBox;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYDOWN),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    // YEAR CONTROLS
     nTop = 0;
     nLeft = nLeft + nWidth;
     nWidth = AfxScaleX(DATEPICKER_PANEL_YEARWIDTH);
-    nHeight = cy;
-    hdwp = DeferWindowPos(hdwp, hYearListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARUP),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeightButton;
+    nHeightListBox = cy - (nHeightButton * 2);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX),
+        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeightListBox;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARDOWN),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     EndDeferWindowPos(hdwp);
+
+    // Resize the DatePicker popup window to fit the client size
+    RECT rc{ 0,0,0,0 };
+    rc.right = AfxScaleX(DATEPICKER_PANEL_WIDTH);
+    rc.bottom = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * DATEPICKER_LISTBOX_VISIBLELINES);
+
+    DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+    DWORD dwExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    AdjustWindowRectEx(&rc, dwStyle, FALSE, dwExStyle);
+    SetWindowPos(hwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
 
@@ -271,39 +401,73 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     HWND hCtl = NULL;
 
-  //  HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
-   //     ThemeElement::WhiteLight, ThemeElement::Black);
+    // Create Button Up/Down and Ownerdraw listboxes that we will use to custom paint our date values.
 
-    // Create an Ownerdraw listboxes that we will use to custom paint our date values.
+    // MONTH
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MONTHUP, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+    ShowWindow(hCtl, SW_HIDE);
+
     hCtl =
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_MONTHLISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DatePicker_ListBox_SubclassProc,
             IDC_DATEPICKER_MONTHLISTBOX, NULL);
-    ListBox_AddString(hCtl, NULL);
+    DatePicker_LoadMonthListBox(hCtl);
+
+
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MONTHDOWN, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+    ShowWindow(hCtl, SW_HIDE);
+
+
+    // DAY
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_DAYUP, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+    ShowWindow(hCtl, SW_HIDE);
 
     hCtl =
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_DAYLISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DatePicker_ListBox_SubclassProc,
-            IDC_DATEPICKER_MONTHLISTBOX, NULL);
-    ListBox_AddString(hCtl, NULL);
+            IDC_DATEPICKER_DAYLISTBOX, NULL);
+    DatePicker_LoadDayListBox(hCtl);
+
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_DAYDOWN, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+    ShowWindow(hCtl, SW_HIDE);
+
+
+    // YEAR
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_YEARUP, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+    ShowWindow(hCtl, SW_HIDE);
 
     hCtl =
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_YEARLISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DatePicker_ListBox_SubclassProc,
-            IDC_DATEPICKER_MONTHLISTBOX, NULL);
-    ListBox_AddString(hCtl, NULL);
+            IDC_DATEPICKER_YEARLISTBOX, NULL);
+    DatePicker_LoadYearListBox(hCtl);
+
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_YEARDOWN, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+    ShowWindow(hCtl, SW_HIDE);
 
     return TRUE;
 }
