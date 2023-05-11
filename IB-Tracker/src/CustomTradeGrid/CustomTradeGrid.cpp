@@ -417,6 +417,19 @@ LRESULT CALLBACK CustomTradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
             return TRUE;
         }
+
+        if (wParam == VK_TAB) {
+            HWND hFocus = GetFocus();
+            HWND hNextCtrl = NULL;
+            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+                hNextCtrl = GetNextDlgTabItem(hWnd, hFocus, TRUE);
+            }
+            else {
+                hNextCtrl = GetNextDlgTabItem(hWnd, hFocus, FALSE);
+            }
+            SetFocus(hNextCtrl);
+            return TRUE;
+        }
     }
     break;
 

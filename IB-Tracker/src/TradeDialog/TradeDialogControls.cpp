@@ -28,6 +28,26 @@ extern void TradesPanel_ShowActiveTrades();
 CStrategyButton StrategyButton;
 
 
+
+// ========================================================================================
+// Display or hide the Futures Contract data picker
+// ========================================================================================
+void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
+{
+    HWND hCtl1 = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACT);
+    HWND hCtl2 = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE);
+    HWND hCtl3 = GetDlgItem(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE);
+
+    // Futures Ticker symbols will start with a forward slash character.
+    std::wstring wszTicker = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+    int nShow = (wszTicker.substr(0, 1) == L"/") ? SW_SHOW : SW_HIDE;
+
+    ShowWindow(hCtl1, nShow);
+    ShowWindow(hCtl2, nShow);
+    ShowWindow(hCtl3, nShow);
+}
+
+
 // ========================================================================================
 // Create the trade transaction data and save it to the database
 // ========================================================================================
@@ -203,13 +223,13 @@ void CalculateTradeDTE(HWND hwnd)
 // ========================================================================================
 void LoadEditLegsInTradeTable(HWND hwnd)
 {
-    if (legsEdit.size() == 0) return;
-    if (tradeAction == ACTION_NEW_TRADE) return;
-
     // Update the Trade Management table with the details of the Trade.
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), tradeEdit->tickerSymbol);
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
     
+    if (legsEdit.size() == 0) return;
+    if (tradeAction == ACTION_NEW_TRADE) return;
+
     int DefaultQuantity = 0;
 
     return;
@@ -327,7 +347,6 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
 }
 
 
-
 // ========================================================================================
 // Helper function for WM_CREATE message for window/dialog: TradeDialog
 // ========================================================================================
@@ -363,13 +382,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nLeft = AfxUnScaleX((float)AfxGetClientWidth(hwnd));
     hCtl = CreateCustomLabel(
         hwnd, IDC_TRADEDIALOG_LBLEDITACTION, CustomLabelType::TextOnly,
-        nLeft - 146, 10, 106, 30);
+        nLeft - 120, 10, 90, 30);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::GrayDark;
         pData->BackColorButtonDown = ThemeElement::GrayDark;
         pData->TextColor = ThemeElement::WhiteLight;
-        pData->FontSize = 14;
+        pData->FontSize = 12;
         pData->TextAlignment = CustomLabelAlignment::TopRight;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -379,56 +398,63 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (tradeAction == ACTION_NEW_TRADE) {
         CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 40, 20, 65, 22);
-
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 24);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
         CustomLabel_SimpleLabel(hwnd, -1, L"Company Name", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 115, 20, 115, 22);
-
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 252, 24);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 24);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
+        hCtl= CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Futures Contract", TextColorDim, BackColor,
+            CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
+        ShowWindow(hCtl, SW_HIDE);
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, L"Jun 30, 2023", TextColor, ThemeElement::GrayMedium,
+            CustomLabelAlignment::MiddleLeft, 340, 45, 76, 24);
+        ShowWindow(hCtl, SW_HIDE);
+        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, L"\uE015",
+            TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+            CustomLabelAlignment::MiddleCenter, 416, 45, 24, 24);
+        ShowWindow(hCtl, SW_HIDE);
+
     }
     else {
+        hCtl = CreateCustomLabel(
+            hwnd, IDC_TRADEDIALOG_LBLCOMPANY, CustomLabelType::TextOnly,
+            40, 10, 250, 22);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (pData) {
+            pData->BackColor = ThemeElement::GrayDark;
+            pData->BackColorButtonDown = ThemeElement::GrayDark;
+            pData->TextColor = ThemeElement::WhiteLight;
+            pData->FontSize = 12;
+            pData->TextAlignment = CustomLabelAlignment::TopLeft;
+            pData->wszText = L"";
+            CustomLabel_SetOptions(hCtl, pData);
+        }
 
         hCtl = CreateCustomLabel(
             hwnd, IDC_TRADEDIALOG_LBLTICKER, CustomLabelType::TextOnly,
-            40, 20, 75, 26);
+            40, 33, 250, 22);
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
             pData->BackColor = ThemeElement::GrayDark;
             pData->BackColorButtonDown = ThemeElement::GrayDark;
-            pData->TextColor = ThemeElement::WhiteLight;
-            pData->FontSize = 14;
+            pData->TextColor = ThemeElement::WhiteDark;
+            pData->FontSize = 10;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
-            pData->wszText = L"AAPL";
+            pData->wszText = L"";
             CustomLabel_SetOptions(hCtl, pData);
         }
-
-        hCtl = CreateCustomLabel(
-            hwnd, IDC_TRADEDIALOG_LBLCOMPANY, CustomLabelType::TextOnly,
-            115, 20, 235, 26);
-        pData = CustomLabel_GetOptions(hCtl);
-        if (pData) {
-            pData->BackColor = ThemeElement::GrayDark;
-            pData->BackColorButtonDown = ThemeElement::GrayDark;
-            pData->TextColor = ThemeElement::WhiteLight;
-            pData->FontSize = 14;
-            pData->TextAlignment = CustomLabelAlignment::TopLeft;
-            pData->wszText = L"Apple Inc.";
-            CustomLabel_SetOptions(hCtl, pData);
-        }
-        
     }
 
 
     nTop = 72;
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, L"May 7, 2023", TextColorDim, ThemeElement::GrayMedium,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, L"May 7, 2023", TextColor, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 76, 24);
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,

@@ -89,6 +89,10 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
     case WM_CHAR:
     {
+        // Prevent the TAB character causing a BEEP. We handle TAB key navigation
+        // ourselves in WM_KEYDOW.
+        if (wParam == VK_TAB) return 0;
+
         if (pData == nullptr) break;
 
         // Allow any character for non-numeric these TextBoxes
@@ -97,7 +101,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         // Handle Numeric textboxes
 
         // Allow backspace
-        if (wParam == 8) break;
+        if (wParam == VK_BACK) break;
 
         
         // Allow 0 to 9 and Decimal
@@ -169,6 +173,13 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
                 return 0;
         }
+
+        // Handle the TAB navigation key to move amongst cells in the table rather
+        // than move away from the table itself.
+        if (wParam == VK_TAB) {
+            if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
+                return 0;
+        }
     }
     break;
 
@@ -177,10 +188,12 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     {
         // Make the ENTER key behave like the TAB key. Need to catch VK_RETURN in the
         // WM_KEYUP rather than WM_KEYDOWN.
-        if (wParam == VK_RETURN) {
-            HWND hNextCtrl = GetNextDlgTabItem(pData->hParent, pData->hWindow, false);
-            SetFocus(hNextCtrl);
-        }
+    
+        // TODO: Disabled this functionality for now because it is not standard behaviour.
+        //if (wParam == VK_RETURN) {
+        //    HWND hNextCtrl = GetNextDlgTabItem(pData->hParent, pData->hWindow, false);
+        //    SetFocus(hNextCtrl);
+        //}
     }
     break;
 

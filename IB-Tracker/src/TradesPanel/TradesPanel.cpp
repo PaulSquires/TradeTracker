@@ -450,7 +450,6 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
                 // Only allow Option legs to be pushed to legEdit
                 if (ld->leg != nullptr) {
                     legsEdit.push_back(ld->leg);
-                    tradeEdit = ld->trade;
                 }
             }
         }
@@ -480,6 +479,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     int nCurSel = ListBox_GetCurSel(hListBox);
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nCurSel);
     trade = ld->trade;
+    tradeEdit = ld->trade;
 
     if (nCount == 1) {
         // Is this the Trade header line
@@ -517,15 +517,15 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
         TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hListBox, NULL);
 
 
+    TradesPanel_PopulateLegsEditVector(hListBox);
+
     switch (selected)
     {
     case ACTION_ROLL_LEG:
     case ACTION_CLOSE_LEG:
-        TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
         break;
     case ACTION_EXPIRE_LEG:
-        TradesPanel_PopulateLegsEditVector(hListBox);
         TradesPanel_ExpireSelectedLegs(trade);
         break;
     case ACTION_SHARE_ASSIGNMENT:

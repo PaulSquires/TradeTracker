@@ -102,7 +102,7 @@ int AfxGetClientWidth(HWND hwnd)
 {
     RECT rc;
     GetClientRect(hwnd, &rc);
-    return rc.right - rc.left;
+    return rc.right;
 }
 
 
@@ -113,7 +113,7 @@ int AfxGetClientHeight(HWND hwnd)
 {
     RECT rc;
     GetClientRect(hwnd, &rc);
-    return rc.bottom - rc.top;
+    return rc.bottom;
 }
 
 

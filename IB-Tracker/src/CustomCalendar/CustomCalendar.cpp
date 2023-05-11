@@ -194,7 +194,7 @@ HWND CreateCustomCalendar(
             hInst,
             NULL);        
         
-        //SetWindowTheme(pData->hTextBox, L"", L"");
+        SetWindowTheme(pData->hMonthCal , L"", L"");
 
         // Subclass the child TextBox if pWndProc is not null
         //if (pData->hTextBox)

@@ -201,7 +201,7 @@ public:
 		if (IsSelected && AllowSelect)
 			nBackColor = GetThemeColor(BackColorSelected);
 
-		if (GetAsyncKeyState(VK_LBUTTON) & 0x01) {
+		if (GetAsyncKeyState(VK_LBUTTON) & 0x01) { 
 			nBackColor = GetThemeColor(BackColorButtonDown);
 		}
 

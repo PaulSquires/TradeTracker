@@ -24,6 +24,7 @@ HBRUSH CtrlBackBrush = NULL;
 int tradeAction = ACTION_NOACTION;
 
 extern void TradeDialog_CreateTradeData(HWND hwnd);
+extern void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
 
 
 
@@ -207,6 +208,9 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
                 auto index = std::distance(trades.begin(), iter);
                 AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
             }
+
+            TradeDialogControls_ShowFuturesContractDate(hwnd);
+
         }
         break;
 
@@ -257,6 +261,24 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
 
     
+    case WM_KEYDOWN:
+    {
+        // We are handling the TAB naviagation ourselves.
+        if (wParam == VK_TAB) {
+            HWND hFocus = GetFocus();
+            HWND hNextCtrl = NULL;
+            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) { 
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+            }
+            else {
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+            }
+            SetFocus(hNextCtrl);
+            return TRUE;
+        }
+    }
+
+
     case MSG_CUSTOMLABEL_CLICK:
     {
         HWND hCtl = (HWND)lParam;
@@ -282,8 +304,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
 
-        return 0;
     }
+    return 0;
 
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
@@ -319,7 +341,8 @@ void TradeDialog_Show(int inTradeAction)
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
 
-    // Show the legsEdit legs (if any) based on the incoming action.
+    // Show the legsEdit legs (if any) based on the incoming action and set the
+    // Ticker and Company Name labels.
     LoadEditLegsInTradeTable(hwnd);
     
     CalculateTradeTotal(hwnd);
@@ -360,14 +383,11 @@ void TradeDialog_Show(int inTradeAction)
     MSG msg{};
     while (GetMessage(&msg, NULL, 0, 0))
     {
-        // Determines whether a message is intended for the specified
-        // dialog box and, if it is, processes the message.
-        if (!IsDialogMessage(hwnd, &msg)) {
-            // Translates virtual-key messages into character messages.
-            TranslateMessage(&msg);
-            // Dispatches a message to a window procedure.
-            DispatchMessage(&msg);
-        }
+        // We handle VK_TAB processing ourselves rather than using IsDialogMessage
+        // Translates virtual-key messages into character messages.
+        TranslateMessage(&msg);
+        // Dispatches a message to a window procedure.
+        DispatchMessage(&msg);
     }
 
 }
