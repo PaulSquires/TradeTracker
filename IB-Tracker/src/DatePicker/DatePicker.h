@@ -30,3 +30,6 @@ const int DATEPICKER_PANEL_WIDTH = 200;
 const int DATEPICKER_PANEL_MONTHWIDTH = 100;
 const int DATEPICKER_PANEL_DAYWIDTH = 50;
 const int DATEPICKER_PANEL_YEARWIDTH = 50;
+
+HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl);
+

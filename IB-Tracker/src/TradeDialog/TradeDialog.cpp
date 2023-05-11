@@ -28,7 +28,6 @@ extern void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
 
 extern HWND HWND_DATEPICKER;
 extern CDatePicker DatePicker;
-extern void DatePicker_SetPosition(HWND hParentCtl);
 
 
 
@@ -299,11 +298,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE) {
             // Clicked on the Transaction Date dropdown
-            DatePicker.Create(m_hwnd, L"", 0, 0, 0, 0,
-                WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
-                WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-            
-            DatePicker_SetPosition(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
+            DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {

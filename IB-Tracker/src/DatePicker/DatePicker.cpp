@@ -8,6 +8,8 @@ HWND HWND_DATEPICKER = NULL;
 
 CDatePicker DatePicker;
 
+HWND hListBoxActive = NULL;
+
 
 // ========================================================================================
 // Load Month ListBox data
@@ -89,6 +91,99 @@ void DatePicker_LoadYearListBox(HWND hListBox)
         idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
         ListBox_SetItemData(hListBox, idx, 0);
     }
+}
+
+
+// ========================================================================================
+// Process WM_SIZE message for window/dialog: DatePicker
+// ========================================================================================
+void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
+{
+    int nTop = 0;
+    int nLeft = 0;
+    int nWidth = 0;
+    int nHeightListBox = cy;
+    int nHeightButton = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT);
+    int nMultiplier = 0;
+
+    // Determine which Up/Down buttons to show based on active listbox
+    HWND hListBox = NULL;
+    int nShowHide = SWP_HIDEWINDOW;
+    
+
+    HDWP hdwp = BeginDeferWindowPos(10);
+
+    // MONTH CONTROLS
+    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX);
+    nShowHide = (hListBox == hListBoxActive) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
+    nMultiplier = nShowHide == SWP_SHOWWINDOW ? 2 : 0;
+    nLeft = 0;
+    nTop = 0;
+    nWidth = AfxScaleX(DATEPICKER_PANEL_MONTHWIDTH);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHUP),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+
+    nTop = nTop + nHeightButton;
+    nHeightListBox = cy - (nHeightButton * nMultiplier);
+    hdwp = DeferWindowPos(hdwp, hListBox,
+        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeightListBox;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHDOWN),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+
+
+    // DAY CONTROLS
+    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX);
+    nShowHide = (hListBox == hListBoxActive) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
+    nMultiplier = nShowHide == SWP_SHOWWINDOW ? 2 : 0;
+    nTop = 0;
+    nLeft = nLeft + nWidth;
+    nWidth = AfxScaleX(DATEPICKER_PANEL_DAYWIDTH);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYUP),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+
+    nTop = nTop + nHeightButton;
+    nHeightListBox = cy - (nHeightButton * nMultiplier);
+    hdwp = DeferWindowPos(hdwp, hListBox,
+        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeightListBox;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYDOWN),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+
+
+    // YEAR CONTROLS
+    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX);
+    nShowHide = (hListBox == hListBoxActive) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
+    nMultiplier = nShowHide == SWP_SHOWWINDOW ? 2 : 0;
+    nTop = 0;
+    nLeft = nLeft + nWidth;
+    nWidth = AfxScaleX(DATEPICKER_PANEL_YEARWIDTH);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARUP),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+
+    nTop = nTop + nHeightButton;
+    nHeightListBox = cy - (nHeightButton * nMultiplier);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX),
+        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeightListBox;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARDOWN),
+        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+
+
+    EndDeferWindowPos(hdwp);
+
+    // Resize the DatePicker popup window to fit the client size
+    RECT rc{ 0,0,0,0 };
+    rc.right = AfxScaleX(DATEPICKER_PANEL_WIDTH);
+    rc.bottom = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * DATEPICKER_LISTBOX_VISIBLELINES);
+
+    DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+    DWORD dwExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    AdjustWindowRectEx(&rc, dwStyle, FALSE, dwExStyle);
+    SetWindowPos(hwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
 
@@ -208,6 +303,16 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
     }
 
 
+    case WM_MOUSEMOVE:
+    {
+        // We are over a ListBox so ensure that the correct Up/Down buttons are shown.
+        hListBoxActive = hWnd;
+        RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
+        DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
+    }
+    break;
+
+
     case WM_ERASEBKGND:
     {
         // If the number of lines in the listbox maybe less than the number per page then 
@@ -315,84 +420,6 @@ void DatePicker_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: DatePicker
-// ========================================================================================
-void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
-    int nTop = 0;
-    int nLeft = 0;
-    int nWidth = 0;
-    int nHeightListBox = cy;
-    int nHeightButton = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT);
-
-    HDWP hdwp = BeginDeferWindowPos(10);
-
-    // MONTH CONTROLS
-    nLeft = 0;
-    nTop = 0;
-    nWidth = AfxScaleX(DATEPICKER_PANEL_MONTHWIDTH);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHUP),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightButton;
-    nHeightListBox = cy - (nHeightButton * 2);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX), 
-        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightListBox;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHDOWN),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-
-    // DAY CONTROLS
-    nTop = 0;
-    nLeft = nLeft + nWidth;
-    nWidth = AfxScaleX(DATEPICKER_PANEL_DAYWIDTH);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYUP),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightButton;
-    nHeightListBox = cy - (nHeightButton * 2);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX),
-        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightListBox;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYDOWN),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-
-    // YEAR CONTROLS
-    nTop = 0;
-    nLeft = nLeft + nWidth;
-    nWidth = AfxScaleX(DATEPICKER_PANEL_YEARWIDTH);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARUP),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightButton;
-    nHeightListBox = cy - (nHeightButton * 2);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX),
-        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightListBox;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARDOWN),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-
-    EndDeferWindowPos(hdwp);
-
-    // Resize the DatePicker popup window to fit the client size
-    RECT rc{ 0,0,0,0 };
-    rc.right = AfxScaleX(DATEPICKER_PANEL_WIDTH);
-    rc.bottom = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * DATEPICKER_LISTBOX_VISIBLELINES);
-
-    DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
-    DWORD dwExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
-    AdjustWindowRectEx(&rc, dwStyle, FALSE, dwExStyle);
-    SetWindowPos(hwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-}
-
-
-// ========================================================================================
 // Process WM_CREATE message for window/dialog: DatePicker
 // ========================================================================================
 BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
@@ -474,21 +501,6 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
-// Position the DatePicker immediately under the specified incoming control.
-// This is called by the TradeDialog when the DatePicker is created but not yet shown.
-// This function will also show the DatePicker once it has been positioned correctly.
-// ========================================================================================
-void DatePicker_SetPosition(HWND hParentCtl)
-{
-    RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(DatePicker.WindowHandle(), HWND_TOP,
-        rc.left, rc.bottom,
-        AfxScaleX(DATEPICKER_PANEL_WIDTH), AfxScaleY(DATEPICKER_PANEL_HEIGHT),
-        SWP_SHOWWINDOW);
-}
-
-
-// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -511,5 +523,24 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+}
+
+
+// ========================================================================================
+// Create DatePicker contro and move it into position under the specified incoming control.
+// ========================================================================================
+HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl)
+{
+    DatePicker.Create(hParent, L"", 0, 0, 0, 0,
+        WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    RECT rc; GetWindowRect(hParentCtl, &rc);
+    SetWindowPos(DatePicker.WindowHandle(), HWND_TOP,
+        rc.left, rc.bottom,
+        AfxScaleX(DATEPICKER_PANEL_WIDTH), AfxScaleY(DATEPICKER_PANEL_HEIGHT),
+        SWP_SHOWWINDOW);
+
+    return DatePicker.WindowHandle();
 }
 
