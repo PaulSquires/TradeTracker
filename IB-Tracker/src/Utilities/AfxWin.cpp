@@ -880,6 +880,21 @@ DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
 
 
 // ========================================================================================
+// Adds an extended  style from the specified window.
+// - hwnd  = Window handle
+// - dwExStyle = Style to add
+// Return value:
+//   The previous window EX styles
+// ========================================================================================
+DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle)
+{
+    DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    DWORD dwNewStyle = dwOldStyle & (dwExStyle);
+    SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewStyle);
+    return dwOldStyle;
+}
+
+// ========================================================================================
 // Sets the width of the specified item of a header control.
 // Returns nonzero upon success, or zero otherwise.
 // ========================================================================================

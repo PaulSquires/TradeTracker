@@ -63,6 +63,7 @@ std::wstring& AfxRTrim(std::wstring& s);
 std::wstring& AfxTrim(std::wstring& s);
 DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
+DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle);
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle);
 bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth);
 bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText);

@@ -99,86 +99,64 @@ void DatePicker_LoadYearListBox(HWND hListBox)
 // ========================================================================================
 void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    int nTop = 0;
     int nLeft = 0;
+    int nTop = 0;
     int nWidth = 0;
-    int nHeightListBox = cy;
+    int nHeightListBox = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * 9);
     int nHeightButton = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT);
-    int nMultiplier = 0;
 
-    // Determine which Up/Down buttons to show based on active listbox
-    HWND hListBox = NULL;
-    int nShowHide = SWP_HIDEWINDOW;
     
-
     HDWP hdwp = BeginDeferWindowPos(10);
 
-    // MONTH CONTROLS
-    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX);
-    nShowHide = (hListBox == hListBoxActive) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
-    nMultiplier = nShowHide == SWP_SHOWWINDOW ? 2 : 0;
-    nLeft = 0;
-    nTop = 0;
     nWidth = AfxScaleX(DATEPICKER_PANEL_MONTHWIDTH);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHUP),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+    hdwp = DeferWindowPos(
+        hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX), 0,
+        nLeft, 0, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nTop + nHeightButton;
-    nHeightListBox = cy - (nHeightButton * nMultiplier);
-    hdwp = DeferWindowPos(hdwp, hListBox,
-        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightListBox;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHDOWN),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
-
-
-    // DAY CONTROLS
-    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX);
-    nShowHide = (hListBox == hListBoxActive) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
-    nMultiplier = nShowHide == SWP_SHOWWINDOW ? 2 : 0;
-    nTop = 0;
-    nLeft = nLeft + nWidth;
+    nLeft += nWidth;
     nWidth = AfxScaleX(DATEPICKER_PANEL_DAYWIDTH);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYUP),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX), 0,
+        nLeft, 0, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nTop + nHeightButton;
-    nHeightListBox = cy - (nHeightButton * nMultiplier);
-    hdwp = DeferWindowPos(hdwp, hListBox,
-        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = nTop + nHeightListBox;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYDOWN),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
-
-
-    // YEAR CONTROLS
-    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX);
-    nShowHide = (hListBox == hListBoxActive) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
-    nMultiplier = nShowHide == SWP_SHOWWINDOW ? 2 : 0;
-    nTop = 0;
-    nLeft = nLeft + nWidth;
+    nLeft += nWidth;
     nWidth = AfxScaleX(DATEPICKER_PANEL_YEARWIDTH);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARUP),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX), 0,
+        nLeft, 0, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nTop + nHeightButton;
-    nHeightListBox = cy - (nHeightButton * nMultiplier);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX),
-        0, nLeft, nTop, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nTop + nHeightListBox;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARDOWN),
-        0, nLeft, nTop, nWidth, nHeightButton, SWP_NOZORDER | nShowHide);
+    int nShowHide = SWP_HIDEWINDOW;
+    RECT rc{ 0,0,0,0 };
 
+    if (hListBoxActive != NULL) {
+        nShowHide = SWP_SHOWWINDOW;
+        GetWindowRect(hListBoxActive, &rc);
+        MapWindowPoints(HWND_DESKTOP, hwnd, (LPPOINT)&rc, 2);
+    }
+
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MOVEUP), HWND_TOP,
+        rc.left, rc.top, rc.right-rc.left, nHeightButton, nShowHide | SWP_NOACTIVATE);
+
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MOVEDOWN), HWND_TOP,
+        rc.left , rc.bottom - nHeightButton, rc.right - rc.left, nHeightButton, nShowHide | SWP_NOACTIVATE);
+    
+
+    // ACCEPT
+    nTop = cy - nHeightButton;
+    nWidth = AfxScaleX(DATEPICKER_PANEL_WIDTH / 2);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_ACCEPT),
+        0, 0, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    // CANCEL
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_CANCEL),
+        0, nWidth, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     EndDeferWindowPos(hdwp);
 
+
     // Resize the DatePicker popup window to fit the client size
-    RECT rc{ 0,0,0,0 };
+    rc.left = 0; rc.top = 0;
     rc.right = AfxScaleX(DATEPICKER_PANEL_WIDTH);
-    rc.bottom = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * DATEPICKER_LISTBOX_VISIBLELINES);
+    rc.bottom = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * DATEPICKER_LISTBOX_VISIBLELINES) + nHeightButton;
 
     DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
     DWORD dwExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
@@ -220,10 +198,6 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
         std::wstring wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
-
-        //if (lpDrawItem->CtlID == IDC_DATEPICKER_MONTHLISTBOX) {
-        //    wszText = MonthData.at(lpDrawItem->itemID);
-        //}
 
         DWORD nBackColor = (bIsHot)
             ? GetThemeColor(ThemeElement::Selection)
@@ -299,14 +273,32 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        break;
     }
+    break;
 
 
     case WM_MOUSEMOVE:
     {
+        // Track that we are over the control in order to catch the 
+        // eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(TRACKMOUSEEVENT);
+        tme.dwFlags = TME_HOVER or TME_LEAVE;
+        tme.hwndTrack = hWnd;
+        TrackMouseEvent(&tme);
+
         // We are over a ListBox so ensure that the correct Up/Down buttons are shown.
         hListBoxActive = hWnd;
+        RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
+        DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
+    }
+    break;
+
+
+    case WM_MOUSELEAVE:
+    {
+        // We are leaving a ListBox so ensure that the correct Up/Down buttons are shown.
+        hListBoxActive = NULL;
         RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
         DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
     }
@@ -431,11 +423,6 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create Button Up/Down and Ownerdraw listboxes that we will use to custom paint our date values.
 
     // MONTH
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MONTHUP, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
-    ShowWindow(hCtl, SW_HIDE);
-
     hCtl =
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_MONTHLISTBOX, L"",
             0, 0, 0, 0,
@@ -446,19 +433,7 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             IDC_DATEPICKER_MONTHLISTBOX, NULL);
     DatePicker_LoadMonthListBox(hCtl);
 
-
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MONTHDOWN, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
-    ShowWindow(hCtl, SW_HIDE);
-
-
     // DAY
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_DAYUP, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
-    ShowWindow(hCtl, SW_HIDE);
-
     hCtl =
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_DAYLISTBOX, L"",
             0, 0, 0, 0,
@@ -469,18 +444,7 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             IDC_DATEPICKER_DAYLISTBOX, NULL);
     DatePicker_LoadDayListBox(hCtl);
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_DAYDOWN, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
-    ShowWindow(hCtl, SW_HIDE);
-
-
     // YEAR
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_YEARUP, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
-    ShowWindow(hCtl, SW_HIDE);
-
     hCtl =
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_YEARLISTBOX, L"",
             0, 0, 0, 0,
@@ -491,10 +455,29 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             IDC_DATEPICKER_YEARLISTBOX, NULL);
     DatePicker_LoadYearListBox(hCtl);
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_YEARDOWN, L"\uE015",
+    // UP DOWN BUTTONS
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEUP, L"\uE015",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 24, 24);
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    AfxAddWindowExStyle(hCtl, WS_EX_TRANSPARENT);
     ShowWindow(hCtl, SW_HIDE);
+
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEDOWN, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    AfxAddWindowExStyle(hCtl, WS_EX_TRANSPARENT);
+    ShowWindow(hCtl, SW_HIDE);
+
+
+    // ACCEPT
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_ACCEPT, L"\u2713",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+
+    // CANCEL
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_CANCEL, L"\u2715",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
 
     return TRUE;
 }
@@ -537,9 +520,10 @@ HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl)
 
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(DatePicker.WindowHandle(), HWND_TOP,
-        rc.left, rc.bottom,
-        AfxScaleX(DATEPICKER_PANEL_WIDTH), AfxScaleY(DATEPICKER_PANEL_HEIGHT),
-        SWP_SHOWWINDOW);
+        rc.left, rc.bottom, 
+        AfxScaleX(DATEPICKER_PANEL_WIDTH), 
+        AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * (DATEPICKER_LISTBOX_VISIBLELINES + 1)),
+        SWP_NOSIZE | SWP_SHOWWINDOW);
 
     return DatePicker.WindowHandle();
 }
