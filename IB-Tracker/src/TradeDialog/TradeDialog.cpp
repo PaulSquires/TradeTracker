@@ -296,7 +296,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             TradeDialog_SetComboDRCR(hCtl, wszText);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE) {
+        if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE || CtrlId == IDC_TRADEDIALOG_LBLTRANSDATE) {
             // Clicked on the Transaction Date dropdown
             DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), L"");
         }
@@ -360,7 +360,7 @@ void TradeDialog_Show(int inTradeAction)
     EnableWindow(HWND_MAINWINDOW, FALSE);
 
 
-    // Workaround for the Windows white flashing bug.
+    // Workaround for the Windows white flashing bug (seems to work on Win10 but maybe not as well on Win11 ?).
     // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
     BOOL cloak = TRUE;
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));

@@ -11,6 +11,8 @@ CDatePicker DatePicker;
 HWND hListBoxActive = NULL;
 std::wstring wszSelectedDate;
 
+bool SystemListBoxSmoothScrolling = FALSE;
+
 
 
 // ========================================================================================
@@ -68,10 +70,7 @@ void DatePicker_LoadMonthListBox(HWND hListBox)
         }
     }
 
-    std::cout << "Month idx: " << idx << std::endl;
-
-
-    ListBox_SetCurSel(hListBox, idx);
+    ListBox_SetCurSel(hListBox, 0);
     ListBox_SetTopIndex(hListBox, idx - 4);
 }
 
@@ -99,9 +98,6 @@ void DatePicker_LoadDayListBox(HWND hListBox)
         }
     }
 
-    std::cout << "Day idx: " << idx << std::endl;
-
-    ListBox_SetCurSel(hListBox, idx);
     ListBox_SetTopIndex(hListBox, idx - 4);
 }
 
@@ -132,9 +128,6 @@ void DatePicker_LoadYearListBox(HWND hListBox)
         }
     }
 
-    std::cout << "Year idx: " << idx << std::endl;
-
-    ListBox_SetCurSel(hListBox, idx);
     ListBox_SetTopIndex(hListBox, idx - 4);
 }
 
@@ -148,18 +141,20 @@ void DatePicker_OnSelChange(HWND hwnd)
     int cursel = -1;
 
     hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX);
-    cursel = ListBox_GetCurSel(hListBox);
+    cursel = ListBox_GetTopIndex(hListBox) + 4;
     int month = ListBox_GetItemData(hListBox, cursel);
 
     hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX);
-    cursel = ListBox_GetCurSel(hListBox);
+    cursel = ListBox_GetTopIndex(hListBox) + 4;
     int day = ListBox_GetItemData(hListBox, cursel);
 
     hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX);
-    cursel = ListBox_GetCurSel(hListBox);
+    cursel = ListBox_GetTopIndex(hListBox) + 4;
     int year = ListBox_GetItemData(hListBox, cursel);
 
     std::wstring wszSelectedDate = AfxMakeISODate(year, month, day);
+
+    AfxRedrawWindow(hListBoxActive);
     
     std::wcout << wszSelectedDate << std::endl;
 
@@ -266,9 +261,9 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         // The "middle line" displayed is considered the selected line. This
         // would be the line 4 lines after the listbox top line because there
-        // would be 4 lines before , selected line, 4 lines after.
-        if ((lpDrawItem->itemAction | ODA_SELECT) &&
-            (lpDrawItem->itemState & ODS_SELECTED)) {
+        // would be 4 lines before , selected line, 4 lines after. The listboxes
+        // do not use SetCurSel because it has the LBS_NOSEL style set.
+        if (lpDrawItem->itemID == ListBox_GetTopIndex(lpDrawItem->hwndItem) + 4) {
             bIsHot = true;
         }
 
@@ -342,7 +337,6 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
             nTopIndex -= 1;
             nTopIndex = max(0, nTopIndex);
             SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
-            ListBox_SetCurSel(hWnd, nTopIndex + 4);
             accumDelta = 0;
             DatePicker_OnSelChange(HWND_DATEPICKER);
         }
@@ -351,7 +345,6 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
                 nTopIndex += 1;
                 nTopIndex = min(ListBox_GetCount(hWnd) - 9, nTopIndex);
                 SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
-                ListBox_SetCurSel(hWnd, nTopIndex + 4);
                 accumDelta = 0;
                 DatePicker_OnSelChange(HWND_DATEPICKER);
             }
@@ -359,6 +352,24 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
         return 0;
     }
     break;
+
+
+
+    case WM_LBUTTONDOWN:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == -1) break;
+
+        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int cursel = nTopIndex + 4;
+        SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex + (idx - cursel), 0);
+        DatePicker_OnSelChange(HWND_DATEPICKER);
+    }
+    break;
+
 
 
     case WM_MOUSEMOVE:
@@ -508,22 +519,6 @@ void DatePicker_OnPaint(HWND hwnd)
 // ========================================================================================
 void DatePicker_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    switch (id)
-    {
-
-    case (IDC_DATEPICKER_MONTHLISTBOX):
-    case (IDC_DATEPICKER_DAYLISTBOX):
-    case (IDC_DATEPICKER_YEARLISTBOX):
-        if (codeNotify == LBN_SELCHANGE) {
-            int nTopIndex = ListBox_GetCurSel(hwndCtl) - 4;
-            nTopIndex = max(0, nTopIndex);
-            SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
-            ListBox_SetCurSel(hListBoxActive, nTopIndex + 4);
-            DatePicker_OnSelChange(hwnd);
-        }
-        break;
-
-    }
 }
 
 
@@ -532,6 +527,21 @@ void DatePicker_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
+
+    // We will save the current ListBox SmoothScrolling system setting, disable it, and
+    // set it back to its original value when the DatePicker is closed. This prevents
+    // the annoying first selection animation delay that screws up our selection painting.
+    
+    // Determines whether the smooth - scrolling effect for list boxes is enabled.
+    // The pvParam parameter must point to a BOOL variable that receives TRUE for enabled, or FALSE for disabled.
+    // Save the value to be restore later in WM_DESTROY
+    SystemParametersInfo(SPI_GETLISTBOXSMOOTHSCROLLING, 0, &SystemListBoxSmoothScrolling, 0);
+    // Turn off smooth scrolling.
+    SystemParametersInfo(SPI_SETLISTBOXSMOOTHSCROLLING, 0, FALSE, 0);
+
+    //SystemParametersInfo(SPI_SETLISTBOXSMOOTHSCROLLING, 0, FALSE,
+    //    SPIF_SENDCHANGE);
+
     HWND_DATEPICKER = hwnd;
 
     HWND hCtl = NULL;
@@ -543,10 +553,11 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_MONTHLISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS | LBS_NOSEL,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DatePicker_ListBox_SubclassProc,
             IDC_DATEPICKER_MONTHLISTBOX, NULL);
+    SetWindowTheme(hCtl, L" ", L" ");
     DatePicker_LoadMonthListBox(hCtl);
 
     // DAY
@@ -554,10 +565,11 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_DAYLISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS | LBS_NOSEL,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DatePicker_ListBox_SubclassProc,
             IDC_DATEPICKER_DAYLISTBOX, NULL);
+    SetWindowTheme(hCtl, L" ", L" ");
     DatePicker_LoadDayListBox(hCtl);
 
     // YEAR
@@ -565,10 +577,11 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         DatePicker.AddControl(Controls::ListBox, hwnd, IDC_DATEPICKER_YEARLISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS | LBS_NOSEL,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DatePicker_ListBox_SubclassProc,
             IDC_DATEPICKER_YEARLISTBOX, NULL);
+    SetWindowTheme(hCtl, L" ", L" ");
     DatePicker_LoadYearListBox(hCtl);
 
     // UP DOWN BUTTONS
@@ -606,6 +619,9 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
+    static bool destroyed = false;
+
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, DatePicker_OnCreate);
@@ -615,11 +631,32 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, DatePicker_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, DatePicker_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, DatePicker_OnDrawItem);
+   
 
-    case WM_KILLFOCUS:
+    case WM_DESTROY:
     {
-        //DestroyWindow(m_hwnd);
-        //return 0;
+        // Reset our destroyed variable for future use of the DatePicker
+        destroyed = false;
+
+        // Reset the ListBox smooth scrolling to whatever the original system value was.
+        SystemParametersInfo(SPI_SETLISTBOXSMOOTHSCROLLING, 0, &SystemListBoxSmoothScrolling, 0);
+        return 0;
+    }
+    break;
+
+
+    case WM_NCACTIVATE:
+    {
+        // Detect that we have clicked outside the popup DatePicker and will now close it.
+        if (wParam == false) {
+            // Set our static flag to prevent recursion
+            if (destroyed == false) {
+                destroyed = true;
+                DestroyWindow(m_hwnd);
+            }
+            return TRUE;
+        }
+        return 0;
     }
     break;
 
@@ -638,21 +675,16 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_CUSTOMLABEL_CLICK:
     {
-
-        std::cout << "MSG_CUSTOMLABEL_CLICK" << std::endl;
-
         if (wParam == IDC_DATEPICKER_MOVEUP) {
             int nTopIndex = ListBox_GetTopIndex(hListBoxActive) - 1;
             nTopIndex = max(0, nTopIndex);
             SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
-            ListBox_SetCurSel(hListBoxActive, nTopIndex + 4);
             DatePicker_OnSelChange(m_hwnd);
         }
         if (wParam == IDC_DATEPICKER_MOVEDOWN) {
             int nTopIndex = ListBox_GetTopIndex(hListBoxActive) + 1;
             nTopIndex = min(ListBox_GetCount(hListBoxActive) - 9, nTopIndex);
             SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
-            ListBox_SetCurSel(hListBoxActive, nTopIndex + 4);
             DatePicker_OnSelChange(m_hwnd);
         }
         return 0;
