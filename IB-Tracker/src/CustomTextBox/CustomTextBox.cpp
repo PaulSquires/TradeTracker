@@ -416,7 +416,7 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
 
 
 //------------------------------------------------------------------------------ 
-void CustomTextBox_SetUserData(HWND hCtrl, int UserData)
+void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -427,7 +427,7 @@ void CustomTextBox_SetUserData(HWND hCtrl, int UserData)
 
 
 //------------------------------------------------------------------------------ 
-int CustomTextBox_GetUserData(HWND hCtrl)
+std::wstring CustomTextBox_GetUserData(HWND hCtrl)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {

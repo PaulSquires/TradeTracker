@@ -36,7 +36,7 @@ public:
 	HWND hParent = NULL;
 	HWND hTextBox = NULL;    // the actual child textbox
 	HINSTANCE hInst = NULL;
-	int UserData = 0;
+	std::wstring UserData;
 
 	int CtrlId = 0;
 
@@ -78,8 +78,8 @@ void CustomTextBox_SetNumericAttributes(
 	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
 void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor);
 void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
-void CustomTextBox_SetUserData(HWND hCtrl, int UserData);
-int CustomTextBox_GetUserData(HWND hCtrl);
+void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
+std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 
 
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, 

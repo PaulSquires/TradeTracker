@@ -11,6 +11,11 @@ CDatePicker DatePicker;
 HWND hListBoxActive = NULL;
 std::wstring wszSelectedDate;
 
+// Control on parent window that new selected date will be stored in and displayed.
+// That control must be a CustomLabel because we store the full ISO date in that
+// control's UserData string.
+HWND hUpdateParentCtl = NULL;   
+
 bool SystemListBoxSmoothScrolling = FALSE;
 
 
@@ -70,7 +75,6 @@ void DatePicker_LoadMonthListBox(HWND hListBox)
         }
     }
 
-    ListBox_SetCurSel(hListBox, 0);
     ListBox_SetTopIndex(hListBox, idx - 4);
 }
 
@@ -152,7 +156,7 @@ void DatePicker_OnSelChange(HWND hwnd)
     cursel = ListBox_GetTopIndex(hListBox) + 4;
     int year = ListBox_GetItemData(hListBox, cursel);
 
-    std::wstring wszSelectedDate = AfxMakeISODate(year, month, day);
+    wszSelectedDate = AfxMakeISODate(year, month, day);
 
     AfxRedrawWindow(hListBoxActive);
     
@@ -687,6 +691,20 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
             DatePicker_OnSelChange(m_hwnd);
         }
+        if (wParam == IDC_DATEPICKER_ACCEPT) {
+            DatePicker_OnSelChange(m_hwnd);
+
+            std::cout << hUpdateParentCtl << std::endl;
+
+
+            CustomLabel_SetUserData(hUpdateParentCtl, wszSelectedDate);
+            std::wstring wszText = AfxShortDate(wszSelectedDate);
+            CustomLabel_SetText(hUpdateParentCtl, AfxShortDate(wszSelectedDate));
+            DestroyWindow(m_hwnd);
+        }
+        if (wParam == IDC_DATEPICKER_CANCEL) {
+            DestroyWindow(m_hwnd);
+        }
         return 0;
     }
     break;
@@ -706,6 +724,7 @@ HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl, std::wstring wsz
         wszDate = AfxCurrentDate();
 
     wszSelectedDate = wszDate;
+    hUpdateParentCtl = hParentCtl;
 
     DatePicker.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

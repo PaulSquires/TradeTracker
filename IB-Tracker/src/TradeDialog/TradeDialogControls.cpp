@@ -455,8 +455,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nTop = 72;
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, L"May 7, 2023", TextColor, ThemeElement::GrayMedium,
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, L"May 7, 2023", TextColor, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 76, 24);
+    CustomLabel_SetUserData(hCtl, L"2023-05-07");
+
+
+    std::cout << hCtl << std::endl;
+
+
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 116, 97, 24, 24);

@@ -17,10 +17,6 @@ extern HWND HWND_MAINWINDOW;
 
 CTradeDialog TradeDialog;
 
-COLORREF CtrlTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
-COLORREF CtrlTextBack = GetThemeCOLORREF(ThemeElement::GrayDark);
-HBRUSH CtrlBackBrush = NULL;
-
 int tradeAction = ACTION_NOACTION;
 
 extern void TradeDialog_CreateTradeData(HWND hwnd);
@@ -47,8 +43,6 @@ void TradeDialog_OnClose(HWND hwnd)
 // ========================================================================================
 void TradeDialog_OnDestroy(HWND hwnd)
 {
-    DeleteObject(CtrlBackBrush);
-
     PostQuitMessage(0);
 }
 
@@ -60,53 +54,9 @@ BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRADEDIALOG = hwnd;
 
-    CtrlBackBrush = CreateSolidBrush(CtrlTextBack);
     TradeDialogControls_CreateControls(hwnd);
 
     return TRUE;
-}
-
-
-// ========================================================================================
-// Process WM_CTLCOLORBTN message for window/dialog: TradeDialog
-// ========================================================================================
-HBRUSH TradeDialog_OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-{
-    SetTextColor(hdc, CtrlTextColor);
-    SetBkColor(hdc, CtrlTextBack);
-    return GetSysColorBrush(COLOR_WINDOW);
-}
-
-
-// ========================================================================================
-// Process WM_CTLCOLOREDIT message for window/dialog: TradeDialog
-// ========================================================================================
-HBRUSH TradeDialog_OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-{
-    SetTextColor(hdc, CtrlTextColor);
-
-    // If this is the Total TextBox then display text as Red/Green 
-    // depending on the status of the Debit/Credit combobox.
-    if (GetDlgCtrlID(hwndChild) == IDC_TRADEDIALOG_TXTTOTAL) {
-        std::wstring wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-        if (wszText == L"DEBIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::Red));
-        if (wszText == L"CREDIT") SetTextColor(hdc, GetThemeCOLORREF(ThemeElement::Green));
-    }
-
-    SetBkColor(hdc, CtrlTextBack);
-    SetBkMode(hdc, OPAQUE);
-    return CtrlBackBrush;
-}
-
-
-// ========================================================================================
-// Process WM_CTLCOLORSTATIC message for window/dialog: TradeDialog
-// ========================================================================================
-HBRUSH TradeDialog_OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-{
-    SetTextColor(hdc, CtrlTextColor);
-    SetBkColor(hdc, CtrlTextBack);
-    return CtrlBackBrush;
 }
 
 
@@ -157,27 +107,6 @@ void TradesDialog_OnPaint(HWND hwnd)
 
     EndPaint(hwnd, &ps);
 }
-
-
-// ========================================================================================
-// Process WM_NOTIFY message for window/dialog: TradeDialog
-// ========================================================================================
-LRESULT TradeDialog_OnNotify(HWND hwnd, int id, LPNMHDR lpNMHDR)
-{
-    //switch (lpNMHDR->code)
-    //{
-    //case (DTN_DATETIMECHANGE):
-    //    if (lpNMHDR->idFrom == IDC_TRADEDIALOG_TRANSDATE ||
-    //        (lpNMHDR->idFrom >= IDC_TRADEDIALOG_TABLEEXPIRY && lpNMHDR->idFrom <= IDC_TRADEDIALOG_TABLEEXPIRY + 10)) {
-    //        CalculateTradeDTE(hwnd);
-    //        return 0;
-    //    }
-    //    break;
-    //}
-
-    return 0;
-}
-
 
 
 // ========================================================================================
@@ -254,12 +183,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, TradeDialog_OnCreate);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TradeDialog_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_NOTIFY, TradeDialog_OnNotify);
         HANDLE_MSG(m_hwnd, WM_DESTROY, TradeDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, TradeDialog_OnClose);
-        HANDLE_MSG(m_hwnd, WM_CTLCOLORBTN, TradeDialog_OnCtlColorBtn);
-        HANDLE_MSG(m_hwnd, WM_CTLCOLOREDIT, TradeDialog_OnCtlColorEdit);
-        HANDLE_MSG(m_hwnd, WM_CTLCOLORSTATIC, TradeDialog_OnCtlColorStatic);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesDialog_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
 
@@ -297,8 +222,9 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE || CtrlId == IDC_TRADEDIALOG_LBLTRANSDATE) {
-            // Clicked on the Transaction Date dropdown
-            DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), L"");
+            // Clicked on the Transaction Date dropdown or label itself
+            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
+            DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), wszDate);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
