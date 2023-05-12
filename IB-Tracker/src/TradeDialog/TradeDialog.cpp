@@ -298,7 +298,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE) {
             // Clicked on the Transaction Date dropdown
-            DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
+            DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), L"");
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {

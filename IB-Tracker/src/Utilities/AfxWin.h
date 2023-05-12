@@ -40,6 +40,7 @@ std::wstring AfxCurrentDate();
 
 std::wstring AfxShortDate(std::wstring wszDate);
 std::wstring AfxGetShortDayName(std::wstring wszDate);
+std::wstring AfxMakeISODate(int year, int month, int day);
 int AfxGetYear(std::wstring wszDate);
 int AfxGetMonth(std::wstring wszDate);
 int AfxGetDay(std::wstring wszDate);
@@ -72,7 +73,5 @@ int Header_GetItemAlignment(HWND hwndHD, int nItem);
 bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment = HDF_LEFT);
 std::wstring AfxUpper(const std::wstring& wszText);
 std::wstring AfxLower(const std::wstring& wszText);
-void AfxSetDateTimePickerDate(HWND hCtl, std::wstring wszDate);
-std::wstring AfxGetDateTimePickerDate(HWND hCtl);
 
 

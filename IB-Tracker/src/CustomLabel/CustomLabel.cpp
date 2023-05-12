@@ -108,7 +108,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_MOUSEMOVE:
     {
         if (pData == nullptr) return 0;
-        SendMessage(pData->hParent, MSG_CUSTOMLABEL_MOUSEMOVE, (WPARAM)hWnd, 0);
+        SendMessage(pData->hParent, MSG_CUSTOMLABEL_MOUSEMOVE, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
 
         // Tracks the mouse movement and stores the hot state
         TRACKMOUSEEVENT trackMouse;
@@ -130,6 +130,9 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 
     case WM_MOUSELEAVE:
+        if (pData == nullptr) return 0;
+        SendMessage(pData->hParent, MSG_CUSTOMLABEL_MOUSELEAVE, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+
         //  Removes the hot state and redraws the label
         if (pData->HotTestEnable) {
             RemoveProp(hWnd, L"HOT");
@@ -148,7 +151,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
             // We do not set the button IsSelected to true here because we leave it to 
             // the user to decide if after clicking the label whether to set the label
             // to selected or not.
-            PostMessage(pData->hParent, MSG_CUSTOMLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+            SendMessage(pData->hParent, MSG_CUSTOMLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
         }
         return 0;
         break;
@@ -306,6 +309,19 @@ void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColo
         pData->BorderColorHot = BorderColorHot;
         CustomLabel_SetOptions(hCtrl, pData);
     }
+}
+
+
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->Pointer = NormalPointer;
+        pData->PointerHot = HotPointer;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+
 }
 
 
@@ -475,7 +491,7 @@ HWND CreateCustomLabel(
 
     if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
-        wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+        wcex.style = CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = CustomLabelProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class

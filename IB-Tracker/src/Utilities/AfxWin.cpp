@@ -996,25 +996,12 @@ std::wstring AfxLower(const std::wstring& wszText)
 }
 
 
-// ========================================================================================
-// Set/Get the date for a DateTimePicker control. 
-// ========================================================================================
-void AfxSetDateTimePickerDate(HWND hCtl, std::wstring wszDate)
-{
-    // YYYY-MM-DD
-    // 0123456789
-
-    SYSTEMTIME st;
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
-    DateTime_SetSystemtime(hCtl, GDT_VALID, &st);
-}
-
-std::wstring AfxGetDateTimePickerDate(HWND hCtl)
+std::wstring AfxMakeISODate(int year, int month, int day)
 {
     SYSTEMTIME st;
-    DateTime_GetSystemtime(hCtl, &st);
+    st.wYear = year;
+    st.wMonth = month;
+    st.wDay = day;
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
     return buffer.substr(0, bytesWritten - 1); // remove terminating null

@@ -9,6 +9,8 @@ HWND HWND_DATEPICKER = NULL;
 CDatePicker DatePicker;
 
 HWND hListBoxActive = NULL;
+std::wstring wszSelectedDate;
+
 
 
 // ========================================================================================
@@ -19,41 +21,58 @@ void DatePicker_LoadMonthListBox(HWND hListBox)
     int idx = 0;
 
     ListBox_ResetContent(hListBox);
-    idx = ListBox_AddString(hListBox, L"January");
-    ListBox_SetItemData(hListBox, idx, 0);
+
+    for (int i = 0; i < 3; ++i) {
+
+        idx = ListBox_AddString(hListBox, L"January");
+        ListBox_SetItemData(hListBox, idx, 1);
     
-    idx = ListBox_AddString(hListBox, L"February");
-    ListBox_SetItemData(hListBox, idx, 1);
+        idx = ListBox_AddString(hListBox, L"February");
+        ListBox_SetItemData(hListBox, idx, 2);
     
-    idx = ListBox_AddString(hListBox, L"March");
-    ListBox_SetItemData(hListBox, idx, 2);
+        idx = ListBox_AddString(hListBox, L"March");
+        ListBox_SetItemData(hListBox, idx, 3);
     
-    idx = ListBox_AddString(hListBox, L"April");
-    ListBox_SetItemData(hListBox, idx, 3);
+        idx = ListBox_AddString(hListBox, L"April");
+        ListBox_SetItemData(hListBox, idx, 4);
     
-    idx = ListBox_AddString(hListBox, L"May");
-    ListBox_SetItemData(hListBox, idx, 4);
+        idx = ListBox_AddString(hListBox, L"May");
+        ListBox_SetItemData(hListBox, idx, 5);
     
-    idx = ListBox_AddString(hListBox, L"June");
-    ListBox_SetItemData(hListBox, idx, 5);
+        idx = ListBox_AddString(hListBox, L"June");
+        ListBox_SetItemData(hListBox, idx, 6);
     
-    idx = ListBox_AddString(hListBox, L"July");
-    ListBox_SetItemData(hListBox, idx, 6);
+        idx = ListBox_AddString(hListBox, L"July");
+        ListBox_SetItemData(hListBox, idx, 7);
     
-    idx = ListBox_AddString(hListBox, L"August");
-    ListBox_SetItemData(hListBox, idx, 7);
+        idx = ListBox_AddString(hListBox, L"August");
+        ListBox_SetItemData(hListBox, idx, 8);
     
-    idx = ListBox_AddString(hListBox, L"September");
-    ListBox_SetItemData(hListBox, idx, 8);
+        idx = ListBox_AddString(hListBox, L"September");
+        ListBox_SetItemData(hListBox, idx, 9);
     
-    idx = ListBox_AddString(hListBox, L"October");
-    ListBox_SetItemData(hListBox, idx, 9);
+        idx = ListBox_AddString(hListBox, L"October");
+        ListBox_SetItemData(hListBox, idx, 10);
     
-    idx = ListBox_AddString(hListBox, L"November");
-    ListBox_SetItemData(hListBox, idx, 10);
+        idx = ListBox_AddString(hListBox, L"November");
+        ListBox_SetItemData(hListBox, idx, 11);
     
-    idx = ListBox_AddString(hListBox, L"December");
-    ListBox_SetItemData(hListBox, idx, 11);
+        idx = ListBox_AddString(hListBox, L"December");
+        ListBox_SetItemData(hListBox, idx, 12);
+    }
+
+    int month = AfxGetMonth(wszSelectedDate);
+    for (int i = 12; i < ListBox_GetCount(hListBox); ++i) {
+        if (ListBox_GetItemData(hListBox, i) == month) {
+            idx = i; break;
+        }
+    }
+
+    std::cout << "Month idx: " << idx << std::endl;
+
+
+    ListBox_SetCurSel(hListBox, idx);
+    ListBox_SetTopIndex(hListBox, idx - 4);
 }
 
 
@@ -66,10 +85,24 @@ void DatePicker_LoadDayListBox(HWND hListBox)
 
     ListBox_ResetContent(hListBox);
 
-    for (int i = 1; i <= 31; ++i) {
-        idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
-        ListBox_SetItemData(hListBox, idx, 0);
+    for (int ii = 0; ii < 3; ++ii) {
+        for (int i = 1; i <= 31; ++i) {
+            idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
+            ListBox_SetItemData(hListBox, idx, i);
+        }
     }
+
+    int day = AfxGetDay(wszSelectedDate);
+    for (int i = 32; i < ListBox_GetCount(hListBox); ++i) {
+        if (ListBox_GetItemData(hListBox, i) == day) {
+            idx = i; break;
+        }
+    }
+
+    std::cout << "Day idx: " << idx << std::endl;
+
+    ListBox_SetCurSel(hListBox, idx);
+    ListBox_SetTopIndex(hListBox, idx - 4);
 }
 
 
@@ -89,8 +122,50 @@ void DatePicker_LoadYearListBox(HWND hListBox)
 
     for (int i = startYear; i <= endYear; ++i) {
         idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
-        ListBox_SetItemData(hListBox, idx, 0);
+        ListBox_SetItemData(hListBox, idx, i);
     }
+
+    int year = AfxGetYear(wszSelectedDate);
+    for (int i = 0; i < ListBox_GetCount(hListBox); ++i) {
+        if (ListBox_GetItemData(hListBox, i) == year) {
+            idx = i; break;
+        }
+    }
+
+    std::cout << "Year idx: " << idx << std::endl;
+
+    ListBox_SetCurSel(hListBox, idx);
+    ListBox_SetTopIndex(hListBox, idx - 4);
+}
+
+
+// ========================================================================================
+// Process LBN_SELCHANGE for window/dialog: DatePicker
+// ========================================================================================
+void DatePicker_OnSelChange(HWND hwnd)
+{
+    HWND hListBox = NULL;
+    int cursel = -1;
+
+    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX);
+    cursel = ListBox_GetCurSel(hListBox);
+    int month = ListBox_GetItemData(hListBox, cursel);
+
+    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX);
+    cursel = ListBox_GetCurSel(hListBox);
+    int day = ListBox_GetItemData(hListBox, cursel);
+
+    hListBox = GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX);
+    cursel = ListBox_GetCurSel(hListBox);
+    int year = ListBox_GetItemData(hListBox, cursel);
+
+    std::wstring wszSelectedDate = AfxMakeISODate(year, month, day);
+    
+    std::wcout << wszSelectedDate << std::endl;
+
+    //DatePicker_LoadMonthListBox(GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX));
+    //DatePicker_LoadDayListBox(GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX));
+    //DatePicker_LoadYearListBox(GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX));
 }
 
 
@@ -189,6 +264,9 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
         if (hbit) SelectObject(memDC, hbit);
 
+        // The "middle line" displayed is considered the selected line. This
+        // would be the line 4 lines after the listbox top line because there
+        // would be 4 lines before , selected line, 4 lines after.
         if ((lpDrawItem->itemAction | ODA_SELECT) &&
             (lpDrawItem->itemState & ODS_SELECTED)) {
             bIsHot = true;
@@ -260,19 +338,25 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
         int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
-            nTopIndex -= 3;
+        if (accumDelta >= 120) {     // scroll up 1 line
+            nTopIndex -= 1;
             nTopIndex = max(0, nTopIndex);
             SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+            ListBox_SetCurSel(hWnd, nTopIndex + 4);
             accumDelta = 0;
+            DatePicker_OnSelChange(HWND_DATEPICKER);
         }
         else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
-                nTopIndex += +3;
+            if (accumDelta <= -120) {     // scroll down 1 line
+                nTopIndex += 1;
+                nTopIndex = min(ListBox_GetCount(hWnd) - 9, nTopIndex);
                 SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+                ListBox_SetCurSel(hWnd, nTopIndex + 4);
                 accumDelta = 0;
+                DatePicker_OnSelChange(HWND_DATEPICKER);
             }
         }
+        return 0;
     }
     break;
 
@@ -283,7 +367,7 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
         // eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
         TRACKMOUSEEVENT tme;
         tme.cbSize = sizeof(TRACKMOUSEEVENT);
-        tme.dwFlags = TME_HOVER or TME_LEAVE;
+        tme.dwFlags = TME_LEAVE;
         tme.hwndTrack = hWnd;
         TrackMouseEvent(&tme);
 
@@ -291,6 +375,7 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
         hListBoxActive = hWnd;
         RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
         DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
+        return 0;
     }
     break;
 
@@ -298,9 +383,17 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
     case WM_MOUSELEAVE:
     {
         // We are leaving a ListBox so ensure that the correct Up/Down buttons are shown.
+        // Do not call if we are over an up or down button.
+        POINT pt; GetCursorPos(&pt);
+        RECT rc; GetWindowRect(GetDlgItem(HWND_DATEPICKER, IDC_DATEPICKER_MOVEUP), &rc);
+        if (PtInRect(&rc, pt)) return 0;
+        GetWindowRect(GetDlgItem(HWND_DATEPICKER, IDC_DATEPICKER_MOVEDOWN), &rc);
+        if (PtInRect(&rc, pt)) return 0;
+
         hListBoxActive = NULL;
-        RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
+        GetClientRect(HWND_DATEPICKER, &rc);
         DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
+        return 0;
     }
     break;
 
@@ -410,6 +503,29 @@ void DatePicker_OnPaint(HWND hwnd)
 }
 
 
+// ========================================================================================
+// Process WM_COMMAND message for window/dialog: DatePicker
+// ========================================================================================
+void DatePicker_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+    switch (id)
+    {
+
+    case (IDC_DATEPICKER_MONTHLISTBOX):
+    case (IDC_DATEPICKER_DAYLISTBOX):
+    case (IDC_DATEPICKER_YEARLISTBOX):
+        if (codeNotify == LBN_SELCHANGE) {
+            int nTopIndex = ListBox_GetCurSel(hwndCtl) - 4;
+            nTopIndex = max(0, nTopIndex);
+            SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
+            ListBox_SetCurSel(hListBoxActive, nTopIndex + 4);
+            DatePicker_OnSelChange(hwnd);
+        }
+        break;
+
+    }
+}
+
 
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: DatePicker
@@ -456,28 +572,30 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     DatePicker_LoadYearListBox(hCtl);
 
     // UP DOWN BUTTONS
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEUP, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEUP, L"\u23F6",
+        ThemeElement::WhiteDark, ThemeElement::GrayDark, ThemeElement::GrayDark, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
-    AfxAddWindowExStyle(hCtl, WS_EX_TRANSPARENT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Arrow, CustomLabelPointer::Arrow);
     ShowWindow(hCtl, SW_HIDE);
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEDOWN, L"\uE015",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEDOWN, L"\u23F7",
+        ThemeElement::WhiteDark, ThemeElement::GrayDark, ThemeElement::GrayDark, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
-    AfxAddWindowExStyle(hCtl, WS_EX_TRANSPARENT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Arrow, CustomLabelPointer::Arrow);
     ShowWindow(hCtl, SW_HIDE);
 
 
     // ACCEPT
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_ACCEPT, L"\u2713",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Arrow, CustomLabelPointer::Arrow);
 
     // CANCEL
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_CANCEL, L"\u2715",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_CANCEL, L"\u2715", 
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Arrow, CustomLabelPointer::Arrow);
 
     return TRUE;
 }
@@ -491,6 +609,7 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, DatePicker_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, DatePicker_OnCommand);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, DatePicker_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, DatePicker_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, DatePicker_OnSize);
@@ -499,10 +618,47 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_KILLFOCUS:
     {
-        DestroyWindow(m_hwnd);
+        //DestroyWindow(m_hwnd);
+        //return 0;
+    }
+    break;
+
+
+    case MSG_CUSTOMLABEL_MOUSELEAVE:
+    {
+        if (wParam == IDC_DATEPICKER_MOVEUP || wParam == IDC_DATEPICKER_MOVEDOWN) {
+            hListBoxActive = NULL;
+            RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
+            DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
+        }
         return 0;
     }
     break;
+
+
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+
+        std::cout << "MSG_CUSTOMLABEL_CLICK" << std::endl;
+
+        if (wParam == IDC_DATEPICKER_MOVEUP) {
+            int nTopIndex = ListBox_GetTopIndex(hListBoxActive) - 1;
+            nTopIndex = max(0, nTopIndex);
+            SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
+            ListBox_SetCurSel(hListBoxActive, nTopIndex + 4);
+            DatePicker_OnSelChange(m_hwnd);
+        }
+        if (wParam == IDC_DATEPICKER_MOVEDOWN) {
+            int nTopIndex = ListBox_GetTopIndex(hListBoxActive) + 1;
+            nTopIndex = min(ListBox_GetCount(hListBoxActive) - 9, nTopIndex);
+            SendMessage(hListBoxActive, LB_SETTOPINDEX, nTopIndex, 0);
+            ListBox_SetCurSel(hListBoxActive, nTopIndex + 4);
+            DatePicker_OnSelChange(m_hwnd);
+        }
+        return 0;
+    }
+    break;
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -512,11 +668,17 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create DatePicker contro and move it into position under the specified incoming control.
 // ========================================================================================
-HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl)
+HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl, std::wstring wszDate)
 {
+    if (wszDate.length() == 0)
+        wszDate = AfxCurrentDate();
+
+    wszSelectedDate = wszDate;
+
     DatePicker.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
 
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(DatePicker.WindowHandle(), HWND_TOP,
