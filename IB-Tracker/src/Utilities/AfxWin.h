@@ -48,6 +48,8 @@ int AfxLocalYear();
 int AfxLocalMonth();
 int AfxDaysBetween(std::wstring date1, std::wstring date2);
 std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd);
+std::wstring AfxLongDate(std::wstring wszDate);
+
 
 bool isWineActive();
 std::wstring AfxGetDefaultFont();

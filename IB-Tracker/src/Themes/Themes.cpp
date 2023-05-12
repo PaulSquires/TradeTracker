@@ -43,6 +43,8 @@ void InitializeDarkThemeColors()
 	clr[(int)ThemeElement::Green] = Color::MakeARGB(255, 72, 151, 13);
 	clr[(int)ThemeElement::Red] = Color::MakeARGB(255, 255, 30, 0);
 	clr[(int)ThemeElement::Orange] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
+	clr[(int)ThemeElement::Purple] = Color::Purple;
+	clr[(int)ThemeElement::Blue] = Color::Blue;
 
 	clr[(int)ThemeElement::MenuNotch] = Color::MakeARGB(255, 38, 38, 38);
 	clr[(int)ThemeElement::Separator] = Color::MakeARGB(255, 53, 59, 69);

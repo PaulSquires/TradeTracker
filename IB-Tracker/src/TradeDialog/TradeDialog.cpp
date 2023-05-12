@@ -125,6 +125,8 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
     case (IDC_TRADEDIALOG_TXTTICKER):
         if (codeNotify == EN_KILLFOCUS) {
+            // Show the Futures contract date field and set the label descriptions if needed.
+            TradeDialogControls_ShowFuturesContractDate(hwnd);
 
             // If the Company Name textbox is empty then attempt to lookup the specified
             // Ticker and fill in the corresponding Company Name.
@@ -141,7 +143,6 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
                 AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
             }
 
-            TradeDialogControls_ShowFuturesContractDate(hwnd);
 
         }
         break;
@@ -224,7 +225,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE || CtrlId == IDC_TRADEDIALOG_LBLTRANSDATE) {
             // Clicked on the Transaction Date dropdown or label itself
             std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-            DatePicker_CreateDatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), wszDate);
+            DatePicker_CreateDatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), wszDate, DatePickerReturnType::LongDate);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
@@ -248,10 +250,8 @@ void TradeDialog_Show(int inTradeAction)
 {
     tradeAction = inTradeAction;
 
-    int nWidth = 575;
+    int nWidth = 715;
     int nHeight = 415;
-
-    if (tradeAction == ACTION_ROLL_LEG) nWidth += 140;
 
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

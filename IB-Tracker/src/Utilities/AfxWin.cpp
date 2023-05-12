@@ -588,6 +588,35 @@ std::wstring AfxShortDate(std::wstring wszDate)
     return buffer.substr(0, bytesWritten - 1); // remove terminating null
 }
 
+// ========================================================================================
+// Returns the long date MMM DD, yyyy from a date in ISO format (YYYY-MM-DD)
+// ========================================================================================
+std::wstring AfxLongDate(std::wstring wszDate)
+{
+    SYSTEMTIME st{};
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd, yyyy", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
+// ========================================================================================
+// Returns the date in ISO format (YYYY-MM-DD) based on incoming year, month, day.
+// ========================================================================================
+std::wstring AfxMakeISODate(int year, int month, int day)
+{
+    SYSTEMTIME st;
+    st.wYear = year;
+    st.wMonth = month;
+    st.wDay = day;
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
 
 // ========================================================================================
 // Check if running under Linux Wine
@@ -996,16 +1025,6 @@ std::wstring AfxLower(const std::wstring& wszText)
 }
 
 
-std::wstring AfxMakeISODate(int year, int month, int day)
-{
-    SYSTEMTIME st;
-    st.wYear = year;
-    st.wMonth = month;
-    st.wDay = day;
-    std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
-}
 
 
 

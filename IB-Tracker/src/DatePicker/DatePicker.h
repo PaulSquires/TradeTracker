@@ -10,6 +10,12 @@ public:
 
 };
 
+enum class DatePickerReturnType 
+{
+    ShortDate,    // Mar 1
+    LongDate,     // Mar 1, 2023
+    ISODate       // 2023-03-01
+};
 
 const int IDC_DATEPICKER_MONTHLISTBOX = 100;
 const int IDC_DATEPICKER_DAYLISTBOX = 101;
@@ -24,10 +30,11 @@ const int IDC_DATEPICKER_CANCEL = 110;
 const int DATEPICKER_LISTBOX_ROWHEIGHT = 28;
 const int DATEPICKER_LISTBOX_VISIBLELINES = 9;
 
-const int DATEPICKER_PANEL_WIDTH = 200;
+const int DATEPICKER_PANEL_WIDTH = 220;
 const int DATEPICKER_PANEL_MONTHWIDTH = 100;
-const int DATEPICKER_PANEL_DAYWIDTH = 50;
-const int DATEPICKER_PANEL_YEARWIDTH = 50;
+const int DATEPICKER_PANEL_DAYWIDTH = 60;
+const int DATEPICKER_PANEL_YEARWIDTH = 60;
 
-HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl, std::wstring wszDate);
+HWND DatePicker_CreateDatePicker(
+    HWND hParent, HWND hParentCtl, std::wstring wszDate, DatePickerReturnType DateReturnType);
 

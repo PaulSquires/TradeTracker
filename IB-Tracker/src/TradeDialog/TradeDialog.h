@@ -39,6 +39,12 @@ const int IDC_TRADEDIALOG_SAVE           = 125;
 const int IDC_TRADEDIALOG_TABLEGRIDMAIN  = 130;
 const int IDC_TRADEDIALOG_TABLEGRIDROLL  = 131;
 
+const int IDC_TRADEDIALOG_CATBLUE        = 140;
+const int IDC_TRADEDIALOG_CATPURPLE      = 141;
+const int IDC_TRADEDIALOG_CATGREEN       = 142;
+const int IDC_TRADEDIALOG_CATORANGE      = 143;
+const int IDC_TRADEDIALOG_CATRED         = 144;
+
 
 void TradeDialog_Show(int inTradeAction);
 void CalculateTradeTotal(HWND hwnd);

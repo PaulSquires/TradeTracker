@@ -14,7 +14,8 @@ std::wstring wszSelectedDate;
 // Control on parent window that new selected date will be stored in and displayed.
 // That control must be a CustomLabel because we store the full ISO date in that
 // control's UserData string.
-HWND hUpdateParentCtl = NULL;   
+HWND hUpdateParentCtl = NULL;
+DatePickerReturnType UpdateDateReturnType = DatePickerReturnType::ISODate;
 
 bool SystemListBoxSmoothScrolling = FALSE;
 
@@ -160,8 +161,6 @@ void DatePicker_OnSelChange(HWND hwnd)
 
     AfxRedrawWindow(hListBoxActive);
     
-    std::wcout << wszSelectedDate << std::endl;
-
     //DatePicker_LoadMonthListBox(GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX));
     //DatePicker_LoadDayListBox(GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX));
     //DatePicker_LoadYearListBox(GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX));
@@ -178,6 +177,7 @@ void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nWidth = 0;
     int nHeightListBox = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * 9);
     int nHeightButton = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT);
+    int margin = AfxScaleX(1);
 
     
     HDWP hdwp = BeginDeferWindowPos(10);
@@ -187,12 +187,12 @@ void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
         hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX), 0,
         nLeft, 0, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft += nWidth;
+    nLeft += nWidth + margin;
     nWidth = AfxScaleX(DATEPICKER_PANEL_DAYWIDTH);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX), 0,
         nLeft, 0, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft += nWidth;
+    nLeft += nWidth + margin;
     nWidth = AfxScaleX(DATEPICKER_PANEL_YEARWIDTH);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX), 0,
         nLeft, 0, nWidth, nHeightListBox, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -215,7 +215,7 @@ void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
     
 
     // ACCEPT
-    nTop = cy - nHeightButton;
+    nTop = cy - nHeightButton + margin;
     nWidth = AfxScaleX(DATEPICKER_PANEL_WIDTH / 2);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_DATEPICKER_ACCEPT),
         0, 0, nTop, nWidth, nHeightButton, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -276,10 +276,7 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         std::wstring wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
 
-        DWORD nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::Selection)
-            : GetThemeColor(ThemeElement::GrayDark);
-        DWORD nBackColorHot = GetThemeColor(ThemeElement::Selection);
+        DWORD nBackColor = GetThemeColor(ThemeElement::GrayLight);
         DWORD nTextColor = GetThemeColor(ThemeElement::WhiteLight);
 
         std::wstring wszFontName = AfxGetDefaultFont();
@@ -293,6 +290,24 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         // Paint the full width background using brush 
         SolidBrush backBrush(nBackColor);
         graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+
+        // Paint the Selection hightlight slightly indented
+        if (bIsHot) {
+            nBackColor = GetThemeColor(ThemeElement::Selection);
+            SolidBrush backBrush(nBackColor);
+            switch (lpDrawItem->CtlID)
+            {
+            case IDC_DATEPICKER_MONTHLISTBOX:
+                graphics.FillRectangle(&backBrush, AfxScaleX(3), 0, nWidth, nHeight);
+                break;
+            case IDC_DATEPICKER_DAYLISTBOX:
+                graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+                break;
+            case IDC_DATEPICKER_YEARLISTBOX:
+                graphics.FillRectangle(&backBrush, 0, 0, nWidth - AfxScaleX(6), nHeight);
+                break;
+            }
+        }
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
         SolidBrush   textBrush(nTextColor);
@@ -445,7 +460,7 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayLight));
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -543,8 +558,6 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Turn off smooth scrolling.
     SystemParametersInfo(SPI_SETLISTBOXSMOOTHSCROLLING, 0, FALSE, 0);
 
-    //SystemParametersInfo(SPI_SETLISTBOXSMOOTHSCROLLING, 0, FALSE,
-    //    SPIF_SENDCHANGE);
 
     HWND_DATEPICKER = hwnd;
 
@@ -590,13 +603,13 @@ BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // UP DOWN BUTTONS
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEUP, L"\u23F6",
-        ThemeElement::WhiteDark, ThemeElement::GrayDark, ThemeElement::GrayDark, ThemeElement::GrayDark,
+        ThemeElement::WhiteDark, ThemeElement::GrayLight, ThemeElement::GrayLight, ThemeElement::GrayLight,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Arrow, CustomLabelPointer::Arrow);
     ShowWindow(hCtl, SW_HIDE);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_DATEPICKER_MOVEDOWN, L"\u23F7",
-        ThemeElement::WhiteDark, ThemeElement::GrayDark, ThemeElement::GrayDark, ThemeElement::GrayDark,
+        ThemeElement::WhiteDark, ThemeElement::GrayLight, ThemeElement::GrayLight, ThemeElement::GrayLight,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Arrow, CustomLabelPointer::Arrow);
     ShowWindow(hCtl, SW_HIDE);
@@ -694,12 +707,23 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (wParam == IDC_DATEPICKER_ACCEPT) {
             DatePicker_OnSelChange(m_hwnd);
 
-            std::cout << hUpdateParentCtl << std::endl;
-
-
             CustomLabel_SetUserData(hUpdateParentCtl, wszSelectedDate);
-            std::wstring wszText = AfxShortDate(wszSelectedDate);
-            CustomLabel_SetText(hUpdateParentCtl, AfxShortDate(wszSelectedDate));
+            std::wstring wszText;
+
+            switch (UpdateDateReturnType)
+            {
+            case DatePickerReturnType::ShortDate:
+                wszText = AfxShortDate(wszSelectedDate);
+                break;
+            case DatePickerReturnType::LongDate:
+                wszText = AfxLongDate(wszSelectedDate);
+                break;
+            case DatePickerReturnType::ISODate:
+                wszText = wszSelectedDate;
+                break;
+            }
+
+            CustomLabel_SetText(hUpdateParentCtl, wszText);
             DestroyWindow(m_hwnd);
         }
         if (wParam == IDC_DATEPICKER_CANCEL) {
@@ -718,13 +742,14 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create DatePicker contro and move it into position under the specified incoming control.
 // ========================================================================================
-HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl, std::wstring wszDate)
+HWND DatePicker_CreateDatePicker(
+    HWND hParent, HWND hParentCtl, std::wstring wszDate, DatePickerReturnType DateReturnType)
 {
     if (wszDate.length() == 0)
         wszDate = AfxCurrentDate();
 
     wszSelectedDate = wszDate;
-    hUpdateParentCtl = hParentCtl;
+
 
     DatePicker.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -734,9 +759,15 @@ HWND DatePicker_CreateDatePicker(HWND hParent, HWND hParentCtl, std::wstring wsz
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(DatePicker.WindowHandle(), HWND_TOP,
         rc.left, rc.bottom, 
-        AfxScaleX(DATEPICKER_PANEL_WIDTH), 
-        AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * (DATEPICKER_LISTBOX_VISIBLELINES + 1)),
+        AfxScaleX(DATEPICKER_PANEL_WIDTH) + (AfxScaleX(1) * 2),
+        AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * (DATEPICKER_LISTBOX_VISIBLELINES + 1)) + AfxScaleY(1),
         SWP_NOSIZE | SWP_SHOWWINDOW);
+
+    
+    // Set the module global hUpdateParentCtl after the above DatePicker is created in
+    // to ensure the variable address is correct.
+    hUpdateParentCtl = hParentCtl;
+    UpdateDateReturnType = DateReturnType;
 
     return DatePicker.WindowHandle();
 }
