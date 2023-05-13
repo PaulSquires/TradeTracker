@@ -136,15 +136,17 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             //if (wszCompanyName.length() != 0) break;
 
             std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+            std::wstring companyName;
 
             auto iter = std::find_if(trades.begin(), trades.end(),
                 [&](const Trade* t) { return (t->tickerSymbol == tickerSymbol); });
 
             if (iter != trades.end()) {
                 auto index = std::distance(trades.begin(), iter);
-                AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), trades.at(index)->tickerName);
+                companyName = trades.at(index)->tickerName;
             }
 
+            AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), companyName);
 
         }
         break;
@@ -253,7 +255,7 @@ void TradeDialog_Show(int inTradeAction)
     tradeAction = inTradeAction;
 
     int nWidth = 715;
-    int nHeight = 415;
+    int nHeight = 500;
 
     HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
