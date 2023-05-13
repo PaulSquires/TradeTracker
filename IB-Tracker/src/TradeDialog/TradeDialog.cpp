@@ -299,7 +299,7 @@ void TradeDialog_Show(int inTradeAction)
 
     
     // set focus to the Transaction date picker
-    if (inTradeAction == ACTION_ROLL_LEG) {
+    if (tradeAction == ACTION_ROLL_LEG) {
  //       SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
     }
     else {

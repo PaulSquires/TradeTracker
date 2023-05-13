@@ -6,10 +6,11 @@
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\CustomTextBox\CustomTextBox.h"
 #include "..\TradeGrid\TradeGrid.h"
-#include "..\Strategies\StrategyButton.h"
+#include "..\Strategy\StrategyButton.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\Database\database.h"
+#include "..\Category\Category.h"
 
 
 struct LineCtrl {
@@ -414,7 +415,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
-        hCtl= CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Futures Contract", TextColorDim, BackColor,
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Futures Contract", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
         ShowWindow(hCtl, SW_HIDE);
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, L"Jun 30, 2023", TextColor, ThemeElement::GrayMedium,
@@ -479,7 +480,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
-    
+
     // Create the main trade grid
     nTop = 145;
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
@@ -502,11 +503,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     int nStartTop = nTop;
 
-    
+
     nWidth = 80;
     CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT, 
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
@@ -516,7 +517,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT, 
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT,
         L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
@@ -570,129 +571,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     TradeDialogControls_GetTradeDescription(hwnd);
 
 
-    // CATEGORY SELECTORS
-    int margin = 1;
-    nLeft = 540;
+    // CATEGORY SELECTOR
+    if (tradeAction == ACTION_NEW_TRADE) 
+        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 24);
 
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_TRADEDIALOG_CATBLUE,
-        CustomLabelType::TextOnly,
-        nLeft, 45, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->AllowSelect = true;
-        pData->HotTestEnable = true;
-        pData->BackColor = ThemeElement::GrayMedium;
-        pData->TextColor = ThemeElement::Blue;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->FontSize = 9;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"O";
-        pData->wszTextHot = pData->wszText;
-        pData->wszToolTip = L"Category Blue";
-        pData->PointerHot = pData->Pointer;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_TRADEDIALOG_CATPURPLE,
-        CustomLabelType::TextOnly,
-        nLeft, 45, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->AllowSelect = true;
-        pData->HotTestEnable = true;
-        pData->BackColor = ThemeElement::GrayMedium;
-        pData->TextColor = ThemeElement::Purple;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->FontSize = 9;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"O";
-        pData->wszTextHot = pData->wszText;
-        pData->wszToolTip = L"Category Purple";
-        pData->PointerHot = pData->Pointer;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_TRADEDIALOG_CATGREEN,
-        CustomLabelType::TextOnly,
-        nLeft, 45, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->AllowSelect = true;
-        pData->HotTestEnable = true;
-        pData->BackColor = ThemeElement::GrayMedium;
-        pData->TextColor = ThemeElement::Green;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->FontSize = 9;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"O";
-        pData->wszTextHot = pData->wszText;
-        pData->wszToolTip = L"Category Green";
-        pData->PointerHot = pData->Pointer;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_TRADEDIALOG_CATORANGE,
-        CustomLabelType::TextOnly,
-        nLeft, 45, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->AllowSelect = true;
-        pData->HotTestEnable = true;
-        pData->BackColor = ThemeElement::GrayMedium;
-        pData->TextColor = ThemeElement::Orange;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->FontSize = 9;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"O";
-        pData->wszTextHot = pData->wszText;
-        pData->wszToolTip = L"Category Orange";
-        pData->PointerHot = pData->Pointer;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_TRADEDIALOG_CATRED,
-        CustomLabelType::TextOnly,
-        nLeft, 45, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->AllowSelect = true;
-        pData->HotTestEnable = true;
-        pData->BackColor = ThemeElement::GrayMedium;
-        pData->TextColor = ThemeElement::Red;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->FontSize = 9;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"O";
-        pData->wszTextHot = pData->wszText;
-        pData->wszToolTip = L"Category Red";
-        pData->PointerHot = pData->Pointer;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
- }
-
+}
 

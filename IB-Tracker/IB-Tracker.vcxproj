@@ -19,14 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Category\Category.h" />
     <ClInclude Include="src\Config\Config.h" />
     <ClInclude Include="src\DatePicker\DatePicker.h" />
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
     <ClInclude Include="src\TradeGrid\TradeGrid.h" />
     <ClInclude Include="src\DailyPanel\DailyPanel.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
-    <ClInclude Include="src\Strategies\StrategyButton.h" />
-    <ClInclude Include="src\Strategies\StrategyPanel.h" />
+    <ClInclude Include="src\Strategy\StrategyButton.h" />
+    <ClInclude Include="src\Strategy\StrategyPanel.h" />
     <ClInclude Include="src\TickerPanel\TickerPanel.h" />
     <ClInclude Include="src\TradeDialog\TradeDialog.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogControls.h" />
@@ -117,6 +118,7 @@
     <Image Include="src\images\png1.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Category\Category.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\DatePicker\DatePicker.cpp" />
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
@@ -127,8 +129,8 @@
     <ClCompile Include="src\MainWindow\tws-client.cpp" />
     <ClCompile Include="src\MenuPanel\MenuPanel.cpp" />
     <ClCompile Include="src\Reconcile\Reconcile.cpp" />
-    <ClCompile Include="src\Strategies\StrategyButton.cpp" />
-    <ClCompile Include="src\Strategies\StrategyPanel.cpp" />
+    <ClCompile Include="src\Strategy\StrategyButton.cpp" />
+    <ClCompile Include="src\Strategy\StrategyPanel.cpp" />
     <ClCompile Include="src\TickerPanel\TickerPanel.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />
