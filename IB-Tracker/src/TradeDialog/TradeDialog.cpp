@@ -131,7 +131,9 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             // If the Company Name textbox is empty then attempt to lookup the specified
             // Ticker and fill in the corresponding Company Name.
             std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
-            if (wszCompanyName.length() != 0) break;
+            
+            // TODO: Decision to always lookup or just when empty
+            //if (wszCompanyName.length() != 0) break;
 
             std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
 

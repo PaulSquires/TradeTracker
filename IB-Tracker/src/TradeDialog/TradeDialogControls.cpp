@@ -409,13 +409,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
-        CustomLabel_SimpleLabel(hwnd, -1, L"Company Name", TextColorDim, BackColor,
+        CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCOMPANY, L"Company Name", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 115, 20, 115, 22);
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 24);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Futures Contract", TextColorDim, BackColor,
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
         ShowWindow(hCtl, SW_HIDE);
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, L"Jun 30, 2023", TextColor, ThemeElement::GrayMedium,
