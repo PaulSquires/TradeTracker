@@ -373,7 +373,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int vsp = 4;   // vertical spacer
 
     int HTextMargin = 0;
-    int VTextMargin = 2;
+    int VTextMargin = 4;
 
     COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
     COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
