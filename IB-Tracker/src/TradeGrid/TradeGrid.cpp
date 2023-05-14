@@ -77,7 +77,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
             L"May 30", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -95,7 +95,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"24d", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -122,7 +122,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"P", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -135,7 +135,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"STO", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;

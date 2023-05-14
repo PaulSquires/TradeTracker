@@ -379,7 +379,7 @@ void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor);
 void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor);
 ThemeElement CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
-void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
+void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold);
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomLabel_GetUserData(HWND hCtrl);
 void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColor, ThemeElement BorderColorHot);

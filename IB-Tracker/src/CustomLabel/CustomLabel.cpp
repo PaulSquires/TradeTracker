@@ -359,7 +359,7 @@ std::wstring CustomLabel_GetUserData(HWND hCtrl)
 
 
 //------------------------------------------------------------------------------ 
-void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
+void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -367,6 +367,8 @@ void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
         pData->wszFontNameHot = wszFontName;
         pData->FontSize = (REAL)FontSize;
         pData->FontSizeHot = (REAL)FontSize;
+        pData->FontBold = FontBold;
+        pData->FontBoldHot = pData->FontBold;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }

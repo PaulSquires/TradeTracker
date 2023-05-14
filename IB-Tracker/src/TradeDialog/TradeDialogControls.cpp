@@ -402,6 +402,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayDark;
         pData->TextColor = ThemeElement::WhiteLight;
         pData->FontSize = 12;
+        pData->FontBold = true;
         pData->TextAlignment = CustomLabelAlignment::TopRight;
         CustomLabel_SetOptions(hCtl, pData);
     }

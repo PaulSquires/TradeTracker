@@ -84,22 +84,22 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleLeft, 0, 0, 50, nHeight);
     HWND_SHORTLONG = hCtl;
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"PUT",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"CALL",
         ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 50, 0, 50, nHeight);
     HWND_PUTCALL = hCtl;
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_STRATEGY, L"IRON CONDOR",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_STRATEGY, L"VERTICAL",
         ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleLeft, 100, 0, 100, nHeight);
     HWND_STRATEGY = hCtl;
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
 
@@ -107,14 +107,14 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ThemeElement::WhiteLight, ThemeElement::GrayDark,
         CustomLabelAlignment::MiddleCenter, 200, 0, 30, nHeight);
     HWND_GO = hCtl;
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, L"\uE015",
         ThemeElement::WhiteMedium, ThemeElement::GrayDark, ThemeElement::GrayMedium, ThemeElement::GrayLight,
         CustomLabelAlignment::MiddleCenter, 230, 0, 30, nHeight);
     HWND_DROPDOWN = hCtl;
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
     return TRUE;
