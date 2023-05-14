@@ -19,6 +19,8 @@ std::vector<Trade*> trades;
 
 std::wstring InsertDateHyphens(const std::wstring& dateString)
 {
+    if (dateString.length() != 8) return L"";
+
     std::wstring newDate = dateString;
     // YYYYMMDD
     // 01234567
@@ -102,20 +104,23 @@ bool SaveDatabase()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "// TRADE  T|isOpen|TickerSymbol|TickerName|FutureExpiry\n"
+        << "// TRADE  T|isOpen|TickerSymbol|TickerName|FutureExpiry|Category\n"
         << "// TRANS  X|underlying|description|transDate|quantity|price|multiplier|fees|total\n"
         << "// LEG    L|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
         << "// isOpen:        0:TRUE, 1:FALSE\n"
-        << "// FutureExpiry:  YYYYMM (do not insert hyphens)\n"
+        << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
+        << "// Category:      0,1,2,3,4 (integer value)\n"
         << "// underlying:    0:OPTIONS, 1:SHARES, 2:FUTURES, 3:CURRENCY, 4:COMMODITIES\n"
-        << "// action:        0:STO, 1:BTO, 2:STC, 3:BTC\n";
+        << "// action:        0:STO, 1:BTO, 2:STC, 3:BTC\n"
+        << "// Dates are all in YYYYMMDD format with no embedded separators.\n";
 
     for (const auto trade : trades) {
         db << "T|"
             << std::wstring(trade->isOpen ? L"1|" : L"0|")
             << trade->tickerSymbol << "|"
             << trade->tickerName << "|"
-            << trade->futureExpiry
+            << trade->futureExpiry << "|"
+            << trade->category
             << "\n";
 
         for (const auto trans : trade->transactions) {
@@ -148,6 +153,33 @@ bool SaveDatabase()
     return true;
 }
 
+
+int try_catch_int(std::vector<std::wstring>& st, int idx) {
+    try {
+        return stoi(st.at(idx));
+    }
+    catch (...) {
+        return 0;
+    }
+}
+
+double try_catch_double(std::vector<std::wstring>& st, int idx) {
+    try {
+        return stod(st.at(idx));
+    }
+    catch (...) {
+        return 0;
+    }
+}
+
+std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
+    try {
+        return st.at(idx);
+    }
+    catch (...) {
+        return L"";
+    }
+}
 
 
 bool LoadDatabase()
@@ -187,7 +219,7 @@ bool LoadDatabase()
 
         // First line must be the database identifier and version
         if (isFirstline) {
-            if (st.at(0) != idMagic) {
+            if (try_catch_wstring(st, 0) != idMagic) {
                 int msgboxID = MessageBox(
                     NULL,
                     (LPCWSTR)(L"Invalid trades database"),
@@ -197,7 +229,7 @@ bool LoadDatabase()
                 db.close();
                 return false;
             }
-            databaseVersion = st.at(1);
+            databaseVersion = try_catch_wstring(st, 1);
             isFirstline = false;
             continue;
         }
@@ -205,40 +237,43 @@ bool LoadDatabase()
 
         // Check for Trades, Transactions, and Legs
 
-        if (st.at(0) == L"T") {
+        if (try_catch_wstring(st, 0) == L"T") {
             trade = new Trade();
-            trade->isOpen = (st.at(1) == L"0" ? false : true);
-            trade->tickerSymbol = st.at(2);
-            trade->tickerName = st.at(3);
-            trade->futureExpiry = st.at(4);
+
+            trade->isOpen = (try_catch_wstring(st, 1) == L"0" ? false : true);
+            trade->tickerSymbol = try_catch_wstring(st, 2);
+            trade->tickerName = try_catch_wstring(st, 3);
+            trade->futureExpiry = InsertDateHyphens(try_catch_wstring(st, 4));
+            trade->category = try_catch_int(st, 5);
+            
             trades.push_back(trade);
             continue;
         }
 
-        if (st.at(0) == L"X") {
+        if (try_catch_wstring(st, 0) == L"X") {
             trans = new Transaction();
-            trans->transDate = InsertDateHyphens(st.at(1));
-            trans->description = st.at(2);
-            trans->underlying = NumberToUnderlying(stoi(st.at(3)));
-            trans->quantity = stoi(st.at(4));
-            trans->price = stod(st.at(5));
-            trans->multiplier = stod(st.at(6));
-            trans->fees = stod(st.at(7));
-            trans->total = stod(st.at(8));
+            trans->transDate = InsertDateHyphens(try_catch_wstring(st, 1));
+            trans->description = try_catch_wstring(st, 2);
+            trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
+            trans->quantity = try_catch_int(st, 4);
+            trans->price = try_catch_double(st, 5);
+            trans->multiplier = try_catch_double(st, 6);
+            trans->fees = try_catch_double(st, 7);
+            trans->total = try_catch_double(st, 8);
             if (trade != nullptr)
                 trade->transactions.push_back(trans);
             continue;
         }
 
-        if (st.at(0) == L"L") {
+        if (try_catch_wstring(st, 0) == L"L") {
             leg = new Leg();
-            leg->origQuantity = stoi(st.at(1));
-            leg->openQuantity = stoi(st.at(2));
-            leg->expiryDate = InsertDateHyphens(st.at(3));
-            leg->strikePrice = st.at(4);
-            leg->PutCall = st.at(5);
-            leg->action = NumberToAction(stoi(st.at(6)));
-            leg->underlying = NumberToUnderlying(stoi(st.at(7)));
+            leg->origQuantity = try_catch_int(st, 1);
+            leg->openQuantity = try_catch_int(st, 2);
+            leg->expiryDate = InsertDateHyphens(try_catch_wstring(st, 3));
+            leg->strikePrice = try_catch_wstring(st, 4);
+            leg->PutCall = try_catch_wstring(st, 5); 
+            leg->action = NumberToAction(try_catch_int(st, 6));
+            leg->underlying = NumberToUnderlying(try_catch_int(st, 7));
             if (trans != nullptr)
                 trans->legs.push_back(leg);
             continue;

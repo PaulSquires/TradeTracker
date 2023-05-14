@@ -46,10 +46,11 @@ class Trade
 public:
     ~Trade();
 
-    bool          isOpen       = true;   // False if all legs are closed
+    bool          isOpen       = true;    // False if all legs are closed
     std::wstring  tickerSymbol = L"";
     std::wstring  tickerName   = L"";
     std::wstring  futureExpiry = L"";     // YYYYMM of Futures contract expiry
+    int           category     = 0;       //  blue, purple, etc (0 to 4)
     double        ACB          = 0;
 
     double  tickerLastPrice = 0;

@@ -69,7 +69,7 @@ void TradeDialog_CreateTradeData(HWND hwnd)
         trades.push_back(trade);
         trade->tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
         trade->tickerName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
-        //trade->futureExpiry = ui->txtExpiry->text();
+        trade->futureExpiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
     }
     else {
         trade = tradeEdit;
@@ -233,9 +233,15 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     if (tradeAction == ACTION_NEW_TRADE) return;
 
     // Update the Trade Management table with the details of the Trade.
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), tradeEdit->tickerSymbol);
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
     
+    std::wstring wszText = tradeEdit->tickerSymbol;
+    if (tradeEdit->futureExpiry.length()) {
+        wszText = wszText + L": " + AfxFormatFuturesDate(tradeEdit->futureExpiry);
+    }
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
+
+
     if (legsEdit.size() == 0) return;
 
     int DefaultQuantity = 0;
@@ -373,7 +379,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int vsp = 4;   // vertical spacer
 
     int HTextMargin = 0;
-    int VTextMargin = 4;
+    int VTextMargin = 3;
 
     COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
     COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
@@ -405,25 +411,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (tradeAction == ACTION_NEW_TRADE) {
         CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 40, 20, 65, 22);
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 24);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
         CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCOMPANY, L"Company Name", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 115, 20, 115, 22);
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 24);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
         ShowWindow(hCtl, SW_HIDE);
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, L"Jun 30, 2023", TextColor, ThemeElement::GrayMedium,
-            CustomLabelAlignment::MiddleLeft, 340, 45, 76, 24);
+        std::wstring wszContractDate = AfxCurrentDate();
+        CustomLabel_SetUserData(hCtl, wszContractDate);
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate), 
+            TextColor, ThemeElement::GrayMedium, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
         ShowWindow(hCtl, SW_HIDE);
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, L"\uE015",
-            TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayDark,
-            CustomLabelAlignment::MiddleCenter, 416, 45, 24, 24);
+            TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+            CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
         ShowWindow(hCtl, SW_HIDE);
 
     }
@@ -464,25 +472,32 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     std::wstring wszDate = AfxCurrentDate();
     CustomLabel_SetUserData(hCtl, wszDate);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleLeft, 40, 97, 86, 24);
+        CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleCenter, 126, 97, 24, 24);
+        CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
 
     if (tradeAction == ACTION_NEW_TRADE) {
         nTop = 72;
+        CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", TextColorDim, BackColor,
+            CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, ES_LEFT, L"", 159, 97, 171, 23);
+        CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+        CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
         CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
-            CustomLabelAlignment::MiddleLeft, 170, nTop, 100, 22);
-        hCtl = StrategyButton.Create(hwnd, L"", 170, 97, 260, 24,
+            CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
+        hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 260, 23,
             WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
+
     }
 
 
 
     // Create the main trade grid
-    nTop = 145;
+    nTop = 155;
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 300, 22);
     HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
@@ -499,7 +514,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     nTop += AfxUnScaleY((float)AfxGetWindowHeight(hGridMain)) + 30;
     nLeft = 40;
-    nHeight = 24;
+    nHeight = 23;
 
     int nStartTop = nTop;
 
@@ -566,14 +581,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // SAVE button
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"Save",
         ThemeElement::GrayLight, ThemeElement::Green, ThemeElement::Magenta, ThemeElement::Red,
-        CustomLabelAlignment::MiddleCenter, 580, nTop + nHeight + vsp, 80, 24);
+        CustomLabelAlignment::MiddleCenter, 580, nTop + nHeight + vsp, 80, 23);
 
     TradeDialogControls_GetTradeDescription(hwnd);
 
 
     // CATEGORY SELECTOR
     if (tradeAction == ACTION_NEW_TRADE) 
-        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 24);
+        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23);
 
 }
 

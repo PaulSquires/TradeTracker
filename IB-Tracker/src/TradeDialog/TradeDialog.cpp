@@ -233,6 +233,13 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), wszDate, DatePickerReturnType::LongDate);
         }
 
+        if (CtrlId == IDC_TRADEDIALOG_CMDCONTRACTDATE || CtrlId == IDC_TRADEDIALOG_LBLCONTRACTDATE) {
+            // Clicked on the Futures Contract Date dropdown or label itself
+            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
+            DatePicker_CreateDatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), wszDate, DatePickerReturnType::LongDate);
+        }
+
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
             TradeDialog_CreateTradeData(m_hwnd);
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);

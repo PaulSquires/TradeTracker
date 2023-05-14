@@ -73,7 +73,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_STRATEGYBUTTON = hwnd;
 
-    int nHeight = 24;
+    int nHeight = 23;
 
     HWND hCtl = NULL;
     std::wstring wszFontName = L"Segoe UI";

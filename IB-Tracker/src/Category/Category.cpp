@@ -20,6 +20,24 @@ void CategoryControl_OnCreate(HWND hwnd)
 
     hCtl = CreateCustomLabel(
         hwnd,
+        IDC_CATEGORYCONTROL_GRAY,
+        CustomLabelType::TextOnly,
+        nLeft, 0, 24, 24);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::GrayMedium;
+        pData->SelectorColor = pData->BackColor;
+        pData->TextColor = ThemeElement::WhiteDark;
+        pData->BackColorHot = ThemeElement::GrayLight;
+        pData->BackColorButtonDown = ThemeElement::GrayMedium;
+        pData->wszText = L"O";
+        pData->wszToolTip = L"Gray";
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+    nLeft += 24 + margin;
+
+    hCtl = CreateCustomLabel(
+        hwnd,
         IDC_CATEGORYCONTROL_BLUE,
         CustomLabelType::TextOnly,
         nLeft, 0, 24, 24);
@@ -35,7 +53,6 @@ void CategoryControl_OnCreate(HWND hwnd)
         CustomLabel_SetOptions(hCtl, pData);
     }
     nLeft += 24 + margin;
-
 
     hCtl = CreateCustomLabel(
         hwnd,
@@ -89,24 +106,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->wszToolTip = L"Orange";
         CustomLabel_SetOptions(hCtl, pData);
     }
-    nLeft += 24 + margin;
 
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_RED,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::GrayMedium;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::Red;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->wszText = L"O";
-        pData->wszToolTip = L"Red";
-        CustomLabel_SetOptions(hCtl, pData);
-    }
 }
 
 

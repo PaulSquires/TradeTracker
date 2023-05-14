@@ -1,6 +1,7 @@
 
 #include "pch.h"
 
+#include "AfxWin.h"
 
 
 // ========================================================================================
@@ -554,6 +555,23 @@ int AfxLocalMonth()
 
 
 // ========================================================================================
+// Returns the Futures Contract date MMMDD from a date in ISO format (YYYY-MM-DD)
+// ========================================================================================
+std::wstring AfxFormatFuturesDate(std::wstring wszDate)
+{
+    SYSTEMTIME st{};
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
+    std::wstring wszText = buffer.substr(0, bytesWritten - 1); // remove terminating null
+    return AfxUpper(wszText);
+}
+
+
+// ========================================================================================
 // Returns the short format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
 std::wstring AfxGetShortDayName(std::wstring wszDate)
@@ -689,7 +707,7 @@ std::wstring ansi2unicode(const std::string& str)
 // Format a numeric (double) string with two decimal places.
 // Negative values will be encloses in parenthesis.
 // ========================================================================================
-std::wstring AfxMoney(double value, bool UseMinusSign = false)
+std::wstring AfxMoney(double value, bool UseMinusSign)
 {
     static std::wstring DecimalSep = L".";
     static std::wstring ThousandSep = L",";
