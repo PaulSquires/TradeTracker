@@ -11,7 +11,7 @@
 extern double intelDecimalToDouble(Decimal decimal);
 
 extern HWND HWND_MAINWINDOW;
-extern std::vector<Trade*> trades;
+extern std::vector<std::shared_ptr<Trade>> trades;
 
 
 

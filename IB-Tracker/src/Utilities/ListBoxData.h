@@ -28,13 +28,13 @@ public:
     bool            isDailyTotalsNodeOpen = false;
     std::wstring    DailyTotalsDate;
     TickerId        tickerId = -1;
-    Trade*          trade = nullptr;
-    Leg*            leg = nullptr;
+    std::shared_ptr<Trade> trade;
+    std::shared_ptr<Leg> leg;
     ColumnData      col[10];
 
 
     void SetData(
-        int index, Trade* tradeptr, TickerId tickId,
+        int index, std::shared_ptr<Trade> tradeptr, TickerId tickId,
         std::wstring wszText, StringAlignment HAlignment, StringAlignment VAlignment, 
         ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
     {
@@ -76,15 +76,18 @@ enum class TableType
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
-void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId);
-void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans);
-void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
-void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg);
+void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
+void ListBoxData_HistoryHeader(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
+void ListBoxData_HistoryOptionsLeg(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg);
+void ListBoxData_HistorySharesLeg(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg);
 void ListBoxData_HistoryBlankLine(HWND hListBox);
-void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate);
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closedDate);
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
 void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
-void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transaction* trans);
+void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
 void ListBoxData_OutputTradesTemplates(HWND hListBox);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);

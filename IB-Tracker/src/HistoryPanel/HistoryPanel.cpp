@@ -11,7 +11,7 @@ HWND HWND_HISTORYPANEL = NULL;
 
 extern CHistoryPanel HistoryPanel;
 
-extern std::vector<Trade*> trades;
+extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
 extern HWND HWND_MENUPANEL;
@@ -25,7 +25,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
 // ========================================================================================
-void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
+void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 {
     if (trade == nullptr) return;
 
@@ -56,7 +56,7 @@ void HistoryPanel_ShowTradesHistoryTable(Trade* trade)
 
     // Read the transactions in reverse so that the newest history transactions get displayed first
     for (int i = trade->transactions.size() - 1; i >= 0; --i) {
-        Transaction* trans = trade->transactions.at(i);
+        auto trans = trade->transactions.at(i);
 
         ListBoxData_HistoryHeader(hListBox, trade, trans);
 

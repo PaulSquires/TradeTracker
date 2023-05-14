@@ -7,22 +7,6 @@ bool Leg::isOpen()
     return  (openQuantity == 0 ? false : true);
 }
 
-Transaction::~Transaction()
-{
-    // Destroy all of the Leg pointers in the QList
-    for (const auto &leg : legs) {
-        delete leg;
-    }
-}
-
-Trade::~Trade()
-{
-    // Destroy all of the Transaction pointers in the QList
-    for (const auto &trans : transactions) {
-        delete trans;
-    }
-}
-
 
 void Trade::setTradeOpenStatus()
 {
@@ -79,7 +63,7 @@ void Trade::createOpenLegsVector()
 
     // Finally, sort the vector based on Puts first with lowest Strike Price.
     std::sort(openLegs.begin(), openLegs.end(),
-        [](const Leg* leg1, const Leg* leg2) {
+        [](const auto leg1, const auto leg2) {
             if (leg1->PutCall == L"P" && leg2->PutCall == L"C") {return true;}
             if (leg1->PutCall == L"P" && leg2->PutCall == L"P") {
                 if (std::stod(leg1->strikePrice) < std::stod(leg2->strikePrice)) return true;

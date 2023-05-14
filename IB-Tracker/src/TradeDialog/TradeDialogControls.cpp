@@ -21,8 +21,8 @@ std::vector<LineCtrl> lCtrls;
 
 extern CTradeDialog TradeDialog;
 extern int tradeAction;
-extern std::vector<Leg*> legsEdit;
-extern Trade* tradeEdit;
+extern std::vector<std::shared_ptr<Leg>> legsEdit;
+extern std::shared_ptr<Trade> tradeEdit;
 
 extern void TradesPanel_ShowActiveTrades();
 
@@ -62,10 +62,10 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 {
     tws_PauseTWS();
 
-    Trade* trade;
+    std::shared_ptr<Trade> trade;
 
     if (tradeAction == ACTION_NEW_TRADE) {
-        trade = new Trade();
+        auto trade = std::make_shared<Trade>();
         trades.push_back(trade);
         trade->tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
         trade->tickerName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
@@ -76,7 +76,7 @@ void TradeDialog_CreateTradeData(HWND hwnd)
     }
 
 
-    Transaction* trans = new Transaction();
+    std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
 
     trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
     trans->description = L"Strangle";  // RemovePipeChar(ui->txtDescription->text());
@@ -104,7 +104,7 @@ void TradeDialog_CreateTradeData(HWND hwnd)
         int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
         if (intQuantity == 0) continue;
 
-        Leg* leg = new Leg();
+        std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
         leg->underlying = trans->underlying;
         leg->expiryDate = legExpiry;

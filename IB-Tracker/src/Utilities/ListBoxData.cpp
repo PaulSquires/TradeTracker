@@ -346,7 +346,7 @@ void ListBoxData_RequestMarketData(HWND hListBox)
 // ========================================================================================
 // Create the display data for an Open Position that displays in Trades & History tables.
 // ========================================================================================
-void ListBoxData_OpenPosition(HWND hListBox, Trade* trade, TickerId tickerId)
+void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId)
 {
     ListBoxData* ld = new ListBoxData;
     
@@ -543,7 +543,7 @@ void ListBoxData_HistoryBlankLine(HWND hListBox)
 // ========================================================================================
 // Create the display data a History Header line.
 // ========================================================================================
-void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans)
+void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans)
 {
     // Display the transaction description, date, and total prior to showing the detail lines
     ListBoxData* ld = new ListBoxData;
@@ -577,7 +577,8 @@ void ListBoxData_HistoryHeader(HWND hListBox, Trade* trade, Transaction* trans)
 // ========================================================================================
 // Create the display data for a History SHARES leg.
 // ========================================================================================
-void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg)
+void ListBoxData_HistorySharesLeg(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -602,7 +603,8 @@ void ListBoxData_HistorySharesLeg(HWND hListBox, Trade* trade, Transaction* tran
 // ========================================================================================
 // Create the display data for a History OPTIONS leg.
 // ========================================================================================
-void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* trans, Leg* leg)
+void ListBoxData_HistoryOptionsLeg(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -650,7 +652,7 @@ void ListBoxData_HistoryOptionsLeg(HWND hListBox, Trade* trade, Transaction* tra
 // ========================================================================================
 // Create the display data line for a closed position.
 // ========================================================================================
-void ListBoxData_OutputClosedPosition(HWND hListBox, Trade* trade, std::wstring closedDate)
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closedDate)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -693,7 +695,7 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
 
     // Look up the Company name based on the tickerid
     auto iter = std::find_if(trades.begin(), trades.end(),
-         [&](const Trade* t) { return (t->tickerSymbol == ticker && t->tickerName.length()); });
+         [&](const auto t) { return (t->tickerSymbol == ticker && t->tickerName.length()); });
 
     if (iter != trades.end()) {
         auto index = std::distance(trades.begin(), iter);
@@ -747,7 +749,8 @@ void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, d
 // ========================================================================================
 // Create the display data line for a daily total detail line.
 // ========================================================================================
-void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, Trade* trade, Transaction* trans)
+void ListBoxData_OutputDailyTotalsDetailLine(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans)
 {
     ListBoxData* ld = new ListBoxData;
 

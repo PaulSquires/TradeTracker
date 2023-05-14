@@ -11,7 +11,7 @@ HWND HWND_DAILYPANEL = NULL;
 
 extern CDailyPanel DailyPanel;
 
-extern std::vector<Trade*> trades;
+extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
@@ -67,8 +67,8 @@ void DailyPanel_ShowDailyTotals(const ListBoxData* ld)
     // Calculate the daily amounts
     // Map contains a vector for every unique date.
     struct MapData {
-        Trade* trade;
-        Transaction* trans;
+        std::shared_ptr<Trade> trade;
+        std::shared_ptr<Transaction> trans;
     };
 
     std::map< std::wstring, std::vector<MapData> > mapTotals;

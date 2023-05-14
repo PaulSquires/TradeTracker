@@ -26,8 +26,6 @@ public:
 class Transaction
 {
 public:
-    ~Transaction();
-
     std::wstring  underlying  = L"";    // OPTIONS,STOCKS,FUTURES,CURRENCY,COMMODITIES
     std::wstring  description = L"";    // Iron Condor, Strangle, Roll, Expired, Closed, Exercised, etc
     std::wstring  transDate   = L"";    // YYYY-MM-DD
@@ -37,14 +35,13 @@ public:
     double        fees        = 0;
     double        total       = 0;
 
-    std::vector<Leg*> legs;            // pointer list for all legs in the transaction
+    std::vector<std::shared_ptr<Leg>> legs;            // pointer list for all legs in the transaction
 };
 
 
 class Trade
 {
 public:
-    ~Trade();
 
     bool          isOpen       = true;    // False if all legs are closed
     std::wstring  tickerSymbol = L"";
@@ -56,14 +53,14 @@ public:
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
 
-    std::vector<Transaction*> transactions;     // pointer list for all transactions in the trade
-    std::vector<Leg*> openLegs;                 // sorted list of open legs for this trade
+    std::vector<std::shared_ptr<Transaction>> transactions;     // pointer list for all transactions in the trade
+    std::vector<std::shared_ptr<Leg>> openLegs;                 // sorted list of open legs for this trade
 
     void setTradeOpenStatus();
     void createOpenLegsVector();
 };
 
 // pointer list for all trades (initially loaded from database)
-extern std::vector<Trade*> trades;
+extern std::vector<std::shared_ptr<Trade>> trades;
 
 

@@ -11,7 +11,7 @@ HWND HWND_TICKERPANEL = NULL;
 
 extern CTickerPanel TickerPanel;
 
-extern std::vector<Trade*> trades;
+extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
 extern void MainWindow_SetRightPanel(HWND hPanel);

@@ -13,7 +13,7 @@ const std::wstring version = L"1.0.0";
 
 // Pointer list for all trades (initially loaded from database)
 // This variable is accessed via extern in other files that require it.
-std::vector<Trade*> trades;
+std::vector<std::shared_ptr<Trade>> trades;
 
 
 
@@ -196,9 +196,9 @@ bool LoadDatabase()
     std::wstring databaseVersion;
 
 
-    Trade* trade = nullptr;
-    Transaction* trans = nullptr;
-    Leg* leg = nullptr;
+    std::shared_ptr<Trade> trade;
+    std::shared_ptr<Transaction> trans;
+    std::shared_ptr<Leg> leg; 
 
     bool isFirstline = true;
 
@@ -238,7 +238,7 @@ bool LoadDatabase()
         // Check for Trades, Transactions, and Legs
 
         if (try_catch_wstring(st, 0) == L"T") {
-            trade = new Trade();
+            trade = std::make_shared<Trade>();
 
             trade->isOpen = (try_catch_wstring(st, 1) == L"0" ? false : true);
             trade->tickerSymbol = try_catch_wstring(st, 2);
@@ -251,7 +251,7 @@ bool LoadDatabase()
         }
 
         if (try_catch_wstring(st, 0) == L"X") {
-            trans = new Transaction();
+            trans = std::make_shared<Transaction>();
             trans->transDate = InsertDateHyphens(try_catch_wstring(st, 1));
             trans->description = try_catch_wstring(st, 2);
             trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
@@ -266,7 +266,7 @@ bool LoadDatabase()
         }
 
         if (try_catch_wstring(st, 0) == L"L") {
-            leg = new Leg();
+            leg = std::make_shared<Leg>();
             leg->origQuantity = try_catch_int(st, 1);
             leg->openQuantity = try_catch_int(st, 2);
             leg->expiryDate = InsertDateHyphens(try_catch_wstring(st, 3));

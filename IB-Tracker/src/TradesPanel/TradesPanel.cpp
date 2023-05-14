@@ -13,19 +13,19 @@
 
 HWND HWND_TRADESPANEL = NULL;
 
-extern std::vector<Trade*> trades;
+extern std::vector<std::shared_ptr<Trade>> trades;
 
 extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_MENUPANEL;
 extern CTradesPanel TradesPanel;
 
 
-extern void HistoryPanel_ShowTradesHistoryTable(Trade* trade);
+extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 // Vector to hold all selected legs that TradeDiaog will act on
-std::vector<Leg*> legsEdit;
-Trade* tradeEdit = nullptr;
+std::vector<std::shared_ptr<Leg>> legsEdit;
+std::shared_ptr<Trade> tradeEdit;
 
 
 // Variable to hold which Trades listbox is showing data (Active Trades or
@@ -98,7 +98,7 @@ void TradesPanel_ShowActiveTrades()
     // active trades.
     // Sort the trades vector based on ticker symbol
     std::sort(trades.begin(), trades.end(),
-        [](const Trade* trade1, const Trade* trade2) {
+        [](const auto trade1, const auto trade2) {
             return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
         });
 
@@ -183,7 +183,7 @@ void TradesPanel_ShowClosedTrades()
 
     struct ClosedData {
         std::wstring closedDate;
-        Trade* trade = nullptr;
+        std::shared_ptr<Trade> trade;
     };
 
     std::vector<ClosedData> vectorClosed;
@@ -310,7 +310,7 @@ LRESULT CALLBACK TradesPanel_Header_SubclassProc(
 bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 {
     // Get the trade pointer for the newly selected line.
-    Trade* trade = nullptr;
+    std::shared_ptr<Trade> trade;
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
     if (ld == nullptr) return false;
 
@@ -364,7 +364,7 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 // Expire the selected legs. Basically, ask for confirmation via a messagebox and 
 // then take appropriate action.
 // ========================================================================================
-void TradesPanel_ExpireSelectedLegs(Trade* trade)
+void TradesPanel_ExpireSelectedLegs(auto trade)
 {
     // Do a check to ensure that there is actually legs selected to expire. It could
     // be that the user select SHARES or other non-options underlyings only.
@@ -385,7 +385,7 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
 
     if (res != IDYES) return;
 
-    Transaction* trans = new Transaction();
+    std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
 
     trans->description = L"Expiration";
     trans->underlying = L"OPTIONS";
@@ -394,7 +394,7 @@ void TradesPanel_ExpireSelectedLegs(Trade* trade)
     for (auto leg : legsEdit) {
 
         // Save this transaction's leg quantities
-        Leg* newleg = new Leg();
+        std::shared_ptr<Leg> newleg = std::make_shared<Leg>();
 
         newleg->underlying = trans->underlying;
 
@@ -472,7 +472,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     std::wstring wszPlural;
     int nCount = ListBox_GetSelCount(hListBox);
 
-    Trade* trade = nullptr;
+    std::shared_ptr<Trade> trade;
 
     bool IsTickerLine = false;
 
