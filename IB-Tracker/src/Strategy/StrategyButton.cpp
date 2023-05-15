@@ -99,9 +99,6 @@ void StrategyButton_OnPaint(HWND hwnd)
 
     HDC hdc = BeginPaint(hwnd, &ps);
 
-    // Child controls cover the full client area. No need to paint.
-
-/*
     Graphics graphics(hdc);
 
     DWORD nBackColor = GetThemeColor(ThemeElement::Black);
@@ -113,7 +110,6 @@ void StrategyButton_OnPaint(HWND hwnd)
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
-*/
 
     EndPaint(hwnd, &ps);
 }
@@ -143,13 +139,13 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int FontSize = 8;
     ThemeElement BorderColor = ThemeElement::Black;
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_SHORTLONG, L"",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_LONGSHORT, L"",
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 0, 0, 50, nHeight);
     HWND_SHORTLONG = hCtl;
     CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
+    //CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
     StrategyButton_SetLongShortColor(hCtl);
     wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -157,39 +153,41 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"",
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleCenter, 50, 0, 50, nHeight);
+        CustomLabelAlignment::MiddleCenter, 51, 0, 50, nHeight);
     HWND_PUTCALL = hCtl;
     CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
+    //CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
     CustomLabel_SetText(hCtl, wszText);
     wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
     CustomLabel_SetText(hCtl, wszText);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_STRATEGY, L"",
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleLeft, 100, 0, 100, nHeight);
+        CustomLabelAlignment::MiddleLeft, 102, 0, 100, nHeight);
     HWND_STRATEGY = hCtl;
     CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Vertical);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
+    //CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
     wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Vertical));
     CustomLabel_SetText(hCtl, wszText);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_GO, L"GO",
-        ThemeElement::WhiteLight, ThemeElement::GrayDark,
-        CustomLabelAlignment::MiddleCenter, 200, 0, 30, nHeight);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_GO, L"GO",
+        ThemeElement::Black, ThemeElement::Blue, ThemeElement::Blue, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 203, 0, 30, nHeight);
     HWND_GO = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    //CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, L"\uE015",
-        ThemeElement::WhiteMedium, ThemeElement::GrayDark, ThemeElement::GrayMedium, ThemeElement::GrayLight,
-        CustomLabelAlignment::MiddleCenter, 230, 0, 30, nHeight);
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 234, 0, 30, nHeight);
     HWND_DROPDOWN = hCtl;
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    //CustomLabel_SetBorder(hCtl, 1, BorderColor, BorderColor);
 
     return TRUE;
 }
@@ -295,10 +293,6 @@ void StrategyButton_ToggleStrategyText(HWND hCtl)
         wszText = AfxUpper(StrategyButton_GetPutCallEnumText((PutCall)sel));
     }
     CustomLabel_SetText(hCtl, wszText);
-
-    //CustomLabel_SetBackColor(hCtl, ThemeElement::Green);
-    //CustomLabel_SetBackColor(hCtl, ThemeElement::Red);
-
 }
 
 
@@ -323,7 +317,7 @@ LRESULT CStrategyButton::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (hCtl == NULL) return 0;
 
-        if (CtrlId == IDC_STRATEGYBUTTON_SHORTLONG) {
+        if (CtrlId == IDC_STRATEGYBUTTON_LONGSHORT) {
             StrategyButton_ToggleLongShortText(hCtl);
         }
         if (CtrlId == IDC_STRATEGYBUTTON_PUTCALL) {

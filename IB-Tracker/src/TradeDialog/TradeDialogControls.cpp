@@ -490,7 +490,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
-        hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 260, 23,
+        hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
             WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
 
     }

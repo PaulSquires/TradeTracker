@@ -82,7 +82,7 @@ public:
 
 	// Border
 	bool BorderVisible = false;
-	REAL BorderWidth = 1;
+	REAL BorderWidth = 0;
 	ThemeElement BorderColor{};
 	ThemeElement BorderColorHot{};
 	int BorderRoundWidth = 0;
@@ -345,12 +345,14 @@ public:
 		case CustomLabelType::TextOnly:
 		{
 			ARGB clrPen = (m_bIsHot ? GetThemeColor(BorderColorHot) : GetThemeColor(BorderColor));
-			if (!BorderVisible) clrPen = GetThemeColor(BackColor);
-			Pen pen(clrPen, BorderWidth);
-
-			RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
-			Graphics graphics(m_memDC);
-			graphics.DrawRectangle(&pen, rectF);
+			if (BorderVisible == true) {
+				clrPen = GetThemeColor(BackColor);
+				Pen pen(clrPen, BorderWidth);
+				RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
+				Graphics graphics(m_memDC);
+				graphics.DrawRectangle(&pen, rectF);
+			}
+			break;
 		}
 		}
 	}
@@ -377,6 +379,7 @@ int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
 void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
 std::wstring CustomLabel_GetText(HWND hCtrl);
 void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor);
+void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor);
 ThemeElement CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);

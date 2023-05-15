@@ -264,6 +264,16 @@ void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor)
     }
 }
 
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->TextColorHot = TextColorHot;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
 
 //------------------------------------------------------------------------------ 
 void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
