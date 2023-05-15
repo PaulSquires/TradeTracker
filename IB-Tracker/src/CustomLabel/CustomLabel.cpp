@@ -337,11 +337,11 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop)
 }
 
 //------------------------------------------------------------------------------ 
-void CustomLabel_SetUserData(HWND hCtrl, std::wstring UserData)
+void CustomLabel_SetUserData(HWND hCtrl, std::wstring wszText)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->UserData = UserData;
+        pData->UserData = wszText;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -355,6 +355,27 @@ std::wstring CustomLabel_GetUserData(HWND hCtrl)
         return pData->UserData;
     }
     return L"";
+}
+
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetUserDataInt(HWND hCtrl, int value)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->UserDataInt = value;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+//------------------------------------------------------------------------------ 
+int CustomLabel_GetUserDataInt(HWND hCtrl)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        return pData->UserDataInt;
+    }
+    return 0;
 }
 
 

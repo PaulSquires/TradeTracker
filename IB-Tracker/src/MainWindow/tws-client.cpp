@@ -50,11 +50,16 @@ void threadFunction(std::future<void> future) {
 
 	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
 
-		if (tws_isConnected()) {
-			client.waitForSignal();
-			client.processMsgs();
+		try {
+			if (tws_isConnected()) {
+				client.waitForSignal();
+				client.processMsgs();
+			}
+			else {
+				break;
+			}
 		}
-		else {
+		catch (...) {
 			break;
 		}
 
@@ -95,20 +100,33 @@ bool tws_connect()
 	
 	SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_START, 0, 0);
 
-    bool res = client.connect(host, port, clientId);
-    if (res) {
-        // Start thread that will start messaging polling
-        // and poll if TWS remains connected.
-        SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+	bool res = false;
 
-		std::chrono::milliseconds(500); // wait for 500 milliseconds to allow sockets to breathe
+	try {
+		res = client.connect(host, port, clientId);
+		if (res) {
+			// Start thread that will start messaging polling
+			// and poll if TWS remains connected.
+			SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
-		if (client.isConnected()) {
-			StartMonitorThread();
+			std::chrono::milliseconds(500); // wait for 500 milliseconds to allow sockets to breathe
+
+			if (client.isConnected()) {
+				StartMonitorThread();
+			}
 		}
 
 	}
-    else {
+	catch (...) {
+		SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
+		std::wstring wszText =
+			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
+		MessageBox(HWND_TRADESPANEL, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	
+	if (res == false) {
         SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring wszText = 
 			L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";
@@ -265,27 +283,26 @@ void TwsClient::requestMktData(ListBoxData* ld)
 
 	//	struct Contract;
 	Contract contract;
-	contract.symbol = symbol;
-	contract.secType = "STK";
-	contract.currency = "USD";
-	contract.exchange = "SMART";  
-	contract.primaryExchange = "ISLAND";
+
+	if (symbol.substr(0,1) == "/") {
+		contract.symbol = symbol.substr(1);
+		contract.secType = "FUT";
+		contract.currency = "USD";
+		contract.exchange = "CME";
+		contract.primaryExchange = "CME";
+		contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
+
+
+	}
+	else {
+		contract.symbol = symbol;
+		contract.secType = "STK";
+		contract.currency = "USD";
+		contract.exchange = "SMART";
+		contract.primaryExchange = "ISLAND";
+	}
 
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
-
-	//if (trade->tickerSymbol.startsWith("/")) {
-	//	C.symbol = trade->tickerSymbol.toStdString().substr(1);
-	//	C.secType = *TwsApi::SecType::FUT;
-	//	C.exchange = *TwsApi::Exchange::CME;
-	//	C.primaryExchange = *TwsApi::Exchange::CME;
-	//	C.expiry = trade->futureExpiry.toStdString();
-	//}
-	//else {
-	//	C.symbol = trade->tickerSymbol.toStdString();
-	//	C.secType = *TwsApi::SecType::STK;
-	//	C.exchange = *TwsApi::Exchange::IB_SMART;
-	//	C.primaryExchange = *TwsApi::Exchange::ISLAND;
-	//}
 }
 	
 void TwsClient::requestPositions()

@@ -556,6 +556,7 @@ int AfxLocalMonth()
 
 // ========================================================================================
 // Returns the Futures Contract date MMMDD from a date in ISO format (YYYY-MM-DD)
+// This is used for display purposes on the Trade Management screen.
 // ========================================================================================
 std::wstring AfxFormatFuturesDate(std::wstring wszDate)
 {
@@ -568,6 +569,18 @@ std::wstring AfxFormatFuturesDate(std::wstring wszDate)
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
     std::wstring wszText = buffer.substr(0, bytesWritten - 1); // remove terminating null
     return AfxUpper(wszText);
+}
+
+// ========================================================================================
+// Returns the Futures Contract date YYYYMM from a date in ISO format (YYYY-MM-DD)
+// This is used for retrieveing market data. (uses ansi strings rather thab unicode).
+// ========================================================================================
+std::string AfxFormatFuturesDateMarketData(std::wstring wszDate)
+{
+    // Date enters as YYYY-MM-DD so we simply need to remove the hyphens    
+    std::string newDate = unicode2ansi(wszDate);
+    newDate.erase(remove(newDate.begin(), newDate.end(), '-'), newDate.end());
+    return newDate;  //YYYYMMDD
 }
 
 

@@ -42,6 +42,7 @@ std::wstring AfxShortDate(std::wstring wszDate);
 std::wstring AfxGetShortDayName(std::wstring wszDate);
 std::wstring AfxMakeISODate(int year, int month, int day);
 std::wstring AfxFormatFuturesDate(std::wstring wszDate);
+std::string AfxFormatFuturesDateMarketData(std::wstring wszDate);
 int AfxGetYear(std::wstring wszDate);
 int AfxGetMonth(std::wstring wszDate);
 int AfxGetDay(std::wstring wszDate);
