@@ -41,7 +41,7 @@ void InitializeDarkThemeColors()
 	clr[(int)ThemeElement::Magenta] = Color::Magenta;
 	clr[(int)ThemeElement::Yellow] = Color::Yellow;
 	clr[(int)ThemeElement::Green] = Color::MakeARGB(255, 72, 151, 13);
-	clr[(int)ThemeElement::Red] = Color::MakeARGB(255, 255, 30, 0);
+	clr[(int)ThemeElement::Red] = Color::Firebrick;  // Color::MakeARGB(255, 255, 30, 0);
 	clr[(int)ThemeElement::Orange] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
 	clr[(int)ThemeElement::Purple] = Color::MediumOrchid;
 	clr[(int)ThemeElement::Blue] = Color::CornflowerBlue;

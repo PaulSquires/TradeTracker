@@ -1,12 +1,16 @@
 #include "pch.h"
 #include "..\Utilities\CWindowBase.h"
 #include "..\CustomLabel\CustomLabel.h"
+#include "..\TradeGrid\TradeGrid.h"
+#include "..\TradeDialog\TradeDialog.h"
 
 #include "StrategyButton.h"
 #include "StrategyPopup.h"
 
 
 HWND HWND_STRATEGYBUTTON = NULL;
+
+extern HWND HWND_TRADEDIALOG;
 
 extern CStrategyButton StrategyButton;
 
@@ -125,12 +129,13 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring wszFontName = L"Segoe UI";
     std::wstring wszText;
     int FontSize = 8;
+    bool bold = false;
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_LONGSHORT, L"",
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 0, 0, 50, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
     StrategyButton_SetLongShortBackColor(hCtl);
     wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -140,7 +145,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 51, 0, 50, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
     CustomLabel_SetText(hCtl, wszText);
 
@@ -148,7 +153,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 102, 0, 100, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Vertical);
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
     wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Vertical));
     CustomLabel_SetText(hCtl, wszText);
@@ -201,7 +206,7 @@ void StrategyButton_SetLongShortBackColor(HWND hCtl)
 
 
 // ========================================================================================
-// Toggle the Short/Long text and ensure correct colors are set.
+// Toggle the Short/Long text.
 // ========================================================================================
 void StrategyButton_ToggleLongShortText(HWND hCtl)
 {
@@ -209,7 +214,6 @@ void StrategyButton_ToggleLongShortText(HWND hCtl)
     if (sel == (int)LongShort::Count) sel = 0;
 
     CustomLabel_SetUserDataInt(hCtl, sel);
-    StrategyButton_SetLongShortBackColor(hCtl);
     std::wstring wszText = AfxUpper(StrategyButton_GetLongShortEnumText((LongShort)sel));
     CustomLabel_SetText(hCtl, wszText);
 }
@@ -241,19 +245,19 @@ bool StrategyButton_StrategyAllowPutCall(HWND hCtl)
 // ========================================================================================
 // Toggle the Put/Call text.
 // ========================================================================================
-void StrategyButton_TogglePutCallText(HWND hCtl)
+void StrategyButton_TogglePutCallText(HWND hCtlPutCall, HWND hCtlStrategy)
 {
-    if (!StrategyButton_StrategyAllowPutCall(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY))) {
-        CustomLabel_SetText(hCtl, L"");
+    if (!StrategyButton_StrategyAllowPutCall(hCtlStrategy)) {
+        CustomLabel_SetText(hCtlPutCall, L"");
         return;
     }
 
-    int sel = CustomLabel_GetUserDataInt(hCtl) + 1;
+    int sel = CustomLabel_GetUserDataInt(hCtlPutCall) + 1;
     if (sel == (int)PutCall::Count) sel = 0;
 
-    CustomLabel_SetUserDataInt(hCtl, sel);
+    CustomLabel_SetUserDataInt(hCtlPutCall, sel);
     std::wstring wszText = AfxUpper(StrategyButton_GetPutCallEnumText((PutCall)sel));
-    CustomLabel_SetText(hCtl, wszText);
+    CustomLabel_SetText(hCtlPutCall, wszText);
 }
 
 // ========================================================================================
@@ -279,6 +283,84 @@ void StrategyButton_ToggleStrategyText(HWND hCtl)
 
 
 // ========================================================================================
+// Invoke the Strategy as set in the StrategyButton.
+// ========================================================================================
+void StrategyButton_InvokeStrategy()
+{
+    Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
+    LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT));
+    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL));
+
+    HWND hTradeGrid = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
+
+    TradeGrid* pData = TradeGrid_GetOptions(hTradeGrid);
+    if (pData == nullptr) return;
+
+    int colStart = 0;
+    int row = 0;
+
+    // Clear/Reset the Trade grid (4 rows)
+    for (int i = 0; i < 4; ++i) {
+        colStart = i * 7;
+        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // Quantity
+        CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, L"");     // Expiry Date
+        CustomLabel_SetText(pData->gridCols.at(colStart + 2)->hCtl, L"");   // DTE
+        CustomTextBox_SetText(pData->gridCols.at(colStart + 3)->hCtl, L"");   // Strike Price
+        CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"");     // Put/Call
+        CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"");     // Action
+    }
+
+
+    // Add the new strategy to the grid
+    HWND hCtlDescription = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE);
+
+    switch (s)
+    {
+    case Strategy::Vertical:
+        break;
+
+    case Strategy::Strangle:
+    case Strategy::Straddle:
+        if (ls == LongShort::Long) {
+            row = 0; colStart = row * 7;
+            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
+            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
+            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
+            row = 1; colStart = row * 7;
+            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
+            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
+            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
+        }
+        if (ls == LongShort::Short) {
+            row = 0; colStart = row * 7;
+            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
+            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
+            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 1; colStart = row * 7;
+            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
+            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
+            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+        }
+        AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
+        break;
+
+    case Strategy::Option:
+        break;
+    case Strategy::IronCondor:
+        break;
+    case Strategy::Covered:
+        break;
+    case Strategy::Butterfly:
+        break;
+    case Strategy::RatioSpread:
+        break;
+
+    }
+
+}
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CStrategyButton::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -299,9 +381,10 @@ LRESULT CStrategyButton::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_STRATEGYBUTTON_LONGSHORT) {
             StrategyButton_ToggleLongShortText(hCtl);
+            StrategyButton_SetLongShortBackColor(hCtl);
         }
         if (CtrlId == IDC_STRATEGYBUTTON_PUTCALL) {
-            StrategyButton_TogglePutCallText(hCtl);
+            StrategyButton_TogglePutCallText(hCtl, GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
         }
         if (CtrlId == IDC_STRATEGYBUTTON_STRATEGY) {
             StrategyButton_ToggleStrategyText(hCtl);

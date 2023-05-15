@@ -60,7 +60,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         GridColInfo* col;
 
         // QUANTITY
-        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_RIGHT, L"-1", nLeft, nTop, nWidth, nHeight);
+        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
         CustomTextBox_SetFont(hCtl, wszFontName, FontSize);
         CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
@@ -75,25 +75,20 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // EXPIRY DATE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
-            L"May 30", ThemeElement::WhiteLight, ThemeElement::GrayLight,
+            L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
         col->colType = GridColType::DatePicker;
-
-        // TODO: Remove this setting of the wszDate 
-        col->wszDate = L"2023-05-30";
-
-
         pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
 
         // DTE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"24d", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
+            L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
@@ -105,7 +100,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         nLeft = nLeft + nWidth + hsp;
 
         // STRIKE PRICE
-        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_CENTER, L"140.5", nLeft, nTop, nWidth, nHeight);
+        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
         CustomTextBox_SetFont(hCtl, wszFontName, FontSize);
         CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, lightBackColor);
@@ -120,7 +115,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // PUT/CALL
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"P", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
+            L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
@@ -133,7 +128,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // ACTION
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"STO", ThemeElement::WhiteLight, ThemeElement::GrayLight,
+            L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;

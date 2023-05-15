@@ -8,6 +8,7 @@
 
 HWND HWND_STRATEGYPOPUP = NULL;
 
+extern HWND HWND_STRATEGYBUTTON;
 extern CStrategyButton StrategyButton;
 extern CStrategyPopup StrategyPopup;
 
@@ -66,6 +67,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring wszFontName = L"Segoe UI";
     std::wstring wszText;
     int FontSize = 8;
+    bool bold = false;
 
     for (int i = 0; i < (int)Strategy::Count; ++i) {
 
@@ -73,7 +75,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             ThemeElement::WhiteLight, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleLeft, 0, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, wszText);
@@ -83,7 +85,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             ThemeElement::WhiteLight, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, 51, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
         wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
         CustomLabel_SetText(hCtl, wszText);
         hCtlPutCall = hCtl;
@@ -92,7 +94,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             ThemeElement::WhiteLight, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleLeft, 102, nTop, 100, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)i);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+        CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
         wszText = AfxUpper(StrategyButton_GetStrategyEnumText((Strategy)i));
         CustomLabel_SetText(hCtl, wszText);
@@ -162,21 +164,45 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (hCtl == NULL) return 0;
 
-        //if (CtrlId == IDC_STRATEGYBUTTON_LONGSHORT) {
-        //    StrategyButton_ToggleLongShortText(hCtl);
-        //}
-        //if (CtrlId == IDC_STRATEGYBUTTON_PUTCALL) {
-        //    StrategyButton_TogglePutCallText(hCtl);
-        //}
-        //if (CtrlId == IDC_STRATEGYBUTTON_STRATEGY) {
-        //    StrategyButton_ToggleStrategyText(hCtl);
-        //}
-        //if (CtrlId == IDC_STRATEGYBUTTON_DROPDOWN) {
-        //    //StrategyButton_ToggleStrategyText(hCtl);
-        //}
-        //if (CtrlId == IDC_STRATEGYBUTTON_GO) {
-        //    StrategyButton_ToggleStrategyText(hCtl);
-        //}
+        if (CtrlId >= IDC_STRATEGYPOPUP_LONGSHORT && CtrlId <= IDC_STRATEGYPOPUP_LONGSHORT + 40) {
+            StrategyButton_ToggleLongShortText(hCtl);
+            StrategyButton_SetLongShortTextColor(hCtl);
+        }
+        if (CtrlId >= IDC_STRATEGYPOPUP_PUTCALL && CtrlId <= IDC_STRATEGYPOPUP_PUTCALL + 40) {
+            int offset = CtrlId - IDC_STRATEGYPOPUP_PUTCALL;
+            int idStrategy = IDC_STRATEGYPOPUP_STRATEGY + offset;
+            StrategyButton_TogglePutCallText(hCtl, GetDlgItem(HWND_STRATEGYPOPUP, idStrategy));
+        }
+        if (CtrlId >= IDC_STRATEGYPOPUP_GO && CtrlId <= IDC_STRATEGYPOPUP_GO + 40) {
+            int offset = CtrlId - IDC_STRATEGYPOPUP_GO;
+            std::wstring wszText;
+
+            LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_LONGSHORT+offset));
+            HWND hCtlLongShort = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+            CustomLabel_SetUserDataInt(hCtlLongShort, (int)ls);
+            StrategyButton_SetLongShortBackColor(hCtlLongShort);
+            wszText = AfxUpper(StrategyButton_GetLongShortEnumText(ls));
+            CustomLabel_SetText(hCtlLongShort, wszText);
+
+            PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_PUTCALL+offset));
+            HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+            CustomLabel_SetUserDataInt(hCtlPutCall, (int)pc);
+            wszText = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
+            CustomLabel_SetText(hCtlPutCall, wszText);
+
+            Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_STRATEGY+offset));
+            HWND hCtlStrategy = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+            CustomLabel_SetUserDataInt(hCtlStrategy, (int)s);
+            wszText = AfxUpper(StrategyButton_GetStrategyEnumText(s));
+            CustomLabel_SetText(hCtlStrategy, wszText);
+            if (!StrategyButton_StrategyAllowPutCall(hCtlStrategy)) {
+                CustomLabel_SetText(hCtlPutCall, L"");
+            }
+
+            StrategyButton_InvokeStrategy();
+            DestroyWindow(m_hwnd);
+
+        }
         return 0;
     }
     break;

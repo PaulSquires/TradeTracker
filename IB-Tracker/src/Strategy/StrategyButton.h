@@ -50,8 +50,10 @@ std::wstring StrategyButton_GetPutCallEnumText(PutCall pc);
 std::wstring StrategyButton_GetStrategyEnumText(Strategy s);
 
 void StrategyButton_ToggleLongShortText(HWND hCtl);
-void StrategyButton_TogglePutCallText(HWND hCtl);
+void StrategyButton_TogglePutCallText(HWND hCtlPutCall, HWND hCtlStrategy);
 void StrategyButton_SetLongShortTextColor(HWND hCtl);
 void StrategyButton_SetLongShortBackColor(HWND hCtl);
 bool StrategyButton_StrategyAllowPutCall(HWND hCtl);
+void StrategyButton_InvokeStrategy();
+
 
