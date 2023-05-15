@@ -19,6 +19,8 @@ DatePickerReturnType UpdateDateReturnType = DatePickerReturnType::ISODate;
 
 bool SystemListBoxSmoothScrolling = FALSE;
 
+// TODO: Adjust DatePicker valid Days base on selected Month and Year (leap years, etc).
+
 
 
 // ========================================================================================
@@ -245,6 +247,8 @@ void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
 void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {
     if (lpDrawItem->itemID == -1) return;
+
+    // TODO: Enable hot mouseover for items in the DatePicker.
 
     if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
         lpDrawItem->itemAction == ODA_SELECT) {
@@ -533,13 +537,6 @@ void DatePicker_OnPaint(HWND hwnd)
 }
 
 
-// ========================================================================================
-// Process WM_COMMAND message for window/dialog: DatePicker
-// ========================================================================================
-void DatePicker_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-}
-
 
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: DatePicker
@@ -642,7 +639,6 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, DatePicker_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, DatePicker_OnCommand);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, DatePicker_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, DatePicker_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, DatePicker_OnSize);
@@ -740,7 +736,7 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 // ========================================================================================
-// Create DatePicker contro and move it into position under the specified incoming control.
+// Create DatePicker control and move it into position under the specified incoming control.
 // ========================================================================================
 HWND DatePicker_CreateDatePicker(
     HWND hParent, HWND hParentCtl, std::wstring wszDate, DatePickerReturnType DateReturnType)
@@ -761,7 +757,7 @@ HWND DatePicker_CreateDatePicker(
         rc.left, rc.bottom, 
         AfxScaleX(DATEPICKER_PANEL_WIDTH) + (AfxScaleX(1) * 2),
         AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * (DATEPICKER_LISTBOX_VISIBLELINES + 1)) + AfxScaleY(1),
-        SWP_NOSIZE | SWP_SHOWWINDOW);
+        SWP_SHOWWINDOW);
 
     
     // Set the module global hUpdateParentCtl after the above DatePicker is created in

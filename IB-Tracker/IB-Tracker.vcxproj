@@ -27,7 +27,7 @@
     <ClInclude Include="src\DailyPanel\DailyPanel.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
     <ClInclude Include="src\Strategy\StrategyButton.h" />
-    <ClInclude Include="src\Strategy\StrategyPanel.h" />
+    <ClInclude Include="src\Strategy\StrategyPopup.h" />
     <ClInclude Include="src\TickerPanel\TickerPanel.h" />
     <ClInclude Include="src\TradeDialog\TradeDialog.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogControls.h" />
@@ -130,7 +130,7 @@
     <ClCompile Include="src\MenuPanel\MenuPanel.cpp" />
     <ClCompile Include="src\Reconcile\Reconcile.cpp" />
     <ClCompile Include="src\Strategy\StrategyButton.cpp" />
-    <ClCompile Include="src\Strategy\StrategyPanel.cpp" />
+    <ClCompile Include="src\Strategy\StrategyPopup.cpp" />
     <ClCompile Include="src\TickerPanel\TickerPanel.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />
