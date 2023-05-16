@@ -313,6 +313,7 @@ void StrategyButton_InvokeStrategy()
 
     // Add the new strategy to the grid
     HWND hCtlDescription = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE);
+    std::wstring wszDate = AfxCurrentDate();
 
     switch (s)
     {
@@ -324,23 +325,32 @@ void StrategyButton_InvokeStrategy()
         if (ls == LongShort::Long) {
             row = 0; colStart = row * 7;
             CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
+            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
+            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
             CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
             CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
             row = 1; colStart = row * 7;
             CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
+            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
+            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
             CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
             CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
         }
         if (ls == LongShort::Short) {
             row = 0; colStart = row * 7;
             CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
+            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
+            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
             CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
             CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
             row = 1; colStart = row * 7;
             CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
+            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
+            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
             CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
             CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
         }
+        TradeGrid_CalculateDTE(pData->hWindow);
         AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
         break;
 

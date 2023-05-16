@@ -56,18 +56,18 @@ void CategoryControl_OnCreate(HWND hwnd)
 
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_CATEGORYCONTROL_PURPLE,
+        IDC_CATEGORYCONTROL_PINK,
         CustomLabelType::TextOnly,
         nLeft, 0, 24, 24);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = ThemeElement::GrayMedium;
         pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::Purple;
+        pData->TextColor = ThemeElement::Pink;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
-        pData->wszToolTip = L"Purple";
+        pData->wszToolTip = L"Pink";
         CustomLabel_SetOptions(hCtl, pData);
     }
     nLeft += 24 + margin;

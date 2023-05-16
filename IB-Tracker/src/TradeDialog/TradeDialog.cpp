@@ -9,6 +9,7 @@
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\DatePicker\DatePicker.h"
 #include "..\Utilities\UserMessages.h"
+#include "..\TradeGrid\TradeGrid.h"
 
 
 HWND HWND_TRADEDIALOG = NULL;
@@ -210,6 +211,15 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             return TRUE;
         }
     }
+
+    
+    case MSG_DATEPICKER_DATECHANGED:
+    {
+        TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN));
+        TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL));
+        return 0;
+    }
+    break;
 
 
     case MSG_CUSTOMLABEL_CLICK:

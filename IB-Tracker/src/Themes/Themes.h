@@ -17,6 +17,7 @@ enum class ThemeElement {
 	Orange,
 	Purple,
 	Blue,
+	Pink,
 
 	MenuNotch,
 	Separator,

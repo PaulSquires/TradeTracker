@@ -1,6 +1,5 @@
 //
 // CUSTOM TEXTBOX CONTROL
-// Copyright (C) 2023 Paul Squires, PlanetSquires Software
 // This control should be able to handle all different types of labels and will act
 // like a button, hot tracking, pictures, etc.
 //
@@ -8,12 +7,41 @@
 #include "pch.h"
 #include "..\Utilities\CWindowBase.h"
 #include "..\MainWindow\MainWindow.h"
+#include "..\DatePicker\DatePicker.h"
+#include "..\TradeDialog\TradeDialog.h"
 
 #include "TradeGrid.h"
 
-
+extern HWND HWND_TRADEDIALOG;
 extern CMainWindow Main;
 
+
+// ========================================================================================
+// Calculate Days To Expiration (DTE) and display it in the table
+// ========================================================================================
+void TradeGrid_CalculateDTE(HWND hwnd)
+{
+    TradeGrid* pData = TradeGrid_GetOptions(hwnd);
+    if (pData == nullptr) return;
+
+    std::wstring transDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_LBLTRANSDATE));
+        
+    std::wstring expiryDate;
+    std::wstring wszDTE;
+
+    for (int i = 0; i < 4; ++i) {
+        int colStart = i * 7;
+
+        expiryDate = CustomLabel_GetUserData(pData->gridCols.at(colStart + 1)->hCtl); 
+        
+        if (transDate.length() != 10) continue;
+        if (expiryDate.length() != 10) continue;
+        
+        int days = AfxDaysBetween(transDate, expiryDate);
+        wszDTE = std::to_wstring(days) + L"d";
+        CustomLabel_SetText(pData->gridCols.at(colStart + 2)->hCtl, wszDTE);   // DTE
+    }
+}
 
 
 //------------------------------------------------------------------------------ 
@@ -263,6 +291,17 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
 
 
 //------------------------------------------------------------------------------ 
+void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
+{
+    if (pData == nullptr) return;
+    if (col == nullptr) return;
+
+    std::wstring wszDate = CustomLabel_GetUserData(col->hCtl);
+    DatePicker_CreateDatePicker(pData->hParent, col->hCtl, wszDate, DatePickerReturnType::ShortDate);
+}
+
+
+//------------------------------------------------------------------------------ 
 std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 {
     std::wstring wszText;
@@ -281,7 +320,7 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
     else if (pData->gridCols.at(idx)->colType == GridColType::DatePicker) {
         // If the column is a DatePicker then return the ISO date rather
         // the wszText which would be the short display date.
-        wszText = pData->gridCols.at(idx)->wszDate;
+        wszText = CustomLabel_GetUserData(pData->gridCols.at(idx)->hCtl);
     } 
     else {
         wszText = CustomLabel_GetText(pData->gridCols.at(idx)->hCtl);
@@ -304,11 +343,29 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     switch (uMsg)
     {
 
+    case MSG_DATEPICKER_DATECHANGED:
+    {
+        TradeGrid_CalculateDTE(hWnd);
+        return 0;
+    }
+    break;
+
+
     case MSG_CUSTOMLABEL_CLICK:
     {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
         // Find the data for the table cell that was clicked on
         for (const auto& col : pData->gridCols) {
             if (col->idCtrl == wParam) {
+
+                if (col->colType == GridColType::DatePicker) {
+                    TradeGrid_OnClickDatePicker(pData, col);
+                    break;
+                }
 
                 if (col->colType == GridColType::PutCallCombo) {
                     TradeGrid_OnClickPutCall(pData, col);

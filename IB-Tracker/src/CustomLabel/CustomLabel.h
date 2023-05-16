@@ -52,8 +52,8 @@ public:
 	HWND hParent = NULL;
 	HINSTANCE hInst = NULL;
 	HWND hToolTip = NULL;
-	std::wstring wszToolTip;
-	std::wstring UserData;
+	std::wstring wszToolTip = L"";
+	std::wstring UserData = L"";
 	int UserDataInt = 0;
 
 	int CtrlId = 0;

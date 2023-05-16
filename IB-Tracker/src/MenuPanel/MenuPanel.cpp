@@ -285,43 +285,91 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    // Add any Trade Templates that have their MENU property set to True.
-/*
-    int ctrlId = IDC_MENUPANEL_FIRSTTEMPLATE;
-
-    for (auto& t : TradeTemplates)
-    {
-        if (!t.menu) continue;
-
-        ctrlId++;
-
-        nTop = nTop + nItemHeight;
-        hCtl = CreateCustomLabel(
-            hwnd, ctrlId,
-            CustomLabelType::TextOnly,
-            0, nTop, MENUPANEL_WIDTH, nItemHeight);
-        pData = CustomLabel_GetOptions(hCtl);
-        if (pData) {
-            pData->pTradeTemplate = &t;
-            pData->HotTestEnable = true;
-            pData->AllowSelect = true;
-            pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-            pData->BackColor = ThemeElement::Black;
-            pData->BackColorHot = ThemeElement::Selection;
-            pData->BackColorSelected = ThemeElement::Selection;
-            pData->TextColor = ThemeElement::WhiteLight;
-            pData->TextColorHot = ThemeElement::WhiteLight;
-            pData->TextOffsetLeft = nLeftOffset;
-            pData->FontSize = 10;
-            pData->FontSizeHot = 10;
-            pData->wszText = t.name;
-            pData->wszTextHot = pData->wszText;
-            CustomLabel_SetOptions(hCtl, pData);
-        }
-
+    // SEPARATOR
+    nTop = nTop + nItemHeight + 6;
+    hCtl = CreateCustomLabel(
+        hwnd, -1,
+        CustomLabelType::LineHorizontal,
+        0, nTop, MENUPANEL_WIDTH, 10);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
+        pData->LineWidth = 2;
+        pData->MarginLeft = 10;
+        pData->MarginRight = 10;
+        CustomLabel_SetOptions(hCtl, pData);
     }
 
-*/
+    nTop = nTop + 10;
+    hCtl = CreateCustomLabel(
+        hwnd, IDC_MENUPANEL_NEWSHORTSTRANGLE,
+        CustomLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Short Strangle";
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+    nTop = nTop + nItemHeight;
+    hCtl = CreateCustomLabel(
+        hwnd, IDC_MENUPANEL_NEWSHORTPUT,
+        CustomLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Short Put";
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+    nTop = nTop + nItemHeight;
+    hCtl = CreateCustomLabel(
+        hwnd, IDC_MENUPANEL_NEWSHORTCALL,
+        CustomLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Short Call";
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
 
     // SEPARATOR
     nTop = nTop + nItemHeight + 6;
@@ -604,15 +652,43 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (pData) {
 
-            // Deal with any Trade Templates in the menu
-            if (CtrlId >= IDC_MENUPANEL_FIRSTTEMPLATE && CtrlId <= IDC_MENUPANEL_LASTTEMPLATE)
-            {
-                TradeDialog_Show(ACTION_NEW_TRADE);
-                return 0;
-            }
-
-
             switch (CtrlId) {
+
+            case IDC_MENUPANEL_NEWOPTIONSTRADE:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(ACTION_NEW_TRADE);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
+
+            case IDC_MENUPANEL_NEWSHORTSTRANGLE:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(ACTION_NEW_SHORTSTRANGLE);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
+
+            case IDC_MENUPANEL_NEWSHORTPUT:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(ACTION_NEW_SHORTPUT);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
+
+            case IDC_MENUPANEL_NEWSHORTCALL:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(ACTION_NEW_SHORTCALL);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
 
             case IDC_MENUPANEL_CONNECTTWS:
             {

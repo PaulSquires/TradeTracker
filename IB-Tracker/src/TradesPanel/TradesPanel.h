@@ -33,6 +33,7 @@ const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
 
 // Various actions that can be performed on selected Trade or Legs.
+// TODO: These Actions should probably be a enum class
 const int ACTION_NEW_TRADE          = 1;
 const int ACTION_ROLL_LEG           = 2;
 const int ACTION_CLOSE_LEG          = 3;
@@ -41,6 +42,11 @@ const int ACTION_SHARE_ASSIGNMENT   = 5;
 const int ACTION_ADDTO_TRADE        = 6;
 const int ACTION_ADDPUTTO_TRADE     = 7;
 const int ACTION_ADDCALLTO_TRADE    = 8;
+const int ACTION_NEW_SHORTSTRANGLE  = 9;
+const int ACTION_NEW_SHORTPUT       = 10;
+const int ACTION_NEW_SHORTCALL      = 11;
 const int ACTION_NOACTION           = 20;
 
+
+bool IsNewTradeAction(const int action);
 

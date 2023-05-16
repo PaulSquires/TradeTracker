@@ -45,6 +45,7 @@ void InitializeDarkThemeColors()
 	clr[(int)ThemeElement::Orange] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
 	clr[(int)ThemeElement::Purple] = Color::MediumOrchid;
 	clr[(int)ThemeElement::Blue] = Color::CornflowerBlue;
+	clr[(int)ThemeElement::Pink] = Color::Pink;
 
 	clr[(int)ThemeElement::MenuNotch] = Color::MakeARGB(255, 38, 38, 38);
 	clr[(int)ThemeElement::Separator] = Color::MakeARGB(255, 53, 59, 69);

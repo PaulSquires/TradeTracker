@@ -46,6 +46,5 @@ const int IDC_TRADEDIALOG_CATEGORY       = 140;
 
 void TradeDialog_Show(int inTradeAction);
 void CalculateTradeTotal(HWND hwnd);
-void CalculateTradeDTE(HWND hwnd);
 void LoadEditLegsInTradeTable(HWND hwnd);
 void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText);

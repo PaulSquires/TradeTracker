@@ -19,6 +19,7 @@ struct LineCtrl {
 
 std::vector<LineCtrl> lCtrls;
 
+extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
 extern int tradeAction;
 extern std::vector<std::shared_ptr<Leg>> legsEdit;
@@ -27,7 +28,7 @@ extern std::shared_ptr<Trade> tradeEdit;
 extern void TradesPanel_ShowActiveTrades();
 
 CStrategyButton StrategyButton;
-
+extern HWND HWND_STRATEGYBUTTON;
 
 
 // ========================================================================================
@@ -64,7 +65,7 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 
     std::shared_ptr<Trade> trade;
 
-    if (tradeAction == ACTION_NEW_TRADE) {
+    if (IsNewTradeAction(tradeAction) == true) {
         auto trade = std::make_shared<Trade>();
         trades.push_back(trade);
         trade->tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
@@ -116,6 +117,9 @@ void TradeDialog_CreateTradeData(HWND hwnd)
         switch (tradeAction) {
 
         case ACTION_NEW_TRADE:
+        case ACTION_NEW_SHORTSTRANGLE:
+        case ACTION_NEW_SHORTPUT:
+        case ACTION_NEW_SHORTCALL:
         case ACTION_ADDTO_TRADE:
             leg->origQuantity = intQuantity;
             leg->openQuantity = intQuantity;
@@ -207,35 +211,79 @@ void CalculateTradeTotal(HWND hwnd)
 }
 
 
-// ========================================================================================
-// Calculate Days To Expiration (DTE) and display it in the table
-// ========================================================================================
-void CalculateTradeDTE(HWND hwnd)
-{
-    //std::wstring transDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
-
-    //int NumTableRows = TRADEDIALOG_TRADETABLE_NUMROWS;
-    //if (tradeAction == ACTION_ROLL_LEG) NumTableRows *= 2;
-
-    //for (int i = 0; i < NumTableRows; ++i) {
-    //    std::wstring expiryDate = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEEXPIRY + i));
-    //    int days = AfxDaysBetween(transDate, expiryDate);
-    //    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEDTE + i), std::to_wstring(days) + L"d");
-    //}
-}
-
 
 // ========================================================================================
 // Load the legs for the edit Action into the Trade Management table
 // ========================================================================================
 void LoadEditLegsInTradeTable(HWND hwnd)
 {
+    HWND hCtl = NULL;
+    std::wstring wszText;
+
     if (tradeAction == ACTION_NEW_TRADE) return;
+
+    if (tradeAction == ACTION_NEW_SHORTSTRANGLE) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetText(hCtl, L"");
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl,(int)Strategy::Strangle);
+        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Strangle));
+        CustomLabel_SetText(hCtl, wszText);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
+
+    if (tradeAction == ACTION_NEW_SHORTPUT) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
+        wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Option);
+        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Option));
+        CustomLabel_SetText(hCtl, wszText);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
+
+    if (tradeAction == ACTION_NEW_SHORTCALL) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Call);
+        wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Call));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Option);
+        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Option));
+        CustomLabel_SetText(hCtl, wszText);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
 
     // Update the Trade Management table with the details of the Trade.
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
     
-    std::wstring wszText = tradeEdit->tickerSymbol;
+    wszText = tradeEdit->tickerSymbol;
     if (tradeEdit->futureExpiry.length()) {
         wszText = wszText + L": " + AfxFormatFuturesDate(tradeEdit->futureExpiry);
     }
@@ -245,8 +293,6 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     if (legsEdit.size() == 0) return;
 
     int DefaultQuantity = 0;
-
-    return;
 
 
 /*
@@ -309,6 +355,13 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     //}
 
 */
+
+    // Set the DR/CR to debit if this is a closetrade
+    if (tradeAction == ACTION_CLOSE_LEG) {
+        TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
+    }
+
+
 }
 
 
@@ -409,7 +462,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // NEW TRADE SHOWS TEXTBOXES, OTHERS JUST LABELS
-    if (tradeAction == ACTION_NEW_TRADE) {
+    if (IsNewTradeAction(tradeAction) == true) {
         CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 40, 20, 65, 22);
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 23);
@@ -471,16 +524,16 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
     std::wstring wszDate = AfxCurrentDate();
-    CustomLabel_SetUserData(hCtl, wszDate);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
+    CustomLabel_SetUserData(hCtl, wszDate);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
 
-    if (tradeAction == ACTION_NEW_TRADE) {
+    if (IsNewTradeAction(tradeAction) == true) {
         nTop = 72;
         CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
@@ -588,8 +641,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // CATEGORY SELECTOR
-    if (tradeAction == ACTION_NEW_TRADE) 
+    if (IsNewTradeAction(tradeAction) == true) {
         CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23);
-
+    }
 }
 

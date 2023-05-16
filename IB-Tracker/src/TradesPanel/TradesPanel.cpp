@@ -34,6 +34,23 @@ std::shared_ptr<Trade> tradeEdit;
 bool IsActiveTradesVisible = true;
 
 
+// ========================================================================================
+// Returns True/False if incoming Trade action is consider a "New" type of action.
+// ========================================================================================
+bool IsNewTradeAction(const int action)
+{
+    switch (action)
+    {
+    case ACTION_NEW_TRADE:
+    case ACTION_NEW_SHORTSTRANGLE:
+    case ACTION_NEW_SHORTPUT:
+    case ACTION_NEW_SHORTCALL:
+        return true;
+    default:
+        return false;
+    }
+}
+
 
 // ========================================================================================
 // Ensure that the correct MainMenu is selected. Necessary to ensure that when the right
