@@ -17,6 +17,52 @@ extern CMainWindow Main;
 
 
 // ========================================================================================
+// Helper function to set a column's data and update display 
+// ========================================================================================
+void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszText)
+{
+    TradeGrid* pData = TradeGrid_GetOptions(hGrid);
+    if (pData == nullptr) return;
+
+    int idx = (row * 7) + col;
+
+    GridColInfo* pCol = pData->gridCols.at(idx);
+    if (pCol == nullptr) return;
+
+    switch (pCol->colType)
+    {
+    case GridColType::Label:
+        CustomLabel_SetText(pCol->hCtl, wszText);
+        break;
+
+    case GridColType::TextBox:
+        AfxSetWindowText(pCol->hCtl, wszText);
+        break;
+
+    case GridColType::DatePicker:
+        CustomLabel_SetUserData(pCol->hCtl, wszText);
+        CustomLabel_SetText(pCol->hCtl, AfxShortDate(wszText));
+        break;
+
+    case GridColType::PutCallCombo:
+        CustomLabel_SetText(pCol->hCtl, wszText);
+        break;
+
+    case GridColType::ActionCombo:
+        CustomLabel_SetText(pCol->hCtl, wszText);
+        if (pCol->colType == GridColType::ActionCombo) {
+            ThemeElement clr = ThemeElement::Red;
+            if (wszText == L"BTO" || wszText == L"BTC") clr = ThemeElement::Green;
+            CustomLabel_SetTextColor(pCol->hCtl, clr);
+        }
+        break;
+
+    }
+
+}
+
+
+    // ========================================================================================
 // Calculate Days To Expiration (DTE) and display it in the table
 // ========================================================================================
 void TradeGrid_CalculateDTE(HWND hwnd)

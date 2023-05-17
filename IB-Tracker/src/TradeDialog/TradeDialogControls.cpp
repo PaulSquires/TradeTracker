@@ -294,61 +294,71 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     TradeGrid* pData = TradeGrid_GetOptions(hGridMain);
     if (pData == nullptr) return;
 
-    int nextRow = 0;
+    int row = 0;
     for (const auto& leg : legsEdit) {
-        int colIdx = (nextRow * 7);
 
         // QUANTITY
         DefaultQuantity = leg->openQuantity;
         std::wstring legQuantity = std::to_wstring(leg->openQuantity * -1);
-        TradeGrid_SetText(pData->gridCols.at(colIdx), legQuantity);
+        TradeGrid_SetColData(hGridMain, row, 0, legQuantity);
 
         // EXPIRY DATE
-        colIdx++;
-        CustomLabel_SetUserData(pData->gridCols.at(colIdx)->hCtl, leg->expiryDate);
-        TradeGrid_SetText(pData->gridCols.at(colIdx), AfxShortDate(leg->expiryDate));
+        TradeGrid_SetColData(hGridMain, row, 1, leg->expiryDate);
 
         // STRIKE PRICE
-        colIdx++;
-        TradeGrid_SetText(pData->gridCols.at(colIdx), leg->strikePrice);
+        TradeGrid_SetColData(hGridMain, row, 3, leg->strikePrice);
 
         // PUT/CALL
-        colIdx++;
-        TradeGrid_SetText(pData->gridCols.at(colIdx), leg->PutCall);
+        TradeGrid_SetColData(hGridMain, row, 4, leg->PutCall);
 
         // ACTION
-        colIdx++;
-        TradeGrid_SetText(pData->gridCols.at(colIdx), leg->action);
+        if (leg->action == L"STO") { wszText = L"BTC"; }
+        if (leg->action == L"BTO") { wszText = L"STC"; }
+        TradeGrid_SetColData(hGridMain, row, 5, wszText);
 
-        nextRow++;
+        row++;
     }
     
     // DTE
-    //CalculateTradeDTE(hwnd);
+    TradeGrid_CalculateDTE(hGridMain);
 
     // QUANTITY
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), std::to_wstring(abs(DefaultQuantity)));
-    //FormatNumberFourDecimals(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));
 
 
     // Add some default information for the new Roll transaction
-    //if (tradeAction == ACTION_ROLL_LEG) {
-    //    nextRow++;
-    //    nextRow++;
-    //    for (const auto& leg : legsEdit) {
-    //        LineCtrl lc = lCtrls.at(nextRow);
-    //        AfxSetWindowText(lc.cols[1], std::to_wstring(leg->openQuantity));
-    //        // Set the new expiry date to be 1 week from the current expiry date as a new default
-    //        QDate newExpiryDate = QDate::fromString(leg->expiryDate, "yyyy-MM-dd").addDays(7);
-    //        ui->tableLegs->cellWidget(i + nextRow, 1)->setProperty("date", newExpiryDate.toString("yyyy-MM-dd"));
-    //        ui->tableLegs->cellWidget(i + nextRow, 3)->setProperty("text", leg->strikePrice);
-    //        ui->tableLegs->cellWidget(i + nextRow, 4)->setProperty("currentText", leg->PutCall);
-    //        ui->tableLegs->cellWidget(i + nextRow, 5)->setProperty("currentText", leg->action);
-    //    }
-    //    ui->comboDRCR->setCurrentText("CR");
-    //}
+    if (tradeAction == ACTION_ROLL_LEG) {
+        HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
+        TradeGrid* pData = TradeGrid_GetOptions(hGridRoll);
+        if (pData == nullptr) return;
 
+        int row = 0;
+        for (const auto& leg : legsEdit) {
 
+            // QUANTITY
+            std::wstring legQuantity = std::to_wstring(leg->openQuantity);
+            TradeGrid_SetColData(hGridRoll, row, 0, legQuantity);
+
+            // EXPIRY DATE
+            wszText = AfxDateAddDays(leg->expiryDate, 7);
+            TradeGrid_SetColData(hGridRoll, row, 1, wszText);
+
+            // STRIKE PRICE
+            TradeGrid_SetColData(hGridRoll, row, 3, leg->strikePrice);
+
+            // PUT/CALL
+            TradeGrid_SetColData(hGridRoll, row, 4, leg->PutCall);
+
+            // ACTION
+            TradeGrid_SetColData(hGridRoll, row, 5, leg->action);
+
+            row++;
+        }
+
+        // DTE
+        TradeGrid_CalculateDTE(hGridRoll);
+
+    }
     // Set the DR/CR to debit if this is a closetrade
     if (tradeAction == ACTION_CLOSE_LEG) {
         TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");

@@ -68,6 +68,7 @@ int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData);
 void TradeGrid_SetText(GridColInfo* col, std::wstring wszText);
 std::wstring TradeGrid_GetText(HWND hCtl, int row, int col);
 void TradeGrid_CalculateDTE(HWND hwnd);
+void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszText);
 
 HWND CreateTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight);
 
