@@ -13,12 +13,6 @@
 #include "..\Category\Category.h"
 
 
-struct LineCtrl {
-    HWND cols[6]{ NULL };
-};
-
-std::vector<LineCtrl> lCtrls;
-
 extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
 extern int tradeAction;
@@ -295,42 +289,42 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     int DefaultQuantity = 0;
 
 
-/*
     // Display the legs being closed and set each to the needed inverse action.
+    HWND hGridMain = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
+    TradeGrid* pData = TradeGrid_GetOptions(hGridMain);
+    if (pData == nullptr) return;
+
     int nextRow = 0;
     for (const auto& leg : legsEdit) {
-        LineCtrl lc = lCtrls.at(nextRow);
+        int colIdx = (nextRow * 7);
 
         // QUANTITY
         DefaultQuantity = leg->openQuantity;
         std::wstring legQuantity = std::to_wstring(leg->openQuantity * -1);
-        AfxSetWindowText(lc.cols[0], legQuantity.c_str());
+        TradeGrid_SetText(pData->gridCols.at(colIdx), legQuantity);
 
         // EXPIRY DATE
-        AfxSetDateTimePickerDate(lc.cols[1], leg->expiryDate);
+        colIdx++;
+        CustomLabel_SetUserData(pData->gridCols.at(colIdx)->hCtl, leg->expiryDate);
+        TradeGrid_SetText(pData->gridCols.at(colIdx), AfxShortDate(leg->expiryDate));
 
         // STRIKE PRICE
-        AfxSetWindowText(lc.cols[3], leg->strikePrice.c_str());
+        colIdx++;
+        TradeGrid_SetText(pData->gridCols.at(colIdx), leg->strikePrice);
 
         // PUT/CALL
-        std::wstring PutCall = leg->PutCall;
-        if (PutCall == L"P") PutCall = L"PUT";
-        if (PutCall == L"C") PutCall = L"CALL";
-        foundAt = ComboBox_FindStringExact(lc.cols[4], -1, PutCall.c_str());
-        ComboBox_SetCurSel(lc.cols[4], foundAt);
+        colIdx++;
+        TradeGrid_SetText(pData->gridCols.at(colIdx), leg->PutCall);
 
         // ACTION
-        std::wstring action = leg->action;
-        if (action == L"STO") action = L"BTC";
-        if (action == L"BTO") action = L"STC";
-        int foundAt = ComboBox_FindStringExact(lc.cols[0], -1, action.c_str());
-        ComboBox_SetCurSel(lc.cols[5], foundAt);
+        colIdx++;
+        TradeGrid_SetText(pData->gridCols.at(colIdx), leg->action);
 
         nextRow++;
     }
     
     // DTE
-    CalculateTradeDTE(hwnd);
+    //CalculateTradeDTE(hwnd);
 
     // QUANTITY
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), std::to_wstring(abs(DefaultQuantity)));
@@ -354,7 +348,6 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     //    ui->comboDRCR->setCurrentText("CR");
     //}
 
-*/
 
     // Set the DR/CR to debit if this is a closetrade
     if (tradeAction == ACTION_CLOSE_LEG) {

@@ -52,8 +52,8 @@ public:
 	HWND hParent = NULL;
 	HINSTANCE hInst = NULL;
 	HWND hToolTip = NULL;
-	std::wstring wszToolTip = L"";
-	std::wstring UserData = L"";
+	std::wstring wszToolTip{};
+	std::wstring UserData{};
 	int UserDataInt = 0;
 
 	int CtrlId = 0;
@@ -103,8 +103,8 @@ public:
 	int TextCharacterExtra = 0;
 
 	// Text Normal
-	std::wstring wszText;
-	std::wstring wszFontName;
+	std::wstring wszText{};
+	std::wstring wszFontName{};
 	REAL FontSize = 0;
 	bool FontBold = false;
 	bool FontItalic = false;
@@ -113,8 +113,8 @@ public:
 	CustomLabelPointer Pointer = CustomLabelPointer::Arrow;
 
 	// Text Hot
-	std::wstring wszTextHot;
-	std::wstring wszFontNameHot;
+	std::wstring wszTextHot{};
+	std::wstring wszFontNameHot{};
 	REAL FontSizeHot = 0;
 	bool FontBoldHot = false;
 	bool FontItalicHot = false;
