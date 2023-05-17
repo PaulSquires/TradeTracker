@@ -51,6 +51,17 @@ void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
 
 
 // ========================================================================================
+// Remove pipe character from the string and return new copy. 
+// ========================================================================================
+std::wstring RemovePipeChar(const std::wstring& wszText)
+{
+    std::wstring wszString = wszText;
+    //wszString.erase(L'|');   // C++20 combines erase/remove into one operation
+    wszString.erase(remove(wszString.begin(), wszString.end(), L'|'), wszString.end());
+    return wszString;
+}
+
+// ========================================================================================
 // Create the trade transaction data and save it to the database
 // ========================================================================================
 void TradeDialog_CreateTradeData(HWND hwnd)
@@ -60,11 +71,12 @@ void TradeDialog_CreateTradeData(HWND hwnd)
     std::shared_ptr<Trade> trade;
 
     if (IsNewTradeAction(tradeAction) == true) {
-        auto trade = std::make_shared<Trade>();
+        trade = std::make_shared<Trade>();
         trades.push_back(trade);
-        trade->tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
-        trade->tickerName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
+        trade->tickerSymbol = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER)));
+        trade->tickerName = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY)));
         trade->futureExpiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
+        trade->category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
     }
     else {
         trade = tradeEdit;
@@ -74,7 +86,7 @@ void TradeDialog_CreateTradeData(HWND hwnd)
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
 
     trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-    trans->description = L"Strangle";  // RemovePipeChar(ui->txtDescription->text());
+    trans->description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
     trans->underlying = L"OPTIONS";
     trans->quantity = stoi(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
@@ -215,6 +227,24 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     std::wstring wszText;
 
     if (tradeAction == ACTION_NEW_TRADE) return;
+
+    if (tradeAction == ACTION_NEW_IRONCONDOR) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetText(hCtl, L"");
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl,(int)Strategy::IronCondor);
+        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::IronCondor));
+        CustomLabel_SetText(hCtl, wszText);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
 
     if (tradeAction == ACTION_NEW_SHORTSTRANGLE) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);

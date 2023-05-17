@@ -42,6 +42,7 @@ bool IsNewTradeAction(const int action)
     switch (action)
     {
     case ACTION_NEW_TRADE:
+    case ACTION_NEW_IRONCONDOR:
     case ACTION_NEW_SHORTSTRANGLE:
     case ACTION_NEW_SHORTPUT:
     case ACTION_NEW_SHORTCALL:

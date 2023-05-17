@@ -42,9 +42,10 @@ const int ACTION_SHARE_ASSIGNMENT   = 5;
 const int ACTION_ADDTO_TRADE        = 6;
 const int ACTION_ADDPUTTO_TRADE     = 7;
 const int ACTION_ADDCALLTO_TRADE    = 8;
-const int ACTION_NEW_SHORTSTRANGLE  = 9;
-const int ACTION_NEW_SHORTPUT       = 10;
-const int ACTION_NEW_SHORTCALL      = 11;
+const int ACTION_NEW_IRONCONDOR     = 9;
+const int ACTION_NEW_SHORTSTRANGLE  = 10;
+const int ACTION_NEW_SHORTPUT       = 12;
+const int ACTION_NEW_SHORTCALL      = 13;
 const int ACTION_NOACTION           = 20;
 
 

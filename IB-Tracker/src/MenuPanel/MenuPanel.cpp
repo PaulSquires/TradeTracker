@@ -303,6 +303,29 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     nTop = nTop + 10;
     hCtl = CreateCustomLabel(
+        hwnd, IDC_MENUPANEL_NEWIRONCONDOR,
+        CustomLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, nItemHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
+        pData->TextOffsetLeft = nLeftOffset;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = L"Iron Condor";
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+    nTop = nTop + nItemHeight;
+    hCtl = CreateCustomLabel(
         hwnd, IDC_MENUPANEL_NEWSHORTSTRANGLE,
         CustomLabelType::TextOnly,
         0, nTop, MENUPANEL_WIDTH, nItemHeight);
@@ -659,6 +682,15 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 TradeDialog_Show(ACTION_NEW_TRADE);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
+
+            case IDC_MENUPANEL_NEWIRONCONDOR:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(ACTION_NEW_IRONCONDOR);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;
