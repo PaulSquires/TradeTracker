@@ -77,6 +77,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, wszText);
         hCtlLongShort = hCtl;
@@ -86,6 +87,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             CustomLabelAlignment::MiddleCenter, 51, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
         CustomLabel_SetText(hCtl, wszText);
         hCtlPutCall = hCtl;
@@ -106,6 +108,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYPOPUP_GO + i, L"GO",
             ThemeElement::Black, ThemeElement::Blue, ThemeElement::Blue, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, 203, nTop, 30, nHeight);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 

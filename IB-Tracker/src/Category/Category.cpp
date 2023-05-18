@@ -32,6 +32,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Gray";
+        pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
     nLeft += 24 + margin;
@@ -50,6 +51,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Blue";
+        pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
     nLeft += 24 + margin;
@@ -68,6 +70,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Pink";
+        pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
     nLeft += 24 + margin;
@@ -86,6 +89,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Green";
+        pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
     nLeft += 24 + margin;
@@ -104,6 +108,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Orange";
+        pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
 

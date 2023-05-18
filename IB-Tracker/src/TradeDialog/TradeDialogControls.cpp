@@ -559,6 +559,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     std::wstring wszDate = AfxCurrentDate();
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserData(hCtl, wszDate);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
@@ -660,7 +661,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // DR / CR toggle label
     nLeft = nLeft + nWidth + hmargin;
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"", TextColor, BackColor,
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",
+        TextColor, BackColor, 
         CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
     TradeDialog_SetComboDRCR(hCtl, L"CR");
 

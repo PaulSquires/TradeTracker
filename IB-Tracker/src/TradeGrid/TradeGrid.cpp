@@ -152,6 +152,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -192,6 +193,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -205,6 +207,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
