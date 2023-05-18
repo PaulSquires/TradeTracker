@@ -302,6 +302,7 @@ void StrategyButton_InvokeStrategy()
 
     int colStart = 0;
     int row = 0;
+    int col = 0;
 
     // Clear/Reset the Trade grid (4 rows)
     for (int i = 0; i < 4; ++i) {
@@ -320,39 +321,37 @@ void StrategyButton_InvokeStrategy()
     HWND hCtlDescription = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE);
     std::wstring wszDate = AfxCurrentDate();
 
+    HWND hGrid = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
+
     switch (s)
     {
     case Strategy::Vertical:
     {
         std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");  
+            TradeGrid_SetColData(hGrid, row, col+1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col+4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col+5, L"BTO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
         if (ls == LongShort::Short) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
@@ -365,33 +364,29 @@ void StrategyButton_InvokeStrategy()
     case Strategy::Straddle:
     {
         if (ls == LongShort::Long) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"P");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"C");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
         if (ls == LongShort::Short) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"P");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"C");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
@@ -405,21 +400,19 @@ void StrategyButton_InvokeStrategy()
     {
         std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
         if (ls == LongShort::Short) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
@@ -438,33 +431,29 @@ void StrategyButton_InvokeStrategy()
     {
         std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"2");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"2");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
         if (ls == LongShort::Short) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-2");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, wszPutCall);     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-2");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
@@ -477,57 +466,49 @@ void StrategyButton_InvokeStrategy()
     case Strategy::IronCondor:
     {
         if (ls == LongShort::Long) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
-            row = 2; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
-            row = 3; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"P");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"P");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 2; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"C");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 3; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"C");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
         if (ls == LongShort::Short) {
-            row = 0; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
-            row = 1; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"P");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 2; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"-1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"STO");     // Action
-            row = 3; colStart = row * 7;
-            CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"1");     // Quantity
-            CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, wszDate);
-            CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, AfxShortDate(wszDate));     // Expiry Date
-            CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"C");     // Put/Call
-            CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"BTO");     // Action
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"P");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"P");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 2; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"C");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 3; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, L"C");
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
@@ -535,7 +516,7 @@ void StrategyButton_InvokeStrategy()
     }
     break;
 
-
+    // TODO: Add Butterfly strategy template
     case Strategy::Butterfly:
         break;
     }

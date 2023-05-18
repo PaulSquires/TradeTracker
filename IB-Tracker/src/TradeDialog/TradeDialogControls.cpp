@@ -61,11 +61,47 @@ std::wstring RemovePipeChar(const std::wstring& wszText)
     return wszString;
 }
 
+
+// ========================================================================================
+// Perform error checks on the trade data prior to allowing the save to the database.
+// ========================================================================================
+bool TradeDialog_ValidateTradeData(HWND hwnd)
+{
+
+    // Do an error check to ensure that the data about to be saved does not contain
+    // any missing data, etc.
+    std::wstring wszErrMsg;
+    std::wstring wszText;
+
+    if (IsNewTradeAction(tradeAction) == true) {
+        wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+        if (wszText.length() == 0) wszErrMsg += L"- Missing Ticker Symbol.\n";
+        wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
+        if (wszText.length() == 0) wszErrMsg += L"- Missing Company or Futures Name.\n";
+        wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE));
+        if (wszText.length() == 0) wszErrMsg += L"- Missing Description.\n";
+    }
+
+    if (wszErrMsg.length()) {
+        MessageBox(hwnd, wszErrMsg.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        return false;
+    }
+
+    return true;   // data is good, allow the save to continue
+}
+
+
 // ========================================================================================
 // Create the trade transaction data and save it to the database
 // ========================================================================================
 void TradeDialog_CreateTradeData(HWND hwnd)
 {
+
+    return;
+
+
+
+    // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
 
     std::shared_ptr<Trade> trade;

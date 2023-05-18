@@ -32,6 +32,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Gray";
+        pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -47,10 +48,12 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColor = ThemeElement::GrayMedium;
         pData->SelectorColor = pData->BackColor;
         pData->TextColor = ThemeElement::Blue;
+        pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Blue";
+        pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -66,10 +69,12 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColor = ThemeElement::GrayMedium;
         pData->SelectorColor = pData->BackColor;
         pData->TextColor = ThemeElement::Pink;
+        pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Pink";
+        pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -85,10 +90,12 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColor = ThemeElement::GrayMedium;
         pData->SelectorColor = pData->BackColor;
         pData->TextColor = ThemeElement::Green;
+        pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Green";
+        pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -104,10 +111,12 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->BackColor = ThemeElement::GrayMedium;
         pData->SelectorColor = pData->BackColor;
         pData->TextColor = ThemeElement::Orange;
+        pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
         pData->wszText = L"O";
         pData->wszToolTip = L"Orange";
+        pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }

@@ -155,6 +155,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -180,6 +181,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -222,6 +224,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -246,6 +249,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -270,6 +274,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -310,6 +315,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -333,6 +339,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -356,6 +363,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -379,6 +387,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -421,6 +430,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -446,6 +456,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -471,6 +482,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -496,6 +508,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
@@ -538,6 +551,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
+        pData->AllowNotch = true;
         pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;

@@ -66,6 +66,7 @@ public:
 	// Selection
 	bool AllowSelect = false;
 	bool IsSelected = false;
+	bool AllowNotch = false;
 	ThemeElement SelectorColor{};
 	ThemeElement BackColorSelected{};
 
@@ -317,7 +318,7 @@ public:
 	void DrawNotchInBuffer()
 	{
 		// If selection mode is enabled then draw the little right hand side notch
-		if (IsSelected) {
+		if (IsSelected && AllowNotch) {
 			// Create the background brush
 			SolidBrush backBrush(GetThemeColor(SelectorColor));
 			// Need to center the notch vertically

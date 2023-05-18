@@ -20,6 +20,7 @@ CTradeDialog TradeDialog;
 
 int tradeAction = ACTION_NOACTION;
 
+extern bool TradeDialog_ValidateTradeData(HWND hwnd);
 extern void TradeDialog_CreateTradeData(HWND hwnd);
 extern void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
 
@@ -251,8 +252,10 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
-            TradeDialog_CreateTradeData(m_hwnd);
-            SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+            if (TradeDialog_ValidateTradeData(m_hwnd) == true) {
+                TradeDialog_CreateTradeData(m_hwnd);
+                SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+            }
         }
 
     }
