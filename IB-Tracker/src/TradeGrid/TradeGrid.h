@@ -26,12 +26,12 @@ public:
 	int idCtrl = 0;
 	GridColType colType = GridColType::TextBox;
 	int colData = 0;  // holds LineReset line number
-	
+
 	// The quantity and date cells of the first row in the grid are considered "trigger cells"
 	// meaning that if they are changed then their values will populate through the other rows
 	// in the grid template. This makes it faster for the user to change all of the leg quantities
 	// and/or expiry dates at once rather than manually line by line.
-	bool isTriggerCell = false;  
+	bool isTriggerCell = false;
 };
 
 

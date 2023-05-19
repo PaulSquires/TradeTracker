@@ -690,6 +690,11 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_CUSTOMLABEL_CLICK:
     {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
         if (wParam == IDC_DATEPICKER_MOVEUP) {
             int nTopIndex = ListBox_GetTopIndex(hListBoxActive) - 1;
             nTopIndex = max(0, nTopIndex);

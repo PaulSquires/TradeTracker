@@ -396,7 +396,23 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     case MSG_DATEPICKER_DATECHANGED:
     {
-        // TODO: Finish implementing the logic for trade grid isTriggerCell
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        // If this date cell has the isTriggerCell then send a message to the parent to
+        // populate the other rows in the grid with this new date data.
+        for (const auto& col : pData->gridCols) {
+            if (col->idCtrl == CtrlId) {
+                    std::cout << col->isTriggerCell << std::endl;
+                if (col->isTriggerCell == true) {
+                    std::cout << "populate new date to other rows" << std::endl;
+                }
+                break;
+            }
+        }
+
         TradeGrid_CalculateDTE(hWnd);
         return 0;
     }
