@@ -387,10 +387,25 @@ void TradeGrid_PopulateTriggerCells(HWND hWnd)
     TradeGrid* pData = TradeGrid_GetOptions(hWnd);
     if (pData == nullptr) return;
 
+    std::wstring wszCellText = TradeGrid_GetText(hWnd, 0, 0);
+    
+    int intCellQuantity = 0;
+    if (wszCellText.length()) {
+        intCellQuantity = abs(stoi(wszCellText));   // will GPF if empty wszCellText string
+    }
+
     std::wstring wszISODate = CustomLabel_GetUserData(pData->gridCols.at(1)->hCtl);
     std::wstring wszText;
 
     for (int i = 1; i < 4; ++i) {
+        wszText = TradeGrid_GetText(hWnd, i, 0);
+        if (wszText.length() != 0) {
+            int intQuantity = 0;
+            intQuantity = stoi(wszText);   // will GPF if empty wszText string
+            int intNewQuantity = (intQuantity < 0) ? intCellQuantity * -1 : intCellQuantity;
+            wszText = std::to_wstring(intNewQuantity);
+            TradeGrid_SetColData(hWnd, i, 0, wszText);
+        }
         wszText = TradeGrid_GetText(hWnd, i, 1);
         if (wszText.length() != 0) {
             TradeGrid_SetColData(hWnd, i, 1, wszISODate);
@@ -411,6 +426,25 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     switch (uMsg)
     {
+
+    case WM_COMMAND:
+        if (HIWORD(wParam) == EN_KILLFOCUS) {
+            // A textbox in the grid has lost focus. Determine if this window has
+            // the isTriggerCell flag set to true that will then populate its value
+            // to the other cells in the grid table.
+            HWND hCtl = (HWND)lParam;
+            for (const auto& col : pData->gridCols) {
+                if (col->hCtl == hCtl) {
+                    if (col->isTriggerCell == true) {
+                        TradeGrid_PopulateTriggerCells(hWnd);
+                    }
+                    break;
+                }
+            }
+            return 0;
+        }
+        break;
+
 
     case MSG_DATEPICKER_DATECHANGED:
     {
