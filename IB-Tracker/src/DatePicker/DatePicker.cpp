@@ -727,7 +727,8 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
 
             CustomLabel_SetText(hUpdateParentCtl, wszText);
-            SendMessage(GetParent(hUpdateParentCtl), MSG_DATEPICKER_DATECHANGED, wParam, lParam);
+            SendMessage(GetParent(hUpdateParentCtl), MSG_DATEPICKER_DATECHANGED, 
+                GetDlgCtrlID(hUpdateParentCtl), (LPARAM)hUpdateParentCtl);
             DestroyWindow(m_hwnd);
         }
         if (wParam == IDC_DATEPICKER_CANCEL) {

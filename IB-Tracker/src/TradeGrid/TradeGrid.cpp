@@ -382,6 +382,24 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 
 
 //------------------------------------------------------------------------------ 
+void TradeGrid_PopulateTriggerCells(HWND hWnd)
+{
+    TradeGrid* pData = TradeGrid_GetOptions(hWnd);
+    if (pData == nullptr) return;
+
+    std::wstring wszISODate = CustomLabel_GetUserData(pData->gridCols.at(1)->hCtl);
+    std::wstring wszText;
+
+    for (int i = 1; i < 4; ++i) {
+        wszText = TradeGrid_GetText(hWnd, i, 1);
+        if (wszText.length() != 0) {
+            TradeGrid_SetColData(hWnd, i, 1, wszISODate);
+        }
+    }
+
+}
+
+//------------------------------------------------------------------------------ 
 LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     TradeGrid* pData = nullptr;
@@ -405,9 +423,8 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         // populate the other rows in the grid with this new date data.
         for (const auto& col : pData->gridCols) {
             if (col->idCtrl == CtrlId) {
-                    std::cout << col->isTriggerCell << std::endl;
                 if (col->isTriggerCell == true) {
-                    std::cout << "populate new date to other rows" << std::endl;
+                    TradeGrid_PopulateTriggerCells(hWnd);
                 }
                 break;
             }
@@ -428,7 +445,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
         // Find the data for the table cell that was clicked on
         for (const auto& col : pData->gridCols) {
-            if (col->idCtrl == wParam) {
+            if (col->idCtrl == CtrlId) {
 
                 if (col->colType == GridColType::DatePicker) {
                     TradeGrid_OnClickDatePicker(pData, col);
