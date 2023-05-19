@@ -143,6 +143,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
         col->colType = GridColType::TextBox;
+        if (row == 0) col->isTriggerCell = true;
         pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
@@ -156,6 +157,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
+        if (row == 0) col->isTriggerCell = true;
         col->colType = GridColType::DatePicker;
         pData->gridCols.push_back(col);
         idCtrl++;
@@ -364,7 +366,7 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
     int idx = (row * 7) + col;
 
     if (pData->gridCols.at(idx)->colType == GridColType::TextBox) {
-        wszText = AfxGetWindowText(pData->gridCols.at(idx)->hCtl);
+        wszText = AfxGetWindowText(GetDlgItem(pData->gridCols.at(idx)->hCtl,100));
     }
     else if (pData->gridCols.at(idx)->colType == GridColType::DatePicker) {
         // If the column is a DatePicker then return the ISO date rather
@@ -394,6 +396,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     case MSG_DATEPICKER_DATECHANGED:
     {
+        // TODO: Finish implementing the logic for trade grid isTriggerCell
         TradeGrid_CalculateDTE(hWnd);
         return 0;
     }

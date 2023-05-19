@@ -82,6 +82,34 @@ bool TradeDialog_ValidateTradeData(HWND hwnd)
         if (wszText.length() == 0) wszErrMsg += L"- Missing Description.\n";
     }
 
+    for (int row = 0; row < 4; ++row) {
+        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+
+        // All strings must be zero length in order to skip it from being included in the transaction. 
+        if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
+            && legPutCall.length() == 0 && legAction.length() == 0) {
+            continue;
+        }
+
+        // If any of the strings are zero length at this point then the row has incompete data.
+        bool bIncomplete = false;
+
+        if (legQuantity.length() == 0) bIncomplete = true;
+        if (legExpiry.length() == 0) bIncomplete = true;
+        if (legStrike.length() == 0) bIncomplete = true;
+        if (legPutCall.length() == 0) bIncomplete = true;
+        if (legAction.length() == 0) bIncomplete = true;
+
+        if (bIncomplete == true) {
+            wszErrMsg += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
+        }
+
+    }
+
     if (wszErrMsg.length()) {
         MessageBox(hwnd, wszErrMsg.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
         return false;
@@ -96,11 +124,6 @@ bool TradeDialog_ValidateTradeData(HWND hwnd)
 // ========================================================================================
 void TradeDialog_CreateTradeData(HWND hwnd)
 {
-
-    return;
-
-
-
     // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
 
