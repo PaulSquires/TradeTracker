@@ -227,7 +227,7 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 
         switch (tradeAction) {
 
-        case TradeAction::NewTrade:
+        case TradeAction::NewOptionsTrade:
         case TradeAction::NewShortStrangle:
         case TradeAction::NewShortPut:
         case TradeAction::NewShortCall:
@@ -334,7 +334,9 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     HWND hCtl = NULL;
     std::wstring wszText;
 
-    if (tradeAction == TradeAction::NewTrade) return;
+    if (tradeAction == TradeAction::NewOptionsTrade) return;
+    if (tradeAction == TradeAction::NewSharesTrade) return;
+    if (tradeAction == TradeAction::NewFuturesTrade) return;
 
     if (tradeAction == TradeAction::NewIronCondor) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
@@ -519,8 +521,16 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
 
     switch (tradeAction)
     {
-    case TradeAction::NewTrade:
-        wszDescription = L"New";
+    case TradeAction::NewOptionsTrade:
+        wszDescription = L"Options";
+        wszGridMain = L"New Transaction";
+        break;
+    case TradeAction::NewSharesTrade:
+        wszDescription = L"Shares";
+        wszGridMain = L"New Transaction";
+        break;
+    case TradeAction::NewFuturesTrade:
+        wszDescription = L"Futures";
         wszGridMain = L"New Transaction";
         break;
     case TradeAction::CloseLeg:
@@ -609,24 +619,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
-        CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCOMPANY, L"Company Name", TextColorDim, BackColor,
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCOMPANY, L"Company Name", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 115, 20, 115, 22);
+        if (tradeAction == TradeAction::NewFuturesTrade) {
+            CustomLabel_SetText(hCtl, L"Futures Contract");
+        }
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
-        ShowWindow(hCtl, SW_HIDE);
+        if (tradeAction != TradeAction::NewFuturesTrade) ShowWindow(hCtl, SW_HIDE);
         std::wstring wszContractDate = AfxCurrentDate();
         CustomLabel_SetUserData(hCtl, wszContractDate);
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate), 
             TextColor, ThemeElement::GrayMedium, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
-        ShowWindow(hCtl, SW_HIDE);
+        if (tradeAction != TradeAction::NewFuturesTrade) ShowWindow(hCtl, SW_HIDE);
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, L"\uE015",
             TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
-        ShowWindow(hCtl, SW_HIDE);
+        if (tradeAction != TradeAction::NewFuturesTrade) ShowWindow(hCtl, SW_HIDE);
 
     }
     else {
@@ -690,10 +703,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
     if (IsNewTradeAction(tradeAction) == true) {
-        CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
-            CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
-        hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
-            WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
+        // However do not show it for new Shares/Futures 
+        if (tradeAction != TradeAction::NewSharesTrade &&
+            tradeAction != TradeAction::NewFuturesTrade) {
+            CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
+                CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
+            hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
+                WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
+        }
 
     }
 

@@ -41,7 +41,9 @@ bool IsNewTradeAction(TradeAction action)
 {
     switch (action)
     {
-    case TradeAction::NewTrade:
+    case TradeAction::NewOptionsTrade:
+    case TradeAction::NewSharesTrade:
+    case TradeAction::NewFuturesTrade:
     case TradeAction::NewIronCondor:
     case TradeAction::NewShortStrangle:
     case TradeAction::NewShortPut:

@@ -695,7 +695,25 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show(TradeAction::NewTrade);
+                TradeDialog_Show(TradeAction::NewOptionsTrade);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
+
+            case IDC_MENUPANEL_NEWSHARESTRADE:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(TradeAction::NewSharesTrade);
+                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+            }
+            break;
+
+            case IDC_MENUPANEL_NEWFUTURESTRADE:
+            {
+                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                TradeDialog_Show(TradeAction::NewFuturesTrade);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;

@@ -251,15 +251,13 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {
     if (lpDrawItem->itemID == -1) return;
 
-    // TODO: Enable hot mouseover for items in the DatePicker.
-
     if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
         lpDrawItem->itemAction == ODA_SELECT) {
 
         int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
         int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
 
-        bool bIsHot = false;
+        bool bIsSelection = false;
 
         SaveDC(lpDrawItem->hDC);
 
@@ -275,7 +273,7 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         // would be 4 lines before , selected line, 4 lines after. The listboxes
         // do not use SetCurSel because it has the LBS_NOSEL style set.
         if (lpDrawItem->itemID == ListBox_GetTopIndex(lpDrawItem->hwndItem) + 4) {
-            bIsHot = true;
+            bIsSelection = true;
         }
 
         Graphics graphics(memDC);
@@ -299,7 +297,7 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
 
         // Paint the Selection hightlight slightly indented
-        if (bIsHot) {
+        if (bIsSelection) {
             nBackColor = GetThemeColor(ThemeElement::Selection);
             SolidBrush backBrush(nBackColor);
             switch (lpDrawItem->CtlID)
@@ -313,6 +311,15 @@ void DatePicker_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             case IDC_DATEPICKER_YEARLISTBOX:
                 graphics.FillRectangle(&backBrush, 0, 0, nWidth - AfxScaleX(6), nHeight);
                 break;
+            }
+        } else {
+            // Is this a Hot mouseover 
+            POINT pt; GetCursorPos(&pt);
+            MapWindowPoints(HWND_DESKTOP, lpDrawItem->hwndItem, &pt, 1);
+            if (PtInRect(&lpDrawItem->rcItem, pt)) {
+                nBackColor = GetThemeColor(ThemeElement::GrayMedium);
+                SolidBrush backBrush(nBackColor);
+                graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
             }
         }
 
@@ -412,6 +419,10 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
         hListBoxActive = hWnd;
         RECT rc; GetClientRect(HWND_DATEPICKER, &rc);
         DatePicker_OnSize(HWND_DATEPICKER, 0, rc.right, rc.bottom);
+
+        // Handle any Hot mouseover
+        AfxRedrawWindow(hListBoxActive);
+
         return 0;
     }
     break;
@@ -419,6 +430,9 @@ LRESULT CALLBACK DatePicker_ListBox_SubclassProc(
 
     case WM_MOUSELEAVE:
     {
+        // Handle any Hot mouseover
+        AfxRedrawWindow(hListBoxActive);
+
         // We are leaving a ListBox so ensure that the correct Up/Down buttons are shown.
         // Do not call if we are over an up or down button.
         POINT pt; GetCursorPos(&pt);

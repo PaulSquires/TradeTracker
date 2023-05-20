@@ -38,7 +38,9 @@ const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 // TODO: Add default multipliers for known futures contracts.
 enum class TradeAction
 {
-    NewTrade,
+    NewOptionsTrade,
+    NewSharesTrade,
+    NewFuturesTrade,
     RollLeg,
     CloseLeg,
     ExpireLeg,

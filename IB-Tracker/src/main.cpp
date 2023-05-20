@@ -69,6 +69,21 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+
+    // Ensure only one running instance
+    HANDLE hMutexHandle = CreateMutex(NULL, TRUE, L"ibtracker.mutex");
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
+    {
+        // Try to bring the existing instance to the foreground
+        HWND existingApp = FindWindow(0, L"IB-Tracker");
+        if (existingApp) {
+            if (IsMinimized(existingApp)) ShowWindow(existingApp, SW_SHOWNORMAL);
+            SetForegroundWindow(existingApp);
+        }
+        return 0;
+    }
+
+
     GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR           gdiplusToken;
 
@@ -76,7 +91,7 @@ int APIENTRY wWinMain(
     // Initialize GDI+.
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-// TODO: Only allow application 1 instance.
+
 
 #if (ENABLECONSOLE >= 1)
     // Create console terminal for GUI application in order to print out debug messages
@@ -203,6 +218,11 @@ int APIENTRY wWinMain(
 
     // Shut down the GDI+ subsystem
     GdiplusShutdown(gdiplusToken);
+
+
+    // Release the mutex that prevents multiple application instances
+    ReleaseMutex(hMutexHandle);
+    CloseHandle(hMutexHandle);
 
     return 0;
 }
