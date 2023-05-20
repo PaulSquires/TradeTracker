@@ -382,6 +382,7 @@ std::wstring CustomLabel_GetText(HWND hCtrl);
 void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor);
 void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor);
+void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot);
 ThemeElement CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold);

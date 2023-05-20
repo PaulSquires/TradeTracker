@@ -38,6 +38,9 @@ std::wstring AfxGetExePath();
 std::wstring AfxGetUserName();
 std::wstring AfxCurrentDate();
 
+bool AfxIsLeapYear(int nYear);
+int AfxDaysInMonth(int nMonth, int nYear);
+int AfxDaysInMonthISODate(std::wstring wszDate);
 std::wstring AfxShortDate(std::wstring wszDate);
 std::wstring AfxGetShortDayName(std::wstring wszDate);
 std::wstring AfxMakeISODate(int year, int month, int day);

@@ -19,8 +19,6 @@ DatePickerReturnType UpdateDateReturnType = DatePickerReturnType::ISODate;
 
 bool SystemListBoxSmoothScrolling = FALSE;
 
-// TODO: Adjust DatePicker valid Days base on selected Month and Year (leap years, etc).
-
 
 
 // ========================================================================================
@@ -89,17 +87,21 @@ void DatePicker_LoadDayListBox(HWND hListBox)
 {
     int idx = 0;
 
+    // Get the number days for the month given the year because we need to
+    // take leap years into account also.
+    int DaysInMonth = AfxDaysInMonthISODate(wszSelectedDate);
+
     ListBox_ResetContent(hListBox);
 
     for (int ii = 0; ii < 3; ++ii) {
-        for (int i = 1; i <= 31; ++i) {
+        for (int i = 1; i <= DaysInMonth; ++i) {
             idx = ListBox_AddString(hListBox, std::to_wstring(i).c_str());
             ListBox_SetItemData(hListBox, idx, i);
         }
     }
 
     int day = AfxGetDay(wszSelectedDate);
-    for (int i = 32; i < ListBox_GetCount(hListBox); ++i) {
+    for (int i = DaysInMonth + 1; i < ListBox_GetCount(hListBox); ++i) {
         if (ListBox_GetItemData(hListBox, i) == day) {
             idx = i; break;
         }
@@ -159,13 +161,13 @@ void DatePicker_OnSelChange(HWND hwnd)
     cursel = ListBox_GetTopIndex(hListBox) + 4;
     int year = ListBox_GetItemData(hListBox, cursel);
 
-    wszSelectedDate = AfxMakeISODate(year, month, day);
-
     AfxRedrawWindow(hListBoxActive);
-    
-    //DatePicker_LoadMonthListBox(GetDlgItem(hwnd, IDC_DATEPICKER_MONTHLISTBOX));
-    //DatePicker_LoadDayListBox(GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX));
-    //DatePicker_LoadYearListBox(GetDlgItem(hwnd, IDC_DATEPICKER_YEARLISTBOX));
+
+    int DaysInMonth = AfxDaysInMonth(month, year);
+
+    if (day > DaysInMonth) day = DaysInMonth;
+    wszSelectedDate = AfxMakeISODate(year, month, day);
+    DatePicker_LoadDayListBox(GetDlgItem(hwnd, IDC_DATEPICKER_DAYLISTBOX));
 }
 
 

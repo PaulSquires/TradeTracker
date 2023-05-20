@@ -405,6 +405,58 @@ std::wstring AfxGetUserName()
 
 
 // ========================================================================================
+// Determines if a given year is a leap year or not.
+// Parameters:
+// - nYear: A four digit year, e.g. 2011.
+// Return Value:
+// - TRUE or FALSE.
+// Note: A leap year is defined as all years divisible by 4, except for years divisible by
+// 100 that are not also divisible by 400. Years divisible by 400 are leap years. 2000 is a
+// leap year. 1900 is not a leap year.
+// ========================================================================================
+bool AfxIsLeapYear(int nYear)
+{
+    return (nYear % 4 == 0) ? ((nYear % 100 == 0) ? ((nYear % 400 == 0) ? true : false) : true) : false;
+}
+
+
+// ========================================================================================
+// Returns the number of days in the specified month.
+// Parameters:
+// - nMonth: A two digit month (1-12).
+// - nYear: A four digit year, e.g. 2011.
+// Return Value:
+// - The number of days.
+//' ========================================================================================
+int AfxDaysInMonth(int nMonth, int nYear)
+{
+    switch (nMonth)
+    {
+    case 2:
+        return AfxIsLeapYear(nYear) ? 29 : 28;
+        break;
+    case 4: case 6: case 9: case 11:
+        return 30;
+        break;
+    case 1: case 3: case 5: case 7:
+    case 8: case 10: case 12:
+        return 31;
+        break;
+    default:
+        return 0;
+    }
+}
+
+int AfxDaysInMonthISODate(std::wstring wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+    int nYear = std::stoi(wszDate.substr(0, 4));
+    int nMonth = std::stoi(wszDate.substr(5, 2));
+    return AfxDaysInMonth(nMonth, nYear);
+}
+
+// ========================================================================================
 // Adds the specified number of days to the incoming date and returns the new date.
 // ========================================================================================
 std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd)

@@ -695,7 +695,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show(ACTION_NEW_TRADE);
+                TradeDialog_Show(TradeAction::NewTrade);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;
@@ -704,7 +704,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show(ACTION_NEW_IRONCONDOR);
+                TradeDialog_Show(TradeAction::NewIronCondor);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;
@@ -713,7 +713,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show(ACTION_NEW_SHORTSTRANGLE);
+                TradeDialog_Show(TradeAction::NewShortStrangle);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;
@@ -722,7 +722,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show(ACTION_NEW_SHORTPUT);
+                TradeDialog_Show(TradeAction::NewShortPut);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;
@@ -731,7 +731,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradeDialog_Show(ACTION_NEW_SHORTCALL);
+                TradeDialog_Show(TradeAction::NewShortCall);
                 MenuPanel_SelectMenuItem(m_hwnd, currSelection);
             }
             break;

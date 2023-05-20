@@ -15,7 +15,7 @@
 
 extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
-extern int tradeAction;
+extern TradeAction tradeAction;
 extern std::vector<std::shared_ptr<Leg>> legsEdit;
 extern std::shared_ptr<Trade> tradeEdit;
 
@@ -82,6 +82,10 @@ bool TradeDialog_ValidateTradeData(HWND hwnd)
         if (wszText.length() == 0) wszErrMsg += L"- Missing Description.\n";
     }
 
+    // In adition to validating each leg, we count the number of non blank legs. If all legs
+    // are blank then there is nothing to save to add that to the error message.
+    int NumGoodLegs = 0;
+
     for (int row = 0; row < 4; ++row) {
         std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
         std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
@@ -107,7 +111,42 @@ bool TradeDialog_ValidateTradeData(HWND hwnd)
         if (bIncomplete == true) {
             wszErrMsg += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
         }
+        else {
+            NumGoodLegs++;
+        }
+    }
 
+    if (NumGoodLegs == 0) {
+        wszErrMsg += L"- No Legs exist to be saved.\n";
+    }
+        
+    if (tradeAction == TradeAction::RollLeg) {
+        for (int row = 0; row < 4; ++row) {
+            std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
+            std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
+            std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
+            std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+            std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+
+            // All strings must be zero length in order to skip it from being included in the transaction. 
+            if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
+                && legPutCall.length() == 0 && legAction.length() == 0) {
+                continue;
+            }
+
+            // If any of the strings are zero length at this point then the row has incompete data.
+            bool bIncomplete = false;
+
+            if (legQuantity.length() == 0) bIncomplete = true;
+            if (legExpiry.length() == 0) bIncomplete = true;
+            if (legStrike.length() == 0) bIncomplete = true;
+            if (legPutCall.length() == 0) bIncomplete = true;
+            if (legAction.length() == 0) bIncomplete = true;
+
+            if (bIncomplete == true) {
+                wszErrMsg += L"- Roll Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
+            }
+        }
     }
 
     if (wszErrMsg.length()) {
@@ -126,6 +165,13 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 {
     // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
+
+    if (tradeAction == TradeAction::RollLeg) {
+        AfxSetWindowText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE), L"Roll");
+    }
+    if (tradeAction == TradeAction::CloseLeg) {
+        AfxSetWindowText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE), L"Close");
+    }
 
     std::shared_ptr<Trade> trade;
 
@@ -181,50 +227,23 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 
         switch (tradeAction) {
 
-        case ACTION_NEW_TRADE:
-        case ACTION_NEW_SHORTSTRANGLE:
-        case ACTION_NEW_SHORTPUT:
-        case ACTION_NEW_SHORTCALL:
-        case ACTION_ADDTO_TRADE:
+        case TradeAction::NewTrade:
+        case TradeAction::NewShortStrangle:
+        case TradeAction::NewShortPut:
+        case TradeAction::NewShortCall:
+        case TradeAction::AddToTrade:
             leg->origQuantity = intQuantity;
             leg->openQuantity = intQuantity;
             break;
 
-        case ACTION_ROLL_LEG:
-            // If this is a rolled trade then all table rows representing the old legs to roll will be
-            // displayed first in the table. Those rows are dealt with after this new transaction
-            // is created so we only now need to be concered with the table rows beyond the first
-            // number of rolled legs.
-/*
-            if (i < legsEdit.count()) {
-                // Update the original transaction being Closed/Expired quantities
-                if (!legsEdit.empty()) {
-                    if (i < legsEdit.size()) {
-                        legsEdit.at(i)->openQuantity = legsEdit.at(i)->openQuantity + quantity.toInt();
-                    }
-                }
-
-                leg->origQuantity = quantity.toInt();
-                leg->openQuantity = 0;
-            }
-            else {
-                leg->origQuantity = quantity.toInt();
-                leg->openQuantity = quantity.toInt();
-            }
-*/
-            break;
-
-
-        case ACTION_CLOSE_LEG:
-            // Save this transaction's leg quantities
+        case TradeAction::CloseLeg:
+        case TradeAction::RollLeg:
             leg->origQuantity = intQuantity;
             leg->openQuantity = 0;
-
             // Update the original transaction being Closed quantities
             if (!legsEdit.empty()) {
                 legsEdit.at(row)->openQuantity = legsEdit.at(row)->openQuantity + intQuantity;
             }
-
             break;
         }
 
@@ -232,14 +251,44 @@ void TradeDialog_CreateTradeData(HWND hwnd)
 
     }
 
-    // Save the new data
-    SaveDatabase();
+
+    if (tradeAction == TradeAction::RollLeg) {
+
+        for (int row = 0; row < 4; ++row) {
+            std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
+            std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
+            std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
+            std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+            std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+
+            if (legQuantity.length() == 0) continue;
+            int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
+            if (intQuantity == 0) continue;
+
+            std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+
+            leg->underlying = trans->underlying;
+            leg->expiryDate = legExpiry;
+            leg->strikePrice = legStrike;
+            leg->PutCall = legPutCall;
+            leg->action = legAction;
+
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = intQuantity;
+
+            trans->legs.push_back(leg);
+        }
+
+    }
         
     // Set the open status of the entire trade based on the new modified legs
     trade->setTradeOpenStatus();
 
     // Rebuild the openLegs position vector
     trade->createOpenLegsVector();
+
+    // Save the new data
+    SaveDatabase();
 
     // Show our new list of open trades
     TradesPanel_ShowActiveTrades();
@@ -285,9 +334,9 @@ void LoadEditLegsInTradeTable(HWND hwnd)
     HWND hCtl = NULL;
     std::wstring wszText;
 
-    if (tradeAction == ACTION_NEW_TRADE) return;
+    if (tradeAction == TradeAction::NewTrade) return;
 
-    if (tradeAction == ACTION_NEW_IRONCONDOR) {
+    if (tradeAction == TradeAction::NewIronCondor) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -305,7 +354,7 @@ void LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    if (tradeAction == ACTION_NEW_SHORTSTRANGLE) {
+    if (tradeAction == TradeAction::NewShortStrangle) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -323,7 +372,7 @@ void LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    if (tradeAction == ACTION_NEW_SHORTPUT) {
+    if (tradeAction == TradeAction::NewShortPut) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -343,7 +392,7 @@ void LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    if (tradeAction == ACTION_NEW_SHORTCALL) {
+    if (tradeAction == TradeAction::NewShortCall) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -416,7 +465,7 @@ void LoadEditLegsInTradeTable(HWND hwnd)
 
 
     // Add some default information for the new Roll transaction
-    if (tradeAction == ACTION_ROLL_LEG) {
+    if (tradeAction == TradeAction::RollLeg) {
         HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
         TradeGrid* pData = TradeGrid_GetOptions(hGridRoll);
         if (pData == nullptr) return;
@@ -449,10 +498,9 @@ void LoadEditLegsInTradeTable(HWND hwnd)
 
     }
     // Set the DR/CR to debit if this is a closetrade
-    if (tradeAction == ACTION_CLOSE_LEG) {
+    if (tradeAction == TradeAction::CloseLeg) {
         TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
     }
-
 
 }
 
@@ -471,28 +519,28 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
 
     switch (tradeAction)
     {
-    case ACTION_NEW_TRADE:
+    case TradeAction::NewTrade:
         wszDescription = L"New";
         wszGridMain = L"New Transaction";
         break;
-    case ACTION_CLOSE_LEG:
+    case TradeAction::CloseLeg:
         wszDescription = L"Close";
         wszGridMain = L"Close Transaction";
         break;
-    case ACTION_EXPIRE_LEG:
+    case TradeAction::ExpireLeg:
         wszDescription = L"Expire";
         break;
-    case ACTION_ROLL_LEG:
+    case TradeAction::RollLeg:
         wszDescription = L"Roll";
         wszGridMain = L"Close Transaction";
         wszGridRoll = L"Rolled Transaction";
         break;
-    case ACTION_SHARE_ASSIGNMENT:
+    case TradeAction::Assignment:
         wszDescription = L"Assignment";
         break;
-    case ACTION_ADDTO_TRADE:
-    case ACTION_ADDPUTTO_TRADE:
-    case ACTION_ADDCALLTO_TRADE:
+    case TradeAction::AddToTrade:
+    case TradeAction::AddPutToTrade:
+    case TradeAction::AddCallToTrade:
         wszDescription = L"Add To";
         wszGridMain = L"New Transaction";
         break;
@@ -625,15 +673,23 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
+    // We always want the Description textbox to exists because even for rolled and closed transaction
+    // we need to set the description (even though the user will never see the actual textbox in those
+    // types of actions).
+
+    nTop = 72;
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, ES_LEFT, L"", 159, 97, 171, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    if (tradeAction == TradeAction::RollLeg || tradeAction == TradeAction::CloseLeg) {
+        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_HIDE);
+        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_HIDE);
+    }
 
     if (IsNewTradeAction(tradeAction) == true) {
-        nTop = 72;
-        CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", TextColorDim, BackColor,
-            CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, ES_LEFT, L"", 159, 97, 171, 23);
-        CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-        CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
         CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
         hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
@@ -650,7 +706,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
 
     // If we are rolling then create the second trade grid.
-    if (tradeAction == ACTION_ROLL_LEG) {
+    if (tradeAction == TradeAction::RollLeg) {
         nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 20;
         CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", TextColorDim, BackColor,
             CustomLabelAlignment::MiddleLeft, 40 + nWidth, nTop, 300, 22);
@@ -709,8 +765,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Total", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
-    // Can not set the Totals as readonly because if we do then we won't be able to get the
-    // OnCtlColorEdit message to color the text red/green.
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, ES_RIGHT,
         L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
@@ -718,18 +772,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
+    std::wstring wszFontName = L"Segoe UI";
+    int FontSize = 8;
+    bool bold = false;
+
     // DR / CR toggle label
     nLeft = nLeft + nWidth + hmargin;
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",
-        TextColor, BackColor, 
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",
+        ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     TradeDialog_SetComboDRCR(hCtl, L"CR");
 
 
     // SAVE button
-    CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"Save",
-        ThemeElement::GrayLight, ThemeElement::Green, ThemeElement::Magenta, ThemeElement::Red,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"Save",
+        ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 580, nTop + nHeight + vsp, 80, 23);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+
 
     TradeDialogControls_GetTradeDescription(hwnd);
 

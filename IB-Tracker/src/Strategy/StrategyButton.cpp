@@ -516,9 +516,51 @@ void StrategyButton_InvokeStrategy()
     }
     break;
 
-    // TODO: Add Butterfly strategy template
+
     case Strategy::Butterfly:
-        break;
+    {
+        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        if (ls == LongShort::Long) {
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-2");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 2; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
+        }
+        if (ls == LongShort::Short) {
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"2");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 2; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
+        }
+        TradeGrid_CalculateDTE(pData->hWindow);
+        AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
+    }
+    break;
+
     }
 
 }

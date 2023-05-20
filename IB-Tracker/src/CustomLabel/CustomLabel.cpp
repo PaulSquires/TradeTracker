@@ -285,6 +285,16 @@ void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
     }
 }
 
+//------------------------------------------------------------------------------ 
+void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->BackColorHot = BackColorHot;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
 
 //------------------------------------------------------------------------------ 
 ThemeElement CustomLabel_GetBackColor(HWND hCtrl)

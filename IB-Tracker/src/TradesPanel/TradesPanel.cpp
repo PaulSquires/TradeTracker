@@ -37,15 +37,15 @@ bool IsActiveTradesVisible = true;
 // ========================================================================================
 // Returns True/False if incoming Trade action is consider a "New" type of action.
 // ========================================================================================
-bool IsNewTradeAction(const int action)
+bool IsNewTradeAction(TradeAction action)
 {
     switch (action)
     {
-    case ACTION_NEW_TRADE:
-    case ACTION_NEW_IRONCONDOR:
-    case ACTION_NEW_SHORTSTRANGLE:
-    case ACTION_NEW_SHORTPUT:
-    case ACTION_NEW_SHORTCALL:
+    case TradeAction::NewTrade:
+    case TradeAction::NewIronCondor:
+    case TradeAction::NewShortStrangle:
+    case TradeAction::NewShortPut:
+    case TradeAction::NewShortCall:
         return true;
     default:
         return false;
@@ -511,47 +511,47 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
     if (!IsTickerLine) {
         wszText = L"Roll Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ROLL_LEG, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::RollLeg, wszText.c_str());
 
         wszText = L"Close Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_CLOSE_LEG, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::CloseLeg, wszText.c_str());
 
         wszText = L"Expire Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_EXPIRE_LEG, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ExpireLeg, wszText.c_str());
 
         if (nCount == 1) {
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 1, L"");
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_SHARE_ASSIGNMENT, L"Assignment");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 1, L"");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::Assignment, L"Assignment");
         }
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, ACTION_NOACTION + 2, L"");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
     }
 
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDTO_TRADE, L"Add Transaction to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDPUTTO_TRADE, L"Add Put to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, ACTION_ADDCALLTO_TRADE, L"Add Call to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddToTrade, L"Add Transaction to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddPutToTrade, L"Add Put to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddCallToTrade, L"Add Call to Trade");
 
     POINT pt; GetCursorPos(&pt);
-    int selected =
-        TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hListBox, NULL);
+    TradeAction selected =
+        (TradeAction) TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hListBox, NULL);
 
 
     TradesPanel_PopulateLegsEditVector(hListBox);
 
     switch (selected)
     {
-    case ACTION_ROLL_LEG:
-    case ACTION_CLOSE_LEG:
+    case TradeAction::RollLeg:
+    case TradeAction::CloseLeg:
         TradeDialog_Show(selected);
         break;
-    case ACTION_EXPIRE_LEG:
+    case TradeAction::ExpireLeg:
         TradesPanel_ExpireSelectedLegs(trade);
         break;
-    case ACTION_SHARE_ASSIGNMENT:
+    case TradeAction::Assignment:
         TradeDialog_Show(selected);
         break;
-    case ACTION_ADDTO_TRADE:
-    case ACTION_ADDPUTTO_TRADE:
-    case ACTION_ADDCALLTO_TRADE:
+    case TradeAction::AddToTrade:
+    case TradeAction::AddPutToTrade:
+    case TradeAction::AddCallToTrade:
         TradeDialog_Show(selected);
     }
 

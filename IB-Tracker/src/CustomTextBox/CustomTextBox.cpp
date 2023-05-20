@@ -184,21 +184,6 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     break;
 
 
-    case WM_KEYUP:
-    {
-        // Make the ENTER key behave like the TAB key. Need to catch VK_RETURN in the
-        // WM_KEYUP rather than WM_KEYDOWN.
-    
-        // TODO: Disabled this functionality for now because it is not standard behaviour.
-        //if (wParam == VK_RETURN) {
-        //    HWND hNextCtrl = GetNextDlgTabItem(pData->hParent, pData->hWindow, false);
-        //    SetFocus(hNextCtrl);
-        //}
-    }
-    break;
-
-
-
     case WM_KILLFOCUS:
     {
         // If this is a numeric textbox that allows decimal places then we will

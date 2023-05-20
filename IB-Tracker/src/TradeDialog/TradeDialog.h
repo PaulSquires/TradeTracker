@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\Utilities\CWindowBase.h"
+#include "..\TradesPanel\TradesPanel.h"
 
 
 class CTradeDialog : public CWindowBase<CTradeDialog>
@@ -44,7 +45,7 @@ const int IDC_TRADEDIALOG_TABLEGRIDROLL  = 131;
 const int IDC_TRADEDIALOG_CATEGORY       = 140;
 
 
-void TradeDialog_Show(int inTradeAction);
+void TradeDialog_Show(TradeAction inTradeAction);
 void CalculateTradeTotal(HWND hwnd);
 void LoadEditLegsInTradeTable(HWND hwnd);
 void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText);

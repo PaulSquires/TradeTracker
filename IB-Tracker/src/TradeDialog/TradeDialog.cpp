@@ -18,7 +18,7 @@ extern HWND HWND_MAINWINDOW;
 
 CTradeDialog TradeDialog;
 
-int tradeAction = ACTION_NOACTION;
+TradeAction tradeAction = TradeAction::NoAction;
 
 extern bool TradeDialog_ValidateTradeData(HWND hwnd);
 extern void TradeDialog_CreateTradeData(HWND hwnd);
@@ -130,13 +130,8 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             // Show the Futures contract date field and set the label descriptions if needed.
             TradeDialogControls_ShowFuturesContractDate(hwnd);
 
-            // If the Company Name textbox is empty then attempt to lookup the specified
-            // Ticker and fill in the corresponding Company Name.
+            // Attempt to lookup the specified Ticker and fill in the corresponding Company Name.
             std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
-            
-            // TODO: Decision to always lookup or just when empty
-            //if (wszCompanyName.length() != 0) break;
-
             std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
             std::wstring companyName;
 
@@ -173,8 +168,14 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
     CustomLabel_SetText(hCtl, wszText);
 
     ThemeElement clr = ThemeElement::Red;
-    if (wszText == L"CR") clr = ThemeElement::Green;
-    CustomLabel_SetBackColor(hCtl, clr);
+    if (wszText == L"CR") {
+        CustomLabel_SetBackColor(hCtl, ThemeElement::Green);
+        CustomLabel_SetBackColorHot(hCtl, ThemeElement::Green);
+    }
+    else {
+        CustomLabel_SetBackColor(hCtl, ThemeElement::Red);
+        CustomLabel_SetBackColorHot(hCtl, ThemeElement::Red);
+    }
     CalculateTradeTotal(HWND_TRADEDIALOG);
 }
 
@@ -270,7 +271,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
-void TradeDialog_Show(int inTradeAction)
+void TradeDialog_Show(TradeAction inTradeAction)
 {
     tradeAction = inTradeAction;
 
@@ -323,7 +324,7 @@ void TradeDialog_Show(int inTradeAction)
 
     
     // set focus to the Transaction date picker
-    if (tradeAction == ACTION_ROLL_LEG) {
+    if (tradeAction == TradeAction::RollLeg) {
  //       SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
     }
     else {

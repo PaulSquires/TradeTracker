@@ -12,7 +12,7 @@ enum class ThemeElement {
 	
 	Red,   
 	Yellow,
-	Green,   
+	Green,
 	Magenta,
 	Orange,
 	Purple,
