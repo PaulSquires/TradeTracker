@@ -76,7 +76,7 @@ int APIENTRY wWinMain(
     // Initialize GDI+.
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-
+// TODO: Only allow application 1 instance.
 
 #if (ENABLECONSOLE >= 1)
     // Create console terminal for GUI application in order to print out debug messages

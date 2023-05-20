@@ -13,7 +13,7 @@ extern double intelDecimalToDouble(Decimal decimal);
 extern HWND HWND_MAINWINDOW;
 extern std::vector<std::shared_ptr<Trade>> trades;
 
-
+// TODO: Need to reconcile Futures to IBKR
 
 // Structure & vector to hold all positions returned from connection to IBKR (TWS).
 // These are used for the reconciliation between IB-Tracker and IBKR.
