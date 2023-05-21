@@ -41,11 +41,15 @@ enum class TradeAction
     NewOptionsTrade,
     NewSharesTrade,
     NewFuturesTrade,
+    SellShares,
+    SellFutures,
     RollLeg,
     CloseLeg,
     ExpireLeg,
     Assignment,
-    AddToTrade,
+    AddOptionsToTrade,
+    AddSharesToTrade,
+    AddFuturesToTrade,
     AddPutToTrade,
     AddCallToTrade,
     NewIronCondor,
@@ -55,5 +59,6 @@ enum class TradeAction
     NoAction
 };
 
-bool IsNewTradeAction(TradeAction action);
+bool IsNewOptionsTradeAction(TradeAction action);
+bool IsNewSharesTradeAction(TradeAction action);
 

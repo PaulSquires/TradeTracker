@@ -3,8 +3,8 @@
 
 #include "TradeDialog.h"
 #include "TradeDialogControls.h"
+#include "..\Database\trade.h"
 #include "..\MainWindow\MainWindow.h"
-#include "..\Utilities\ListBoxData.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\DatePicker\DatePicker.h"
@@ -19,10 +19,6 @@ extern HWND HWND_MAINWINDOW;
 CTradeDialog TradeDialog;
 
 TradeAction tradeAction = TradeAction::NoAction;
-
-extern bool TradeDialog_ValidateTradeData(HWND hwnd);
-extern void TradeDialog_CreateTradeData(HWND hwnd);
-extern void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
 
 extern HWND HWND_DATEPICKER;
 extern CDatePicker DatePicker;
@@ -154,7 +150,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     case (IDC_TRADEDIALOG_TXTPRICE):
     case (IDC_TRADEDIALOG_TXTFEES):
         if (codeNotify == EN_KILLFOCUS) {
-            CalculateTradeTotal(hwnd);
+            TradeDialog_CalculateTradeTotal(hwnd);
         }
         break;
 
@@ -176,7 +172,7 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
         CustomLabel_SetBackColor(hCtl, ThemeElement::Red);
         CustomLabel_SetBackColorHot(hCtl, ThemeElement::Red);
     }
-    CalculateTradeTotal(HWND_TRADEDIALOG);
+    TradeDialog_CalculateTradeTotal(HWND_TRADEDIALOG);
 }
 
 
@@ -231,6 +227,17 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (hCtl == NULL) return 0;
 
+        if (CtrlId == IDC_TRADEDIALOG_BUYSHARES) {
+            TradeDialog_ToggleLongShortText(hCtl);
+            TradeDialog_SetLongShortBackColor(hCtl);
+        }
+
+        if (CtrlId == IDC_TRADEDIALOG_BUYSHARES_DROPDOWN) {
+            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_BUYSHARES);
+            TradeDialog_ToggleLongShortText(hCtl);
+            TradeDialog_SetLongShortBackColor(hCtl);
+        }
+    
         if (CtrlId == IDC_TRADEDIALOG_COMBODRCR) {
             // Clicked on the DRCR combo so cycle through the choices
             std::wstring wszText = CustomLabel_GetText(hCtl);
@@ -253,9 +260,18 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
-            if (TradeDialog_ValidateTradeData(m_hwnd) == true) {
-                TradeDialog_CreateTradeData(m_hwnd);
-                SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+            if (tradeAction == TradeAction::NewSharesTrade ||
+                tradeAction == TradeAction::NewFuturesTrade) {
+                if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
+                    TradeDialog_CreateSharesTradeData(m_hwnd);
+                    SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+                }
+            }
+            else {
+                if (TradeDialog_ValidateOptionsTradeData(m_hwnd) == true) {
+                    TradeDialog_CreateOptionsTradeData(m_hwnd);
+                    SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+                }
             }
         }
 
@@ -296,9 +312,9 @@ void TradeDialog_Show(TradeAction inTradeAction)
 
     // Show the legsEdit legs (if any) based on the incoming action and set the
     // Ticker and Company Name labels.
-    LoadEditLegsInTradeTable(hwnd);
+    TradeDialog_LoadEditLegsInTradeTable(hwnd);
     
-    CalculateTradeTotal(hwnd);
+    TradeDialog_CalculateTradeTotal(hwnd);
 
     // Blur the underlying MainWindow panels in order to reduce "visual noise" while
     // our Trade Management popup is active. The MainWindow panels are shown again

@@ -355,7 +355,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
 			if (ld == nullptr) continue;
 
-			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->isTickerLine == TRUE)) {
+			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
 
 				std::string tickerName = unicode2ansi(ld->trade->tickerName);
 				std::string tickType;

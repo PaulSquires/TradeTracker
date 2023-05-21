@@ -21,9 +21,17 @@ public:
     int                 colWidth = 0;
 };
 
+enum class LineType {
+    None,
+    TickerLine,
+    OptionsLeg,
+    Shares,
+    Futures
+};
+
 class ListBoxData {
 public:
-    bool            isTickerLine = false;
+    LineType        lineType = LineType::None;
     bool            isDailyTotalsNode = false;
     bool            isDailyTotalsNodeOpen = false;
     std::wstring    DailyTotalsDate;
@@ -38,7 +46,7 @@ public:
         std::wstring wszText, StringAlignment HAlignment, StringAlignment VAlignment, 
         ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
     {
-        if (tickId != -1) isTickerLine = true;
+        if (tickId != -1) lineType = LineType::TickerLine;
         tickerId = tickId;
         trade = tradeptr;
         col[index].wszText = wszText;
@@ -89,7 +97,6 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
 void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
 void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
-void ListBoxData_OutputTradesTemplates(HWND hListBox);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
 void Header_OnPaint(HWND hWnd);
 

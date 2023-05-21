@@ -35,19 +35,34 @@ bool IsActiveTradesVisible = true;
 
 
 // ========================================================================================
-// Returns True/False if incoming Trade action is consider a "New" type of action.
+// Returns True/False if incoming Trade action is consider a "New" Options type of action.
 // ========================================================================================
-bool IsNewTradeAction(TradeAction action)
+bool IsNewOptionsTradeAction(TradeAction action)
 {
     switch (action)
     {
     case TradeAction::NewOptionsTrade:
-    case TradeAction::NewSharesTrade:
-    case TradeAction::NewFuturesTrade:
     case TradeAction::NewIronCondor:
     case TradeAction::NewShortStrangle:
     case TradeAction::NewShortPut:
     case TradeAction::NewShortCall:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
+// ========================================================================================
+// Returns True/False if incoming Trade action is consider a "New" Shares/Futures 
+// type of action.
+// ========================================================================================
+bool IsNewSharesTradeAction(TradeAction action)
+{
+    switch (action)
+    {
+    case TradeAction::NewSharesTrade:
+    case TradeAction::NewFuturesTrade:
         return true;
     default:
         return false;
@@ -344,11 +359,11 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 
     // Check to see if other lines in the listbox are selected. We will deselect those other
     // lines if they do not belong to the current trade being selected.
-    // If the line being clicked on is the main header line for the trade (IsTickerLine)
+    // If the line being clicked on is the main header line for the trade (LineType::TickerLine)
     // then we deselected everything else including legs of this same trade. We do this
     // because there are different popup menu actions applicable to the main header line
     // and/or the individual trade legs.
-    bool IsTickerLine = ld->isTickerLine;
+    LineType CurSelLineType = ld->lineType;
 
     int nCount = ListBox_GetSelCount(hListBox);
 
@@ -366,7 +381,7 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
                 else {
                     // If selecting items within the same Trade then do not allow
                     // mixing selections of the header line and individual legs.
-                    if (IsTickerLine != ld->isTickerLine) {
+                    if (CurSelLineType != ld->lineType) {
                         ListBox_SetSel(hListBox, false, selItems[i]);
                     }
                 }
@@ -492,7 +507,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     std::wstring wszPlural;
     int nCount = ListBox_GetSelCount(hListBox);
 
-    std::shared_ptr<Trade> trade;
+    std::shared_ptr<Trade> trade = nullptr;
 
     bool IsTickerLine = false;
 
@@ -504,14 +519,17 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     if (nCount == 1) {
         // Is this the Trade header line
         if (ld != nullptr) {
-            if (ld->isTickerLine) IsTickerLine = true;
+            if (ld->lineType == LineType::TickerLine) {
+                IsTickerLine = true;
+            }
         }
     }
     else {
         wszPlural = L"s";
     }
 
-    if (!IsTickerLine) {
+
+    if (ld->lineType == LineType::OptionsLeg) {
         wszText = L"Roll Leg" + wszPlural;
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::RollLeg, wszText.c_str());
 
@@ -523,37 +541,63 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
         if (nCount == 1) {
             InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 1, L"");
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::Assignment, L"Assignment");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::Assignment, L"Option Assignment");
         }
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
     }
 
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddToTrade, L"Add Transaction to Trade");
+
+    if (ld->lineType == LineType::Shares) {
+        wszText = L"Sell Shares";
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::SellShares, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
+    }
+
+    if (ld->lineType == LineType::Futures) {
+        wszText = L"Sell Futures";
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::SellFutures, wszText.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
+    }
+
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddOptionsToTrade, L"Add Options to Trade");
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddPutToTrade, L"Add Put to Trade");
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddCallToTrade, L"Add Call to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 3, L"");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddSharesToTrade, L"Add Shares to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddFuturesToTrade, L"Add Futures to Trade");
 
     POINT pt; GetCursorPos(&pt);
     TradeAction selected =
         (TradeAction) TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hListBox, NULL);
 
 
-    TradesPanel_PopulateLegsEditVector(hListBox);
 
     switch (selected)
     {
+    case TradeAction::SellShares:
+    case TradeAction::SellFutures:
+    case TradeAction::AddSharesToTrade:
+    case TradeAction::AddFuturesToTrade:
+        TradeDialog_Show(selected);
+        break;
+
     case TradeAction::RollLeg:
     case TradeAction::CloseLeg:
+        TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
         break;
     case TradeAction::ExpireLeg:
+        TradesPanel_PopulateLegsEditVector(hListBox);
         TradesPanel_ExpireSelectedLegs(trade);
         break;
     case TradeAction::Assignment:
+        TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
         break;
-    case TradeAction::AddToTrade:
+    case TradeAction::AddOptionsToTrade:
     case TradeAction::AddPutToTrade:
     case TradeAction::AddCallToTrade:
+        TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
     }
 

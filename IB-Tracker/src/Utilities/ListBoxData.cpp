@@ -309,7 +309,7 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < lbCount; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->isTickerLine && PrevMarketDataLoaded) {
+            if (ld->lineType == LineType::TickerLine && PrevMarketDataLoaded) {
                 tws_cancelMktData(ld->tickerId);
             }
             delete(ld);
@@ -332,7 +332,7 @@ void ListBoxData_RequestMarketData(HWND hListBox)
     for (int i = 0; i < lbCount; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->isTickerLine) {
+            if (ld->lineType == LineType::TickerLine) {
                 tws_requestMktData(ld);
             }
         }
@@ -432,6 +432,8 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         }
         col++;
 
+        if (textShares == L"SHARES") ld->lineType = LineType::Shares;
+        if (textShares == L"FUTURES") ld->lineType = LineType::Futures;
         ld->SetData(col, trade, tickerId, textShares, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayMedium,
             ThemeElement::WhiteDark, font8, FontStyleRegular);
         col++;
@@ -463,6 +465,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             ld = new ListBoxData;
 
             ld->leg = leg;
+            ld->lineType = LineType::OptionsLeg;
 
             std::wstring currentDate = AfxCurrentDate();
             std::wstring expiryDate = leg->expiryDate;
@@ -524,6 +527,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
     // *** BLANK SEPARATION LINE ***
     ld = new ListBoxData;
+    ld->lineType = LineType::None;
     ListBox_AddString(hListBox, ld);
 
 }
@@ -536,6 +540,7 @@ void ListBoxData_HistoryBlankLine(HWND hListBox)
 {
     // *** BLANK SEPARATION LINE AT END OF HISTORY LIST ***
     ListBoxData* ld = new ListBoxData;
+    ld->lineType = LineType::None;
     ListBox_AddString(hListBox, ld);
 }
 
@@ -823,30 +828,6 @@ void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, doub
     ListBox_AddString(hListBox, ld);
 
 }
-
-
-// ========================================================================================
-// Create the display data for the Trades Dialog Trade Templates.
-// ========================================================================================
-void ListBoxData_OutputTradesTemplates(HWND hListBox)
-{
-    ListBoxData* ld = nullptr;
-
-    TickerId tickerId = -1;
-    REAL font8 = 8;
-    REAL font9 = 9;
-
-    //for (auto& t : TradeTemplates) {
-    //    ld = new ListBoxData;
-    //    ld->pTradeTemplate = &t;
-    //    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
-    //        ThemeElement::Black, ThemeElement::WhiteLight, font9, FontStyleRegular);
-    //    ld->SetData(1, nullptr, tickerId, t.name, StringAlignmentNear, StringAlignmentCenter,
-    //        ThemeElement::Black, ThemeElement::WhiteLight, font9, FontStyleRegular);
-    //    ListBox_AddString(hListBox, ld);
-    //}
-}
-
 
 
 // ========================================================================================

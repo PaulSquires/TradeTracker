@@ -41,11 +41,23 @@ const int IDC_TRADEDIALOG_SAVE           = 125;
 
 const int IDC_TRADEDIALOG_TABLEGRIDMAIN  = 130;
 const int IDC_TRADEDIALOG_TABLEGRIDROLL  = 131;
+const int IDC_TRADEDIALOG_BUYSHARES      = 132;
+const int IDC_TRADEDIALOG_BUYSHARES_DROPDOWN = 133;
+const int IDC_TRADEDIALOG_SELLSHARES     = 134;
+const int IDC_TRADEDIALOG_SELLSHARES_DROPDOWN = 135;
 
 const int IDC_TRADEDIALOG_CATEGORY       = 140;
 
 
 void TradeDialog_Show(TradeAction inTradeAction);
-void CalculateTradeTotal(HWND hwnd);
-void LoadEditLegsInTradeTable(HWND hwnd);
+void TradeDialog_CalculateTradeTotal(HWND hwnd);
+void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd);
 void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText);
+void TradeDialog_SetLongShortBackColor(HWND hCtl);
+void TradeDialog_ToggleLongShortText(HWND hCtl);
+bool TradeDialog_ValidateSharesTradeData(HWND hwnd);
+void TradeDialog_CreateSharesTradeData(HWND hwnd);
+bool TradeDialog_ValidateOptionsTradeData(HWND hwnd);
+void TradeDialog_CreateOptionsTradeData(HWND hwnd);
+void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
+
