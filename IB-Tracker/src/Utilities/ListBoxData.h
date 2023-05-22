@@ -35,6 +35,7 @@ public:
     bool            isDailyTotalsNode = false;
     bool            isDailyTotalsNodeOpen = false;
     std::wstring    DailyTotalsDate;
+    std::wstring    AggregateShares;
     TickerId        tickerId = -1;
     std::shared_ptr<Trade> trade;
     std::shared_ptr<Leg> leg;

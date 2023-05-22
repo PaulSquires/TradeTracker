@@ -228,16 +228,27 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (hCtl == NULL) return 0;
 
         if (CtrlId == IDC_TRADEDIALOG_BUYSHARES) {
-            TradeDialog_ToggleLongShortText(hCtl);
+            TradeDialog_ToggleBuyLongShortText(hCtl);
             TradeDialog_SetLongShortBackColor(hCtl);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_BUYSHARES_DROPDOWN) {
             hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_BUYSHARES);
-            TradeDialog_ToggleLongShortText(hCtl);
+            TradeDialog_ToggleBuyLongShortText(hCtl);
             TradeDialog_SetLongShortBackColor(hCtl);
         }
-    
+
+        if (CtrlId == IDC_TRADEDIALOG_SELLSHARES) {
+            TradeDialog_ToggleSellLongShortText(hCtl);
+            TradeDialog_SetLongShortBackColor(hCtl);
+        }
+
+        if (CtrlId == IDC_TRADEDIALOG_SELLSHARES_DROPDOWN) {
+            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SELLSHARES);
+            TradeDialog_ToggleSellLongShortText(hCtl);
+            TradeDialog_SetLongShortBackColor(hCtl);
+        }
+
         if (CtrlId == IDC_TRADEDIALOG_COMBODRCR) {
             // Clicked on the DRCR combo so cycle through the choices
             std::wstring wszText = CustomLabel_GetText(hCtl);
@@ -260,8 +271,9 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
-            if (tradeAction == TradeAction::NewSharesTrade ||
-                tradeAction == TradeAction::NewFuturesTrade) {
+            if (IsNewSharesTradeAction(tradeAction) == true ||
+                tradeAction == TradeAction::ManageShares ||
+                tradeAction == TradeAction::ManageFutures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
                     TradeDialog_CreateSharesTradeData(m_hwnd);
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
@@ -339,12 +351,12 @@ void TradeDialog_Show(TradeAction inTradeAction)
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
     
-    // set focus to the Transaction date picker
-    if (tradeAction == TradeAction::RollLeg) {
- //       SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TRANSDATE));
+    if (IsNewOptionsTradeAction(tradeAction) == true ||
+        IsNewSharesTradeAction(tradeAction) == true) {
+        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     }
     else {
-        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));
     }
      
    

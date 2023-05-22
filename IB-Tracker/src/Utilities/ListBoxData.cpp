@@ -434,6 +434,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
         if (textShares == L"SHARES") ld->lineType = LineType::Shares;
         if (textShares == L"FUTURES") ld->lineType = LineType::Futures;
+
         ld->SetData(col, trade, tickerId, textShares, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayMedium,
             ThemeElement::WhiteDark, font8, FontStyleRegular);
         col++;
@@ -452,6 +453,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         col++;
 
         text = std::to_wstring(aggregate);
+        ld->AggregateShares = text;
         ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayMedium,
             ThemeElement::WhiteDark, font8, FontStyleRegular);
 

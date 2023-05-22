@@ -9,6 +9,8 @@
 #include "..\MainWindow\tws-client.h"
 #include "..\Database\database.h"
 #include "..\Category\Category.h"
+#include "..\Strategy\StrategyButton.h"
+
 
 
 extern HWND HWND_TRADEDIALOG;
@@ -43,14 +45,16 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
     std::wstring wszErrMsg;
     std::wstring wszText;
 
-    if (IsNewSharesTradeAction(tradeAction) == true) {
-        if (tradeAction == TradeAction::NewSharesTrade) {
-            CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Shares");
-        }
-        if (tradeAction == TradeAction::NewFuturesTrade) {
-            CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Futures");
-        }
+    if (tradeAction == TradeAction::NewSharesTrade ||
+        tradeAction == TradeAction::ManageShares) {
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Shares");
+    }
+    if (tradeAction == TradeAction::NewFuturesTrade ||
+        tradeAction == TradeAction::ManageFutures) {
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Futures");
+    }
 
+    if (IsNewSharesTradeAction(tradeAction) == true) {
         wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
         if (wszText.length() == 0) wszErrMsg += L"- Missing Ticker Symbol.\n";
         wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
@@ -99,8 +103,12 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
     trans->description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
+    
     if (tradeAction == TradeAction::NewSharesTrade) trans->underlying = L"SHARES";
     if (tradeAction == TradeAction::NewFuturesTrade) trans->underlying = L"FUTURES";
+    if (tradeAction == TradeAction::ManageShares) trans->underlying = L"SHARES";
+    if (tradeAction == TradeAction::ManageFutures) trans->underlying = L"FUTURES";
+
     trans->quantity = stoi(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
@@ -115,9 +123,43 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     std::shared_ptr<Leg> leg = std::make_shared<Leg>();
     leg->underlying = trans->underlying;
-    leg->origQuantity = trans->quantity;
-    leg->openQuantity = trans->quantity;
-    leg->action = L"BTO";
+
+    // Set the Share/Futures quantity based on whether Long or Short based on 
+    // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
+
+    if (IsNewSharesTradeAction(tradeAction) == true) {
+        int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_BUYSHARES));
+        if (sel == (int)LongShort::Long) {
+            leg->origQuantity = trans->quantity;
+            leg->openQuantity = trans->quantity;
+            leg->action = L"BTO";
+        }
+        else {
+            if (sel == (int)LongShort::Short) {
+                leg->origQuantity = trans->quantity * -1;
+                leg->openQuantity = trans->quantity * -1;
+                leg->action = L"STO";
+            }
+        }
+    }
+    
+    if (tradeAction == TradeAction::ManageShares ||
+        tradeAction == TradeAction::ManageFutures) {
+        int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
+        if (sel == (int)LongShort::Long) {
+            leg->origQuantity = trans->quantity;
+            leg->openQuantity = trans->quantity;
+            leg->action = L"BTC";
+        }
+        else {
+            if (sel == (int)LongShort::Short) {
+                leg->origQuantity = trans->quantity * -1;
+                leg->openQuantity = trans->quantity * -1;
+                leg->action = L"STC";
+            }
+        }
+    }
+
     trans->legs.push_back(leg);
 
 

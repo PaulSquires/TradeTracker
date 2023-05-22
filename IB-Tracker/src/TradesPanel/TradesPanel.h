@@ -34,15 +34,14 @@ const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
 // Various actions that can be performed on selected Trade or Legs.
 // TODO: Need to add logic to handle share assignments.
-// TODO: Need to add buy/sell shares and futures.
 // TODO: Add default multipliers for known futures contracts.
 enum class TradeAction
 {
     NewOptionsTrade,
     NewSharesTrade,
     NewFuturesTrade,
-    SellShares,
-    SellFutures,
+    ManageShares,
+    ManageFutures,
     RollLeg,
     CloseLeg,
     ExpireLeg,

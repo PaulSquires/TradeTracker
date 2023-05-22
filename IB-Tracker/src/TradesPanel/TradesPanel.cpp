@@ -26,6 +26,8 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // Vector to hold all selected legs that TradeDiaog will act on
 std::vector<std::shared_ptr<Leg>> legsEdit;
 std::shared_ptr<Trade> tradeEdit;
+std::wstring sharesAggregateEdit = L"0";
+
 
 
 // Variable to hold which Trades listbox is showing data (Active Trades or
@@ -515,6 +517,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nCurSel);
     trade = ld->trade;
     tradeEdit = ld->trade;
+    sharesAggregateEdit = ld->AggregateShares;
 
     if (nCount == 1) {
         // Is this the Trade header line
@@ -548,14 +551,14 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
 
     if (ld->lineType == LineType::Shares) {
-        wszText = L"Sell Shares";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::SellShares, wszText.c_str());
+        wszText = L"Manage Shares";
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageShares, wszText.c_str());
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
     }
 
     if (ld->lineType == LineType::Futures) {
-        wszText = L"Sell Futures";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::SellFutures, wszText.c_str());
+        wszText = L"Manage Futures";
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageFutures, wszText.c_str());
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
     }
 
@@ -574,8 +577,8 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
     switch (selected)
     {
-    case TradeAction::SellShares:
-    case TradeAction::SellFutures:
+    case TradeAction::ManageShares:
+    case TradeAction::ManageFutures:
     case TradeAction::AddSharesToTrade:
     case TradeAction::AddFuturesToTrade:
         TradeDialog_Show(selected);
