@@ -50,7 +50,7 @@ const int IDC_TRADEDIALOG_SELLSHARES_DROPDOWN = 155;
 const int IDC_TRADEDIALOG_CATEGORY       = 160;
 
 
-void TradeDialog_Show(TradeAction inTradeAction);
+int TradeDialog_Show(TradeAction inTradeAction);
 void TradeDialog_CalculateTradeTotal(HWND hwnd);
 void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd);
 void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText);

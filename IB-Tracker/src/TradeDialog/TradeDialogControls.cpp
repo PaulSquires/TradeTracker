@@ -173,13 +173,15 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     if (tradeAction == TradeAction::NewFuturesTrade) return;
 
     // Update the Trade Management table with the details of the Trade.
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
+    if (tradeEdit != nullptr) {
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
 
-    wszText = tradeEdit->tickerSymbol;
-    if (tradeEdit->futureExpiry.length()) {
-        wszText = wszText + L": " + AfxFormatFuturesDate(tradeEdit->futureExpiry);
+        wszText = tradeEdit->tickerSymbol;
+        if (tradeEdit->futureExpiry.length()) {
+            wszText = wszText + L": " + AfxFormatFuturesDate(tradeEdit->futureExpiry);
+        }
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
     }
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
 
 
     if (tradeAction == TradeAction::NewIronCondor) {

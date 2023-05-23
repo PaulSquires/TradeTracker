@@ -92,8 +92,8 @@ int nTickerTotalsMinColWidth[10] =
 {
     5,     /* empty */
     50,    /* Ticker Symbol */
-    70,    /* Ticker Name */
-    45,    /* Amount */
+    140,   /* Ticker Name */
+    60,    /* Amount */
     0,
     0,
     0,

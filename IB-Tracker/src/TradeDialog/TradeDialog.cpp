@@ -23,6 +23,8 @@ TradeAction tradeAction = TradeAction::NoAction;
 extern HWND HWND_DATEPICKER;
 extern CDatePicker DatePicker;
 
+int DialogReturnCode = DIALOG_RETURN_CANCEL;
+
 
 
 // ========================================================================================
@@ -278,12 +280,14 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 tradeAction == TradeAction::ManageFutures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
                     TradeDialog_CreateSharesTradeData(m_hwnd);
+                    DialogReturnCode = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
             }
             else {
                 if (TradeDialog_ValidateOptionsTradeData(m_hwnd) == true) {
                     TradeDialog_CreateOptionsTradeData(m_hwnd);
+                    DialogReturnCode = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
             }
@@ -301,7 +305,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
-void TradeDialog_Show(TradeAction inTradeAction)
+int TradeDialog_Show(TradeAction inTradeAction)
 {
     tradeAction = inTradeAction;
 
@@ -361,6 +365,7 @@ void TradeDialog_Show(TradeAction inTradeAction)
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));
     }
      
+    DialogReturnCode = DIALOG_RETURN_CANCEL;
    
     // Call modal message pump and wait for it to end.
     MSG msg{};
@@ -373,5 +378,6 @@ void TradeDialog_Show(TradeAction inTradeAction)
         DispatchMessage(&msg);
     }
 
+    return DialogReturnCode;
 }
 
