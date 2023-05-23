@@ -68,7 +68,9 @@ void TradeDialog_ToggleBuyLongShortText(HWND hCtl)
     }
 
     if (tradeAction == TradeAction::NewSharesTrade) wszText += L"SHARES";
+    if (tradeAction == TradeAction::AddSharesToTrade) wszText += L"SHARES";
     if (tradeAction == TradeAction::NewFuturesTrade) wszText += L"FUTURES";
+    if (tradeAction == TradeAction::AddFuturesToTrade) wszText += L"FUTURES";
     CustomLabel_SetText(hCtl, wszText);
 }
 
@@ -170,6 +172,16 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     if (tradeAction == TradeAction::NewSharesTrade) return;
     if (tradeAction == TradeAction::NewFuturesTrade) return;
 
+    // Update the Trade Management table with the details of the Trade.
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
+
+    wszText = tradeEdit->tickerSymbol;
+    if (tradeEdit->futureExpiry.length()) {
+        wszText = wszText + L": " + AfxFormatFuturesDate(tradeEdit->futureExpiry);
+    }
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
+
+
     if (tradeAction == TradeAction::NewIronCondor) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
@@ -206,7 +218,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    if (tradeAction == TradeAction::NewShortPut) {
+    if (tradeAction == TradeAction::NewShortPut ||
+        tradeAction == TradeAction::AddPutToTrade) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -226,7 +239,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    if (tradeAction == TradeAction::NewShortCall) {
+    if (tradeAction == TradeAction::NewShortCall ||
+        tradeAction == TradeAction::AddCallToTrade) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -246,14 +260,6 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    // Update the Trade Management table with the details of the Trade.
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tradeEdit->tickerName);
-    
-    wszText = tradeEdit->tickerSymbol;
-    if (tradeEdit->futureExpiry.length()) {
-        wszText = wszText + L": " + AfxFormatFuturesDate(tradeEdit->futureExpiry);
-    }
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
 
 
     if (legsEdit.size() == 0) return;
@@ -393,9 +399,23 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
         wszDescription = L"Assignment";
         break;
     case TradeAction::AddOptionsToTrade:
-    case TradeAction::AddPutToTrade:
-    case TradeAction::AddCallToTrade:
         wszDescription = L"Add Options";
+        wszGridMain = L"New Transaction";
+        break;
+    case TradeAction::AddPutToTrade:
+        wszDescription = L"Add Put";
+        wszGridMain = L"New Transaction";
+        break;
+    case TradeAction::AddCallToTrade:
+        wszDescription = L"Add Call";
+        wszGridMain = L"New Transaction";
+        break;
+    case TradeAction::AddSharesToTrade:
+        wszDescription = L"Add Shares";
+        wszGridMain = L"New Transaction";
+        break;
+    case TradeAction::AddFuturesToTrade:
+        wszDescription = L"Add Futures";
         wszGridMain = L"New Transaction";
         break;
     }
@@ -548,13 +568,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_HIDE);
     }
 
-    if (IsNewOptionsTradeAction(tradeAction) == true) {
-        // However do not show it for Shares/Futures 
-        CustomLabel_SimpleLabel(hwnd, -1, L"Strategy", TextColorDim, BackColor,
-            CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
-        hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
-            WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
-    }
+    // We create the Strategy button and label but we only show it for New options
+    // However we do need the window for other tradeAction cases for example "Add To"
+    // because the tradeAction into the Strategy button and then InvokeStrategy.
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLSTRATEGY, L"Strategy", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
+    if (IsNewOptionsTradeAction(tradeAction) != true) ShowWindow(hCtl, SW_HIDE);
+    hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
+        WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
+    if (IsNewOptionsTradeAction(tradeAction) != true) ShowWindow(hCtl, SW_HIDE);
 
 
     nTop = 155;
@@ -562,7 +584,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, nTop, 300, 22);
 
-    if (IsNewSharesTradeAction(tradeAction) == true) {
+    if (IsNewSharesTradeAction(tradeAction) == true ||
+        tradeAction == TradeAction::AddSharesToTrade ||
+        tradeAction == TradeAction::AddFuturesToTrade) {
         std::wstring wszFontName = L"Segoe UI";
         std::wstring wszText;
         int FontSize = 8;
@@ -577,7 +601,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         wszText = L"BUY LONG ";
         if (tradeAction == TradeAction::NewSharesTrade) wszText += L"SHARES";
+        if (tradeAction == TradeAction::AddSharesToTrade) wszText += L"SHARES";
         if (tradeAction == TradeAction::NewFuturesTrade) wszText += L"FUTURES";
+        if (tradeAction == TradeAction::AddFuturesToTrade) wszText += L"FUTURES";
         CustomLabel_SetText(hCtl, wszText);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES_DROPDOWN, L"\uE015",
@@ -704,7 +730,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
-    if (IsNewSharesTradeAction(tradeAction) == true) {
+    if (IsNewSharesTradeAction(tradeAction) == true ||
+        tradeAction == TradeAction::AddSharesToTrade ||
+        tradeAction == TradeAction::AddFuturesToTrade) {
         TradeDialog_SetComboDRCR(hCtl, L"DR");
     } else {
         TradeDialog_SetComboDRCR(hCtl, L"CR");

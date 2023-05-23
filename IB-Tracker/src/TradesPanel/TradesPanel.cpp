@@ -594,13 +594,13 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
         TradesPanel_ExpireSelectedLegs(trade);
         break;
     case TradeAction::Assignment:
-        TradesPanel_PopulateLegsEditVector(hListBox);
-        TradeDialog_Show(selected);
+       // TradesPanel_PopulateLegsEditVector(hListBox);
+       // TradeDialog_Show(selected);
         break;
     case TradeAction::AddOptionsToTrade:
     case TradeAction::AddPutToTrade:
     case TradeAction::AddCallToTrade:
-        TradesPanel_PopulateLegsEditVector(hListBox);
+        //TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
     }
 
