@@ -685,7 +685,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (tradeAction == TradeAction::NewSharesTrade ||
         tradeAction == TradeAction::NewFuturesTrade ||
         tradeAction == TradeAction::ManageShares ||
-        tradeAction == TradeAction::ManageFutures ) {
+        tradeAction == TradeAction::ManageFutures ||
+        tradeAction == TradeAction::AddSharesToTrade ||
+        tradeAction == TradeAction::AddFuturesToTrade) {
         CustomTextBox_SetText(hCtl, L"1");
     }
 

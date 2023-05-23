@@ -46,11 +46,13 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
     std::wstring wszText;
 
     if (tradeAction == TradeAction::NewSharesTrade ||
-        tradeAction == TradeAction::ManageShares) {
+        tradeAction == TradeAction::ManageShares ||
+        tradeAction == TradeAction::AddSharesToTrade) {
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Shares");
     }
     if (tradeAction == TradeAction::NewFuturesTrade ||
-        tradeAction == TradeAction::ManageFutures) {
+        tradeAction == TradeAction::ManageFutures ||
+        tradeAction == TradeAction::AddFuturesToTrade) {
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Futures");
     }
 
@@ -108,6 +110,8 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     if (tradeAction == TradeAction::NewFuturesTrade) trans->underlying = L"FUTURES";
     if (tradeAction == TradeAction::ManageShares) trans->underlying = L"SHARES";
     if (tradeAction == TradeAction::ManageFutures) trans->underlying = L"FUTURES";
+    if (tradeAction == TradeAction::AddSharesToTrade) trans->underlying = L"SHARES";
+    if (tradeAction == TradeAction::AddFuturesToTrade) trans->underlying = L"FUTURES";
 
     trans->quantity = stoi(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
@@ -127,7 +131,9 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // Set the Share/Futures quantity based on whether Long or Short based on 
     // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
 
-    if (IsNewSharesTradeAction(tradeAction) == true) {
+    if (IsNewSharesTradeAction(tradeAction) == true ||
+        tradeAction == TradeAction::AddSharesToTrade ||
+        tradeAction == TradeAction::AddFuturesToTrade) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_BUYSHARES));
         if (sel == (int)LongShort::Long) {
             leg->origQuantity = trans->quantity;
@@ -350,6 +356,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         case TradeAction::NewShortPut:
         case TradeAction::NewShortCall:
         case TradeAction::AddOptionsToTrade:
+        case TradeAction::AddPutToTrade:
+        case TradeAction::AddCallToTrade:
             leg->origQuantity = intQuantity;
             leg->openQuantity = intQuantity;
             break;

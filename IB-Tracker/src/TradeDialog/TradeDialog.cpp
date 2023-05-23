@@ -272,6 +272,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
             if (IsNewSharesTradeAction(tradeAction) == true ||
+                tradeAction == TradeAction::AddSharesToTrade||
+                tradeAction == TradeAction::AddFuturesToTrade||
                 tradeAction == TradeAction::ManageShares ||
                 tradeAction == TradeAction::ManageFutures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
