@@ -20,10 +20,6 @@ DatePickerReturnType UpdateDateReturnType = DatePickerReturnType::ISODate;
 bool SystemListBoxSmoothScrolling = FALSE;
 
 
-#include "..\DatePicker\Calendar.h"
-extern HWND Calendar_CreateDatePicker(
-    HWND hParent, HWND hParentCtl, std::wstring wszDate, CalendarPickerReturnType DateReturnType);
-
 
 // ========================================================================================
 // Load Month ListBox data
@@ -768,13 +764,6 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 HWND DatePicker_CreateDatePicker(
     HWND hParent, HWND hParentCtl, std::wstring wszDate, DatePickerReturnType DateReturnType)
 {
-
-
-    return Calendar_CreateDatePicker(hParent, hParentCtl, wszDate, (CalendarPickerReturnType)DateReturnType);
-
-
-
-
     if (wszDate.length() == 0)
         wszDate = AfxCurrentDate();
 

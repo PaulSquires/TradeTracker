@@ -478,7 +478,7 @@ std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd)
     u.HighPart = ft.dwHighDateTime;
 
     // Add seconds to our large integer
-    u.QuadPart += (60 * 60 * 24 * numDaysToAdd) * 10000000LLU;
+    u.QuadPart += (60 * 60 * 24 * (LONGLONG)numDaysToAdd) * 10000000LLU;
 
     ft.dwLowDateTime = u.LowPart;
     ft.dwHighDateTime = u.HighPart;

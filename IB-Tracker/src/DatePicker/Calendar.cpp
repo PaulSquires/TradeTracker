@@ -70,7 +70,6 @@ void Calendar_OnPaint(HWND hwnd)
 // ========================================================================================
 BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-
     HWND_CALENDAR = hwnd;
 
     HWND hCtl = CreateWindowEx(0,
@@ -83,17 +82,17 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         Calendar.hInst(),
         NULL);
 
-    // If visual styles are active, this message has no effect except when wParam is MCSC_BACKGROUND.
-    MonthCal_SetColor(hCtl, MCSC_BACKGROUND, GetThemeCOLORREF(ThemeElement::GrayMedium));
+    if (hCtl != NULL) {
+        // If visual styles are active, this message has no effect except when wParam is MCSC_BACKGROUND.
+        MonthCal_SetColor(hCtl, MCSC_BACKGROUND, GetThemeCOLORREF(ThemeElement::GrayMedium));
 
+        SYSTEMTIME st{};
+        st.wYear = AfxGetYear(wszTheSelectedDate);
+        st.wMonth = AfxGetMonth(wszTheSelectedDate);
+        st.wDay = AfxGetDay(wszTheSelectedDate);
 
-    SYSTEMTIME st{};
-    st.wYear = AfxGetYear(wszTheSelectedDate);
-    st.wMonth = AfxGetMonth(wszTheSelectedDate);
-    st.wDay = AfxGetDay(wszTheSelectedDate);
-
-    MonthCal_SetCurSel(hCtl, &st);
-
+        MonthCal_SetCurSel(hCtl, &st);
+    }
 
     return TRUE;
 }
