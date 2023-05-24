@@ -13,8 +13,6 @@ extern double intelDecimalToDouble(Decimal decimal);
 extern HWND HWND_MAINWINDOW;
 extern std::vector<std::shared_ptr<Trade>> trades;
 
-// TODO: Need to reconcile Futures to IBKR
-
 // Structure & vector to hold all positions returned from connection to IBKR (TWS).
 // These are used for the reconciliation between IB-Tracker and IBKR.
 struct positionStruct {
@@ -68,11 +66,19 @@ void Reconcile_positionEnd()
 			p.openQuantity = leg->openQuantity;
 			p.tickerSymbol = t->tickerSymbol;
 
+			if (leg->underlying == L"FUTURES") p.underlying = L"FUT";
 			if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
 			if (leg->underlying == L"SHARES") p.underlying = L"STK";
+
 			p.strikePrice = stod(leg->strikePrice);
 			p.expiryDate = RemoveDateHyphens(leg->expiryDate);
 			p.PutCall = leg->PutCall;
+
+			// Check if the ticker is a future
+			if (p.tickerSymbol.substr(0, 1) == L"/") {
+				p.tickerSymbol = t->tickerSymbol.substr(1);
+				if (p.underlying == L"OPT") p.underlying = L"FOP";
+			}
 
 
 			// If this is a STK then check to see if it already exists in the vector. If it
@@ -105,7 +111,9 @@ void Reconcile_positionEnd()
 		if (i.openQuantity == 0) continue;
 		bool found = false;
 		for (const auto& l : LocalPositions) {
-			if (i.underlying == L"OPT") {
+			if (i.underlying == L"OPT" || 
+				i.underlying == L"FUT" || 
+				i.underlying == L"FOP") {
 				if (i.strikePrice == l.strikePrice &&
 					i.openQuantity == l.openQuantity &&  
 					i.tickerSymbol == l.tickerSymbol &&
@@ -128,7 +136,7 @@ void Reconcile_positionEnd()
 		if (!found) {
 			text = text + L"   " + std::to_wstring(i.openQuantity) + L" " +
 				i.tickerSymbol + L" " + i.underlying;
-			if (i.underlying == L"OPT") {
+			if (i.underlying == L"OPT" || i.underlying == L"FOP") {
 				text = text + L" " + i.expiryDate + L" " + std::to_wstring(i.strikePrice) + L" " + i.PutCall;
 			}
 			text = text + L"\r\n";
@@ -142,7 +150,9 @@ void Reconcile_positionEnd()
 	for (const auto& l : LocalPositions) {
 		bool found = false;
 		for (const auto& i : IBKRPositions) {
-			if (i.underlying == L"OPT") {
+			if (i.underlying == L"OPT" || 
+				i.underlying == L"FUT" ||
+				i.underlying == L"FOP") {
 				if (i.strikePrice == l.strikePrice &&
 					i.openQuantity == l.openQuantity &&
 					i.tickerSymbol == l.tickerSymbol &&
@@ -166,7 +176,7 @@ void Reconcile_positionEnd()
 			if (l.openQuantity > 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
 				text = text + L"   " + std::to_wstring(l.openQuantity) + L" " +
 					l.tickerSymbol + L" " + l.underlying;
-				if (l.underlying == L"OPT") {
+				if (l.underlying == L"OPT" || l.underlying == L"FOP") {
 					text = text + L" " + l.expiryDate + L" " + std::to_wstring(l.strikePrice) + L" " + l.PutCall;
 				}
 				text = text + L"\r\n";

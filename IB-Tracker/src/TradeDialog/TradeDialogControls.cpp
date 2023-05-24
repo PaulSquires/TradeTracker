@@ -677,6 +677,16 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
     nLeft = nLeft + nWidth + hmargin;
+    CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
+        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
+
+
+    nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT,
@@ -692,15 +702,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tradeAction == TradeAction::AddFuturesToTrade) {
         CustomTextBox_SetText(hCtl, L"1");
     }
-
-    nLeft = nLeft + nWidth + hmargin;
-    CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
-        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-    CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
     nLeft = nLeft + nWidth + hmargin;

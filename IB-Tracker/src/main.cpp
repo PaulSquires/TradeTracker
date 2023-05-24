@@ -11,7 +11,7 @@
 CMainWindow Main;
 
 
-// Use the following pragma instead of havign to include a manifest with the application
+// Use the following pragma instead of having to include a manifest with the application
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -72,7 +72,7 @@ int APIENTRY wWinMain(
 
     // Ensure only one running instance
     HANDLE hMutexHandle = CreateMutex(NULL, TRUE, L"ibtracker.mutex");
-    if (GetLastError() == ERROR_ALREADY_EXISTS)
+    if (hMutexHandle != nullptr && GetLastError() == ERROR_ALREADY_EXISTS)
     {
         // Try to bring the existing instance to the foreground
         HWND existingApp = FindWindow(0, L"IB-Tracker");

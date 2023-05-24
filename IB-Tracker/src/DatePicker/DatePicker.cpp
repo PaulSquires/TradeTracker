@@ -20,6 +20,10 @@ DatePickerReturnType UpdateDateReturnType = DatePickerReturnType::ISODate;
 bool SystemListBoxSmoothScrolling = FALSE;
 
 
+#include "..\DatePicker\Calendar.h"
+extern HWND Calendar_CreateDatePicker(
+    HWND hParent, HWND hParentCtl, std::wstring wszDate, CalendarPickerReturnType DateReturnType);
+
 
 // ========================================================================================
 // Load Month ListBox data
@@ -183,7 +187,6 @@ void DatePicker_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nHeightListBox = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT * 9);
     int nHeightButton = AfxScaleY(DATEPICKER_LISTBOX_ROWHEIGHT);
 
-    
     HDWP hdwp = BeginDeferWindowPos(10);
 
     nWidth = AfxScaleX(DATEPICKER_PANEL_MONTHWIDTH)-(margin*2);
@@ -561,7 +564,6 @@ void DatePicker_OnPaint(HWND hwnd)
 // ========================================================================================
 BOOL DatePicker_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-
     // We will save the current ListBox SmoothScrolling system setting, disable it, and
     // set it back to its original value when the DatePicker is closed. This prevents
     // the annoying first selection animation delay that screws up our selection painting.
@@ -766,6 +768,13 @@ LRESULT CDatePicker::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 HWND DatePicker_CreateDatePicker(
     HWND hParent, HWND hParentCtl, std::wstring wszDate, DatePickerReturnType DateReturnType)
 {
+
+
+    return Calendar_CreateDatePicker(hParent, hParentCtl, wszDate, (CalendarPickerReturnType)DateReturnType);
+
+
+
+
     if (wszDate.length() == 0)
         wszDate = AfxCurrentDate();
 

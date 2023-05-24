@@ -105,7 +105,7 @@ bool SaveDatabase()
 
     db << idMagic << "|" << version << "\n"
         << "// TRADE  T|isOpen|TickerSymbol|TickerName|FutureExpiry|Category\n"
-        << "// TRANS  X|underlying|description|transDate|quantity|price|multiplier|fees|total\n"
+        << "// TRANS  X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
         << "// LEG    L|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
         << "// isOpen:        0:TRUE, 1:FALSE\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"

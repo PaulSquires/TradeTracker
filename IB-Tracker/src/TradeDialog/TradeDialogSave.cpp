@@ -208,7 +208,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
 
     // In adition to validating each leg, we count the number of non blank legs. If all legs
     // are blank then there is nothing to save to add that to the error message.
-    int NumGoodLegs = 0;
+    int NumBlankLegs = 0;
 
     for (int row = 0; row < 4; ++row) {
         std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
@@ -220,6 +220,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         // All strings must be zero length in order to skip it from being included in the transaction. 
         if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
             && legPutCall.length() == 0 && legAction.length() == 0) {
+            NumBlankLegs++;
             continue;
         }
 
@@ -235,12 +236,9 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         if (bIncomplete == true) {
             wszErrMsg += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
         }
-        else {
-            NumGoodLegs++;
-        }
     }
 
-    if (NumGoodLegs == 0) {
+    if (NumBlankLegs == 4) {
         wszErrMsg += L"- No Legs exist to be saved.\n";
     }
 

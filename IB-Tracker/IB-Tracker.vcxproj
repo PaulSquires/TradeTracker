@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClInclude Include="src\Category\Category.h" />
     <ClInclude Include="src\Config\Config.h" />
-    <ClInclude Include="src\DatePicker\DatePicker.h" />
+    <ClInclude Include="src\DatePicker\Calendar.h" />
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogSave.h" />
     <ClInclude Include="src\TradeGrid\TradeGrid.h" />
@@ -121,7 +121,7 @@
   <ItemGroup>
     <ClCompile Include="src\Category\Category.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
-    <ClCompile Include="src\DatePicker\DatePicker.cpp" />
+    <ClCompile Include="src\DatePicker\Calendar.cpp" />
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogSave.cpp" />
     <ClCompile Include="src\TradeGrid\TradeGrid.cpp" />

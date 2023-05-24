@@ -7,7 +7,7 @@
 #include "pch.h"
 #include "..\Utilities\CWindowBase.h"
 #include "..\MainWindow\MainWindow.h"
-#include "..\DatePicker\DatePicker.h"
+#include "..\DatePicker\Calendar.h"
 #include "..\TradeDialog\TradeDialog.h"
 
 #include "TradeGrid.h"
@@ -334,7 +334,8 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
 
     CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // Quantity
     CustomLabel_SetText(pData->gridCols.at(colStart+1)->hCtl, L"");     // Expiry Date
-    CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"");   // DTE
+    CustomLabel_SetUserData(pData->gridCols.at(colStart+1)->hCtl, L"");  // ISO Date 
+    CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"");     // DTE
     CustomTextBox_SetText(pData->gridCols.at(colStart+3)->hCtl, L"");   // Strike Price
     CustomLabel_SetText(pData->gridCols.at(colStart+4)->hCtl, L"");     // Put/Call
     CustomLabel_SetText(pData->gridCols.at(colStart+5)->hCtl, L"");     // Action
@@ -348,7 +349,7 @@ void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
     if (col == nullptr) return;
 
     std::wstring wszDate = CustomLabel_GetUserData(col->hCtl);
-    DatePicker_CreateDatePicker(pData->hParent, col->hCtl, wszDate, DatePickerReturnType::ShortDate);
+    Calendar_CreateDatePicker(pData->hParent, col->hCtl, wszDate, CalendarPickerReturnType::ShortDate);
 }
 
 

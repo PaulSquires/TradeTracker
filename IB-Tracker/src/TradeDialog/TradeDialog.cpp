@@ -7,7 +7,7 @@
 #include "..\MainWindow\MainWindow.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
-#include "..\DatePicker\DatePicker.h"
+#include "..\DatePicker\Calendar.h"
 #include "..\Utilities\UserMessages.h"
 #include "..\TradeGrid\TradeGrid.h"
 
@@ -20,8 +20,8 @@ CTradeDialog TradeDialog;
 
 TradeAction tradeAction = TradeAction::NoAction;
 
-extern HWND HWND_DATEPICKER;
-extern CDatePicker DatePicker;
+extern HWND HWND_CALENDAR;
+extern CCalendar Calendar;
 
 int DialogReturnCode = DIALOG_RETURN_CANCEL;
 
@@ -261,15 +261,15 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE || CtrlId == IDC_TRADEDIALOG_LBLTRANSDATE) {
             // Clicked on the Transaction Date dropdown or label itself
             std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-            DatePicker_CreateDatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), wszDate, DatePickerReturnType::LongDate);
+            Calendar_CreateDatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), wszDate, CalendarPickerReturnType::LongDate);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_CMDCONTRACTDATE || CtrlId == IDC_TRADEDIALOG_LBLCONTRACTDATE) {
             // Clicked on the Futures Contract Date dropdown or label itself
             std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
-            DatePicker_CreateDatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), wszDate, DatePickerReturnType::LongDate);
+            Calendar_CreateDatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), wszDate, CalendarPickerReturnType::LongDate);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
