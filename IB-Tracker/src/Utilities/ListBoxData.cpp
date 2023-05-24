@@ -479,6 +479,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             int DTE = AfxDaysBetween(currentDate, expiryDate);
             wszDTE = std::to_wstring(DTE) + L"d";
 
+            Yellow = ThemeElement::Magenta;
             if (DTE < 3) {
                 Yellow = ThemeElement::Yellow;
             }

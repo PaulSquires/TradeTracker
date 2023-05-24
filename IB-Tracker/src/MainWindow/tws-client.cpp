@@ -321,7 +321,8 @@ void TwsClient::connectAck() {
 
 
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
-	if (isThreadPaused) return; 
+	if (isThreadPaused) return;
+
 
 	// Market data tick price callback. Handles all price related ticks.Every tickPrice callback is followed 
 	// by a tickSize.A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
@@ -345,7 +346,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// display of the new price data. 
 
 		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-		if (MenuPanel_GetActiveMenuItem(HWND_MENUPANEL) != IDC_MENUPANEL_ACTIVETRADES) return;
 
 		int lbCount = ListBox_GetCount(hListBox);
 		

@@ -119,7 +119,7 @@ bool SaveDatabase()
             << std::wstring(trade->isOpen ? L"1|" : L"0|")
             << trade->tickerSymbol << "|"
             << trade->tickerName << "|"
-            << trade->futureExpiry << "|"
+            << RemoveDateHyphens(trade->futureExpiry) << "|"
             << trade->category
             << "\n";
 
