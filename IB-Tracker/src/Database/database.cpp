@@ -129,10 +129,10 @@ bool SaveDatabase()
                 << trans->description << "|"
                 << UnderlyingToNumber(trans->underlying) << "|"
                 << trans->quantity << "|"
-                << std::setprecision(4) << trans->price << "|"
-                << trans->multiplier << "|"
-                << std::setprecision(4) << trans->fees << "|"
-                << std::setprecision(4) << trans->total
+                << std::fixed << std::setprecision(4) << trans->price << "|"
+                << std::fixed << std::setprecision(4) << trans->multiplier << "|"
+                << std::fixed << std::setprecision(4) << trans->fees << "|"
+                << std::fixed << std::setprecision(4) << trans->total
                 << "\n";
 
             for (const auto leg : trans->legs) {
@@ -245,7 +245,6 @@ bool LoadDatabase()
             trade->tickerName = try_catch_wstring(st, 3);
             trade->futureExpiry = InsertDateHyphens(try_catch_wstring(st, 4));
             trade->category = try_catch_int(st, 5);
-            
             trades.push_back(trade);
             continue;
         }
@@ -280,7 +279,6 @@ bool LoadDatabase()
         }
     
     }
-
 
     // Now that the trades have been constructed, create the open position vector based
     // on a sorted list of open legs. We also calculate the ACB for the entire Trade

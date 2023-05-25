@@ -21,7 +21,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #ifndef ENABLECONSOLE
 // Set to zero to disable the console window when the application runs.
 // We would disable the console when distributing/deploying the final app.
-#define ENABLECONSOLE 0
+#define ENABLECONSOLE 1
 #endif
 
 
@@ -221,8 +221,10 @@ int APIENTRY wWinMain(
 
 
     // Release the mutex that prevents multiple application instances
-    ReleaseMutex(hMutexHandle);
-    CloseHandle(hMutexHandle);
+    if (hMutexHandle != nullptr) {
+        ReleaseMutex(hMutexHandle);
+        CloseHandle(hMutexHandle);
+    }
 
     return 0;
 }
