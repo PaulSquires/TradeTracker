@@ -138,12 +138,14 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         if (sel == (int)LongShort::Long) {
             leg->origQuantity = trans->quantity;
             leg->openQuantity = trans->quantity;
+            leg->strikePrice = std::to_wstring(trans->price);
             leg->action = L"BTO";
         }
         else {
             if (sel == (int)LongShort::Short) {
                 leg->origQuantity = trans->quantity * -1;
                 leg->openQuantity = trans->quantity * -1;
+                leg->strikePrice = std::to_wstring(trans->price);
                 leg->action = L"STO";
             }
         }
