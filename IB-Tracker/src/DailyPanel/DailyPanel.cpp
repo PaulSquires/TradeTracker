@@ -170,6 +170,7 @@ LRESULT CALLBACK DailyPanel_Header_SubclassProc(
     case WM_PAINT:
     {
         Header_OnPaint(hWnd);
+        return TRUE;
         break;
     }
 
@@ -225,6 +226,7 @@ LRESULT CALLBACK DailyPanel_ListBox_SubclassProc(
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_CustomVScrollBar);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
+        return 0;
         break;
     }
 
@@ -374,7 +376,6 @@ void DailyPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nHeight = AfxScaleY(DAILY_LISTBOX_ROWHEIGHT);
 
 
-    nTop += AfxScaleY(6);
     hdwp = DeferWindowPos(hdwp, hHeaderDailySummary, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleX(1);
 

@@ -264,6 +264,7 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         EndPaint(hWnd, &ps);
 
+        return 0;
         break;
     }
 

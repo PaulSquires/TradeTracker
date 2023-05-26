@@ -124,6 +124,7 @@ LRESULT CALLBACK TickerPanel_Header_SubclassProc(
     case WM_PAINT:
     {
         Header_OnPaint(hWnd);
+        return TRUE;
         break;
     }
 
@@ -179,6 +180,7 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CustomVScrollBar);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
+        return 0;
         break;
     }
 
@@ -220,7 +222,7 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         }
 
         ValidateRect(hWnd, &rc);
-        return TRUE;
+        return true;
         break;
 
     }

@@ -321,6 +321,7 @@ LRESULT CALLBACK TradesPanel_Header_SubclassProc(
     case WM_PAINT:
     {
         Header_OnPaint(hWnd);
+        return 0;
         break;
     }
 
