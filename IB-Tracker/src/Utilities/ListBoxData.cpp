@@ -374,8 +374,19 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
     }
     else {
-        ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
-            ThemeElement::WhiteDark, font8, FontStyleRegular);
+        // The Category icon will be colored 
+        ThemeElement catTextColor = ThemeElement::WhiteDark;
+        switch (trade->category)
+        {
+        case 0: catTextColor = ThemeElement::WhiteDark; break;
+        case 1: catTextColor = ThemeElement::Blue; break;
+        case 2: catTextColor = ThemeElement::Pink; break;
+        case 3: catTextColor = ThemeElement::Green; break;
+        case 4: catTextColor = ThemeElement::Orange; break;
+        default: catTextColor = ThemeElement::WhiteDark;
+        }
+        ld->SetData(0, trade, tickerId, L"\u23FA", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
+            catTextColor, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
             ThemeElement::WhiteLight, font9, FontStyleRegular | FontStyleBold);
         // Col 1 to 6 are set based on incoming TWS price data 

@@ -466,6 +466,100 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
 
 
 // ========================================================================================
+// Create transactions for option assignment for the selected leg.
+// ========================================================================================
+void TradesPanel_OptionAssignment(auto trade)
+{
+    // Do a check to ensure that there is actually legs selected for assignment. 
+    if (legsEdit.size() == 0) {
+        MessageBox(
+            HWND_MENUPANEL,
+            (LPCWSTR)(L"No valid option legs have been selected for assignment."),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+
+    std::shared_ptr<Transaction> trans;
+    std::shared_ptr<Leg> newleg;
+
+    for (auto leg : legsEdit) {
+
+        int numShares = abs(leg->openQuantity * 100);
+
+        std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
+        msg += std::to_wstring(numShares) + L" shares at $" + leg->strikePrice + L" per share.";
+        int res = MessageBox(
+            HWND_MENUPANEL,
+            (LPCWSTR)(msg.c_str()),
+            (LPCWSTR)L"Confirm",
+            MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+
+        if (res != IDYES) return;
+
+
+        // Close the Option. Save this transaction's leg quantities
+        trans = std::make_shared<Transaction>();
+        trans->transDate = leg->expiryDate;
+        trans->description = L"Assignment";
+        trans->underlying = L"OPTIONS";
+        trade->transactions.push_back(trans);
+
+        newleg = std::make_shared<Leg>();
+        newleg->underlying = trans->underlying;
+        newleg->origQuantity = leg->openQuantity * -1;
+        newleg->openQuantity = 0;
+        leg->openQuantity = 0;
+
+        if (leg->action == L"STO") newleg->action = L"BTC";
+        if (leg->action == L"BTO") newleg->action = L"STC";
+
+        newleg->expiryDate = leg->expiryDate;
+        newleg->strikePrice = leg->strikePrice;
+        newleg->PutCall = leg->PutCall;
+        trans->legs.push_back(newleg);
+
+
+        // Make the SHARES that have been assigned.
+        trans = std::make_shared<Transaction>();
+        trans->transDate = leg->expiryDate;
+        trans->description = L"Shares";
+        trans->underlying = L"SHARES";
+        trans->quantity = numShares;
+        trans->price = stod(leg->strikePrice);
+        trans->multiplier = 1;
+        trans->fees = 0;
+        trans->total = trans->quantity * trans->price * -1;  // DR
+        trade->ACB = trade->ACB + trans->total;
+        trade->transactions.push_back(trans);
+
+        newleg = std::make_shared<Leg>();
+        newleg->underlying = trans->underlying;
+        newleg->origQuantity = numShares;
+        newleg->openQuantity = numShares;
+        newleg->strikePrice = leg->strikePrice;
+        newleg->action = L"BTO";
+        trans->legs.push_back(newleg);
+
+    }
+
+    // Set the open status of the entire trade based on the new modified legs
+    trade->setTradeOpenStatus();
+
+    // Rebuild the openLegs position vector
+    trade->createOpenLegsVector();
+
+    // Save the new data to the database
+    SaveDatabase();
+
+    // Reload the trade list
+    TradesPanel_ShowActiveTrades();
+
+}
+
+
+// ========================================================================================
 // Populate vector that holds all selected lines/legs. This will be passed to the 
 // TradeDialog in order to perform actions on the legs.
 // ========================================================================================
@@ -594,8 +688,8 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
         TradesPanel_ExpireSelectedLegs(trade);
         break;
     case TradeAction::Assignment:
-       // TradesPanel_PopulateLegsEditVector(hListBox);
-       // TradeDialog_Show(selected);
+        TradesPanel_PopulateLegsEditVector(hListBox);
+        TradesPanel_OptionAssignment(trade);
         break;
     case TradeAction::AddOptionsToTrade:
     case TradeAction::AddPutToTrade:

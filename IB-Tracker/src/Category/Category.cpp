@@ -30,7 +30,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->TextColor = ThemeElement::WhiteDark;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->wszText = L"O";
+        pData->wszText = L"\u23FA"; // L"O";
         pData->wszToolTip = L"Gray";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -51,7 +51,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->wszText = L"O";
+        pData->wszText = L"\u23FA"; // L"O";
         pData->wszToolTip = L"Blue";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -72,7 +72,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->wszText = L"O";
+        pData->wszText = L"\u23FA"; // L"O";
         pData->wszToolTip = L"Pink";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -93,7 +93,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->wszText = L"O";
+        pData->wszText = L"\u23FA"; // L"O";
         pData->wszToolTip = L"Green";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -114,7 +114,7 @@ void CategoryControl_OnCreate(HWND hwnd)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = ThemeElement::GrayLight;
         pData->BackColorButtonDown = ThemeElement::GrayMedium;
-        pData->wszText = L"O";
+        pData->wszText = L"\u23FA"; // L"O";
         pData->wszToolTip = L"Orange";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;

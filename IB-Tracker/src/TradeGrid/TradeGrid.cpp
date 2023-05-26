@@ -119,13 +119,10 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
     int hsp = 2;
     
     int HTextMargin = 0;
-    int VTextMargin = 4;
+    int VTextMargin = 3;
     
     int nTotalWidth = 0;
     int nTotalHeight = 0;
-
-    std::wstring wszFontName = L"Segoe UI";
-    int FontSize = 8;
 
     CustomLabel* pLabelData = nullptr;
 
@@ -135,7 +132,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // QUANTITY
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
-        CustomTextBox_SetFont(hCtl, wszFontName, FontSize);
         CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
@@ -152,7 +148,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
             L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
@@ -167,7 +162,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -178,7 +172,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // STRIKE PRICE
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
-        CustomTextBox_SetFont(hCtl, wszFontName, FontSize);
         CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, lightBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
@@ -194,7 +187,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
@@ -208,7 +200,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetFont(hCtl, wszFontName, FontSize, false);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
         col->hCtl = hCtl;

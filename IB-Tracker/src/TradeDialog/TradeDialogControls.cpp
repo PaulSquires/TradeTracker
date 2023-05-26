@@ -573,12 +573,16 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // We create the Strategy button and label but we only show it for New options
     // However we do need the window for other tradeAction cases for example "Add To"
     // because the tradeAction into the Strategy button and then InvokeStrategy.
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLSTRATEGY, L"Strategy", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
-    if (IsNewOptionsTradeAction(tradeAction) != true) ShowWindow(hCtl, SW_HIDE);
-    hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
-        WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
-    if (IsNewOptionsTradeAction(tradeAction) != true) ShowWindow(hCtl, SW_HIDE);
+    if (IsNewOptionsTradeAction(tradeAction) == true ||
+        tradeAction == TradeAction::AddOptionsToTrade ||
+        tradeAction == TradeAction::AddPutToTrade ||
+        tradeAction == TradeAction::AddCallToTrade) {
+
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLSTRATEGY, L"Strategy", TextColorDim, BackColor,
+            CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
+        hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
+            WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
+    }
 
 
     nTop = 155;
