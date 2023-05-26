@@ -24,8 +24,6 @@ SOFTWARE.
 
 */
 
-
-
 #include "pch.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\CustomLabel\CustomLabel.h"
@@ -170,6 +168,7 @@ int CategoryControl_GetSelectedId(HWND hwnd)
     }
     return -1;
 }
+
 
 // ========================================================================================
 // Get the index of the selected Category in the group.
@@ -318,6 +317,7 @@ CategoryControl* CategoryControl_GetOptions(HWND hCtrl)
     return pData;
 }
 
+
 // ========================================================================================
 // Store the data pointer into the control
 // ========================================================================================
@@ -338,7 +338,9 @@ int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Create the Category control.
+// ========================================================================================
 HWND CreateCategoryControl(
     HWND hWndParent,
     int CtrlId,
@@ -393,7 +395,5 @@ HWND CreateCategoryControl(
 
     return hCtl;
 }
-
-
 
 

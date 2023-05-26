@@ -35,17 +35,291 @@ SOFTWARE.
 #include "CustomLabel.h"
 
 
+// ========================================================================================
+// Set the vertical and horizonatal text alignment during graphic output.
+// ========================================================================================
+void CustomLabel::SetTextAlignment(StringFormat* stringF)
+{
+    switch (TextAlignment)
+    {
+    case CustomLabelAlignment::BottomCenter:
+        stringF->SetAlignment(StringAlignmentCenter);
+        stringF->SetLineAlignment(StringAlignmentFar);
+        break;
 
-// Stick a new line into your.rc file :
-// IDI_MY_IMAGE_FILE    PNG      "foo.png"
-// And make sure IDI_MY_IMAGE_FILE is defined as an integer in your resource.h header file.
-// #define IDI_MY_IMAGE_FILE               131
-// Then to load the image at runtime :
-// Gdiplus::Bitmap * pBmp = LoadImageFromResource(hInstance, MAKEINTRESOURCE(IDI_MY_IMAGE_FILE), L"PNG");
+    case CustomLabelAlignment::BottomLeft:
+        stringF->SetAlignment(StringAlignmentNear);
+        stringF->SetLineAlignment(StringAlignmentFar);
+        break;
 
-//------------------------------------------------------------------------------ 
+    case CustomLabelAlignment::BottomRight:
+        stringF->SetAlignment(StringAlignmentFar);
+        stringF->SetLineAlignment(StringAlignmentFar);
+        break;
+
+    case CustomLabelAlignment::MiddleCenter:
+        stringF->SetAlignment(StringAlignmentCenter);
+        stringF->SetLineAlignment(StringAlignmentCenter);
+        break;
+
+    case CustomLabelAlignment::MiddleLeft:
+        stringF->SetAlignment(StringAlignmentNear);
+        stringF->SetLineAlignment(StringAlignmentCenter);
+        break;
+
+    case CustomLabelAlignment::MiddleRight:
+        stringF->SetAlignment(StringAlignmentFar);
+        stringF->SetLineAlignment(StringAlignmentCenter);
+        break;
+
+    case CustomLabelAlignment::TopCenter:
+        stringF->SetAlignment(StringAlignmentCenter);
+        stringF->SetLineAlignment(StringAlignmentNear);
+        break;
+
+    case CustomLabelAlignment::TopLeft:
+        stringF->SetAlignment(StringAlignmentNear);
+        stringF->SetLineAlignment(StringAlignmentNear);
+        break;
+
+    case CustomLabelAlignment::TopRight:
+        stringF->SetAlignment(StringAlignmentFar);
+        stringF->SetLineAlignment(StringAlignmentNear);
+        break;
+
+    default:
+        stringF->SetAlignment(StringAlignmentCenter);
+        stringF->SetLineAlignment(StringAlignmentCenter);
+    }
+}
+
+
+// ========================================================================================
+// Start the double buffering process for graphic output.
+// ========================================================================================
+void CustomLabel::StartDoubleBuffering(HDC hdc)
+{
+    SaveDC(hdc);
+    GetClientRect(hWindow, &m_rcClient);
+
+    m_rx = AfxScaleRatioX();
+    m_ry = AfxScaleRatioY();
+
+    // Determine if we are in a Hot mouseover state
+    if (HotTestEnable) m_bIsHot = GetProp(hWindow, L"HOT") ? true : false;
+
+    m_memDC = CreateCompatibleDC(hdc);
+    m_hbit = CreateCompatibleBitmap(hdc, m_rcClient.right, m_rcClient.bottom);
+    SelectBitmap(m_memDC, m_hbit);
+
+    Graphics graphics(m_memDC);
+    graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+    DWORD nBackColor = (m_bIsHot ? GetThemeColor(BackColorHot) : GetThemeColor(BackColor));
+    if (IsSelected && AllowSelect)
+        nBackColor = GetThemeColor(BackColorSelected);
+
+    if (GetAsyncKeyState(VK_LBUTTON) & 0x01) {
+        nBackColor = GetThemeColor(BackColorButtonDown);
+    }
+
+    // Create the background brush
+    SolidBrush backBrush(nBackColor);
+
+    // Paint the background using brush and default pen. 
+    int nWidth = (m_rcClient.right - m_rcClient.left);
+    int nHeight = (m_rcClient.bottom - m_rcClient.top);
+    graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+}
+
+
+// ========================================================================================
+// Draw the image in graphic buffer if required.
+// ========================================================================================
+void CustomLabel::DrawImageInBuffer()
+{
+    switch (CtrlType)
+    {
+    case CustomLabelType::ImageOnly:
+    case CustomLabelType::ImageAndText:
+        REAL nLeft = (MarginLeft + ImageOffsetLeft) * m_rx;
+        REAL nTop = (MarginTop + ImageOffsetTop) * m_ry;
+        REAL nRight = nLeft + (ImageWidth * m_rx);
+        REAL nBottom = nTop + (ImageHeight * m_ry);
+
+        RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
+
+        Graphics graphics(m_memDC);
+        graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+        graphics.DrawImage(m_bIsHot ? pImageHot : pImage, rcImage);
+    }
+}
+
+
+// ========================================================================================
+// Draw the text in graphic buffer if required.
+// ========================================================================================
+void CustomLabel::DrawTextInBuffer()
+{
+    switch (CtrlType)
+    {
+    case CustomLabelType::TextOnly:
+    case CustomLabelType::ImageAndText:
+
+        wszFontName = AfxGetDefaultFont();
+        if (wszText.substr(0, 2) == L"\\u") {
+            wszFontName = L"Segoe UI Symbol";
+        }
+
+        wszFontNameHot = wszFontName;
+        FontFamily fontFamily(m_bIsHot ? wszFontNameHot.c_str() : wszFontName.c_str());
+
+        REAL fontSize = (m_bIsHot ? FontSizeHot : FontSize);
+        int fontStyle = FontStyleRegular;
+
+        if (m_bIsHot) {
+            if (FontBoldHot) fontStyle |= FontStyleBold;
+            if (FontItalicHot) fontStyle |= FontStyleItalic;
+            if (FontUnderlineHot) fontStyle |= FontStyleUnderline;
+        }
+        else {
+            if (FontBold) fontStyle |= FontStyleBold;
+            if (FontItalic) fontStyle |= FontStyleItalic;
+            if (FontUnderline) fontStyle |= FontStyleUnderline;
+        }
+
+        Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+        SolidBrush   textBrush(m_bIsHot ? GetThemeColor(TextColorHot) : GetThemeColor(TextColor));
+
+        StringFormat stringF(StringFormatFlagsNoWrap);
+        stringF.SetTrimming(StringTrimmingEllipsisWord);
+        SetTextAlignment(&stringF);
+
+        if (TextCharacterExtra)
+            SetTextCharacterExtra(m_memDC, TextCharacterExtra);
+
+        REAL nLeft = (MarginLeft + ImageWidth + ImageOffsetLeft + TextOffsetLeft) * m_rx;
+        REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
+        REAL nRight = m_rcClient.right - (MarginRight * m_rx);
+        REAL nBottom = m_rcClient.bottom - (MarginBottom * m_ry);
+
+        RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
+
+        Graphics graphics(m_memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+    }
+
+}
+
+
+// ========================================================================================
+// Draw the horizontal or vertical line labels in graphic buffer if required.
+// ========================================================================================
+void CustomLabel::DrawLabelInBuffer()
+{
+    switch (CtrlType)
+    {
+    case CustomLabelType::LineHorizontal:
+        REAL nLeft = MarginLeft * m_rx;
+        REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
+        REAL nRight = m_rcClient.right - (MarginRight * m_rx);
+        REAL nBottom = nTop;
+        ARGB clrPen = (m_bIsHot ? GetThemeColor(LineColorHot) : GetThemeColor(LineColor));
+        Pen pen(clrPen, LineWidth);
+        // Draw the horizontal line centered taking margins into account
+        Graphics graphics(m_memDC);
+        graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
+
+        //case CustomLabelType::LineVertical:
+        //	ARGB clrPen = (bIsHot ? pData->LineColorHot : pData->LineColor);
+        //	Pen pen(clrPen, pData->LineWidth);
+            // Draw the vertical line centered taking margins into account
+            //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
+    }
+}
+
+
+// ========================================================================================
+// Draw the little "notch" selection indicator that appears in the main menu
+// for selected menu items.
+// ========================================================================================
+void CustomLabel::DrawNotchInBuffer()
+{
+    // If selection mode is enabled then draw the little right hand side notch
+    if (IsSelected && AllowNotch) {
+        // Create the background brush
+        SolidBrush backBrush(GetThemeColor(SelectorColor));
+        // Need to center the notch vertically
+        REAL nNotchHalfHeight = (16 * m_ry) / 2;
+        REAL nTop = (m_rcClient.bottom / 2) - nNotchHalfHeight;
+        PointF point1((REAL)m_rcClient.right, nTop);
+        PointF point2((REAL)m_rcClient.right - (8 * m_rx), nTop + nNotchHalfHeight);
+        PointF point3((REAL)m_rcClient.right, nTop + (nNotchHalfHeight * 2));
+        PointF points[3] = { point1, point2, point3 };
+        PointF* pPoints = points;
+        Graphics graphics(m_memDC);
+        graphics.FillPolygon(&backBrush, pPoints, 3);
+    }
+}
+
+
+// ========================================================================================
+// Draw the borders in graphic buffer if required.
+// ========================================================================================
+void CustomLabel::DrawBordersInBuffer()
+{
+    // Finally, draw any applicable border around the control after everything
+    // else has been painted.
+    switch (CtrlType)
+    {
+    case CustomLabelType::ImageOnly:
+    case CustomLabelType::ImageAndText:
+    case CustomLabelType::TextOnly:
+    {
+        ARGB clrPen = (m_bIsHot ? GetThemeColor(BorderColorHot) : GetThemeColor(BorderColor));
+        if (BorderVisible == true) {
+            clrPen = GetThemeColor(BackColor);
+            Pen pen(clrPen, BorderWidth);
+            RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
+            Graphics graphics(m_memDC);
+            graphics.DrawRectangle(&pen, rectF);
+        }
+        break;
+    }
+    }
+}
+
+
+// ========================================================================================
+// End the double buffering process for graphic output.
+// ========================================================================================
+void CustomLabel::EndDoubleBuffering(HDC hdc)
+{
+    // Copy the entire memory bitmap to the main display
+    BitBlt(hdc, 0, 0, m_rcClient.right, m_rcClient.bottom, m_memDC, 0, 0, SRCCOPY);
+
+    // Restore the original state of the DC
+    RestoreDC(hdc, -1);
+
+    // Cleanup
+    DeleteObject(m_hbit);
+    DeleteDC(m_memDC);
+}
+
+
+// ========================================================================================
+// Generic function to load a non-standard image (eg. PNG) from the resource file.
+// ========================================================================================
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype)
 {
+    // Stick a new line into your.rc file :
+    // IDI_MY_IMAGE_FILE    PNG      "foo.png"
+    // And make sure IDI_MY_IMAGE_FILE is defined as an integer in your resource.h header file.
+    // #define IDI_MY_IMAGE_FILE               131
+    // Then to load the image at runtime :
+    // Gdiplus::Bitmap * pBmp = LoadImageFromResource(hInstance, MAKEINTRESOURCE(IDI_MY_IMAGE_FILE), L"PNG");
+
     IStream* pStream = nullptr;
     Gdiplus::Bitmap* pBmp = nullptr;
     HGLOBAL hGlobal = nullptr;
@@ -98,7 +372,9 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Windows procedure for the custom control.
+// ========================================================================================
 LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static CustomLabel* pDataSelected = nullptr;
@@ -215,6 +491,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
             pData->EndDoubleBuffering(hdc);
         }
         EndPaint(hWnd, &ps);
+        return 0;
         break;
     }
 
@@ -241,7 +518,9 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the custom control data pointer.
+// ========================================================================================
 CustomLabel* CustomLabel_GetOptions(HWND hCtrl)
 {
     CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtrl, 0);
@@ -249,7 +528,9 @@ CustomLabel* CustomLabel_GetOptions(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Store the custom control data pointer.
+// ========================================================================================
 int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
 {
     if (pData == nullptr) return 0;
@@ -267,7 +548,9 @@ int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the text for the custom control.
+// ========================================================================================
 void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -279,7 +562,9 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the text foreground color for the custom control.
+// ========================================================================================
 void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -289,7 +574,10 @@ void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor)
     }
 }
 
-//------------------------------------------------------------------------------ 
+
+// ========================================================================================
+// Set the text foreground hot color for the custom control.
+// ========================================================================================
 void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -300,7 +588,9 @@ void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the text background color for the custom control.
+// ========================================================================================
 void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -310,7 +600,10 @@ void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
     }
 }
 
-//------------------------------------------------------------------------------ 
+
+// ========================================================================================
+// Set the text background hot color for the custom control.
+// ========================================================================================
 void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -321,7 +614,9 @@ void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the text background color for the custom control.
+// ========================================================================================
 ThemeElement CustomLabel_GetBackColor(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -332,7 +627,9 @@ ThemeElement CustomLabel_GetBackColor(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the text for the custom control.
+// ========================================================================================
 std::wstring CustomLabel_GetText(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -343,7 +640,9 @@ std::wstring CustomLabel_GetText(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the border (width and colors)  for the custom control.
+// ========================================================================================
 void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColor, ThemeElement BorderColorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -357,7 +656,9 @@ void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColo
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the mouse pointer (normal and hot) for the custom control.
+// ========================================================================================
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -370,7 +671,10 @@ void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, C
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the text offset for the custom control (useful to ensure text is not jammed
+// up against a border).
+// ========================================================================================
 void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -381,7 +685,10 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop)
     }
 }
 
-//------------------------------------------------------------------------------ 
+
+// ========================================================================================
+// Set the user defined text data (wstring) for the custom control.
+// ========================================================================================
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring wszText)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -392,7 +699,9 @@ void CustomLabel_SetUserData(HWND hCtrl, std::wstring wszText)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the user defined text data (wstring) for the custom control.
+// ========================================================================================
 std::wstring CustomLabel_GetUserData(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -402,7 +711,10 @@ std::wstring CustomLabel_GetUserData(HWND hCtrl)
     return L"";
 }
 
-//------------------------------------------------------------------------------ 
+
+// ========================================================================================
+// Set the user defined integer data (int) for the custom control.
+// ========================================================================================
 void CustomLabel_SetUserDataInt(HWND hCtrl, int value)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -413,7 +725,9 @@ void CustomLabel_SetUserDataInt(HWND hCtrl, int value)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the user defined integer data (int) for the custom control.
+// ========================================================================================
 int CustomLabel_GetUserDataInt(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -424,7 +738,9 @@ int CustomLabel_GetUserDataInt(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the font for the custom control.
+// ========================================================================================
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -440,7 +756,9 @@ void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, boo
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the selected status for the custom control. Useful for toggling menu items.
+// ========================================================================================
 void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -454,13 +772,14 @@ void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Creates a simple "dumb" label that basically just makes it easier to deal
+// with theme coloring. No hot tracking or click notifications.
+// ========================================================================================
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
     ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment, 
     int nLeft, int nTop, int nWidth, int nHeight)
 {
-    // Creates a simple "dumb" label that basically just makes it easier to deal
-    // with theme coloring. No hot tracking or click notifications.
     CustomLabel* pData = nullptr;
 
     HWND hCtl = CreateCustomLabel(
@@ -482,7 +801,9 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Creates a simple label that acts like a push button.
+// ========================================================================================
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
     ThemeElement TextColor, ThemeElement BackColor, ThemeElement BackColorHot, ThemeElement BackColorButtonDown,
     CustomLabelAlignment alignment, int nLeft, int nTop, int nWidth, int nHeight)
@@ -511,10 +832,10 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
 }
 
 
-
-
-//------------------------------------------------------------------------------ 
-HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId, 
+// ========================================================================================
+// Creates a simple label that only displays an image.
+// ========================================================================================
+HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     std::wstring wszImage, std::wstring wszImageHot, 
     int ImageWidth, int ImageHeight,
     int nLeft, int nTop, int nWidth, int nHeight)
@@ -542,8 +863,10 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
 }
 
 
-//------------------------------------------------------------------------------ 
-HWND CreateCustomLabel( 
+// ========================================================================================
+// Create the custom label control.
+// ========================================================================================
+HWND CreateCustomLabel(
     HWND hWndParent, 
     LONG_PTR CtrlId,
     CustomLabelType nCtrlType,

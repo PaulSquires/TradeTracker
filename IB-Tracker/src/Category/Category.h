@@ -26,9 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Utilities\UserMessages.h"
-#include "..\Utilities\AfxWin.h"
-#include "..\Themes\Themes.h"
 
 
 class CategoryControl
