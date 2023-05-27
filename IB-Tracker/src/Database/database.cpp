@@ -71,7 +71,7 @@ std::wstring RemoveDateHyphens(const std::wstring& dateString)
 }
 
 
-int UnderlyingToNumber(std::wstring& underlying)
+int UnderlyingToNumber(const std::wstring& underlying)
 {
     if (underlying == L"OPTIONS") return 0;
     if (underlying == L"SHARES") return 1;
@@ -82,7 +82,7 @@ int UnderlyingToNumber(std::wstring& underlying)
 }
 
 
-int ActionToNumber(std::wstring& action)
+int ActionToNumber(const std::wstring& action)
 {
     if (action == L"STO") return 0;
     if (action == L"BTO") return 1;

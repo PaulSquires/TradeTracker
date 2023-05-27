@@ -29,9 +29,9 @@ SOFTWARE.
 //
 
 #include "pch.h"
+
 #include "..\Utilities\AfxWin.h"
 #include "CustomVScrollBar.h"
-#include "..\TradeDialog\TradeDialog.h"
 
 
 // ========================================================================================
@@ -114,6 +114,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
                 }
 
             }
+            return 0;
             break;
         }
 
@@ -143,6 +144,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
                     AfxRedrawWindow(hWnd);
                 }
             }
+            return 0;
             break;
         }
 
@@ -154,6 +156,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             pData->prev_pt.x = 0;
             pData->prev_pt.y = 0;
             ReleaseCapture();
+            return 0;
             break;
         }
 
@@ -201,6 +204,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
             EndPaint(hWnd, &ps);
 
+            return 0;
             break;
         }
 
@@ -217,7 +221,32 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Retrieve the stored data pointer from the custom ScrollBar
+// ========================================================================================
+CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl)
+{
+    CustomVScrollBar* pData = (CustomVScrollBar*)GetWindowLongPtr(hCtrl, 0);
+    return pData;
+}
+
+
+// ========================================================================================
+// Recalculate the ScrollBar thumb size and refresh display.
+// ========================================================================================
+void CustomVScrollBar_Recalculate(HWND hCtrl)
+{
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCtrl);
+    if (pData != nullptr) {
+        pData->calcVThumbRect();
+        AfxRedrawWindow(pData->hwnd);
+    }
+}
+
+
+// ========================================================================================
+// Create the vertical custom control.
+// ========================================================================================
 HWND CreateCustomVScrollBar(
     HWND hWndParent,
     LONG_PTR CtrlId,
@@ -266,28 +295,4 @@ HWND CreateCustomVScrollBar(
 
     return hCtl;
 }
-
-
-// ========================================================================================
-// Retrieve the stored data pointer from the custom ScrollBar
-// ========================================================================================
-CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl)
-{
-    CustomVScrollBar* pData = (CustomVScrollBar*)GetWindowLongPtr(hCtrl, 0);
-    return pData;
-}
-
-
-// ========================================================================================
-// Recalculate the ScrollBar thumb size and refresh display.
-// ========================================================================================
-void CustomVScrollBar_Recalculate(HWND hCtrl)
-{
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCtrl);
-    if (pData != nullptr) {
-        pData->calcVThumbRect();
-        AfxRedrawWindow(pData->hwnd);
-    }
-}
-
 

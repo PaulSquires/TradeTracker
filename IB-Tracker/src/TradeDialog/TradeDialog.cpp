@@ -185,7 +185,9 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Process a change in the DR/CR button (colors and trade totals).
+// ========================================================================================
 void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
 {
     CustomLabel_SetText(hCtl, wszText);
@@ -201,8 +203,6 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
     }
     TradeDialog_CalculateTradeTotal(HWND_TRADEDIALOG);
 }
-
-
 
 
 // ========================================================================================

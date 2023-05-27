@@ -195,16 +195,17 @@ LRESULT CALLBACK DailyPanel_Header_SubclassProc(
     case WM_PAINT:
     {
         Header_OnPaint(hWnd);
-        return TRUE;
+        return 0;
         break;
     }
 
 
     case WM_DESTROY:
-
+    {
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, DailyPanel_Header_SubclassProc, uIdSubclass);
         break;
+    }
 
 
     }   // end of switch statment
@@ -295,11 +296,11 @@ LRESULT CALLBACK DailyPanel_ListBox_SubclassProc(
         ValidateRect(hWnd, &rc);
         return TRUE;
         break;
-
     }
 
 
     case WM_DESTROY:
+    {
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
         ListBoxData_DestroyItemData(hWnd);
@@ -307,13 +308,13 @@ LRESULT CALLBACK DailyPanel_ListBox_SubclassProc(
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hWnd, DailyPanel_ListBox_SubclassProc, uIdSubclass);
         break;
+    }
 
 
     }   // end of switch statment
 
     // For messages that we don't deal with
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
 }
 
 
@@ -420,7 +421,6 @@ void DailyPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nWidth = CustomVScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
-
 
     EndDeferWindowPos(hdwp);
 }

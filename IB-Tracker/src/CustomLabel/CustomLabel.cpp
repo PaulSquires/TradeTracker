@@ -517,7 +517,6 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 }
 
 
-
 // ========================================================================================
 // Get the custom control data pointer.
 // ========================================================================================

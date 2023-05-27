@@ -53,10 +53,10 @@ int AfxGetWorkAreaWidth();
 int AfxGetWorkAreaHeight();
 
 int AfxComCtlVersion();
-int AfxGetFileVersion(std::wstring pwszFileName);
+int AfxGetFileVersion(const std::wstring& pwszFileName);
 
-HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon = FALSE, bool bCentered = FALSE);
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText);
+HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon = FALSE, bool bCentered = FALSE);
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText);
 
 std::wstring AfxGetListBoxText(HWND hListBox, int nIndex);
 
@@ -66,20 +66,20 @@ std::wstring AfxCurrentDate();
 
 bool AfxIsLeapYear(int nYear);
 int AfxDaysInMonth(int nMonth, int nYear);
-int AfxDaysInMonthISODate(std::wstring wszDate);
-std::wstring AfxShortDate(std::wstring wszDate);
-std::wstring AfxGetShortDayName(std::wstring wszDate);
+int AfxDaysInMonthISODate(const std::wstring& wszDate);
+std::wstring AfxShortDate(const std::wstring& wszDate);
+std::wstring AfxGetShortDayName(const std::wstring& wszDate);
 std::wstring AfxMakeISODate(int year, int month, int day);
-std::wstring AfxFormatFuturesDate(std::wstring wszDate);
-std::string AfxFormatFuturesDateMarketData(std::wstring wszDate);
-int AfxGetYear(std::wstring wszDate);
-int AfxGetMonth(std::wstring wszDate);
-int AfxGetDay(std::wstring wszDate);
+std::wstring AfxFormatFuturesDate(const std::wstring& wszDate);
+std::string AfxFormatFuturesDateMarketData(const std::wstring& wszDate);
+int AfxGetYear(const std::wstring& wszDate);
+int AfxGetMonth(const std::wstring& wszDate);
+int AfxGetDay(const std::wstring& wszDate);
 int AfxLocalYear();
 int AfxLocalMonth();
-int AfxDaysBetween(std::wstring date1, std::wstring date2);
-std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd);
-std::wstring AfxLongDate(std::wstring wszDate);
+int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2);
+std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd);
+std::wstring AfxLongDate(const std::wstring& wszDate);
 
 
 bool isWineActive();

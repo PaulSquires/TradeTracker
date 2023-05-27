@@ -83,13 +83,66 @@ void MenuPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
+// Generic helper function to create a menu separator.
+// ========================================================================================
+void MenuPanel_MakeSeparator(HWND hwnd, int nTop)
+{
+    CustomLabel* pData = nullptr;
+    HWND hCtl = CreateCustomLabel(
+        hwnd, -1,
+        CustomLabelType::LineHorizontal,
+        0, nTop, MENUPANEL_WIDTH, 10);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = ThemeElement::Black;
+        pData->LineColor = ThemeElement::Separator;
+        pData->LineWidth = 2;
+        pData->MarginLeft = 10;
+        pData->MarginRight = 10;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Generic helper function to create a menu item.
+// ========================================================================================
+void MenuPanel_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring wszText)
+{
+    CustomLabel* pData = nullptr;
+    HWND hCtl = CreateCustomLabel(
+        hwnd, CtrlId,
+        CustomLabelType::TextOnly,
+        0, nTop, MENUPANEL_WIDTH, 28);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = true;
+        pData->AllowNotch = true;
+        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
+        pData->BackColor = ThemeElement::Black;
+        pData->BackColorHot = ThemeElement::Selection;
+        pData->BackColorSelected = ThemeElement::Selection;
+        pData->TextColor = ThemeElement::WhiteLight;
+        pData->TextColorHot = ThemeElement::WhiteLight;
+        pData->FontSize = 10;
+        pData->FontSizeHot = 10;
+        pData->wszText = wszText;
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+}
+
+
+// ========================================================================================
 // Process WM_CREATE message for window/dialog: MenuPanel
 // ========================================================================================
 BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_MENUPANEL = hwnd;
 
-    int nTop, nLeft, nLeftOffset;
+    int nTop = 0;
+    int nLeft = 0;
     int nItemHeight = 28;
 
     HWND hCtl;
@@ -151,462 +204,66 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
-    // SEPARATOR
+    // SEPARATOR & MENU ITEMS
     nTop = 150;
-    hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    MenuPanel_MakeSeparator(hwnd, nTop);
 
+    nTop += 10;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_ACTIVETRADES, nTop, L"Active Trades");
 
-    // MENU ITEMS
-    nLeftOffset = 0;
-    nTop = nTop + 10;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_ACTIVETRADES,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Active Trades";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_CLOSEDTRADES, nTop, L"Closed Trades");
 
+    nTop += nItemHeight + 6;
+    MenuPanel_MakeSeparator(hwnd, nTop);
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_CLOSEDTRADES,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Closed Trades";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += 10;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWOPTIONSTRADE, nTop, L"Options Trade");
 
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWSHARESTRADE, nTop, L"Shares Trade");
 
-    // SEPARATOR
-    nTop = nTop + nItemHeight + 6;
-    hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWFUTURESTRADE, nTop, L"Futures Trade");
 
+    nTop += nItemHeight + 6;
+    MenuPanel_MakeSeparator(hwnd, nTop);
 
-    nTop = nTop + 10;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_NEWOPTIONSTRADE,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Options Trade";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += 10;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWIRONCONDOR, nTop, L"Iron Condor");
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_NEWSHARESTRADE,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Shares Trade";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWSHORTSTRANGLE, nTop, L"Short Strangle");
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_NEWFUTURESTRADE,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Futures Trade";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWSHORTPUT, nTop, L"Short Put");
 
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_NEWSHORTCALL, nTop, L"Short Call");
 
-    // SEPARATOR
-    nTop = nTop + nItemHeight + 6;
-    hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight + 6;
+    MenuPanel_MakeSeparator(hwnd, nTop);
 
-    nTop = nTop + 10;
-    hCtl = CreateCustomLabel(
-        hwnd, IDC_MENUPANEL_NEWIRONCONDOR,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Iron Condor";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += 10;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_TICKERTOTALS, nTop, L"Ticker Totals");
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd, IDC_MENUPANEL_NEWSHORTSTRANGLE,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Short Strangle";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_DAILYTOTALS, nTop, L"Daily Totals");
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd, IDC_MENUPANEL_NEWSHORTPUT,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Short Put";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_TRANSACTIONS, nTop, L"Transactions");
 
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd, IDC_MENUPANEL_NEWSHORTCALL,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Short Call";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_RECONCILE, nTop, L"Reconcile");
 
+    nTop += nItemHeight + 6;
+    MenuPanel_MakeSeparator(hwnd, nTop);
 
-    // SEPARATOR
-    nTop = nTop + nItemHeight + 6;
-    hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += 10;
+    MenuPanel_MakeMenuItem(hwnd, IDC_MENUPANEL_CONNECTTWS, nTop, L"Connect to TWS");
 
-
-    nTop = nTop + 10;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_TICKERTOTALS,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Ticker Totals";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_DAILYTOTALS,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Daily Totals";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_TRANSACTIONS,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Transactions";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + nItemHeight;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_RECONCILE,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Reconcile";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    // SEPARATOR
-    nTop = nTop + nItemHeight + 6;
-    hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    nTop = nTop + 10;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MENUPANEL_CONNECTTWS,
-        CustomLabelType::TextOnly,
-        0, nTop, MENUPANEL_WIDTH, nItemHeight);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
-        pData->TextOffsetLeft = nLeftOffset;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = L"Connect to TWS";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    // SEPARATOR
-    nTop = nTop + nItemHeight + 6;
-    hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::LineHorizontal,
-        0, nTop, MENUPANEL_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+    nTop += nItemHeight + 6;
+    MenuPanel_MakeSeparator(hwnd, nTop);
 
     return TRUE;
 }
@@ -666,6 +323,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             pData->wszText = L"Connecting to TWS";
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
+        return 0;
         break;
     }
 
@@ -680,6 +338,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             pData->TextColorHot = ThemeElement::Green;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
+        return 0;
         break;
     }
 
@@ -696,12 +355,9 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         EndMonitorThread();
+        return 0;
         break;
     }
-
-
-    case MSG_CUSTOMLABEL_MOUSEMOVE:
-        break;
 
 
     case MSG_CUSTOMLABEL_CLICK:
@@ -862,6 +518,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             }  // switch
 
+            return 0;
         }   // if
     }  // case
 

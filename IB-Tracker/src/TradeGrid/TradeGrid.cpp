@@ -78,11 +78,10 @@ void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszT
         break;
 
     }
-
 }
 
 
-    // ========================================================================================
+// ========================================================================================
 // Calculate Days To Expiration (DTE) and display it in the table
 // ========================================================================================
 void TradeGrid_CalculateDTE(HWND hwnd)
@@ -110,7 +109,9 @@ void TradeGrid_CalculateDTE(HWND hwnd)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Populate the trade grid (all 4 rows and columns).
+// ========================================================================================
 void TradeGrid_PopulateColumns(TradeGrid* pData)
 {
     if (pData == nullptr) return;
@@ -273,7 +274,9 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set text in a trade grid cell.
+// ========================================================================================
 void TradeGrid_SetText(GridColInfo* col, std::wstring wszText)
 {
     if (col == nullptr) return;
@@ -288,7 +291,9 @@ void TradeGrid_SetText(GridColInfo* col, std::wstring wszText)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Handle when the PutCall button is clicked.
+// ========================================================================================
 void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
@@ -305,7 +310,9 @@ void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Handle when the Action trade grid cell is clicked.
+// ========================================================================================
 void TradeGrid_OnClickAction(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
@@ -334,7 +341,9 @@ void TradeGrid_OnClickAction(TradeGrid* pData, GridColInfo* col)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Handle when the Line Reset trade grid cell is clicked.
+// ========================================================================================
 void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
@@ -353,7 +362,9 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Handle when the Date Picker (Calendar) grid cell is clicked.
+// ========================================================================================
 void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
@@ -364,7 +375,9 @@ void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get text from a trade grid cell (row, cell).
+// ========================================================================================
 std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 {
     std::wstring wszText;
@@ -393,7 +406,12 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Some trade grid cells are designated as "trigger cells" meaning that when their values
+// change then that change will be populated to the other cells in the grid. For example, 
+// when the first row leg quantity or leg expiry date changes then those changes get 
+// populated to the other three rows in the trade grid.
+// ========================================================================================
 void TradeGrid_PopulateTriggerCells(HWND hWnd)
 {
     TradeGrid* pData = TradeGrid_GetOptions(hWnd);
@@ -424,9 +442,13 @@ void TradeGrid_PopulateTriggerCells(HWND hWnd)
         }
     }
 
+    CustomTextBox_SetText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTQUANTITY), 
+        std::to_wstring(intCellQuantity));
 }
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Windows callback function.
+// ========================================================================================
 LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     TradeGrid* pData = nullptr;
@@ -516,6 +538,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
                 break;
             }
         }
+        return 0;
     }
     break;
 
@@ -567,6 +590,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             DeleteDC(memDC);
         }
         EndPaint(hWnd, &ps);
+        return 0;
     }
     break;
 
@@ -633,7 +657,9 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the custom control data pointer.
+// ========================================================================================
 TradeGrid* TradeGrid_GetOptions(HWND hCtrl)
 {
     TradeGrid* pData = (TradeGrid*)GetWindowLongPtr(hCtrl, 0);
@@ -641,7 +667,9 @@ TradeGrid* TradeGrid_GetOptions(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Store the custom control data pointer.
+// ========================================================================================
 int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData)
 {
     if (pData == nullptr) return 0;
@@ -653,7 +681,9 @@ int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Create the trade grid control.
+// ========================================================================================
 HWND CreateTradeGrid(
     HWND hWndParent,
     LONG_PTR CtrlId,

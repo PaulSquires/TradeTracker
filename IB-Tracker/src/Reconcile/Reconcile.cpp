@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "..\Themes\Themes.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\Database\database.h"
 #include "..\Database\trade.h"
@@ -227,7 +226,6 @@ void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy)
         GetDlgItem(HWND_RECONCILE, IDC_RECONCILE_TEXTBOX), 
         0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
 }
-
 
 
 // ========================================================================================

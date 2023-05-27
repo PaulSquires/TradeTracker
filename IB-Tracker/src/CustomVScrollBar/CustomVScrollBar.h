@@ -26,9 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Utilities\UserMessages.h"
 #include "..\Themes\Themes.h"
-#include "..\Utilities\AfxWin.h"
 
 
 class CustomVScrollBar

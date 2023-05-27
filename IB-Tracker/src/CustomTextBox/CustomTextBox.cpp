@@ -39,7 +39,9 @@ extern CMainWindow Main;
 
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Process WM_SIZE message for window/dialog: CustomTextBox
+// ========================================================================================
 void CustomTextBox_OnSize(HWND hCtrl)
 {
     // Move the child textbox within the confines of the parent
@@ -66,7 +68,9 @@ void CustomTextBox_OnSize(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Perform numeric formatting for textboxes allowing decimal places.
+// ========================================================================================
 void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData)
 {
     if (pData == nullptr) return;
@@ -93,7 +97,6 @@ void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData)
         money = buffer.substr(0, j - 1);
         AfxSetWindowText(pData->hTextBox, money.c_str());
     }
-
 }
 
 
@@ -251,7 +254,9 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Windows callback function.
+// ========================================================================================
 LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     CustomTextBox* pData = nullptr;
@@ -263,7 +268,6 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
     switch (uMsg)
     {
-
 
     case WM_GETTEXT:
     case WM_SETTEXT:
@@ -288,6 +292,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_SIZE:
     {
         CustomTextBox_OnSize(hWnd);
+        return 0;
     }
     break;
 
@@ -295,6 +300,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_SETFOCUS:
     {
         SetFocus(pData->hTextBox);
+        return 0;
     }
     break;
 
@@ -304,6 +310,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         if (pData->hFontText) DeleteFont(pData->hFontText);
         pData->hFontText = (HFONT)wParam;
         SendMessage(pData->hTextBox, WM_SETFONT, (WPARAM)pData->hFontText, false);
+        return 0;
     }
     break;
 
@@ -368,6 +375,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
         }
         EndPaint(hWnd, &ps);
+        return 0;
     }
     break;
 
@@ -388,8 +396,9 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 }
 
 
-
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the custom control data pointer.
+// ========================================================================================
 CustomTextBox* CustomTextBox_GetOptions(HWND hCtrl)
 {
     CustomTextBox* pData = (CustomTextBox*)GetWindowLongPtr(hCtrl, 0);
@@ -397,7 +406,9 @@ CustomTextBox* CustomTextBox_GetOptions(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the custom control data pointer.
+// ========================================================================================
 int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData)
 {
     if (pData == nullptr) return 0;
@@ -409,7 +420,9 @@ int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the text for the custom control.
+// ========================================================================================
 void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -423,7 +436,9 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the user defined text data (wstring) for the custom control.
+// ========================================================================================
 void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -434,7 +449,9 @@ void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Get the user defined text data (wstring) for the custom control.
+// ========================================================================================
 std::wstring CustomTextBox_GetUserData(HWND hCtrl)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -444,7 +461,9 @@ std::wstring CustomTextBox_GetUserData(HWND hCtrl)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the margins for the custom control (horizontal and vertical).
+// ========================================================================================
 void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -458,7 +477,9 @@ void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the text colors for the custom control (foreground and background).
+// ========================================================================================
 void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -473,7 +494,9 @@ void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the font for the custom control.
+// ========================================================================================
 void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
@@ -489,7 +512,9 @@ void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Set the border attributes for the custom control (width, colors, style).
+// ========================================================================================
 void CustomTextBox_SetBorderAttributes(
     HWND hCtrl, int BorderWidth, COLORREF clrGotFocus, COLORREF clrLostFocus, CustomTextBoxBorder BorderStyle)
 {
@@ -504,7 +529,10 @@ void CustomTextBox_SetBorderAttributes(
     }
 }
 
-//------------------------------------------------------------------------------ 
+
+// ========================================================================================
+// Set the numeric attributes for the custom control.
+// ========================================================================================
 void CustomTextBox_SetNumericAttributes(
     HWND hCtrl, int NumDecimals, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting)
 {
@@ -520,7 +548,9 @@ void CustomTextBox_SetNumericAttributes(
 }
 
 
-//------------------------------------------------------------------------------ 
+// ========================================================================================
+// Create the custom textbox control.
+// ========================================================================================
 HWND CreateCustomTextBox(
     HWND hWndParent,
     LONG_PTR CtrlId,

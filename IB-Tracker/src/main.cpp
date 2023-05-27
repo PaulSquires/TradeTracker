@@ -26,8 +26,6 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "Utilities/AfxWin.h"
-#include "Themes/Themes.h"
 #include "Database/database.h"
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"

@@ -160,6 +160,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CustomVScrollBar);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
+        return 0;
         break;
     }
 
@@ -311,7 +312,6 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nWidth = CustomVScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
-
 
     EndDeferWindowPos(hdwp);
 }

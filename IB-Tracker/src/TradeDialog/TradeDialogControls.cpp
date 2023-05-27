@@ -185,7 +185,6 @@ void TradeDialog_CalculateTradeTotal(HWND hwnd)
 }
 
 
-
 // ========================================================================================
 // Load the legs for the edit Action into the Trade Management table
 // ========================================================================================
@@ -289,7 +288,6 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     }
 
 
-
     if (legsEdit.size() == 0) return;
 
     int DefaultQuantity = 0;
@@ -377,7 +375,6 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     }
 
 }
-
 
 
 // ========================================================================================

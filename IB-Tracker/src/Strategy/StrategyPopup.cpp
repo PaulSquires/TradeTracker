@@ -75,7 +75,6 @@ void StrategyPopup_OnPaint(HWND hwnd)
 }
 
 
-
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: StrategyPopup
 // ========================================================================================
@@ -290,9 +289,7 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
         AfxScaleY(24) * (int)Strategy::Count,    // 24 b/c 23 line height + 1 spacer
         SWP_SHOWWINDOW);
 
-
     return hPopup;
-
 }
 
 

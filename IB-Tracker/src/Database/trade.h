@@ -32,7 +32,7 @@ SOFTWARE.
 //                        |-> Legs
 
 //  All open and closed Trades are stored in the global Trades vector. We differentiate
-//  between them by iterating the vector and testing the isOpen() boolena method.
+//  between them by iterating the vector and testing the isOpen() boolean method.
 //
 
 class Leg

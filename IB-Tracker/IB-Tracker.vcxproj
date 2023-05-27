@@ -112,8 +112,6 @@
     <None Include="rcdata1.bin" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\Images\gear32.png" />
-    <Image Include="src\Images\gearhot32.png" />
     <Image Include="src\Images\logo.png" />
     <Image Include="src\Images\mainicon.ico" />
     <Image Include="src\images\png1.png" />

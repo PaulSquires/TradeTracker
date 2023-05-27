@@ -247,6 +247,7 @@ int AfxGetWorkAreaWidth()
     return (rcWrk.right - rcWrk.left);
 }
 
+
 // ========================================================================================
 int AfxGetWorkAreaHeight()
 {
@@ -260,7 +261,7 @@ int AfxGetWorkAreaHeight()
 // Returns the version of specified file multiplied by 100, e.g. 601 for version 6.01.
 // Example: DIM ver AS LONG = AfxGetFileVersion("COMCTL32.DLL")
 // ========================================================================================
-int AfxGetFileVersion(std::wstring wszFileName)
+int AfxGetFileVersion(const std::wstring& wszFileName)
 {
     VS_FIXEDFILEINFO* pvsffi = nullptr;
     DWORD dwHandle;
@@ -303,7 +304,7 @@ int AfxComCtlVersion()
 // Return Value:
 //   The handle of the tooltip control
 // ========================================================================================
-HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon, bool bCentered)
+HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon, bool bCentered)
 {
     if (IsWindow(hwnd) == 0) return 0;
 
@@ -357,7 +358,7 @@ HWND AfxAddTooltip(HWND hwnd, std::wstring wszText, bool bBalloon, bool bCentere
 // - hwnd     = Handle of the window or control
 // - wszText  = Tooltip text
 // ========================================================================================
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring wszText)
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText)
 {
     if ((hTooltip == NULL) || (hwnd == NULL)) return;
     // 32-bit: The size of the TOOLINFOW structure is 48 bytes in
@@ -472,7 +473,11 @@ int AfxDaysInMonth(int nMonth, int nYear)
     }
 }
 
-int AfxDaysInMonthISODate(std::wstring wszDate)
+
+// ========================================================================================
+// Return the days in month from an ISO specified date.
+// ========================================================================================
+int AfxDaysInMonthISODate(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
@@ -481,10 +486,11 @@ int AfxDaysInMonthISODate(std::wstring wszDate)
     return AfxDaysInMonth(nMonth, nYear);
 }
 
+
 // ========================================================================================
 // Adds the specified number of days to the incoming date and returns the new date.
 // ========================================================================================
-std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd)
+std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd)
 {
     // YYYY-MM-DD
     // 0123456789
@@ -519,7 +525,7 @@ std::wstring AfxDateAddDays(std::wstring wszDate, int numDaysToAdd)
 // ========================================================================================
 // Return the number of days between two dates (YYYY-MM-DD)
 // ========================================================================================
-int AfxDaysBetween(std::wstring date1, std::wstring date2)
+int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
 {
     static const ULONGLONG FT_SECOND = ((ULONGLONG)10000000);
     static const ULONGLONG FT_MINUTE = (60 * FT_SECOND);
@@ -579,7 +585,7 @@ std::wstring AfxCurrentDate()
 // ========================================================================================
 // Returns the year from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetYear(std::wstring wszDate)
+int AfxGetYear(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
@@ -590,7 +596,7 @@ int AfxGetYear(std::wstring wszDate)
 // ========================================================================================
 // Returns the month from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetMonth(std::wstring wszDate)
+int AfxGetMonth(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
@@ -601,7 +607,7 @@ int AfxGetMonth(std::wstring wszDate)
 // ========================================================================================
 // Returns the day from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetDay(std::wstring wszDate)
+int AfxGetDay(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
@@ -635,7 +641,7 @@ int AfxLocalMonth()
 // Returns the Futures Contract date MMMDD from a date in ISO format (YYYY-MM-DD)
 // This is used for display purposes on the Trade Management screen.
 // ========================================================================================
-std::wstring AfxFormatFuturesDate(std::wstring wszDate)
+std::wstring AfxFormatFuturesDate(const std::wstring& wszDate)
 {
     SYSTEMTIME st{};
     st.wYear = std::stoi(wszDate.substr(0, 4));
@@ -648,11 +654,12 @@ std::wstring AfxFormatFuturesDate(std::wstring wszDate)
     return AfxUpper(wszText);
 }
 
+
 // ========================================================================================
 // Returns the Futures Contract date YYYYMM from a date in ISO format (YYYY-MM-DD)
 // This is used for retrieveing market data. (uses ansi strings rather thab unicode).
 // ========================================================================================
-std::string AfxFormatFuturesDateMarketData(std::wstring wszDate)
+std::string AfxFormatFuturesDateMarketData(const std::wstring& wszDate)
 {
     // Date enters as YYYY-MM-DD so we simply need to remove the hyphens    
     std::string newDate = unicode2ansi(wszDate);
@@ -664,7 +671,7 @@ std::string AfxFormatFuturesDateMarketData(std::wstring wszDate)
 // ========================================================================================
 // Returns the short format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetShortDayName(std::wstring wszDate)
+std::wstring AfxGetShortDayName(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
@@ -684,7 +691,7 @@ std::wstring AfxGetShortDayName(std::wstring wszDate)
 // Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
 // We use this when dealing with Option expiration dates to display.
 // ========================================================================================
-std::wstring AfxShortDate(std::wstring wszDate)
+std::wstring AfxShortDate(const std::wstring& wszDate)
 {
     SYSTEMTIME st{};
     st.wYear = std::stoi(wszDate.substr(0, 4));
@@ -696,10 +703,11 @@ std::wstring AfxShortDate(std::wstring wszDate)
     return buffer.substr(0, bytesWritten - 1); // remove terminating null
 }
 
+
 // ========================================================================================
 // Returns the long date MMM DD, yyyy from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxLongDate(std::wstring wszDate)
+std::wstring AfxLongDate(const std::wstring& wszDate)
 {
     SYSTEMTIME st{};
     st.wYear = std::stoi(wszDate.substr(0, 4));
@@ -710,6 +718,7 @@ std::wstring AfxLongDate(std::wstring wszDate)
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd, yyyy", (LPWSTR)buffer.c_str(), 260);
     return buffer.substr(0, bytesWritten - 1); // remove terminating null
 }
+
 
 // ========================================================================================
 // Returns the date in ISO format (YYYY-MM-DD) based on incoming year, month, day.
@@ -748,7 +757,6 @@ bool isWineActive()
     FreeLibrary(hntdll);
     return res;
 }
-
 
 
 // ========================================================================================
@@ -985,6 +993,7 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
     return dwOldStyle;
 }
 
+
 // ========================================================================================
 // Adds a style from the specified window.
 // - hwnd  = Window handle
@@ -999,6 +1008,7 @@ DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle)
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
     return dwOldStyle;
 }
+
 
 // ========================================================================================
 // Removes an extended style from the specified window.
@@ -1030,6 +1040,7 @@ DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle)
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewStyle);
     return dwOldStyle;
 }
+
 
 // ========================================================================================
 // Sets the width of the specified item of a header control.
@@ -1131,9 +1142,4 @@ std::wstring AfxLower(const std::wstring& wszText)
     transform(s.begin(), s.end(), s.begin(), ::tolower);
     return s;
 }
-
-
-
-
-
 

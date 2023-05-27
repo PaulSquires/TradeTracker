@@ -25,9 +25,9 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Themes.h"
 #include "..\Utilities\AfxWin.h"
 #include "..\Utilities\CWindowBase.h"
+#include "Themes.h"
 
 
 HWND hWndMainWindow = NULL;
@@ -122,7 +122,6 @@ void InitializeLightThemeColors()
 }
 
 
-
 // ========================================================================================
 // Set the current Theme based on it's string name (std::wstring).
 // This value will have been read from the Config file or set via clicking
@@ -142,7 +141,6 @@ void SetThemeName(std::wstring wszTheme)
 }
 
 
-
 // ========================================================================================
 // Get the current Theme name.
 // ========================================================================================
@@ -150,7 +148,6 @@ std::wstring GetThemeName()
 {
 	return AfxTrim(wszThemeName);
 }
-
 
 
 // ========================================================================================
@@ -163,7 +160,6 @@ void SetIsThemeDark(bool isDark)
 }
 
 
-
 // ========================================================================================
 // Set the current IsThemeDark variable. This is used to determine whether
 // to color th application's caption bar using light or dark Windows theme.
@@ -172,7 +168,6 @@ bool GetIsThemeDark()
 {
 	return IsThemeDark;
 }
-
 
 
 // ========================================================================================
@@ -186,7 +181,6 @@ DWORD GetThemeColor(ThemeElement element)
 	// based on the current active theme.
 	return clr[(int)element];
 }
-
 
 
 // ========================================================================================
@@ -204,7 +198,6 @@ COLORREF GetThemeCOLORREF(ThemeElement element)
 }
 
 
-
 // ========================================================================================
 // Save the Window handle of the application's main window so that ApplyActiveTheme
 // can enumerate all child windows in order to apply Theme changes.
@@ -213,7 +206,6 @@ void SetThemeMainWindow(HWND hWndMain)
 {
 	hWndMainWindow = hWndMain;
 }
-
 
 
 // ========================================================================================
@@ -228,13 +220,6 @@ void ApplyActiveTheme()
 {
 	if (!IsInitialized) InitializeDarkThemeColors();
 
-	// Enumerate through all top level and child windows to invalidate
-	// and repaint them with the new current active theme.
-	//if (hWndMainWindow != NULL) {
-//		AfxRedrawWindow(hWndMainWindow);
-	//	EnumChildWindows(hWndMainWindow, EnumWindowsProc, 0);
-	//}
-	
 	if (hWndMainWindow != NULL) {
 		// If we are using a dark theme then attempt to apply the standard Windows dark theme
 		// to the non-client areas of the main form.

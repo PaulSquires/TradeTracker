@@ -61,6 +61,7 @@ std::wstring StrategyButton_GetLongShortEnumText(LongShort ls)
     }
 }
 
+
 // ========================================================================================
 // Get the text for the specified PutCall
 // ========================================================================================
@@ -76,6 +77,7 @@ std::wstring StrategyButton_GetPutCallEnumText(PutCall pc)
         return L"";
     }
 }
+
 
 // ========================================================================================
 // Get the text for the specified Strategy
@@ -219,6 +221,7 @@ void StrategyButton_SetLongShortTextColor(HWND hCtl)
     }
 }
 
+
 // ========================================================================================
 // Set the Short/Long background color.
 // ========================================================================================
@@ -248,6 +251,7 @@ void StrategyButton_ToggleLongShortText(HWND hCtl)
     CustomLabel_SetText(hCtl, wszText);
 }
 
+
 // ========================================================================================
 // Check to see if the currently selected Strategy allows PutCall
 // ========================================================================================
@@ -272,6 +276,7 @@ bool StrategyButton_StrategyAllowPutCall(HWND hCtl)
     }
 }
 
+
 // ========================================================================================
 // Toggle the Put/Call text.
 // ========================================================================================
@@ -289,6 +294,7 @@ void StrategyButton_TogglePutCallText(HWND hCtlPutCall, HWND hCtlStrategy)
     std::wstring wszText = AfxUpper(StrategyButton_GetPutCallEnumText((PutCall)sel));
     CustomLabel_SetText(hCtlPutCall, wszText);
 }
+
 
 // ========================================================================================
 // Toggle through the different Strategies.
@@ -333,10 +339,10 @@ void StrategyButton_InvokeStrategy()
     // Clear/Reset the Trade grid (4 rows)
     for (int i = 0; i < 4; ++i) {
         colStart = i * 7;
-        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // Quantity
-        CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, L"");     // Expiry Date
+        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");       // Quantity
+        CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, L""); // Expiry Date
         CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, L"");     // Expiry Date
-        CustomLabel_SetText(pData->gridCols.at(colStart + 2)->hCtl, L"");   // DTE
+        CustomLabel_SetText(pData->gridCols.at(colStart + 2)->hCtl, L"");     // DTE
         CustomTextBox_SetText(pData->gridCols.at(colStart + 3)->hCtl, L"");   // Strike Price
         CustomLabel_SetText(pData->gridCols.at(colStart + 4)->hCtl, L"");     // Put/Call
         CustomLabel_SetText(pData->gridCols.at(colStart + 5)->hCtl, L"");     // Action
@@ -346,6 +352,7 @@ void StrategyButton_InvokeStrategy()
     // Add the new strategy to the grid
     HWND hCtlDescription = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE);
     std::wstring wszDate = AfxCurrentDate();
+    HWND hCtlQuantity = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTQUANTITY);
 
     HWND hGrid = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
 
@@ -383,6 +390,7 @@ void StrategyButton_InvokeStrategy()
         TradeGrid_CalculateDTE(pData->hWindow);
         wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
         AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
+        CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
 
@@ -417,6 +425,7 @@ void StrategyButton_InvokeStrategy()
         }
         TradeGrid_CalculateDTE(pData->hWindow);
         AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
+        CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
 
@@ -449,6 +458,7 @@ void StrategyButton_InvokeStrategy()
             wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
             AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
         }
+        CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
 
@@ -485,6 +495,7 @@ void StrategyButton_InvokeStrategy()
         TradeGrid_CalculateDTE(pData->hWindow);
         wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
         AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
+        CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
 
@@ -539,6 +550,7 @@ void StrategyButton_InvokeStrategy()
         }
         TradeGrid_CalculateDTE(pData->hWindow);
         AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
+        CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
 
@@ -584,6 +596,7 @@ void StrategyButton_InvokeStrategy()
         }
         TradeGrid_CalculateDTE(pData->hWindow);
         AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
+        CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
 

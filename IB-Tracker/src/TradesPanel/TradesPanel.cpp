@@ -26,10 +26,8 @@ SOFTWARE.
 
 #include "pch.h"
 #include "..\MainWindow\tws-client.h"
-#include "..\Database\trade.h"
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\Utilities\ListBoxData.h"
-#include "..\Themes\Themes.h"
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\TradeDialog\TradeDialog.h"
@@ -491,7 +489,6 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
 }
 
 
-
 // ========================================================================================
 // Create transactions for option assignment for the selected leg.
 // ========================================================================================
@@ -582,7 +579,6 @@ void TradesPanel_OptionAssignment(auto trade)
 
     // Reload the trade list
     TradesPanel_ShowActiveTrades();
-
 }
 
 
@@ -614,7 +610,6 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
 
         delete[] selItems;
     }
-
 }
 
 
@@ -764,6 +759,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
+        return 0;
         break;
     }
 
@@ -790,6 +786,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 
             TradesPanel_RightClickMenu(hWnd, idx);
         }
+        return 0;
     }
     break;
 

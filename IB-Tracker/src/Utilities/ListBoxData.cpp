@@ -27,18 +27,11 @@ SOFTWARE.
 #include "pch.h"
 #include "ListBoxData.h"
 
-#include "..\Utilities\AfxWin.h"
-#include "..\Database\trade.h"
-#include "..\Themes\Themes.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
 #include "..\DailyPanel\DailyPanel.h"
-#include "..\TradeDialog\TradeDialog.h"
-#include "..\MenuPanel\MenuPanel.h"
-
-extern CTradeDialog TradeDialog;
 
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;
@@ -63,7 +56,6 @@ int nHistoryMinColWidth[10] =
     0
 };
 
-
 // We need a maximum column size for the History table because the
 // user may end a very long description and we don't want the column
 // to expand to fit this whole trade description. We will still
@@ -82,7 +74,6 @@ int nHistoryMaxColWidth[10] =
     0
 };
 
-
 int nTradesMinColWidth[10] =
 {
     25,     /* dropdown arrow */
@@ -97,8 +88,6 @@ int nTradesMinColWidth[10] =
     0
 };
 
-
-
 int nClosedMinColWidth[10] =
 {
     15,     /* empty */
@@ -112,7 +101,6 @@ int nClosedMinColWidth[10] =
     0,
     0
 };
-
 
 int nTickerTotalsMinColWidth[10] =
 {

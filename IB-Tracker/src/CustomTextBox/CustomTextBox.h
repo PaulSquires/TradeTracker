@@ -26,11 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Themes\Themes.h"
-#include "..\Utilities\AfxWin.h"
-#include "..\Utilities\UserMessages.h"
-
-
 enum class CustomTextBoxBorder
 {
 	BorderNone,
