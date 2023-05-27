@@ -119,7 +119,7 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     if (IsSelected && AllowSelect)
         nBackColor = GetThemeColor(BackColorSelected);
 
-    if (GetAsyncKeyState(VK_LBUTTON) & 0x01) {
+    if (LButtonDown == true) {
         nBackColor = GetThemeColor(BackColorButtonDown);
     }
 
@@ -447,22 +447,27 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         if (pData) {
             // Allow the label to repaint in case different color has been specified
             // for button down (eg. if label is acting like a button).
+            SetCapture(hWnd);
+            pData->LButtonDown = true;
             AfxRedrawWindow(hWnd);
 
             // We do not set the button IsSelected to true here because we leave it to 
             // the user to decide if after clicking the label whether to set the label
             // to selected or not.
-            SendMessage(pData->hParent, MSG_CUSTOMLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
+            PostMessage(pData->hParent, MSG_CUSTOMLABEL_CLICK, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
         }
         return 0;
         break;
 
 
     case WM_LBUTTONUP:
+    case WM_CAPTURECHANGED:
         if (pData) {
             // Allow the label to repaint in case different color has been specified
             // for button down (eg. if label is acting like a button).
+            pData->LButtonDown = false;
             AfxRedrawWindow(hWnd);
+            ReleaseCapture();
         }
         return 0;
         break;

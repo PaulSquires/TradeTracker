@@ -88,6 +88,7 @@ public:
 	ThemeElement BackColor{};
 	ThemeElement BackColorHot{};
 	ThemeElement BackColorButtonDown{};
+	bool LButtonDown = false;
 
 	// Selection
 	bool AllowSelect = false;
