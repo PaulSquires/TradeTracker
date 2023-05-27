@@ -46,6 +46,7 @@ public:
 
 const int IDC_MAINWINDOW_DARKMODE = 100;
 const int IDC_MAINWINDOW_AUTOCONNECT = 101;
+const int IDC_MAINWINDOW_CATEGORY = 102;
 
 
 void MainWindow_BlurPanels(bool active);

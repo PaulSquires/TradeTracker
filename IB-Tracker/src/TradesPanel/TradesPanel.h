@@ -39,7 +39,7 @@ public:
 
 const int IDC_TRADES_LISTBOX = 100;
 const int IDC_TRADES_LABEL = 101;
-const int IDC_TRADES_CustomVScrollBar = 102;
+const int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 const int IDC_TRADES_HEADER = 103;
 
 const int ACTIVE_TRADES_LISTBOX_ROWHEIGHT = 24;

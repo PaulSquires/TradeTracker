@@ -29,9 +29,11 @@ SOFTWARE.
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\Utilities\ListBoxData.h"
 #include "..\MenuPanel\MenuPanel.h"
+#include "..\MainWindow\MainWindow.h"
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\TradeDialog\TradeDialog.h"
 #include "..\Database\database.h"
+#include "..\Category\Category.h"
 #include "TradesPanel.h"
 
 
@@ -39,6 +41,7 @@ HWND HWND_TRADESPANEL = NULL;
 
 extern std::vector<std::shared_ptr<Trade>> trades;
 
+extern HWND HWND_MAINWINDOW;
 extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_MENUPANEL;
 extern CTradesPanel TradesPanel;
@@ -121,7 +124,7 @@ void TradesPanel_EnsureMainMenuItem()
 void TradesPanel_ShowListBoxItem(int index)
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
 
     ListBox_SetCurSel(hListBox, index);
 
@@ -146,7 +149,7 @@ void TradesPanel_ShowListBoxItem(int index)
 void TradesPanel_ShowActiveTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
@@ -155,8 +158,7 @@ void TradesPanel_ShowActiveTrades()
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
 
-    // newly added/deleted data, rather than here every time we display the
-    // active trades.
+    // In case of newly added/deleted data ensure data is sorted.
     // Sort the trades vector based on ticker symbol
     std::sort(trades.begin(), trades.end(),
         [](const auto trade1, const auto trade2) {
@@ -169,12 +171,22 @@ void TradesPanel_ShowActiveTrades()
     ListBoxData_DestroyItemData(hListBox);
 
 
+    // Get the currently active Category index. By default, this will be ALL categories
+    // but the user may have selected a specific category.
+    int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
+
+
     // Create the new ListBox line data and initiate the new market data.
     int tickerId = 100;
     for (const auto& trade : trades) {
-        // We are displaying only all open trades
+        // We are displaying only all open trades for the selected Category
         if (trade->isOpen) {
-            ListBoxData_OpenPosition(hListBox, trade, tickerId);
+            if (category == 5) {   // ALL categories
+                ListBoxData_OpenPosition(hListBox, trade, tickerId);
+            }
+            else if (trade->category == category) {   // specific selected category
+                ListBoxData_OpenPosition(hListBox, trade, tickerId);
+            }
         }
         tickerId++;
     }
@@ -233,7 +245,7 @@ void TradesPanel_ShowActiveTrades()
 void TradesPanel_ShowClosedTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
@@ -757,7 +769,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CustomVScrollBar);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -940,16 +952,15 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADES_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADES_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR);
         
     int margin = AfxScaleY(TRADESPANEL_MARGIN);
 
-    HDWP hdwp = BeginDeferWindowPos(4);
+    HDWP hdwp = BeginDeferWindowPos(5);
 
     // Move and size the top label into place
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
-
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -1004,7 +1015,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
         ThemeElement::WhiteLight, ThemeElement::Black);
-    
+
     hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradesPanel_Header_SubclassProc,
         IDC_TRADES_HEADER, NULL);
@@ -1033,7 +1044,7 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_TRADES_CustomVScrollBar, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl);
 
     return TRUE;
 }

@@ -38,6 +38,7 @@ SOFTWARE.
 #include "..\DailyPanel\DailyPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
+#include "..\Category\Category.h"
 #include "..\Themes\Themes.h"
 #include "..\Utilities\UserMessages.h"
 #include "..\Config\Config.h"
@@ -203,12 +204,11 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
     
-
-    int MARGIN = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
+    int MARGIN = AfxScaleY(35);
     int INNER_MARGIN = AfxScaleY(6);
     int SPLITTER_WIDTH = AfxScaleX(6);
 
-    HDWP hdwp = BeginDeferWindowPos(5);
+    HDWP hdwp = BeginDeferWindowPos(6);
 
     // Position the left hand side Navigation Panel
     int nLeftPanelWidth = AfxGetWindowWidth(HWND_LEFTPANEL);
@@ -230,16 +230,25 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
+    // Position the Category control
+    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_CATEGORY);
+    int nTop = AfxScaleY(32);
+    int nHeight = AfxScaleY(25);
+    int nWidth = nMiddlePanelWidth; 
+    DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
     // Position the Autoconnect indicator label
-    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_AUTOCONNECT);
-    int nHeight = AfxScaleY(HISTORYPANEL_MARGIN);
-    int nWidth = AfxScaleX(100);
-    DeferWindowPos(hdwp, hCtl, 0, cx - nWidth, cy - nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_AUTOCONNECT);
+    nTop = AfxScaleY(30);
+    nHeight = AfxScaleY(HISTORYPANEL_MARGIN);
+    nWidth = AfxScaleX(100);
+    DeferWindowPos(hdwp, hCtl, 0, cx - nWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the Dark mode indicator label
     hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_DARKMODE);
-    DeferWindowPos(hdwp, hCtl, 0, cx - (nWidth*2), cy - nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    DeferWindowPos(hdwp, hCtl, 0, cx - (nWidth*2), cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     EndDeferWindowPos(hdwp);
@@ -279,6 +288,9 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     DailyPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    // We create the Category control at the bottom of the MainWindow
+    CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);
 
     // Create a label that will display at the very bottom of the Main window
     // that allows toggling Dark Theme on/off. This label is always positioned
@@ -476,6 +488,12 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_STARTUP_SHOWTRADES:
     {
         MainWindow_StartupShowTrades();
+        return 0;
+    }
+
+    case MSG_CATEGORY_CHANGED:
+    {
+        TradesPanel_ShowActiveTrades();
         return 0;
     }
 

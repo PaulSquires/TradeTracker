@@ -33,9 +33,76 @@ SOFTWARE.
 
 
 // ========================================================================================
+// Get the control id of the selected Category in the group.
+// ========================================================================================
+int CategoryControl_GetSelectedId(HWND hwnd)
+{
+    CustomLabel* pData = nullptr;
+
+    for (int i = IDC_CATEGORYCONTROL_FIRST; i <= IDC_CATEGORYCONTROL_LAST; ++i) {
+        HWND hCtl = GetDlgItem(hwnd, i);
+        pData = CustomLabel_GetOptions(hCtl);
+
+        if (pData != nullptr) {
+            if (pData->IsSelected)
+                return i;
+        }
+    }
+    return -1;
+}
+
+
+// ========================================================================================
+// Get the index of the selected Category in the group.
+// ========================================================================================
+int CategoryControl_GetSelectedIndex(HWND hwnd)
+{
+    return CategoryControl_GetSelectedId(hwnd) - IDC_CATEGORYCONTROL_FIRST;
+}
+
+
+// ========================================================================================
+// Select the incoming control id in the Category group.
+// ========================================================================================
+void CategoryControl_SetSelectedId(HWND hwnd, int CtrlId)
+{
+    CustomLabel* pData = nullptr;
+
+    for (int i = IDC_CATEGORYCONTROL_FIRST; i <= IDC_CATEGORYCONTROL_LAST; ++i) {
+        HWND hCtl = GetDlgItem(hwnd, i);
+        pData = CustomLabel_GetOptions(hCtl);
+
+        if (pData != nullptr) {
+            pData->IsSelected = false;
+            CustomLabel_SetOptions(hCtl, pData);
+        }
+    }
+
+    HWND hCtl = GetDlgItem(hwnd, CtrlId);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData != nullptr) {
+        pData->IsSelected = true;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+    AfxRedrawWindow(hwnd);
+}
+
+
+// ========================================================================================
+// Select the incoming index in the Category group.
+// ========================================================================================
+void CategoryControl_SetSelectedIndex(HWND hwnd, int index)
+{
+    int CtrlId = index + IDC_CATEGORYCONTROL_FIRST;
+    CategoryControl_SetSelectedId(hwnd, CtrlId);
+}
+
+
+// ========================================================================================
 // Create child controls for the Window.
 // ========================================================================================
-void CategoryControl_OnCreate(HWND hwnd)
+void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
 {
     HWND hCtl = NULL;
 
@@ -43,6 +110,28 @@ void CategoryControl_OnCreate(HWND hwnd)
     int nLeft = 0;
 
     CustomLabel* pData = nullptr;
+
+    if (AllowAllButton == true) {
+        hCtl = CreateCustomLabel(
+            hwnd,
+            IDC_CATEGORYCONTROL_ALL,
+            CustomLabelType::TextOnly,
+            nLeft, 0, 24, 24);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (pData) {
+            pData->BackColor = ThemeElement::GrayMedium;
+            pData->SelectorColor = pData->BackColor;
+            pData->TextColor = ThemeElement::WhiteDark;
+            pData->BackColorHot = ThemeElement::GrayLight;
+            pData->BackColorButtonDown = ThemeElement::GrayMedium;
+            pData->wszText = L"ALL";
+            pData->wszToolTip = L"All Categories";
+            pData->HotTestEnable = true;
+            pData->PointerHot = CustomLabelPointer::Hand;
+            CustomLabel_SetOptions(hCtl, pData);
+        }
+        nLeft += 24 + margin;
+    }
 
     hCtl = CreateCustomLabel(
         hwnd,
@@ -151,73 +240,6 @@ void CategoryControl_OnCreate(HWND hwnd)
 
 
 // ========================================================================================
-// Get the control id of the selected Category in the group.
-// ========================================================================================
-int CategoryControl_GetSelectedId(HWND hwnd)
-{
-    CustomLabel* pData = nullptr;
-
-    for (int i = IDC_CATEGORYCONTROL_FIRST; i <= IDC_CATEGORYCONTROL_LAST; ++i) {
-        HWND hCtl = GetDlgItem(hwnd, i);
-        pData = CustomLabel_GetOptions(hCtl);
-
-        if (pData != nullptr) {
-            if (pData->IsSelected)
-                return i;
-        }
-    }
-    return -1;
-}
-
-
-// ========================================================================================
-// Get the index of the selected Category in the group.
-// ========================================================================================
-int CategoryControl_GetSelectedIndex(HWND hwnd)
-{
-    return CategoryControl_GetSelectedId(hwnd) - IDC_CATEGORYCONTROL_FIRST;
-}
-
-
-// ========================================================================================
-// Select the incoming control id in the Category group.
-// ========================================================================================
-void CategoryControl_SetSelectedId(HWND hwnd, int CtrlId)
-{
-    CustomLabel* pData = nullptr;
-
-    for (int i = IDC_CATEGORYCONTROL_FIRST; i <= IDC_CATEGORYCONTROL_LAST; ++i) {
-        HWND hCtl = GetDlgItem(hwnd, i);
-        pData = CustomLabel_GetOptions(hCtl);
-
-        if (pData != nullptr) {
-            pData->IsSelected = false;
-            CustomLabel_SetOptions(hCtl, pData);
-        }
-    }
-
-    HWND hCtl = GetDlgItem(hwnd, CtrlId);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData != nullptr) {
-        pData->IsSelected = true;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-    AfxRedrawWindow(hwnd);
-}
-
-
-// ========================================================================================
-// Select the incoming index in the Category group.
-// ========================================================================================
-void CategoryControl_SetSelectedIndex(HWND hwnd, int index)
-{
-    int CtrlId = index + IDC_CATEGORYCONTROL_FIRST;
-    CategoryControl_SetSelectedId(hwnd, CtrlId);
-}
-
-
-// ========================================================================================
 // Windows message callback for the custom Category control.
 // ========================================================================================
 LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -239,6 +261,7 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         if (hCtl == NULL) return 0;
 
         CategoryControl_SetSelectedId(hWnd, CtrlId);
+        SendMessage(pData->hParent, MSG_CATEGORY_CHANGED, CtrlId, 0);
         return 0;
     }
     break;
@@ -344,7 +367,7 @@ int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData)
 HWND CreateCategoryControl(
     HWND hWndParent,
     int CtrlId,
-    int nLeft, int nTop, int nWidth, int nHeight)
+    int nLeft, int nTop, int nWidth, int nHeight, bool AllowAllButton)
 {
     std::wstring wszClassName(L"CATEGORYCONTROL_CONTROL");
 
@@ -375,7 +398,7 @@ HWND CreateCategoryControl(
         CreateWindowEx(0, wszClassName.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), 
-            (int)(nWidth * rx), (int)(nHeight * ry) + AfxScaleY(2),   // add room for underline
+            (int)(nWidth * rx), (int)((nHeight + 2) * ry),   // add room for underline
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
@@ -384,13 +407,18 @@ HWND CreateCategoryControl(
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
         pData->CtrlId = CtrlId;
-        pData->BackColor = ThemeElement::GrayDark;
+        pData->BackColor = (AllowAllButton == true) ? ThemeElement::Black : ThemeElement::GrayDark;
 
         CategoryControl_SetOptions(hCtl, pData);
 
-        CategoryControl_OnCreate(hCtl);
-        CategoryControl_SetSelectedIndex(hCtl, 0);
+        CategoryControl_OnCreate(hCtl, AllowAllButton);
 
+        if (AllowAllButton) {
+            CategoryControl_SetSelectedId(hCtl, IDC_CATEGORYCONTROL_ALL);
+        }
+        else {
+            CategoryControl_SetSelectedId(hCtl, IDC_CATEGORYCONTROL_GRAY);
+        }
     }
 
     return hCtl;

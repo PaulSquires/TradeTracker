@@ -796,7 +796,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // CATEGORY SELECTOR
     if (IsNewOptionsTradeAction(tradeAction) == true ||
         IsNewSharesTradeAction(tradeAction) == true) {
-        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23);
+        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23, false);
     }
 }
 
