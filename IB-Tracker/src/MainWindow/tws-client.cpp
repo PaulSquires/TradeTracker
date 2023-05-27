@@ -325,7 +325,7 @@ void TwsClient::requestMktData(ListBoxData* ld)
 		contract.secType = "STK";
 		contract.currency = "USD";
 		contract.exchange = "SMART";
-		contract.primaryExchange = "ISLAND";
+		contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
 	}
 
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
