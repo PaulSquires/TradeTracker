@@ -28,106 +28,37 @@ SOFTWARE.
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\MainWindow\MainWindow.h"
-#include "..\HistoryPanel\HistoryPanel.h"
 #include "..\Utilities\ListBoxData.h"
 
-#include "TransPanel.h"
+#include "TransDetail.h"
 
 
-HWND HWND_TRANSPANEL = NULL;
+HWND HWND_TRANSDETAIL = NULL;
 
 //extern std::vector<std::shared_ptr<Trade>> trades;
 
-extern CTransPanel TransPanel;
+extern CTransDetail TransDetail;
 
 extern HWND HWND_MAINWINDOW;
-extern HWND HWND_HISTORYPANEL;
-extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 
-void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
+void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
-
-// ========================================================================================
-// Display the selected Transaction history (legs) and ability to Edit/Delete it.
-// ========================================================================================
-void TransPanel_ShowTransactionHistory(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
-{
-    // Clear the current transaction history table
-    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
-    ListBoxData_DestroyItemData(hListBox);
-
-    ListBoxData_HistoryHeader(hListBox, trade, trans);
-
-    //CustomLabel_SetText(
-    //    GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
-    //    ld->trade->tickerSymbol + L": " + ld->trade->tickerName);
-    CustomLabel_SetText(
-        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
-        L"Transaction Details");
-
-    // Show the detail leg information for this transaction.
-    for (const auto& leg : trans->legs) {
-        if (leg->underlying == L"OPTIONS") { ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); }
-        else if (leg->underlying == L"SHARES") { ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg); }
-        else if (leg->underlying == L"FUTURES") {
-            ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
-        }
-    }
-    
-    ListBoxData_HistoryBlankLine(hListBox);
-
-    // Calculate the actual column widths based on the size of the strings in
-    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    // This function is also called when receiving new price data from TWS because
-    // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
-
-
-    // Set the ListBox to the topline.
-    ListBox_SetTopIndex(hListBox, 0);
-
-}
-
-
-// ========================================================================================
-// Central function that actually selects and displays the incoming ListBox index item.
-// ========================================================================================
-void TransPanel_ShowListBoxItem(int index)
-{
-    HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
-
-    ListBox_SetCurSel(hListBox, index);
-
-    //  update the scrollbar position if necessary
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
-
-    // Get the current line to determine if a valid Trade pointer exists so that we
-    // can show the trade history.
-    if (index > -1) {
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
-        if (ld != nullptr)
-            TransPanel_ShowTransactionHistory(ld->trade, ld->trans);
-    }
-
-    SetFocus(hListBox);
-}
 
 
 // ========================================================================================
 // Populate the Transaction ListBox with the transactions per the user selected dates.
 // ========================================================================================
-void TransPanel_ShowTransactions()
+void TransDetail_ShowTransactions()
 {
+
+/*
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
 
-    // Ensure that the Transactions panel and History Panel are set
+    // Ensure that the Transactions panel is set
     MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
-    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
 
     // Hide the Category control
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
@@ -137,19 +68,12 @@ void TransPanel_ShowTransactions()
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
 
-    struct TransData {
-        std::shared_ptr<Trade> trade;
-        std::shared_ptr<Transaction> trans;
-    };
-    std::vector<TransData> tdata;
-    tdata.reserve(2000);    // reserve space for 2000 transactions
+    std::vector<std::shared_ptr<Transaction>> transactions;
+    transactions.reserve(2000);    // reserve space for 2000 transactions
 
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
-            TransData td;
-            td.trade = trade;
-            td.trans = trans;
-            tdata.push_back(td);
+            transactions.push_back(trans);
         }
     }
 
@@ -166,8 +90,8 @@ void TransPanel_ShowTransactions()
 
 
     // Create the new Listbox data that will display for the Transactions
-    for (const auto& td: tdata) {
-        ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
+    for (const auto& trans : transactions) {
+        ListBoxData_OutputTransaction(hListBox, trans);
     }
 
 
@@ -188,62 +112,15 @@ void TransPanel_ShowTransactions()
     AfxRedrawWindow(hListBox);
 
 
-    // If transactions exist then select the first transaction so that its detail will show
-    if (ListBox_GetCount(hListBox)) {
-        TransPanel_ShowListBoxItem(0);
-    }
-    else {
-        ListBoxData_HistoryBlankLine(hListBox);
-    }
-
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
-}
-
-
-
-// ========================================================================================
-// Header control subclass Window procedure
-// ========================================================================================
-LRESULT CALLBACK TransPanel_Header_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
-    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-{
-    switch (uMsg)
-    {
-
-    case WM_ERASEBKGND:
-    {
-        return TRUE;
-    }
-
-
-    case WM_PAINT:
-    {
-        Header_OnPaint(hWnd);
-        return 0;
-        break;
-    }
-
-
-    case WM_DESTROY:
-
-        // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransPanel_Header_SubclassProc, uIdSubclass);
-        break;
-
-
-    }   // end of switch statment
-
-    // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
+*/
 }
 
 
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
+LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -274,7 +151,7 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -289,14 +166,6 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
 
     case WM_LBUTTONDOWN:
     {
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-        // if the specified point is in the client area of the list box, or one if it is outside the 
-        // client area.
-        if (HIWORD(idx) == -1) break;
-
-        // Show the Transaction detail for the selected line.
-        TransPanel_ShowListBoxItem(idx);
     }
     break;
 
@@ -350,7 +219,7 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
         ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransPanel_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, TransDetail_ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -364,18 +233,18 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: TransPanel
+// Process WM_MEASUREITEM message for window/dialog: TransDetail
 // ========================================================================================
-void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(TRANSACTIONS_LISTBOX_ROWHEIGHT);
+    lpMeasureItem->itemHeight = AfxScaleY(TRANSACTIONS_DETAIL_LISTBOX_ROWHEIGHT);
 }
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: TransPanel
+// Process WM_ERASEBKGND message for window/dialog: TransDetail
 // ========================================================================================
-BOOL TransPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -383,9 +252,9 @@ BOOL TransPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: TransPanel
+// Process WM_PAINT message for window/dialog: TransDetail
 // ========================================================================================
-void TransPanel_OnPaint(HWND hwnd)
+void TransDetail_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -408,10 +277,12 @@ void TransPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TransPanel
+// Process WM_SIZE message for window/dialog: TransDetail
 // ========================================================================================
-void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
+
+/*
     HWND hHeader = GetDlgItem(hwnd, IDC_TRANS_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR);
@@ -458,20 +329,22 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
+*/
 }
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: TransPanel
+// Process WM_CREATE message for window/dialog: TransDetail
 // ========================================================================================
-BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_TRANSPANEL = hwnd;
+    HWND_TRANSDETAIL = hwnd;
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"Transactions",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL, L"Transaction Details",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
-    hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
+/*
+    hCtl = TransDetail.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TransPanel_Header_SubclassProc,
         IDC_TRANS_HEADER, NULL);
     int nWidth = AfxScaleX(50);
@@ -502,46 +375,33 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR, hCtl);
+*/
 
     return TRUE;
 }
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: TransPanel
+// Process WM_COMMAND message for window/dialog: TransDetail
 // ========================================================================================
-void TransPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void TransDetail_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    switch (codeNotify)
-    {
-
-    case (LBN_SELCHANGE):
-        int nCurSel = ListBox_GetCurSel(hwndCtl);
-        if (nCurSel == -1) break;
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
-        if (ld != nullptr) {
-            // Show the transaction detail for the selected transaction
-            TransPanel_ShowListBoxItem(nCurSel);
-        }
-        break;
-
-    }
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, TransPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, TransPanel_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransPanel_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TransPanel_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TransPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransPanel_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, TransDetail_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, TransDetail_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDetail_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, TransDetail_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, TransDetail_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDetail_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

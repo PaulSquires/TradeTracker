@@ -31,6 +31,7 @@ SOFTWARE.
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
+#include "..\TransPanel\TransPanel.h"
 #include "..\DailyPanel\DailyPanel.h"
 
 extern HWND HWND_MENUPANEL;
@@ -38,6 +39,7 @@ extern HWND HWND_TRADESPANEL;
 extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_TICKERPANEL;
 extern HWND HWND_DAILYPANEL;
+extern HWND HWND_TRANSPANEL;
 extern HWND HWND_TRADEDIALOG;
 
 
@@ -98,6 +100,20 @@ int nClosedMinColWidth[10] =
     0,     
     0,     
     0,     
+    0,
+    0
+};
+
+int nTransMinColWidth[10] =
+{
+    15,     /* empty */
+    65,     /* Transaction Date */
+    50,     /* Ticker Symbol */
+    100,    /* Transaction Description */
+    30,     /* Quantity */
+    70,     /* Price */
+    70,     /* Fees */
+    70,     /* Total */
     0,
     0
 };
@@ -220,6 +236,10 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         case TableType::TradeTemplates:
             nColWidth[i] = nTradeTemplatesMinColWidth[i];
             break;
+
+        case TableType::Transactions:
+            nColWidth[i] = nTransMinColWidth[i];
+            break;
             
         }
     }
@@ -297,6 +317,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_HEADER_TOTALS);
     if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_HEADER_SUMMARY);
     if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_HEADER_TOTALS);
+    if (tabletype == TableType::Transactions) hHeader = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_HEADER);
     
     if (hHeader) {
         for (int i = 0; i < 10; i++) {
@@ -706,6 +727,48 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
 
     ThemeElement clr = (trade->ACB >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(4, trade, tickerId, AfxMoney(trade->ACB), StringAlignmentFar, StringAlignmentCenter,
+        ThemeElement::GrayDark, clr, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+}
+
+
+// ========================================================================================
+// Create the display data line for a Transaction.
+// ========================================================================================
+void ListBoxData_OutputTransaction(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    ld->trans = trans;
+
+    ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
+
+    ld->SetData(1, trade, tickerId, trans->transDate, StringAlignmentNear, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
+
+    ld->SetData(2, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
+
+    ld->SetData(3, trade, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
+
+    ld->SetData(4, trade, tickerId, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
+
+    ld->SetData(5, trade, tickerId, AfxMoney(trans->price), StringAlignmentFar, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
+
+    ld->SetData(6, trade, tickerId, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
+
+    ThemeElement clr = (trans->total >= 0) ? ThemeElement::Green : ThemeElement::Red;
+    ld->SetData(7, trade, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);

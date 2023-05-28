@@ -35,6 +35,7 @@ SOFTWARE.
 //  between them by iterating the vector and testing the isOpen() boolean method.
 //
 
+
 class Leg
 {
 public:
@@ -52,9 +53,9 @@ public:
 class Transaction
 {
 public:
-    std::wstring  underlying  = L"";    // OPTIONS,STOCKS,FUTURES,CURRENCY,COMMODITIES
-    std::wstring  description = L"";    // Iron Condor, Strangle, Roll, Expired, Closed, Exercised, etc
-    std::wstring  transDate   = L"";    // YYYY-MM-DD
+    std::wstring  underlying  = L"";      // OPTIONS,STOCKS,FUTURES,CURRENCY,COMMODITIES
+    std::wstring  description = L"";      // Iron Condor, Strangle, Roll, Expired, Closed, Exercised, etc
+    std::wstring  transDate   = L"";      // YYYY-MM-DD
     int           quantity    = 0;
     double        price       = 0;
     double        multiplier  = 0;

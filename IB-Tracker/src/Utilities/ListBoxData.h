@@ -63,8 +63,9 @@ public:
     std::wstring    DailyTotalsDate;
     std::wstring    AggregateShares;
     TickerId        tickerId = -1;
-    std::shared_ptr<Trade> trade;
-    std::shared_ptr<Leg> leg;
+    std::shared_ptr<Trade> trade = nullptr;
+    std::shared_ptr<Transaction> trans = nullptr;
+    std::shared_ptr<Leg> leg = nullptr;
     ColumnData      col[10];
 
 
@@ -105,7 +106,8 @@ enum class TableType
     DailyTotals,
     DailyTotalsSummary,
     TradeTemplates,
-    TradeManagement
+    TradeManagement,
+    Transactions
 };
 
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
@@ -124,6 +126,7 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
 void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
 void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
+void ListBoxData_OutputTransaction(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
 void Header_OnPaint(HWND hWnd);
 
