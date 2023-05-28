@@ -31,12 +31,13 @@ SOFTWARE.
 #include "..\MainWindow\tws-client.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\ClosedPanel\ClosedPanel.h"
 #include "..\TradeDialog\TradeDialog.h"
 #include "..\Utilities\ListBoxData.h"
 #include "MenuPanel.h"
 
 extern void TradesPanel_ShowActiveTrades();
-extern void TradesPanel_ShowClosedTrades();
+extern void ClosedPanel_ShowClosedTrades();
 extern void TickerPanel_ShowTickerTotals();
 extern void TransPanel_ShowTransactions();
 extern void DailyPanel_ShowDailyTotals(const ListBoxData* ld);
@@ -474,7 +475,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_CLOSEDTRADES:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradesPanel_ShowClosedTrades();
+                ClosedPanel_ShowClosedTrades();
                 break;
             }
 

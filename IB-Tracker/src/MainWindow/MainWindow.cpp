@@ -35,6 +35,7 @@ SOFTWARE.
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\ClosedPanel\ClosedPanel.h"
 #include "..\TransPanel\TransPanel.h"
 #include "..\DailyPanel\DailyPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
@@ -54,6 +55,7 @@ CMainWindowShadow Shadow;
 CMenuPanel        MenuPanel;
 CHistoryPanel     HistoryPanel;
 CTradesPanel      TradesPanel;
+CClosedPanel      ClosedPanel;
 CTickerPanel      TickerPanel;
 CDailyPanel       DailyPanel;
 CTransPanel       TransPanel;
@@ -307,6 +309,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
+    ClosedPanel.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
     TickerPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
@@ -318,6 +324,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     TransPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
 
     // We create the Category control at the bottom of the MainWindow
     CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);

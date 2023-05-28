@@ -26,72 +26,105 @@ SOFTWARE.
 
 #include "pch.h"
 #include "..\CustomLabel\CustomLabel.h"
-#include "..\CustomVScrollBar\CustomVScrollBar.h"
-#include "..\MainWindow\MainWindow.h"
 #include "..\Utilities\ListBoxData.h"
+#include "..\MainWindow\MainWindow.h"
+#include "..\CustomVScrollBar\CustomVScrollBar.h"
+#include "..\Database\database.h"
 
-#include "TransDetail.h"
+#include "ClosedPanel.h"
 
 
-HWND HWND_TRANSDETAIL = NULL;
+HWND HWND_CLOSEDPANEL = NULL;
 
-//extern std::vector<std::shared_ptr<Trade>> trades;
-
-extern CTransDetail TransDetail;
+extern std::vector<std::shared_ptr<Trade>> trades;
 
 extern HWND HWND_MAINWINDOW;
-extern void MainWindow_SetRightPanel(HWND hPanel);
+extern HWND HWND_HISTORYPANEL;
+extern HWND HWND_MENUPANEL;
 
-void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy);
+extern CClosedPanel ClosedPanel;
+
+extern void MainWindow_SetMiddlePanel(HWND hPanel);
+extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 
 
 
 // ========================================================================================
-// Populate the Transaction ListBox with the transactions per the user selected dates.
+// Central function that actually selects and displays the incoming ListBox index item.
 // ========================================================================================
-void TransDetail_ShowTransactions()
+void ClosedPanel_ShowListBoxItem(int index)
 {
+    HWND hListBox = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
-/*
-    HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
+    ListBox_SetCurSel(hListBox, index);
+
+    //  update the scrollbar position if necessary
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+
+    // Get the current line to determine if a valid Trade pointer exists so that we
+    // can show the trade history.
+    if (index > -1) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
+        if (ld != nullptr)
+            HistoryPanel_ShowTradesHistoryTable(ld->trade);
+    }
+
+    SetFocus(hListBox);
+}
 
 
-    // Ensure that the Transactions panel is set
-    MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
-
-    // Hide the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
+// ========================================================================================
+// Populate the ListBox with the closed trades
+// ========================================================================================
+void ClosedPanel_ShowClosedTrades()
+{
+    HWND hListBox = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_CUSTOMVSCROLLBAR);
+    HWND hLabel = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_LABEL);
 
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
 
-    std::vector<std::shared_ptr<Transaction>> transactions;
-    transactions.reserve(2000);    // reserve space for 2000 transactions
+    struct ClosedData {
+        std::wstring closedDate;
+        std::shared_ptr<Trade> trade;
+    };
+
+    std::vector<ClosedData> vectorClosed;
+    vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
 
     for (auto& trade : trades) {
-        for (auto& trans : trade->transactions) {
-            transactions.push_back(trans);
+        if (!trade->isOpen) {
+            ClosedData data;
+
+            // Iterate the transactions to find the latest closed date
+            for (auto& trans : trade->transactions) {
+                if (trans->transDate > data.closedDate) {
+                    data.closedDate = trans->transDate;
+                }
+            }
+            data.trade = trade;
+            vectorClosed.push_back(data);
         }
     }
 
 
-    // Sort the vector based on most recent date
-    //std::sort(transactions.begin(), transactions.end(),
-    //    [](const Transaction data1, const Transaction data2) {
-    //        return (data1.transDate > data2.transDate) ? true : false;
-    //    });
-
-
-    // Clear the current table
+    // Destroy any existing ListBox line data
     ListBoxData_DestroyItemData(hListBox);
 
 
-    // Create the new Listbox data that will display for the Transactions
-    for (const auto& trans : transactions) {
-        ListBoxData_OutputTransaction(hListBox, trans);
+    // Sort the closed vector based on trade closed date
+    std::sort(vectorClosed.begin(), vectorClosed.end(),
+        [](const ClosedData data1, const ClosedData data2) {
+            return (data1.closedDate > data2.closedDate) ? true : false;
+        });
+
+
+    for (const auto& ClosedData : vectorClosed) {
+        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
     }
 
 
@@ -99,11 +132,11 @@ void TransDetail_ShowTransactions()
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::Transactions, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::ClosedTrades, -1);
 
 
-    // Set the ListBox to the topline.
-    ListBox_SetTopIndex(hListBox, 0);
+    // Set the label text indicated the type of trades being listed
+    CustomLabel_SetText(hLabel, L"Closed Trades");
 
 
     // Redraw the ListBox to ensure that any recalculated columns are 
@@ -112,15 +145,68 @@ void TransDetail_ShowTransactions()
     AfxRedrawWindow(hListBox);
 
 
+    // If closed trades exist then select the first trade so that its history will show
+    if (ListBox_GetCount(hListBox)) {
+        ClosedPanel_ShowListBoxItem(0);
+    }
+    else {
+        ListBoxData_HistoryBlankLine(hListBox);
+    }
+
+    // Ensure that the Closed panel is set
+    MainWindow_SetMiddlePanel(HWND_CLOSEDPANEL);
+
+    // Hide the Category control
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
+
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
-*/
+
+}
+
+
+// ========================================================================================
+// Header control subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK ClosedPanel_Header_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
+
+
+    case WM_PAINT:
+    {
+        Header_OnPaint(hWnd);
+        return 0;
+        break;
+    }
+
+
+    case WM_DESTROY:
+
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, ClosedPanel_Header_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
 }
 
 
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
+LRESULT CALLBACK ClosedPanel_ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -151,21 +237,22 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
     }
 
 
-    case WM_RBUTTONDOWN:
-    {
-    }
-    break;
-
-
     case WM_LBUTTONDOWN:
     {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == -1) break;
+
+        ClosedPanel_ShowListBoxItem(idx);
     }
     break;
 
@@ -219,7 +306,7 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
         ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransDetail_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, ClosedPanel_ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -233,18 +320,18 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: TransDetail
+// Process WM_MEASUREITEM message for window/dialog: ClosedPanel
 // ========================================================================================
-void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+void ClosedPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(TRANSACTIONS_DETAIL_LISTBOX_ROWHEIGHT);
+    lpMeasureItem->itemHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
 }
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: TransDetail
+// Process WM_ERASEBKGND message for window/dialog: ClosedPanel
 // ========================================================================================
-BOOL TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL ClosedPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -252,9 +339,9 @@ BOOL TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: TransDetail
+// Process WM_PAINT message for window/dialog: ClosedPanel
 // ========================================================================================
-void TransDetail_OnPaint(HWND hwnd)
+void ClosedPanel_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -277,22 +364,20 @@ void TransDetail_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TransDetail
+// Process WM_SIZE message for window/dialog: ClosedPanel
 // ========================================================================================
-void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void ClosedPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
+    HWND hHeader = GetDlgItem(hwnd, IDC_CLOSED_HEADER);
+    HWND hListBox = GetDlgItem(hwnd, IDC_CLOSED_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
-/*
-    HWND hHeader = GetDlgItem(hwnd, IDC_TRANS_HEADER);
-    HWND hListBox = GetDlgItem(hwnd, IDC_TRANS_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR);
-
-    int margin = AfxScaleY(TRANSPANEL_MARGIN);
+    int margin = AfxScaleY(CLOSEDPANEL_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
     // Move and size the top label into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LABEL), 0,
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LABEL), 0,
         0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
@@ -314,10 +399,11 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nLeft = 0;
     int nTop = margin;
     int nWidth = cx;
-    int nHeight = AfxScaleY(TRANSACTIONS_LISTBOX_ROWHEIGHT);
+    int nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
 
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
+
 
     nWidth = cx - CustomVScrollBarWidth;
     nHeight = cy - nTop;
@@ -329,79 +415,88 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
         SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
-*/
 }
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: TransDetail
+// Process WM_CREATE message for window/dialog: ClosedPanel
 // ========================================================================================
-BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL ClosedPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_TRANSDETAIL = hwnd;
+    HWND_CLOSEDPANEL = hwnd;
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL, L"Transaction Details",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LABEL, L"Closed Trades",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
-/*
-    hCtl = TransDetail.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
-        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TransPanel_Header_SubclassProc,
-        IDC_TRANS_HEADER, NULL);
+    hCtl = ClosedPanel.AddControl(Controls::Header, hwnd, IDC_CLOSED_HEADER, L"",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ClosedPanel_Header_SubclassProc,
+        IDC_CLOSED_HEADER, NULL);
     int nWidth = AfxScaleX(50);
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
     Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Description", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Quantity", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 5, nWidth, L"Price", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 6, nWidth, L"Fees", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 7, nWidth, L"Total", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 
 
-    // Create an Ownerdraw listbox that we will use to custom paint our transactions.
+    // Create an Ownerdraw fixed row sized listbox that we will use to custom
+    // paint our various closed trades.
     hCtl =
-        TransPanel.AddControl(Controls::ListBox, hwnd, IDC_TRANS_LISTBOX, L"",
+        ClosedPanel.AddControl(Controls::ListBox, hwnd, IDC_CLOSED_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_MULTIPLESEL | LBS_EXTENDEDSEL |
             LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)TransPanel_ListBox_SubclassProc,
-            IDC_TRANS_LISTBOX, NULL);
+            (SUBCLASSPROC)ClosedPanel_ListBox_SubclassProc,
+            IDC_CLOSED_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
 
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR, hCtl);
-*/
+    CreateCustomVScrollBar(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR, hCtl);
 
     return TRUE;
 }
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: TransDetail
+// Process WM_COMMAND message for window/dialog: ClosedPanel
 // ========================================================================================
-void TransDetail_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void ClosedPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
+    switch (codeNotify)
+    {
+
+    case (LBN_SELCHANGE):
+        int nCurSel = ListBox_GetCurSel(hwndCtl);
+        if (nCurSel == -1) break;
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
+        if (ld != nullptr) {
+            // Show the trade history for the selected trade
+            ClosedPanel_ShowListBoxItem(nCurSel);
+        }
+        break;
+
+    }
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CClosedPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, TransDetail_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, TransDetail_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDetail_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TransDetail_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TransDetail_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDetail_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, ClosedPanel_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, ClosedPanel_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, ClosedPanel_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, ClosedPanel_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, ClosedPanel_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, ClosedPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

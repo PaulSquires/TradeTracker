@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include "..\MainWindow\tws-client.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\ClosedPanel\ClosedPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
 #include "..\TransPanel\TransPanel.h"
@@ -36,6 +37,7 @@ SOFTWARE.
 
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;
+extern HWND HWND_CLOSEDPANEL;
 extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_TICKERPANEL;
 extern HWND HWND_DAILYPANEL;
@@ -313,7 +315,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
     // Update the widths of any associated Header control. 
     HWND hHeader = NULL;
-    if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_HEADER);
+    if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_HEADER);
     if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_HEADER_TOTALS);
     if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_HEADER_SUMMARY);
     if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_HEADER_TOTALS);

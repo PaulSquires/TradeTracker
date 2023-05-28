@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "..\Utilities\CWindowBase.h"
+#include "..\Utilities\UserMessages.h"
 
 
 class CTradesPanel : public CWindowBase<CTradesPanel>
@@ -43,7 +44,6 @@ const int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 const int IDC_TRADES_HEADER = 103;
 
 const int ACTIVE_TRADES_LISTBOX_ROWHEIGHT = 24;
-const int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
 const int TRADESPANEL_MARGIN = 24;
 
 
@@ -57,32 +57,6 @@ const int COLUMN_TICKER_CHANGE       = 5;    // price change
 const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
 const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
-
-// Various actions that can be performed on selected Trade or Legs.
-// TODO: Need to add logic to handle share assignments.
-// TODO: Add default multipliers for known futures contracts.
-enum class TradeAction
-{
-    NewOptionsTrade,
-    NewSharesTrade,
-    NewFuturesTrade,
-    ManageShares,
-    ManageFutures,
-    RollLeg,
-    CloseLeg,
-    ExpireLeg,
-    Assignment,
-    AddOptionsToTrade,
-    AddSharesToTrade,
-    AddFuturesToTrade,
-    AddPutToTrade,
-    AddCallToTrade,
-    NewIronCondor,
-    NewShortStrangle,
-    NewShortPut,
-    NewShortCall,
-    NoAction
-};
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);

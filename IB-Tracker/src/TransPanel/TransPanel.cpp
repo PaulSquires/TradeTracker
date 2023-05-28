@@ -36,8 +36,6 @@ SOFTWARE.
 
 HWND HWND_TRANSPANEL = NULL;
 
-//extern std::vector<std::shared_ptr<Trade>> trades;
-
 extern CTransPanel TransPanel;
 
 extern HWND HWND_MAINWINDOW;
@@ -125,14 +123,6 @@ void TransPanel_ShowTransactions()
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
 
-    // Ensure that the Transactions panel and History Panel are set
-    MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
-    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
-
-    // Hide the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
-
-
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
@@ -195,6 +185,13 @@ void TransPanel_ShowTransactions()
     else {
         ListBoxData_HistoryBlankLine(hListBox);
     }
+
+    // Ensure that the Transactions panel and History Panel are set
+    MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
+    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
+
+    // Hide the Category control
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 }

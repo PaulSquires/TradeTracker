@@ -56,13 +56,6 @@ std::shared_ptr<Trade> tradeEdit;
 std::wstring sharesAggregateEdit = L"0";
 
 
-
-// Variable to hold which Trades listbox is showing data (Active Trades or
-// Closed Trades). Need this to ensure that the correct Menu item remains
-// active when a listbox line is clicked on.
-bool IsActiveTradesVisible = true;
-
-
 // ========================================================================================
 // Returns True/False if incoming Trade action is consider a "New" Options type of action.
 // ========================================================================================
@@ -95,25 +88,6 @@ bool IsNewSharesTradeAction(TradeAction action)
         return true;
     default:
         return false;
-    }
-}
-
-
-// ========================================================================================
-// Ensure that the correct MainMenu is selected. Necessary to ensure that when the right
-// click menu is shown that the MainMenu item has already been correctly set.
-// ========================================================================================
-void TradesPanel_EnsureMainMenuItem()
-{
-    // Ensure that the correct Menu item is selected
-    int activeTable = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
-    if (IsActiveTradesVisible) {
-        if (activeTable != IDC_MENUPANEL_ACTIVETRADES)
-            MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES);
-    }
-    else {
-        if (activeTable != IDC_MENUPANEL_CLOSEDTRADES)
-            MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_CLOSEDTRADES);
     }
 }
 
@@ -153,13 +127,6 @@ void TradesPanel_ShowActiveTrades()
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
-
-    // Ensure that the Trades panel is set
-    MainWindow_SetMiddlePanel(HWND_TRADESPANEL);
-
-    
-    // Show the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -215,12 +182,6 @@ void TradesPanel_ShowActiveTrades()
     CustomLabel_SetText(hLabel, L"Active Trades");
 
 
-    // Need to force a resize of the TradesPanel in order to properly show (or not show) 
-    // and position the Header control.
-    RECT rc; GetClientRect(HWND_TRADESPANEL, &rc);
-    TradesPanel_OnSize(HWND_TRADESPANEL, 0, rc.right, rc.bottom);
-
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
@@ -235,159 +196,18 @@ void TradesPanel_ShowActiveTrades()
     }
     
 
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+    // Ensure that the Trades panel is set
+    MainWindow_SetMiddlePanel(HWND_TRADESPANEL);
 
-    IsActiveTradesVisible = true;
+    // Show the Category control
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
+
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     tws_ResumeTWS();
 
     // Start getting the price data for all of the tickers
     ListBoxData_RequestMarketData(hListBox);
-
-}
-
-
-// ========================================================================================
-// Populate the ListBox with the closed trades
-// ========================================================================================
-void TradesPanel_ShowClosedTrades()
-{
-    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
-    HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
-
-    tws_PauseTWS();
-
-    // Ensure that the Trades panel is set
-    MainWindow_SetMiddlePanel(HWND_TRADESPANEL);
-
-    // Hide the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
-
-
-    // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
-
-    struct ClosedData {
-        std::wstring closedDate;
-        std::shared_ptr<Trade> trade;
-    };
-
-    std::vector<ClosedData> vectorClosed;
-    vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
-
-    for (auto& trade : trades) {
-        if (!trade->isOpen) {
-            ClosedData data;
-
-            // Iterate the transactions to find the latest closed date
-            for (auto& trans : trade->transactions) {
-                if (trans->transDate > data.closedDate) {
-                    data.closedDate = trans->transDate;
-                }
-            }
-            data.trade = trade;
-            vectorClosed.push_back(data);
-        }
-    }
-
-
-    // Destroy any existing ListBox line data
-    ListBoxData_DestroyItemData(hListBox);
-
-
-    // Sort the closed vector based on trade closed date
-    std::sort(vectorClosed.begin(), vectorClosed.end(),
-        [](const ClosedData data1, const ClosedData data2) {
-            return (data1.closedDate > data2.closedDate) ? true : false;
-        });
-
-
-    for (const auto& ClosedData : vectorClosed) {
-        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
-    }
-
-
-    // Calculate the actual column widths based on the size of the strings in
-    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    // This function is also called when receiving new price data from TWS because
-    // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::ClosedTrades, -1);
-
-
-    // Select the correct menu panel item
-    MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_CLOSEDTRADES);
-
-    
-    // Set the label text indicated the type of trades being listed
-    CustomLabel_SetText(hLabel, L"Closed Trades");
-
-
-    // Need to force a resize of the TradesPanel in order to properly show (or not show) 
-    // and position the Header control.
-    RECT rc; GetClientRect(HWND_TRADESPANEL, &rc);
-    TradesPanel_OnSize(HWND_TRADESPANEL, 0, rc.right, rc.bottom);
-
-
-    // Redraw the ListBox to ensure that any recalculated columns are 
-    // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
-    AfxRedrawWindow(hListBox);
-
-
-    // If closed trades exist then select the first trade so that its history will show
-    if (ListBox_GetCount(hListBox)) {
-        TradesPanel_ShowListBoxItem(0);
-    }
-    else {
-        ListBoxData_HistoryBlankLine(hListBox);
-    }
-
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
-
-    IsActiveTradesVisible = false;
-
-    tws_ResumeTWS();
-
-}
-
-
-// ========================================================================================
-// Header control subclass Window procedure
-// ========================================================================================
-LRESULT CALLBACK TradesPanel_Header_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
-    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-{
-    switch (uMsg)
-    {
-
-    case WM_ERASEBKGND:
-    {
-        return TRUE;
-    }
-
-
-    case WM_PAINT:
-    {
-        Header_OnPaint(hWnd);
-        return 0;
-        break;
-    }
-
-
-    case WM_DESTROY:
-
-        // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TradesPanel_Header_SubclassProc, uIdSubclass);
-        break;
-
-
-    }   // end of switch statment
-
-    // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 
 }
 
@@ -793,8 +613,6 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 
     case WM_RBUTTONDOWN:
     {
-        TradesPanel_EnsureMainMenuItem();
-
         int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
         
         if (menuId == IDC_MENUPANEL_ACTIVETRADES) {
@@ -825,8 +643,6 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == -1) break;
-
-        TradesPanel_EnsureMainMenuItem();
 
         // Return to not select the line (eg. if a blank line was clicked on)
         if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
@@ -903,25 +719,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 // ========================================================================================
 void TradesPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    // The ListBox was created using LBS_OWNERDRAWVARIABLE so that this OnMeasureItem
-    // would get called for every item being drawn. This allows us to change the item
-    // height depending on what type of table data is being displayed. We can't rely
-    // on lpMeasureItem->CtrlID because we are usign the same ListBox to display data
-    // for open and closed trades.
-
-    int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
-    switch (menuId)
-    {
-    case IDC_MENUPANEL_ACTIVETRADES:
-        lpMeasureItem->itemHeight = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
-        break;
-    case IDC_MENUPANEL_CLOSEDTRADES:
-        lpMeasureItem->itemHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
-        break;
-
-    default:
-        lpMeasureItem->itemHeight = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
-    }
+    lpMeasureItem->itemHeight = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
 }
 
 
@@ -995,21 +793,8 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int nLeft = 0;
     int nTop = margin;
-    int nWidth = cx;
-    int nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
-
-    int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
-    if (menuId == IDC_MENUPANEL_CLOSEDTRADES) {
-        hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-        nTop = nTop + nHeight + AfxScaleY(1);
-    }
-    else {
-        ShowWindow(hHeader, SW_HIDE);
-    }
-
-
-    nWidth = cx - CustomVScrollBarWidth;
-    nHeight = cy - nTop; 
+    int nHeight = cy - nTop; 
+    int nWidth = cx - CustomVScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
@@ -1031,27 +816,14 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
         ThemeElement::WhiteLight, ThemeElement::Black);
 
-    hCtl = TradesPanel.AddControl(Controls::Header, hwnd, IDC_TRADES_HEADER, L"", 
-        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TradesPanel_Header_SubclassProc,
-        IDC_TRADES_HEADER, NULL);
-    int nWidth = AfxScaleX(50);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
-    // Must turn off Window Theming for the control in order to correctly apply colors
-    SetWindowTheme(hCtl, L"", L"");
-
-
-    // Create an Ownerdraw variable row sized listbox that we will use to custom
+    // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     hCtl =
         TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_MULTIPLESEL | LBS_EXTENDEDSEL | 
-            LBS_OWNERDRAWVARIABLE | LBS_NOTIFY,
+            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_ListBox_SubclassProc,
             IDC_TRADES_LISTBOX, NULL);
@@ -1078,8 +850,6 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         if (nCurSel == -1) break;
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
         if (ld != nullptr) {
-            TradesPanel_EnsureMainMenuItem();
-
             // Show the trade history for the selected trade
             TradesPanel_ShowListBoxItem(nCurSel);
         }

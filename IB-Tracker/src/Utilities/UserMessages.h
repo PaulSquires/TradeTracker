@@ -26,6 +26,33 @@ SOFTWARE.
 
 #pragma once
 
+
+// Various actions that can be performed on selected Trade or Legs.
+// TODO: Add default multipliers for known futures contracts.
+enum class TradeAction
+{
+    NewOptionsTrade,
+    NewSharesTrade,
+    NewFuturesTrade,
+    ManageShares,
+    ManageFutures,
+    RollLeg,
+    CloseLeg,
+    ExpireLeg,
+    Assignment,
+    AddOptionsToTrade,
+    AddSharesToTrade,
+    AddFuturesToTrade,
+    AddPutToTrade,
+    AddCallToTrade,
+    NewIronCondor,
+    NewShortStrangle,
+    NewShortPut,
+    NewShortCall,
+    NoAction
+};
+
+
 // User defined messages
 const int MSG_CUSTOMLABEL_CLICK			= WM_USER + 1000;
 const int MSG_CUSTOMLABEL_MOUSEMOVE		= WM_USER + 1001;

@@ -29,7 +29,7 @@ SOFTWARE.
 #include "..\Utilities\CWindowBase.h"
 
 
-class CTransDetail : public CWindowBase<CTransDetail>
+class CClosedPanel : public CWindowBase<CClosedPanel>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -37,11 +37,14 @@ public:
 };
 
 
-//const int IDC_TRANS_LISTBOX = 100;
-const int IDC_TRANSDETAIL_LABEL = 101;
-const int IDC_TRANSDETAIL_CUSTOMVSCROLLBAR = 102;
-//const int IDC_TRANS_HEADER = 103;
-//
-const int TRANSACTIONS_DETAIL_LISTBOX_ROWHEIGHT = 18;
-//const int TRANSPANEL_MARGIN = 24;
+const int IDC_CLOSED_LISTBOX = 100;
+const int IDC_CLOSED_LABEL = 101;
+const int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
+const int IDC_CLOSED_HEADER = 103;
+
+const int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
+const int CLOSEDPANEL_MARGIN = 24;
+
+bool IsNewOptionsTradeAction(TradeAction action);
+bool IsNewSharesTradeAction(TradeAction action);
 
