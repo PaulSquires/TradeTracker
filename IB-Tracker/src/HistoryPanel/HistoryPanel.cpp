@@ -55,7 +55,7 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     if (trade == nullptr) return;
 
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
 
     // Ensure that the Trade History panel is set
@@ -158,7 +158,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CustomVScrollBar);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -277,7 +277,7 @@ void HistoryPanel_OnPaint(HWND hwnd)
 void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(HISTORYPANEL_MARGIN);
 
@@ -300,7 +300,7 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CustomVScrollBar_WIDTH) : 0;
+    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
@@ -340,7 +340,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     ListBox_AddString(hCtl, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_HISTORY_CustomVScrollBar, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR, hCtl);
 
     return TRUE;
 }

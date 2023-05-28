@@ -35,6 +35,7 @@ SOFTWARE.
 #include "..\MenuPanel\MenuPanel.h"
 #include "..\HistoryPanel\HistoryPanel.h"
 #include "..\TradesPanel\TradesPanel.h"
+#include "..\TransPanel\TransPanel.h"
 #include "..\DailyPanel\DailyPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
@@ -55,6 +56,7 @@ CHistoryPanel     HistoryPanel;
 CTradesPanel      TradesPanel;
 CTickerPanel      TickerPanel;
 CDailyPanel       DailyPanel;
+CTransPanel       TransPanel;
 
 
 extern void TradesPanel_ShowActiveTrades();
@@ -71,6 +73,9 @@ POINT prev_pt{};            // for tracking current splitter drag
 // ========================================================================================
 void MainWindow_SetRightPanel(HWND hPanel)
 {
+    // If the incoming panel is already set as the right panel then simply exit.
+    if (hPanel == HWND_RIGHTPANEL) return;
+
     // Get the current position size of the current right panel.
     RECT rc; GetWindowRect(HWND_RIGHTPANEL, &rc);
     MapWindowPoints(HWND_DESKTOP, HWND_MAINWINDOW, (LPPOINT)&rc, 2);
@@ -79,6 +84,27 @@ void MainWindow_SetRightPanel(HWND hPanel)
 
     HWND_RIGHTPANEL = hPanel;
     SetWindowPos(HWND_RIGHTPANEL, 0, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+        SWP_NOZORDER | SWP_SHOWWINDOW);
+}
+
+
+// ========================================================================================
+// Set the HWND for the panel that will display in the middle of the MainWindow.
+// Also place it into position and hide previous HWND of middle panel.
+// ========================================================================================
+void MainWindow_SetMiddlePanel(HWND hPanel)
+{
+    // If the incoming panel is already set as the middle panel then simply exit.
+    if (hPanel == HWND_MIDDLEPANEL) return;
+
+    // Get the current position size of the current right panel.
+    RECT rc; GetWindowRect(HWND_MIDDLEPANEL, &rc);
+    MapWindowPoints(HWND_DESKTOP, HWND_MAINWINDOW, (LPPOINT)&rc, 2);
+
+    ShowWindow(HWND_MIDDLEPANEL, SW_HIDE);
+
+    HWND_MIDDLEPANEL = hPanel;
+    SetWindowPos(HWND_MIDDLEPANEL, 0, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 }
 
@@ -286,6 +312,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     DailyPanel.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    TransPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 

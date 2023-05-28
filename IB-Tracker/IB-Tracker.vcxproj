@@ -32,6 +32,7 @@
     <ClInclude Include="src\TickerPanel\TickerPanel.h" />
     <ClInclude Include="src\TradeDialog\TradeDialog.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogControls.h" />
+    <ClInclude Include="src\TransPanel\TransPanel.h" />
     <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
@@ -135,6 +136,7 @@
     <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />
     <ClCompile Include="src\TradesPanel\TradesPanel.cpp" />
+    <ClCompile Include="src\TransPanel\TransPanel.cpp" />
     <ClCompile Include="src\tws-api\ContractCondition.cpp" />
     <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
     <ClCompile Include="src\tws-api\EClient.cpp" />

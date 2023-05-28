@@ -51,7 +51,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 void TickerPanel_ShowTickerTotals()
 {
     HWND hListBox = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CUSTOMVSCROLLBAR);
 
 
     // Ensure that the Ticker panel is set
@@ -202,7 +202,7 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CustomVScrollBar);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -321,7 +321,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeaderTickerTotals = GetDlgItem(hwnd, IDC_TICKER_HEADER_TOTALS);
     HWND hListBox = GetDlgItem(hwnd, IDC_TICKER_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TICKER_CustomVScrollBar);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(TICKERPANEL_MARGIN);
 
@@ -344,7 +344,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CustomVScrollBar_WIDTH) : 0;
+    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
@@ -390,7 +390,7 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     ListBox_AddString(hCtl, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_TICKER_CustomVScrollBar, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR, hCtl);
 
 
     // Create Header control for our Ticker Totals output

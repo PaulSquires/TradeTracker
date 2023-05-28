@@ -26,38 +26,22 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Themes\Themes.h"
+#include "..\Utilities\CWindowBase.h"
 
 
-class CustomVScrollBar
+class CTransPanel : public CWindowBase<CTransPanel>
 {
 public:
-    HWND hwnd = NULL;
-    HWND hParent = NULL;
-    HWND hListBox = NULL;
-    INT CtrlId = 0;
-    bool bDragActive = false;
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    POINT prev_pt{};
-    int listBoxHeight = 0;
-    int itemHeight = 0;
-    int numItems = 0;
-    int itemsPerPage = 0;
-    int thumbHeight = 0;
-    RECT rc{};
-    
-    ThemeElement ScrollBarLine = ThemeElement::ScrollBarDivider;
-    ThemeElement ScrollBarBack = ThemeElement::ScrollBarBack;
-    ThemeElement ScrollBarThumb = ThemeElement::ScrollBarThumb;
-
-    bool calcVThumbRect();
-    
 };
 
 
-const int CUSTOMVSCROLLBAR_WIDTH = 14;
+const int IDC_TRANS_LISTBOX = 100;
+const int IDC_TRANS_LABEL = 101;
+const int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
+const int IDC_TRANS_HEADER = 103;
 
-HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hListBox);
-CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl);
-void CustomVScrollBar_Recalculate(HWND hCtrl);
+const int TRANSACTIONS_LISTBOX_ROWHEIGHT = 18;
+const int TRANSPANEL_MARGIN = 24;
 

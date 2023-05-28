@@ -39,7 +39,7 @@ public:
 
 const int IDC_DAILY_LISTBOX = 110;
 const int IDC_DAILY_SYMBOL = 111;
-const int IDC_DAILY_CustomVScrollBar = 112;
+const int IDC_DAILY_CUSTOMVSCROLLBAR = 112;
 const int IDC_DAILY_LISTBOX_SUMMARY = 113;
 const int IDC_DAILY_HEADER_TICKERTOTALS = 114;
 const int IDC_DAILY_HEADER_SUMMARY = 115;

@@ -46,7 +46,7 @@ extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_MENUPANEL;
 extern CTradesPanel TradesPanel;
 
-
+extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
@@ -154,6 +154,14 @@ void TradesPanel_ShowActiveTrades()
 
     tws_PauseTWS();
 
+    // Ensure that the Trades panel is set
+    MainWindow_SetMiddlePanel(HWND_TRADESPANEL);
+
+    
+    // Show the Category control
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
+
+
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
@@ -249,6 +257,13 @@ void TradesPanel_ShowClosedTrades()
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
+
+    // Ensure that the Trades panel is set
+    MainWindow_SetMiddlePanel(HWND_TRADESPANEL);
+
+    // Hide the Category control
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
+
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -975,7 +990,7 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
             bShowScrollBar = pData->calcVThumbRect();
         }
     }
-    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CustomVScrollBar_WIDTH) : 0;
+    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
 
     int nLeft = 0;

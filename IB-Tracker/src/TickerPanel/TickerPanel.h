@@ -39,7 +39,7 @@ public:
 
 const int IDC_TICKER_LISTBOX = 110;
 const int IDC_TICKER_SYMBOL = 111;
-const int IDC_TICKER_CustomVScrollBar = 112;
+const int IDC_TICKER_CUSTOMVSCROLLBAR = 112;
 const int IDC_TICKER_LISTBOX_SUMMARY = 113;
 const int IDC_TICKER_HEADER_TOTALS = 114;
 

@@ -38,6 +38,7 @@ SOFTWARE.
 extern void TradesPanel_ShowActiveTrades();
 extern void TradesPanel_ShowClosedTrades();
 extern void TickerPanel_ShowTickerTotals();
+extern void TransPanel_ShowTransactions();
 extern void DailyPanel_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_MENUPANEL = NULL;
@@ -493,17 +494,21 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_MENUPANEL_TRANSACTIONS:
             {
-                int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                MessageBox(
-                    m_hwnd,
-                    (LPCWSTR)(L"Transactions features not implemented yet."),
-                    (LPCWSTR)L"Information",
-                    MB_ICONINFORMATION
-                );
-                CustomLabel_Select(GetDlgItem(m_hwnd, CtrlId), false);
-                MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+                TransPanel_ShowTransactions();
                 break;
+
+                //int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
+                //MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
+                //MessageBox(
+                //    m_hwnd,
+                //    (LPCWSTR)(L"Transactions features not implemented yet."),
+                //    (LPCWSTR)L"Information",
+                //    MB_ICONINFORMATION
+                //);
+                //CustomLabel_Select(GetDlgItem(m_hwnd, CtrlId), false);
+                //MenuPanel_SelectMenuItem(m_hwnd, currSelection);
+                //break;
             }
 
             case IDC_MENUPANEL_RECONCILE:
