@@ -41,9 +41,6 @@ extern int nColWidth[];
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
 
-void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
-
-
 
 // ========================================================================================
 // Populate the ListBox with the total earnings from each Ticker.
@@ -52,10 +49,6 @@ void TickerPanel_ShowTickerTotals()
 {
     HWND hListBox = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CUSTOMVSCROLLBAR);
-
-
-    // Ensure that the Ticker panel is set
-    MainWindow_SetRightPanel(HWND_TICKERPANEL);
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -119,11 +112,8 @@ void TickerPanel_ShowTickerTotals()
     AfxRedrawWindow(hListBox);
 
 
-    // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
-    // and position the Summary listbox and daily detail listbox.
-    RECT rc; GetClientRect(HWND_TICKERPANEL, &rc);
-    TickerPanel_OnSize(HWND_TICKERPANEL, 0, rc.right, rc.bottom);
-
+    // Ensure that the Ticker panel is set
+    MainWindow_SetRightPanel(HWND_TICKERPANEL);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 }

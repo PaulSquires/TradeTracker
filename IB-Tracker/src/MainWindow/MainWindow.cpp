@@ -61,7 +61,7 @@ CDailyPanel       DailyPanel;
 CTransPanel       TransPanel;
 
 
-extern void TradesPanel_ShowActiveTrades();
+extern void TradesPanel_ShowActiveTrades(bool bForceReload);
 extern ActiveThemeColor ActiveTheme;
 
 RECT rcSplitter{};
@@ -156,7 +156,7 @@ void MainWindow_BlurPanels(bool active)
 void MainWindow_StartupShowTrades()
 {
     if (trades.size() != 0) {
-        TradesPanel_ShowActiveTrades();
+        TradesPanel_ShowActiveTrades(true);
 
         if (GetStartupConnect()) {
             SendMessage(MenuPanel.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
@@ -164,7 +164,7 @@ void MainWindow_StartupShowTrades()
             if (tws_isConnected()) {
                 // Need to re-populate the Trades if successfully connected in order
                 // to send the request market data for each ticker.
-                TradesPanel_ShowActiveTrades();
+                TradesPanel_ShowActiveTrades(true);
             }
         }
 
@@ -530,7 +530,7 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_CATEGORY_CHANGED:
     {
-        TradesPanel_ShowActiveTrades();
+        TradesPanel_ShowActiveTrades(true);
         return 0;
     }
 

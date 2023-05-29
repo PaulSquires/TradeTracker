@@ -41,6 +41,7 @@ extern std::vector<std::shared_ptr<Trade>> trades;
 extern HWND HWND_MAINWINDOW;
 extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_MENUPANEL;
+extern HWND HWND_MIDDLEPANEL;
 
 extern CClosedPanel ClosedPanel;
 
@@ -83,8 +84,11 @@ void ClosedPanel_ShowClosedTrades()
     HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_LABEL);
 
+    // No need to redisplay Closed trades if they are already showing.
+    if (HWND_MIDDLEPANEL == HWND_CLOSEDPANEL) return;
 
-    // Prevent ListBox redrawing until all calculations are completed
+
+    // Prevent ListBox redrawing until all calculations are completed.
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
 
@@ -161,6 +165,8 @@ void ClosedPanel_ShowClosedTrades()
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
+    ListBox_SetCurSel(hListBox, 0);
+    SetFocus(hListBox);
 }
 
 
@@ -447,8 +453,7 @@ BOOL ClosedPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ClosedPanel.AddControl(Controls::ListBox, hwnd, IDC_CLOSED_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_MULTIPLESEL | LBS_EXTENDEDSEL |
-            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)ClosedPanel_ListBox_SubclassProc,
             IDC_CLOSED_LISTBOX, NULL);

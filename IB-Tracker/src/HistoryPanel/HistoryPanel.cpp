@@ -43,9 +43,6 @@ extern HWND HWND_MENUPANEL;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
 
-void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
-
-
 
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
@@ -56,10 +53,6 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CUSTOMVSCROLLBAR);
-
-
-    // Ensure that the Trade History panel is set
-    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -112,11 +105,10 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
 
-    
-    // Need to force a resize of the HistoryPanel in order to properly show (or not show) 
-    // and position the Summary listbox and daily detail listbox.
-    RECT rc; GetClientRect(HWND_HISTORYPANEL, &rc);
-    HistoryPanel_OnSize(HWND_HISTORYPANEL, 0, rc.right, rc.bottom);
+
+    // Ensure that the Trade History panel is set
+    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
+
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 

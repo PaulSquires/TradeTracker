@@ -35,14 +35,12 @@ SOFTWARE.
 HWND HWND_DAILYPANEL = NULL;
 
 extern CDailyPanel DailyPanel;
+extern HWND HWND_RIGHTPANEL;
 
 extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
-
-void DailyPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
-
 
 
 // ========================================================================================
@@ -53,10 +51,6 @@ void DailyPanel_ShowDailyTotals(const ListBoxData* ld)
     HWND hListBox = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_LISTBOX);
     HWND hListBoxSummary = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_LISTBOX_SUMMARY);
     HWND hCustomVScrollBar = GetDlgItem(HWND_DAILYPANEL, IDC_DAILY_CUSTOMVSCROLLBAR);
-
-
-    // Ensure that the Daily panel is set
-    MainWindow_SetRightPanel(HWND_DAILYPANEL);
 
 
     // Default to opening the current date
@@ -167,10 +161,8 @@ void DailyPanel_ShowDailyTotals(const ListBoxData* ld)
     AfxRedrawWindow(hListBox);
 
 
-    // Need to force a resize of the panel in order to properly show (or not show) 
-    // and position the Summary listbox and daily detail listbox.
-    RECT rc; GetClientRect(HWND_DAILYPANEL, &rc);
-    DailyPanel_OnSize(HWND_DAILYPANEL, 0, rc.right, rc.bottom);
+    // Ensure that the Daily panel is set
+    MainWindow_SetRightPanel(HWND_DAILYPANEL);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 }

@@ -36,7 +36,7 @@ SOFTWARE.
 #include "..\Utilities\ListBoxData.h"
 #include "MenuPanel.h"
 
-extern void TradesPanel_ShowActiveTrades();
+extern void TradesPanel_ShowActiveTrades(bool bForceReload);
 extern void ClosedPanel_ShowClosedTrades();
 extern void TickerPanel_ShowTickerTotals();
 extern void TransPanel_ShowTransactions();
@@ -459,7 +459,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 // If we connect to TWS successfully then we need to start showing
                 // the price data for any active trades displaying in our table.
                 if (tws_isConnected()) {
-                    TradesPanel_ShowActiveTrades();
+                    TradesPanel_ShowActiveTrades(true);
                 }
                 bProcessingConnectClick = false;
                 break;
@@ -468,7 +468,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_ACTIVETRADES:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TradesPanel_ShowActiveTrades();
+                TradesPanel_ShowActiveTrades(false);
                 break;
             }
 

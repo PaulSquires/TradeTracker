@@ -112,7 +112,7 @@ int nTransMinColWidth[10] =
     65,     /* Transaction Date */
     50,     /* Ticker Symbol */
     100,    /* Transaction Description */
-    30,     /* Quantity */
+    60,     /* Quantity */
     70,     /* Price */
     70,     /* Fees */
     70,     /* Total */

@@ -44,6 +44,7 @@ extern std::vector<std::shared_ptr<Trade>> trades;
 extern HWND HWND_MAINWINDOW;
 extern HWND HWND_HISTORYPANEL;
 extern HWND HWND_MENUPANEL;
+extern HWND HWND_MIDDLEPANEL;
 extern CTradesPanel TradesPanel;
 
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
@@ -100,7 +101,7 @@ void TradesPanel_ShowListBoxItem(int index)
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
 
-    ListBox_SetCurSel(hListBox, index);
+    ListBox_SetSel(hListBox, true, index);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -120,12 +121,19 @@ void TradesPanel_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Trades ListBox with the current active/open trades
 // ========================================================================================
-void TradesPanel_ShowActiveTrades()
+void TradesPanel_ShowActiveTrades(bool bForceReload)
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
+    
+    // No need to redisplay Active Trades if they are already showing, unless we have
+    // specified a forced re-load which is the result of a successful change or addition
+    // to the underlying database.
+    if (bForceReload == false && HWND_MIDDLEPANEL == HWND_TRADESPANEL) return;
+
+    
     tws_PauseTWS();
 
 
@@ -203,6 +211,10 @@ void TradesPanel_ShowActiveTrades()
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
+
+
+    ListBox_SetSel(hListBox, true, 0);
+    SetFocus(hListBox);
 
     tws_ResumeTWS();
 
@@ -331,7 +343,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    TradesPanel_ShowActiveTrades();
+    TradesPanel_ShowActiveTrades(true);
 
 }
 
@@ -425,7 +437,7 @@ void TradesPanel_OptionAssignment(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    TradesPanel_ShowActiveTrades();
+    TradesPanel_ShowActiveTrades(true);
 }
 
 
