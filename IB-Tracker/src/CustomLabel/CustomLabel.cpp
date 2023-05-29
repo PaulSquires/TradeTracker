@@ -767,13 +767,12 @@ void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        bool redraw = pData->IsSelected != IsSelected ? true : false;
+        bool redraw = (pData->IsSelected != IsSelected) ? true : false;
         pData->IsSelected = IsSelected;
         CustomLabel_SetOptions(hCtrl, pData);
         if (redraw) AfxRedrawWindow(hCtrl);
     }
 }
-
 
 
 // ========================================================================================
@@ -802,7 +801,6 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 
     return hCtl;
 }
-
 
 
 // ========================================================================================

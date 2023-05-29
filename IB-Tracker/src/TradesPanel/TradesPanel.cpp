@@ -200,7 +200,7 @@ void TradesPanel_ShowActiveTrades(bool bForceReload)
     if (ListBox_GetCount(hListBox)) {
         TradesPanel_ShowListBoxItem(0);
     }else {
-        ListBoxData_HistoryBlankLine(hListBox);
+        ListBoxData_AddBlankLine(hListBox);
     }
     
 

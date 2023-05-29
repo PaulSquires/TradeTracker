@@ -149,7 +149,7 @@ void DailyPanel_ShowDailyTotals(const ListBoxData* ld)
     ListBoxData_ResizeColumnWidths(hListBoxSummary, TableType::DailyTotalsSummary, -1);
 
 
-    ListBoxData_HistoryBlankLine(hListBox);
+    ListBoxData_AddBlankLine(hListBox);
 
     // Set the ListBox to the previous topline.
     ListBox_SetTopIndex(hListBox, nTopLine);

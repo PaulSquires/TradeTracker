@@ -92,7 +92,7 @@ void TickerPanel_ShowTickerTotals()
         ListBoxData_OutputTickerTotals(hListBox, i.ticker, i.amount);
     }
 
-    ListBoxData_HistoryBlankLine(hListBox);
+    ListBoxData_AddBlankLine(hListBox);
 
 
     // Calculate the actual column widths based on the size of the strings in

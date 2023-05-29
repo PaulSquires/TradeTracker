@@ -587,9 +587,9 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 // ========================================================================================
 // Create the display data for a blank line
 // ========================================================================================
-void ListBoxData_HistoryBlankLine(HWND hListBox)
+void ListBoxData_AddBlankLine(HWND hListBox)
 {
-    // *** BLANK SEPARATION LINE AT END OF HISTORY LIST ***
+    // *** BLANK SEPARATION LINE AT END OF LIST ***
     ListBoxData* ld = new ListBoxData;
     ld->lineType = LineType::None;
     ListBox_AddString(hListBox, ld);

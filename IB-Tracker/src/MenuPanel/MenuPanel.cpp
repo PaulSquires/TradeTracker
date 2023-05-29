@@ -125,6 +125,7 @@ void MenuPanel_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring 
         pData->BackColor = ThemeElement::Black;
         pData->BackColorHot = ThemeElement::Selection;
         pData->BackColorSelected = ThemeElement::Selection;
+        pData->BackColorButtonDown = ThemeElement::Selection;
         pData->TextColor = ThemeElement::WhiteLight;
         pData->TextColorHot = ThemeElement::WhiteLight;
         pData->FontSize = 10;
@@ -276,14 +277,14 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId)
 {
+    HWND hCtrlSelected = GetDlgItem(hParent, CtrlId);
     HWND hCtrl = NULL;
     for (int i = IDC_MENUPANEL_FIRSTITEM; i <= IDC_MENUPANEL_LASTITEM; i++) {
         hCtrl = GetDlgItem(hParent, i);
+        if (hCtrl == hCtrlSelected) continue;
         CustomLabel_Select(hCtrl, false);
     }
-
-    hCtrl = GetDlgItem(hParent, CtrlId);
-    CustomLabel_Select(hCtrl, true);
+    CustomLabel_Select(hCtrlSelected, true);
 }
 
 
@@ -498,18 +499,6 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
                 TransPanel_ShowTransactions();
                 break;
-
-                //int currSelection = MenuPanel_GetActiveMenuItem(m_hwnd);
-                //MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                //MessageBox(
-                //    m_hwnd,
-                //    (LPCWSTR)(L"Transactions features not implemented yet."),
-                //    (LPCWSTR)L"Information",
-                //    MB_ICONINFORMATION
-                //);
-                //CustomLabel_Select(GetDlgItem(m_hwnd, CtrlId), false);
-                //MenuPanel_SelectMenuItem(m_hwnd, currSelection);
-                //break;
             }
 
             case IDC_MENUPANEL_RECONCILE:

@@ -154,7 +154,7 @@ void ClosedPanel_ShowClosedTrades()
         ClosedPanel_ShowListBoxItem(0);
     }
     else {
-        ListBoxData_HistoryBlankLine(hListBox);
+        ListBoxData_AddBlankLine(hListBox);
     }
 
     // Ensure that the Closed panel is set

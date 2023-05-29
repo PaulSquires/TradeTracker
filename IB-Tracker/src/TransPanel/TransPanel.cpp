@@ -74,7 +74,7 @@ void TransPanel_ShowTransactionHistory(const std::shared_ptr<Trade> trade, const
         }
     }
     
-    ListBoxData_HistoryBlankLine(hListBox);
+    ListBoxData_AddBlankLine(hListBox);
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
@@ -183,7 +183,7 @@ void TransPanel_ShowTransactions()
         TransPanel_ShowListBoxItem(0);
     }
     else {
-        ListBoxData_HistoryBlankLine(hListBox);
+        ListBoxData_AddBlankLine(hListBox);
     }
 
     // Ensure that the Transactions panel and History Panel are set
