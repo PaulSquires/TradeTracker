@@ -29,6 +29,7 @@ SOFTWARE.
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\MainWindow\MainWindow.h"
 #include "..\HistoryPanel\HistoryPanel.h"
+#include "..\Category\Category.h"
 #include "..\Utilities\ListBoxData.h"
 
 #include "TransPanel.h"
@@ -40,6 +41,8 @@ extern CTransPanel TransPanel;
 
 extern HWND HWND_MAINWINDOW;
 extern HWND HWND_HISTORYPANEL;
+extern HWND HWND_MIDDLEPANEL;
+
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void MainWindow_SetRightPanel(HWND hPanel);
 extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
@@ -117,10 +120,15 @@ void TransPanel_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Transaction ListBox with the transactions per the user selected dates.
 // ========================================================================================
-void TransPanel_ShowTransactions()
+void TransPanel_ShowTransactions(bool bForceReload)
 {
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
+
+    // No need to redisplay Transactions if they are already showing, unless we have
+    // specified a forced re-load which is the result of a successful change or addition
+    // to the underlying database or changing of category,dates,ticker.
+    if (bForceReload == false && HWND_MIDDLEPANEL == HWND_TRANSPANEL) return;
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -134,8 +142,20 @@ void TransPanel_ShowTransactions()
     std::vector<TransData> tdata;
     tdata.reserve(2000);    // reserve space for 2000 transactions
 
+    // Get the currently active Category index. By default, this will be ALL categories
+    // but the user may have selected a specific category.
+    int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
+
+    bool processTrade = false;
+
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
+            processTrade = false;
+            if (category == 5) processTrade = true;   // ALL categories
+            if (trade->category == category) processTrade = true;   // specific selected category
+
+            if (processTrade == false) continue;
+
             TransData td;
             td.trade = trade;
             td.trans = trans;
@@ -145,10 +165,10 @@ void TransPanel_ShowTransactions()
 
 
     // Sort the vector based on most recent date
-    //std::sort(transactions.begin(), transactions.end(),
-    //    [](const Transaction data1, const Transaction data2) {
-    //        return (data1.transDate > data2.transDate) ? true : false;
-    //    });
+    std::sort(tdata.begin(), tdata.end(),
+        [](const TransData data1, const TransData data2) {
+            return (data1.trans->transDate > data2.trans->transDate) ? true : false;
+        });
 
 
     // Clear the current table
@@ -190,8 +210,8 @@ void TransPanel_ShowTransactions()
     MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
     MainWindow_SetRightPanel(HWND_HISTORYPANEL);
 
-    // Hide the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
+    // Show the Category control
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -281,22 +301,17 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
     }
 
 
-    case WM_RBUTTONDOWN:
-    {
-    }
-    break;
-
-
     case WM_LBUTTONDOWN:
     {
         int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
-        if (HIWORD(idx) == -1) break;
+        if (HIWORD(idx) == 1) break;
 
         // Show the Transaction detail for the selected line.
         TransPanel_ShowListBoxItem(idx);
+        return 0;
     }
     break;
 
@@ -393,7 +408,7 @@ void TransPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
+    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -417,12 +432,33 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(TRANSPANEL_MARGIN);
+    int nLeft = 0;
+    int nTop = 0;
+    int nWidth = 0;
+    int nHeight = AfxScaleY(23);
 
-    HDWP hdwp = BeginDeferWindowPos(5);
+    HDWP hdwp = BeginDeferWindowPos(10);
 
-    // Move and size the top label into place
+    // Move and size the top labels into place
+    nWidth = AfxScaleX(100);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LABEL), 0,
-        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft += nWidth;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLTICKERFILTER), 0,
+        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft += nWidth;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLDATEFILTER), 0,
+        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft += nWidth;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLSTARTDATE), 0,
+        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft += nWidth;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLENDDATE), 0,
+        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -440,10 +476,10 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
 
-    int nLeft = 0;
-    int nTop = margin;
-    int nWidth = cx;
-    int nHeight = AfxScaleY(TRANSACTIONS_LISTBOX_ROWHEIGHT);
+    nLeft = 0;
+    nTop = margin;
+    nWidth = cx;
+    nHeight = AfxScaleY(TRANSACTIONS_LISTBOX_ROWHEIGHT);
 
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
@@ -471,18 +507,45 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"Transactions",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
+    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
+        ThemeElement::WhiteDark, ThemeElement::Black);
+
+    
+    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
+        ThemeElement::WhiteDark, ThemeElement::Black);
+
+    std::wstring wszDate = AfxCurrentDate();
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTRANSDATE, AfxLongDate(wszDate), 
+        ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+    CustomLabel_SetUserData(hCtl, wszDate);
+
+    CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+
+
+
+    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
+        ThemeElement::WhiteDark, ThemeElement::Black);
+
+    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
+        ThemeElement::WhiteDark, ThemeElement::Black);
+
     hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TransPanel_Header_SubclassProc,
         IDC_TRANS_HEADER, NULL);
     int nWidth = AfxScaleX(50);
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Description", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Quantity", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 5, nWidth, L"Price", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 6, nWidth, L"Fees", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 7, nWidth, L"Total", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Cat", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Description", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 5, nWidth, L"Quantity", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 6, nWidth, L"Price", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 7, nWidth, L"Fees", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 8, nWidth, L"Total", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 

@@ -109,14 +109,14 @@ int nClosedMinColWidth[10] =
 int nTransMinColWidth[10] =
 {
     15,     /* empty */
+    25,     /* Category */
     65,     /* Transaction Date */
-    50,     /* Ticker Symbol */
-    100,    /* Transaction Description */
+    45,     /* Ticker Symbol */
+    90,     /* Transaction Description */
     60,     /* Quantity */
-    70,     /* Price */
-    70,     /* Fees */
+    60,     /* Price */
+    60,     /* Fees */
     70,     /* Total */
-    0,
     0
 };
 
@@ -195,6 +195,23 @@ int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
 bool PrevMarketDataLoaded = false;
 
 
+// ========================================================================================
+// Helper function to get the ThemeElement for the specified Category
+// ========================================================================================
+ThemeElement GetCategoryColor(int category)
+{
+    ThemeElement catTextColor = ThemeElement::WhiteDark;
+    switch (category)
+    {
+    case 0: catTextColor = ThemeElement::WhiteDark; break;
+    case 1: catTextColor = ThemeElement::Blue; break;
+    case 2: catTextColor = ThemeElement::Pink; break;
+    case 3: catTextColor = ThemeElement::Green; break;
+    case 4: catTextColor = ThemeElement::Orange; break;
+    default: catTextColor = ThemeElement::WhiteDark;
+    }
+    return catTextColor;
+}
 
 
 // ========================================================================================
@@ -412,16 +429,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     }
     else {
         // The Category icon will be colored 
-        ThemeElement catTextColor = ThemeElement::WhiteDark;
-        switch (trade->category)
-        {
-        case 0: catTextColor = ThemeElement::WhiteDark; break;
-        case 1: catTextColor = ThemeElement::Blue; break;
-        case 2: catTextColor = ThemeElement::Pink; break;
-        case 3: catTextColor = ThemeElement::Green; break;
-        case 4: catTextColor = ThemeElement::Orange; break;
-        default: catTextColor = ThemeElement::WhiteDark;
-        }
+        ThemeElement catTextColor = GetCategoryColor(trade->category);
         ld->SetData(0, trade, tickerId, L"\u23FA", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
             catTextColor, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
@@ -751,26 +759,30 @@ void ListBoxData_OutputTransaction(
     ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
-    ld->SetData(1, trade, tickerId, trans->transDate, StringAlignmentNear, StringAlignmentCenter,
+    ThemeElement catTextColor = GetCategoryColor(trade->category);
+    ld->SetData(1, trade, tickerId, L"\u23FA", StringAlignmentCenter, StringAlignmentCenter,
+        ThemeElement::GrayDark, catTextColor, font8, FontStyleRegular);
+
+    ld->SetData(2, trade, tickerId, trans->transDate, StringAlignmentNear, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
+
+    ld->SetData(3, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
-    ld->SetData(2, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(4, trade, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
-    ld->SetData(3, trade, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(5, trade, tickerId, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
-    ld->SetData(4, trade, tickerId, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(6, trade, tickerId, AfxMoney(trans->price), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
-    ld->SetData(5, trade, tickerId, AfxMoney(trans->price), StringAlignmentFar, StringAlignmentCenter,
-        ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
-
-    ld->SetData(6, trade, tickerId, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(7, trade, tickerId, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::WhiteLight, font8, FontStyleRegular);
 
     ThemeElement clr = (trans->total >= 0) ? ThemeElement::Green : ThemeElement::Red;
-    ld->SetData(7, trade, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(8, trade, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
         ThemeElement::GrayDark, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
@@ -1062,7 +1074,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         int colWidth = 0;
 
         // Draw each of the columns
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 10; i++) {
             if (ld == nullptr) break;
             if (ld->col[i].colWidth == 0) break;
 

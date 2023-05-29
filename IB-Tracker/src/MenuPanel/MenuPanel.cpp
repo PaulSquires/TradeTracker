@@ -37,9 +37,9 @@ SOFTWARE.
 #include "MenuPanel.h"
 
 extern void TradesPanel_ShowActiveTrades(bool bForceReload);
+extern void TransPanel_ShowTransactions(bool bForceReload);
 extern void ClosedPanel_ShowClosedTrades();
 extern void TickerPanel_ShowTickerTotals();
-extern void TransPanel_ShowTransactions();
 extern void DailyPanel_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_MENUPANEL = NULL;
@@ -497,7 +497,7 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_MENUPANEL_TRANSACTIONS:
             {
                 MenuPanel_SelectMenuItem(m_hwnd, CtrlId);
-                TransPanel_ShowTransactions();
+                TransPanel_ShowTransactions(false);
                 break;
             }
 

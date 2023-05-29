@@ -428,13 +428,12 @@ BOOL DailyPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_DAILY_SYMBOL, L"Daily Totals",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
-    // Create an listbox that we will use to custom paint our various open trades.
+    // Create an listbox that we will use to custom paint our daily totals.
     hCtl =
         DailyPanel.AddControl(Controls::ListBox, hwnd, IDC_DAILY_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
-            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DailyPanel_ListBox_SubclassProc,
             IDC_DAILY_LISTBOX, NULL);
@@ -470,8 +469,7 @@ BOOL DailyPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         DailyPanel.AddControl(Controls::ListBox, hwnd, IDC_DAILY_LISTBOX_SUMMARY, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_MULTIPLESEL |
-            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOSEL | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)DailyPanel_ListBox_SubclassProc,
             IDC_DAILY_LISTBOX, NULL);

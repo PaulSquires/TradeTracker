@@ -654,7 +654,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
-        if (HIWORD(idx) == -1) break;
+        if (HIWORD(idx) == 1) break;
 
         // Return to not select the line (eg. if a blank line was clicked on)
         if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {

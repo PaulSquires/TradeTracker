@@ -62,6 +62,7 @@ CTransPanel       TransPanel;
 
 
 extern void TradesPanel_ShowActiveTrades(bool bForceReload);
+extern void TransPanel_ShowTransactions(bool bForceReload);
 extern ActiveThemeColor ActiveTheme;
 
 RECT rcSplitter{};
@@ -530,7 +531,12 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_CATEGORY_CHANGED:
     {
-        TradesPanel_ShowActiveTrades(true);
+        if (HWND_MIDDLEPANEL == TradesPanel.WindowHandle()) {
+            TradesPanel_ShowActiveTrades(true);
+        }
+        if (HWND_MIDDLEPANEL == TransPanel.WindowHandle()) {
+            TransPanel_ShowTransactions(true);
+        }
         return 0;
     }
 
