@@ -220,6 +220,32 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
 
     
+    case WM_SHOWWINDOW:
+    {
+        // Workaround for the Windows white flashing bug.
+        // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+
+        SetWindowLongPtr(m_hwnd,
+            GWL_EXSTYLE,
+            GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
+        {
+            SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
+            DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)GetDC(m_hwnd), lParam);
+            SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
+            AnimateWindow(m_hwnd, 1, AW_ACTIVATE | AW_BLEND);
+            return 0;
+        }
+        SetWindowLongPtr(m_hwnd,
+            GWL_EXSTYLE,
+            GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
+
+        return DefWindowProc(m_hwnd, msg, wParam, lParam);
+    }
+    break;
+
+
     case WM_KEYDOWN:
     {
         // We are handling the TAB naviagation ourselves.
@@ -371,17 +397,8 @@ int TradeDialog_Show(TradeAction inTradeAction)
 
     EnableWindow(HWND_MAINWINDOW, FALSE);
 
-
-    // Workaround for the Windows white flashing bug (seems to work on Win10 but maybe not as well on Win11 ?).
-    // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-    BOOL cloak = TRUE;
-    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
-
     ShowWindow(hwnd, SW_SHOWNORMAL);
     UpdateWindow(hwnd);
-
-    cloak = FALSE;
-    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
     
     if (IsNewOptionsTradeAction(tradeAction) == true ||

@@ -532,6 +532,34 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_LBUTTONUP, MainWindow_OnLButtonUp);
         HANDLE_MSG(m_hwnd, WM_SETCURSOR, MainWindow_OnSetCursor);
 
+
+    case WM_SHOWWINDOW:
+    {
+        // Workaround for the Windows white flashing bug.
+        // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+
+        SetWindowLongPtr(m_hwnd,
+            GWL_EXSTYLE,
+            GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
+        {
+            SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
+            DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)GetDC(m_hwnd), lParam);
+            SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
+            AnimateWindow(m_hwnd, 1, AW_ACTIVATE | AW_BLEND);
+            return 0;
+        }
+        SetWindowLongPtr(m_hwnd,
+            GWL_EXSTYLE,
+            GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
+
+        return DefWindowProc(m_hwnd, msg, wParam, lParam);
+    }
+    break;
+
+
+
     case MSG_STARTUP_SHOWTRADES:
     {
         MainWindow_StartupShowTrades();
