@@ -26,10 +26,12 @@ SOFTWARE.
 
 #include "pch.h"
 #include "..\CustomLabel\CustomLabel.h"
+#include "..\CustomTextBox\CustomTextBox.h"
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\MainWindow\MainWindow.h"
-#include "..\HistoryPanel\HistoryPanel.h"
 #include "..\Category\Category.h"
+#include "..\TransPanel\TransDateFilter.h"
+#include "..\DatePicker\Calendar.h"
 #include "..\Utilities\ListBoxData.h"
 
 #include "TransPanel.h"
@@ -40,56 +42,15 @@ HWND HWND_TRANSPANEL = NULL;
 extern CTransPanel TransPanel;
 
 extern HWND HWND_MAINWINDOW;
-extern HWND HWND_HISTORYPANEL;
+extern HWND HWND_TRANSDETAIL;
 extern HWND HWND_MIDDLEPANEL;
 
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
+extern void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
 
 void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
-
-// ========================================================================================
-// Display the selected Transaction history (legs) and ability to Edit/Delete it.
-// ========================================================================================
-void TransPanel_ShowTransactionHistory(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
-{
-    // Clear the current transaction history table
-    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
-    ListBoxData_DestroyItemData(hListBox);
-
-    ListBoxData_HistoryHeader(hListBox, trade, trans);
-
-    //CustomLabel_SetText(
-    //    GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
-    //    ld->trade->tickerSymbol + L": " + ld->trade->tickerName);
-    CustomLabel_SetText(
-        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
-        L"Transaction Details");
-
-    // Show the detail leg information for this transaction.
-    for (const auto& leg : trans->legs) {
-        if (leg->underlying == L"OPTIONS") { ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); }
-        else if (leg->underlying == L"SHARES") { ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg); }
-        else if (leg->underlying == L"FUTURES") {
-            ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
-        }
-    }
-    
-    ListBoxData_AddBlankLine(hListBox);
-
-    // Calculate the actual column widths based on the size of the strings in
-    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    // This function is also called when receiving new price data from TWS because
-    // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
-
-
-    // Set the ListBox to the topline.
-    ListBox_SetTopIndex(hListBox, 0);
-
-}
 
 
 // ========================================================================================
@@ -106,11 +67,11 @@ void TransPanel_ShowListBoxItem(int index)
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     // Get the current line to determine if a valid Trade pointer exists so that we
-    // can show the trade history.
+    // can show the transaction detail.
     if (index > -1) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
         if (ld != nullptr)
-            TransPanel_ShowTransactionHistory(ld->trade, ld->trans);
+            TransPanel_ShowTransactionDetail(ld->trade, ld->trans);
     }
 
     SetFocus(hListBox);
@@ -147,6 +108,7 @@ void TransPanel_ShowTransactions(bool bForceReload)
     int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
 
     bool processTrade = false;
+    std::wstring wszText;
 
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
@@ -155,6 +117,12 @@ void TransPanel_ShowTransactions(bool bForceReload)
             if (trade->category == category) processTrade = true;   // specific selected category
 
             if (processTrade == false) continue;
+
+            wszText = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
+            wszText = AfxTrim(wszText);
+            if (wszText.length() > 0) {
+                if (wszText != trade->tickerSymbol) continue;
+            }
 
             TransData td;
             td.trade = trade;
@@ -206,9 +174,9 @@ void TransPanel_ShowTransactions(bool bForceReload)
         ListBoxData_AddBlankLine(hListBox);
     }
 
-    // Ensure that the Transactions panel and History Panel are set
+    // Ensure that the Transactions panel and Detail Panel are set
     MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
-    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
+    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
     // Show the Category control
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
@@ -431,35 +399,6 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR);
 
-    int margin = AfxScaleY(TRANSPANEL_MARGIN);
-    int nLeft = 0;
-    int nTop = 0;
-    int nWidth = 0;
-    int nHeight = AfxScaleY(23);
-
-    HDWP hdwp = BeginDeferWindowPos(10);
-
-    // Move and size the top labels into place
-    nWidth = AfxScaleX(100);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LABEL), 0,
-        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nLeft += nWidth;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLTICKERFILTER), 0,
-        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nLeft += nWidth;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLDATEFILTER), 0,
-        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nLeft += nWidth;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLSTARTDATE), 0,
-        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nLeft += nWidth;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLENDDATE), 0,
-        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
@@ -475,6 +414,69 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
+
+    HDWP hdwp = BeginDeferWindowPos(15);
+
+    int margin = AfxScaleY(TRANSPANEL_MARGIN);
+    int nLeft = 0;
+    int nTop = 0;
+    int nWidth = 0;
+    int nHeight = AfxScaleY(23);
+    int nStartTop = nTop;
+
+    // Move and size the top labels into place
+    nWidth = AfxScaleX(100);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LABEL), 0,
+        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nStartTop = nHeight;
+
+    nTop = nStartTop;
+    nWidth = AfxScaleX(75);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLTICKERFILTER), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_TXTTICKER), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nLeft += nWidth;
+    nWidth = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDTICKERGO), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nStartTop;
+    nLeft += nWidth + AfxScaleX(18);
+    nWidth = AfxScaleX(90);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLDATEFILTER), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_TRANSDATE), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nLeft += nWidth;
+    nWidth = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDTRANSDATE), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nStartTop;
+    nLeft += nWidth + AfxScaleX(18);
+    nWidth = AfxScaleX(90);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLSTARTDATE), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_STARTDATE), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nLeft += nWidth;
+    nWidth = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDSTARTDATE), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nStartTop;
+    nLeft += nWidth + AfxScaleX(18);
+    nWidth = AfxScaleX(90);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLENDDATE), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_ENDDATE), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nLeft += nWidth;
+    nWidth = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDENDDATE), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = 0;
     nTop = margin;
@@ -504,34 +506,77 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRANSPANEL = hwnd;
 
+    int HTextMargin = 0;
+    int VTextMargin = 3;
+
+    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
+    COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
+    std::wstring wszFontName = L"Segoe UI";
+    int FontSize = 8;
+
+
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"Transactions",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
         ThemeElement::WhiteDark, ThemeElement::Black);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTICKERGO, L"GO",
+        ThemeElement::Black, ThemeElement::Blue, ThemeElement::Blue, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
     
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
         ThemeElement::WhiteDark, ThemeElement::Black);
-
-    std::wstring wszDate = AfxCurrentDate();
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTRANSDATE, AfxLongDate(wszDate), 
-        ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"Today",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserData(hCtl, wszDate);
-
-    CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, L"\uE015",
+    CustomLabel_SetUserDataInt(hCtl, 0);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, L"\uE015",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
 
-
+    std::wstring wszDate = AfxCurrentDate();
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
         ThemeElement::WhiteDark, ThemeElement::Black);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, AfxLongDate(wszDate),
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+    CustomLabel_SetUserData(hCtl, wszDate);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
         ThemeElement::WhiteDark, ThemeElement::Black);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_ENDDATE, AfxLongDate(wszDate),
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+    CustomLabel_SetUserData(hCtl, wszDate);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, L"\uE015",
+        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+
+
 
     hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TransPanel_Header_SubclassProc,
@@ -605,6 +650,58 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, TransPanel_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
+
+
+    case WM_KEYUP:
+    {
+        // Handle ENTER key if pressed in the Ticker textbox.
+        HWND hTicker = GetDlgItem(m_hwnd, IDC_TRANS_TXTTICKER);
+        if (GetFocus() == GetDlgItem(hTicker, 100)) {
+            if (wParam == 13) {
+                TransPanel_ShowTransactions(true);
+                return true;
+            }
+        }
+        return 0;
+    }
+    break;
+
+
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_TRANS_CMDTICKERGO) {
+            TransPanel_ShowTransactions(true);
+        }
+
+        if (CtrlId == IDC_TRANS_CMDTRANSDATE || CtrlId == IDC_TRANS_TRANSDATE) {
+            // Clicked on the Date Filter dropdown or label itself
+            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE));
+            TransDateFilter_CreatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE), wszDate, TransDateFilterReturnType::LongDate);
+        }
+
+        if (CtrlId == IDC_TRANS_CMDSTARTDATE || CtrlId == IDC_TRANS_STARTDATE) {
+            // Clicked on the Start Date dropdown or label itself
+            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE));
+            Calendar_CreateDatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE), wszDate, CalendarPickerReturnType::LongDate, 1);
+        }
+
+        if (CtrlId == IDC_TRANS_CMDENDDATE || CtrlId == IDC_TRANS_ENDDATE) {
+            // Clicked on the End Date dropdown or label itself
+            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE));
+            Calendar_CreateDatePicker(
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE), wszDate, CalendarPickerReturnType::LongDate, 1);
+        }
+
+        return 0;
+    }
+    break;
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

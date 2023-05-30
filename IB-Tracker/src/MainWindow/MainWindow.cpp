@@ -37,6 +37,7 @@ SOFTWARE.
 #include "..\TradesPanel\TradesPanel.h"
 #include "..\ClosedPanel\ClosedPanel.h"
 #include "..\TransPanel\TransPanel.h"
+#include "..\TransPanel\TransDetail.h"
 #include "..\DailyPanel\DailyPanel.h"
 #include "..\TickerPanel\TickerPanel.h"
 #include "..\CustomLabel\CustomLabel.h"
@@ -59,6 +60,7 @@ CClosedPanel      ClosedPanel;
 CTickerPanel      TickerPanel;
 CDailyPanel       DailyPanel;
 CTransPanel       TransPanel;
+CTransDetail      TransDetail;
 
 
 extern void TradesPanel_ShowActiveTrades(bool bForceReload);
@@ -326,6 +328,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
+    TransDetail.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
 
     // We create the Category control at the bottom of the MainWindow
     CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);
@@ -412,6 +418,9 @@ void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 }
 
 
+// ========================================================================================
+// Update the panel sizes based the completed splitter action.
+// ========================================================================================
 void UpdateSplitterChildren(HWND hwnd, int xDelta)
 {
     int nRightPanelWidth = AfxGetWindowWidth(HWND_RIGHTPANEL) + xDelta;

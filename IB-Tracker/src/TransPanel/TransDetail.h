@@ -29,7 +29,7 @@ SOFTWARE.
 #include "..\Utilities\CWindowBase.h"
 
 
-class CTransPanel : public CWindowBase<CTransPanel>
+class CTransDetail: public CWindowBase<CTransDetail>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -37,29 +37,11 @@ public:
 };
 
 
-const int IDC_TRANS_LISTBOX = 100;
-const int IDC_TRANS_LABEL = 101;
-const int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
-const int IDC_TRANS_HEADER = 103;
+const int IDC_TRANSDETAIL_LISTBOX = 110;
+const int IDC_TRANSDETAIL_SYMBOL = 111;
+const int IDC_TRANSDETAIL_CUSTOMVSCROLLBAR = 112;
 
-const int IDC_TRANS_LBLTICKERFILTER = 110;
-const int IDC_TRANS_TXTTICKER = 111;
-const int IDC_TRANS_CMDTICKERGO = 112;
-
-const int IDC_TRANS_LBLDATEFILTER = 115;
-const int IDC_TRANS_TRANSDATE = 116;
-const int IDC_TRANS_CMDTRANSDATE = 117;
-
-const int IDC_TRANS_LBLSTARTDATE = 120;
-const int IDC_TRANS_STARTDATE = 121;
-const int IDC_TRANS_CMDSTARTDATE = 122;
-
-const int IDC_TRANS_LBLENDDATE = 125;
-const int IDC_TRANS_ENDDATE = 126;
-const int IDC_TRANS_CMDENDDATE = 127;
-
-
-
-const int TRANSACTIONS_LISTBOX_ROWHEIGHT = 18;
-const int TRANSPANEL_MARGIN = 80;
+const int TRANSDETAIL_LISTBOX_ROWHEIGHT = 20;
+const int TRANSDETAIL_WIDTH = 400;
+const int TRANSDETAIL_MARGIN = 24;
 

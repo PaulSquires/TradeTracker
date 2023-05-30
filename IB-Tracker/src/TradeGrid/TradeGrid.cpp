@@ -371,7 +371,7 @@ void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
     if (col == nullptr) return;
 
     std::wstring wszDate = CustomLabel_GetUserData(col->hCtl);
-    Calendar_CreateDatePicker(pData->hParent, col->hCtl, wszDate, CalendarPickerReturnType::ShortDate);
+    Calendar_CreateDatePicker(pData->hParent, col->hCtl, wszDate, CalendarPickerReturnType::ShortDate, 2);
 }
 
 

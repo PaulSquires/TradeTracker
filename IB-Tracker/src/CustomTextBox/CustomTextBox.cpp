@@ -116,8 +116,9 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     case WM_CHAR:
     {
         // Prevent the TAB character causing a BEEP. We handle TAB key navigation
-        // ourselves in WM_KEYDOW.
+        // ourselves in WM_KEYDOW. Likewise for ENTER key.
         if (wParam == VK_TAB) return 0;
+        if (wParam == VK_RETURN) return 0;
 
         if (pData == nullptr) break;
 
@@ -206,6 +207,16 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
                 return 0;
         }
+    }
+    break;
+
+
+    case WM_KEYUP:
+    {
+        // Send key information to the parent in case keys like VK_RETURN (Enter) need
+        // to be processed.
+        if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
+            return 0;
     }
     break;
 
@@ -301,6 +312,14 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     {
         SetFocus(pData->hTextBox);
         return 0;
+    }
+    break;
+
+
+    case WM_SETCURSOR:
+    {
+        SetCursor(LoadCursor(NULL, (LPCWSTR)IDC_IBEAM));
+        return TRUE;
     }
     break;
 
