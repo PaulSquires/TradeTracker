@@ -43,6 +43,72 @@ HWND hDateUpdateParentCtl = NULL;
 TransDateFilterReturnType TheUpdateDateReturnType = TransDateFilterReturnType::ISODate;
 
 
+// ========================================================================================
+// Listbox subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+
+    case WM_ERASEBKGND:
+    {
+        // If the number of lines in the listbox maybe less than the number per page then 
+        // calculate from last item to bottom of listbox, otherwise calculate based on
+        // the mod of the lineheight to listbox height so we can color the partial line
+        // that won't be displayed at the bottom of the list.
+        RECT rc; GetClientRect(hWnd, &rc);
+
+        RECT rcItem{};
+        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int itemHeight = (rcItem.bottom - rcItem.top);
+        int NumItems = ListBox_GetCount(hWnd);
+        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int visible_rows = 0;
+        int ItemsPerPage = 0;
+        int bottom_index = 0;
+        int nWidth = (rc.right - rc.left);
+        int nHeight = (rc.bottom - rc.top);
+
+        if (NumItems > 0) {
+            ItemsPerPage = (nHeight) / itemHeight;
+            bottom_index = (nTopIndex + ItemsPerPage);
+            if (bottom_index >= NumItems)
+                bottom_index = NumItems - 1;
+            visible_rows = (bottom_index - nTopIndex) + 1;
+            rc.top = visible_rows * itemHeight;
+        }
+
+        if (rc.top < rc.bottom) {
+            nHeight = (rc.bottom - rc.top);
+            HDC hDC = (HDC)wParam;
+            Graphics graphics(hDC);
+            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
+        }
+
+        ValidateRect(hWnd, &rc);
+        return TRUE;
+        break;
+
+    }
+
+
+    case WM_DESTROY:
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, TransDateFilter_ListBox_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
 
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TransDateFilter
@@ -90,6 +156,90 @@ void TransDateFilter_OnPaint(HWND hwnd)
 }
 
 
+// ========================================================================================
+// Process WM_DRAWITEM message for window/dialog: TransDateFilter
+// ========================================================================================
+void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
+{
+    if (lpDrawItem->itemID == -1) return;
+
+    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
+        lpDrawItem->itemAction == ODA_SELECT) {
+
+        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
+        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
+
+        bool bIsHot = false;
+
+        SaveDC(lpDrawItem->hDC);
+
+        HDC memDC = NULL;         // Double buffering
+        HBITMAP hbit = NULL;      // Double buffering
+
+        memDC = CreateCompatibleDC(lpDrawItem->hDC);
+        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
+        if (hbit) SelectObject(memDC, hbit);
+
+        if ((lpDrawItem->itemAction | ODA_SELECT) &&
+            (lpDrawItem->itemState & ODS_SELECTED)) {
+            bIsHot = true;
+        }
+
+        Graphics graphics(memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+
+        // Set some defaults in case there is no valid ListBox line number
+        std::wstring wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
+
+        DWORD nBackColor = (bIsHot)
+            ? GetThemeColor(ThemeElement::Selection)
+            : GetThemeColor(ThemeElement::GrayDark);
+        DWORD nBackColorHot = GetThemeColor(ThemeElement::Selection);
+        DWORD nTextColor = GetThemeColor(ThemeElement::WhiteLight);
+
+        std::wstring wszFontName = AfxGetDefaultFont();
+        FontFamily   fontFamily(wszFontName.c_str());
+        REAL fontSize = 10;
+        int fontStyle = FontStyleRegular;
+
+        StringAlignment HAlignment = StringAlignmentNear;
+        StringAlignment VAlignment = StringAlignmentCenter;
+
+        // Paint the full width background using brush 
+        SolidBrush backBrush(nBackColor);
+        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+
+        Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+        SolidBrush   textBrush(nTextColor);
+        StringFormat stringF(StringFormatFlagsNoWrap);
+        stringF.SetAlignment(HAlignment);
+        stringF.SetLineAlignment(VAlignment);
+
+        RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+
+
+        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
+            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
+
+
+        // Cleanup
+        RestoreDC(lpDrawItem->hDC, -1);
+        if (hbit) DeleteObject(hbit);
+        if (memDC) DeleteDC(memDC);
+    }
+}
+
+
+// ========================================================================================
+// Process WM_MEASUREITEM message for window/dialog: TransDateFilter
+// ========================================================================================
+void TransDateFilter_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+{
+    lpMeasureItem->itemHeight = AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT);
+}
+
 
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TransDateFilter
@@ -102,9 +252,29 @@ BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         TransDateFilter.AddControl(Controls::ListBox, hwnd, IDC_TRANSDATEFILTER_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
-            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR);
-    ListBox_AddString(hCtl, NULL);
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)TransDateFilter_ListBox_SubclassProc,
+            IDC_TRANSDATEFILTER_LISTBOX, NULL);
+
+    int idx = ListBox_AddString(hCtl, L"Today");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Today);
+    idx = ListBox_AddString(hCtl, L"Yesterday");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Yesterday);
+    idx = ListBox_AddString(hCtl, L"7 days");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days7);
+    idx = ListBox_AddString(hCtl, L"14 days");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days14);
+    idx = ListBox_AddString(hCtl, L"30 days");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days30);
+    idx = ListBox_AddString(hCtl, L"60 days");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days60);
+    idx = ListBox_AddString(hCtl, L"120 days");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days120);
+    idx = ListBox_AddString(hCtl, L"Year to Date");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::YearToDate);
+    idx = ListBox_AddString(hCtl, L"Custom");
+    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Custom);
 
     return TRUE;
 }
@@ -124,6 +294,8 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDateFilter_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TransDateFilter_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, TransDateFilter_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDateFilter_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, TransDateFilter_OnDrawItem);
 
 
     case WM_DESTROY:

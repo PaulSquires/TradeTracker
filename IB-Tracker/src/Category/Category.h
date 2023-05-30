@@ -53,6 +53,16 @@ public:
 };
 
 
+enum class Category
+{
+    Category0 = 0,
+    Category1 = 1,
+    Category2 = 2,
+    Category3 = 3,
+    Category4 = 4,
+    CategoryAll = 5
+};
+
 const int IDC_CATEGORYCONTROL_FIRST  = 140;
 const int IDC_CATEGORYCONTROL_GRAY   = 140;
 const int IDC_CATEGORYCONTROL_BLUE   = 141;

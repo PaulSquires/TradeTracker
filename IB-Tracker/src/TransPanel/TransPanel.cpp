@@ -113,7 +113,7 @@ void TransPanel_ShowTransactions(bool bForceReload)
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
             processTrade = false;
-            if (category == 5) processTrade = true;   // ALL categories
+            if (category == (int)Category::CategoryAll) processTrade = true;   // ALL categories
             if (trade->category == category) processTrade = true;   // specific selected category
 
             if (processTrade == false) continue;

@@ -1006,7 +1006,7 @@ void Header_OnPaint(HWND hWnd)
 
 // ========================================================================================
 // Process WM_DRAWITEM message for window/dialog 
-// (common function for TradesPanel & HistoryPanel)
+// (common function for custom drawing listbox data)
 // ========================================================================================
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {

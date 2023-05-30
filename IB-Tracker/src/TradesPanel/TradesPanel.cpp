@@ -164,7 +164,7 @@ void TradesPanel_ShowActiveTrades(bool bForceReload)
     for (const auto& trade : trades) {
         // We are displaying only all open trades for the selected Category
         if (trade->isOpen) {
-            if (category == 5) {   // ALL categories
+            if (category == (int)Category::CategoryAll) {   // ALL categories
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
             }
             else if (trade->category == category) {   // specific selected category

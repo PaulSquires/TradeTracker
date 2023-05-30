@@ -37,6 +37,19 @@ public:
 };
 
 
+enum class TransDateFilterType
+{
+    Today,
+    Yesterday,
+    Days7,
+    Days14,
+    Days30,
+    Days60,
+    Days120,
+    YearToDate,
+    Custom
+};
+
 enum class TransDateFilterReturnType
 {
     ShortDate,    // Mar 1
@@ -47,6 +60,7 @@ enum class TransDateFilterReturnType
 
 const int IDC_TRANSDATEFILTER_LISTBOX = 100;
 
+const int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
 const int TRANSDATEFILTER_WIDTH = 210;
 const int TRANSDATEFILTER_HEIGHT = 310;
 
