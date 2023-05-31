@@ -222,7 +222,9 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     
     case WM_SHOWWINDOW:
     {
-        // Workaround for the Windows white flashing bug.
+        // Workaround for the Windows 11 (The cloaking solution seems to work only
+        // on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work
+        // on Windows 11).
         // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
 
         SetWindowLongPtr(m_hwnd,
@@ -397,8 +399,16 @@ int TradeDialog_Show(TradeAction inTradeAction)
 
     EnableWindow(HWND_MAINWINDOW, FALSE);
 
+    // Fix Windows 10 white flashing
+    BOOL cloak = TRUE;
+    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
     ShowWindow(hwnd, SW_SHOWNORMAL);
     UpdateWindow(hwnd);
+
+    cloak = FALSE;
+    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
 
     
     if (IsNewOptionsTradeAction(tradeAction) == true ||

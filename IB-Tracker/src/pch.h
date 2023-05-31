@@ -28,7 +28,6 @@
 #include <codecvt>
 #include <versionhelpers.h>
 
-
 #include <string>
 #include <vector>
 #include <map> 

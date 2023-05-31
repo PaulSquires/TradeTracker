@@ -34,13 +34,12 @@ HWND HWND_TRANSDATEFILTER = NULL;
 
 CTransDateFilter TransDateFilter;
 
-std::wstring wszSelectedDateFilter;
-
 // Control on parent window that new selected date will be stored in and displayed.
 // That control must be a CustomLabel because we store the full ISO date in that
 // control's UserData string.
 HWND hDateUpdateParentCtl = NULL;
-TransDateFilterReturnType TheUpdateDateReturnType = TransDateFilterReturnType::ISODate;
+TransDateFilterType SelectedFilterType = TransDateFilterType::Today;
+
 
 
 // ========================================================================================
@@ -52,6 +51,33 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
 {
     switch (uMsg)
     {
+
+    case WM_MOUSEMOVE:
+    {
+        // Tracks the mouse movement and stores the hot state
+        if (GetProp(hWnd, L"HOT") == 0) {
+            TRACKMOUSEEVENT trackMouse;
+            trackMouse.cbSize = sizeof(trackMouse);
+            trackMouse.dwFlags = TME_LEAVE;
+            trackMouse.hwndTrack = hWnd;
+            trackMouse.dwHoverTime = 1;
+            TrackMouseEvent(&trackMouse);
+            SetProp(hWnd, L"HOT", (HANDLE)TRUE);
+        }
+        AfxRedrawWindow(hWnd);
+        return 0;
+    }
+    break;
+
+
+    case WM_MOUSELEAVE:
+    {
+        RemoveProp(hWnd, L"HOT");
+        AfxRedrawWindow(hWnd);
+        return 0;
+    }
+    break;
+
 
     case WM_ERASEBKGND:
     {
@@ -115,7 +141,9 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
 // ========================================================================================
 void TransDateFilter_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    SetWindowPos(GetDlgItem(hwnd, IDC_TRANSDATEFILTER_LISTBOX), 0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
+    int margin = AfxScaleX(1);
+    SetWindowPos(GetDlgItem(hwnd, IDC_TRANSDATEFILTER_LISTBOX), 0, 
+        margin, margin, cx-(margin*2), cy-(margin*2), SWP_NOZORDER | SWP_SHOWWINDOW);
     return;
 }
 
@@ -141,7 +169,6 @@ void TransDateFilter_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    //DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
     DWORD nBackColor = GetThemeColor(ThemeElement::Black);
 
     // Create the background brush
@@ -185,26 +212,26 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             bIsHot = true;
         }
 
+        // Determine if we are in a Hot mouseover state
+        POINT pt; GetCursorPos(&pt);
+        MapWindowPoints(HWND_DESKTOP, lpDrawItem->hwndItem, &pt, 1);
+        if (PtInRect(&lpDrawItem->rcItem, pt)) bIsHot = true;
+
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-
-        // Set some defaults in case there is no valid ListBox line number
-        std::wstring wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
-
         DWORD nBackColor = (bIsHot)
             ? GetThemeColor(ThemeElement::Selection)
-            : GetThemeColor(ThemeElement::GrayDark);
+            : GetThemeColor(ThemeElement::GrayMedium);
         DWORD nBackColorHot = GetThemeColor(ThemeElement::Selection);
-        DWORD nTextColor = GetThemeColor(ThemeElement::WhiteLight);
+        DWORD nTextColor = (bIsHot)
+            ? GetThemeColor(ThemeElement::WhiteLight)
+            : GetThemeColor(ThemeElement::WhiteDark);
 
         std::wstring wszFontName = AfxGetDefaultFont();
         FontFamily   fontFamily(wszFontName.c_str());
-        REAL fontSize = 10;
+        REAL fontSize = 9;
         int fontStyle = FontStyleRegular;
-
-        StringAlignment HAlignment = StringAlignmentNear;
-        StringAlignment VAlignment = StringAlignmentCenter;
 
         // Paint the full width background using brush 
         SolidBrush backBrush(nBackColor);
@@ -213,12 +240,19 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
         SolidBrush   textBrush(nTextColor);
         StringFormat stringF(StringFormatFlagsNoWrap);
-        stringF.SetAlignment(HAlignment);
-        stringF.SetLineAlignment(VAlignment);
+        stringF.SetLineAlignment(StringAlignment::StringAlignmentCenter);
 
-        RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+        std::wstring wszText;
+        
+        if ((int)SelectedFilterType == lpDrawItem->itemID) wszText = L"\u2713";
+        RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
+        stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText1, &stringF, &textBrush);
 
+        wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
+        RectF rcText2((REAL)AfxScaleX(24), (REAL)0, (REAL)nWidth, (REAL)nHeight);
+        stringF.SetAlignment(StringAlignment::StringAlignmentNear);
+        graphics.DrawString(wszText.c_str(), -1, &font, rcText2, &stringF, &textBrush);
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
             lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
@@ -331,32 +365,27 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create TransDateFilter picker control and move it into position under the specified incoming control.
 // ========================================================================================
-HWND TransDateFilter_CreatePicker(
-    HWND hParent, HWND hParentCtl, std::wstring wszDate, TransDateFilterReturnType DateReturnType)
+HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
 {
-    if (wszDate.length() == 0)
-        wszDate = AfxCurrentDate();
-
-    wszSelectedDateFilter = wszDate;
-
-
     TransDateFilter.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-
+    int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(TransDateFilter.WindowHandle(), HWND_TOP,
-        rc.left, rc.bottom,
-        AfxScaleX(TRANSDATEFILTER_WIDTH),
-        AfxScaleY(TRANSDATEFILTER_HEIGHT),
+        rc.left-margin, rc.bottom,
+        AfxScaleX(TRANSDATEFILTER_WIDTH) + (margin * 2),
+        AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT * 9),
         SWP_SHOWWINDOW);
+
+    // Get the current selected filter and apply it to the popup
+    SelectedFilterType = TransDateFilterType::Days120;
 
 
     // Set the module global hUpdateParentCtl after the above is created in
     // to ensure the variable address is correct.
     hDateUpdateParentCtl = hParentCtl;
-    TheUpdateDateReturnType = DateReturnType;
 
     return TransDateFilter.WindowHandle();
 }

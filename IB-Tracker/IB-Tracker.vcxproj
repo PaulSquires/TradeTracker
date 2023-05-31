@@ -38,6 +38,7 @@
     <ClInclude Include="src\TransPanel\TransDetail.h" />
     <ClInclude Include="src\TransPanel\TransPanel.h" />
     <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
+    <ClInclude Include="src\Utilities\decimal.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
     <ClInclude Include="src\main.h" />

@@ -50,20 +50,11 @@ enum class TransDateFilterType
     Custom
 };
 
-enum class TransDateFilterReturnType
-{
-    ShortDate,    // Mar 1
-    LongDate,     // Mar 1, 2023
-    ISODate       // 2023-03-01
-};
-
 
 const int IDC_TRANSDATEFILTER_LISTBOX = 100;
 
 const int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
-const int TRANSDATEFILTER_WIDTH = 210;
-const int TRANSDATEFILTER_HEIGHT = 310;
+const int TRANSDATEFILTER_WIDTH = 113;
 
-HWND TransDateFilter_CreatePicker(
-    HWND hParent, HWND hParentCtl, std::wstring wszDate, TransDateFilterReturnType DateReturnType);
+HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl);
 

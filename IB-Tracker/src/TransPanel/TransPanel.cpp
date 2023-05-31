@@ -681,8 +681,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (CtrlId == IDC_TRANS_CMDTRANSDATE || CtrlId == IDC_TRANS_TRANSDATE) {
             // Clicked on the Date Filter dropdown or label itself
             std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE));
-            TransDateFilter_CreatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE), wszDate, TransDateFilterReturnType::LongDate);
+            TransDateFilter_CreatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE));
         }
 
         if (CtrlId == IDC_TRANS_CMDSTARTDATE || CtrlId == IDC_TRANS_STARTDATE) {

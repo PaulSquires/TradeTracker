@@ -35,6 +35,8 @@ SOFTWARE.
 //  between them by iterating the vector and testing the isOpen() boolean method.
 //
 
+#include "..\Utilities\decimal.h"
+
 
 class Leg
 {
