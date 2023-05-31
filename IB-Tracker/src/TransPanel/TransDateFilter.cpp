@@ -43,6 +43,41 @@ TransDateFilterType SelectedFilterType = TransDateFilterType::Today;
 
 
 // ========================================================================================
+// Return string based on TransDateFilterType
+// ========================================================================================
+std::wstring TransDateFilter_GetString(int idx)
+{
+    switch ((TransDateFilterType)idx)
+    {
+    case TransDateFilterType::Today: return L"Today";
+    case TransDateFilterType::Yesterday: return L"Yesterday";
+    case TransDateFilterType::Days7: return L"7 days";
+    case TransDateFilterType::Days14: return L"14 days";
+    case TransDateFilterType::Days30: return L"30 days";
+    case TransDateFilterType::Days60: return L"60 days";
+    case TransDateFilterType::Days120: return L"120 days";
+    case TransDateFilterType::YearToDate: return L"Year to Date";
+    case TransDateFilterType::Custom: return L"Custom";
+    default: return L"";
+    }
+}
+
+
+// ========================================================================================
+// Handle selecting an item in the listview. This will set the parent label window, update
+// its CustomDataInt, and set its text label. Finally, it will close the popup dialog.
+// ========================================================================================
+void TransDateFilter_DoSelected(int idx)
+{
+    CustomLabel_SetUserDataInt(hDateUpdateParentCtl, idx);
+    CustomLabel_SetText(hDateUpdateParentCtl, TransDateFilter_GetString(idx).c_str());
+    PostMessage(GetParent(hDateUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
+        GetDlgCtrlID(hDateUpdateParentCtl), (LPARAM)hDateUpdateParentCtl);
+    DestroyWindow(HWND_TRANSDATEFILTER);
+}
+
+
+// ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
@@ -74,6 +109,20 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
     {
         RemoveProp(hWnd, L"HOT");
         AfxRedrawWindow(hWnd);
+        return 0;
+    }
+    break;
+
+
+    case WM_LBUTTONDOWN:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
+
+        TransDateFilter_DoSelected(idx);
         return 0;
     }
     break;
@@ -291,24 +340,10 @@ BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             (SUBCLASSPROC)TransDateFilter_ListBox_SubclassProc,
             IDC_TRANSDATEFILTER_LISTBOX, NULL);
 
-    int idx = ListBox_AddString(hCtl, L"Today");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Today);
-    idx = ListBox_AddString(hCtl, L"Yesterday");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Yesterday);
-    idx = ListBox_AddString(hCtl, L"7 days");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days7);
-    idx = ListBox_AddString(hCtl, L"14 days");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days14);
-    idx = ListBox_AddString(hCtl, L"30 days");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days30);
-    idx = ListBox_AddString(hCtl, L"60 days");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days60);
-    idx = ListBox_AddString(hCtl, L"120 days");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Days120);
-    idx = ListBox_AddString(hCtl, L"Year to Date");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::YearToDate);
-    idx = ListBox_AddString(hCtl, L"Custom");
-    ListBox_SetItemData(hCtl, idx, TransDateFilterType::Custom);
+    for (int i = (int)TransDateFilterType::Today; i <= (int)TransDateFilterType::Custom; ++i) {
+        int idx = ListBox_AddString(hCtl, TransDateFilter_GetString(i).c_str());
+        ListBox_SetItemData(hCtl, idx, i);
+    }
 
     return TRUE;
 }
@@ -380,7 +415,7 @@ HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
         SWP_SHOWWINDOW);
 
     // Get the current selected filter and apply it to the popup
-    SelectedFilterType = TransDateFilterType::Days120;
+    SelectedFilterType = (TransDateFilterType)CustomLabel_GetUserDataInt(hParentCtl);
 
 
     // Set the module global hUpdateParentCtl after the above is created in

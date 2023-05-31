@@ -55,12 +55,17 @@ void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const 
 
     ListBoxData_HistoryHeader(hListBox, trade, trans);
 
-    //CustomLabel_SetText(
-    //    GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
-    //    ld->trade->tickerSymbol + L": " + ld->trade->tickerName);
     CustomLabel_SetText(
-        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL),
+        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1),
         L"Transaction Details");
+
+    std::wstring wszText = trade->tickerSymbol + L": " + trade->tickerName;
+    if (trade->futureExpiry.length()) {
+        wszText = wszText + L" ( " + AfxFormatFuturesDate(trade->futureExpiry) + L" )";
+    }
+    CustomLabel_SetText(
+        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), wszText);
+
 
     // Show the detail leg information for this transaction.
     for (const auto& leg : trans->legs) {
@@ -221,7 +226,7 @@ void TransDetail_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
+    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -244,12 +249,17 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(TRANSDETAIL_MARGIN);
+    int nTop = 0;
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
     // Move and size the top label into place
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LABEL1), 0,
+        0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop += margin;
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_SYMBOL), 0,
-        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -266,7 +276,7 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
-    int nTop = margin;
+    nTop = AfxScaleY(80);
     int nLeft = 0;
     int nWidth = cx - CustomVScrollBarWidth;
     int nHeight = cy - nTop;
@@ -288,8 +298,11 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRANSDETAIL = hwnd;
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"Transaction Details",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL1, L"Transaction Details",
         ThemeElement::WhiteLight, ThemeElement::Black);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"",
+        ThemeElement::WhiteDark, ThemeElement::Black);
 
     // Create an Ownerdraw listbox that we will use to custom paint our transaction detail.
     hCtl =

@@ -48,9 +48,54 @@ extern HWND HWND_MIDDLEPANEL;
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void MainWindow_SetRightPanel(HWND hPanel);
 extern void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+extern std::wstring TransDateFilter_GetString(int idx);
 
 void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
+
+
+// ========================================================================================
+// Set the StartDate and EndDate based on the current value of the Date Filter.
+// ========================================================================================
+void TransPanel_SetStartEndDates(HWND hwnd)
+{
+    int idx = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRANS_TRANSDATE));
+
+    // Do not modify dates if Custom has been set.
+    if ((TransDateFilterType)idx == TransDateFilterType::Custom) return;
+
+    std::wstring wszEndDate = AfxCurrentDate();   // ISO format
+    std::wstring wszStartDate = wszEndDate;       // ISO format
+    int AdjustDays = 0;
+
+    if ((TransDateFilterType)idx == TransDateFilterType::YearToDate) {
+        wszStartDate = wszEndDate.substr(0, 4)+ L"-01-01";
+    }
+    else if ((TransDateFilterType)idx == TransDateFilterType::Yesterday) {
+        wszStartDate = AfxDateAddDays(wszEndDate, -1);
+        wszEndDate = wszStartDate;
+    }
+    else if ((TransDateFilterType)idx == TransDateFilterType::Today) {
+        // Dates are already set to current date
+    }
+    else {
+        switch ((TransDateFilterType)idx)
+        {
+        case TransDateFilterType::Days7: AdjustDays = 7; break;
+        case TransDateFilterType::Days14: AdjustDays = 14; break;
+        case TransDateFilterType::Days30: AdjustDays = 30; break;
+        case TransDateFilterType::Days60: AdjustDays = 60; break;
+        case TransDateFilterType::Days120: AdjustDays = 120; break;
+        }
+        wszStartDate = AfxDateAddDays(wszEndDate, -(AdjustDays));
+    }
+
+    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRANS_STARTDATE), wszStartDate);
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRANS_STARTDATE), AfxLongDate(wszStartDate));
+
+    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRANS_ENDDATE), wszEndDate);
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRANS_ENDDATE), AfxLongDate(wszEndDate));
+}
 
 
 // ========================================================================================
@@ -109,6 +154,8 @@ void TransPanel_ShowTransactions(bool bForceReload)
 
     bool processTrade = false;
     std::wstring wszText;
+    std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
+    std::wstring wszEndDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
 
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
@@ -123,6 +170,8 @@ void TransPanel_ShowTransactions(bool bForceReload)
             if (wszText.length() > 0) {
                 if (wszText != trade->tickerSymbol) continue;
             }
+
+            if (trans->transDate < wszStartDate || trans->transDate > wszEndDate) continue;
 
             TransData td;
             td.trade = trade;
@@ -538,7 +587,8 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserDataInt(hCtl, 0);
+    CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Today);
+
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, L"\uE015",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
@@ -546,15 +596,13 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
 
-    std::wstring wszDate = AfxCurrentDate();
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
         ThemeElement::WhiteDark, ThemeElement::Black);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, AfxLongDate(wszDate),
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, L"",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserData(hCtl, wszDate);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, L"\uE015",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
@@ -564,18 +612,20 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
         ThemeElement::WhiteDark, ThemeElement::Black);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_ENDDATE, AfxLongDate(wszDate),
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_ENDDATE, L"",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserData(hCtl, wszDate);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, L"\uE015",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
+
+    // Set the Start & End dates based on the filter type.
+    TransPanel_SetStartEndDates(hwnd);
 
 
     hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
@@ -662,6 +712,24 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 return true;
             }
         }
+        return 0;
+    }
+    break;
+
+
+    case MSG_DATEPICKER_DATECHANGED:
+    {
+        // If the StartDate or EndDate is changed then we set the DateFilter to Custom.
+        if ((HWND)lParam == GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE) ||
+            (HWND)lParam == GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE)) {
+            CustomLabel_SetUserDataInt(GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE), 
+                (int)TransDateFilterType::Custom);
+            CustomLabel_SetText(GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE),
+                TransDateFilter_GetString((int)TransDateFilterType::Custom).c_str());
+        }
+
+        TransPanel_SetStartEndDates(m_hwnd);
+        TransPanel_ShowTransactions(true);
         return 0;
     }
     break;
