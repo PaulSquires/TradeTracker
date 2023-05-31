@@ -1010,7 +1010,7 @@ void Header_OnPaint(HWND hWnd)
 // ========================================================================================
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {
-    if (lpDrawItem->itemID == -1) return;
+   if (lpDrawItem->itemID == -1) return;
 
     if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
         lpDrawItem->itemAction == ODA_SELECT) {

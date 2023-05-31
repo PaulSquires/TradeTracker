@@ -157,7 +157,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring wszFontName = L"Segoe UI";
     std::wstring wszText;
     int FontSize = 8;
-    bool bold = false;
+    bool bold = true;
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_LONGSHORT, L"",
         ThemeElement::WhiteLight, ThemeElement::GrayMedium,

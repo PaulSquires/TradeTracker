@@ -240,7 +240,6 @@ HWND Calendar_CreateDatePicker(
         SWP_SHOWWINDOW);
 
 
-
     // Set the module global hUpdateParentCtl after the above Calendar is created in
     // to ensure the variable address is correct.
     hTheUpdateParentCtl = hParentCtl;

@@ -92,7 +92,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring wszFontName = L"Segoe UI";
     std::wstring wszText;
     int FontSize = 8;
-    bool bold = false;
+    bool bold = true;
 
     for (int i = 0; i < (int)Strategy::Count; ++i) {
 

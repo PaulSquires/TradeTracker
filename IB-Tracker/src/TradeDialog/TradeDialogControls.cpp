@@ -752,7 +752,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     std::wstring wszFontName = L"Segoe UI";
-    int FontSize = 8;
+    int FontSize = 9;
     bool bold = false;
 
     // DR / CR toggle label
@@ -771,7 +771,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
     // SAVE button
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"Save",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
         ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 580, nTop + nHeight + vsp, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);

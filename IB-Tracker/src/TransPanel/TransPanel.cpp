@@ -50,8 +50,6 @@ extern void MainWindow_SetRightPanel(HWND hPanel);
 extern void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
 extern std::wstring TransDateFilter_GetString(int idx);
 
-void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
-
 
 
 // ========================================================================================
@@ -582,12 +580,12 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
         ThemeElement::WhiteDark, ThemeElement::Black);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"Today",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"7 days",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Today);
+    CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Days7);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, L"\uE015",
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,

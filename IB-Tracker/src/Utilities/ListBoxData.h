@@ -110,6 +110,7 @@ enum class TableType
     Transactions
 };
 
+ThemeElement GetCategoryColor(int category);
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);

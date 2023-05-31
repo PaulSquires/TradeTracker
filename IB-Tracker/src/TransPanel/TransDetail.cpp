@@ -49,6 +49,9 @@ extern void MainWindow_SetRightPanel(HWND hPanel);
 // ========================================================================================
 void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
 {
+    if (trade == nullptr) return;
+    if (trans == nullptr) return;
+
     // Clear the current transaction history table
     HWND hListBox = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LISTBOX);
     ListBoxData_DestroyItemData(hListBox);
@@ -58,6 +61,11 @@ void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const 
     CustomLabel_SetText(
         GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1),
         L"Transaction Details");
+    
+    CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY), L"\u23FA");
+    CustomLabel_SetTextColor(
+        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY),
+        GetCategoryColor(trade->category));
 
     std::wstring wszText = trade->tickerSymbol + L": " + trade->tickerName;
     if (trade->futureExpiry.length()) {
@@ -195,7 +203,6 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
 }
 
 
-
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransDetail
 // ========================================================================================
@@ -258,8 +265,11 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
         0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop += margin;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CATEGORY), 0,
+        0, nTop, AfxScaleX(18), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_SYMBOL), 0,
-        0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        AfxScaleX(18), nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -301,8 +311,12 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL1, L"Transaction Details",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_CATEGORY, L"",
+        ThemeElement::WhiteDark, ThemeElement::Black);
+
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"",
         ThemeElement::WhiteDark, ThemeElement::Black);
+
 
     // Create an Ownerdraw listbox that we will use to custom paint our transaction detail.
     hCtl =
