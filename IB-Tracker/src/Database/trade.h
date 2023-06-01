@@ -35,20 +35,21 @@ SOFTWARE.
 //  between them by iterating the vector and testing the isOpen() boolean method.
 //
 
-#include "..\Utilities\decimal.h"
 
 
 class Leg
 {
 public:
+    int          legID = 0;               // Unique id for this leg within the Trade (see Trade nextLegID) 
+    int          legBackPointerID = 0;    // If transaction is CLOSE, EXPIRE, ROLL this points back to leg where quantity modified
     int          origQuantity = 0;
     int          openQuantity = 0;
     std::wstring expiryDate   = L"";
     std::wstring strikePrice  = L"";
     std::wstring PutCall      = L"";
-    std::wstring action       = L"";   // STO,BTO,STC,BTC
-    std::wstring underlying   = L"";   // OPTIONS, STOCKS, FUTURES
-    bool         isOpen();            // method to calc if leg quantity is not zero
+    std::wstring action       = L"";      // STO,BTO,STC,BTC
+    std::wstring underlying   = L"";      // OPTIONS, STOCKS, FUTURES
+    bool         isOpen();                // method to calc if leg quantity is not zero
 };
 
 
@@ -76,8 +77,9 @@ public:
     std::wstring  tickerSymbol = L"";
     std::wstring  tickerName   = L"";
     std::wstring  futureExpiry = L"";     // YYYYMM of Futures contract expiry
-    int           category     = 0;       //  blue, purple, etc (0 to 4)
+    int           category     = 0;       // blue, purple, etc (0 to 4)
     double        ACB          = 0;
+    int           nextLegID    = 0;       // Incrementing counter that gets unique ID for legs being generated in Transactions.    
 
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;

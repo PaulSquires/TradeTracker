@@ -131,9 +131,9 @@ bool SaveDatabase()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "// TRADE  T|isOpen|TickerSymbol|TickerName|FutureExpiry|Category\n"
-        << "// TRANS  X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
-        << "// LEG    L|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
+        << "// TRADE          T|isOpen|nextLegID|TickerSymbol|TickerName|FutureExpiry|Category\n"
+        << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
+        << "// LEG            L|legID|legBackPointerID|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
         << "// isOpen:        0:FALSE, 1:TRUE\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
         << "// Category:      0,1,2,3,4 (integer value)\n"
@@ -144,6 +144,7 @@ bool SaveDatabase()
     for (const auto trade : trades) {
         db << "T|"
             << std::wstring(trade->isOpen ? L"1|" : L"0|")
+            << trade->nextLegID << "|"
             << trade->tickerSymbol << "|"
             << trade->tickerName << "|"
             << RemoveDateHyphens(trade->futureExpiry) << "|"
@@ -164,6 +165,8 @@ bool SaveDatabase()
 
             for (const auto leg : trans->legs) {
                 db << "L|"
+                    << leg->legID << "|"
+                    << leg->legBackPointerID << "|"
                     << leg->origQuantity << "|"
                     << leg->openQuantity << "|"
                     << RemoveDateHyphens(leg->expiryDate) << "|"
@@ -267,12 +270,12 @@ bool LoadDatabase()
 
         if (try_catch_wstring(st, 0) == L"T") {
             trade = std::make_shared<Trade>();
-
             trade->isOpen = (try_catch_wstring(st, 1) == L"0" ? false : true);
-            trade->tickerSymbol = try_catch_wstring(st, 2);
-            trade->tickerName = try_catch_wstring(st, 3);
-            trade->futureExpiry = InsertDateHyphens(try_catch_wstring(st, 4));
-            trade->category = try_catch_int(st, 5);
+            trade->nextLegID = try_catch_int(st, 2);
+            trade->tickerSymbol = try_catch_wstring(st, 3);
+            trade->tickerName = try_catch_wstring(st, 4);
+            trade->futureExpiry = InsertDateHyphens(try_catch_wstring(st, 5));
+            trade->category = try_catch_int(st, 6);
             trades.push_back(trade);
             continue;
         }
@@ -294,13 +297,15 @@ bool LoadDatabase()
 
         if (try_catch_wstring(st, 0) == L"L") {
             leg = std::make_shared<Leg>();
-            leg->origQuantity = try_catch_int(st, 1);
-            leg->openQuantity = try_catch_int(st, 2);
-            leg->expiryDate = InsertDateHyphens(try_catch_wstring(st, 3));
-            leg->strikePrice = try_catch_wstring(st, 4);
-            leg->PutCall = try_catch_wstring(st, 5); 
-            leg->action = NumberToAction(try_catch_int(st, 6));
-            leg->underlying = NumberToUnderlying(try_catch_int(st, 7));
+            leg->legID = try_catch_int(st, 1);
+            leg->legBackPointerID = try_catch_int(st, 2);
+            leg->origQuantity = try_catch_int(st, 3);
+            leg->openQuantity = try_catch_int(st, 4);
+            leg->expiryDate = InsertDateHyphens(try_catch_wstring(st, 5));
+            leg->strikePrice = try_catch_wstring(st, 6);
+            leg->PutCall = try_catch_wstring(st, 7); 
+            leg->action = NumberToAction(try_catch_int(st, 8));
+            leg->underlying = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr)
                 trans->legs.push_back(leg);
             continue;
