@@ -27,7 +27,6 @@ SOFTWARE.
 #include "pch.h"
 
 #include "..\Utilities\AfxWin.h"
-#include "..\Utilities\decimal.h"
 
 #include "trade.h"
 #include "database.h"
