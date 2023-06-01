@@ -338,7 +338,6 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
         RECT rc; GetClientRect(hWnd, &rc);
-
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int itemHeight = (rcItem.bottom - rcItem.top);

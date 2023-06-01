@@ -45,7 +45,7 @@ extern TradeAction tradeAction;
 extern std::vector<std::shared_ptr<Leg>> legsEdit;
 extern std::shared_ptr<Trade> tradeEdit;
 
-extern void TradesPanel_ShowActiveTrades(bool bForceReload);
+extern void TradesPanel_ShowActiveTrades();
 
 
 // ========================================================================================
@@ -207,7 +207,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
-    TradesPanel_ShowActiveTrades(true);
+    TradesPanel_ShowActiveTrades();
 
     tws_ResumeTWS();
 
@@ -444,7 +444,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
-    TradesPanel_ShowActiveTrades(true);
+    TradesPanel_ShowActiveTrades();
 
     tws_ResumeTWS();
 

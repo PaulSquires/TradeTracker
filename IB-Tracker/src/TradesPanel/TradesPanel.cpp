@@ -121,21 +121,13 @@ void TradesPanel_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Trades ListBox with the current active/open trades
 // ========================================================================================
-void TradesPanel_ShowActiveTrades(bool bForceReload)
+void TradesPanel_ShowActiveTrades()
 {
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
 
-    
-    // No need to redisplay Active Trades if they are already showing, unless we have
-    // specified a forced re-load which is the result of a successful change or addition
-    // to the underlying database.
-    if (bForceReload == false && HWND_MIDDLEPANEL == HWND_TRADESPANEL) return;
-
-    
     tws_PauseTWS();
-
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -181,11 +173,11 @@ void TradesPanel_ShowActiveTrades(bool bForceReload)
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1);
 
-    
+
     // Select the correct menu panel item
     MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES);
 
-    
+
     // Set the label text indicated the type of trades being listed
     CustomLabel_SetText(hLabel, L"Active Trades");
 
@@ -343,7 +335,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    TradesPanel_ShowActiveTrades(true);
+    TradesPanel_ShowActiveTrades();
 
 }
 
@@ -437,7 +429,7 @@ void TradesPanel_OptionAssignment(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    TradesPanel_ShowActiveTrades(true);
+    TradesPanel_ShowActiveTrades();
 }
 
 

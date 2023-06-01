@@ -212,6 +212,7 @@ std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
 
 bool LoadDatabase()
 {
+    trades.clear();
     trades.reserve(5000);         // reserve space for 5000 trades
 
     std::wifstream db; 

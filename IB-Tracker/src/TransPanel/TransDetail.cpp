@@ -27,6 +27,8 @@ SOFTWARE.
 #include "pch.h"
 #include "..\CustomLabel\CustomLabel.h"
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
+#include "..\MainWindow\tws-client.h"
+#include "..\Database\database.h"
 #include "..\Utilities\ListBoxData.h"
 
 #include "TransDetail.h"
@@ -42,6 +44,68 @@ extern int nColWidth[];
 extern HWND HWND_MENUPANEL;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
+extern void TransPanel_ShowTransactions(bool bForceReload);
+
+std::shared_ptr<Trade> tradeEditDelete = nullptr;
+std::shared_ptr<Transaction> transEditDelete = nullptr;
+
+
+// ========================================================================================
+// Display the selected Transaction detail (legs) and ability to Edit/Delete it.
+// ========================================================================================
+void TransDetail_DeleteTransaction(HWND hwnd)
+{
+    if (tradeEditDelete == nullptr) return;
+    if (transEditDelete == nullptr) return;
+
+    int res = MessageBox(
+        HWND_TRANSDETAIL,
+        (LPCWSTR)(L"Are you sure you wish to DELETE this Transaction?"),
+        (LPCWSTR)L"Confirm",
+        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+
+    if (res != IDYES) return;
+
+    // Iterate the trades and look into each transactions vector to match the 
+    // transaction that we need to delete.
+    for (auto trade : trades) {
+        auto iter = trade->transactions.begin();
+        while (iter != trade->transactions.end())
+        {
+            // If element matches the element to be deleted then delete it
+            if (*iter == transEditDelete)
+            {
+                iter = trade->transactions.erase(iter);
+            }
+            else
+            {
+                iter++;
+            }
+        }
+
+    }
+    
+    // Calculate the Trade open status because we may have just deleted the 
+    // transaction that sets the trades OpenQuantity to zero.
+    tradeEditDelete->setTradeOpenStatus();
+
+
+    tws_PauseTWS();
+
+    // Save the modified data
+    SaveDatabase();
+    LoadDatabase();
+
+    tws_ResumeTWS();
+
+    tradeEditDelete = nullptr;
+    transEditDelete = nullptr;
+
+    // Show our new list of transactions.
+    TransPanel_ShowTransactions(true);
+
+
+}
 
 
 // ========================================================================================
@@ -51,6 +115,9 @@ void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const 
 {
     if (trade == nullptr) return;
     if (trans == nullptr) return;
+
+    tradeEditDelete = trade;
+    transEditDelete = trans;
 
     // Clear the current transaction history table
     HWND hListBox = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LISTBOX);
@@ -257,6 +324,9 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int margin = AfxScaleY(TRANSDETAIL_MARGIN);
     int nTop = 0;
+    int nLeft = 0;
+    int nButtonWidth = AfxScaleX(80);
+    int nButtonHeight = AfxScaleX(23);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
@@ -270,6 +340,15 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_SYMBOL), 0,
         AfxScaleX(18), nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop += margin;
+    nLeft = cx - (nButtonWidth * 2) - AfxScaleX(8);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDEDIT), 0,
+        nLeft, nTop, nButtonWidth, nButtonHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft = cx - nButtonWidth;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDDELETE), 0,
+        nLeft, nTop, nButtonWidth, nButtonHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -287,7 +366,7 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     nTop = AfxScaleY(80);
-    int nLeft = 0;
+    nLeft = 0;
     int nWidth = cx - CustomVScrollBarWidth;
     int nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -308,6 +387,9 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRANSDETAIL = hwnd;
 
+    std::wstring wszFontName = L"Segoe UI";
+    int FontSize = 9;
+
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL1, L"Transaction Details",
         ThemeElement::WhiteLight, ThemeElement::Black);
 
@@ -317,6 +399,19 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"",
         ThemeElement::WhiteDark, ThemeElement::Black);
 
+    // EDIT button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDEDIT, L"EDIT",
+        ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+
+    // DELETE button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDDELETE, L"DELETE",
+        ThemeElement::Black, ThemeElement::Red, ThemeElement::Red, ThemeElement::GrayMedium,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
     // Create an Ownerdraw listbox that we will use to custom paint our transaction detail.
     hCtl =
@@ -350,6 +445,22 @@ LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, TransDetail_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDetail_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
+
+
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_TRANSDETAIL_CMDDELETE) {
+            TransDetail_DeleteTransaction(m_hwnd);
+            return 0;
+        }
+
+    }
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
