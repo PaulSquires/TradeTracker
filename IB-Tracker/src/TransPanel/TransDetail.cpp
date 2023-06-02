@@ -29,6 +29,7 @@ SOFTWARE.
 #include "..\CustomVScrollBar\CustomVScrollBar.h"
 #include "..\MainWindow\tws-client.h"
 #include "..\Database\database.h"
+#include "..\TradeDialog\TradeDialog.h"
 #include "..\Utilities\ListBoxData.h"
 
 #include "TransDetail.h"
@@ -46,8 +47,11 @@ extern HWND HWND_MENUPANEL;
 extern void MainWindow_SetRightPanel(HWND hPanel);
 extern void TransPanel_ShowTransactions();
 
+extern TradeDialogData tdd;
+
 std::shared_ptr<Trade> tradeEditDelete = nullptr;
 std::shared_ptr<Transaction> transEditDelete = nullptr;
+
 
 
 // ========================================================================================
@@ -66,8 +70,24 @@ std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade,
 }
     
     
-    // ========================================================================================
-// Display the selected Transaction detail (legs) and ability to Edit/Delete it.
+// ========================================================================================
+// Display the selected Transaction detail (legs) and ability to Edit it.
+// ========================================================================================
+void TransDetail_EditTransaction(HWND hwnd)
+{
+    if (tradeEditDelete == nullptr) return;
+    if (transEditDelete == nullptr) return;
+
+    tdd.legs.clear();
+    tdd.legs = transEditDelete->legs;
+    tdd.trade = tradeEditDelete;
+    tdd.trans = transEditDelete;
+    TradeDialog_Show(TradeAction::EditTransaction);
+}
+    
+
+// ========================================================================================
+// Delete (after confirmation) the selected Transaction.
 // ========================================================================================
 void TransDetail_DeleteTransaction(HWND hwnd)
 {
@@ -483,6 +503,11 @@ LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_TRANSDETAIL_CMDEDIT) {
+            TransDetail_EditTransaction(m_hwnd);
+            return 0;
+        }
 
         if (CtrlId == IDC_TRANSDETAIL_CMDDELETE) {
             TransDetail_DeleteTransaction(m_hwnd);

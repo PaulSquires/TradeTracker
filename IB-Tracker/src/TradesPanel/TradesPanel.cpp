@@ -47,14 +47,12 @@ extern HWND HWND_MENUPANEL;
 extern HWND HWND_MIDDLEPANEL;
 extern CTradesPanel TradesPanel;
 
+extern TradeDialogData tdd;
+
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
-// Vector to hold all selected legs that TradeDiaog will act on
-std::vector<std::shared_ptr<Leg>> legsEdit;
-std::shared_ptr<Trade> tradeEdit;
-std::wstring sharesAggregateEdit = L"0";
 
 
 // ========================================================================================
@@ -280,7 +278,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
 {
     // Do a check to ensure that there is actually legs selected to expire. It could
     // be that the user select SHARES or other non-options underlyings only.
-    if (legsEdit.size() == 0) {
+    if (tdd.legs.size() == 0) {
         MessageBox(
             HWND_MENUPANEL,
             (LPCWSTR)(L"No valid option legs have been selected for expiration."),
@@ -303,7 +301,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
     trans->underlying = L"OPTIONS";
     trade->transactions.push_back(trans);
 
-    for (auto leg : legsEdit) {
+    for (auto leg : tdd.legs) {
 
         // Save this transaction's leg quantities
         std::shared_ptr<Leg> newleg = std::make_shared<Leg>();
@@ -349,7 +347,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
 void TradesPanel_OptionAssignment(auto trade)
 {
     // Do a check to ensure that there is actually legs selected for assignment. 
-    if (legsEdit.size() == 0) {
+    if (tdd.legs.size() == 0) {
         MessageBox(
             HWND_MENUPANEL,
             (LPCWSTR)(L"No valid option legs have been selected for assignment."),
@@ -362,7 +360,7 @@ void TradesPanel_OptionAssignment(auto trade)
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
-    for (auto leg : legsEdit) {
+    for (auto leg : tdd.legs) {
 
         int numShares = abs(leg->openQuantity * 100);
 
@@ -447,10 +445,10 @@ void TradesPanel_OptionAssignment(auto trade)
 // ========================================================================================
 void TradesPanel_PopulateLegsEditVector(HWND hListBox)
 {
-    legsEdit.clear();
+    tdd.legs.clear();
 
     int nCount = ListBox_GetSelCount(hListBox);
-    legsEdit.reserve(nCount);
+    tdd.legs.reserve(nCount);
 
     if (nCount) {
         int* selItems = new int[nCount]();
@@ -462,7 +460,7 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
             if (ld != nullptr) {
                 // Only allow Option legs to be pushed to legEdit
                 if (ld->leg != nullptr) {
-                    legsEdit.push_back(ld->leg);
+                    tdd.legs.push_back(ld->leg);
                 }
             }
         }
@@ -491,8 +489,8 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     int nCurSel = ListBox_GetCurSel(hListBox);
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nCurSel);
     trade = ld->trade;
-    tradeEdit = ld->trade;
-    sharesAggregateEdit = ld->AggregateShares;
+    tdd.trade = ld->trade;
+    tdd.sharesAggregateEdit = ld->AggregateShares;
 
     if (nCount == 1) {
         // Is this the Trade header line
@@ -556,6 +554,9 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
     case TradeAction::ManageFutures:
     case TradeAction::AddSharesToTrade:
     case TradeAction::AddFuturesToTrade:
+    case TradeAction::AddOptionsToTrade:
+    case TradeAction::AddPutToTrade:
+    case TradeAction::AddCallToTrade:
         TradeDialog_Show(selected);
         break;
 
@@ -564,19 +565,16 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
         TradesPanel_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
         break;
+
     case TradeAction::ExpireLeg:
         TradesPanel_PopulateLegsEditVector(hListBox);
         TradesPanel_ExpireSelectedLegs(trade);
         break;
+
     case TradeAction::Assignment:
         TradesPanel_PopulateLegsEditVector(hListBox);
         TradesPanel_OptionAssignment(trade);
         break;
-    case TradeAction::AddOptionsToTrade:
-    case TradeAction::AddPutToTrade:
-    case TradeAction::AddCallToTrade:
-        //TradesPanel_PopulateLegsEditVector(hListBox);
-        TradeDialog_Show(selected);
     }
 
 }

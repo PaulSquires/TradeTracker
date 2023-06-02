@@ -49,8 +49,10 @@ enum class TradeAction
     NewShortStrangle,
     NewShortPut,
     NewShortCall,
+    EditTransaction,
     NoAction
 };
+
 
 
 // User defined messages

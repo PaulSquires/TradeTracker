@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "..\Utilities\CWindowBase.h"
 #include "..\Utilities\UserMessages.h"
+#include "..\Database\trade.h"
 
 
 class CTradeDialog : public CWindowBase<CTradeDialog>
@@ -35,6 +36,17 @@ class CTradeDialog : public CWindowBase<CTradeDialog>
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+};
+
+
+class TradeDialogData
+{
+public:
+    TradeAction tradeAction = TradeAction::NoAction;
+    std::shared_ptr<Trade> trade = nullptr;
+    std::shared_ptr<Transaction> trans = nullptr;
+    std::vector< std::shared_ptr<Leg> > legs;
+    std::wstring sharesAggregateEdit = L"0";
 };
 
 

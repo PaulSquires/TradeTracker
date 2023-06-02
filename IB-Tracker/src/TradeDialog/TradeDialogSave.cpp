@@ -41,9 +41,7 @@ SOFTWARE.
 
 extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
-extern TradeAction tradeAction;
-extern std::vector<std::shared_ptr<Leg>> legsEdit;
-extern std::shared_ptr<Trade> tradeEdit;
+extern TradeDialogData tdd;
 
 extern void TradesPanel_ShowActiveTrades();
 
@@ -71,18 +69,18 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
     std::wstring wszErrMsg;
     std::wstring wszText;
 
-    if (tradeAction == TradeAction::NewSharesTrade ||
-        tradeAction == TradeAction::ManageShares ||
-        tradeAction == TradeAction::AddSharesToTrade) {
+    if (tdd.tradeAction == TradeAction::NewSharesTrade ||
+        tdd.tradeAction == TradeAction::ManageShares ||
+        tdd.tradeAction == TradeAction::AddSharesToTrade) {
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Shares");
     }
-    if (tradeAction == TradeAction::NewFuturesTrade ||
-        tradeAction == TradeAction::ManageFutures ||
-        tradeAction == TradeAction::AddFuturesToTrade) {
+    if (tdd.tradeAction == TradeAction::NewFuturesTrade ||
+        tdd.tradeAction == TradeAction::ManageFutures ||
+        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Futures");
     }
 
-    if (IsNewSharesTradeAction(tradeAction) == true) {
+    if (IsNewSharesTradeAction(tdd.tradeAction) == true) {
         wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
         if (wszText.length() == 0) wszErrMsg += L"- Missing Ticker Symbol.\n";
         wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
@@ -118,7 +116,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     std::shared_ptr<Trade> trade;
 
-    if (IsNewSharesTradeAction(tradeAction) == true) {
+    if (IsNewSharesTradeAction(tdd.tradeAction) == true) {
         trade = std::make_shared<Trade>();
         trades.push_back(trade);
         trade->tickerSymbol = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER)));
@@ -127,7 +125,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         trade->category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
     }
     else {
-        trade = tradeEdit;
+        trade = tdd.trade;
     }
 
 
@@ -136,12 +134,12 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
     trans->description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
     
-    if (tradeAction == TradeAction::NewSharesTrade) trans->underlying = L"SHARES";
-    if (tradeAction == TradeAction::NewFuturesTrade) trans->underlying = L"FUTURES";
-    if (tradeAction == TradeAction::ManageShares) trans->underlying = L"SHARES";
-    if (tradeAction == TradeAction::ManageFutures) trans->underlying = L"FUTURES";
-    if (tradeAction == TradeAction::AddSharesToTrade) trans->underlying = L"SHARES";
-    if (tradeAction == TradeAction::AddFuturesToTrade) trans->underlying = L"FUTURES";
+    if (tdd.tradeAction == TradeAction::NewSharesTrade) trans->underlying = L"SHARES";
+    if (tdd.tradeAction == TradeAction::NewFuturesTrade) trans->underlying = L"FUTURES";
+    if (tdd.tradeAction == TradeAction::ManageShares) trans->underlying = L"SHARES";
+    if (tdd.tradeAction == TradeAction::ManageFutures) trans->underlying = L"FUTURES";
+    if (tdd.tradeAction == TradeAction::AddSharesToTrade) trans->underlying = L"SHARES";
+    if (tdd.tradeAction == TradeAction::AddFuturesToTrade) trans->underlying = L"FUTURES";
 
     trans->quantity = stoi(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
@@ -161,9 +159,9 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // Set the Share/Futures quantity based on whether Long or Short based on 
     // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
 
-    if (IsNewSharesTradeAction(tradeAction) == true ||
-        tradeAction == TradeAction::AddSharesToTrade ||
-        tradeAction == TradeAction::AddFuturesToTrade) {
+    if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
+        tdd.tradeAction == TradeAction::AddSharesToTrade ||
+        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_BUYSHARES));
         if (sel == (int)LongShort::Long) {
             leg->origQuantity = trans->quantity;
@@ -181,8 +179,8 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         }
     }
     
-    if (tradeAction == TradeAction::ManageShares ||
-        tradeAction == TradeAction::ManageFutures) {
+    if (tdd.tradeAction == TradeAction::ManageShares ||
+        tdd.tradeAction == TradeAction::ManageFutures) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
         if (sel == (int)LongShort::Long) {
             leg->origQuantity = trans->quantity;
@@ -229,7 +227,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
     std::wstring wszErrMsg;
     std::wstring wszText;
 
-    if (IsNewOptionsTradeAction(tradeAction) == true) {
+    if (IsNewOptionsTradeAction(tdd.tradeAction) == true) {
         wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
         if (wszText.length() == 0) wszErrMsg += L"- Missing Ticker Symbol.\n";
         wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
@@ -274,7 +272,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         wszErrMsg += L"- No Legs exist to be saved.\n";
     }
 
-    if (tradeAction == TradeAction::RollLeg) {
+    if (tdd.tradeAction == TradeAction::RollLeg) {
         for (int row = 0; row < 4; ++row) {
             std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
             std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
@@ -324,16 +322,16 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
     TradeDialog_CalculateTradeTotal(hwnd);
 
-    if (tradeAction == TradeAction::RollLeg) {
+    if (tdd.tradeAction == TradeAction::RollLeg) {
         AfxSetWindowText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE), L"Roll");
     }
-    if (tradeAction == TradeAction::CloseLeg) {
+    if (tdd.tradeAction == TradeAction::CloseLeg) {
         AfxSetWindowText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE), L"Close");
     }
 
     std::shared_ptr<Trade> trade;
 
-    if (IsNewOptionsTradeAction(tradeAction) == true) {
+    if (IsNewOptionsTradeAction(tdd.tradeAction) == true) {
         trade = std::make_shared<Trade>();
         trades.push_back(trade);
         trade->tickerSymbol = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER)));
@@ -342,7 +340,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         trade->category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
     }
     else {
-        trade = tradeEdit;
+        trade = tdd.trade;
     }
 
 
@@ -386,7 +384,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         leg->action = legAction;
 
 
-        switch (tradeAction) {
+        switch (tdd.tradeAction) {
 
         case TradeAction::NewOptionsTrade:
         case TradeAction::NewIronCondor:
@@ -405,9 +403,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->origQuantity = intQuantity;
             leg->openQuantity = 0;
             // Update the original transaction being Closed quantities
-            if (!legsEdit.empty()) {
-                legsEdit.at(row)->openQuantity = legsEdit.at(row)->openQuantity + intQuantity;
-                leg->legBackPointerID = legsEdit.at(row)->legID;
+            if (!tdd.legs.empty()) {
+                tdd.legs.at(row)->openQuantity = tdd.legs.at(row)->openQuantity + intQuantity;
+                leg->legBackPointerID = tdd.legs.at(row)->legID;
             }
             break;
         }
@@ -417,7 +415,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     }
 
     // Add legs for rolled portion of the transaction
-    if (tradeAction == TradeAction::RollLeg) {
+    if (tdd.tradeAction == TradeAction::RollLeg) {
 
         for (int row = 0; row < 4; ++row) {
             std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);

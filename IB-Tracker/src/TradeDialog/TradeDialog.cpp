@@ -42,8 +42,7 @@ HWND HWND_TRADEDIALOG = NULL;
 extern HWND HWND_MAINWINDOW;
 
 CTradeDialog TradeDialog;
-
-TradeAction tradeAction = TradeAction::NoAction;
+TradeDialogData tdd;
 
 extern HWND HWND_CALENDAR;
 extern CCalendar Calendar;
@@ -328,11 +327,11 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
-            if (IsNewSharesTradeAction(tradeAction) == true ||
-                tradeAction == TradeAction::AddSharesToTrade||
-                tradeAction == TradeAction::AddFuturesToTrade||
-                tradeAction == TradeAction::ManageShares ||
-                tradeAction == TradeAction::ManageFutures) {
+            if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
+                tdd.tradeAction == TradeAction::AddSharesToTrade||
+                tdd.tradeAction == TradeAction::AddFuturesToTrade||
+                tdd.tradeAction == TradeAction::ManageShares ||
+                tdd.tradeAction == TradeAction::ManageFutures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
                     TradeDialog_CreateSharesTradeData(m_hwnd);
                     DialogReturnCode = DIALOG_RETURN_OK;
@@ -362,7 +361,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 int TradeDialog_Show(TradeAction inTradeAction)
 {
-    tradeAction = inTradeAction;
+    tdd.tradeAction = inTradeAction;
 
     int nWidth = 715;
     int nHeight = 500;
@@ -411,8 +410,8 @@ int TradeDialog_Show(TradeAction inTradeAction)
 
 
     
-    if (IsNewOptionsTradeAction(tradeAction) == true ||
-        IsNewSharesTradeAction(tradeAction) == true) {
+    if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
+        IsNewSharesTradeAction(tdd.tradeAction) == true) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     }
     else {
