@@ -55,12 +55,14 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
 
+    // Ensure that the Trade History panel is set
+    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
+
+
     if (trade == nullptr) {
         CustomLabel_SetText(GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL), L"");
         ListBoxData_AddBlankLine(hListBox);
         AfxRedrawWindow(hListBox);
-        // Ensure that the Trade History panel is set
-        MainWindow_SetRightPanel(HWND_HISTORYPANEL);
         return;
     }
 

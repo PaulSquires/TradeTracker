@@ -364,8 +364,9 @@ void TradesPanel_OptionAssignment(auto trade)
 
         int numShares = abs(leg->openQuantity * 100);
 
+        std::wstring wszLongShort = (leg->PutCall == L"P") ? L"LONG " : L"SHORT ";
         std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
-        msg += std::to_wstring(numShares) + L" shares at $" + leg->strikePrice + L" per share.";
+        msg += wszLongShort + std::to_wstring(numShares) + L" shares at $" + leg->strikePrice + L" per share.";
         int res = MessageBox(
             HWND_MENUPANEL,
             (LPCWSTR)(msg.c_str()),
@@ -409,18 +410,29 @@ void TradesPanel_OptionAssignment(auto trade)
         trans->price = stod(leg->strikePrice);
         trans->multiplier = 1;
         trans->fees = 0;
-        trans->total = trans->quantity * trans->price * -1;  // DR
-        trade->ACB = trade->ACB + trans->total;
         trade->transactions.push_back(trans);
 
         newleg = std::make_shared<Leg>();
         trade->nextLegID += 1;
         newleg->legID = trade->nextLegID;
         newleg->underlying = trans->underlying;
-        newleg->origQuantity = numShares;
-        newleg->openQuantity = numShares;
         newleg->strikePrice = leg->strikePrice;
-        newleg->action = L"BTO";
+
+        if (leg->PutCall == L"P") {
+            newleg->action = L"BTO";
+            newleg->origQuantity = numShares;
+            newleg->openQuantity = numShares;
+            trans->total = trans->quantity * trans->price * -1;  // DR
+            trade->ACB = trade->ACB + trans->total;
+        }
+        else {
+            newleg->action = L"STO";
+            newleg->origQuantity = numShares * -1;
+            newleg->openQuantity = numShares * -1;
+            trans->total = trans->quantity * trans->price;  // CR
+            trade->ACB = trade->ACB + trans->total;
+        }
+
         trans->legs.push_back(newleg);
 
     }
