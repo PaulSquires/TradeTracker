@@ -124,15 +124,10 @@ void TransPanel_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Transaction ListBox with the transactions per the user selected dates.
 // ========================================================================================
-void TransPanel_ShowTransactions(bool bForceReload)
+void TransPanel_ShowTransactions()
 {
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
-
-    // No need to redisplay Transactions if they are already showing, unless we have
-    // specified a forced re-load which is the result of a successful change or addition
-    // to the underlying database or changing of category,dates,ticker.
-    if (bForceReload == false && HWND_MIDDLEPANEL == HWND_TRANSPANEL) return;
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -705,7 +700,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HWND hTicker = GetDlgItem(m_hwnd, IDC_TRANS_TXTTICKER);
         if (GetFocus() == GetDlgItem(hTicker, 100)) {
             if (wParam == 13) {
-                TransPanel_ShowTransactions(true);
+                TransPanel_ShowTransactions();
                 return true;
             }
         }
@@ -726,7 +721,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         TransPanel_SetStartEndDates(m_hwnd);
-        TransPanel_ShowTransactions(true);
+        TransPanel_ShowTransactions();
         return 0;
     }
     break;
@@ -740,7 +735,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (hCtl == NULL) return 0;
 
         if (CtrlId == IDC_TRANS_CMDTICKERGO) {
-            TransPanel_ShowTransactions(true);
+            TransPanel_ShowTransactions();
         }
 
         if (CtrlId == IDC_TRANS_CMDTRANSDATE || CtrlId == IDC_TRANS_TRANSDATE) {

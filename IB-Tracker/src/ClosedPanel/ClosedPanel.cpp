@@ -84,9 +84,6 @@ void ClosedPanel_ShowClosedTrades()
     HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_CLOSEDPANEL, IDC_CLOSED_LABEL);
 
-    // No need to redisplay Closed trades if they are already showing.
-    if (HWND_MIDDLEPANEL == HWND_CLOSEDPANEL) return;
-
 
     // Prevent ListBox redrawing until all calculations are completed.
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -150,12 +147,11 @@ void ClosedPanel_ShowClosedTrades()
 
 
     // If closed trades exist then select the first trade so that its history will show
-    if (ListBox_GetCount(hListBox)) {
-        ClosedPanel_ShowListBoxItem(0);
-    }
-    else {
+    if (ListBox_GetCount(hListBox) == 0) {
         ListBoxData_AddBlankLine(hListBox);
     }
+    ClosedPanel_ShowListBoxItem(0);
+
 
     // Ensure that the Closed panel is set
     MainWindow_SetMiddlePanel(HWND_CLOSEDPANEL);

@@ -64,7 +64,7 @@ CTransDetail      TransDetail;
 
 
 extern void TradesPanel_ShowActiveTrades();
-extern void TransPanel_ShowTransactions(bool bForceReload);
+extern void TransPanel_ShowTransactions();
 extern ActiveThemeColor ActiveTheme;
 
 RECT rcSplitter{};
@@ -572,7 +572,7 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             TradesPanel_ShowActiveTrades();
         }
         if (HWND_MIDDLEPANEL == TransPanel.WindowHandle()) {
-            TransPanel_ShowTransactions(true);
+            TransPanel_ShowTransactions();
         }
         return 0;
     }

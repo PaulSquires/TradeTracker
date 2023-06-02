@@ -189,11 +189,10 @@ void TradesPanel_ShowActiveTrades()
 
 
     // If trades exist then select the first trade so that its history will show
-    if (ListBox_GetCount(hListBox)) {
-        TradesPanel_ShowListBoxItem(0);
-    }else {
+    if (ListBox_GetCount(hListBox) == 0) {
         ListBoxData_AddBlankLine(hListBox);
     }
+    TradesPanel_ShowListBoxItem(0);
     
 
     // Ensure that the Trades panel is set
@@ -309,11 +308,15 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
         // Save this transaction's leg quantities
         std::shared_ptr<Leg> newleg = std::make_shared<Leg>();
 
+        trade->nextLegID += 1;
+        newleg->legID = trade->nextLegID;
+
         newleg->underlying = trans->underlying;
 
-        trans->transDate = leg->expiryDate;
+        trans->transDate = AfxCurrentDate();
         newleg->origQuantity = leg->openQuantity * -1;
         newleg->openQuantity = 0;
+        newleg->legBackPointerID = leg->legID;
         leg->openQuantity = 0;
 
         if (leg->action == L"STO") newleg->action = L"BTC";
@@ -376,15 +379,18 @@ void TradesPanel_OptionAssignment(auto trade)
 
         // Close the Option. Save this transaction's leg quantities
         trans = std::make_shared<Transaction>();
-        trans->transDate = leg->expiryDate;
+        trans->transDate = AfxCurrentDate();
         trans->description = L"Assignment";
         trans->underlying = L"OPTIONS";
         trade->transactions.push_back(trans);
 
         newleg = std::make_shared<Leg>();
+        trade->nextLegID += 1;
+        newleg->legID = trade->nextLegID;
         newleg->underlying = trans->underlying;
         newleg->origQuantity = leg->openQuantity * -1;
         newleg->openQuantity = 0;
+        newleg->legBackPointerID = leg->legID;
         leg->openQuantity = 0;
 
         if (leg->action == L"STO") newleg->action = L"BTC";
@@ -398,7 +404,7 @@ void TradesPanel_OptionAssignment(auto trade)
 
         // Make the SHARES that have been assigned.
         trans = std::make_shared<Transaction>();
-        trans->transDate = leg->expiryDate;
+        trans->transDate = AfxCurrentDate();
         trans->description = L"Shares";
         trans->underlying = L"SHARES";
         trans->quantity = numShares;
@@ -410,6 +416,8 @@ void TradesPanel_OptionAssignment(auto trade)
         trade->transactions.push_back(trans);
 
         newleg = std::make_shared<Leg>();
+        trade->nextLegID += 1;
+        newleg->legID = trade->nextLegID;
         newleg->underlying = trans->underlying;
         newleg->origQuantity = numShares;
         newleg->openQuantity = numShares;

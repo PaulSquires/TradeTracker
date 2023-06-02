@@ -112,6 +112,10 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
 
+    // Do Total calculation because it is possible that the user did not move off of
+    // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
+    TradeDialog_CalculateTradeTotal(hwnd);
+
     std::shared_ptr<Trade> trade;
 
     if (IsNewSharesTradeAction(tradeAction) == true) {
@@ -316,6 +320,10 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
 
+    // Do Total calculation because it is possible that the user did not move off of
+    // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
+    TradeDialog_CalculateTradeTotal(hwnd);
+
     if (tradeAction == TradeAction::RollLeg) {
         AfxSetWindowText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTDESCRIBE), L"Roll");
     }
@@ -355,6 +363,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trade->ACB = trade->ACB + trans->total;
 
 
+    // Add the new transaction legs
     for (int row = 0; row < 4; ++row) {
         std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
         std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
@@ -368,6 +377,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
         std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
+        trade->nextLegID += 1;
+        leg->legID = trade->nextLegID;
         leg->underlying = trans->underlying;
         leg->expiryDate = legExpiry;
         leg->strikePrice = legStrike;
@@ -396,6 +407,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             // Update the original transaction being Closed quantities
             if (!legsEdit.empty()) {
                 legsEdit.at(row)->openQuantity = legsEdit.at(row)->openQuantity + intQuantity;
+                leg->legBackPointerID = legsEdit.at(row)->legID;
             }
             break;
         }
@@ -404,7 +416,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
     }
 
-
+    // Add legs for rolled portion of the transaction
     if (tradeAction == TradeAction::RollLeg) {
 
         for (int row = 0; row < 4; ++row) {
@@ -420,6 +432,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
             std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
+            trade->nextLegID += 1;
+            leg->legID = trade->nextLegID;
             leg->underlying = trans->underlying;
             leg->expiryDate = legExpiry;
             leg->strikePrice = legStrike;

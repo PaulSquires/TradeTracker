@@ -44,13 +44,29 @@ extern int nColWidth[];
 extern HWND HWND_MENUPANEL;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransPanel_ShowTransactions(bool bForceReload);
+extern void TransPanel_ShowTransactions();
 
 std::shared_ptr<Trade> tradeEditDelete = nullptr;
 std::shared_ptr<Transaction> transEditDelete = nullptr;
 
 
 // ========================================================================================
+// Retrieve the Leg pointer based on a leg's backPointerID.
+// ========================================================================================
+std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int backPointerID)
+{
+    for (auto trans : trade->transactions) {
+        for (auto leg : trans->legs) {
+            if (leg->legID == backPointerID) {
+                return leg;
+            }
+        }
+    }
+    return nullptr;
+}
+    
+    
+    // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit/Delete it.
 // ========================================================================================
 void TransDetail_DeleteTransaction(HWND hwnd)
@@ -75,6 +91,20 @@ void TransDetail_DeleteTransaction(HWND hwnd)
             // If element matches the element to be deleted then delete it
             if (*iter == transEditDelete)
             {
+                // Cycle through the legs being deleted to see if any contains a leg backpointer.
+                // If yes, then retrieve the leg related to that pointer and update its open
+                // quantity amount. Backpointers exist for transactions that modify quantity
+                // amounts like CLOSE, EXPIRE, ROLL.
+                for (auto leg : transEditDelete->legs) {
+                    if (leg->legBackPointerID != 0) {
+                        // Get the backpointer leg.
+                        std::shared_ptr<Leg> LegBackPointer = nullptr;
+                        LegBackPointer = TransDetail_GetLegBackPointer(trade, leg->legBackPointerID);
+                        if (LegBackPointer != nullptr) {
+                            LegBackPointer->openQuantity = LegBackPointer->openQuantity - leg->origQuantity;
+                        }
+                    }
+                }
                 iter = trade->transactions.erase(iter);
             }
             else
@@ -102,7 +132,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     transEditDelete = nullptr;
 
     // Show our new list of transactions.
-    TransPanel_ShowTransactions(true);
+    TransPanel_ShowTransactions();
 
 
 }

@@ -49,19 +49,24 @@ extern void MainWindow_SetRightPanel(HWND hPanel);
 // ========================================================================================
 void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 {
-    if (trade == nullptr) return;
-
     HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CUSTOMVSCROLLBAR);
-
-
-    // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
 
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
 
+    if (trade == nullptr) {
+        CustomLabel_SetText(GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL), L"");
+        ListBoxData_AddBlankLine(hListBox);
+        AfxRedrawWindow(hListBox);
+        // Ensure that the Trade History panel is set
+        MainWindow_SetRightPanel(HWND_HISTORYPANEL);
+        return;
+    }
+
+
+    // Prevent ListBox redrawing until all calculations are completed
+    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
     CustomLabel_SetText(
         GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
@@ -104,11 +109,6 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
-
-
-    // Ensure that the Trade History panel is set
-    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
-
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
