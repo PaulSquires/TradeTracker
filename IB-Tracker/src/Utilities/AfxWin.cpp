@@ -803,15 +803,16 @@ std::wstring ansi2unicode(const std::string& str)
 
 // ========================================================================================
 // Format a numeric (double) string with two decimal places.
+// Decimal places = 2 unless specified otherwise.
 // Negative values will be encloses in parenthesis.
 // ========================================================================================
-std::wstring AfxMoney(double value, bool UseMinusSign)
+std::wstring AfxMoney(double value, bool UseMinusSign, int NumDecimalPlaces)
 {
     static std::wstring DecimalSep = L".";
     static std::wstring ThousandSep = L",";
 
     static NUMBERFMTW num{};
-    num.NumDigits = 2;
+    num.NumDigits = NumDecimalPlaces;
     num.LeadingZero = true;
     num.Grouping = 3;
     num.lpDecimalSep = (LPWSTR)DecimalSep.c_str();

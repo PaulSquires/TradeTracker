@@ -42,6 +42,8 @@ extern int nColWidth[];
 extern HWND HWND_MENUPANEL;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
+extern void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+
 
 
 // ========================================================================================
@@ -129,6 +131,10 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
     // a series of middle mouse wheel scrolls.
     static int accumDelta = 0;
 
+    // Track the last hot Transaction line
+    static int idxLastHot = 0;
+
+
     switch (uMsg)
     {
 
@@ -157,6 +163,79 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         return 0;
         break;
     }
+
+
+    case WM_LBUTTONDOWN:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
+
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+        if (ld != nullptr) {
+            if (ld->lineType == LineType::TransactionHeader) {
+                TransPanel_ShowTransactionDetail(ld->trade, ld->trans);
+            }
+        }
+
+    }
+    break;
+
+
+    case WM_MOUSEMOVE:
+    {
+        // Track that we are over the control in order to catch the 
+        // eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(TRACKMOUSEEVENT);
+        tme.dwFlags = TME_LEAVE;
+        tme.hwndTrack = hWnd;
+        TrackMouseEvent(&tme);
+
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        // If we are over a Transaction line then display the "magnify glass" icon that indicates to
+        // the user that clicking on it will take them directly to the transaction details.
+        
+        // Hot highlight the new line 
+        if (HIWORD(idx) != 1 && idx > -1) {
+            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+            if (ld != nullptr) {
+                if (ld->lineType == LineType::TransactionHeader && idx != idxLastHot) {
+                    ld->col[8].textTheme = ThemeElement::WhiteDark;
+
+                    // Update the Text color for the previous highlight line (make icon hidden)
+                    ld = (ListBoxData*)ListBox_GetItemData(hWnd, idxLastHot);
+                    if (ld != nullptr) {
+                        ld->col[8].textTheme = ThemeElement::GrayDark;
+                    }
+                    idxLastHot = idx;
+                    AfxRedrawWindow(hWnd);
+                }
+            }
+        }
+
+        return 0;
+    }
+    break;
+
+
+    case WM_MOUSELEAVE:
+    {
+        // Update the Text color for the previous highlight line
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idxLastHot);
+        if (ld != nullptr) {
+            ld->col[8].textTheme = ThemeElement::GrayDark;
+        }
+        AfxRedrawWindow(hWnd);
+        idxLastHot = 0;
+        return 0;
+    }
+    break;
 
 
     case WM_ERASEBKGND:

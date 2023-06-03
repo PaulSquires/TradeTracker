@@ -52,7 +52,8 @@ enum class LineType {
     TickerLine,
     OptionsLeg,
     Shares,
-    Futures
+    Futures,
+    TransactionHeader
 };
 
 class ListBoxData {

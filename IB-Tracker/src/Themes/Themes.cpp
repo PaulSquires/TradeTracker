@@ -39,6 +39,8 @@ ActiveThemeColor ActiveTheme = ActiveThemeColor::Dark;
 
 std::vector<DWORD> clr;
 
+// TODO: Light theme needs scrollbar colors modified.
+
 
 // ========================================================================================
 // Initialize DARK theme element colors

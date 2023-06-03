@@ -56,7 +56,7 @@ int nHistoryMinColWidth[10] =
     45,     /* strike price */
     30,     /* put/call */
     40,     /* ACB, BTC/STO, etc */
-    0,
+    15,     /* view transaction icon */
     0
 };
 
@@ -74,7 +74,7 @@ int nHistoryMaxColWidth[10] =
     100,     /* strike price */
     100,     /* put/call */
     100,     /* ACB, BTC/STO, etc */
-    0,
+    15,      /* view transaction icon */
     0
 };
 
@@ -617,6 +617,9 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
 
     TickerId tickerId = -1;
 
+    ld->lineType = LineType::TransactionHeader;
+    ld->trans = trans;
+
     ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
         ThemeElement::WhiteDark, font8, FontStyleRegular);
 
@@ -632,6 +635,9 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     ThemeElement clr = (trans->total >= 0) ? ThemeElement::Green : ThemeElement::Red;
     ld->SetData(7, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
         clr, font8, FontStyleRegular);   // green/red
+
+    ld->SetData(8, trade, tickerId, L"\uE0BD", StringAlignmentCenter, StringAlignmentCenter,
+        ThemeElement::GrayDark, ThemeElement::GrayDark, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 

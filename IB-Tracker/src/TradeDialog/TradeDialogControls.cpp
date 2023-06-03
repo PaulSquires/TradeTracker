@@ -215,18 +215,30 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGridMain, row, 4, leg->PutCall);
 
         // ACTION
-        //if (leg->action == L"STO") { wszText = L"BTC"; }
-        //if (leg->action == L"BTO") { wszText = L"STC"; }
-        //TradeGrid_SetColData(hGridMain, row, 5, wszText);
+        TradeGrid_SetColData(hGridMain, row, 5, leg->action);
 
         row++;
     }
 
+    // TRANSACTION DATE
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), AfxLongDate(tdd.trans->transDate));
+    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), tdd.trans->transDate);
+
+    // DESCRIPTION
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), tdd.trans->description);
+
     // DTE
     TradeGrid_CalculateDTE(hGridMain);
 
+    // CATEGORY
+    CategoryControl_SetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY), tdd.trade->category);
+
     // QUANTITY
-    //AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), std::to_wstring(abs(DefaultQuantity)));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY), std::to_wstring(tdd.trans->quantity));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE), std::to_wstring(tdd.trans->price));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(tdd.trans->multiplier));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), std::to_wstring(tdd.trans->fees));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(tdd.trans->total));
 
 }
 
@@ -258,6 +270,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     // Editing a previously created Transaction requires a separate function to
     // load the existing data into the table(s).
     if (tdd.tradeAction == TradeAction::EditTransaction) {
+        // TODO: Shares/Futures EDIT must be handled differently than Options.
         TradeDialog_LoadEditTransactionInTradeTable(hwnd);
         return;
     }

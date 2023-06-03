@@ -178,13 +178,23 @@ void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const 
     CustomLabel_SetText(
         GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1),
         L"Transaction Details");
+
+    // Construct the string to display the cost details of the selected transaction
+    std::wstring wszDRCR = (transEditDelete->total < 0) ? L" DR" : L" CR";
+    std::wstring wszPlusMinus = (transEditDelete->total < 0) ? L" + " : L" - ";
+    std::wstring wszText;
+    wszText = std::to_wstring(transEditDelete->quantity) + L" @ " +
+                AfxMoney(transEditDelete->price, false, 4) + wszPlusMinus +
+                AfxMoney(transEditDelete->fees) + L" = " +
+                AfxMoney(abs(transEditDelete->total)) + wszDRCR;
+    CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), wszText);
     
     CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY), L"\u23FA");
     CustomLabel_SetTextColor(
         GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY),
         GetCategoryColor(trade->category));
 
-    std::wstring wszText = trade->tickerSymbol + L": " + trade->tickerName;
+    wszText = trade->tickerSymbol + L": " + trade->tickerName;
     if (trade->futureExpiry.length()) {
         wszText = wszText + L" ( " + AfxFormatFuturesDate(trade->futureExpiry) + L" )";
     }
@@ -392,6 +402,9 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
         AfxScaleX(18), nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop += margin;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LBLCOST), 0,
+        0, nTop, cx - (nButtonWidth * 2) - AfxScaleX(8), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+
     nLeft = cx - (nButtonWidth * 2) - AfxScaleX(8);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDEDIT), 0,
         nLeft, nTop, nButtonWidth, nButtonHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -448,6 +461,10 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"",
         ThemeElement::WhiteDark, ThemeElement::Black);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LBLCOST, L"",
+        ThemeElement::WhiteDark, ThemeElement::Black);
+
 
     // EDIT button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDEDIT, L"EDIT",
