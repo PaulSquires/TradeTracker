@@ -338,6 +338,13 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
             }
+            else if (tdd.tradeAction == TradeAction::EditTransaction) {
+                if (TradeDialog_ValidateEditTradeData(m_hwnd) == true) {
+                    TradeDialog_CreateEditTradeData(m_hwnd);
+                    DialogReturnCode = DIALOG_RETURN_OK;
+                    SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+                }
+            }
             else {
                 if (TradeDialog_ValidateOptionsTradeData(m_hwnd) == true) {
                     TradeDialog_CreateOptionsTradeData(m_hwnd);

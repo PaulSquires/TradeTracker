@@ -100,4 +100,6 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd);
 bool TradeDialog_ValidateOptionsTradeData(HWND hwnd);
 void TradeDialog_CreateOptionsTradeData(HWND hwnd);
 void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
+bool TradeDialog_ValidateEditTradeData(HWND hwnd);
+void TradeDialog_CreateEditTradeData(HWND hwnd);
 

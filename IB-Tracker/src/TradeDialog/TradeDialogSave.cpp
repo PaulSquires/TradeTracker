@@ -463,3 +463,231 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 }
 
 
+// ========================================================================================
+// Perform error checks on the EDIT Options trade data prior to allowing the save to the database.
+// ========================================================================================
+bool TradeDialog_ValidateEditTradeData(HWND hwnd)
+{
+
+    // Do an error check to ensure that the data about to be saved does not contain
+    // any missing data, etc.
+    std::wstring wszErrMsg;
+    std::wstring wszText;
+
+    wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE));
+    if (wszText.length() == 0) wszErrMsg += L"- Missing Description.\n";
+
+    // In adition to validating each leg, we count the number of non blank legs. If all legs
+    // are blank then there is nothing to save to add that to the error message.
+    int NumBlankLegs = 0;
+
+    for (int row = 0; row < 4; ++row) {
+        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+
+        // All strings must be zero length in order to skip it from being included in the transaction. 
+        if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
+            && legPutCall.length() == 0 && legAction.length() == 0) {
+            NumBlankLegs++;
+            continue;
+        }
+
+        // If any of the strings are zero length at this point then the row has incompete data.
+        bool bIncomplete = false;
+
+        if (legQuantity.length() == 0) bIncomplete = true;
+        if (legExpiry.length() == 0) bIncomplete = true;
+        if (legStrike.length() == 0) bIncomplete = true;
+        if (legPutCall.length() == 0) bIncomplete = true;
+        if (legAction.length() == 0) bIncomplete = true;
+
+        if (bIncomplete == true) {
+            wszErrMsg += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
+        }
+    }
+
+    if (NumBlankLegs == 4) {
+        wszErrMsg += L"- No Legs exist to be saved.\n";
+    }
+
+    for (int row = 0; row < 4; ++row) {
+        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+
+        // All strings must be zero length in order to skip it from being included in the transaction. 
+        if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
+            && legPutCall.length() == 0 && legAction.length() == 0) {
+            continue;
+        }
+
+        // If any of the strings are zero length at this point then the row has incompete data.
+        bool bIncomplete = false;
+
+        if (legQuantity.length() == 0) bIncomplete = true;
+        if (legExpiry.length() == 0) bIncomplete = true;
+        if (legStrike.length() == 0) bIncomplete = true;
+        if (legPutCall.length() == 0) bIncomplete = true;
+        if (legAction.length() == 0) bIncomplete = true;
+
+        if (bIncomplete == true) {
+            wszErrMsg += L"- Leg #" + std::to_wstring(row + 5) + L" has incomplete or missing data.\n";
+        }
+    }
+
+    if (wszErrMsg.length()) {
+        MessageBox(hwnd, wszErrMsg.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        return false;
+    }
+
+    return true;   // data is good, allow the save to continue
+}
+
+
+// ========================================================================================
+// Create the EDIT Options trade transaction data and save it to the database
+// ========================================================================================
+void TradeDialog_CreateEditTradeData(HWND hwnd)
+{
+    // PROCEED TO SAVE THE TRADE DATA
+    tws_PauseTWS();
+
+    // Do Total calculation because it is possible that the user did not move off of
+    // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
+    TradeDialog_CalculateTradeTotal(hwnd);
+
+    // Remove the original Transaction's legs
+    // TODO: Handle legBackPointers
+    //tdd.trans->legs.clear();
+
+
+    // Save the modified data
+    tdd.trade->futureExpiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
+    tdd.trade->category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
+
+    tdd.trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
+    tdd.trans->description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
+    tdd.trans->underlying = L"OPTIONS";
+    tdd.trans->quantity = stoi(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+    tdd.trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
+    tdd.trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
+    tdd.trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
+
+    std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
+    tdd.trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+    if (DRCR == L"DR") { tdd.trans->total = tdd.trans->total * -1; }
+
+/*
+    // Add the new transaction legs
+    for (int row = 0; row < 4; ++row) {
+        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+
+        if (legQuantity.length() == 0) continue;
+        int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
+        if (intQuantity == 0) continue;
+
+        std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+
+        trade->nextLegID += 1;
+        leg->legID = trade->nextLegID;
+        leg->underlying = trans->underlying;
+        leg->expiryDate = legExpiry;
+        leg->strikePrice = legStrike;
+        leg->PutCall = legPutCall;
+        leg->action = legAction;
+
+
+        switch (tdd.tradeAction) {
+
+        case TradeAction::NewOptionsTrade:
+        case TradeAction::NewIronCondor:
+        case TradeAction::NewShortStrangle:
+        case TradeAction::NewShortPut:
+        case TradeAction::NewShortCall:
+        case TradeAction::AddOptionsToTrade:
+        case TradeAction::AddPutToTrade:
+        case TradeAction::AddCallToTrade:
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = intQuantity;
+            break;
+
+        case TradeAction::CloseLeg:
+        case TradeAction::RollLeg:
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = 0;
+            // Update the original transaction being Closed quantities
+            if (!tdd.legs.empty()) {
+                tdd.legs.at(row)->openQuantity = tdd.legs.at(row)->openQuantity + intQuantity;
+                leg->legBackPointerID = tdd.legs.at(row)->legID;
+            }
+            break;
+        }
+
+        trans->legs.push_back(leg);
+
+    }
+
+    // Add legs for rolled portion of the transaction
+    if (tdd.tradeAction == TradeAction::RollLeg) {
+
+        for (int row = 0; row < 4; ++row) {
+            std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
+            std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
+            std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
+            std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+            std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+
+            if (legQuantity.length() == 0) continue;
+            int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
+            if (intQuantity == 0) continue;
+
+            std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+
+            trade->nextLegID += 1;
+            leg->legID = trade->nextLegID;
+            leg->underlying = trans->underlying;
+            leg->expiryDate = legExpiry;
+            leg->strikePrice = legStrike;
+            leg->PutCall = legPutCall;
+            leg->action = legAction;
+
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = intQuantity;
+
+            trans->legs.push_back(leg);
+        }
+
+    }
+*/
+
+    // Recalculate the ACB for the trade
+    tdd.trade->ACB = 0;
+    for (const auto trans : tdd.trade->transactions) {
+        tdd.trade->ACB = tdd.trade->ACB + trans->total;
+    }
+
+    // Set the open status of the entire trade based on the new modified legs
+    tdd.trade->setTradeOpenStatus();
+
+    // Rebuild the openLegs position vector
+    tdd.trade->createOpenLegsVector();
+
+    // Save the new data
+    SaveDatabase();
+
+    // Show our new list of open trades
+    TradesPanel_ShowActiveTrades();
+
+    tws_ResumeTWS();
+
+}
+
