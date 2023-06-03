@@ -561,15 +561,10 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
     TradeDialog_CalculateTradeTotal(hwnd);
 
-    // Remove the original Transaction's legs
-    // TODO: Handle legBackPointers
-    //tdd.trans->legs.clear();
-
-
     // Save the modified data
     tdd.trade->futureExpiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
     tdd.trade->category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
-
+    
     tdd.trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
     tdd.trans->description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
     tdd.trans->underlying = L"OPTIONS";
@@ -582,92 +577,53 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
     if (DRCR == L"DR") { tdd.trans->total = tdd.trans->total * -1; }
 
-/*
-    // Add the new transaction legs
-    for (int row = 0; row < 4; ++row) {
-        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
-        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
-        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
-        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
-        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+    // Make a copy of the Legs vector and then destroy the original.
+    std::vector< std::shared_ptr<Leg> > copylegs = tdd.legs;
+    tdd.legs.clear();
+
+    // Cycle through both grids and add changes to the legs
+    for (int row = 0; row < 8; ++row) {
+        HWND hGrid = (row < 4)
+            ? GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN)
+            : GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL);
+
+        std::wstring legQuantity = TradeGrid_GetText(hGrid, row, 0);
+        std::wstring legExpiry = TradeGrid_GetText(hGrid, row, 1);
+        std::wstring legStrike = TradeGrid_GetText(hGrid, row, 3);
+        std::wstring legPutCall = TradeGrid_GetText(hGrid, row, 4);
+        std::wstring legAction = TradeGrid_GetText(hGrid, row, 5);
 
         if (legQuantity.length() == 0) continue;
         int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
         if (intQuantity == 0) continue;
 
-        std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+        // Determine if backpointers exist and if yes then re-use that leg instead
+        // of creating a new leg in order to preserve the integrity of the data.
+        std::shared_ptr<Leg> leg = nullptr;
+        int legBackPointerID = 0;
 
-        trade->nextLegID += 1;
-        leg->legID = trade->nextLegID;
-        leg->underlying = trans->underlying;
+        if (row < (int)copylegs.size()) {
+            leg = copylegs.at(row);
+            legBackPointerID = leg->legBackPointerID;
+        }
+
+        leg = std::make_shared<Leg>();
+
+        tdd.trade->nextLegID += 1;
+        leg->legID = tdd.trade->nextLegID;
+        leg->legBackPointerID = legBackPointerID;
+        leg->underlying = tdd.trans->underlying;
         leg->expiryDate = legExpiry;
         leg->strikePrice = legStrike;
         leg->PutCall = legPutCall;
         leg->action = legAction;
 
+        leg->origQuantity = intQuantity;
+        leg->openQuantity = intQuantity;
 
-        switch (tdd.tradeAction) {
-
-        case TradeAction::NewOptionsTrade:
-        case TradeAction::NewIronCondor:
-        case TradeAction::NewShortStrangle:
-        case TradeAction::NewShortPut:
-        case TradeAction::NewShortCall:
-        case TradeAction::AddOptionsToTrade:
-        case TradeAction::AddPutToTrade:
-        case TradeAction::AddCallToTrade:
-            leg->origQuantity = intQuantity;
-            leg->openQuantity = intQuantity;
-            break;
-
-        case TradeAction::CloseLeg:
-        case TradeAction::RollLeg:
-            leg->origQuantity = intQuantity;
-            leg->openQuantity = 0;
-            // Update the original transaction being Closed quantities
-            if (!tdd.legs.empty()) {
-                tdd.legs.at(row)->openQuantity = tdd.legs.at(row)->openQuantity + intQuantity;
-                leg->legBackPointerID = tdd.legs.at(row)->legID;
-            }
-            break;
-        }
-
-        trans->legs.push_back(leg);
+        tdd.legs.push_back(leg);
 
     }
-
-    // Add legs for rolled portion of the transaction
-    if (tdd.tradeAction == TradeAction::RollLeg) {
-
-        for (int row = 0; row < 4; ++row) {
-            std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
-            std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
-            std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
-            std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
-            std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
-
-            if (legQuantity.length() == 0) continue;
-            int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
-            if (intQuantity == 0) continue;
-
-            std::shared_ptr<Leg> leg = std::make_shared<Leg>();
-
-            trade->nextLegID += 1;
-            leg->legID = trade->nextLegID;
-            leg->underlying = trans->underlying;
-            leg->expiryDate = legExpiry;
-            leg->strikePrice = legStrike;
-            leg->PutCall = legPutCall;
-            leg->action = legAction;
-
-            leg->origQuantity = intQuantity;
-            leg->openQuantity = intQuantity;
-
-            trans->legs.push_back(leg);
-        }
-
-    }
-*/
 
     // Recalculate the ACB for the trade
     tdd.trade->ACB = 0;

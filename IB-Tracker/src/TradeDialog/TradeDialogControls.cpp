@@ -189,33 +189,39 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
 {
     if (tdd.legs.size() == 0) return;
 
-    // Display the legs being closed and set each to the needed inverse action.
     HWND hGridMain = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
-    TradeGrid* pData = TradeGrid_GetOptions(hGridMain);
-    if (pData == nullptr) return;
+    HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
+    HWND hGrid = hGridMain;
+
+    bool hasBackPointers = false;
 
     // If more than 4 legs exist in the legs vector then we have to also use the rolled grid.
     int row = 0;
     for (const auto& leg : tdd.legs) {
 
-        // Only load a maximum of 4 legs even if the user had selected more than 4.
-        if (row > 3) break;
+        if (row > 3) {
+            hGrid = hGridRoll;
+            row = 0;
+        }
+        if (row > 7) break;
 
         // QUANTITY
         std::wstring legQuantity = std::to_wstring(leg->origQuantity);
-        TradeGrid_SetColData(hGridMain, row, 0, legQuantity);
+        TradeGrid_SetColData(hGrid, row, 0, legQuantity);
 
         // EXPIRY DATE
-        TradeGrid_SetColData(hGridMain, row, 1, leg->expiryDate);
+        TradeGrid_SetColData(hGrid, row, 1, leg->expiryDate);
 
         // STRIKE PRICE
-        TradeGrid_SetColData(hGridMain, row, 3, leg->strikePrice);
+        TradeGrid_SetColData(hGrid, row, 3, leg->strikePrice);
 
         // PUT/CALL
-        TradeGrid_SetColData(hGridMain, row, 4, leg->PutCall);
+        TradeGrid_SetColData(hGrid, row, 4, leg->PutCall);
 
         // ACTION
-        TradeGrid_SetColData(hGridMain, row, 5, leg->action);
+        TradeGrid_SetColData(hGrid, row, 5, leg->action);
+
+        if (leg->legBackPointerID != 0) hasBackPointers = true;
 
         row++;
     }
@@ -229,6 +235,7 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
 
     // DTE
     TradeGrid_CalculateDTE(hGridMain);
+    TradeGrid_CalculateDTE(hGridRoll);
 
     // CATEGORY
     CategoryControl_SetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY), tdd.trade->category);
@@ -240,6 +247,17 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), std::to_wstring(tdd.trans->fees));
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(tdd.trans->total));
 
+    // EDIT WARNING
+    if (hasBackPointers == true) {
+        std::wstring wszText1 = L"WARNING:";
+        std::wstring wszText2 = L"Transaction contains quantity modifier back pointers to the legs of another transaction.";
+        std::wstring wszText3 = L"Do not modify the leg quantity amounts or delete entire existing legs for this transaction.";
+        std::wstring wszText4 = L"Editing of any other transaction or leg data is permitted.";
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1), wszText1);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2), wszText2);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3), wszText3);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4), wszText4);
+    }
 }
 
 
@@ -781,6 +799,22 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
     }
 
+    
+    // EDIT TRANSACTION WARNING
+    int nLabelHeight = 16;
+    int nLabelTop = nStartTop + (nHeight * 3);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft, nLabelTop, AfxScaleX(30), nLabelHeight);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
+    nLabelTop += nLabelHeight;
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
+    nLabelTop += nLabelHeight;
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
+
+
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
@@ -877,5 +911,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.tradeAction == TradeAction::EditTransaction) {
         CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23, false);
     }
+
 }
 
