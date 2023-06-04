@@ -105,10 +105,12 @@ int AfxUnScaleY(float cy)
 // ========================================================================================
 std::wstring AfxGetWindowText(HWND hwnd)
 {
-    DWORD dwBufLen = SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0) + 1;
-    std::wstring buffer(dwBufLen, NULL);
-    GetWindowText(hwnd, (LPWSTR)buffer.c_str(), dwBufLen);
-    return buffer.substr(0, dwBufLen - 1);
+    DWORD dwBufLen = GetWindowTextLength(hwnd) + 1; 
+    std::wstring buffer;
+    buffer.resize(dwBufLen);
+    GetWindowText(hwnd, &buffer[0], dwBufLen);
+    buffer.resize(dwBufLen - 1);
+    return buffer;
 }
 
 
@@ -117,7 +119,7 @@ std::wstring AfxGetWindowText(HWND hwnd)
 // ========================================================================================
 bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText)
 {
-    return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)wszText.c_str());
+    return SetWindowText(hwnd, wszText.c_str());
 }
 
 
@@ -395,10 +397,12 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText)
 // ========================================================================================
 std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
 {
-    int nLen = SendMessage(hListBox, LB_GETTEXTLEN, nIndex, 0) + 1;
-    std::wstring wszText(nLen, NULL);
-    SendMessage(hListBox, LB_GETTEXT, nIndex, (LPARAM)wszText.c_str());
-    return wszText;
+    DWORD dwBufLen = ListBox_GetTextLen(hListBox, nIndex) + 1;
+    std::wstring buffer;
+    buffer.resize(dwBufLen);
+    ListBox_GetText(hListBox, &buffer[0], dwBufLen);
+    buffer.resize(dwBufLen - 1);
+    return buffer;
 }
 
 

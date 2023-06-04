@@ -99,8 +99,6 @@ void TradesPanel_ShowListBoxItem(int index)
     HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
 
-    ListBox_SetSel(hListBox, true, index);
-
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -225,7 +223,10 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
     if (ld == nullptr) return false;
 
     trade = ld->trade;
-    if (trade == nullptr) return false;
+    if (trade == nullptr) {
+        ListBox_SetSel(hListBox, false, idx);
+        return false;
+    }
 
     
     // Show the trade history for the selected trade
@@ -246,7 +247,7 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
         int* selItems = new int[nCount]();
         SendMessage(hListBox, LB_GETSELITEMS, (WPARAM)nCount, (LPARAM)selItems);
 
-        for (int i = 0; i < nCount; i++)
+        for (int i = 0; i < nCount; ++i)
         {
             ld = (ListBoxData*)ListBox_GetItemData(hListBox, selItems[i]);
             if (ld != nullptr) {
@@ -265,6 +266,8 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 
         delete[] selItems;
     }
+
+    AfxRedrawWindow(hListBox);
 
     return true;
 }
@@ -666,10 +669,10 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        // Return to not select the line (eg. if a blank line was clicked on)
-        if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
-            return 0;
-        }
+    //    // Return to not select the line (eg. if a blank line was clicked on)
+    //    if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
+    //        return 0;
+    //    }
     }
     break;
 
@@ -844,8 +847,8 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_MULTIPLESEL | LBS_EXTENDEDSEL | 
-            LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | //LBS_MULTIPLESEL | 
+            LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)TradesPanel_ListBox_SubclassProc,
             IDC_TRADES_LISTBOX, NULL);
@@ -867,15 +870,12 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     switch (codeNotify)
     {
 
-    case (LBN_SELCHANGE):
+    case LBN_SELCHANGE:
+    {
         int nCurSel = ListBox_GetCurSel(hwndCtl);
-        if (nCurSel == -1) break;
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
-        if (ld != nullptr) {
-            // Show the trade history for the selected trade
-            TradesPanel_ShowListBoxItem(nCurSel);
-        }
+        TradesPanel_SelectListBoxItem(hwndCtl, nCurSel);
         break;
+    }
 
     }
 }
