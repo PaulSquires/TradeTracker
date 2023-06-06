@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "..\Utilities\AfxWin.h"
+#include "Utilities\AfxWin.h"
 
 #include "trade.h"
 #include "database.h"

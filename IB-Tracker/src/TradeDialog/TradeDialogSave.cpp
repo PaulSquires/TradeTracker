@@ -27,15 +27,15 @@ SOFTWARE.
 #include "pch.h"
 
 #include "TradeDialog.h"
-#include "..\Utilities\AfxWin.h"
-#include "..\CustomLabel\CustomLabel.h"
-#include "..\CustomTextBox\CustomTextBox.h"
-#include "..\TradeGrid\TradeGrid.h"
-#include "..\TradesPanel\TradesPanel.h"
-#include "..\MainWindow\tws-client.h"
-#include "..\Database\database.h"
-#include "..\Category\Category.h"
-#include "..\Strategy\StrategyButton.h"
+#include "Utilities\AfxWin.h"
+#include "CustomLabel\CustomLabel.h"
+#include "CustomTextBox\CustomTextBox.h"
+#include "TradeGrid\TradeGrid.h"
+#include "TradesPanel\TradesPanel.h"
+#include "MainWindow\tws-client.h"
+#include "Database\database.h"
+#include "Category\Category.h"
+#include "Strategy\StrategyButton.h"
 
 
 

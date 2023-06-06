@@ -26,9 +26,9 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Themes\Themes.h"
-#include "..\Utilities\AfxWin.h"
-#include "..\Utilities\UserMessages.h"
+#include "Themes\Themes.h"
+#include "Utilities\AfxWin.h"
+#include "Utilities\UserMessages.h"
 
 
 #define IDB_LOGO 105

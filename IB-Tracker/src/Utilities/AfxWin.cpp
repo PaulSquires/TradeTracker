@@ -400,7 +400,7 @@ std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
     DWORD dwBufLen = ListBox_GetTextLen(hListBox, nIndex) + 1;
     std::wstring buffer;
     buffer.resize(dwBufLen);
-    ListBox_GetText(hListBox, &buffer[0], dwBufLen);
+    ListBox_GetText(hListBox, nIndex, &buffer[0]);
     buffer.resize(dwBufLen - 1);
     return buffer;
 }

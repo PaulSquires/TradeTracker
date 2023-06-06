@@ -26,9 +26,9 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "..\MainWindow\MainWindow.h"
-#include "..\Database\database.h"
-#include "..\Database\trade.h"
+#include "MainWindow\MainWindow.h"
+#include "Database\database.h"
+#include "Database\trade.h"
 
 #include "Reconcile.h"
 

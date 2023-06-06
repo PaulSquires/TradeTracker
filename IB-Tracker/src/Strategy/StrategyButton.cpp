@@ -25,10 +25,10 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "..\Utilities\CWindowBase.h"
-#include "..\CustomLabel\CustomLabel.h"
-#include "..\TradeGrid\TradeGrid.h"
-#include "..\TradeDialog\TradeDialog.h"
+#include "Utilities\CWindowBase.h"
+#include "CustomLabel\CustomLabel.h"
+#include "TradeGrid\TradeGrid.h"
+#include "TradeDialog\TradeDialog.h"
 
 #include "StrategyButton.h"
 #include "StrategyPopup.h"

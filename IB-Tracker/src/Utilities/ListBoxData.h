@@ -26,8 +26,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Themes\Themes.h"
-#include "..\Database\trade.h"
+#include "Themes\Themes.h"
+#include "Database\trade.h"
 
 
 // ListBox data structure that will be directly accessed for each row 

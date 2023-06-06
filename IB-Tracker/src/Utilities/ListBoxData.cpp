@@ -27,13 +27,13 @@ SOFTWARE.
 #include "pch.h"
 #include "ListBoxData.h"
 
-#include "..\MainWindow\tws-client.h"
-#include "..\TradesPanel\TradesPanel.h"
-#include "..\ClosedPanel\ClosedPanel.h"
-#include "..\HistoryPanel\HistoryPanel.h"
-#include "..\TickerPanel\TickerPanel.h"
-#include "..\TransPanel\TransPanel.h"
-#include "..\DailyPanel\DailyPanel.h"
+#include "MainWindow\tws-client.h"
+#include "TradesPanel\TradesPanel.h"
+#include "ClosedPanel\ClosedPanel.h"
+#include "HistoryPanel\HistoryPanel.h"
+#include "TickerPanel\TickerPanel.h"
+#include "TransPanel\TransPanel.h"
+#include "DailyPanel\DailyPanel.h"
 
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;

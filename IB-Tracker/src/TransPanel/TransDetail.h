@@ -26,7 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Utilities\CWindowBase.h"
+#include "Utilities\CWindowBase.h"
 
 
 class CTransDetail: public CWindowBase<CTransDetail>

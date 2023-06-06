@@ -25,8 +25,8 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "..\Utilities\AfxWin.h"
-#include "..\Utilities\CWindowBase.h"
+#include "Utilities\AfxWin.h"
+#include "Utilities\CWindowBase.h"
 #include "Themes.h"
 
 

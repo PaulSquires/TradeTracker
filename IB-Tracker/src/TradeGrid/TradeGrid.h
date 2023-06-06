@@ -26,11 +26,11 @@ SOFTWARE.
 
 #pragma once
 
-#include "..\Themes\Themes.h"
-#include "..\Utilities\AfxWin.h"
-#include "..\Utilities\UserMessages.h"
-#include "..\CustomTextBox\CustomTextBox.h"
-#include "..\CustomLabel\CustomLabel.h"
+#include "Themes\Themes.h"
+#include "Utilities\AfxWin.h"
+#include "Utilities\UserMessages.h"
+#include "CustomTextBox\CustomTextBox.h"
+#include "CustomLabel\CustomLabel.h"
 
 
 enum class GridColType

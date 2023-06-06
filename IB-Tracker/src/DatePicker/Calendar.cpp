@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "..\CustomLabel\CustomLabel.h"
+#include "CustomLabel\CustomLabel.h"
 #include "Calendar.h"
 
 

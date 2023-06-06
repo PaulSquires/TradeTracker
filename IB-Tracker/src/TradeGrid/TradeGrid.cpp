@@ -25,10 +25,10 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "..\Utilities\CWindowBase.h"
-#include "..\MainWindow\MainWindow.h"
-#include "..\DatePicker\Calendar.h"
-#include "..\TradeDialog\TradeDialog.h"
+#include "Utilities\CWindowBase.h"
+#include "MainWindow\MainWindow.h"
+#include "DatePicker\Calendar.h"
+#include "TradeDialog\TradeDialog.h"
 
 #include "TradeGrid.h"
 

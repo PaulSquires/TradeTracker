@@ -25,14 +25,14 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "..\CustomLabel\CustomLabel.h"
-#include "..\CustomTextBox\CustomTextBox.h"
-#include "..\CustomVScrollBar\CustomVScrollBar.h"
-#include "..\MainWindow\MainWindow.h"
-#include "..\Category\Category.h"
-#include "..\TransPanel\TransDateFilter.h"
-#include "..\DatePicker\Calendar.h"
-#include "..\Utilities\ListBoxData.h"
+#include "CustomLabel\CustomLabel.h"
+#include "CustomTextBox\CustomTextBox.h"
+#include "CustomVScrollBar\CustomVScrollBar.h"
+#include "MainWindow\MainWindow.h"
+#include "Category\Category.h"
+#include "TransPanel\TransDateFilter.h"
+#include "DatePicker\Calendar.h"
+#include "Utilities\ListBoxData.h"
 
 #include "TransPanel.h"
 

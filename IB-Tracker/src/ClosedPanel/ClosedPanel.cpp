@@ -25,11 +25,11 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "..\CustomLabel\CustomLabel.h"
-#include "..\Utilities\ListBoxData.h"
-#include "..\MainWindow\MainWindow.h"
-#include "..\CustomVScrollBar\CustomVScrollBar.h"
-#include "..\Database\database.h"
+#include "CustomLabel\CustomLabel.h"
+#include "Utilities\ListBoxData.h"
+#include "MainWindow\MainWindow.h"
+#include "CustomVScrollBar\CustomVScrollBar.h"
+#include "Database\database.h"
 
 #include "ClosedPanel.h"
 
