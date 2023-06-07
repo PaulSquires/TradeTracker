@@ -609,19 +609,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", TextColorDim, BackColor,
-            CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
-        if (tdd.tradeAction != TradeAction::NewFuturesTrade) ShowWindow(hCtl, SW_HIDE);
-        std::wstring wszContractDate = AfxCurrentDate();
-        CustomLabel_SetUserData(hCtl, wszContractDate);
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
-            TextColor, ThemeElement::GrayMedium, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
-        if (tdd.tradeAction != TradeAction::NewFuturesTrade) ShowWindow(hCtl, SW_HIDE);
-        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, L"\uE015",
-            TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
-            CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
-        if (tdd.tradeAction != TradeAction::NewFuturesTrade) ShowWindow(hCtl, SW_HIDE);
-
     }
     else {
         hCtl = CreateCustomLabel(
@@ -651,6 +638,33 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             pData->wszText = L"";
             CustomLabel_SetOptions(hCtl, pData);
         }
+    }
+
+
+    bool ShowContractExpiry = false;
+    std::wstring wszContractDate;
+
+    if (tdd.tradeAction == TradeAction::NewFuturesTrade) {
+        wszContractDate = AfxCurrentDate();
+        ShowContractExpiry = true;
+    }
+    if (tdd.tradeAction == TradeAction::EditTransaction) {
+        if (tdd.trade->tickerSymbol.substr(0, 1) == L"/") {   // this is a Future
+            wszContractDate = tdd.trade->futureExpiry;
+            ShowContractExpiry = true;
+        }
+    }
+
+    if (ShowContractExpiry == true) {
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), L"Futures Contract");
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", TextColorDim, BackColor,
+            CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
+        CustomLabel_SetUserData(hCtl, wszContractDate);
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
+            TextColor, ThemeElement::GrayMedium, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
+        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, L"\uE015",
+            TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+            CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
     }
 
 

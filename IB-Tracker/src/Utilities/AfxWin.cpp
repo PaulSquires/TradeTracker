@@ -531,6 +531,8 @@ std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd)
 // ========================================================================================
 int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
 {
+    if (date1.length() == 0) return 0;
+    if (date2.length() == 0) return 0;
     static const ULONGLONG FT_SECOND = ((ULONGLONG)10000000);
     static const ULONGLONG FT_MINUTE = (60 * FT_SECOND);
     static const ULONGLONG FT_HOUR = (60 * FT_MINUTE);
@@ -647,6 +649,7 @@ int AfxLocalMonth()
 // ========================================================================================
 std::wstring AfxFormatFuturesDate(const std::wstring& wszDate)
 {
+    if (wszDate.length() == 0) return L"";
     SYSTEMTIME st{};
     st.wYear = std::stoi(wszDate.substr(0, 4));
     st.wMonth = std::stoi(wszDate.substr(5, 2));
@@ -661,10 +664,11 @@ std::wstring AfxFormatFuturesDate(const std::wstring& wszDate)
 
 // ========================================================================================
 // Returns the Futures Contract date YYYYMM from a date in ISO format (YYYY-MM-DD)
-// This is used for retrieveing market data. (uses ansi strings rather thab unicode).
+// This is used for retrieveing market data. (uses ansi strings rather than unicode).
 // ========================================================================================
 std::string AfxFormatFuturesDateMarketData(const std::wstring& wszDate)
 {
+    if (wszDate.length() == 0) return "";
     // Date enters as YYYY-MM-DD so we simply need to remove the hyphens    
     std::string newDate = unicode2ansi(wszDate);
     newDate.erase(remove(newDate.begin(), newDate.end(), '-'), newDate.end());
@@ -677,6 +681,7 @@ std::string AfxFormatFuturesDateMarketData(const std::wstring& wszDate)
 // ========================================================================================
 std::wstring AfxGetShortDayName(const std::wstring& wszDate)
 {
+    if (wszDate.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
 
@@ -697,6 +702,8 @@ std::wstring AfxGetShortDayName(const std::wstring& wszDate)
 // ========================================================================================
 std::wstring AfxShortDate(const std::wstring& wszDate)
 {
+    if (wszDate.length() == 0) return L"";
+
     SYSTEMTIME st{};
     st.wYear = std::stoi(wszDate.substr(0, 4));
     st.wMonth = std::stoi(wszDate.substr(5, 2));
@@ -713,6 +720,8 @@ std::wstring AfxShortDate(const std::wstring& wszDate)
 // ========================================================================================
 std::wstring AfxLongDate(const std::wstring& wszDate)
 {
+    if (wszDate.length() == 0) return L"";
+
     SYSTEMTIME st{};
     st.wYear = std::stoi(wszDate.substr(0, 4));
     st.wMonth = std::stoi(wszDate.substr(5, 2));
