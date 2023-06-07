@@ -579,7 +579,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
 
     // Make a copy of the Legs vector and then destroy the original.
     std::vector< std::shared_ptr<Leg> > copylegs = tdd.legs;
-    tdd.legs.clear();
+    tdd.trans->legs.clear();
 
     // Cycle through both grids and add changes to the legs
     for (int row = 0; row < 8; ++row) {
@@ -621,7 +621,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         leg->origQuantity = intQuantity;
         leg->openQuantity = intQuantity;
 
-        tdd.legs.push_back(leg);
+        tdd.trans->legs.push_back(leg);
 
     }
 
