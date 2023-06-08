@@ -552,14 +552,12 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     HWND hCtl = NULL;
     CustomLabel* pData = nullptr;
 
-    int vmargin = 10;
-    int hmargin = 10;
-    int nLeft = 0;
-    int nTop = 0;
-    int nWidth = 0;
-    int nHeight = 0;
-    int hsp = 8;   // horizontal spacer
-    int vsp = 4;   // vertical spacer
+    //int vmargin = 10;
+    //int hmargin = 10;
+    //int nLeft = 0;
+    //int nTop = 0;
+    //int nWidth = 0;
+    //int nHeight = 0;
 
     int HTextMargin = 0;
     int VTextMargin = 3;
@@ -668,9 +666,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
-    nTop = 72;
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, nTop, 100, 22);
+        CustomLabelAlignment::MiddleLeft, 40, 72, 100, 22);
     std::wstring wszDate = AfxCurrentDate();
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
@@ -685,7 +682,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // we need to set the description (even though the user will never see the actual textbox in those
     // types of actions).
 
-    nTop = 72;
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, ES_LEFT, L"", 159, 97, 171, 23);
@@ -718,10 +714,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
-    nTop = 155;
-
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, nTop, 300, 22);
+        CustomLabelAlignment::MiddleLeft, 40, 155, 300, 22);
 
     if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
         tdd.tradeAction == TradeAction::AddSharesToTrade ||
@@ -732,7 +726,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES, L"",
             ThemeElement::WhiteLight, ThemeElement::GrayMedium,
-            CustomLabelAlignment::MiddleLeft, 40, nTop + 25, 150, 23);
+            CustomLabelAlignment::MiddleLeft, 40, 180, 150, 23);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Long);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
@@ -747,7 +741,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES_DROPDOWN, L"\uE015",
             ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
-            CustomLabelAlignment::MiddleCenter, 191, nTop + 25, 30, 23);
+            CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
@@ -758,7 +752,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES, L"",
             ThemeElement::WhiteLight, ThemeElement::GrayMedium,
-            CustomLabelAlignment::MiddleLeft, 40, nTop + 25, 150, 23);
+            CustomLabelAlignment::MiddleLeft, 40, 180, 150, 23);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
@@ -771,7 +765,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES_DROPDOWN, L"\uE015",
             ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
-            CustomLabelAlignment::MiddleCenter, 191, nTop + 25, 30, 23);
+            CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
@@ -779,30 +773,22 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     else
     {
         // Create the main trade options leg grid
-        HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, nTop + 25, 0, 0);
+        HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0);
 
         // If we are rolling then create the second trade grid.
         if (tdd.tradeAction == TradeAction::RollLeg || tdd.tradeAction == TradeAction::EditTransaction) {
-            nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 20;
+            int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
             CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", TextColorDim, BackColor,
-                CustomLabelAlignment::MiddleLeft, 40 + nWidth, nTop, 300, 22);
-            HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, 40 + nWidth, nTop + 25, 0, 0);
+                CustomLabelAlignment::MiddleLeft, nWidth, 155, 300, 22);
+            HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0);
         }
     }
 
 
-    nLeft = 40;
-    nHeight = 23;
-    nTop = 310;
-
-    int nStartTop = nTop;
-
-
-    nWidth = 80;
     CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, 40, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT,
-        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+        L"0", 40, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
@@ -814,46 +800,19 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
     
-    // EDIT TRANSACTION WARNING
-    int nLabelHeight = 16;
-    int nLabelTop = nStartTop + (nHeight * 3);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1, L"", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft, nLabelTop, AfxScaleX(30), nLabelHeight);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2, L"", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
-    nLabelTop += nLabelHeight;
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
-    nLabelTop += nLabelHeight;
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
-
-    if (tdd.tradeAction == TradeAction::NewFuturesTrade ||
-        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
-        std::wstring wszText1 = L"NOTE:";
-        std::wstring wszText2 = L"Future Ticker names must start with a forward slash.";
-        std::wstring wszText3 = L"For example: /ES, /MES, /NQ, etc.";
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1), wszText1);
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2), wszText2);
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3), wszText3);
-    }
-
-
-    nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, 130, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
-        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+        L"0", 130, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
-    nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, 220, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT,
-        L"100.0000", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+        L"100.0000", 220, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
@@ -867,21 +826,19 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
-    nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Fees", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, 310, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, ES_RIGHT,
-        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+        L"0", 310, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
-    nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Total", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleRight, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::MiddleRight, 400, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, ES_RIGHT,
-        L"0", nLeft, nTop + nHeight + vsp, nWidth, nHeight);
+        L"0", 400, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
@@ -892,10 +849,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     bool bold = false;
 
     // DR / CR toggle label
-    nLeft = nLeft + nWidth + hmargin;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",
         ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleCenter, nLeft, nTop + nHeight + vsp, 30, nHeight);
+        CustomLabelAlignment::MiddleCenter, 490, 337, 30, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
@@ -909,7 +865,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
         ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
-        CustomLabelAlignment::MiddleCenter, 580, nTop + nHeight + vsp, 80, 23);
+        CustomLabelAlignment::MiddleCenter, 580, 337, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
@@ -929,11 +885,33 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         }
     }
 
+
     // CATEGORY SELECTOR
     if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
         IsNewSharesTradeAction(tdd.tradeAction) == true ||
         tdd.tradeAction == TradeAction::EditTransaction) {
         CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23, false);
+    }
+
+
+    // EDIT TRANSACTION WARNING
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 380, 80, 16);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 120, 380, 500, 16);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 120, 396, 500, 16);
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 120, 412, 500, 16);
+
+    if (tdd.tradeAction == TradeAction::NewFuturesTrade ||
+        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
+        std::wstring wszText1 = L"NOTE:";
+        std::wstring wszText2 = L"Future Ticker names must start with a forward slash.";
+        std::wstring wszText3 = L"For example: /ES, /MES, /NQ, etc.";
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1), wszText1);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2), wszText2);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3), wszText3);
     }
 
 }
