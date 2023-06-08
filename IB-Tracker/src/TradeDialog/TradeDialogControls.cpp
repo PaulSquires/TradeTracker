@@ -828,6 +828,16 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, nLeft+AfxScaleX(30), nLabelTop, AfxScaleX(500), nLabelHeight);
 
+    if (tdd.tradeAction == TradeAction::NewFuturesTrade ||
+        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
+        std::wstring wszText1 = L"NOTE:";
+        std::wstring wszText2 = L"Future Ticker names must start with a forward slash.";
+        std::wstring wszText3 = L"For example: /ES, /MES, /NQ, etc.";
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1), wszText1);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2), wszText2);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3), wszText3);
+    }
+
 
     nLeft = nLeft + nWidth + hmargin;
     CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,

@@ -577,9 +577,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
     if (DRCR == L"DR") { tdd.trans->total = tdd.trans->total * -1; }
 
-    // Make a copy of the Legs vector and then destroy the original.
-    std::vector< std::shared_ptr<Leg> > copylegs = tdd.legs;
-    tdd.trans->legs.clear();
+    std::vector<int> legsToDelete;
 
     // Cycle through both grids and add changes to the legs
     for (int row = 0; row < 8; ++row) {
@@ -593,36 +591,51 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         std::wstring legPutCall = TradeGrid_GetText(hGrid, row, 4);
         std::wstring legAction = TradeGrid_GetText(hGrid, row, 5);
 
-        if (legQuantity.length() == 0) continue;
+            
+        // Nothing new or changed to add? Just iterate to next line.
+        if (legQuantity.length() == 0) {
+            // If row from original legs has been deleted then simply remove it from the 
+            // legs vector.
+            if (row < (int)tdd.trans->legs.size()) {
+                legsToDelete.push_back(row);
+            }
+            continue;
+        }
+
         int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
         if (intQuantity == 0) continue;
+
 
         // Determine if backpointers exist and if yes then re-use that leg instead
         // of creating a new leg in order to preserve the integrity of the data.
         std::shared_ptr<Leg> leg = nullptr;
-        int legBackPointerID = 0;
 
-        if (row < (int)copylegs.size()) {
-            leg = copylegs.at(row);
-            legBackPointerID = leg->legBackPointerID;
+        // Reuse existing leg
+        if (row < (int)tdd.trans->legs.size()) {
+            leg = tdd.trans->legs.at(row);
+        }
+        else {
+            leg = std::make_shared<Leg>();
+            tdd.trade->nextLegID += 1;
+            leg->legID = tdd.trade->nextLegID;
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = intQuantity;
         }
 
-        leg = std::make_shared<Leg>();
-
-        tdd.trade->nextLegID += 1;
-        leg->legID = tdd.trade->nextLegID;
-        leg->legBackPointerID = legBackPointerID;
         leg->underlying = tdd.trans->underlying;
         leg->expiryDate = legExpiry;
         leg->strikePrice = legStrike;
         leg->PutCall = legPutCall;
         leg->action = legAction;
 
-        leg->origQuantity = intQuantity;
-        leg->openQuantity = intQuantity;
+        if (row >= (int)tdd.trans->legs.size()) {
+            tdd.trans->legs.push_back(leg);
+        }
+    }
 
-        tdd.trans->legs.push_back(leg);
-
+    // Remove any rows from the original legs that were deleted in full
+    for (auto idx : legsToDelete) {
+        tdd.trans->legs.erase(tdd.trans->legs.begin() + idx);
     }
 
     // Recalculate the ACB for the trade
