@@ -168,10 +168,10 @@ bool tws_disconnect()
     if (tws_isConnected() == false) return true;
 	isThreadPaused = true;
 
+    EndMonitorThread();
+
     client.disconnect();
     bool res = (tws_isConnected(), false, true);
-
-    EndMonitorThread();
 
     return res;
 }
