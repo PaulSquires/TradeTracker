@@ -31,7 +31,7 @@ SOFTWARE.
 
 const std::wstring GLYPH_TREEOPEN = L"\u23F7";
 const std::wstring GLYPH_TREECLOSED = L"\u23F5";
-const std::wstring GLYPH_CIRCLE = GLYPH_CIRCLE;
+const std::wstring GLYPH_CIRCLE = L"\u23FA";
 
 
 // ListBox data structure that will be directly accessed for each row 

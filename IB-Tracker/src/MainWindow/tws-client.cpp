@@ -55,6 +55,7 @@ extern HWND HWND_TRADESPANEL;
 bool isThreadFinished = false;
 bool isThreadPaused = false;
 bool isMonitorThreadActive = false;
+bool killThread = false;    // used to exit thread loop in case future fails and thread hangs
 
 TwsClient client;
 
@@ -74,6 +75,10 @@ void threadFunction(std::future<void> future) {
 	isMonitorThreadActive = true;
 
 	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
+
+		// Check killThread global variable. This variable is true when thread has been
+		// requested to terminate but could be hanging due to the future not taking effect.
+		if (killThread == true) break;
 
 		try {
 			if (tws_isConnected()) {
@@ -98,8 +103,8 @@ void threadFunction(std::future<void> future) {
 void StartMonitorThread()
 {
 	if (isMonitorThreadActive) return;
-	future = signal_exit.get_future();   //create future objects
-    my_thread = std::thread(&threadFunction, std::move(future));  //start thread, and move future
+	future = signal_exit.get_future();   // create future objects
+    my_thread = std::thread(&threadFunction, std::move(future));  // start thread, and move future
 }
 
 
@@ -109,6 +114,7 @@ void EndMonitorThread()
 		isThreadPaused = true;   // prevent processing TickData, etc while thread is shutting down
 		std::cout << "Threads will be stopped soon...." << std::endl;
 		signal_exit.set_value(); // set value into promise
+		killThread = true;
 	}
 	if (my_thread.joinable())
 		my_thread.join(); // join the thread with the main thread
@@ -134,8 +140,6 @@ bool tws_connect()
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected.
 			SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
-
-			std::chrono::milliseconds(500); // wait for 500 milliseconds to allow sockets to breathe
 
 			if (client.isConnected()) {
 				StartMonitorThread();
