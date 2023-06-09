@@ -552,13 +552,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     HWND hCtl = NULL;
     CustomLabel* pData = nullptr;
 
-    //int vmargin = 10;
-    //int hmargin = 10;
-    //int nLeft = 0;
-    //int nTop = 0;
-    //int nWidth = 0;
-    //int nHeight = 0;
-
     int HTextMargin = 0;
     int VTextMargin = 3;
 
