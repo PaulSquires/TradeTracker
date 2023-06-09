@@ -189,7 +189,7 @@ void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const 
                 AfxMoney(abs(transEditDelete->total)) + wszDRCR;
     CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), wszText);
     
-    CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY), L"\u23FA");
+    CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY), GLYPH_CIRCLE);
     CustomLabel_SetTextColor(
         GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY),
         GetCategoryColor(trade->category));

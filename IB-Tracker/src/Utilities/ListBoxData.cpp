@@ -414,7 +414,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         font8 = 8;  // make the History table a little smaller than the Trades table
         font9 = 8;
 
-        ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
+        ld->SetData(0, trade, tickerId, GLYPH_TREEOPEN, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
             ThemeElement::WhiteDark, font8, FontStyleRegular);
 
         std::wstring text = (trade->isOpen ? L"Open Pos" : L"Closed Pos");
@@ -430,7 +430,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     else {
         // The Category icon will be colored 
         ThemeElement catTextColor = GetCategoryColor(trade->category);
-        ld->SetData(0, trade, tickerId, L"\u23FA", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
+        ld->SetData(0, trade, tickerId, GLYPH_CIRCLE, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
             catTextColor, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, ThemeElement::GrayDark,
             ThemeElement::WhiteLight, font9, FontStyleRegular | FontStyleBold);
@@ -454,7 +454,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     // All tickerId will now be -1 because we are no longer dealing with the main isTickerLine.
     tickerId = -1;
 
-    std::wstring wszDot = L"\u23FA";   // dot character (Segue UI Windows 10/11)
+    std::wstring wszDot = GLYPH_CIRCLE;   // dot character (Segue UI Windows 10/11)
     ThemeElement Yellow = ThemeElement::Magenta;
 
 
@@ -766,7 +766,7 @@ void ListBoxData_OutputTransaction(
         ThemeElement::GrayDark, ThemeElement::Orange, font8, FontStyleRegular);
 
     ThemeElement catTextColor = GetCategoryColor(trade->category);
-    ld->SetData(1, trade, tickerId, L"\u23FA", StringAlignmentCenter, StringAlignmentCenter,
+    ld->SetData(1, trade, tickerId, GLYPH_CIRCLE, StringAlignmentCenter, StringAlignmentCenter,
         ThemeElement::GrayDark, catTextColor, font8, FontStyleRegular);
 
     ld->SetData(2, trade, tickerId, trans->transDate, StringAlignmentNear, StringAlignmentCenter,
@@ -843,7 +843,7 @@ void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, d
     ld->DailyTotalsDate = date;
 
     // Triangle open/closed
-    ld->SetData(0, nullptr, tickerId, (isOpen ? L"\u23F7" : L"\u23F5"), StringAlignmentCenter, StringAlignmentCenter,
+    ld->SetData(0, nullptr, tickerId, (isOpen ? GLYPH_TREEOPEN : GLYPH_TREECLOSED), StringAlignmentCenter, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     std::wstring wszText = date;
