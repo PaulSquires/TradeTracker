@@ -26,7 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Themes\Themes.h"
+#include "Themes/Themes.h"
 
 
 class CustomVScrollBar

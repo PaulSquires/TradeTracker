@@ -26,8 +26,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Utilities\CWindowBase.h"
-#include "tws-api\Contract.h"
+#include "Utilities/CWindowBase.h"
+#include "tws-api/Contract.h"
 
 
 class CReconcile: public CWindowBase<CReconcile>

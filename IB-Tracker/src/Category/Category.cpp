@@ -25,9 +25,9 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities\AfxWin.h"
-#include "Utilities\ListBoxData.h"
-#include "CustomLabel\CustomLabel.h"
+#include "Utilities/AfxWin.h"
+#include "Utilities/ListBoxData.h"
+#include "CustomLabel/CustomLabel.h"
 
 #include "Category.h"
 

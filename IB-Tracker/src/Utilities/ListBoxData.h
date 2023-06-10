@@ -26,13 +26,16 @@ SOFTWARE.
 
 #pragma once
 
-#include "Themes\Themes.h"
-#include "Database\trade.h"
+#include "Themes/Themes.h"
+#include "Database/trade.h"
 
 const std::wstring GLYPH_TREEOPEN = L"\u23F7";
 const std::wstring GLYPH_TREECLOSED = L"\u23F5";
 const std::wstring GLYPH_CIRCLE = L"\u23FA";
-
+const std::wstring GLYPH_DROPDOWN = L"\uE015";
+const std::wstring GLYPH_MAGNIFYGLASS = L"\uE0BD";
+const std::wstring GLYPH_RESETLINE = L"\u2B8C";
+const std::wstring GLYPH_CHECKMARK = L"\u2713";
 
 // ListBox data structure that will be directly accessed for each row 
 // during the WM_DRAWITEM notification. 

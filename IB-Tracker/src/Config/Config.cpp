@@ -26,10 +26,10 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "Utilities\AfxWin.h"
-#include "Themes\Themes.h"
-#include "MenuPanel\MenuPanel.h"
-#include "CustomLabel\CustomLabel.h"
+#include "Utilities/AfxWin.h"
+#include "Themes/Themes.h"
+#include "MenuPanel/MenuPanel.h"
+#include "CustomLabel/CustomLabel.h"
 
 #include "Config.h"
 

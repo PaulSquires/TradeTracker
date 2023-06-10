@@ -26,7 +26,8 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "CustomLabel\CustomLabel.h"
+#include "CustomLabel/CustomLabel.h"
+#include "Utilities/ListBoxData.h"
 #include "TransDateFilter.h"
 
 
@@ -293,7 +294,7 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         std::wstring wszText;
         
-        if ((int)SelectedFilterType == lpDrawItem->itemID) wszText = L"\u2713";
+        if ((int)SelectedFilterType == lpDrawItem->itemID) wszText = GLYPH_CHECKMARK;
         RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
         graphics.DrawString(wszText.c_str(), -1, &font, rcText1, &stringF, &textBrush);

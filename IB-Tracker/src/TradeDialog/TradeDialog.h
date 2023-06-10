@@ -26,9 +26,9 @@ SOFTWARE.
 
 #pragma once
 
-#include "Utilities\CWindowBase.h"
-#include "Utilities\UserMessages.h"
-#include "Database\trade.h"
+#include "Utilities/CWindowBase.h"
+#include "Utilities/UserMessages.h"
+#include "Database/trade.h"
 
 
 class CTradeDialog : public CWindowBase<CTradeDialog>

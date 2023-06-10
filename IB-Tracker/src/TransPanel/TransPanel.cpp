@@ -25,14 +25,14 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "CustomLabel\CustomLabel.h"
-#include "CustomTextBox\CustomTextBox.h"
-#include "CustomVScrollBar\CustomVScrollBar.h"
-#include "MainWindow\MainWindow.h"
-#include "Category\Category.h"
-#include "TransPanel\TransDateFilter.h"
-#include "DatePicker\Calendar.h"
-#include "Utilities\ListBoxData.h"
+#include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
+#include "MainWindow/MainWindow.h"
+#include "Category/Category.h"
+#include "TransPanel/TransDateFilter.h"
+#include "DatePicker/Calendar.h"
+#include "Utilities/ListBoxData.h"
 
 #include "TransPanel.h"
 
@@ -581,7 +581,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Days7);
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, L"\uE015",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, GLYPH_DROPDOWN,
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
@@ -595,7 +595,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, L"\uE015",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, GLYPH_DROPDOWN,
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
@@ -609,7 +609,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, L"\uE015",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, GLYPH_DROPDOWN,
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);

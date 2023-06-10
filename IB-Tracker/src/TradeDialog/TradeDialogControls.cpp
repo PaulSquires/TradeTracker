@@ -27,15 +27,15 @@ SOFTWARE.
 #include "pch.h"
 
 #include "TradeDialog.h"
-#include "Utilities\AfxWin.h"
-#include "CustomLabel\CustomLabel.h"
-#include "CustomTextBox\CustomTextBox.h"
-#include "TradeGrid\TradeGrid.h"
-#include "Strategy\StrategyButton.h"
-#include "TradesPanel\TradesPanel.h"
-#include "MainWindow\tws-client.h"
-#include "Database\database.h"
-#include "Category\Category.h"
+#include "Utilities/AfxWin.h"
+#include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
+#include "TradeGrid/TradeGrid.h"
+#include "Strategy/StrategyButton.h"
+#include "TradesPanel/TradesPanel.h"
+#include "MainWindow/tws-client.h"
+#include "Database/database.h"
+#include "Category/Category.h"
 
 
 extern HWND HWND_TRADEDIALOG;
@@ -651,7 +651,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SetUserData(hCtl, wszContractDate);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
         TextColor, ThemeElement::GrayMedium, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, L"\uE015",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, GLYPH_DROPDOWN,
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
         
@@ -673,7 +673,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserData(hCtl, wszDate);
 
-    CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, L"\uE015",
+    CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, GLYPH_DROPDOWN,
         TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
@@ -738,7 +738,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         if (tdd.tradeAction == TradeAction::AddFuturesToTrade) wszText += L"FUTURES";
         CustomLabel_SetText(hCtl, wszText);
 
-        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES_DROPDOWN, L"\uE015",
+        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES_DROPDOWN, GLYPH_DROPDOWN,
             ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
@@ -762,7 +762,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         if (tdd.tradeAction == TradeAction::ManageFutures) wszText += L"FUTURES";
         CustomLabel_SetText(hCtl, wszText);
 
-        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES_DROPDOWN, L"\uE015",
+        hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES_DROPDOWN, GLYPH_DROPDOWN,
             ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
             CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);

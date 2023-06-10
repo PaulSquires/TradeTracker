@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "tws-api\Contract.h"
+#include "tws-api/Contract.h"
 
 
 /******************************************************************************

@@ -25,12 +25,12 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "CustomLabel\CustomLabel.h"
-#include "CustomVScrollBar\CustomVScrollBar.h"
-#include "MainWindow\tws-client.h"
-#include "Database\database.h"
-#include "TradeDialog\TradeDialog.h"
-#include "Utilities\ListBoxData.h"
+#include "CustomLabel/CustomLabel.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
+#include "MainWindow/tws-client.h"
+#include "Database/database.h"
+#include "TradeDialog/TradeDialog.h"
+#include "Utilities/ListBoxData.h"
 
 #include "TransDetail.h"
 

@@ -27,13 +27,13 @@ SOFTWARE.
 #include "pch.h"
 #include "ListBoxData.h"
 
-#include "MainWindow\tws-client.h"
-#include "TradesPanel\TradesPanel.h"
-#include "ClosedPanel\ClosedPanel.h"
-#include "HistoryPanel\HistoryPanel.h"
-#include "TickerPanel\TickerPanel.h"
-#include "TransPanel\TransPanel.h"
-#include "DailyPanel\DailyPanel.h"
+#include "MainWindow/tws-client.h"
+#include "TradesPanel/TradesPanel.h"
+#include "ClosedPanel/ClosedPanel.h"
+#include "HistoryPanel/HistoryPanel.h"
+#include "TickerPanel/TickerPanel.h"
+#include "TransPanel/TransPanel.h"
+#include "DailyPanel/DailyPanel.h"
 
 extern HWND HWND_MENUPANEL;
 extern HWND HWND_TRADESPANEL;
@@ -620,7 +620,7 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     ld->lineType = LineType::TransactionHeader;
     ld->trans = trans;
 
-    ld->SetData(0, trade, tickerId, L"\u23F7", StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
+    ld->SetData(0, trade, tickerId, GLYPH_TREEOPEN, StringAlignmentCenter, StringAlignmentCenter, ThemeElement::GrayDark,
         ThemeElement::WhiteDark, font8, FontStyleRegular);
 
     text = trans->description;
@@ -636,7 +636,7 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     ld->SetData(7, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, ThemeElement::GrayDark,
         clr, font8, FontStyleRegular);   // green/red
 
-    ld->SetData(8, trade, tickerId, L"\uE0BD", StringAlignmentCenter, StringAlignmentCenter,
+    ld->SetData(8, trade, tickerId, GLYPH_MAGNIFYGLASS, StringAlignmentCenter, StringAlignmentCenter,
         ThemeElement::GrayDark, ThemeElement::GrayDark, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);

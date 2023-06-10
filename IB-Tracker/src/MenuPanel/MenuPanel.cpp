@@ -25,15 +25,15 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "CustomLabel\CustomLabel.h"
-#include "Utilities\UserMessages.h"
-#include "Config\Config.h"
-#include "MainWindow\tws-client.h"
-#include "MainWindow\MainWindow.h"
-#include "TradesPanel\TradesPanel.h"
-#include "ClosedPanel\ClosedPanel.h"
-#include "TradeDialog\TradeDialog.h"
-#include "Utilities\ListBoxData.h"
+#include "CustomLabel/CustomLabel.h"
+#include "Utilities/UserMessages.h"
+#include "Config/Config.h"
+#include "MainWindow/tws-client.h"
+#include "MainWindow/MainWindow.h"
+#include "TradesPanel/TradesPanel.h"
+#include "ClosedPanel/ClosedPanel.h"
+#include "TradeDialog/TradeDialog.h"
+#include "Utilities/ListBoxData.h"
 #include "MenuPanel.h"
 
 extern void TradesPanel_ShowActiveTrades();

@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "Utilities\AfxWin.h"
+#include "Utilities/AfxWin.h"
 #include "CustomVScrollBar.h"
 
 

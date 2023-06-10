@@ -25,10 +25,11 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities\CWindowBase.h"
-#include "MainWindow\MainWindow.h"
-#include "DatePicker\Calendar.h"
-#include "TradeDialog\TradeDialog.h"
+#include "Utilities/CWindowBase.h"
+#include "Utilities/ListBoxData.h"
+#include "MainWindow/MainWindow.h"
+#include "DatePicker/Calendar.h"
+#include "TradeDialog/TradeDialog.h"
 
 #include "TradeGrid.h"
 
@@ -236,8 +237,8 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             CustomLabelType::TextOnly, nLeft, nTop, TRADEGRID_LINERESETICONWIDTH, nHeight);
         pLabelData = CustomLabel_GetOptions(hCtl);
         if (pLabelData) {
-            pLabelData->wszText = L"\u2B8C";
-            pLabelData->wszTextHot = L"\u2B8C";
+            pLabelData->wszText = GLYPH_RESETLINE;
+            pLabelData->wszTextHot = GLYPH_RESETLINE;
             pLabelData->HotTestEnable = true;
             pLabelData->BackColor = ThemeElement::GrayDark; 
             pLabelData->BackColorHot = ThemeElement::GrayMedium;

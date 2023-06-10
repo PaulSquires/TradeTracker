@@ -25,10 +25,11 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities\CWindowBase.h"
-#include "CustomLabel\CustomLabel.h"
-#include "TradeGrid\TradeGrid.h"
-#include "TradeDialog\TradeDialog.h"
+#include "Utilities/CWindowBase.h"
+#include "CustomLabel/CustomLabel.h"
+#include "TradeGrid/TradeGrid.h"
+#include "TradeDialog/TradeDialog.h"
+#include "Utilities/ListBoxData.h"
 
 #include "StrategyButton.h"
 #include "StrategyPopup.h"
@@ -196,7 +197,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, L"\uE015",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, GLYPH_DROPDOWN,
         ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
         CustomLabelAlignment::MiddleCenter, 234, 0, 30, nHeight);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);

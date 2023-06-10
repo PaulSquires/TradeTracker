@@ -26,16 +26,16 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "Utilities\UserMessages.h"
-#include "Utilities\ListBoxData.h"
-#include "Utilities\AfxWin.h"
-#include "TradesPanel\TradesPanel.h"
-#include "Reconcile\Reconcile.h"
+#include "Utilities/UserMessages.h"
+#include "Utilities/ListBoxData.h"
+#include "Utilities/AfxWin.h"
+#include "TradesPanel/TradesPanel.h"
+#include "Reconcile/Reconcile.h"
 
-#include "tws-api\EClientSocket.h"
-#include "tws-api\EPosixClientSocketPlatform.h"
-#include "tws-api\CommonDefs.h"
-#include "tws-api\Utils.h"
+#include "tws-api/EClientSocket.h"
+#include "tws-api/EPosixClientSocketPlatform.h"
+#include "tws-api/CommonDefs.h"
+#include "tws-api/Utils.h"
 
 #include "tws-client.h"
 
