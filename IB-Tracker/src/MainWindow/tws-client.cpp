@@ -55,7 +55,7 @@ extern HWND HWND_TRADESPANEL;
 bool isThreadFinished = false;
 bool isThreadPaused = false;
 bool isMonitorThreadActive = false;
-bool killThread = false;    // used to exit thread loop in case future fails and thread hangs
+std::atomic<bool> killThread = false;    // used to exit thread loop in case future fails and thread hangs
 
 TwsClient client;
 
@@ -115,9 +115,10 @@ void EndMonitorThread()
 		std::cout << "Threads will be stopped soon...." << std::endl;
 		signal_exit.set_value(); // set value into promise
 		killThread = true;
+
+		// wait for background thread to finish then join to main thread
+		my_thread.join();
 	}
-	if (my_thread.joinable())
-		my_thread.join(); // join the thread with the main thread
 }
 
 
