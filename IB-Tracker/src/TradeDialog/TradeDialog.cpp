@@ -415,7 +415,7 @@ int TradeDialog_Show(TradeAction inTradeAction)
     cloak = FALSE;
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
-
+    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     
     if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
         IsNewSharesTradeAction(tdd.tradeAction) == true) {
