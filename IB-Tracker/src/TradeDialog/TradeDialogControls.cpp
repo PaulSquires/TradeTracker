@@ -193,8 +193,6 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
     HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
     HWND hGrid = hGridMain;
 
-    bool hasBackPointers = false;
-
     // If more than 4 legs exist in the legs vector then we have to also use the rolled grid.
     int row = 0;
     for (const auto& leg : tdd.legs) {
@@ -225,8 +223,6 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         // ACTION
         TradeGrid_SetColData(hGrid, row, 6, leg->action);
 
-        if (leg->legBackPointerID != 0) hasBackPointers = true;
-
         row++;
     }
 
@@ -256,19 +252,6 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
     }
     else {
         TradeDialog_SetComboDRCR(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), L"CR");
-    }
-
-
-    // EDIT WARNING
-    if (hasBackPointers == true) {
-        std::wstring wszText1 = L"WARNING:";
-        std::wstring wszText2 = L"Transaction contains quantity modifier back pointers to the legs of another transaction.";
-        std::wstring wszText3 = L"Do not modify the leg quantity amounts or delete entire existing legs for this transaction.";
-        std::wstring wszText4 = L"Editing of any other transaction or leg data is permitted.";
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1), wszText1);
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2), wszText2);
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3), wszText3);
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4), wszText4);
     }
 }
 
