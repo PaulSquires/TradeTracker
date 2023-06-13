@@ -52,7 +52,6 @@ extern void TradesPanel_ShowActiveTrades();
 std::wstring RemovePipeChar(const std::wstring& wszText)
 {
     std::wstring wszString = wszText;
-    //wszString.erase(L'|');   // C++20 combines erase/remove into one operation
     wszString.erase(remove(wszString.begin(), wszString.end(), L'|'), wszString.end());
     return wszString;
 }
@@ -609,7 +608,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         // Determine if backpointers exist and if yes then re-use that leg instead
         // of creating a new leg in order to preserve the integrity of the data.
         std::shared_ptr<Leg> leg = nullptr;
-
+        
         // Reuse existing leg
         if (row < (int)tdd.trans->legs.size()) {
             leg = tdd.trans->legs.at(row);
@@ -618,9 +617,10 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             leg = std::make_shared<Leg>();
             tdd.trade->nextLegID += 1;
             leg->legID = tdd.trade->nextLegID;
-            leg->origQuantity = intQuantity;
-            leg->openQuantity = intQuantity;
         }
+
+        leg->origQuantity = intQuantity;
+        leg->openQuantity = intQuantity;
 
         leg->underlying = tdd.trans->underlying;
         leg->expiryDate = legExpiry;

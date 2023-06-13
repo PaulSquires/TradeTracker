@@ -638,24 +638,20 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 
     case WM_RBUTTONDOWN:
     {
-        int menuId = MenuPanel_GetActiveMenuItem(HWND_MENUPANEL);
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         
-        if (menuId == IDC_MENUPANEL_ACTIVETRADES) {
-            int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        
-            // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
-            // if the specified point is in the client area of the list box, or one if it is outside the 
-            // client area.
-            if (HIWORD(idx) == -1) break;
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
             
-            // Return to not select the line (eg. if a blank line was clicked on)
-            if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
-                return 0;
-            }
-            ListBox_SetSel(hWnd, true, idx);
-
-            TradesPanel_RightClickMenu(hWnd, idx);
+        // Return to not select the line (eg. if a blank line was clicked on)
+        if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
+            return 0;
         }
+        ListBox_SetSel(hWnd, true, idx);
+
+        TradesPanel_RightClickMenu(hWnd, idx);
         return 0;
     }
     break;
@@ -668,11 +664,6 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == 1) break;
-
-    //    // Return to not select the line (eg. if a blank line was clicked on)
-    //    if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
-    //        return 0;
-    //    }
     }
     break;
 
