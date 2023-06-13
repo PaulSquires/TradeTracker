@@ -77,6 +77,7 @@ public:
 	COLORREF BackColor{};
 	HBRUSH hBackBrush = NULL;
 	HFONT hFont = NULL;
+	bool bShowOriginalQuantity = false;
 
 	std::vector<GridColInfo*> gridCols;
 
@@ -102,5 +103,5 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col);
 void TradeGrid_CalculateDTE(HWND hwnd);
 void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszText);
 
-HWND CreateTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight);
+HWND CreateTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight, bool bShowOriginalQuantity);
 

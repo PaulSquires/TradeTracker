@@ -205,21 +205,25 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         }
         if (row > 7) break;
 
-        // QUANTITY
-        std::wstring legQuantity = std::to_wstring(leg->origQuantity);
-        TradeGrid_SetColData(hGrid, row, 0, legQuantity);
+        // QUANTITY (ORIGINAL)
+        std::wstring legOrigQuantity = std::to_wstring(leg->origQuantity);
+        TradeGrid_SetColData(hGrid, row, 0, legOrigQuantity);
+
+        // QUANTITY (OPEN)
+        std::wstring legOpenQuantity = std::to_wstring(leg->openQuantity);
+        TradeGrid_SetColData(hGrid, row, 1, legOpenQuantity);
 
         // EXPIRY DATE
-        TradeGrid_SetColData(hGrid, row, 1, leg->expiryDate);
+        TradeGrid_SetColData(hGrid, row, 2, leg->expiryDate);
 
         // STRIKE PRICE
-        TradeGrid_SetColData(hGrid, row, 3, leg->strikePrice);
+        TradeGrid_SetColData(hGrid, row, 4, leg->strikePrice);
 
         // PUT/CALL
-        TradeGrid_SetColData(hGrid, row, 4, leg->PutCall);
+        TradeGrid_SetColData(hGrid, row, 5, leg->PutCall);
 
         // ACTION
-        TradeGrid_SetColData(hGrid, row, 5, leg->action);
+        TradeGrid_SetColData(hGrid, row, 6, leg->action);
 
         if (leg->legBackPointerID != 0) hasBackPointers = true;
 
@@ -771,15 +775,17 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
     else
     {
-        // Create the main trade options leg grid
-        HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0);
+        bool bShowOriginalQuantity = (tdd.tradeAction == TradeAction::EditTransaction) ? true : false;
 
-        // If we are rolling then create the second trade grid.
+        // Create the main trade options leg grid
+        HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, bShowOriginalQuantity);
+
+        // If we are rolling or editing then create the second trade grid.
         if (tdd.tradeAction == TradeAction::RollLeg || tdd.tradeAction == TradeAction::EditTransaction) {
             int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
             CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", TextColorDim, BackColor,
                 CustomLabelAlignment::MiddleLeft, nWidth, 155, 300, 22);
-            HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0);
+            HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, bShowOriginalQuantity);
         }
     }
 

@@ -481,14 +481,16 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     int NumBlankLegs = 0;
 
     for (int row = 0; row < 4; ++row) {
-        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
-        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
-        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
-        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
-        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+        std::wstring legOrigQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
+        std::wstring legOpenQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 2);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 6);
 
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
+        if (legOrigQuantity.length() == 0 && legOpenQuantity.length() == 0
+            && legExpiry.length() == 0 && legStrike.length() == 0
             && legPutCall.length() == 0 && legAction.length() == 0) {
             NumBlankLegs++;
             continue;
@@ -497,7 +499,8 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool bIncomplete = false;
 
-        if (legQuantity.length() == 0) bIncomplete = true;
+        if (legOrigQuantity.length() == 0) bIncomplete = true;
+        if (legOpenQuantity.length() == 0) bIncomplete = true;
         if (legExpiry.length() == 0) bIncomplete = true;
         if (legStrike.length() == 0) bIncomplete = true;
         if (legPutCall.length() == 0) bIncomplete = true;
@@ -513,14 +516,16 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     }
 
     for (int row = 0; row < 4; ++row) {
-        std::wstring legQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
-        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
-        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
-        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
-        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+        std::wstring legOrigQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
+        std::wstring legOpenQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
+        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 2);
+        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 6);
 
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (legQuantity.length() == 0 && legExpiry.length() == 0 && legStrike.length() == 0
+        if (legOrigQuantity.length() == 0 && legOpenQuantity.length() == 0 
+            && legExpiry.length() == 0 && legStrike.length() == 0
             && legPutCall.length() == 0 && legAction.length() == 0) {
             continue;
         }
@@ -528,7 +533,8 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool bIncomplete = false;
 
-        if (legQuantity.length() == 0) bIncomplete = true;
+        if (legOrigQuantity.length() == 0) bIncomplete = true;
+        if (legOpenQuantity.length() == 0) bIncomplete = true;
         if (legExpiry.length() == 0) bIncomplete = true;
         if (legStrike.length() == 0) bIncomplete = true;
         if (legPutCall.length() == 0) bIncomplete = true;
@@ -584,15 +590,16 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             ? GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN)
             : GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL);
 
-        std::wstring legQuantity = TradeGrid_GetText(hGrid, row, 0);
-        std::wstring legExpiry = TradeGrid_GetText(hGrid, row, 1);
-        std::wstring legStrike = TradeGrid_GetText(hGrid, row, 3);
-        std::wstring legPutCall = TradeGrid_GetText(hGrid, row, 4);
-        std::wstring legAction = TradeGrid_GetText(hGrid, row, 5);
+        std::wstring legOrigQuantity = TradeGrid_GetText(hGrid, row, 0);
+        std::wstring legOpenQuantity = TradeGrid_GetText(hGrid, row, 1);
+        std::wstring legExpiry = TradeGrid_GetText(hGrid, row, 2);
+        std::wstring legStrike = TradeGrid_GetText(hGrid, row, 4);
+        std::wstring legPutCall = TradeGrid_GetText(hGrid, row, 5);
+        std::wstring legAction = TradeGrid_GetText(hGrid, row, 6);
 
             
         // Nothing new or changed to add? Just iterate to next line.
-        if (legQuantity.length() == 0) {
+        if (legOrigQuantity.length() == 0) {
             // If row from original legs has been deleted then simply remove it from the 
             // legs vector.
             if (row < (int)tdd.trans->legs.size()) {
@@ -601,8 +608,11 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             continue;
         }
 
-        int intQuantity = stoi(legQuantity);   // will GPF if empty legQuantity string
-        if (intQuantity == 0) continue;
+        int intOrigQuantity = stoi(legOrigQuantity);   // will GPF if empty legOrigQuantity string
+        if (intOrigQuantity == 0) continue;
+
+        int intOpenQuantity = stoi(legOpenQuantity);   // will GPF if empty legOpenQuantity string
+        if (intOpenQuantity == 0) continue;
 
 
         // Determine if backpointers exist and if yes then re-use that leg instead
@@ -619,8 +629,8 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             leg->legID = tdd.trade->nextLegID;
         }
 
-        leg->origQuantity = intQuantity;
-        leg->openQuantity = intQuantity;
+        leg->origQuantity = intOrigQuantity;
+        leg->openQuantity = intOpenQuantity;
 
         leg->underlying = tdd.trans->underlying;
         leg->expiryDate = legExpiry;
