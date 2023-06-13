@@ -617,10 +617,9 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             leg = std::make_shared<Leg>();
             tdd.trade->nextLegID += 1;
             leg->legID = tdd.trade->nextLegID;
+            leg->origQuantity = intQuantity;
+            leg->openQuantity = intQuantity;
         }
-
-        leg->origQuantity = intQuantity;
-        leg->openQuantity = intQuantity;
 
         leg->underlying = tdd.trans->underlying;
         leg->expiryDate = legExpiry;

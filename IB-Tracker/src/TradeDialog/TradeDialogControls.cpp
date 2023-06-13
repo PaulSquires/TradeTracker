@@ -247,6 +247,14 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), std::to_wstring(tdd.trans->fees));
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(tdd.trans->total));
 
+    if (tdd.trans->total < 0) {
+        TradeDialog_SetComboDRCR(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), L"DR");
+    }
+    else {
+        TradeDialog_SetComboDRCR(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), L"CR");
+    }
+
+
     // EDIT WARNING
     if (hasBackPointers == true) {
         std::wstring wszText1 = L"WARNING:";
@@ -860,6 +868,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     } else {
         TradeDialog_SetComboDRCR(hCtl, L"CR");
     }
+
 
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
