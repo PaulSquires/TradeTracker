@@ -13,12 +13,15 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 ![screenshot](https://pragtical.github.io/assets/img/editor.png)
 
 ## Goals
-* I have written pure low level WinAPI based applications for 20 years (FreeBasic and PowerBasic) but I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL.
+* I have written pure low level WinAPI based applications for 20 years (in non "C" based languages) but I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL.
 * Small (less than 500K), fast (written in C++), and self-contained (no external dependencies).
 * Portable. You can easily run the program from a thumb drive.
 * Modern looking. Dark and light themes.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
 * Simple text file "database" that can easily be manually edited if needed. No database engine like SQLite needed.
+* Easy to learn and very intuitive with all information available on the main screen. 
+* Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
+* Currently only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not supported.
 
 ## Download
 The latest package can be downloaded from the [RELEASES page](https://github.com/PaulSquires/IB-Tracker/releases).
@@ -34,11 +37,23 @@ IB-Tracker will create two additional files when it first executes:
 * IB-Tracker-database.db
 
 ## Usage
+
 ### Getting Started
+
 ### Configuration
+The configuration file (IB-Tracker-config.txt) is an extremely simple text file. Each line is composed of two items (key and value) separated by a pipe ("|") character.
+
+```
+IB-TRACKER-CONFIG|1.0.0
+THEME|Dark
+TRADERNAME|TheDude
+STARTUPCONNECT|false
+```
+
+THEME and STARTUPCONNECT can be set directly from inside the IB-Tracker application. TRADERNAME can only be set by manually editing the configuration text file. TRADERNAME shows on the main menu.
 
 ## Contributing
 Feel free to contribute something that would be convenient and "Pragtical" to include on the core, you are welcome to open a pull request and contribute.
 
 ## License
-This project is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [LICENSE] for details.
+This project is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [LICENSE](https://github.com/PaulSquires/IB-Tracker/blob/main/LICENSE.txt) for details.
