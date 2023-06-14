@@ -118,9 +118,9 @@ void InitializeLightThemeColors()
 	clr[(int)ThemeElement::Red] = Color::MakeARGB(255, 255, 30, 0);
 	clr[(int)ThemeElement::Orange] = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
 
-	clr[(int)ThemeElement::ScrollBarBack] = Color::MakeARGB(255, 38, 38, 38);
-	clr[(int)ThemeElement::ScrollBarDivider] = Color::MakeARGB(255, 64, 67, 73);
-	clr[(int)ThemeElement::ScrollBarThumb] = Color::MakeARGB(255, 51, 51, 51);
+	clr[(int)ThemeElement::ScrollBarBack] = Color::MakeARGB(255, 255, 255, 255);
+	clr[(int)ThemeElement::ScrollBarDivider] = Color::MakeARGB(255, 238, 238, 238);
+	clr[(int)ThemeElement::ScrollBarThumb] = Color::MakeARGB(255, 224, 224, 224);
 }
 
 
