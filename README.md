@@ -1,11 +1,9 @@
 # IB-Tracker
 Interactive Brokers (IBKR) Stocks, Futures and Options positions tracker
 
-[![Release](https://img.shields.io/github/v/release/akaunting/akaunting?label=release)](https://github.com/akaunting/akaunting/releases)
-![Downloads](https://img.shields.io/github/downloads/akaunting/akaunting/total?label=downloads)
-[![Translations](https://badges.crowdin.net/akaunting/localized.svg)](https://crowdin.com/project/akaunting)
-[![Tests](https://img.shields.io/github/actions/workflow/status/akaunting/akaunting/tests.yml?label=tests)](https://github.com/akaunting/akaunting/actions)
-[![License](https://img.shields.io/github/license/akaunting/akaunting?label=license)](LICENSE.txt)
+[![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?label=release)](https://github.com/PaulSquires/IB-Tracker/releases)
+![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?label=downloads)
+[![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?label=license)](LICENSE.txt)
 
 ## What is IB-Tracker
 IB-Tracker a free application that connects to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your recorded stock, futures and options positions. You can record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you a instant look at the cost basis of your trade. 
