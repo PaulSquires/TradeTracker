@@ -292,8 +292,10 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_CTLCOLOREDIT:
     {
         HDC hdc = (HDC)wParam;
-        SetTextColor(hdc, pData->TextColor);
-        SetBkColor(hdc, pData->BackColor);
+        if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
+        pData->hBackBrush = CreateSolidBrush(GetThemeCOLORREF(pData->BackColor));
+        SetTextColor(hdc, GetThemeCOLORREF(pData->TextColor));
+        SetBkColor(hdc, GetThemeCOLORREF(pData->BackColor));
         SetBkMode(hdc, OPAQUE);
         return (LRESULT)pData->hBackBrush;
     }
@@ -359,7 +361,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
             Color backColor;
-            backColor.SetFromCOLORREF(pData->BackColor);
+            backColor.SetFromCOLORREF(GetThemeCOLORREF(pData->BackColor));
             SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
@@ -499,12 +501,12 @@ void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
 // ========================================================================================
 // Set the text colors for the custom control (foreground and background).
 // ========================================================================================
-void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor)
+void CustomTextBox_SetColors(HWND hCtrl, ThemeElement TextColor, ThemeElement BackColor)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
         if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
-        pData->hBackBrush = CreateSolidBrush(BackColor);
+        pData->hBackBrush = CreateSolidBrush(GetThemeCOLORREF(BackColor));
         pData->BackColor = BackColor;
         pData->TextColor = TextColor;
         CustomTextBox_SetOptions(hCtrl, pData);
@@ -621,9 +623,9 @@ HWND CreateCustomTextBox(
         pData->CtrlId = CtrlId;
         pData->wszFontName = L"Segoe UI";
         pData->FontSize = 9;
-        pData->BackColor = GetThemeCOLORREF(ThemeElement::GrayDark);
-        pData->hBackBrush = CreateSolidBrush(pData->BackColor);
-        pData->TextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
+        pData->BackColor = ThemeElement::GrayDark;
+        pData->hBackBrush = CreateSolidBrush(GetThemeCOLORREF(pData->BackColor));
+        pData->TextColor = ThemeElement::WhiteLight;
         pData->HTextMargin = 0;
         pData->VTextMargin = 0;
         pData->BorderWidth = 0;

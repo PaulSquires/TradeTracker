@@ -141,11 +141,11 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
     HWND hCtl = NULL;
     int idCtrl = IDC_TRADEGRID_FIRSTCONTROL;
 
-    COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
-    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
+    ThemeElement lightBackColor = ThemeElement::GrayLight;
+    ThemeElement lightTextColor = ThemeElement::WhiteLight;
 
-    COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
-    COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
+    ThemeElement darkBackColor = ThemeElement::GrayMedium;
+    ThemeElement darkTextColor = ThemeElement::WhiteDark;
 
     int nTop = 0;
     int nLeft = 0;

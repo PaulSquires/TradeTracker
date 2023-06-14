@@ -213,11 +213,6 @@ void SetThemeMainWindow(HWND hWndMain)
 // ========================================================================================
 // Apply the active/current Theme to all visual windows in real time.
 // ========================================================================================
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
-	if (IsWindowVisible(hwnd)) AfxRedrawWindow(hwnd);
-	return TRUE;
-}
-
 void ApplyActiveTheme()
 {
 	if (!IsInitialized) InitializeDarkThemeColors();
@@ -234,10 +229,6 @@ void ApplyActiveTheme()
 		// eliminating our need to EnumChildWindows.
 		ShowWindow(hWndMainWindow, SW_HIDE);
 		ShowWindow(hWndMainWindow, SW_SHOW);
-
-		//RedrawWindow(hWndMainWindow, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
-		//SetWindowPos(hWndMainWindow, 0, 0, 0, 0, 0,
-		//	SWP_DRAWFRAME | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 }
 

@@ -166,13 +166,13 @@ void TradeDialog_CalculateTradeTotal(HWND hwnd)
     double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
-    COLORREF TextColor = GetThemeCOLORREF(ThemeElement::Red);
-    COLORREF BackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
+    ThemeElement TextColor = ThemeElement::Red;
+    ThemeElement BackColor = ThemeElement::GrayMedium;
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     if (DRCR == L"CR") {
         fees = fees * -1;
-        TextColor = GetThemeCOLORREF(ThemeElement::Green);
+        TextColor = ThemeElement::Green;
     }
 
     total = (quantity * multiplier * price) + fees;
@@ -550,11 +550,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int HTextMargin = 0;
     int VTextMargin = 3;
 
-    COLORREF lightBackColor = GetThemeCOLORREF(ThemeElement::GrayLight);
-    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteLight);
+    ThemeElement lightBackColor = ThemeElement::GrayLight;
+    ThemeElement lightTextColor = ThemeElement::WhiteLight;
 
-    COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
-    COLORREF darkTextColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
+    ThemeElement darkBackColor = ThemeElement::GrayMedium;
+    ThemeElement darkTextColor = ThemeElement::WhiteDark;
 
     ThemeElement TextColor = ThemeElement::WhiteLight;
     ThemeElement TextColorDim = ThemeElement::WhiteDark;

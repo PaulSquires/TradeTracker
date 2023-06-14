@@ -61,7 +61,7 @@ public:
 
 	int CtrlId = 0;
 
-	COLORREF BackColor{};
+	ThemeElement BackColor{};
 	HBRUSH hBackBrush = NULL;
 
 	// Text
@@ -71,7 +71,7 @@ public:
 	HFONT hFontText = NULL;
 	int HTextMargin = 0;
 	int VTextMargin = 0;
-	COLORREF TextColor{};
+	ThemeElement TextColor{};
 	int Alignment = ES_LEFT;
 
 	// Numeric
@@ -97,7 +97,7 @@ void CustomTextBox_SetBorderAttributes(
 	HWND hCtrl, int BorderWidth, COLORREF clrGotFocus, COLORREF clrLostFocus, CustomTextBoxBorder BorderStyle);
 void CustomTextBox_SetNumericAttributes(
 	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
-void CustomTextBox_SetColors(HWND hCtrl, COLORREF TextColor, COLORREF BackColor);
+void CustomTextBox_SetColors(HWND hCtrl, ThemeElement TextColor, ThemeElement BackColor);
 void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
 void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);

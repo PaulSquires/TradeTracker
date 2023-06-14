@@ -550,8 +550,8 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int HTextMargin = 0;
     int VTextMargin = 3;
 
-    COLORREF lightTextColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
-    COLORREF darkBackColor = GetThemeCOLORREF(ThemeElement::GrayMedium);
+    ThemeElement lightTextColor = ThemeElement::WhiteDark;
+    ThemeElement darkBackColor = ThemeElement::GrayMedium;
     std::wstring wszFontName = L"Segoe UI";
     int FontSize = 8;
 

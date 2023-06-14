@@ -356,7 +356,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->TextColorHot = ThemeElement::WhiteMedium;
         pData->FontSize = 8;
         pData->FontSizeHot = 8;
-        pData->wszText = L"Dark Mode: ON";
+        pData->wszText = (ActiveTheme == ActiveThemeColor::Dark) ? L"Dark Mode: ON" : L"Dark Mode: OFF";
         pData->wszTextHot = pData->wszText;
         CustomLabel_SetOptions(hCtl, pData);
     }
