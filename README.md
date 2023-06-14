@@ -21,13 +21,14 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 * Currently only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not supported.
 
 ## Download
-The latest package can be downloaded from the [RELEASES page](https://github.com/PaulSquires/IB-Tracker/releases).
+The latest package can be downloaded from the [RELEASES](https://github.com/PaulSquires/IB-Tracker/releases) page.
 
 ## Installation
 All release packages come with a compiled EXE. That is all the application requires. Yes, just one file.
 1. Create a folder on your computer that you will use for IB-Tracker.
 2. Unpack/Unzip the downloaded archive into your IB-Tracker folder.
 3. Click on the IB-Tracker.exe application. That's it. Simple.
+4. To uninstall, just delete the files and folder.
 
 IB-Tracker will create two additional files when it first executes:
 * IB-Tracker-config.txt
@@ -36,9 +37,9 @@ IB-Tracker will create two additional files when it first executes:
 ## Usage
 
 ### Getting Started
-Start IB Trader Workstation (TWS) and then click "Connect to TWS" in IB-Tracker.
+Start IB Trader Workstation (TWS) and then click "Connect to TWS" from within IB-Tracker.
 
-IB-Tracker can run not connected to TWS but obviously you will not get stream price data or be able to "reconcile" your trade data to what is in your IBKR account.
+IB-Tracker can run without connecting to TWS but obviously you will not get streaming price data or be able to "reconcile" your trade data to what is in your IBKR account.
 
 ### Configuration
 The configuration file (IB-Tracker-config.txt) is an extremely simple text file. Each line is composed of two items (key and value) separated by a pipe ("|") character.
