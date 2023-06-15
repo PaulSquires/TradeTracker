@@ -56,7 +56,7 @@ THEME and STARTUPCONNECT can be set directly from inside the IB-Tracker applicat
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.
 
-I have written pure low level WinAPI based applications for 20 years (in non "C" based languages) but I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills.
+I have written pure low level WinAPI based applications for 30 years (in non "C" based languages) but I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills.
 
 ## License
 This project is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [LICENSE](https://github.com/PaulSquires/IB-Tracker/blob/main/LICENSE.txt) for details.
