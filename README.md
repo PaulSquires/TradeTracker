@@ -11,14 +11,14 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 ![screenshot](https://pragtical.github.io/assets/img/editor.png)
 
 ## Goals
+* Very Option focused (although stocks and futures can be tracked also).
 * Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
 * Easy to learn and very intuitive with all information available on the main screen. 
-* Portable. You can easily run the program from a thumb drive.
-* Modern looking. Dark and light themes.
+* Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
 * Small (less than 500K), fast (written in C++), and self-contained (no external dependencies).
-* Simple text file "database" that can easily be manually edited if needed. No database engine like SQLite needed.
-* Currently only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not supported.
+* Simple text file "database" that can easily be manually edited if needed. No database engine needed.
+* Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed.
 
 ## Download
 The latest package can be downloaded from the [RELEASES](https://github.com/PaulSquires/IB-Tracker/releases) page.
@@ -46,12 +46,11 @@ The configuration file (IB-Tracker-config.txt) is an extremely simple text file.
 
 ```
 IB-TRACKER-CONFIG|1.0.0
-THEME|Dark
 TRADERNAME|TheDude
 STARTUPCONNECT|false
 ```
 
-THEME and STARTUPCONNECT can be set directly from inside the IB-Tracker application. TRADERNAME can only be set by manually editing the configuration text file. TRADERNAME shows on the main menu.
+STARTUPCONNECT can be set directly from inside the IB-Tracker application. TRADERNAME can only be set by manually editing the configuration text file. TRADERNAME shows on the main menu.
 
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.

@@ -293,9 +293,9 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     {
         HDC hdc = (HDC)wParam;
         if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
-        pData->hBackBrush = CreateSolidBrush(GetThemeCOLORREF(pData->BackColor));
-        SetTextColor(hdc, GetThemeCOLORREF(pData->TextColor));
-        SetBkColor(hdc, GetThemeCOLORREF(pData->BackColor));
+        pData->hBackBrush = CreateSolidBrush(Color(pData->BackColor).ToCOLORREF());
+        SetTextColor(hdc, Color(pData->TextColor).ToCOLORREF());
+        SetBkColor(hdc, Color(pData->BackColor).ToCOLORREF());
         SetBkMode(hdc, OPAQUE);
         return (LRESULT)pData->hBackBrush;
     }
@@ -361,28 +361,27 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
             Color backColor;
-            backColor.SetFromCOLORREF(GetThemeCOLORREF(pData->BackColor));
-            SolidBrush backBrush(backColor);
+            SolidBrush backBrush(pData->BackColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
-            if (pData->BorderWidth > 0 && pData->BorderStyle != CustomTextBoxBorder::BorderNone) {
-                Color clrPen; 
-                if (GetFocus() == pData->hTextBox) {
-                    clrPen.SetFromCOLORREF(pData->BorderColorFocus);
-                }
-                else {
-                    clrPen.SetFromCOLORREF(pData->BorderColor);
-                }
+            //if (pData->BorderWidth > 0 && pData->BorderStyle != CustomTextBoxBorder::BorderNone) {
+            //    Color clrPen; 
+            //    if (GetFocus() == pData->hTextBox) {
+            //        clrPen.SetColor(pData->BorderColorFocus);
+            //    }
+            //    else {
+            //        clrPen.SetColor(pData->BorderColor);
+            //    }
 
-                int nTop = ps.rcPaint.top;
-                if (pData->BorderStyle == CustomTextBoxBorder::BorderUnderline)
-                    nTop = ps.rcPaint.bottom - pData->BorderWidth;
-                nWidth = nWidth - pData->BorderWidth;
-                nHeight = nHeight - pData->BorderWidth;
-                Pen pen(clrPen, (REAL)pData->BorderWidth);
-                RectF rectF((REAL)ps.rcPaint.left, (REAL)nTop, (REAL)nWidth, (REAL)nHeight);
-                graphics.DrawRectangle(&pen, rectF);
-            }
+            //    int nTop = ps.rcPaint.top;
+            //    if (pData->BorderStyle == CustomTextBoxBorder::BorderUnderline)
+            //        nTop = ps.rcPaint.bottom - pData->BorderWidth;
+            //    nWidth = nWidth - pData->BorderWidth;
+            //    nHeight = nHeight - pData->BorderWidth;
+            //    Pen pen(clrPen, (REAL)pData->BorderWidth);
+            //    RectF rectF((REAL)ps.rcPaint.left, (REAL)nTop, (REAL)nWidth, (REAL)nHeight);
+            //    graphics.DrawRectangle(&pen, rectF);
+            //}
 
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -501,12 +500,12 @@ void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
 // ========================================================================================
 // Set the text colors for the custom control (foreground and background).
 // ========================================================================================
-void CustomTextBox_SetColors(HWND hCtrl, ThemeElement TextColor, ThemeElement BackColor)
+void CustomTextBox_SetColors(HWND hCtrl, DWORD TextColor, DWORD BackColor)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
         if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
-        pData->hBackBrush = CreateSolidBrush(GetThemeCOLORREF(BackColor));
+        pData->hBackBrush = CreateSolidBrush(BackColor);
         pData->BackColor = BackColor;
         pData->TextColor = TextColor;
         CustomTextBox_SetOptions(hCtrl, pData);
@@ -623,14 +622,14 @@ HWND CreateCustomTextBox(
         pData->CtrlId = CtrlId;
         pData->wszFontName = L"Segoe UI";
         pData->FontSize = 9;
-        pData->BackColor = ThemeElement::GrayDark;
-        pData->hBackBrush = CreateSolidBrush(GetThemeCOLORREF(pData->BackColor));
-        pData->TextColor = ThemeElement::WhiteLight;
+        pData->BackColor = COLOR_GRAYDARK;
+        pData->hBackBrush = CreateSolidBrush(pData->BackColor);
+        pData->TextColor = COLOR_WHITELIGHT;
         pData->HTextMargin = 0;
         pData->VTextMargin = 0;
         pData->BorderWidth = 0;
-        pData->BorderColorFocus = GetThemeCOLORREF(ThemeElement::WhiteLight);
-        pData->BorderColor = GetThemeCOLORREF(ThemeElement::WhiteDark);
+        pData->BorderColorFocus = COLOR_WHITELIGHT;
+        pData->BorderColor = COLOR_WHITEDARK;
         pData->Alignment = Alignment;
         pData->BorderStyle = CustomTextBoxBorder::BorderNone;
 

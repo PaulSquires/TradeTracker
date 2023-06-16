@@ -26,7 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Themes/Themes.h"
+#include "Utilities/Colors.h"
 
 
 class CustomVScrollBar
@@ -46,9 +46,9 @@ public:
     int thumbHeight = 0;
     RECT rc{};
     
-    ThemeElement ScrollBarLine = ThemeElement::ScrollBarDivider;
-    ThemeElement ScrollBarBack = ThemeElement::ScrollBarBack;
-    ThemeElement ScrollBarThumb = ThemeElement::ScrollBarThumb;
+    DWORD ScrollBarLine = COLOR_SCROLLBARDIVIDER;
+    DWORD ScrollBarBack = COLOR_SCROLLBARBACK;
+    DWORD ScrollBarThumb = COLOR_SCROLLBARTHUMB;
 
     bool calcVThumbRect();
     

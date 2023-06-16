@@ -291,7 +291,7 @@ LRESULT CALLBACK ClosedPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(COLOR_GRAYDARK);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -351,7 +351,7 @@ void ClosedPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
+    DWORD nBackColor = COLOR_GRAYDARK;
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -428,7 +428,7 @@ BOOL ClosedPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_CLOSEDPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LABEL, L"Closed Trades",
-        ThemeElement::WhiteLight, ThemeElement::Black);
+        COLOR_WHITELIGHT, COLOR_BLACK);
 
     hCtl = ClosedPanel.AddControl(Controls::Header, hwnd, IDC_CLOSED_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ClosedPanel_Header_SubclassProc,

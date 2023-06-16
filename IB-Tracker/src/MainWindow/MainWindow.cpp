@@ -42,7 +42,7 @@ SOFTWARE.
 #include "TickerPanel/TickerPanel.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Category/Category.h"
-#include "Themes/Themes.h"
+
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 
@@ -65,7 +65,6 @@ CTransDetail      TransDetail;
 
 extern void TradesPanel_ShowActiveTrades();
 extern void TransPanel_ShowTransactions();
-extern ActiveThemeColor ActiveTheme;
 
 RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter
@@ -214,10 +213,8 @@ void MainWindow_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_BLACK);
 
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
@@ -276,12 +273,6 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nWidth = AfxScaleX(100);
     DeferWindowPos(hdwp, hCtl, 0, cx - nWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
-    // Position the Dark mode indicator label
-    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_DARKMODE);
-    DeferWindowPos(hdwp, hCtl, 0, cx - (nWidth*2), cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-
     EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
@@ -337,47 +328,21 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);
 
     // Create a label that will display at the very bottom of the Main window
-    // that allows toggling Dark Theme on/off. This label is always positioned
-    // at the bottom of the window via On_Size().
-    CustomLabel* pData = nullptr;
-
-    HWND hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MAINWINDOW_DARKMODE,
-        CustomLabelType::TextOnly,
-        0, 0, 0, 0);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = false;
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteMedium;
-        pData->TextColorHot = ThemeElement::WhiteMedium;
-        pData->FontSize = 8;
-        pData->FontSizeHot = 8;
-        pData->wszText = (ActiveTheme == ActiveThemeColor::Dark) ? L"Dark Mode: ON" : L"Dark Mode: OFF";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    // Create a label that will display at the very bottom of the Main window
     // that allows toggling Autoconnect on/off. This label is always positioned
     // at the bottom of the window via On_Size().
-    hCtl = CreateCustomLabel(
+    HWND hCtl = CreateCustomLabel(
         hwnd,
         IDC_MAINWINDOW_AUTOCONNECT,
         CustomLabelType::TextOnly,
         0, 0, 0, 0);
-    pData = CustomLabel_GetOptions(hCtl);
+    CustomLabel* pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteMedium;
-        pData->TextColorHot = ThemeElement::WhiteMedium;
+        pData->BackColor = COLOR_BLACK;
+        pData->BackColorHot = COLOR_SELECTION;
+        pData->TextColor = COLOR_WHITEMEDIUM;
+        pData->TextColorHot = COLOR_WHITEMEDIUM;
         pData->FontSize = 8;
         pData->FontSizeHot = 8;
         pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
@@ -586,19 +551,6 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtl, 0);
 
         if (pData) {
-            if (CtrlId == IDC_MAINWINDOW_DARKMODE) {
-                if (ActiveTheme == ActiveThemeColor::Dark) {
-                    SetThemeName(L"Light");
-                    CustomLabel_SetText(hCtl, L"Dark Mode: OFF");
-                }
-                else {
-                    SetThemeName(L"Dark");
-                    CustomLabel_SetText(hCtl, L"Dark Mode: ON");
-                }
-                ApplyActiveTheme();
-                SaveConfig();
-            }
-
             if (CtrlId == IDC_MAINWINDOW_AUTOCONNECT) {
                 SetStartupConnect(!GetStartupConnect());
                 if (GetStartupConnect()) {

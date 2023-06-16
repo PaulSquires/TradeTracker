@@ -231,7 +231,7 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(COLOR_GRAYDARK);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -290,10 +290,8 @@ void TickerPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -365,7 +363,7 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_TICKERPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TICKER_SYMBOL, L"Ticker Totals",
-        ThemeElement::WhiteLight, ThemeElement::Black);
+        COLOR_WHITELIGHT, COLOR_BLACK);
 
     // Create an Ownerdraw listbox that we will use to custom paint ticker names.
     hCtl =

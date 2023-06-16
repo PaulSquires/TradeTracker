@@ -26,8 +26,9 @@ SOFTWARE.
 
 #pragma once
 
-#include "Themes/Themes.h"
+
 #include "Database/trade.h"
+#include "Utilities/Colors.h"
 
 const std::wstring GLYPH_TREEOPEN = L"\u23F7";
 const std::wstring GLYPH_TREECLOSED = L"\u23F5";
@@ -47,8 +48,8 @@ public:
     std::wstring        wszText;
     StringAlignment     HAlignment = StringAlignmentNear;  
     StringAlignment     VAlignment = StringAlignmentCenter;
-    ThemeElement        backTheme = ThemeElement::GrayDark;
-    ThemeElement        textTheme = ThemeElement::WhiteLight;;
+    DWORD               backTheme = COLOR_GRAYDARK;
+    DWORD               textTheme = COLOR_WHITELIGHT;;
     REAL                fontSize = 8;                    // 8, 10
     int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
     int                 colWidth = 0;
@@ -80,7 +81,7 @@ public:
     void SetData(
         int index, std::shared_ptr<Trade> tradeptr, TickerId tickId,
         std::wstring wszText, StringAlignment HAlignment, StringAlignment VAlignment, 
-        ThemeElement backTheme, ThemeElement textTheme, REAL fontSize, int fontStyle)
+        DWORD backTheme, DWORD textTheme, REAL fontSize, int fontStyle)
     {
         if (tickId != -1) lineType = LineType::TickerLine;
         tickerId = tickId;
@@ -96,7 +97,7 @@ public:
 
     // Update Text & color only. This is called from tws-client when TWS
     // sends new price data that needs to be updated.
-    void SetTextData(int index, std::wstring wszText, ThemeElement textTheme)
+    void SetTextData(int index, std::wstring wszText, DWORD textTheme)
     {
         col[index].wszText = wszText;
         col[index].textTheme = textTheme;
@@ -118,7 +119,7 @@ enum class TableType
     Transactions
 };
 
-ThemeElement GetCategoryColor(int category);
+DWORD GetCategoryColor(int category);
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);

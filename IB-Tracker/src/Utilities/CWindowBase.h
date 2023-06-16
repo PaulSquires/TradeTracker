@@ -27,7 +27,8 @@ SOFTWARE.
 #pragma once
 
 #include "AfxWin.h"
-#include "Themes/Themes.h"
+
+#include "Utilities/Colors.h"
 
 #include <dwmapi.h>
 

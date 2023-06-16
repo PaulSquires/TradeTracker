@@ -113,10 +113,8 @@ void TradesDialog_OnPaint(HWND hwnd)
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_GRAYDARK);
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     // Copy the entire memory bitmap to the main display
@@ -191,15 +189,9 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
 {
     CustomLabel_SetText(hCtl, wszText);
 
-    ThemeElement clr = ThemeElement::Red;
-    if (wszText == L"CR") {
-        CustomLabel_SetBackColor(hCtl, ThemeElement::Green);
-        CustomLabel_SetBackColorHot(hCtl, ThemeElement::Green);
-    }
-    else {
-        CustomLabel_SetBackColor(hCtl, ThemeElement::Red);
-        CustomLabel_SetBackColorHot(hCtl, ThemeElement::Red);
-    }
+    DWORD clr = (wszText == L"CR") ? COLOR_GREEN : COLOR_RED;
+    CustomLabel_SetBackColor(hCtl, clr);
+    CustomLabel_SetBackColorHot(hCtl, clr);
     TradeDialog_CalculateTradeTotal(HWND_TRADEDIALOG);
 }
 
@@ -377,9 +369,8 @@ int TradeDialog_Show(TradeAction inTradeAction)
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    // If we are using a dark theme then attempt to apply the standard Windows dark theme
-    // to the non-client areas of the main form.
-    BOOL value = GetIsThemeDark();
+    // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
+    BOOL value = true;
     ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
     HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);

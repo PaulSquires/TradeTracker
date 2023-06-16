@@ -357,7 +357,7 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(COLOR_GRAYDARK);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -417,10 +417,8 @@ void TransPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -550,70 +548,70 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int HTextMargin = 0;
     int VTextMargin = 3;
 
-    ThemeElement lightTextColor = ThemeElement::WhiteDark;
-    ThemeElement darkBackColor = ThemeElement::GrayMedium;
+    DWORD lightTextColor = COLOR_WHITEDARK;
+    DWORD darkBackColor = COLOR_GRAYMEDIUM;
     std::wstring wszFontName = L"Segoe UI";
     int FontSize = 8;
 
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"Transactions",
-        ThemeElement::WhiteLight, ThemeElement::Black);
+        COLOR_WHITELIGHT, COLOR_BLACK);
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTICKERGO, L"GO",
-        ThemeElement::Black, ThemeElement::Blue, ThemeElement::Blue, ThemeElement::GrayMedium,
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"7 days",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Days7);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, GLYPH_DROPDOWN,
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, L"",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, GLYPH_DROPDOWN,
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_ENDDATE, L"",
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayMedium, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, GLYPH_DROPDOWN,
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
 
     // Set the Start & End dates based on the filter type.

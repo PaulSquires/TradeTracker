@@ -206,12 +206,12 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
             ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
             if (ld != nullptr) {
                 if (ld->lineType == LineType::TransactionHeader && idx != idxLastHot) {
-                    ld->col[8].textTheme = ThemeElement::WhiteDark;
+                    ld->col[8].textTheme = COLOR_WHITEDARK;
 
                     // Update the Text color for the previous highlight line (make icon hidden)
                     ld = (ListBoxData*)ListBox_GetItemData(hWnd, idxLastHot);
                     if (ld != nullptr) {
-                        ld->col[8].textTheme = ThemeElement::GrayDark;
+                        ld->col[8].textTheme = COLOR_GRAYDARK;
                     }
                     idxLastHot = idx;
                     AfxRedrawWindow(hWnd);
@@ -229,7 +229,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         // Update the Text color for the previous highlight line
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idxLastHot);
         if (ld != nullptr) {
-            ld->col[8].textTheme = ThemeElement::GrayDark;
+            ld->col[8].textTheme = COLOR_GRAYDARK;
         }
         AfxRedrawWindow(hWnd);
         idxLastHot = 0;
@@ -270,7 +270,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(COLOR_GRAYDARK);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -330,10 +330,8 @@ void HistoryPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -398,7 +396,7 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_HISTORYPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
-        ThemeElement::WhiteLight, ThemeElement::Black);
+        COLOR_WHITELIGHT, COLOR_BLACK);
 
     // Create an Ownerdraw listbox that we will use to custom paint our various open trades.
     hCtl =

@@ -38,6 +38,7 @@
     <ClInclude Include="src\TransPanel\TransDetail.h" />
     <ClInclude Include="src\TransPanel\TransPanel.h" />
     <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
+    <ClInclude Include="src\Utilities\Colors.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\HistoryPanel\HistoryPanel.h" />
     <ClInclude Include="src\main.h" />
@@ -101,7 +102,6 @@
     <ClInclude Include="src\tws-api\Utils.h" />
     <ClInclude Include="src\tws-api\VolumeCondition.h" />
     <ClInclude Include="src\tws-api\WshEventData.h" />
-    <ClInclude Include="src\Themes\Themes.h" />
     <ClInclude Include="src\Utilities\AfxWin.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Utilities\CWindowBase.h" />
@@ -167,7 +167,6 @@
     <ClCompile Include="src\Database\database.cpp" />
     <ClCompile Include="src\Database\trade.cpp" />
     <ClCompile Include="src\MainWindow\MainWindow.cpp" />
-    <ClCompile Include="src\Themes\Themes.cpp" />
     <ClCompile Include="src\Utilities\AfxWin.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

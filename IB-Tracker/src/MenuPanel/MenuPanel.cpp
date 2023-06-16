@@ -70,10 +70,8 @@ void MenuPanel_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -96,8 +94,8 @@ void MenuPanel_MakeSeparator(HWND hwnd, int nTop)
         0, nTop, MENUPANEL_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::Black;
-        pData->LineColor = ThemeElement::Separator;
+        pData->BackColor = COLOR_BLACK;
+        pData->LineColor = COLOR_SEPARATOR;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
         pData->MarginRight = 10;
@@ -121,13 +119,13 @@ void MenuPanel_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring 
         pData->HotTestEnable = true;
         pData->AllowSelect = true;
         pData->AllowNotch = true;
-        pData->SelectorColor = ThemeElement::GrayDark;   // MenuNotch should be same color as middle panel
-        pData->BackColor = ThemeElement::Black;
-        pData->BackColorHot = ThemeElement::Selection;
-        pData->BackColorSelected = ThemeElement::Selection;
-        pData->BackColorButtonDown = ThemeElement::Selection;
-        pData->TextColor = ThemeElement::WhiteLight;
-        pData->TextColorHot = ThemeElement::WhiteLight;
+        pData->SelectorColor = COLOR_GRAYDARK;   // MenuNotch should be same color as middle panel
+        pData->BackColor = COLOR_BLACK;
+        pData->BackColorHot = COLOR_SELECTION;
+        pData->BackColorSelected = COLOR_SELECTION;
+        pData->BackColorButtonDown = COLOR_SELECTION;
+        pData->TextColor = COLOR_WHITELIGHT;
+        pData->TextColorHot = COLOR_WHITELIGHT;
         pData->FontSize = 10;
         pData->FontSizeHot = 10;
         pData->wszText = wszText;
@@ -162,7 +160,7 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::Black;
+        pData->BackColor = COLOR_BLACK;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
@@ -179,8 +177,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::Black;
-        pData->TextColor = ThemeElement::WhiteMedium;
+        pData->BackColor = COLOR_BLACK;
+        pData->TextColor = COLOR_WHITEMEDIUM;
         pData->FontSize = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = GetTraderName();
@@ -197,8 +195,8 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::Black;
-        pData->TextColor = ThemeElement::WhiteLight;
+        pData->BackColor = COLOR_BLACK;
+        pData->TextColor = COLOR_WHITELIGHT;
         pData->FontSize = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = L"IB-Tracker v1.0";
@@ -337,8 +335,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"TWS Connected";
-            pData->TextColor = ThemeElement::Green;
-            pData->TextColorHot = ThemeElement::Green;
+            pData->TextColor = COLOR_GREEN;
+            pData->TextColorHot = COLOR_GREEN;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         return 0;
@@ -353,8 +351,8 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connect to TWS";
-            pData->TextColor = ThemeElement::WhiteLight;
-            pData->TextColorHot = ThemeElement::WhiteLight;
+            pData->TextColor = COLOR_WHITELIGHT;
+            pData->TextColorHot = COLOR_WHITELIGHT;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_MENUPANEL_CONNECTTWS));
         }
         EndMonitorThread();

@@ -301,7 +301,7 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(COLOR_GRAYDARK);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -360,10 +360,8 @@ void TransDetail_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -454,31 +452,31 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int FontSize = 9;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL1, L"Transaction Details",
-        ThemeElement::WhiteLight, ThemeElement::Black);
+        COLOR_WHITELIGHT, COLOR_BLACK);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_CATEGORY, L"",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LBLCOST, L"",
-        ThemeElement::WhiteDark, ThemeElement::Black);
+        COLOR_WHITEDARK, COLOR_BLACK);
 
 
     // EDIT button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDEDIT, L"EDIT",
-        ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // DELETE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDDELETE, L"DELETE",
-        ThemeElement::Black, ThemeElement::Red, ThemeElement::Red, ThemeElement::GrayMedium,
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // Create an Ownerdraw listbox that we will use to custom paint our transaction detail.
     hCtl =

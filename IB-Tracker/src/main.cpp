@@ -126,13 +126,6 @@ int APIENTRY wWinMain(
 #endif
 
 
-    // Set the Theme to use for all windows and controls. Remember to call
-    // the SetThemeMainWindow() function after the application's main 
-    // window is created. LoadConfig may override this setting if a Theme
-    // setting is found. 
-    InitializeDarkThemeColors();
-
-
     // Set the Trader's name that will display in the Menu panel.
     // LoadConfig may override this setting if a setting is found.
     // Default to the name used to log into this computer.
@@ -140,7 +133,7 @@ int APIENTRY wWinMain(
 
 
     // Load the Config file. Settings found in the Config file will override
-    // previously set values from InitializeDarkThemeColors, SetTraderName.
+    // previously set values from SetTraderName.
     LoadConfig();
 
 
@@ -169,14 +162,8 @@ int APIENTRY wWinMain(
                         InitalMainHeight);
 
 
-    // Set the top level main window that the ApplyActiveTheme function will use
-    // to enumerate all children windows to apply any newly changed theme.
-    SetThemeMainWindow(hWndMain);
-
-
-    // If we are using a dark theme then attempt to apply the standard Windows dark theme
-    // to the non-client areas of the main form.
-    BOOL value = GetIsThemeDark();
+    // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
+    BOOL value = true;
     ::DwmSetWindowAttribute(hWndMain, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
 

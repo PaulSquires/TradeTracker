@@ -61,10 +61,8 @@ void StrategyPopup_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -97,7 +95,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     for (int i = 0; i < (int)Strategy::Count; ++i) {
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_LONGSHORT + i, L"",
-            ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+            COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleLeft, 0, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
@@ -108,7 +106,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         hCtlLongShort = hCtl;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_PUTCALL + i, L"",
-            ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+            COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, 51, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
@@ -118,7 +116,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         hCtlPutCall = hCtl;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_STRATEGY + i, L"",
-            ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+            COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleLeft, 102, nTop, 100, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)i);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
@@ -131,11 +129,11 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         StrategyButton_SetLongShortTextColor(hCtlLongShort);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYPOPUP_GO + i, L"GO",
-            ThemeElement::Black, ThemeElement::Blue, ThemeElement::Blue, ThemeElement::GrayMedium,
+            COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, 203, nTop, 30, nHeight);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-        CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+        CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
         nTop += nHeight + 1;
 

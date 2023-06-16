@@ -446,27 +446,27 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				std::wstring wszText = L"";
 
-				ThemeElement themeEl = ThemeElement::WhiteLight;
+				DWORD themeEl = COLOR_WHITELIGHT;
 				if (isITMred) {
 					wszText = L"ITM";
-					themeEl = ThemeElement::Red;
+					themeEl = COLOR_RED;
 				}
 				else if (isITMgreen) {
 					wszText = L"ITM";
-					themeEl = ThemeElement::Green;
+					themeEl = COLOR_GREEN;
 				}
 
 				ld->SetTextData(COLUMN_TICKER_ITM, wszText, themeEl);  // ITM
 
 				wszText = AfxMoney(delta, true);
-				themeEl = (delta >= 0) ? ThemeElement::Green : ThemeElement::Red;
+				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
 				ld->SetTextData(COLUMN_TICKER_CHANGE, wszText, themeEl);  // price change
 
 				wszText = AfxMoney(ld->trade->tickerLastPrice);
-				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, ThemeElement::WhiteLight);  // current price
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
 
 				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100, true) + L"%";
-				themeEl = (delta >= 0) ? ThemeElement::Green : ThemeElement::Red;
+				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
 				ld->SetTextData(COLUMN_TICKER_PERCENTAGE, wszText, themeEl);  // price percentage change
 
 

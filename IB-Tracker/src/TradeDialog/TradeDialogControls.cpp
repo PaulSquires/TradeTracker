@@ -56,10 +56,10 @@ void TradeDialog_SetLongShortBackColor(HWND hCtl)
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(hCtl);
 
     if (ls == LongShort::Long) {
-        CustomLabel_SetBackColor(hCtl, ThemeElement::Green);
+        CustomLabel_SetBackColor(hCtl, COLOR_GREEN);
     }
     else if (ls == LongShort::Short) {
-        CustomLabel_SetBackColor(hCtl, ThemeElement::Red);
+        CustomLabel_SetBackColor(hCtl, COLOR_RED);
     }
 }
 
@@ -166,13 +166,13 @@ void TradeDialog_CalculateTradeTotal(HWND hwnd)
     double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
-    ThemeElement TextColor = ThemeElement::Red;
-    ThemeElement BackColor = ThemeElement::GrayMedium;
+    DWORD TextColor = COLOR_RED;
+    DWORD BackColor = COLOR_GRAYMEDIUM;
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     if (DRCR == L"CR") {
         fees = fees * -1;
-        TextColor = ThemeElement::Green;
+        TextColor = COLOR_GREEN;
     }
 
     total = (quantity * multiplier * price) + fees;
@@ -550,15 +550,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int HTextMargin = 0;
     int VTextMargin = 3;
 
-    ThemeElement lightBackColor = ThemeElement::GrayLight;
-    ThemeElement lightTextColor = ThemeElement::WhiteLight;
+    DWORD lightBackColor = COLOR_GRAYLIGHT;
+    DWORD lightTextColor = COLOR_WHITELIGHT;
 
-    ThemeElement darkBackColor = ThemeElement::GrayMedium;
-    ThemeElement darkTextColor = ThemeElement::WhiteDark;
+    DWORD darkBackColor = COLOR_GRAYMEDIUM;
+    DWORD darkTextColor = COLOR_WHITEDARK;
 
-    ThemeElement TextColor = ThemeElement::WhiteLight;
-    ThemeElement TextColorDim = ThemeElement::WhiteDark;
-    ThemeElement BackColor = ThemeElement::GrayDark;
+    DWORD TextColor = COLOR_WHITELIGHT;
+    DWORD TextColorDim = COLOR_WHITEDARK;
+    DWORD BackColor = COLOR_GRAYDARK;
 
 
     // EDIT ACTION LABEL
@@ -567,9 +567,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         545, 10, 120, 20);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::GrayDark;
-        pData->BackColorButtonDown = ThemeElement::GrayDark;
-        pData->TextColor = ThemeElement::WhiteLight;
+        pData->BackColor = COLOR_GRAYDARK;
+        pData->BackColorButtonDown = COLOR_GRAYDARK;
+        pData->TextColor = COLOR_WHITELIGHT;
         pData->FontSize = 12;
         pData->FontBold = true;
         pData->TextAlignment = CustomLabelAlignment::TopRight;
@@ -602,9 +602,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             40, 10, 250, 22);
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
-            pData->BackColor = ThemeElement::GrayDark;
-            pData->BackColorButtonDown = ThemeElement::GrayDark;
-            pData->TextColor = ThemeElement::WhiteLight;
+            pData->BackColor = COLOR_GRAYDARK;
+            pData->BackColorButtonDown = COLOR_GRAYDARK;
+            pData->TextColor = COLOR_WHITELIGHT;
             pData->FontSize = 12;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
             pData->wszText = L"";
@@ -616,9 +616,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             40, 33, 250, 22);
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
-            pData->BackColor = ThemeElement::GrayDark;
-            pData->BackColorButtonDown = ThemeElement::GrayDark;
-            pData->TextColor = ThemeElement::WhiteDark;
+            pData->BackColor = COLOR_GRAYDARK;
+            pData->BackColorButtonDown = COLOR_GRAYDARK;
+            pData->TextColor = COLOR_WHITEDARK;
             pData->FontSize = 10;
             pData->TextAlignment = CustomLabelAlignment::TopLeft;
             pData->wszText = L"";
@@ -645,9 +645,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
     CustomLabel_SetUserData(hCtl, wszContractDate);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
-        TextColor, ThemeElement::GrayMedium, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
+        TextColor, COLOR_GRAYMEDIUM, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, GLYPH_DROPDOWN,
-        TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        TextColorDim, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
         
     if (ShowContractExpiry == true) {
@@ -663,13 +663,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
         CustomLabelAlignment::MiddleLeft, 40, 72, 100, 22);
     std::wstring wszDate = AfxCurrentDate();
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, ThemeElement::GrayMedium,
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserData(hCtl, wszDate);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, GLYPH_DROPDOWN,
-        TextColorDim, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        TextColorDim, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
     // We always want the Description textbox to exists because even for rolled and closed transaction
@@ -719,7 +719,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         int FontSize = 8;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES, L"",
-            ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+            COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleLeft, 40, 180, 150, 23);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Long);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
@@ -734,10 +734,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetText(hCtl, wszText);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES_DROPDOWN, GLYPH_DROPDOWN,
-            ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+            COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-        CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+        CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     } else if (tdd.tradeAction == TradeAction::ManageShares || tdd.tradeAction == TradeAction::ManageFutures) {
         std::wstring wszFontName = L"Segoe UI";
@@ -745,7 +745,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         int FontSize = 8;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES, L"",
-            ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+            COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleLeft, 40, 180, 150, 23);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
@@ -758,10 +758,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetText(hCtl, wszText);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES_DROPDOWN, GLYPH_DROPDOWN,
-            ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+            COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-        CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+        CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     }
     else
@@ -846,10 +846,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // DR / CR toggle label
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",
-        ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 490, 337, 30, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
         tdd.tradeAction == TradeAction::AddSharesToTrade ||
         tdd.tradeAction == TradeAction::AddFuturesToTrade) {
@@ -861,10 +861,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
-        ThemeElement::Black, ThemeElement::Green, ThemeElement::Green, ThemeElement::GrayMedium,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 580, 337, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
 
     TradeDialogControls_GetTradeDescription(hwnd);

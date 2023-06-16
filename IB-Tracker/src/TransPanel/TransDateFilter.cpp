@@ -161,7 +161,7 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(GetThemeColor(ThemeElement::GrayDark));
+            SolidBrush backBrush(COLOR_GRAYDARK);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -219,10 +219,8 @@ void TransDateFilter_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -270,13 +268,9 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-        DWORD nBackColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::Selection)
-            : GetThemeColor(ThemeElement::GrayMedium);
-        DWORD nBackColorHot = GetThemeColor(ThemeElement::Selection);
-        DWORD nTextColor = (bIsHot)
-            ? GetThemeColor(ThemeElement::WhiteLight)
-            : GetThemeColor(ThemeElement::WhiteDark);
+        DWORD nBackColor = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
+        DWORD nBackColorHot = COLOR_SELECTION;
+        DWORD nTextColor = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
 
         std::wstring wszFontName = AfxGetDefaultFont();
         FontFamily   fontFamily(wszFontName.c_str());

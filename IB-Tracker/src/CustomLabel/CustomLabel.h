@@ -26,7 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Themes/Themes.h"
 #include "Utilities/AfxWin.h"
 #include "Utilities/UserMessages.h"
 
@@ -85,22 +84,22 @@ public:
 	int CtrlId = 0;
 	CustomLabelType CtrlType = CustomLabelType::TextOnly;
 	bool HotTestEnable = false;
-	ThemeElement BackColor{};
-	ThemeElement BackColorHot{};
-	ThemeElement BackColorButtonDown{};
+	DWORD BackColor{};
+	DWORD BackColorHot{};
+	DWORD BackColorButtonDown{};
 	bool LButtonDown = false;
 
 	// Selection
 	bool AllowSelect = false;
 	bool IsSelected = false;
 	bool AllowNotch = false;
-	ThemeElement SelectorColor{};
-	ThemeElement BackColorSelected{};
+	DWORD SelectorColor{};
+	DWORD BackColorSelected{};
 
 	// Lines
 	REAL LineWidth = 1;
-	ThemeElement LineColor{};
-	ThemeElement LineColorHot{};
+	DWORD LineColor{};
+	DWORD LineColorHot{};
 
 	// Margins
 	int MarginLeft = 0;
@@ -111,8 +110,8 @@ public:
 	// Border
 	bool BorderVisible = false;
 	REAL BorderWidth = 0;
-	ThemeElement BorderColor{};
-	ThemeElement BorderColorHot{};
+	DWORD BorderColor{};
+	DWORD BorderColorHot{};
 	int BorderRoundWidth = 0;
 	int BorderRoundHeight = 0;
 
@@ -137,7 +136,7 @@ public:
 	bool FontBold = false;
 	bool FontItalic = false;
 	bool FontUnderline = false;
-	ThemeElement TextColor{};
+	DWORD TextColor{};
 	CustomLabelPointer Pointer = CustomLabelPointer::Arrow;
 
 	// Text Hot
@@ -147,7 +146,7 @@ public:
 	bool FontBoldHot = false;
 	bool FontItalicHot = false;
 	bool FontUnderlineHot = false;
-	ThemeElement TextColorHot{};
+	DWORD TextColorHot{};
 	CustomLabelPointer PointerHot = CustomLabelPointer::Hand;
 
 	void SetTextAlignment(StringFormat* stringF);
@@ -166,27 +165,27 @@ CustomLabel* CustomLabel_GetOptions(HWND hCtrl);
 int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
 void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
 std::wstring CustomLabel_GetText(HWND hCtrl);
-void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor);
-void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot);
-void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor);
-void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot);
-ThemeElement CustomLabel_GetBackColor(HWND hCtrl);
+void CustomLabel_SetTextColor(HWND hCtrl, DWORD TextColor);
+void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD TextColorHot);
+void CustomLabel_SetBackColor(HWND hCtrl, DWORD BackColor);
+void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD BackColorHot);
+DWORD CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold);
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring wszText);
 std::wstring CustomLabel_GetUserData(HWND hCtrl);
 void CustomLabel_SetUserDataInt(HWND hCtrl, int value);
 int CustomLabel_GetUserDataInt(HWND hCtrl);
-void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColor, ThemeElement BorderColorHot);
+void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, DWORD BorderColor, DWORD BorderColorHot);
 void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
-	ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
+	DWORD TextColor, DWORD BackColor, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
-	ThemeElement TextColor, ThemeElement BackColor, ThemeElement BackColorHot, ThemeElement BackColorButtonDown,
+	DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown,
 	CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 

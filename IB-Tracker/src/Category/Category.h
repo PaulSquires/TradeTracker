@@ -39,15 +39,15 @@ public:
     HWND hToolTip = NULL;
     std::wstring wszToolTip;
 
-    ThemeElement BackColor{};
-    ThemeElement BackColorHot{};
-    ThemeElement BackColorButtonDown{};
+    DWORD BackColor{};
+    DWORD BackColorHot{};
+    DWORD BackColorButtonDown{};
 
     int UnderlineHeight = 1;
-    ThemeElement UnderlineColor = ThemeElement::WhiteMedium;
-    ThemeElement BackColorSelected{};
+    DWORD UnderlineColor = COLOR_WHITEMEDIUM;
+    DWORD BackColorSelected{};
 
-    ThemeElement TextColor{};
+    DWORD TextColor{};
     int FontSize = 9;
     std::wstring wszText;
 };

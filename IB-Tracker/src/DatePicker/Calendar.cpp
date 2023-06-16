@@ -75,11 +75,9 @@ void Calendar_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    //DWORD nBackColor = GetThemeColor(ThemeElement::GrayDark);
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
+    // TODO: Calendar picker backcolor not working (always black)
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -110,7 +108,7 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     if (hCtl != NULL) {
         // If visual styles are active, this message has no effect except when wParam is MCSC_BACKGROUND.
-        MonthCal_SetColor(hCtl, MCSC_BACKGROUND, GetThemeCOLORREF(ThemeElement::GrayMedium));
+        MonthCal_SetColor(hCtl, MCSC_BACKGROUND, COLOR_GRAYMEDIUM);
 
         SYSTEMTIME st{};
         st.wYear = AfxGetYear(wszTheSelectedDate);

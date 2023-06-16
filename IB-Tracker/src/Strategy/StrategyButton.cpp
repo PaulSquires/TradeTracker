@@ -130,10 +130,8 @@ void StrategyButton_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = GetThemeColor(ThemeElement::Black);
-
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush backBrush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -161,7 +159,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     bool bold = true;
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_LONGSHORT, L"",
-        ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+        COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 0, 0, 50, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
@@ -172,7 +170,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetText(hCtl, wszText);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"",
-        ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+        COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 51, 0, 50, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
@@ -181,7 +179,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetText(hCtl, wszText);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_STRATEGY, L"",
-        ThemeElement::WhiteLight, ThemeElement::GrayMedium,
+        COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 102, 0, 100, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Vertical);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
@@ -191,17 +189,17 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetText(hCtl, wszText);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_GO, L"GO",
-        ThemeElement::Black, ThemeElement::Blue, ThemeElement::Blue, ThemeElement::GrayMedium,
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 203, 0, 30, nHeight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, GLYPH_DROPDOWN,
-        ThemeElement::WhiteDark, ThemeElement::GrayMedium, ThemeElement::GrayLight, ThemeElement::GrayMedium,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 234, 0, 30, nHeight);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
-    CustomLabel_SetTextColorHot(hCtl, ThemeElement::WhiteLight);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     return TRUE;
 }
@@ -215,10 +213,10 @@ void StrategyButton_SetLongShortTextColor(HWND hCtl)
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(hCtl);
 
     if (ls == LongShort::Long) {
-        CustomLabel_SetTextColor(hCtl, ThemeElement::Green);
+        CustomLabel_SetTextColor(hCtl, COLOR_GREEN);
     }
     else if (ls == LongShort::Short) {
-        CustomLabel_SetTextColor(hCtl, ThemeElement::Red);
+        CustomLabel_SetTextColor(hCtl, COLOR_RED);
     }
 }
 
@@ -231,10 +229,10 @@ void StrategyButton_SetLongShortBackColor(HWND hCtl)
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(hCtl);
 
     if (ls == LongShort::Long) {
-        CustomLabel_SetBackColor(hCtl, ThemeElement::Green);
+        CustomLabel_SetBackColor(hCtl, COLOR_GREEN);
     }
     else if (ls == LongShort::Short) {
-        CustomLabel_SetBackColor(hCtl, ThemeElement::Red);
+        CustomLabel_SetBackColor(hCtl, COLOR_RED);
     }
 }
 

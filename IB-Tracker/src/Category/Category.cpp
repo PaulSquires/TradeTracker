@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 #include "Utilities/AfxWin.h"
 #include "Utilities/ListBoxData.h"
+#include "Utilities/Colors.h"
 #include "CustomLabel/CustomLabel.h"
 
 #include "Category.h"
@@ -120,11 +121,11 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
             nLeft, 0, 24, 24);
         pData = CustomLabel_GetOptions(hCtl);
         if (pData) {
-            pData->BackColor = ThemeElement::GrayMedium;
+            pData->BackColor = COLOR_GRAYMEDIUM;
             pData->SelectorColor = pData->BackColor;
-            pData->TextColor = ThemeElement::WhiteDark;
-            pData->BackColorHot = ThemeElement::GrayLight;
-            pData->BackColorButtonDown = ThemeElement::GrayMedium;
+            pData->TextColor = COLOR_WHITEDARK;
+            pData->BackColorHot = COLOR_GRAYLIGHT;
+            pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
             pData->wszText = L"ALL";
             pData->wszToolTip = L"All Categories";
             pData->HotTestEnable = true;
@@ -141,11 +142,11 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         nLeft, 0, 24, 24);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::GrayMedium;
+        pData->BackColor = COLOR_GRAYMEDIUM;
         pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::WhiteDark;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
+        pData->TextColor = COLOR_WHITEDARK;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; // L"O";
         pData->wszToolTip = L"Gray";
         pData->HotTestEnable = true;
@@ -161,12 +162,12 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         nLeft, 0, 24, 24);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::GrayMedium;
+        pData->BackColor = COLOR_GRAYMEDIUM;
         pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::Blue;
+        pData->TextColor = COLOR_BLUE;
         pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; // L"O";
         pData->wszToolTip = L"Blue";
         pData->HotTestEnable = true;
@@ -182,12 +183,12 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         nLeft, 0, 24, 24);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::GrayMedium;
+        pData->BackColor = COLOR_GRAYMEDIUM;
         pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::Pink;
+        pData->TextColor = COLOR_PINK;
         pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; // L"O";
         pData->wszToolTip = L"Pink";
         pData->HotTestEnable = true;
@@ -203,12 +204,12 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         nLeft, 0, 24, 24);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::GrayMedium;
+        pData->BackColor = COLOR_GRAYMEDIUM;
         pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::Green;
+        pData->TextColor = COLOR_GREEN;
         pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; // L"O";
         pData->wszToolTip = L"Green";
         pData->HotTestEnable = true;
@@ -224,12 +225,12 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         nLeft, 0, 24, 24);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = ThemeElement::GrayMedium;
+        pData->BackColor = COLOR_GRAYMEDIUM;
         pData->SelectorColor = pData->BackColor;
-        pData->TextColor = ThemeElement::Orange;
+        pData->TextColor = COLOR_ORANGE;
         pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = ThemeElement::GrayLight;
-        pData->BackColorButtonDown = ThemeElement::GrayMedium;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; // L"O";
         pData->wszToolTip = L"Orange";
         pData->HotTestEnable = true;
@@ -289,14 +290,14 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
         int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-        SolidBrush backBrush(GetThemeColor(pData->BackColor));
+        SolidBrush backBrush(pData->BackColor);
         graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
         int selectId = CategoryControl_GetSelectedId(hWnd);
         RECT rc; GetWindowRect(GetDlgItem(hWnd, selectId), &rc);
         MapWindowPoints(HWND_DESKTOP, hWnd, (LPPOINT)&rc, 2);
 
-        ARGB clrPen = GetThemeColor(pData->UnderlineColor);
+        ARGB clrPen = pData->UnderlineColor;
         Pen pen(clrPen, (REAL)pData->UnderlineHeight);
 
         RectF rectF((REAL)rc.left- ps.rcPaint.left, (REAL)(ps.rcPaint.bottom - pData->UnderlineHeight),
@@ -408,7 +409,7 @@ HWND CreateCategoryControl(
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
         pData->CtrlId = CtrlId;
-        pData->BackColor = (AllowAllButton == true) ? ThemeElement::Black : ThemeElement::GrayDark;
+        pData->BackColor = (AllowAllButton == true) ? COLOR_BLACK : COLOR_GRAYDARK;
 
         CategoryControl_SetOptions(hCtl, pData);
 

@@ -27,7 +27,7 @@ SOFTWARE.
 #include "pch.h"
 
 #include "Utilities/AfxWin.h"
-#include "Themes/Themes.h"
+
 #include "MenuPanel/MenuPanel.h"
 #include "CustomLabel/CustomLabel.h"
 
@@ -108,7 +108,6 @@ bool SaveConfig()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "THEME|" << GetThemeName() << "\n"
         << "TRADERNAME|" << GetTraderName() << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
@@ -173,13 +172,6 @@ bool LoadConfig()
 
 
         std::wstring arg = AfxTrim(st.at(0));
-
-
-        // Check for configuration identifiers
-        if (arg == L"THEME") {
-            SetThemeName(AfxTrim(st.at(1)));
-            continue;
-        }
 
 
         // Check for configuration identifiers

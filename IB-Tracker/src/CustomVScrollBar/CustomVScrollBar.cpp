@@ -181,14 +181,14 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-            SolidBrush backBrush(GetThemeColor(pData->ScrollBarBack));
+            SolidBrush backBrush(pData->ScrollBarBack);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
             if (pData->numItems > pData->itemsPerPage) {
-                backBrush.SetColor(GetThemeColor(pData->ScrollBarThumb));
+                backBrush.SetColor(pData->ScrollBarThumb);
                 graphics.FillRectangle(&backBrush, pData->rc.left, pData->rc.top, nWidth, pData->thumbHeight);
 
-                Pen pen(GetThemeColor(pData->ScrollBarLine), 1);
+                Pen pen(pData->ScrollBarLine, 1);
                 graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
             }
 

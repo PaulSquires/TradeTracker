@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include "pch.h"
 #include "Utilities/AfxWin.h"
+#include "Utilities/Colors.h"
 #include "CustomLabel.h"
 
 
@@ -115,12 +116,12 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     Graphics graphics(m_memDC);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-    DWORD nBackColor = (m_bIsHot ? GetThemeColor(BackColorHot) : GetThemeColor(BackColor));
+    DWORD nBackColor = (m_bIsHot ? BackColorHot : BackColor);
     if (IsSelected && AllowSelect)
-        nBackColor = GetThemeColor(BackColorSelected);
+        nBackColor = BackColorSelected;
 
     if (LButtonDown == true) {
-        nBackColor = GetThemeColor(BackColorButtonDown);
+        nBackColor = BackColorButtonDown;
     }
 
     // Create the background brush
@@ -189,7 +190,7 @@ void CustomLabel::DrawTextInBuffer()
         }
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   textBrush(m_bIsHot ? GetThemeColor(TextColorHot) : GetThemeColor(TextColor));
+        SolidBrush   textBrush(m_bIsHot ? TextColorHot : TextColor);
 
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -225,7 +226,7 @@ void CustomLabel::DrawLabelInBuffer()
         REAL nTop = (MarginTop + TextOffsetTop) * m_ry;
         REAL nRight = m_rcClient.right - (MarginRight * m_rx);
         REAL nBottom = nTop;
-        ARGB clrPen = (m_bIsHot ? GetThemeColor(LineColorHot) : GetThemeColor(LineColor));
+        ARGB clrPen = (m_bIsHot ? LineColorHot : LineColor);
         Pen pen(clrPen, LineWidth);
         // Draw the horizontal line centered taking margins into account
         Graphics graphics(m_memDC);
@@ -249,7 +250,7 @@ void CustomLabel::DrawNotchInBuffer()
     // If selection mode is enabled then draw the little right hand side notch
     if (IsSelected && AllowNotch) {
         // Create the background brush
-        SolidBrush backBrush(GetThemeColor(SelectorColor));
+        SolidBrush backBrush(SelectorColor);
         // Need to center the notch vertically
         REAL nNotchHalfHeight = (16 * m_ry) / 2;
         REAL nTop = (m_rcClient.bottom / 2) - nNotchHalfHeight;
@@ -277,10 +278,9 @@ void CustomLabel::DrawBordersInBuffer()
     case CustomLabelType::ImageAndText:
     case CustomLabelType::TextOnly:
     {
-        ARGB clrPen = (m_bIsHot ? GetThemeColor(BorderColorHot) : GetThemeColor(BorderColor));
+        ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
         if (BorderVisible == true) {
-            clrPen = GetThemeColor(BackColor);
-            Pen pen(clrPen, BorderWidth);
+            Pen pen(BackColor, BorderWidth);
             RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
             Graphics graphics(m_memDC);
             graphics.DrawRectangle(&pen, rectF);
@@ -569,7 +569,7 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
 // ========================================================================================
 // Set the text foreground color for the custom control.
 // ========================================================================================
-void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor)
+void CustomLabel_SetTextColor(HWND hCtrl, DWORD TextColor)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -582,7 +582,7 @@ void CustomLabel_SetTextColor(HWND hCtrl, ThemeElement TextColor)
 // ========================================================================================
 // Set the text foreground hot color for the custom control.
 // ========================================================================================
-void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot)
+void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD TextColorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -595,7 +595,7 @@ void CustomLabel_SetTextColorHot(HWND hCtrl, ThemeElement TextColorHot)
 // ========================================================================================
 // Set the text background color for the custom control.
 // ========================================================================================
-void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
+void CustomLabel_SetBackColor(HWND hCtrl, DWORD BackColor)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -608,7 +608,7 @@ void CustomLabel_SetBackColor(HWND hCtrl, ThemeElement BackColor)
 // ========================================================================================
 // Set the text background hot color for the custom control.
 // ========================================================================================
-void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot)
+void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD BackColorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -621,13 +621,13 @@ void CustomLabel_SetBackColorHot(HWND hCtrl, ThemeElement BackColorHot)
 // ========================================================================================
 // Get the text background color for the custom control.
 // ========================================================================================
-ThemeElement CustomLabel_GetBackColor(HWND hCtrl)
+DWORD CustomLabel_GetBackColor(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
         return pData->BackColor;
     }
-    return ThemeElement::Black;
+    return COLOR_BLACK;
 }
 
 
@@ -647,7 +647,7 @@ std::wstring CustomLabel_GetText(HWND hCtrl)
 // ========================================================================================
 // Set the border (width and colors)  for the custom control.
 // ========================================================================================
-void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, ThemeElement BorderColor, ThemeElement BorderColorHot)
+void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, DWORD BorderColor, DWORD BorderColorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
@@ -777,10 +777,10 @@ void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 
 // ========================================================================================
 // Creates a simple "dumb" label that basically just makes it easier to deal
-// with theme coloring. No hot tracking or click notifications.
+// with coloring. No hot tracking or click notifications.
 // ========================================================================================
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
-    ThemeElement TextColor, ThemeElement BackColor, CustomLabelAlignment alignment, 
+    DWORD TextColor, DWORD BackColor, CustomLabelAlignment alignment, 
     int nLeft, int nTop, int nWidth, int nHeight)
 {
     CustomLabel* pData = nullptr;
@@ -807,7 +807,7 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 // Creates a simple label that acts like a push button.
 // ========================================================================================
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
-    ThemeElement TextColor, ThemeElement BackColor, ThemeElement BackColorHot, ThemeElement BackColorButtonDown,
+    DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown,
     CustomLabelAlignment alignment, int nLeft, int nTop, int nWidth, int nHeight)
 {
     // Creates a simple button type of label
@@ -843,7 +843,7 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     int nLeft, int nTop, int nWidth, int nHeight)
 {
     // Creates a simple "dumb" label that basically just makes it easier to deal
-    // with theme coloring. No hot tracking or click notifications.
+    // with coloring. No hot tracking or click notifications.
     CustomLabel* pData = nullptr;
     
     HWND hCtl = CreateCustomLabel(
@@ -853,7 +853,7 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = ThemeElement::Black;
+        pData->BackColor = COLOR_BLACK;
         pData->BackColorButtonDown = pData->BackColor;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;

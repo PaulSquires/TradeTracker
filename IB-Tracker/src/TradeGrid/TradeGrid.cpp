@@ -74,8 +74,8 @@ void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszT
     case GridColType::ActionCombo:
         CustomLabel_SetText(pCol->hCtl, wszText);
         if (pCol->colType == GridColType::ActionCombo) {
-            ThemeElement clr = ThemeElement::Red;
-            if (wszText == L"BTO" || wszText == L"BTC") clr = ThemeElement::Green;
+            DWORD clr = COLOR_RED;
+            if (wszText == L"BTO" || wszText == L"BTC") clr = COLOR_GREEN;
             CustomLabel_SetTextColor(pCol->hCtl, clr);
         }
         break;
@@ -141,11 +141,11 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
     HWND hCtl = NULL;
     int idCtrl = IDC_TRADEGRID_FIRSTCONTROL;
 
-    ThemeElement lightBackColor = ThemeElement::GrayLight;
-    ThemeElement lightTextColor = ThemeElement::WhiteLight;
+    DWORD lightBackColor = COLOR_GRAYLIGHT;
+    DWORD lightTextColor = COLOR_WHITELIGHT;
 
-    ThemeElement darkBackColor = ThemeElement::GrayMedium;
-    ThemeElement darkTextColor = ThemeElement::WhiteDark;
+    DWORD darkBackColor = COLOR_GRAYMEDIUM;
+    DWORD darkTextColor = COLOR_WHITEDARK;
 
     int nTop = 0;
     int nLeft = 0;
@@ -205,7 +205,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // EXPIRY DATE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
-            L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
+            L"", COLOR_WHITELIGHT, COLOR_GRAYLIGHT,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
@@ -221,7 +221,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // DTE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
+            L"", COLOR_WHITEDARK, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         col = new GridColInfo;
         col->hCtl = hCtl;
@@ -246,7 +246,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // PUT/CALL
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"", ThemeElement::WhiteDark, ThemeElement::GrayMedium,
+            L"", COLOR_WHITEDARK, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
@@ -259,7 +259,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // ACTION
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
-            L"", ThemeElement::WhiteLight, ThemeElement::GrayLight,
+            L"", COLOR_WHITELIGHT, COLOR_GRAYLIGHT,
             CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         col = new GridColInfo;
@@ -279,11 +279,11 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             pLabelData->wszText = GLYPH_RESETLINE;
             pLabelData->wszTextHot = GLYPH_RESETLINE;
             pLabelData->HotTestEnable = true;
-            pLabelData->BackColor = ThemeElement::GrayDark; 
-            pLabelData->BackColorHot = ThemeElement::GrayMedium;
-            pLabelData->BackColorButtonDown = ThemeElement::GrayLight; 
-            pLabelData->TextColor = ThemeElement::WhiteDark;
-            pLabelData->TextColorHot = ThemeElement::WhiteLight;
+            pLabelData->BackColor = COLOR_GRAYDARK; 
+            pLabelData->BackColorHot = COLOR_GRAYMEDIUM;
+            pLabelData->BackColorButtonDown = COLOR_GRAYLIGHT; 
+            pLabelData->TextColor = COLOR_WHITEDARK;
+            pLabelData->TextColorHot = COLOR_WHITELIGHT;
             pLabelData->TextAlignment = CustomLabelAlignment::MiddleCenter;
             pLabelData->wszToolTip = L"Reset line";
             pLabelData->PointerHot = CustomLabelPointer::Arrow;
@@ -324,8 +324,8 @@ void TradeGrid_SetText(GridColInfo* col, std::wstring wszText)
     CustomLabel_SetText(col->hCtl, wszText);
 
     if (col->colType == GridColType::ActionCombo) {
-        ThemeElement clr = ThemeElement::Red;
-        if (wszText == L"BTO" || wszText == L"BTC") clr = ThemeElement::Green;
+        DWORD clr = COLOR_RED;
+        if (wszText == L"BTO" || wszText == L"BTC") clr = COLOR_GREEN;
         CustomLabel_SetTextColor(col->hCtl, clr);
     }
 }
@@ -624,15 +624,14 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-            Color backColor;
-            backColor.SetFromCOLORREF(pData->BackColor);
+            Color backColor(pData->BackColor);
             SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
             // Portion that displays behind the grid reset icons must be the same color
             // as the main TradeDialog.
             int nIconWidth = AfxScaleX(TRADEGRID_LINERESETICONWIDTH);
-            backColor.SetFromCOLORREF(GetThemeCOLORREF(ThemeElement::GrayDark));
+            backColor.SetValue(COLOR_GRAYDARK);
             backBrush.SetColor(backColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.right - nIconWidth, ps.rcPaint.top, nIconWidth, nHeight);
 
@@ -789,7 +788,7 @@ HWND CreateTradeGrid(
         pData->hParent = hWndParent;
         pData->hInst = hInst;
         pData->CtrlId = CtrlId;
-        pData->BackColor = GetThemeCOLORREF(ThemeElement::Black);
+        pData->BackColor = COLOR_BLACK;
         pData->hBackBrush = CreateSolidBrush(pData->BackColor);
         pData->bShowOriginalQuantity = bShowOriginalQuantity;
 
