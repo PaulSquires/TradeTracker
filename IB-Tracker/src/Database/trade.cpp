@@ -61,8 +61,7 @@ void Trade::setTradeOpenStatus()
         }
     }
 
-    // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO. If yes then
-    // delete the added Tree item and set the Trade isOpen to False and exit.
+    // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO. 
     if (doQuantityCheck) {
         this->isOpen = (aggregate == 0 ? false : true);
         return;

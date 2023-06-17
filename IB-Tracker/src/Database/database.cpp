@@ -316,7 +316,7 @@ bool LoadDatabase()
     // Now that the trades have been constructed, create the open position vector based
     // on a sorted list of open legs. We also calculate the ACB for the entire Trade
     // rather than physically storing that value in the database. This allows us to
-    // manually edit individual TransDetail externally and not have to go through
+    // manually edit individual Transactions externally and not have to go through
     // an error prone process of recalculating the ACB with the new change.
     for (auto trade : trades) {
         if (trade->isOpen) trade->createOpenLegsVector();

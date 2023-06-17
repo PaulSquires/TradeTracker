@@ -345,100 +345,107 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
 
 
 // ========================================================================================
-// Create TransDetail for option assignment for the selected leg.
+// Create Transaction for Shares or Futures that have been called away.
 // ========================================================================================
-void ActiveTrades_OptionAssignment(auto trade)
+void ActiveTrades_CalledAwayAssignment(auto trade, int NumSharesAggreate, int NumFuturesAggregate)
 {
-    // Do a check to ensure that there is actually legs selected for assignment. 
-    if (tdd.legs.size() == 0) {
-        MessageBox(
-            HWND_SIDEMENU,
-            (LPCWSTR)(L"No valid option legs have been selected for assignment."),
-            (LPCWSTR)L"Warning",
-            MB_ICONWARNING | MB_OK);
-        return;
-    }
+    return;
+}
 
 
+// ========================================================================================
+// Create Transaction for option assignment for the selected leg.
+// ========================================================================================
+void ActiveTrades_Assignment(auto trade)
+{
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
-    for (auto leg : tdd.legs) {
+    bool isShares = (trade->tickerSymbol.substr(0,1) == L"/") ? false : true;
 
-        int numShares = abs(leg->openQuantity * 100);
+    int QuantityAssigned = 0;
 
-        std::wstring wszLongShort = (leg->PutCall == L"P") ? L"LONG " : L"SHORT ";
-        std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
-        msg += wszLongShort + std::to_wstring(numShares) + L" shares at $" + leg->strikePrice + L" per share.";
-        int res = MessageBox(
-            HWND_SIDEMENU,
-            (LPCWSTR)(msg.c_str()),
-            (LPCWSTR)L"Confirm",
-            MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+    auto leg = tdd.legs.at(0);
 
-        if (res != IDYES) return;
-
-
-        // Close the Option. Save this transaction's leg quantities
-        trans = std::make_shared<Transaction>();
-        trans->transDate = AfxCurrentDate();
-        trans->description = L"Assignment";
-        trans->underlying = L"OPTIONS";
-        trade->Transactions.push_back(trans);
-
-        newleg = std::make_shared<Leg>();
-        trade->nextLegID += 1;
-        newleg->legID = trade->nextLegID;
-        newleg->underlying = trans->underlying;
-        newleg->origQuantity = leg->openQuantity * -1;
-        newleg->openQuantity = 0;
-        newleg->legBackPointerID = leg->legID;
-        leg->openQuantity = 0;
-
-        if (leg->action == L"STO") newleg->action = L"BTC";
-        if (leg->action == L"BTO") newleg->action = L"STC";
-
-        newleg->expiryDate = leg->expiryDate;
-        newleg->strikePrice = leg->strikePrice;
-        newleg->PutCall = leg->PutCall;
-        trans->legs.push_back(newleg);
-
-
-        // Make the SHARES that have been assigned.
-        trans = std::make_shared<Transaction>();
-        trans->transDate = AfxCurrentDate();
-        trans->description = L"Shares";
-        trans->underlying = L"SHARES";
-        trans->quantity = numShares;
-        trans->price = stod(leg->strikePrice);
-        trans->multiplier = 1;
-        trans->fees = 0;
-        trade->Transactions.push_back(trans);
-
-        newleg = std::make_shared<Leg>();
-        trade->nextLegID += 1;
-        newleg->legID = trade->nextLegID;
-        newleg->underlying = trans->underlying;
-        newleg->strikePrice = leg->strikePrice;
-
-        if (leg->PutCall == L"P") {
-            newleg->action = L"BTO";
-            newleg->origQuantity = numShares;
-            newleg->openQuantity = numShares;
-            trans->total = trans->quantity * trans->price * -1;  // DR
-            trade->ACB = trade->ACB + trans->total;
-        }
-        else {
-            newleg->action = L"STO";
-            newleg->origQuantity = numShares * -1;
-            newleg->openQuantity = numShares * -1;
-            trans->total = trans->quantity * trans->price;  // CR
-            trade->ACB = trade->ACB + trans->total;
-        }
-
-        trans->legs.push_back(newleg);
-
+    std::wstring wszLongShort = (leg->PutCall == L"P") ? L"LONG " : L"SHORT ";
+    std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
+        
+    if (isShares == true) {
+        QuantityAssigned = abs(leg->openQuantity * 100);
+        msg += wszLongShort + std::to_wstring(QuantityAssigned) + L" shares at $" + leg->strikePrice + L" per share.";
     }
+    else {
+        QuantityAssigned = abs(leg->openQuantity);
+        msg += wszLongShort + std::to_wstring(QuantityAssigned) + L" futures at $" + leg->strikePrice + L" per future.";
+    }
+
+    int res = MessageBox(
+        HWND_SIDEMENU,
+        (LPCWSTR)(msg.c_str()),
+        (LPCWSTR)L"Confirm",
+        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+
+    if (res != IDYES) return;
+
+
+    // Close the Option. Save this transaction's leg quantities
+    trans = std::make_shared<Transaction>();
+    trans->transDate = AfxCurrentDate();
+    trans->description = L"Assignment";
+    trans->underlying = L"OPTIONS";
+    trade->Transactions.push_back(trans);
+
+    newleg = std::make_shared<Leg>();
+    trade->nextLegID += 1;
+    newleg->legID = trade->nextLegID;
+    newleg->underlying = trans->underlying;
+    newleg->origQuantity = leg->openQuantity * -1;
+    newleg->openQuantity = 0;
+    newleg->legBackPointerID = leg->legID;
+    leg->openQuantity = 0;
+
+    if (leg->action == L"STO") newleg->action = L"BTC";
+    if (leg->action == L"BTO") newleg->action = L"STC";
+
+    newleg->expiryDate = leg->expiryDate;
+    newleg->strikePrice = leg->strikePrice;
+    newleg->PutCall = leg->PutCall;
+    trans->legs.push_back(newleg);
+
+
+    // Make the SHARES/FUTURES that have been assigned.
+    trans = std::make_shared<Transaction>();
+    trans->transDate = AfxCurrentDate();
+    trans->description = L"Assignment";
+    trans->underlying = (isShares == true) ? L"SHARES" : L"FUTURES";
+    trans->quantity = QuantityAssigned;
+    trans->price = stod(leg->strikePrice);
+    trans->multiplier = 1;
+    trans->fees = 0;
+    trade->Transactions.push_back(trans);
+
+    newleg = std::make_shared<Leg>();
+    trade->nextLegID += 1;
+    newleg->legID = trade->nextLegID;
+    newleg->underlying = trans->underlying;
+    newleg->strikePrice = leg->strikePrice;
+
+    if (leg->PutCall == L"P") {
+        newleg->action = L"BTO";
+        newleg->origQuantity = QuantityAssigned;
+        newleg->openQuantity = QuantityAssigned;
+        trans->total = trans->quantity * trans->price * -1;  // DR
+        trade->ACB = trade->ACB + trans->total;
+    }
+    else {
+        newleg->action = L"STO";
+        newleg->origQuantity = QuantityAssigned * -1;
+        newleg->openQuantity = QuantityAssigned * -1;
+        trans->total = trans->quantity * trans->price;  // CR
+        trade->ACB = trade->ACB + trans->total;
+    }
+
+    trans->legs.push_back(newleg);
 
     // Set the open status of the entire trade based on the new modified legs
     trade->setTradeOpenStatus();
@@ -451,6 +458,62 @@ void ActiveTrades_OptionAssignment(auto trade)
 
     // Reload the trade list
     ActiveTrades_ShowActiveTrades();
+}
+
+
+// ========================================================================================
+// Create Transaction for option assignment for the selected leg.
+// ========================================================================================
+void ActiveTrades_OptionAssignment(auto trade)
+{
+    // Do a check to ensure that there is actually a leg selected for assignment. 
+    if (tdd.legs.size() == 0) {
+        MessageBox(
+            HWND_SIDEMENU,
+            (LPCWSTR)(L"No valid option leg has been selected for assignment."),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+    // Check to see if Shares/Futures exist that could be "called away". If yes, then process
+    // that type of transaction rather than adding a new assigned to transaction.
+    int NumSharesAggregate = 0;
+    int NumFuturesAggregate = 0;
+
+    for (const auto& trans : trade->Transactions) {
+        for (const auto& leg : trans->legs) {
+            if (leg->underlying == L"SHARES") {
+                NumSharesAggregate += leg->openQuantity;
+            }
+            else if (leg->underlying == L"FUTURES") {
+                NumFuturesAggregate += leg->openQuantity;
+            }
+        }
+    }
+
+    std::wstring PutCall = tdd.legs.at(0)->PutCall;
+
+    // Are LONG SHARES or LONG FUTURES being called away
+    if ((NumSharesAggregate > 0 || NumFuturesAggregate > 0) && PutCall == L"C") {
+        ActiveTrades_CalledAwayAssignment(trade, NumSharesAggregate, NumFuturesAggregate);
+
+        std::cout << "LONG SHARES or LONG FUTURES being called away" << std::endl;
+
+        return;
+    }
+    // Are SHORT SHARES or SHORT FUTURES being called away
+    if ((NumSharesAggregate < 0 || NumFuturesAggregate < 0) && PutCall == L"P") {
+        ActiveTrades_CalledAwayAssignment(trade, NumSharesAggregate, NumFuturesAggregate);
+
+        std::cout << "SHORT SHARES or SHORT FUTURES being called away" << std::endl;
+
+        return;
+    }
+
+    // Otherwise, Option is being assigned Shares or Futures
+    ActiveTrades_Assignment(trade);
+
 }
 
 
