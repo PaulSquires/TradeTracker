@@ -84,7 +84,7 @@ public:
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
 
-    std::vector<std::shared_ptr<Transaction>> TransDetail;     // pointer list for all TransDetail in the trade
+    std::vector<std::shared_ptr<Transaction>> Transactions;     // pointer list for all TransDetail in the trade
     std::vector<std::shared_ptr<Leg>> openLegs;                 // sorted list of open legs for this trade
 
     void setTradeOpenStatus();

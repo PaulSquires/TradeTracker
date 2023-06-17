@@ -36,13 +36,13 @@ SOFTWARE.
 #include "DailyTotals/DailyTotals.h"
 #include "Utilities/Colors.h"
 
-extern HWND HWND_SideMenu;
-extern HWND HWND_ActiveTrades;
-extern HWND HWND_ClosedTrades;
-extern HWND HWND_TradeHistory;
+extern HWND HWND_SIDEMENU;
+extern HWND HWND_ACTIVETRADES;
+extern HWND HWND_CLOSEDTRADES;
+extern HWND HWND_TRADEHISTORY;
 extern HWND HWND_TICKERPANEL;
-extern HWND HWND_DailyTotals;
-extern HWND HWND_TRANSDETAIL;
+extern HWND HWND_DAILYTOTALS;
+extern HWND HWND_TRANSPANEL;
 extern HWND HWND_TRADEDIALOG;
 
 
@@ -257,7 +257,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
             nColWidth[i] = nTradeTemplatesMinColWidth[i];
             break;
 
-        case TableType::TransDetail:
+        case TableType::TransPanel:
             nColWidth[i] = nTransMinColWidth[i];
             break;
             
@@ -333,11 +333,11 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
     // Update the widths of any associated Header control. 
     HWND hHeader = NULL;
-    if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_HEADER);
+    if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_HEADER);
     if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_HEADER_TOTALS);
-    if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_DailyTotals, IDC_DAILY_HEADER_SUMMARY);
-    if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_DailyTotals, IDC_DAILY_HEADER_TOTALS);
-    if (tabletype == TableType::TransDetail) hHeader = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_HEADER);
+    if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_HEADER_SUMMARY);
+    if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_HEADER_TOTALS);
+    if (tabletype == TableType::TransPanel) hHeader = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_HEADER);
     
     if (hHeader) {
         for (int i = 0; i < 10; i++) {
@@ -461,7 +461,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
 
     // *** SHARES ***
-    // Roll up all of the SHARES or FUTURES TransDetail and display the aggregate rather than the individual legs.
+    // Roll up all of the SHARES or FUTURES Transactions and display the aggregate rather than the individual legs.
     std::wstring textShares;
     int aggregate = 0;
     for (const auto& leg : trade->openLegs) {

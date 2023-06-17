@@ -403,7 +403,7 @@ HWND CreateCategoryControl(
         CreateWindowEx(0, wszClassName.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), 
-            (int)(nWidth * rx), (int)((nHeight + 2) * ry),   // add room for underline
+            (int)(nWidth * rx), (int)((nHeight + 4) * ry),   // add room for underline
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {

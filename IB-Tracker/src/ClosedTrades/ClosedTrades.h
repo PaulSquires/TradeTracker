@@ -43,7 +43,7 @@ const int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
 const int IDC_CLOSED_HEADER = 103;
 
 const int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
-const int ClosedTrades_MARGIN = 24;
+const int CLOSEDTRADES_MARGIN = 24;
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);

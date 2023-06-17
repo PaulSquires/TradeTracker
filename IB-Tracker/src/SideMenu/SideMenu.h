@@ -35,29 +35,29 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
-const int IDC_SideMenu_FIRSTITEM       = 100;
-const int IDC_SideMenu_LOGO            = IDC_SideMenu_FIRSTITEM;
-const int IDC_SideMenu_TRADERNAME      = 102;
-const int IDC_SideMenu_APPNAME         = 103;
-const int IDC_SideMenu_ACTIVETRADES    = 104;
-const int IDC_SideMenu_CLOSEDTRADES    = 105;
-const int IDC_SideMenu_CONNECTTWS      = 106;
-const int IDC_SideMenu_TICKERTOTALS    = 107;
-const int IDC_SideMenu_DAILYTOTALS     = 108;
-const int IDC_SideMenu_RECONCILE       = 109;
-const int IDC_SideMenu_TransDetail    = 110;
-const int IDC_SideMenu_NEWSHARESTRADE  = 111;
-const int IDC_SideMenu_NEWFUTURESTRADE = 112;
-const int IDC_SideMenu_NEWOPTIONSTRADE = 113;
+const int IDC_SIDEMENU_FIRSTITEM       = 100;
+const int IDC_SIDEMENU_LOGO            = IDC_SIDEMENU_FIRSTITEM;
+const int IDC_SIDEMENU_TRADERNAME      = 102;
+const int IDC_SIDEMENU_APPNAME         = 103;
+const int IDC_SIDEMENU_ACTIVETRADES    = 104;
+const int IDC_SIDEMENU_CLOSEDTRADES    = 105;
+const int IDC_SIDEMENU_CONNECTTWS      = 106;
+const int IDC_SIDEMENU_TICKERTOTALS    = 107;
+const int IDC_SIDEMENU_DAILYTOTALS     = 108;
+const int IDC_SIDEMENU_RECONCILE       = 109;
+const int IDC_SIDEMENU_TRANSACTIONS    = 110;
+const int IDC_SIDEMENU_NEWSHARESTRADE  = 111;
+const int IDC_SIDEMENU_NEWFUTURESTRADE = 112;
+const int IDC_SIDEMENU_NEWOPTIONSTRADE = 113;
 
-const int IDC_SideMenu_NEWIRONCONDOR   = 114;
-const int IDC_SideMenu_NEWSHORTSTRANGLE= 115;
-const int IDC_SideMenu_NEWSHORTPUT     = 116;
-const int IDC_SideMenu_NEWSHORTCALL    = 117;
+const int IDC_SIDEMENU_NEWIRONCONDOR   = 114;
+const int IDC_SIDEMENU_NEWSHORTSTRANGLE= 115;
+const int IDC_SIDEMENU_NEWSHORTPUT     = 116;
+const int IDC_SIDEMENU_NEWSHORTCALL    = 117;
 
-const int IDC_SideMenu_LASTITEM = IDC_SideMenu_NEWSHORTCALL;
+const int IDC_SIDEMENU_LASTITEM = IDC_SIDEMENU_NEWSHORTCALL;
 
-const int IDC_SideMenu_AUTOCONNECT     = 120;
+const int IDC_SIDEMENU_AUTOCONNECT     = 120;
 
 const int SideMenu_WIDTH = 180;
 

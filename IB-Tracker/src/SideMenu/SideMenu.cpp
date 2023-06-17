@@ -37,15 +37,15 @@ SOFTWARE.
 #include "SideMenu.h"
 
 extern void ActiveTrades_ShowActiveTrades();
-extern void TRANSDETAIL_ShowTransDetail();
+extern void TransPanel_ShowTransactions();
 extern void ClosedTrades_ShowClosedTrades();
 extern void TickerPanel_ShowTickerTotals();
 extern void DailyTotals_ShowDailyTotals(const ListBoxData* ld);
 
-HWND HWND_SideMenu = NULL;
+HWND HWND_SIDEMENU = NULL;
 
-extern HWND HWND_TradeHistory;
-extern HWND HWND_DailyTotals;
+extern HWND HWND_TRADEHISTORY;
+extern HWND HWND_DAILYTOTALS;
 extern HWND HWND_TICKERPANEL;
 
 
@@ -140,7 +140,7 @@ void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring w
 // ========================================================================================
 BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_SideMenu = hwnd;
+    HWND_SIDEMENU = hwnd;
 
     int nTop = 0;
     int nLeft = 0;
@@ -154,7 +154,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nLeft = (SideMenu_WIDTH - 68) / 2;
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_SideMenu_LOGO,
+        IDC_SIDEMENU_LOGO,
         CustomLabelType::ImageOnly,
         nLeft, 20, 68, 68);
     pData = CustomLabel_GetOptions(hCtl);
@@ -171,7 +171,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_SideMenu_TRADERNAME,
+        IDC_SIDEMENU_TRADERNAME,
         CustomLabelType::TextOnly,
         0, 100, SideMenu_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
@@ -189,7 +189,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_SideMenu_APPNAME,
+        IDC_SIDEMENU_APPNAME,
         CustomLabelType::TextOnly,
         0, 118, SideMenu_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
@@ -210,58 +210,58 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_ACTIVETRADES, nTop, L"Active Trades");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_ACTIVETRADES, nTop, L"Active Trades");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_CLOSEDTRADES, nTop, L"Closed Trades");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_CLOSEDTRADES, nTop, L"Closed Trades");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWOPTIONSTRADE, nTop, L"Options Trade");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWOPTIONSTRADE, nTop, L"Options Trade");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWSHARESTRADE, nTop, L"Shares Trade");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHARESTRADE, nTop, L"Shares Trade");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWFUTURESTRADE, nTop, L"Futures Trade");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWFUTURESTRADE, nTop, L"Futures Trade");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWIRONCONDOR, nTop, L"Iron Condor");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWIRONCONDOR, nTop, L"Iron Condor");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWSHORTSTRANGLE, nTop, L"Short Strangle");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTSTRANGLE, nTop, L"Short Strangle");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWSHORTPUT, nTop, L"Short Put");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTPUT, nTop, L"Short Put");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_NEWSHORTCALL, nTop, L"Short Call");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTCALL, nTop, L"Short Call");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_TICKERTOTALS, nTop, L"Ticker Totals");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TICKERTOTALS, nTop, L"Ticker Totals");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_DAILYTOTALS, nTop, L"Daily Totals");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_DAILYTOTALS, nTop, L"Daily Totals");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_TransDetail, nTop, L"TransDetail");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TRANSACTIONS, nTop, L"Transactions");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_RECONCILE, nTop, L"Reconcile");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_RECONCILE, nTop, L"Reconcile");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SideMenu_CONNECTTWS, nTop, L"Connect to TWS");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_CONNECTTWS, nTop, L"Connect to TWS");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
@@ -271,7 +271,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop += 10;
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_SideMenu_AUTOCONNECT,
+        IDC_SIDEMENU_AUTOCONNECT,
         CustomLabelType::TextOnly,
         40, nTop, 100, 23);
     pData = CustomLabel_GetOptions(hCtl);
@@ -301,7 +301,7 @@ void SideMenu_SelectMenuItem(HWND hParent, int CtrlId)
 {
     HWND hCtrlSelected = GetDlgItem(hParent, CtrlId);
     HWND hCtrl = NULL;
-    for (int i = IDC_SideMenu_FIRSTITEM; i <= IDC_SideMenu_LASTITEM; i++) {
+    for (int i = IDC_SIDEMENU_FIRSTITEM; i <= IDC_SIDEMENU_LASTITEM; i++) {
         hCtrl = GetDlgItem(hParent, i);
         if (hCtrl == hCtrlSelected) continue;
         CustomLabel_Select(hCtrl, false);
@@ -316,7 +316,7 @@ void SideMenu_SelectMenuItem(HWND hParent, int CtrlId)
 int SideMenu_GetActiveMenuItem(HWND hParent)
 {
     HWND hCtrl = NULL;
-    for (int ctrlId = IDC_SideMenu_FIRSTITEM; ctrlId <= IDC_SideMenu_LASTITEM; ctrlId++)
+    for (int ctrlId = IDC_SIDEMENU_FIRSTITEM; ctrlId <= IDC_SIDEMENU_LASTITEM; ctrlId++)
     {
         hCtrl = GetDlgItem(hParent, ctrlId);
         CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
@@ -343,10 +343,10 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_START:
     {
         CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SideMenu_CONNECTTWS));
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connecting to TWS";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SideMenu_CONNECTTWS));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
         break;
@@ -356,12 +356,12 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_SUCCESS:
     {
         CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SideMenu_CONNECTTWS));
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
             pData->wszText = L"TWS Connected";
             pData->TextColor = COLOR_GREEN;
             pData->TextColorHot = COLOR_GREEN;
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SideMenu_CONNECTTWS));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
         break;
@@ -372,12 +372,12 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_DISCONNECT:
     {
         CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SideMenu_CONNECTTWS));
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
             pData->wszText = L"Connect to TWS";
             pData->TextColor = COLOR_WHITELIGHT;
             pData->TextColorHot = COLOR_WHITELIGHT;
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SideMenu_CONNECTTWS));
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         EndMonitorThread();
         return 0;
@@ -397,7 +397,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             switch (CtrlId) {
 
-            case IDC_SideMenu_NEWOPTIONSTRADE:
+            case IDC_SIDEMENU_NEWOPTIONSTRADE:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -407,7 +407,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_NEWSHARESTRADE:
+            case IDC_SIDEMENU_NEWSHARESTRADE:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -417,7 +417,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_NEWFUTURESTRADE:
+            case IDC_SIDEMENU_NEWFUTURESTRADE:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -427,7 +427,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_NEWIRONCONDOR:
+            case IDC_SIDEMENU_NEWIRONCONDOR:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -437,7 +437,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_NEWSHORTSTRANGLE:
+            case IDC_SIDEMENU_NEWSHORTSTRANGLE:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -447,7 +447,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_NEWSHORTPUT:
+            case IDC_SIDEMENU_NEWSHORTPUT:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -457,7 +457,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_NEWSHORTCALL:
+            case IDC_SIDEMENU_NEWSHORTCALL:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -467,7 +467,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SideMenu_CONNECTTWS:
+            case IDC_SIDEMENU_CONNECTTWS:
             {
                 // If already connected then don't try to connect again
                 if (tws_isConnected()) break;
@@ -488,42 +488,42 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            case IDC_SideMenu_ACTIVETRADES:
+            case IDC_SIDEMENU_ACTIVETRADES:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 ActiveTrades_ShowActiveTrades();
                 break;
             }
 
-            case IDC_SideMenu_CLOSEDTRADES:
+            case IDC_SIDEMENU_CLOSEDTRADES:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 ClosedTrades_ShowClosedTrades();
                 break;
             }
 
-            case IDC_SideMenu_TICKERTOTALS:
+            case IDC_SIDEMENU_TICKERTOTALS:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 TickerPanel_ShowTickerTotals();
                 break;
             }
 
-            case IDC_SideMenu_DAILYTOTALS:
+            case IDC_SIDEMENU_DAILYTOTALS:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 DailyTotals_ShowDailyTotals(nullptr);
                 break;
             }
 
-            case IDC_SideMenu_TransDetail:
+            case IDC_SIDEMENU_TRANSACTIONS:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                TRANSDETAIL_ShowTransDetail();
+                TransPanel_ShowTransactions();
                 break;
             }
 
-            case IDC_SideMenu_RECONCILE:
+            case IDC_SIDEMENU_RECONCILE:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
@@ -532,7 +532,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            case IDC_SideMenu_AUTOCONNECT:
+            case IDC_SIDEMENU_AUTOCONNECT:
             {
                 SetStartupConnect(!GetStartupConnect());
                 if (GetStartupConnect()) {
@@ -542,6 +542,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     CustomLabel_SetText(hCtl, L"Autoconnect: OFF");
                 }
                 SaveConfig();
+                break;
             }
 
             }  // switch

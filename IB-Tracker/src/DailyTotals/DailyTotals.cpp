@@ -32,7 +32,7 @@ SOFTWARE.
 #include "DailyTotals.h"
 
 
-HWND HWND_DailyTotals = NULL;
+HWND HWND_DAILYTOTALS = NULL;
 
 extern CDailyTotals DailyTotals;
 extern HWND HWND_RIGHTPANEL;
@@ -48,9 +48,9 @@ extern void MainWindow_SetRightPanel(HWND hPanel);
 // ========================================================================================
 void DailyTotals_ShowDailyTotals(const ListBoxData* ld)
 {
-    HWND hListBox = GetDlgItem(HWND_DailyTotals, IDC_DAILY_LISTBOX);
-    HWND hListBoxSummary = GetDlgItem(HWND_DailyTotals, IDC_DAILY_LISTBOX_SUMMARY);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_DailyTotals, IDC_DAILY_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_LISTBOX);
+    HWND hListBoxSummary = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_LISTBOX_SUMMARY);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_CUSTOMVSCROLLBAR);
 
 
     // Default to opening the current date
@@ -99,7 +99,7 @@ void DailyTotals_ShowDailyTotals(const ListBoxData* ld)
     double YTD = 0;
 
     for (const auto& trade : trades) {
-        for (const auto& trans : trade->TransDetail) {
+        for (const auto& trans : trade->Transactions) {
             MapData data{ trade, trans };
             mapTotals[trans->transDate].push_back(data);
         }
@@ -162,7 +162,7 @@ void DailyTotals_ShowDailyTotals(const ListBoxData* ld)
 
 
     // Ensure that the Daily panel is set
-    MainWindow_SetRightPanel(HWND_DailyTotals);
+    MainWindow_SetRightPanel(HWND_DAILYTOTALS);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 }
@@ -242,7 +242,7 @@ LRESULT CALLBACK DailyTotals_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_DailyTotals, IDC_DAILY_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -363,7 +363,7 @@ void DailyTotals_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_DAILY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_DAILY_CUSTOMVSCROLLBAR);
 
-    int margin = AfxScaleY(DailyTotals_MARGIN);
+    int margin = AfxScaleY(DAILYTOTALS_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
@@ -421,7 +421,7 @@ void DailyTotals_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL DailyTotals_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_DailyTotals = hwnd;
+    HWND_DAILYTOTALS = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_DAILY_SYMBOL, L"Daily Totals",
         COLOR_WHITELIGHT, COLOR_BLACK);

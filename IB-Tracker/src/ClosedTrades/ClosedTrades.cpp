@@ -34,13 +34,13 @@ SOFTWARE.
 #include "ClosedTrades.h"
 
 
-HWND HWND_ClosedTrades = NULL;
+HWND HWND_CLOSEDTRADES = NULL;
 
 extern std::vector<std::shared_ptr<Trade>> trades;
 
 extern HWND HWND_MAINWINDOW;
-extern HWND HWND_TradeHistory;
-extern HWND HWND_SideMenu;
+extern HWND HWND_TRADEHISTORY;
+extern HWND HWND_SIDEMENU;
 extern HWND HWND_MIDDLEPANEL;
 
 extern CClosedTrades ClosedTrades;
@@ -55,8 +55,8 @@ extern void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& tr
 // ========================================================================================
 void ClosedTrades_ShowListBoxItem(int index)
 {
-    HWND hListBox = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
     ListBox_SetCurSel(hListBox, index);
 
@@ -80,9 +80,9 @@ void ClosedTrades_ShowListBoxItem(int index)
 // ========================================================================================
 void ClosedTrades_ShowClosedTrades()
 {
-    HWND hListBox = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_CUSTOMVSCROLLBAR);
-    HWND hLabel = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_LABEL);
+    HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
+    HWND hLabel = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LABEL);
 
 
     // Prevent ListBox redrawing until all calculations are completed.
@@ -102,7 +102,7 @@ void ClosedTrades_ShowClosedTrades()
             ClosedData data;
 
             // Iterate the TransDetail to find the latest closed date
-            for (auto& trans : trade->TransDetail) {
+            for (auto& trans : trade->Transactions) {
                 if (trans->transDate > data.closedDate) {
                     data.closedDate = trans->transDate;
                 }
@@ -154,7 +154,7 @@ void ClosedTrades_ShowClosedTrades()
 
 
     // Ensure that the Closed panel is set
-    MainWindow_SetMiddlePanel(HWND_ClosedTrades);
+    MainWindow_SetMiddlePanel(HWND_CLOSEDTRADES);
 
     // Hide the Category control
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
@@ -239,7 +239,7 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_ClosedTrades, IDC_CLOSED_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -374,7 +374,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_CLOSED_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
-    int margin = AfxScaleY(ClosedTrades_MARGIN);
+    int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
@@ -425,7 +425,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_ClosedTrades = hwnd;
+    HWND_CLOSEDTRADES = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LABEL, L"Closed Trades",
         COLOR_WHITELIGHT, COLOR_BLACK);

@@ -151,7 +151,7 @@ bool SaveDatabase()
             << trade->category
             << "\n";
 
-        for (const auto trans : trade->TransDetail) {
+        for (const auto trans : trade->Transactions) {
             db << "X|"
                 << RemoveDateHyphens(trans->transDate) << "|"
                 << trans->description << "|"
@@ -291,7 +291,7 @@ bool LoadDatabase()
             trans->fees = try_catch_double(st, 7);
             trans->total = try_catch_double(st, 8);
             if (trade != nullptr)
-                trade->TransDetail.push_back(trans);
+                trade->Transactions.push_back(trans);
             continue;
         }
 
@@ -322,7 +322,7 @@ bool LoadDatabase()
         if (trade->isOpen) trade->createOpenLegsVector();
 
         trade->ACB = 0;
-        for (const auto trans : trade->TransDetail) {
+        for (const auto trans : trade->Transactions) {
             trade->ACB = trade->ACB + trans->total;
         }
     }

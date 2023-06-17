@@ -144,7 +144,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
     trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-    trade->TransDetail.push_back(trans);
+    trade->Transactions.push_back(trans);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
@@ -352,7 +352,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
     trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-    trade->TransDetail.push_back(trans);
+    trade->Transactions.push_back(trans);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
@@ -650,7 +650,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
 
     // Recalculate the ACB for the trade
     tdd.trade->ACB = 0;
-    for (const auto trans : tdd.trade->TransDetail) {
+    for (const auto trans : tdd.trade->Transactions) {
         tdd.trade->ACB = tdd.trade->ACB + trans->total;
     }
 

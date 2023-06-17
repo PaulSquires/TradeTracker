@@ -37,9 +37,9 @@ SOFTWARE.
 #include "TransPanel.h"
 
 
-HWND HWND_TRANSDETAIL = NULL;
+HWND HWND_TRANSPANEL = NULL;
 
-extern CTransDetail TransDetail;
+extern CTransPanel TransPanel;
 
 extern HWND HWND_MAINWINDOW;
 extern HWND HWND_TRANSDETAIL;
@@ -47,7 +47,7 @@ extern HWND HWND_MIDDLEPANEL;
 
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+extern void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
 extern std::wstring TransDateFilter_GetString(int idx);
 
 
@@ -101,8 +101,8 @@ void TransPanel_SetStartEndDates(HWND hwnd)
 // ========================================================================================
 void TransPanel_ShowListBoxItem(int index)
 {
-    HWND hListBox = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
     ListBox_SetCurSel(hListBox, index);
 
@@ -114,7 +114,7 @@ void TransPanel_ShowListBoxItem(int index)
     if (index > -1) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
         if (ld != nullptr)
-            TransPanel_ShowTransactionDetail(ld->trade, ld->trans);
+            TransDetail_ShowTransDetail(ld->trade, ld->trans);
     }
 
     SetFocus(hListBox);
@@ -122,12 +122,12 @@ void TransPanel_ShowListBoxItem(int index)
 
 
 // ========================================================================================
-// Populate the Transaction ListBox with the TransDetail per the user selected dates.
+// Populate the Transaction ListBox with the Transactions per the user selected dates.
 // ========================================================================================
-void TransPanel_ShowTransDetail()
+void TransPanel_ShowTransactions()
 {
-    HWND hListBox = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
 
     // Prevent ListBox redrawing until all calculations are completed
@@ -139,7 +139,7 @@ void TransPanel_ShowTransDetail()
         std::shared_ptr<Transaction> trans;
     };
     std::vector<TransData> tdata;
-    tdata.reserve(2000);    // reserve space for 2000 TransDetail
+    tdata.reserve(2000);    // reserve space for 2000 Transactions
 
     // Get the currently active Category index. By default, this will be ALL categories
     // but the user may have selected a specific category.
@@ -147,18 +147,18 @@ void TransPanel_ShowTransDetail()
 
     bool processTrade = false;
     std::wstring wszText;
-    std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_STARTDATE));
-    std::wstring wszEndDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_ENDDATE));
+    std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
+    std::wstring wszEndDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
 
     for (auto& trade : trades) {
-        for (auto& trans : trade->TransDetail) {
+        for (auto& trans : trade->Transactions) {
             processTrade = false;
             if (category == (int)Category::CategoryAll) processTrade = true;   // ALL categories
             if (trade->category == category) processTrade = true;   // specific selected category
 
             if (processTrade == false) continue;
 
-            wszText = AfxGetWindowText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_TXTTICKER));
+            wszText = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
             wszText = AfxTrim(wszText);
             if (wszText.length() > 0) {
                 if (wszText != trade->tickerSymbol) continue;
@@ -185,7 +185,7 @@ void TransPanel_ShowTransDetail()
     ListBoxData_DestroyItemData(hListBox);
 
 
-    // Create the new Listbox data that will display for the TransDetail
+    // Create the new Listbox data that will display for the Transactions
     for (const auto& td: tdata) {
         ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
     }
@@ -193,9 +193,7 @@ void TransPanel_ShowTransDetail()
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    // This function is also called when receiving new price data from TWS because
-    // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::TransDetail, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::TransPanel, -1);
 
 
     // Set the ListBox to the topline.
@@ -217,7 +215,7 @@ void TransPanel_ShowTransDetail()
     }
 
     // Ensure that the TransDetail panel and Detail Panel are set
-    MainWindow_SetMiddlePanel(HWND_TRANSDETAIL);
+    MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
     MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
     // Show the Category control
@@ -304,7 +302,7 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANS_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -387,13 +385,12 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
 }
 
 
-
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransDetail
 // ========================================================================================
 void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(TRANSDETAIL_LISTBOX_ROWHEIGHT);
+    lpMeasureItem->itemHeight = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
 }
 
 
@@ -458,7 +455,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     HDWP hdwp = BeginDeferWindowPos(15);
 
-    int margin = AfxScaleY(TRANSDETAIL_MARGIN);
+    int margin = AfxScaleY(TRANSPANEL_MARGIN);
     int nLeft = 0;
     int nTop = 0;
     int nWidth = 0;
@@ -522,7 +519,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nLeft = 0;
     nTop = margin;
     nWidth = cx;
-    nHeight = AfxScaleY(TRANSDETAIL_LISTBOX_ROWHEIGHT);
+    nHeight = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
 
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
@@ -545,7 +542,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_TRANSDETAIL = hwnd;
+    HWND_TRANSPANEL = hwnd;
 
     int HTextMargin = 0;
     int VTextMargin = 3;
@@ -639,7 +636,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create an Ownerdraw listbox that we will use to custom paint our TransDetail.
     hCtl =
-        TransDetail.AddControl(Controls::ListBox, hwnd, IDC_TRANS_LISTBOX, L"",
+        TransPanel.AddControl(Controls::ListBox, hwnd, IDC_TRANS_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
@@ -700,7 +697,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HWND hTicker = GetDlgItem(m_hwnd, IDC_TRANS_TXTTICKER);
         if (GetFocus() == GetDlgItem(hTicker, 100)) {
             if (wParam == 13) {
-                TransPanel_ShowTransDetail();
+                TransPanel_ShowTransactions();
                 return true;
             }
         }
@@ -721,7 +718,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         TransPanel_SetStartEndDates(m_hwnd);
-        TransPanel_ShowTransDetail();
+        TransPanel_ShowTransactions();
         return 0;
     }
     break;
@@ -735,7 +732,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (hCtl == NULL) return 0;
 
         if (CtrlId == IDC_TRANS_CMDTICKERGO) {
-            TransPanel_ShowTransDetail();
+            TransPanel_ShowTransactions();
         }
 
         if (CtrlId == IDC_TRANS_CMDTRANSDATE || CtrlId == IDC_TRANS_TRANSDATE) {

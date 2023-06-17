@@ -311,7 +311,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_TICKER_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR);
 
-    int margin = AfxScaleY(TICKERPANEL_MARGIN);
+    int margin = AfxScaleY(TICKERTOTALS_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 

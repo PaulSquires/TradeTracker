@@ -43,7 +43,7 @@ void Trade::setTradeOpenStatus()
     int aggregate = 0;
     bool doQuantityCheck = false;
 
-    for (const auto &trans : TransDetail) {
+    for (const auto &trans : Transactions) {
         for (const auto &leg : trans->legs) {
             if (leg->underlying == L"OPTIONS") {
                 if (leg->isOpen()) {
@@ -79,7 +79,7 @@ void Trade::createOpenLegsVector()
 
     openLegs.clear();
 
-    for (const auto &trans : TransDetail) {
+    for (const auto &trans : Transactions) {
         for (const auto &leg : trans->legs) {
             if (leg->isOpen()) {
                 openLegs.push_back(leg);

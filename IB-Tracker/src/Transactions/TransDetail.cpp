@@ -42,10 +42,10 @@ extern CTransDetail TransDetail;
 extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
-extern HWND HWND_SideMenu;
+extern HWND HWND_SIDEMENU;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransDetail_ShowTransDetail();
+extern void TransPanel_ShowTransactions();
 
 extern TradeDialogData tdd;
 
@@ -59,7 +59,7 @@ std::shared_ptr<Transaction> transEditDelete = nullptr;
 // ========================================================================================
 std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int backPointerID)
 {
-    for (auto trans : trade->TransDetail) {
+    for (auto trans : trade->Transactions) {
         for (auto leg : trans->legs) {
             if (leg->legID == backPointerID) {
                 return leg;
@@ -105,8 +105,8 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     // Iterate the trades and look into each TransDetail vector to match the 
     // transaction that we need to delete.
     for (auto trade : trades) {
-        auto iter = trade->TransDetail.begin();
-        while (iter != trade->TransDetail.end())
+        auto iter = trade->Transactions.begin();
+        while (iter != trade->Transactions.end())
         {
             // If element matches the element to be deleted then delete it
             if (*iter == transEditDelete)
@@ -125,7 +125,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
                         }
                     }
                 }
-                iter = trade->TransDetail.erase(iter);
+                iter = trade->Transactions.erase(iter);
             }
             else
             {
@@ -151,8 +151,8 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;
 
-    // Show our new list of TransDetail.
-    TransDetail_ShowTransDetail();
+    // Show our new list of Transactions.
+    TransPanel_ShowTransactions();
 
 
 }
@@ -161,7 +161,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit/Delete it.
 // ========================================================================================
-void TransDetail_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
+void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
 {
     if (trade == nullptr) return;
     if (trans == nullptr) return;

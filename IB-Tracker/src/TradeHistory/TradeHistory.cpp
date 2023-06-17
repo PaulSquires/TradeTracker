@@ -39,10 +39,10 @@ extern CTradeHistory TradeHistory;
 extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
-extern HWND HWND_SideMenu;
+extern HWND HWND_SIDEMENU;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TRANSDETAIL_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+extern void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
 
 
 
@@ -82,8 +82,8 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
         
 
     // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
-    for (int i = trade->TransDetail.size() - 1; i >= 0; --i) {
-        auto trans = trade->TransDetail.at(i);
+    for (int i = trade->Transactions.size() - 1; i >= 0; --i) {
+        auto trans = trade->Transactions.at(i);
 
         ListBoxData_HistoryHeader(hListBox, trade, trans);
 
@@ -176,7 +176,7 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
         if (ld != nullptr) {
             if (ld->lineType == LineType::TransactionHeader) {
-                TRANSDETAIL_ShowTransactionDetail(ld->trade, ld->trans);
+                TransDetail_ShowTransDetail(ld->trade, ld->trans);
             }
         }
 
@@ -270,7 +270,8 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(COLOR_GRAYDARK);
+            Color backColor(COLOR_GRAYDARK);
+            SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 

@@ -52,18 +52,18 @@ HWND HWND_MIDDLEPANEL = NULL;
 HWND HWND_RIGHTPANEL = NULL;
 
 CMainWindowShadow Shadow;
-CSideMenu        SideMenu;
+CSideMenu         SideMenu;
 CTradeHistory     TradeHistory;
-CActiveTrades      ActiveTrades;
-CClosedTrades      ClosedTrades;
+CActiveTrades     ActiveTrades;
+CClosedTrades     ClosedTrades;
 CTickerPanel      TickerPanel;
-CDailyTotals       DailyTotals;
-CTransDetail       TransDetail;
+CDailyTotals      DailyTotals;
+CTransPanel       TransPanel;
 CTransDetail      TransDetail;
 
 
 extern void ActiveTrades_ShowActiveTrades();
-extern void TRANSDETAIL_ShowTransDetail();
+extern void TransPanel_ShowTransactions();
 
 RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter
@@ -306,7 +306,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    TransDetail.Create(hwnd, L"", 0, 0, 0, 0,
+    TransPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -492,20 +492,20 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     break;
 
 
-
     case MSG_STARTUP_SHOWTRADES:
     {
         MainWindow_StartupShowTrades();
         return 0;
     }
 
+
     case MSG_CATEGORY_CHANGED:
     {
         if (HWND_MIDDLEPANEL == ActiveTrades.WindowHandle()) {
             ActiveTrades_ShowActiveTrades();
         }
-        if (HWND_MIDDLEPANEL == TransDetail.WindowHandle()) {
-            TRANSDETAIL_ShowTransDetail();
+        if (HWND_MIDDLEPANEL == TransPanel.WindowHandle()) {
+            TransPanel_ShowTransactions();
         }
         return 0;
     }

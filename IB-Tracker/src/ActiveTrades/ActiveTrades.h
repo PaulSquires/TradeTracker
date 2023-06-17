@@ -43,8 +43,8 @@ const int IDC_TRADES_LABEL = 101;
 const int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 const int IDC_TRADES_HEADER = 103;
 
-const int ACTIVE_TRADES_LISTBOX_ROWHEIGHT = 24;
-const int ActiveTrades_MARGIN = 24;
+const int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
+const int ACTIVETRADES_MARGIN = 24;
 
 
 // These columns in the table are updated in real time when connected

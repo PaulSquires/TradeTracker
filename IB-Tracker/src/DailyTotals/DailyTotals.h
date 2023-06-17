@@ -47,6 +47,6 @@ const int IDC_DAILY_HEADER_TOTALS = 116;
 const int IDC_DAILY_LISTBOX_TransDetailS = 117;
 
 const int DAILY_LISTBOX_ROWHEIGHT = 20;
-const int DailyTotals_WIDTH = 400;
-const int DailyTotals_MARGIN = 24;
+const int DAILYTOTALS_WIDTH = 400;
+const int DAILYTOTALS_MARGIN = 24;
 

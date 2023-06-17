@@ -42,7 +42,7 @@ const std::wstring version = L"1.0.0";
 std::wstring wszTraderName;
 bool StartupConnect = false;
 
-extern HWND HWND_SideMenu;
+extern HWND HWND_SIDEMENU;
 
 
 
@@ -64,7 +64,7 @@ std::wstring GetTraderName()
 void SetTraderName(std::wstring wszName)
 {
     wszTraderName = wszName;
-    HWND hCtl = GetDlgItem(HWND_SideMenu, IDC_SideMenu_TRADERNAME);
+    HWND hCtl = GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_TRADERNAME);
     if (IsWindow(hCtl))
         CustomLabel_SetText(hCtl, wszName);
 }

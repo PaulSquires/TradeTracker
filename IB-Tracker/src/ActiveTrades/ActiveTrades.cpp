@@ -37,13 +37,13 @@ SOFTWARE.
 #include "ActiveTrades.h"
 
 
-HWND HWND_ActiveTrades = NULL;
+HWND HWND_ACTIVETRADES = NULL;
 
 extern std::vector<std::shared_ptr<Trade>> trades;
 
 extern HWND HWND_MAINWINDOW;
-extern HWND HWND_TradeHistory;
-extern HWND HWND_SideMenu;
+extern HWND HWND_TRADEHISTORY;
+extern HWND HWND_SIDEMENU;
 extern HWND HWND_MIDDLEPANEL;
 extern CActiveTrades ActiveTrades;
 
@@ -96,8 +96,8 @@ bool IsNewSharesTradeAction(TradeAction action)
 // ========================================================================================
 void ActiveTrades_ShowListBoxItem(int index)
 {
-    HWND hListBox = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -119,9 +119,9 @@ void ActiveTrades_ShowListBoxItem(int index)
 // ========================================================================================
 void ActiveTrades_ShowActiveTrades()
 {
-    HWND hListBox = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_CUSTOMVSCROLLBAR);
-    HWND hLabel = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LABEL);
+    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
+    HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
 
@@ -171,7 +171,7 @@ void ActiveTrades_ShowActiveTrades()
 
 
     // Select the correct menu panel item
-    SideMenu_SelectMenuItem(HWND_SideMenu, IDC_SideMenu_ACTIVETRADES);
+    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
 
 
     // Set the label text indicated the type of trades being listed
@@ -192,7 +192,7 @@ void ActiveTrades_ShowActiveTrades()
     
 
     // Ensure that the Trades panel is set
-    MainWindow_SetMiddlePanel(HWND_ActiveTrades);
+    MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
 
     // Show the Category control
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
@@ -283,7 +283,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     // be that the user select SHARES or other non-options underlyings only.
     if (tdd.legs.size() == 0) {
         MessageBox(
-            HWND_SideMenu,
+            HWND_SIDEMENU,
             (LPCWSTR)(L"No valid option legs have been selected for expiration."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -291,7 +291,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     }
         
     int res = MessageBox(
-        HWND_SideMenu,
+        HWND_SIDEMENU,
         (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
         (LPCWSTR)L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -302,7 +302,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
 
     trans->description = L"Expiration";
     trans->underlying = L"OPTIONS";
-    trade->TransDetail.push_back(trans);
+    trade->Transactions.push_back(trans);
 
     for (auto leg : tdd.legs) {
 
@@ -352,7 +352,7 @@ void ActiveTrades_OptionAssignment(auto trade)
     // Do a check to ensure that there is actually legs selected for assignment. 
     if (tdd.legs.size() == 0) {
         MessageBox(
-            HWND_SideMenu,
+            HWND_SIDEMENU,
             (LPCWSTR)(L"No valid option legs have been selected for assignment."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -371,7 +371,7 @@ void ActiveTrades_OptionAssignment(auto trade)
         std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
         msg += wszLongShort + std::to_wstring(numShares) + L" shares at $" + leg->strikePrice + L" per share.";
         int res = MessageBox(
-            HWND_SideMenu,
+            HWND_SIDEMENU,
             (LPCWSTR)(msg.c_str()),
             (LPCWSTR)L"Confirm",
             MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -384,7 +384,7 @@ void ActiveTrades_OptionAssignment(auto trade)
         trans->transDate = AfxCurrentDate();
         trans->description = L"Assignment";
         trans->underlying = L"OPTIONS";
-        trade->TransDetail.push_back(trans);
+        trade->Transactions.push_back(trans);
 
         newleg = std::make_shared<Leg>();
         trade->nextLegID += 1;
@@ -413,7 +413,7 @@ void ActiveTrades_OptionAssignment(auto trade)
         trans->price = stod(leg->strikePrice);
         trans->multiplier = 1;
         trans->fees = 0;
-        trade->TransDetail.push_back(trans);
+        trade->Transactions.push_back(trans);
 
         newleg = std::make_shared<Leg>();
         trade->nextLegID += 1;
@@ -629,7 +629,7 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -736,7 +736,7 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
 // ========================================================================================
 void ActiveTrades_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
+    lpMeasureItem->itemHeight = AfxScaleY(ACTIVETRADES_LISTBOX_ROWHEIGHT);
 }
 
 
@@ -784,7 +784,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR);
         
-    int margin = AfxScaleY(ActiveTrades_MARGIN);
+    int margin = AfxScaleY(ACTIVETRADES_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
@@ -828,7 +828,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_ActiveTrades = hwnd;
+    HWND_ACTIVETRADES = hwnd;
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
         COLOR_WHITELIGHT, COLOR_BLACK);
