@@ -44,8 +44,7 @@ public:
 
 #define IDI_MAINICON 106
 
-const int IDC_MAINWINDOW_AUTOCONNECT = 100;
-const int IDC_MAINWINDOW_CATEGORY = 101;
+const int IDC_MAINWINDOW_CATEGORY = 100;
 
 
 void MainWindow_BlurPanels(bool active);

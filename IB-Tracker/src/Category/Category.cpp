@@ -124,6 +124,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
             pData->BackColor = COLOR_GRAYMEDIUM;
             pData->SelectorColor = pData->BackColor;
             pData->TextColor = COLOR_WHITEDARK;
+            pData->TextColorHot = COLOR_WHITEMEDIUM;
             pData->BackColorHot = COLOR_GRAYLIGHT;
             pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
             pData->wszText = L"ALL";
@@ -145,9 +146,10 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->BackColor = COLOR_GRAYMEDIUM;
         pData->SelectorColor = pData->BackColor;
         pData->TextColor = COLOR_WHITEDARK;
+        pData->TextColorHot = COLOR_WHITEMEDIUM;
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; // L"O";
+        pData->wszText = GLYPH_CIRCLE; 
         pData->wszToolTip = L"Gray";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -168,7 +170,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; // L"O";
+        pData->wszText = GLYPH_CIRCLE; 
         pData->wszToolTip = L"Blue";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -189,7 +191,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; // L"O";
+        pData->wszText = GLYPH_CIRCLE; 
         pData->wszToolTip = L"Pink";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -210,7 +212,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; // L"O";
+        pData->wszText = GLYPH_CIRCLE; 
         pData->wszToolTip = L"Green";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -231,7 +233,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->TextColorHot = pData->TextColor;
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; // L"O";
+        pData->wszText = GLYPH_CIRCLE; 
         pData->wszToolTip = L"Orange";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
@@ -290,7 +292,8 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
         int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-        SolidBrush backBrush(pData->BackColor);
+        Color backColor(pData->BackColor);
+        SolidBrush backBrush(backColor);
         graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
         int selectId = CategoryControl_GetSelectedId(hWnd);
@@ -387,7 +390,7 @@ HWND CreateCategoryControl(
         wcex.hCursor = LoadCursor(NULL, (LPCWSTR)IDC_ARROW);
         wcex.hIcon = NULL;
         wcex.hIconSm = NULL;
-        wcex.hbrBackground = (HBRUSH)WHITE_BRUSH;
+        wcex.hbrBackground = (HBRUSH)HOLLOW_BRUSH;
         wcex.lpszMenuName = NULL;
         wcex.lpszClassName = wszClassName.c_str();
         if (RegisterClassEx(&wcex) == 0) return 0;

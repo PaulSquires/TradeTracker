@@ -43,7 +43,7 @@ public:
     DWORD BackColorHot{};
     DWORD BackColorButtonDown{};
 
-    int UnderlineHeight = 1;
+    int UnderlineHeight = 2;
     DWORD UnderlineColor = COLOR_WHITEMEDIUM;
     DWORD BackColorSelected{};
 

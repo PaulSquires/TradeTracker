@@ -57,6 +57,8 @@ const int IDC_MENUPANEL_NEWSHORTCALL    = 117;
 
 const int IDC_MENUPANEL_LASTITEM = IDC_MENUPANEL_NEWSHORTCALL;
 
+const int IDC_MENUPANEL_AUTOCONNECT     = 120;
+
 const int MENUPANEL_WIDTH = 180;
 
 void MenuPanel_SelectMenuItem(HWND hParent, int CtrlId);

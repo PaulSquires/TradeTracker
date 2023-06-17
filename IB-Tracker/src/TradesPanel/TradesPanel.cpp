@@ -700,7 +700,8 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(COLOR_GRAYDARK);
+            Color backColor(COLOR_GRAYDARK);
+            SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -761,11 +762,13 @@ void TradesPanel_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_GRAYDARK);
+    Color backColor(COLOR_GRAYDARK);
+    SolidBrush backBrush(backColor);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    
     graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);

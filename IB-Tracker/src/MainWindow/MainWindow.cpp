@@ -40,7 +40,6 @@ SOFTWARE.
 #include "TransPanel/TransDetail.h"
 #include "DailyPanel/DailyPanel.h"
 #include "TickerPanel/TickerPanel.h"
-#include "CustomLabel/CustomLabel.h"
 #include "Category/Category.h"
 
 #include "Utilities/UserMessages.h"
@@ -265,14 +264,6 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nWidth = nMiddlePanelWidth; 
     DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
-    // Position the Autoconnect indicator label
-    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_AUTOCONNECT);
-    nTop = AfxScaleY(30);
-    nHeight = AfxScaleY(HISTORYPANEL_MARGIN);
-    nWidth = AfxScaleX(100);
-    DeferWindowPos(hdwp, hCtl, 0, cx - nWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
     EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
@@ -326,29 +317,6 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // We create the Category control at the bottom of the MainWindow
     CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);
-
-    // Create a label that will display at the very bottom of the Main window
-    // that allows toggling Autoconnect on/off. This label is always positioned
-    // at the bottom of the window via On_Size().
-    HWND hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_MAINWINDOW_AUTOCONNECT,
-        CustomLabelType::TextOnly,
-        0, 0, 0, 0);
-    CustomLabel* pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = false;
-        pData->BackColor = COLOR_BLACK;
-        pData->BackColorHot = COLOR_SELECTION;
-        pData->TextColor = COLOR_WHITEMEDIUM;
-        pData->TextColorHot = COLOR_WHITEMEDIUM;
-        pData->FontSize = 8;
-        pData->FontSizeHot = 8;
-        pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
 
     return TRUE;
 }
@@ -540,30 +508,6 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             TransPanel_ShowTransactions();
         }
         return 0;
-    }
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
-        HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
-
-        if (hCtl == NULL) return 0;
-        CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtl, 0);
-
-        if (pData) {
-            if (CtrlId == IDC_MAINWINDOW_AUTOCONNECT) {
-                SetStartupConnect(!GetStartupConnect());
-                if (GetStartupConnect()) {
-                    CustomLabel_SetText(hCtl, L"Autoconnect: ON");
-                }
-                else {
-                    CustomLabel_SetText(hCtl, L"Autoconnect: OFF");
-                }
-                SaveConfig();
-            }
-        }
-        return 0;
-
     }
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

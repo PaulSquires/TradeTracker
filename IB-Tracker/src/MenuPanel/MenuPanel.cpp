@@ -266,6 +266,30 @@ BOOL MenuPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop += nItemHeight + 6;
     MenuPanel_MakeSeparator(hwnd, nTop);
 
+    // Create a label that will display at the very bottom of the Main window
+    // that allows toggling Autoconnect on/off. 
+    nTop += 10;
+    hCtl = CreateCustomLabel(
+        hwnd,
+        IDC_MENUPANEL_AUTOCONNECT,
+        CustomLabelType::TextOnly,
+        40, nTop, 100, 23);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = true;
+        pData->AllowSelect = false;
+        pData->BackColor = COLOR_BLACK;
+        pData->BackColorHot = COLOR_SELECTION;
+        pData->TextColor = COLOR_WHITEMEDIUM;
+        pData->TextColorHot = COLOR_WHITEMEDIUM;
+        pData->FontSize = 8;
+        pData->FontSizeHot = 8;
+        pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+
     return TRUE;
 }
 
@@ -508,6 +532,17 @@ LRESULT CMenuPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
+            case IDC_MENUPANEL_AUTOCONNECT:
+            {
+                SetStartupConnect(!GetStartupConnect());
+                if (GetStartupConnect()) {
+                    CustomLabel_SetText(hCtl, L"Autoconnect: ON");
+                }
+                else {
+                    CustomLabel_SetText(hCtl, L"Autoconnect: OFF");
+                }
+                SaveConfig();
+            }
 
             }  // switch
 
