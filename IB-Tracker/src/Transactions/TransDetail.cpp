@@ -42,10 +42,10 @@ extern CTransDetail TransDetail;
 extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
-extern HWND HWND_MENUPANEL;
+extern HWND HWND_SideMenu;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransPanel_ShowTransactions();
+extern void TransDetail_ShowTransDetail();
 
 extern TradeDialogData tdd;
 
@@ -59,7 +59,7 @@ std::shared_ptr<Transaction> transEditDelete = nullptr;
 // ========================================================================================
 std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int backPointerID)
 {
-    for (auto trans : trade->transactions) {
+    for (auto trans : trade->TransDetail) {
         for (auto leg : trans->legs) {
             if (leg->legID == backPointerID) {
                 return leg;
@@ -102,18 +102,18 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 
     if (res != IDYES) return;
 
-    // Iterate the trades and look into each transactions vector to match the 
+    // Iterate the trades and look into each TransDetail vector to match the 
     // transaction that we need to delete.
     for (auto trade : trades) {
-        auto iter = trade->transactions.begin();
-        while (iter != trade->transactions.end())
+        auto iter = trade->TransDetail.begin();
+        while (iter != trade->TransDetail.end())
         {
             // If element matches the element to be deleted then delete it
             if (*iter == transEditDelete)
             {
                 // Cycle through the legs being deleted to see if any contains a leg backpointer.
                 // If yes, then retrieve the leg related to that pointer and update its open
-                // quantity amount. Backpointers exist for transactions that modify quantity
+                // quantity amount. Backpointers exist for TransDetail that modify quantity
                 // amounts like CLOSE, EXPIRE, ROLL.
                 for (auto leg : transEditDelete->legs) {
                     if (leg->legBackPointerID != 0) {
@@ -125,7 +125,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
                         }
                     }
                 }
-                iter = trade->transactions.erase(iter);
+                iter = trade->TransDetail.erase(iter);
             }
             else
             {
@@ -151,8 +151,8 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;
 
-    // Show our new list of transactions.
-    TransPanel_ShowTransactions();
+    // Show our new list of TransDetail.
+    TransDetail_ShowTransDetail();
 
 
 }
@@ -161,7 +161,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit/Delete it.
 // ========================================================================================
-void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
+void TransDetail_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
 {
     if (trade == nullptr) return;
     if (trans == nullptr) return;
@@ -301,7 +301,8 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(COLOR_GRAYDARK);
+            Color backColor(COLOR_GRAYDARK);
+            SolidBrush backBrush(backColor);
             graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
         }
 
@@ -361,7 +362,8 @@ void TransDetail_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_BLACK);
+    Color backColor(COLOR_BLACK);
+    SolidBrush backBrush(backColor);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);

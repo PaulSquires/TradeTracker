@@ -116,7 +116,7 @@ enum class TableType
     DailyTotalsSummary,
     TradeTemplates,
     TradeManagement,
-    Transactions
+    TransDetail
 };
 
 DWORD GetCategoryColor(int category);

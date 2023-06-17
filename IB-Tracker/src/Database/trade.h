@@ -79,12 +79,12 @@ public:
     std::wstring  futureExpiry = L"";     // YYYYMM of Futures contract expiry
     int           category     = 0;       // blue, purple, etc (0 to 4)
     double        ACB          = 0;
-    int           nextLegID    = 0;       // Incrementing counter that gets unique ID for legs being generated in Transactions.    
+    int           nextLegID    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
 
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
 
-    std::vector<std::shared_ptr<Transaction>> transactions;     // pointer list for all transactions in the trade
+    std::vector<std::shared_ptr<Transaction>> TransDetail;     // pointer list for all TransDetail in the trade
     std::vector<std::shared_ptr<Leg>> openLegs;                 // sorted list of open legs for this trade
 
     void setTradeOpenStatus();

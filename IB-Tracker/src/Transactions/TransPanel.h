@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CHistoryPanel : public CWindowBase<CHistoryPanel>
+class CTransPanel : public CWindowBase<CTransPanel>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -37,14 +37,28 @@ public:
 };
 
 
-const int IDC_HISTORY_LISTBOX = 110;
-const int IDC_HISTORY_SYMBOL = 111;
-const int IDC_HISTORY_CUSTOMVSCROLLBAR = 112;
-const int IDC_HISTORY_LISTBOX_SUMMARY = 113;
-const int IDC_HISTORY_LISTBOX_TRANSDETAILS = 117;
+const int IDC_TRANS_LISTBOX = 100;
+const int IDC_TRANS_LABEL = 101;
+const int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
+const int IDC_TRANS_HEADER = 103;
 
-const int HISTORY_LISTBOX_ROWHEIGHT = 20;
-const int TICKER_TOTALS_LISTBOX_ROWHEIGHT = 16;
-const int HISTORYPANEL_WIDTH = 400;
-const int HISTORYPANEL_MARGIN = 24;
+const int IDC_TRANS_LBLTICKERFILTER = 110;
+const int IDC_TRANS_TXTTICKER = 111;
+const int IDC_TRANS_CMDTICKERGO = 112;
+
+const int IDC_TRANS_LBLDATEFILTER = 115;
+const int IDC_TRANS_TRANSDATE = 116;
+const int IDC_TRANS_CMDTRANSDATE = 117;
+
+const int IDC_TRANS_LBLSTARTDATE = 120;
+const int IDC_TRANS_STARTDATE = 121;
+const int IDC_TRANS_CMDSTARTDATE = 122;
+
+const int IDC_TRANS_LBLENDDATE = 125;
+const int IDC_TRANS_ENDDATE = 126;
+const int IDC_TRANS_CMDENDDATE = 127;
+
+
+const int TRANSDETAIL_LISTBOX_ROWHEIGHT = 18;
+const int TRANSDETAIL_MARGIN = 80;
 

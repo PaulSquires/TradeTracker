@@ -30,7 +30,7 @@ SOFTWARE.
 #include "TradeDialogControls.h"
 #include "Database/trade.h"
 #include "MainWindow/MainWindow.h"
-#include "TradesPanel/TradesPanel.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "CustomLabel/CustomLabel.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/UserMessages.h"

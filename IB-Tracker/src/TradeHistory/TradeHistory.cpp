@@ -29,40 +29,40 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 
-#include "HistoryPanel.h"
+#include "TradeHistory.h"
 
 
-HWND HWND_HISTORYPANEL = NULL;
+HWND HWND_TradeHistory = NULL;
 
-extern CHistoryPanel HistoryPanel;
+extern CTradeHistory TradeHistory;
 
 extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
-extern HWND HWND_MENUPANEL;
+extern HWND HWND_SideMenu;
 
 extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransPanel_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+extern void TRANSDETAIL_ShowTransactionDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
 
 
 
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
 // ========================================================================================
-void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
+void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 {
-    HWND hListBox = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_TradeHistory, IDC_HISTORY_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TradeHistory, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
 
     // Ensure that the Trade History panel is set
-    MainWindow_SetRightPanel(HWND_HISTORYPANEL);
+    MainWindow_SetRightPanel(HWND_TradeHistory);
 
 
     if (trade == nullptr) {
-        CustomLabel_SetText(GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL), L"");
+        CustomLabel_SetText(GetDlgItem(HWND_TradeHistory, IDC_HISTORY_SYMBOL), L"");
         ListBoxData_AddBlankLine(hListBox);
         AfxRedrawWindow(hListBox);
         return;
@@ -73,7 +73,7 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
     CustomLabel_SetText(
-        GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_SYMBOL),
+        GetDlgItem(HWND_TradeHistory, IDC_HISTORY_SYMBOL),
         trade->tickerSymbol + L": " + trade->tickerName);
 
 
@@ -81,9 +81,9 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     ListBoxData_OpenPosition(hListBox, trade, -1);
         
 
-    // Read the transactions in reverse so that the newest history transactions get displayed first
-    for (int i = trade->transactions.size() - 1; i >= 0; --i) {
-        auto trans = trade->transactions.at(i);
+    // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
+    for (int i = trade->TransDetail.size() - 1; i >= 0; --i) {
+        auto trans = trade->TransDetail.at(i);
 
         ListBoxData_HistoryHeader(hListBox, trade, trans);
 
@@ -123,7 +123,7 @@ void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
+LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -158,7 +158,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_HISTORYPANEL, IDC_HISTORY_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TradeHistory, IDC_HISTORY_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -176,7 +176,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
         if (ld != nullptr) {
             if (ld->lineType == LineType::TransactionHeader) {
-                TransPanel_ShowTransactionDetail(ld->trade, ld->trans);
+                TRANSDETAIL_ShowTransactionDetail(ld->trade, ld->trans);
             }
         }
 
@@ -287,7 +287,7 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
         ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, HistoryPanel_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, TradeHistory_ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -301,18 +301,18 @@ LRESULT CALLBACK HistoryPanel_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: HistoryPanel
+// Process WM_MEASUREITEM message for window/dialog: TradeHistory
 // ========================================================================================
-void HistoryPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+void TradeHistory_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
     lpMeasureItem->itemHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
 }
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: HistoryPanel
+// Process WM_ERASEBKGND message for window/dialog: TradeHistory
 // ========================================================================================
-BOOL HistoryPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL TradeHistory_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -320,9 +320,9 @@ BOOL HistoryPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: HistoryPanel
+// Process WM_PAINT message for window/dialog: TradeHistory
 // ========================================================================================
-void HistoryPanel_OnPaint(HWND hwnd)
+void TradeHistory_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -343,14 +343,14 @@ void HistoryPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: HistoryPanel
+// Process WM_SIZE message for window/dialog: TradeHistory
 // ========================================================================================
-void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
-    int margin = AfxScaleY(HISTORYPANEL_MARGIN);
+    int margin = AfxScaleY(TradeHistory_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
@@ -389,24 +389,24 @@ void HistoryPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: HistoryPanel
+// Process WM_CREATE message for window/dialog: TradeHistory
 // ========================================================================================
-BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_HISTORYPANEL = hwnd;
+    HWND_TradeHistory = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
         COLOR_WHITELIGHT, COLOR_BLACK);
 
     // Create an Ownerdraw listbox that we will use to custom paint our various open trades.
     hCtl =
-        HistoryPanel.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX, L"",
+        TradeHistory.AddControl(Controls::ListBox, hwnd, IDC_HISTORY_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_NOSEL |
             LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)HistoryPanel_ListBox_SubclassProc,
+            (SUBCLASSPROC)TradeHistory_ListBox_SubclassProc,
             IDC_HISTORY_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
 
@@ -420,15 +420,15 @@ BOOL HistoryPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CHistoryPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CTradeHistory::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, HistoryPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, HistoryPanel_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, HistoryPanel_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, HistoryPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, HistoryPanel_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, TradeHistory_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradeHistory_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, TradeHistory_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, TradeHistory_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeHistory_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

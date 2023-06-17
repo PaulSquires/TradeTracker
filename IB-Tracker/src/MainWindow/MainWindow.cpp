@@ -32,14 +32,14 @@ SOFTWARE.
 
 #include "MainWindow.h"
 #include "tws-client.h"
-#include "MenuPanel/MenuPanel.h"
-#include "HistoryPanel/HistoryPanel.h"
-#include "TradesPanel/TradesPanel.h"
-#include "ClosedPanel/ClosedPanel.h"
-#include "TransPanel/TransPanel.h"
-#include "TransPanel/TransDetail.h"
-#include "DailyPanel/DailyPanel.h"
-#include "TickerPanel/TickerPanel.h"
+#include "SideMenu/SideMenu.h"
+#include "TradeHistory/TradeHistory.h"
+#include "ActiveTrades/ActiveTrades.h"
+#include "ClosedTrades/ClosedTrades.h"
+#include "Transactions/TransPanel.h"
+#include "Transactions/TransDetail.h"
+#include "DailyTotals/DailyTotals.h"
+#include "TickerTotals/TickerTotals.h"
 #include "Category/Category.h"
 
 #include "Utilities/UserMessages.h"
@@ -52,18 +52,18 @@ HWND HWND_MIDDLEPANEL = NULL;
 HWND HWND_RIGHTPANEL = NULL;
 
 CMainWindowShadow Shadow;
-CMenuPanel        MenuPanel;
-CHistoryPanel     HistoryPanel;
-CTradesPanel      TradesPanel;
-CClosedPanel      ClosedPanel;
+CSideMenu        SideMenu;
+CTradeHistory     TradeHistory;
+CActiveTrades      ActiveTrades;
+CClosedTrades      ClosedTrades;
 CTickerPanel      TickerPanel;
-CDailyPanel       DailyPanel;
-CTransPanel       TransPanel;
+CDailyTotals       DailyTotals;
+CTransDetail       TransDetail;
 CTransDetail      TransDetail;
 
 
-extern void TradesPanel_ShowActiveTrades();
-extern void TransPanel_ShowTransactions();
+extern void ActiveTrades_ShowActiveTrades();
+extern void TRANSDETAIL_ShowTransDetail();
 
 RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter
@@ -157,15 +157,15 @@ void MainWindow_BlurPanels(bool active)
 void MainWindow_StartupShowTrades()
 {
     if (trades.size() != 0) {
-        TradesPanel_ShowActiveTrades();
+        ActiveTrades_ShowActiveTrades();
 
         if (GetStartupConnect()) {
-            SendMessage(MenuPanel.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
+            SendMessage(SideMenu.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
             bool res = tws_connect();
             if (tws_isConnected()) {
                 // Need to re-populate the Trades if successfully connected in order
                 // to send the request market data for each ticker.
-                TradesPanel_ShowActiveTrades();
+                ActiveTrades_ShowActiveTrades();
             }
         }
 
@@ -282,19 +282,19 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_MAINWINDOW = hwnd;
 
-    HWND_LEFTPANEL = MenuPanel.Create( hwnd, L"", 0, 0, MENUPANEL_WIDTH, 0,
+    HWND_LEFTPANEL = SideMenu.Create( hwnd, L"", 0, 0, SideMenu_WIDTH, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    HWND_RIGHTPANEL = HistoryPanel.Create(hwnd, L"", 0, 0, HISTORYPANEL_WIDTH, 0,
+    HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, TradeHistory_WIDTH, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    HWND_MIDDLEPANEL = TradesPanel.Create(hwnd, L"", 0, 0, 0, 0,
+    HWND_MIDDLEPANEL = ActiveTrades.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
     
-    ClosedPanel.Create(hwnd, L"", 0, 0, 0, 0,
+    ClosedTrades.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -302,11 +302,11 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    DailyPanel.Create(hwnd, L"", 0, 0, 0, 0,
+    DailyTotals.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    TransPanel.Create(hwnd, L"", 0, 0, 0, 0,
+    TransDetail.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -501,11 +501,11 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_CATEGORY_CHANGED:
     {
-        if (HWND_MIDDLEPANEL == TradesPanel.WindowHandle()) {
-            TradesPanel_ShowActiveTrades();
+        if (HWND_MIDDLEPANEL == ActiveTrades.WindowHandle()) {
+            ActiveTrades_ShowActiveTrades();
         }
-        if (HWND_MIDDLEPANEL == TransPanel.WindowHandle()) {
-            TransPanel_ShowTransactions();
+        if (HWND_MIDDLEPANEL == TransDetail.WindowHandle()) {
+            TRANSDETAIL_ShowTransDetail();
         }
         return 0;
     }

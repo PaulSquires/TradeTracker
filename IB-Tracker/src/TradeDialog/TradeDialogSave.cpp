@@ -31,7 +31,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "TradeGrid/TradeGrid.h"
-#include "TradesPanel/TradesPanel.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/tws-client.h"
 #include "Database/database.h"
 #include "Category/Category.h"
@@ -43,7 +43,7 @@ extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
 extern TradeDialogData tdd;
 
-extern void TradesPanel_ShowActiveTrades();
+extern void ActiveTrades_ShowActiveTrades();
 
 
 // ========================================================================================
@@ -144,7 +144,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
     trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-    trade->transactions.push_back(trans);
+    trade->TransDetail.push_back(trans);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
@@ -208,7 +208,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
-    TradesPanel_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades();
 
     tws_ResumeTWS();
 
@@ -352,7 +352,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
     trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
     trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-    trade->transactions.push_back(trans);
+    trade->TransDetail.push_back(trans);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
     trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
@@ -455,7 +455,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
-    TradesPanel_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades();
 
     tws_ResumeTWS();
 
@@ -650,7 +650,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
 
     // Recalculate the ACB for the trade
     tdd.trade->ACB = 0;
-    for (const auto trans : tdd.trade->transactions) {
+    for (const auto trans : tdd.trade->TransDetail) {
         tdd.trade->ACB = tdd.trade->ACB + trans->total;
     }
 
@@ -664,7 +664,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
-    TradesPanel_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades();
 
     tws_ResumeTWS();
 

@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CTransPanel : public CWindowBase<CTransPanel>
+class CDailyTotals : public CWindowBase<CDailyTotals>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -37,28 +37,16 @@ public:
 };
 
 
-const int IDC_TRANS_LISTBOX = 100;
-const int IDC_TRANS_LABEL = 101;
-const int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
-const int IDC_TRANS_HEADER = 103;
+const int IDC_DAILY_LISTBOX = 110;
+const int IDC_DAILY_SYMBOL = 111;
+const int IDC_DAILY_CUSTOMVSCROLLBAR = 112;
+const int IDC_DAILY_LISTBOX_SUMMARY = 113;
+const int IDC_DAILY_HEADER_TICKERTOTALS = 114;
+const int IDC_DAILY_HEADER_SUMMARY = 115;
+const int IDC_DAILY_HEADER_TOTALS = 116;
+const int IDC_DAILY_LISTBOX_TransDetailS = 117;
 
-const int IDC_TRANS_LBLTICKERFILTER = 110;
-const int IDC_TRANS_TXTTICKER = 111;
-const int IDC_TRANS_CMDTICKERGO = 112;
-
-const int IDC_TRANS_LBLDATEFILTER = 115;
-const int IDC_TRANS_TRANSDATE = 116;
-const int IDC_TRANS_CMDTRANSDATE = 117;
-
-const int IDC_TRANS_LBLSTARTDATE = 120;
-const int IDC_TRANS_STARTDATE = 121;
-const int IDC_TRANS_CMDSTARTDATE = 122;
-
-const int IDC_TRANS_LBLENDDATE = 125;
-const int IDC_TRANS_ENDDATE = 126;
-const int IDC_TRANS_CMDENDDATE = 127;
-
-
-const int TRANSACTIONS_LISTBOX_ROWHEIGHT = 18;
-const int TRANSPANEL_MARGIN = 80;
+const int DAILY_LISTBOX_ROWHEIGHT = 20;
+const int DailyTotals_WIDTH = 400;
+const int DailyTotals_MARGIN = 24;
 

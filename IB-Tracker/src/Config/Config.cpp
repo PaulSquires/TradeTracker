@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Utilities/AfxWin.h"
 
-#include "MenuPanel/MenuPanel.h"
+#include "SideMenu/SideMenu.h"
 #include "CustomLabel/CustomLabel.h"
 
 #include "Config.h"
@@ -42,7 +42,7 @@ const std::wstring version = L"1.0.0";
 std::wstring wszTraderName;
 bool StartupConnect = false;
 
-extern HWND HWND_MENUPANEL;
+extern HWND HWND_SideMenu;
 
 
 
@@ -64,7 +64,7 @@ std::wstring GetTraderName()
 void SetTraderName(std::wstring wszName)
 {
     wszTraderName = wszName;
-    HWND hCtl = GetDlgItem(HWND_MENUPANEL, IDC_MENUPANEL_TRADERNAME);
+    HWND hCtl = GetDlgItem(HWND_SideMenu, IDC_SideMenu_TRADERNAME);
     if (IsWindow(hCtl))
         CustomLabel_SetText(hCtl, wszName);
 }

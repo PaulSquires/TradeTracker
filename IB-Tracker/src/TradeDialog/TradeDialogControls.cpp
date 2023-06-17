@@ -32,7 +32,7 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "TradeGrid/TradeGrid.h"
 #include "Strategy/StrategyButton.h"
-#include "TradesPanel/TradesPanel.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/tws-client.h"
 #include "Database/database.h"
 #include "Category/Category.h"
@@ -41,7 +41,7 @@ SOFTWARE.
 extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
 
-extern void TradesPanel_ShowActiveTrades();
+extern void ActiveTrades_ShowActiveTrades();
 
 CStrategyButton StrategyButton;
 extern HWND HWND_STRATEGYBUTTON;

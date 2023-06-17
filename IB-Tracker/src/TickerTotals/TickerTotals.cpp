@@ -29,7 +29,7 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 
-#include "TickerPanel.h"
+#include "TickerTotals.h"
 
 
 HWND HWND_TICKERPANEL = NULL;

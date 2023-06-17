@@ -39,11 +39,11 @@ void Trade::setTradeOpenStatus()
     // default that the Trade is closed
     isOpen = false;
 
-    // Roll up all of the SHARES or FUTURES transactions and display the aggregate rather than the individual legs.
+    // Roll up all of the SHARES or FUTURES TransDetail and display the aggregate rather than the individual legs.
     int aggregate = 0;
     bool doQuantityCheck = false;
 
-    for (const auto &trans : transactions) {
+    for (const auto &trans : TransDetail) {
         for (const auto &leg : trans->legs) {
             if (leg->underlying == L"OPTIONS") {
                 if (leg->isOpen()) {
@@ -74,12 +74,12 @@ void Trade::createOpenLegsVector()
 {
     // Create the openLegs vector. We need this vector because we have to sort the
     // collection of open legs in order to have Puts before Calls. There could be
-    // multiple transactions in this trade and therefore Puts and Calls would not
+    // multiple TransDetail in this trade and therefore Puts and Calls would not
     // already be a suitable display order.
 
     openLegs.clear();
 
-    for (const auto &trans : transactions) {
+    for (const auto &trans : TransDetail) {
         for (const auto &leg : trans->legs) {
             if (leg->isOpen()) {
                 openLegs.push_back(leg);

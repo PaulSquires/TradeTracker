@@ -137,7 +137,7 @@ int APIENTRY wWinMain(
     LoadConfig();
 
 
-    // Load all transactions and configuration information. 
+    // Load all TransDetail and configuration information. 
     LoadDatabase();
 
 

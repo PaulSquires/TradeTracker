@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CDailyPanel : public CWindowBase<CDailyPanel>
+class CClosedTrades : public CWindowBase<CClosedTrades>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -37,16 +37,14 @@ public:
 };
 
 
-const int IDC_DAILY_LISTBOX = 110;
-const int IDC_DAILY_SYMBOL = 111;
-const int IDC_DAILY_CUSTOMVSCROLLBAR = 112;
-const int IDC_DAILY_LISTBOX_SUMMARY = 113;
-const int IDC_DAILY_HEADER_TICKERTOTALS = 114;
-const int IDC_DAILY_HEADER_SUMMARY = 115;
-const int IDC_DAILY_HEADER_TOTALS = 116;
-const int IDC_DAILY_LISTBOX_TRANSDETAILS = 117;
+const int IDC_CLOSED_LISTBOX = 100;
+const int IDC_CLOSED_LABEL = 101;
+const int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
+const int IDC_CLOSED_HEADER = 103;
 
-const int DAILY_LISTBOX_ROWHEIGHT = 20;
-const int DAILYPANEL_WIDTH = 400;
-const int DAILYPANEL_MARGIN = 24;
+const int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
+const int ClosedTrades_MARGIN = 24;
+
+bool IsNewOptionsTradeAction(TradeAction action);
+bool IsNewSharesTradeAction(TradeAction action);
 

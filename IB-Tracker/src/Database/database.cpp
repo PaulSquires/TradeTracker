@@ -151,7 +151,7 @@ bool SaveDatabase()
             << trade->category
             << "\n";
 
-        for (const auto trans : trade->transactions) {
+        for (const auto trans : trade->TransDetail) {
             db << "X|"
                 << RemoveDateHyphens(trans->transDate) << "|"
                 << trans->description << "|"
@@ -266,7 +266,7 @@ bool LoadDatabase()
         }
 
 
-        // Check for Trades, Transactions, and Legs
+        // Check for Trades, TransDetail, and Legs
 
         if (try_catch_wstring(st, 0) == L"T") {
             trade = std::make_shared<Trade>();
@@ -291,7 +291,7 @@ bool LoadDatabase()
             trans->fees = try_catch_double(st, 7);
             trans->total = try_catch_double(st, 8);
             if (trade != nullptr)
-                trade->transactions.push_back(trans);
+                trade->TransDetail.push_back(trans);
             continue;
         }
 
@@ -316,13 +316,13 @@ bool LoadDatabase()
     // Now that the trades have been constructed, create the open position vector based
     // on a sorted list of open legs. We also calculate the ACB for the entire Trade
     // rather than physically storing that value in the database. This allows us to
-    // manually edit individual Transactions externally and not have to go through
+    // manually edit individual TransDetail externally and not have to go through
     // an error prone process of recalculating the ACB with the new change.
     for (auto trade : trades) {
         if (trade->isOpen) trade->createOpenLegsVector();
 
         trade->ACB = 0;
-        for (const auto trans : trade->transactions) {
+        for (const auto trans : trade->TransDetail) {
             trade->ACB = trade->ACB + trans->total;
         }
     }

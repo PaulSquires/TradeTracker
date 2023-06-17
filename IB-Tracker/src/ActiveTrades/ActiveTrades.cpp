@@ -28,30 +28,30 @@ SOFTWARE.
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/ListBoxData.h"
-#include "MenuPanel/MenuPanel.h"
+#include "SideMenu/SideMenu.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeDialog/TradeDialog.h"
 #include "Database/database.h"
 #include "Category/Category.h"
-#include "TradesPanel.h"
+#include "ActiveTrades.h"
 
 
-HWND HWND_TRADESPANEL = NULL;
+HWND HWND_ActiveTrades = NULL;
 
 extern std::vector<std::shared_ptr<Trade>> trades;
 
 extern HWND HWND_MAINWINDOW;
-extern HWND HWND_HISTORYPANEL;
-extern HWND HWND_MENUPANEL;
+extern HWND HWND_TradeHistory;
+extern HWND HWND_SideMenu;
 extern HWND HWND_MIDDLEPANEL;
-extern CTradesPanel TradesPanel;
+extern CActiveTrades ActiveTrades;
 
 extern TradeDialogData tdd;
 
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
-extern void HistoryPanel_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
-void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy);
+extern void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
+void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
 
@@ -94,10 +94,10 @@ bool IsNewSharesTradeAction(TradeAction action)
 // ========================================================================================
 // Central function that actually selects and displays the incoming ListBox index item.
 // ========================================================================================
-void TradesPanel_ShowListBoxItem(int index)
+void ActiveTrades_ShowListBoxItem(int index)
 {
-    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_CUSTOMVSCROLLBAR);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -107,7 +107,7 @@ void TradesPanel_ShowListBoxItem(int index)
     if (index > -1) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
         if (ld != nullptr)
-            HistoryPanel_ShowTradesHistoryTable(ld->trade);
+            TradeHistory_ShowTradesHistoryTable(ld->trade);
     }
 
     SetFocus(hListBox);
@@ -117,11 +117,11 @@ void TradesPanel_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Trades ListBox with the current active/open trades
 // ========================================================================================
-void TradesPanel_ShowActiveTrades()
+void ActiveTrades_ShowActiveTrades()
 {
-    HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
-    HWND hLabel = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LABEL);
+    HWND hListBox = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_CUSTOMVSCROLLBAR);
+    HWND hLabel = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LABEL);
 
     tws_PauseTWS();
 
@@ -171,7 +171,7 @@ void TradesPanel_ShowActiveTrades()
 
 
     // Select the correct menu panel item
-    MenuPanel_SelectMenuItem(HWND_MENUPANEL, IDC_MENUPANEL_ACTIVETRADES);
+    SideMenu_SelectMenuItem(HWND_SideMenu, IDC_SideMenu_ACTIVETRADES);
 
 
     // Set the label text indicated the type of trades being listed
@@ -188,11 +188,11 @@ void TradesPanel_ShowActiveTrades()
     if (ListBox_GetCount(hListBox) == 0) {
         ListBoxData_AddBlankLine(hListBox);
     }
-    TradesPanel_ShowListBoxItem(0);
+    ActiveTrades_ShowListBoxItem(0);
     
 
     // Ensure that the Trades panel is set
-    MainWindow_SetMiddlePanel(HWND_TRADESPANEL);
+    MainWindow_SetMiddlePanel(HWND_ActiveTrades);
 
     // Show the Category control
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
@@ -215,7 +215,7 @@ void TradesPanel_ShowActiveTrades()
 // Select a line in the Listbox and deselect any other lines that do not match this
 // new line's Trade pointer.
 // ========================================================================================
-bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
+bool ActiveTrades_SelectListBoxItem(HWND hListBox, int idx)
 {
     // Get the trade pointer for the newly selected line.
     std::shared_ptr<Trade> trade;
@@ -230,7 +230,7 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 
     
     // Show the trade history for the selected trade
-    TradesPanel_ShowListBoxItem(idx);
+    ActiveTrades_ShowListBoxItem(idx);
 
 
     // Check to see if other lines in the listbox are selected. We will deselect those other
@@ -277,13 +277,13 @@ bool TradesPanel_SelectListBoxItem(HWND hListBox, int idx)
 // Expire the selected legs. Basically, ask for confirmation via a messagebox and 
 // then take appropriate action.
 // ========================================================================================
-void TradesPanel_ExpireSelectedLegs(auto trade)
+void ActiveTrades_ExpireSelectedLegs(auto trade)
 {
     // Do a check to ensure that there is actually legs selected to expire. It could
     // be that the user select SHARES or other non-options underlyings only.
     if (tdd.legs.size() == 0) {
         MessageBox(
-            HWND_MENUPANEL,
+            HWND_SideMenu,
             (LPCWSTR)(L"No valid option legs have been selected for expiration."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -291,7 +291,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
     }
         
     int res = MessageBox(
-        HWND_MENUPANEL,
+        HWND_SideMenu,
         (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
         (LPCWSTR)L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -302,7 +302,7 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
 
     trans->description = L"Expiration";
     trans->underlying = L"OPTIONS";
-    trade->transactions.push_back(trans);
+    trade->TransDetail.push_back(trans);
 
     for (auto leg : tdd.legs) {
 
@@ -339,20 +339,20 @@ void TradesPanel_ExpireSelectedLegs(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    TradesPanel_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades();
 
 }
 
 
 // ========================================================================================
-// Create transactions for option assignment for the selected leg.
+// Create TransDetail for option assignment for the selected leg.
 // ========================================================================================
-void TradesPanel_OptionAssignment(auto trade)
+void ActiveTrades_OptionAssignment(auto trade)
 {
     // Do a check to ensure that there is actually legs selected for assignment. 
     if (tdd.legs.size() == 0) {
         MessageBox(
-            HWND_MENUPANEL,
+            HWND_SideMenu,
             (LPCWSTR)(L"No valid option legs have been selected for assignment."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -371,7 +371,7 @@ void TradesPanel_OptionAssignment(auto trade)
         std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
         msg += wszLongShort + std::to_wstring(numShares) + L" shares at $" + leg->strikePrice + L" per share.";
         int res = MessageBox(
-            HWND_MENUPANEL,
+            HWND_SideMenu,
             (LPCWSTR)(msg.c_str()),
             (LPCWSTR)L"Confirm",
             MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -384,7 +384,7 @@ void TradesPanel_OptionAssignment(auto trade)
         trans->transDate = AfxCurrentDate();
         trans->description = L"Assignment";
         trans->underlying = L"OPTIONS";
-        trade->transactions.push_back(trans);
+        trade->TransDetail.push_back(trans);
 
         newleg = std::make_shared<Leg>();
         trade->nextLegID += 1;
@@ -413,7 +413,7 @@ void TradesPanel_OptionAssignment(auto trade)
         trans->price = stod(leg->strikePrice);
         trans->multiplier = 1;
         trans->fees = 0;
-        trade->transactions.push_back(trans);
+        trade->TransDetail.push_back(trans);
 
         newleg = std::make_shared<Leg>();
         trade->nextLegID += 1;
@@ -450,7 +450,7 @@ void TradesPanel_OptionAssignment(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    TradesPanel_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades();
 }
 
 
@@ -458,7 +458,7 @@ void TradesPanel_OptionAssignment(auto trade)
 // Populate vector that holds all selected lines/legs. This will be passed to the 
 // TradeDialog in order to perform actions on the legs.
 // ========================================================================================
-void TradesPanel_PopulateLegsEditVector(HWND hListBox)
+void ActiveTrades_PopulateLegsEditVector(HWND hListBox)
 {
     tdd.legs.clear();
 
@@ -489,7 +489,7 @@ void TradesPanel_PopulateLegsEditVector(HWND hListBox)
 // ========================================================================================
 // Handle the right-click popup menu on the ListBox's selected lines.
 // ========================================================================================
-void TradesPanel_RightClickMenu(HWND hListBox, int idx)
+void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
 {
     HMENU hMenu = CreatePopupMenu();
 
@@ -577,18 +577,18 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 
     case TradeAction::RollLeg:
     case TradeAction::CloseLeg:
-        TradesPanel_PopulateLegsEditVector(hListBox);
+        ActiveTrades_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
         break;
 
     case TradeAction::ExpireLeg:
-        TradesPanel_PopulateLegsEditVector(hListBox);
-        TradesPanel_ExpireSelectedLegs(trade);
+        ActiveTrades_PopulateLegsEditVector(hListBox);
+        ActiveTrades_ExpireSelectedLegs(trade);
         break;
 
     case TradeAction::Assignment:
-        TradesPanel_PopulateLegsEditVector(hListBox);
-        TradesPanel_OptionAssignment(trade);
+        ActiveTrades_PopulateLegsEditVector(hListBox);
+        ActiveTrades_OptionAssignment(trade);
         break;
     }
 
@@ -598,7 +598,7 @@ void TradesPanel_RightClickMenu(HWND hListBox, int idx)
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
+LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -629,7 +629,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -646,12 +646,12 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         if (HIWORD(idx) == 1) break;
             
         // Return to not select the line (eg. if a blank line was clicked on)
-        if (TradesPanel_SelectListBoxItem(hWnd, idx) == false) {
+        if (ActiveTrades_SelectListBoxItem(hWnd, idx) == false) {
             return 0;
         }
         ListBox_SetSel(hWnd, true, idx);
 
-        TradesPanel_RightClickMenu(hWnd, idx);
+        ActiveTrades_RightClickMenu(hWnd, idx);
         return 0;
     }
     break;
@@ -718,7 +718,7 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
         ListBoxData_DestroyItemData(hWnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TradesPanel_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, ActiveTrades_ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -732,18 +732,18 @@ LRESULT CALLBACK TradesPanel_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: TradesPanel
+// Process WM_MEASUREITEM message for window/dialog: ActiveTrades
 // ========================================================================================
-void TradesPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+void ActiveTrades_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
     lpMeasureItem->itemHeight = AfxScaleY(ACTIVE_TRADES_LISTBOX_ROWHEIGHT);
 }
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: TradesPanel
+// Process WM_ERASEBKGND message for window/dialog: ActiveTrades
 // ========================================================================================
-BOOL TradesPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL ActiveTrades_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -751,9 +751,9 @@ BOOL TradesPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: TradesPanel
+// Process WM_PAINT message for window/dialog: ActiveTrades
 // ========================================================================================
-void TradesPanel_OnPaint(HWND hwnd)
+void ActiveTrades_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -776,15 +776,15 @@ void TradesPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TradesPanel
+// Process WM_SIZE message for window/dialog: ActiveTrades
 // ========================================================================================
-void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADES_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR);
         
-    int margin = AfxScaleY(TRADESPANEL_MARGIN);
+    int margin = AfxScaleY(ActiveTrades_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
@@ -824,11 +824,11 @@ void TradesPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: TradesPanel
+// Process WM_CREATE message for window/dialog: ActiveTrades
 // ========================================================================================
-BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_TRADESPANEL = hwnd;
+    HWND_ActiveTrades = hwnd;
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
         COLOR_WHITELIGHT, COLOR_BLACK);
@@ -836,13 +836,13 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
     hCtl =
-        TradesPanel.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
+        ActiveTrades.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | //LBS_MULTIPLESEL | 
             LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)TradesPanel_ListBox_SubclassProc,
+            (SUBCLASSPROC)ActiveTrades_ListBox_SubclassProc,
             IDC_TRADES_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
 
@@ -855,9 +855,9 @@ BOOL TradesPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: TradesPanel
+// Process WM_COMMAND message for window/dialog: ActiveTrades
 // ========================================================================================
-void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void ActiveTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     switch (codeNotify)
     {
@@ -865,7 +865,7 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     case LBN_SELCHANGE:
     {
         int nCurSel = ListBox_GetCurSel(hwndCtl);
-        TradesPanel_SelectListBoxItem(hwndCtl, nCurSel);
+        ActiveTrades_SelectListBoxItem(hwndCtl, nCurSel);
         break;
     }
 
@@ -876,16 +876,16 @@ void TradesPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTradesPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, TradesPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, TradesPanel_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesPanel_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TradesPanel_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TradesPanel_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradesPanel_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, ActiveTrades_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, ActiveTrades_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, ActiveTrades_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, ActiveTrades_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, ActiveTrades_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, ActiveTrades_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

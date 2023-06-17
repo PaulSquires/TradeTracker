@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
-#include "TradesPanel/TradesPanel.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "Reconcile/Reconcile.h"
 
 #include "tws-api/EClientSocket.h"
@@ -44,12 +44,12 @@ SOFTWARE.
 // The NavPanel window is exposed external because other
 // areas of the application need to send messages to the
 // "messages" label to display. e.g TWS connection status.
-extern HWND HWND_MENUPANEL;
+extern HWND HWND_SideMenu;
 
-// The TradesPanel window is exposed external because we
+// The ActiveTrades window is exposed external because we
 // call the ListBox on that panel to display updated
 // real time price data.
-extern HWND HWND_TRADESPANEL;
+extern HWND HWND_ActiveTrades;
 
 
 bool isThreadFinished = false;
@@ -96,7 +96,7 @@ void threadFunction(std::future<void> future) {
 	}
 	isMonitorThreadActive = false;
 	std::cout << "Thread Terminated" << std::endl;
-	PostMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
+	PostMessage(HWND_SideMenu, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
 
@@ -131,7 +131,7 @@ bool tws_connect()
     int clientId = 0;
 
 	
-	SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_START, 0, 0);
+	SendMessage(HWND_SideMenu, MSG_TWS_CONNECT_START, 0, 0);
 
 	bool res = false;
 
@@ -140,7 +140,7 @@ bool tws_connect()
 		if (res) {
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected.
-			SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+			SendMessage(HWND_SideMenu, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 
 			if (client.isConnected()) {
 				StartMonitorThread();
@@ -149,19 +149,19 @@ bool tws_connect()
 
 	}
 	catch (...) {
-		SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
+		SendMessage(HWND_SideMenu, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring wszText =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
-		MessageBox(HWND_TRADESPANEL, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(HWND_ActiveTrades, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 
 	
 	if (res == false) {
-        SendMessage(HWND_MENUPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
+        SendMessage(HWND_SideMenu, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring wszText = 
 			L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";
-		MessageBox(HWND_TRADESPANEL, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(HWND_ActiveTrades, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
     }
 
     return res;
@@ -224,7 +224,7 @@ void tws_performReconciliation()
 {
 	if (!tws_isConnected()) {
 		MessageBox(
-			HWND_MENUPANEL,
+			HWND_SideMenu,
 			(LPCWSTR)L"Must be connected to TWS to perform a reconciliation.",
 			(LPCWSTR)L"Error",
 			MB_ICONINFORMATION);
@@ -376,7 +376,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		// and the correct ListBox line is invalidated/redrawn in order to force
 		// display of the new price data. 
 
-		HWND hListBox = GetDlgItem(HWND_TRADESPANEL, IDC_TRADES_LISTBOX);
+		HWND hListBox = GetDlgItem(HWND_ActiveTrades, IDC_TRADES_LISTBOX);
 
 		int lbCount = ListBox_GetCount(hListBox);
 		
