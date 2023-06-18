@@ -370,6 +370,7 @@ void ActiveTrades_CalledAwayAssignment(
         NumLegQuantity = QuantityAssigned;
         msg += std::to_wstring(QuantityAssigned) + L" futures called away at $" + leg->strikePrice + L" per future.";
     }
+    NumLegQuantity = (leg->openQuantity < 0) ? NumLegQuantity * -1 : NumLegQuantity;
 
     int res = MessageBox(
         HWND_SIDEMENU,
@@ -394,7 +395,7 @@ void ActiveTrades_CalledAwayAssignment(
     newleg->origQuantity = NumLegQuantity * -1;
     newleg->openQuantity = 0;
     newleg->legBackPointerID = leg->legID;
-    leg->openQuantity = leg->openQuantity + NumLegQuantity;
+    leg->openQuantity = leg->openQuantity - NumLegQuantity;
 
     if (leg->action == L"STO") newleg->action = L"BTC";
     if (leg->action == L"BTO") newleg->action = L"STC";
@@ -597,17 +598,11 @@ void ActiveTrades_OptionAssignment(auto trade)
     // Are LONG SHARES or LONG FUTURES being called away
     if ((NumSharesAggregate > 0 || NumFuturesAggregate > 0) && leg->PutCall == L"C") {
         ActiveTrades_CalledAwayAssignment(trade, leg, NumSharesAggregate, NumFuturesAggregate);
-
-        std::cout << "LONG SHARES or LONG FUTURES being called away" << std::endl;
-
         return;
     }
     // Are SHORT SHARES or SHORT FUTURES being called away
     if ((NumSharesAggregate < 0 || NumFuturesAggregate < 0) && leg->PutCall == L"P") {
         ActiveTrades_CalledAwayAssignment(trade, leg, NumSharesAggregate, NumFuturesAggregate);
-
-        std::cout << "SHORT SHARES or SHORT FUTURES being called away" << std::endl;
-
         return;
     }
 
