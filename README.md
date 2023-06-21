@@ -16,7 +16,7 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 * Easy to learn and very intuitive with all information available on the main screen. 
 * Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
-* Small (less than 500K), fast (written in C++), and self-contained (no external dependencies).
+* Small (about 465K), fast (written in C++), and self-contained (no external dependencies).
 * Simple text file "database" that can easily be manually edited if needed. No database engine needed.
 * Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed.
 
@@ -55,7 +55,7 @@ STARTUPCONNECT can be set directly from inside the IB-Tracker application. TRADE
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.
 
-I have written pure low level WinAPI based applications for 30 years (in non "C" based languages) but I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills.
+Having written low level WinAPI based applications for many years in non "C" based language, I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills.
 
 ## License
 This project is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [LICENSE](https://github.com/PaulSquires/IB-Tracker/blob/main/LICENSE.txt) for details.

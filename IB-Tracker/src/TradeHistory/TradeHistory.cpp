@@ -32,7 +32,7 @@ SOFTWARE.
 #include "TradeHistory.h"
 
 
-HWND HWND_TradeHistory = NULL;
+HWND HWND_TRADEHISTORY = NULL;
 
 extern CTradeHistory TradeHistory;
 
@@ -51,18 +51,18 @@ extern void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, cons
 // ========================================================================================
 void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 {
-    HWND hListBox = GetDlgItem(HWND_TradeHistory, IDC_HISTORY_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TradeHistory, IDC_HISTORY_CUSTOMVSCROLLBAR);
+    HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
 
     // Ensure that the Trade History panel is set
-    MainWindow_SetRightPanel(HWND_TradeHistory);
+    MainWindow_SetRightPanel(HWND_TRADEHISTORY);
 
 
     if (trade == nullptr) {
-        CustomLabel_SetText(GetDlgItem(HWND_TradeHistory, IDC_HISTORY_SYMBOL), L"");
+        CustomLabel_SetText(GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL), L"");
         ListBoxData_AddBlankLine(hListBox);
         AfxRedrawWindow(hListBox);
         return;
@@ -73,7 +73,7 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
     CustomLabel_SetText(
-        GetDlgItem(HWND_TradeHistory, IDC_HISTORY_SYMBOL),
+        GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL),
         trade->tickerSymbol + L": " + trade->tickerName);
 
 
@@ -158,7 +158,7 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TradeHistory, IDC_HISTORY_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -394,7 +394,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_TradeHistory = hwnd;
+    HWND_TRADEHISTORY = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
         COLOR_WHITELIGHT, COLOR_BLACK);

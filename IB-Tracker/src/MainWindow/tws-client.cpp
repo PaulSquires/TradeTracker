@@ -380,22 +380,12 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 		int lbCount = ListBox_GetCount(hListBox);
 		
-		// TODO: Use a Map instead of looping the entire Listbox
 		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
 
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
 			if (ld == nullptr) continue;
 
 			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
-
-				std::string tickerName = unicode2ansi(ld->trade->tickerName);
-				std::string tickType;
-				if (field == LAST) tickType = "LAST";
-				if (field == CLOSE) tickType = "CLOSE";
-				if (field == OPEN) tickType = "OPEN";
-				printf("Tick. Id: %ld, %s, Field: %s, Price: %s\n",
-					tickerId, tickerName.c_str(), tickType.c_str(),
-					Utils::doubleMaxString(price).c_str());
 
 				if (field == LAST) {
 					ld->trade->tickerLastPrice = price;

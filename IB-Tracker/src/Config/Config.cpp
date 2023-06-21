@@ -37,7 +37,6 @@ SOFTWARE.
 const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
-const std::wstring version = L"1.0.0";
 
 std::wstring wszTraderName;
 bool StartupConnect = false;

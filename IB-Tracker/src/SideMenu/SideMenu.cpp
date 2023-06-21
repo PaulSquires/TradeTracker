@@ -44,6 +44,7 @@ extern void DailyTotals_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_SIDEMENU = NULL;
 
+extern HWND HWND_ACTIVETRADES;
 extern HWND HWND_TRADEHISTORY;
 extern HWND HWND_DAILYTOTALS;
 extern HWND HWND_TICKERPANEL;
@@ -199,7 +200,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->TextColor = COLOR_WHITELIGHT;
         pData->FontSize = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"IB-Tracker v1.0";
+        pData->wszText = L"IB-Tracker v" + version;
         pData->wszTextHot = pData->wszText;
         CustomLabel_SetOptions(hCtl, pData);
     }
@@ -482,6 +483,9 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 // If we connect to TWS successfully then we need to start showing
                 // the price data for any active trades displaying in our table.
                 if (tws_isConnected()) {
+                    // Destroy any existing ListBox line data
+                    // This will also clear the LineData pointers and cancel any previous market data
+                    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
                     ActiveTrades_ShowActiveTrades();
                 }
                 bProcessingConnectClick = false;

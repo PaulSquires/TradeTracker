@@ -280,6 +280,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     bool bRedrawListBox = false;
 
     int nEnd = (int)ListBox_GetCount(hListBox) - 1;
+    if (nEnd < 0) return;
     int nStart = 0;
 
     // If a specific line number was passed into this function then we only
@@ -291,6 +292,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
     for (int ii = nStart; ii <= nEnd; ii++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
+        if (ld == nullptr) continue;
         for (int i = 0; i < 10; i++) {
             if (nColWidth[i] == 0) continue;
             fontSize = ld->col[i].fontSize;
@@ -325,6 +327,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     // Update the newly calculated column widths into each of the ld structures
     for (int ii = nStart; ii <= nEnd; ii++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
+        if (ld == nullptr) continue;
         for (int i = 0; i < 10; i++) {
             ld->col[i].colWidth = nColWidth[i];
         }
@@ -361,10 +364,14 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     // Cancel any previous market data requests and delete any previously
     // allocated ListBoxData structures.
     int lbCount = ListBox_GetCount(hListBox);
+
     for (int i = 0; i < lbCount; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
             if (ld->lineType == LineType::TickerLine && PrevMarketDataLoaded) {
+                // Cancelling a market data symbol is not synchronous therefore we need
+                // to use ever increasing tickerid numbers to avoid duplicate ticker id
+                // errors when the listbox is reloaded.
                 tws_cancelMktData(ld->tickerId);
             }
             delete(ld);
@@ -373,6 +380,9 @@ void ListBoxData_DestroyItemData(HWND hListBox)
 
     // Clear the current trades listbox
     ListBox_ResetContent(hListBox);
+    if (hListBox == GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX)) {
+        PrevMarketDataLoaded = false;
+    }
 }
 
 
@@ -381,8 +391,7 @@ void ListBoxData_DestroyItemData(HWND hListBox)
 // ========================================================================================
 void ListBoxData_RequestMarketData(HWND hListBox)
 {
-    // Cancel any previous market data requests and delete any previously
-    // allocated ListBoxData structures.
+    // Request market data for each open trade
     int lbCount = ListBox_GetCount(hListBox);
     for (int i = 0; i < lbCount; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
@@ -1052,12 +1061,6 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         DWORD nBackColorHot = COLOR_SELECTION;
         DWORD nTextColor = COLOR_WHITELIGHT;
 
-        if (hwnd == HWND_TRADEDIALOG) {
-            nBackColor = (bIsHot) ? COLOR_SELECTION : COLOR_BLACK;
-            nBackColorHot = COLOR_SELECTION;
-            nTextColor = COLOR_WHITELIGHT;
-        }
-            
         std::wstring wszFontName = AfxGetDefaultFont();
         FontFamily   fontFamily(wszFontName.c_str());
         REAL fontSize = 10;

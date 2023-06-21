@@ -40,6 +40,7 @@ SOFTWARE.
 
 
 extern HWND HWND_TRADEDIALOG;
+extern HWND HWND_ACTIVETRADES;
 extern CTradeDialog TradeDialog;
 extern TradeDialogData tdd;
 
@@ -208,6 +209,9 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
+    // Destroy any existing ListBox line data
+    // This will also clear the LineData pointers and cancel any previous market data
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
     tws_ResumeTWS();
@@ -455,6 +459,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
+    // Destroy any existing ListBox line data
+    // This will also clear the LineData pointers and cancel any previous market data
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
     tws_ResumeTWS();
@@ -664,6 +671,9 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     SaveDatabase();
 
     // Show our new list of open trades
+    // Destroy any existing ListBox line data
+    // This will also clear the LineData pointers and cancel any previous market data
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
     tws_ResumeTWS();

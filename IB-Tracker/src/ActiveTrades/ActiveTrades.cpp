@@ -49,6 +49,8 @@ extern CActiveTrades ActiveTrades;
 
 extern TradeDialogData tdd;
 
+extern bool PrevMarketDataLoaded;
+
 extern void MainWindow_SetMiddlePanel(HWND hPanel);
 extern void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
@@ -123,73 +125,15 @@ void ActiveTrades_ShowActiveTrades()
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
+    static int tickerId = 100;
+
     tws_PauseTWS();
-
-    // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
-
-    // In case of newly added/deleted data ensure data is sorted.
-    // Sort the trades vector based on ticker symbol
-    std::sort(trades.begin(), trades.end(),
-        [](const auto trade1, const auto trade2) {
-            return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
-        });
-
-
-    // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
-    ListBoxData_DestroyItemData(hListBox);
-
-
-    // Get the currently active Category index. By default, this will be ALL categories
-    // but the user may have selected a specific category.
-    int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
-
-
-    // Create the new ListBox line data and initiate the new market data.
-    int tickerId = 100;
-    for (const auto& trade : trades) {
-        // We are displaying only all open trades for the selected Category
-        if (trade->isOpen) {
-            if (category == (int)Category::CategoryAll) {   // ALL categories
-                ListBoxData_OpenPosition(hListBox, trade, tickerId);
-            }
-            else if (trade->category == category) {   // specific selected category
-                ListBoxData_OpenPosition(hListBox, trade, tickerId);
-            }
-        }
-        tickerId++;
-    }
-
-
-    // Calculate the actual column widths based on the size of the strings in
-    // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    // This function is also called when receiving new price data from TWS because
-    // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1);
-
 
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
 
-
     // Set the label text indicated the type of trades being listed
     CustomLabel_SetText(hLabel, L"Active Trades");
-
-
-    // Redraw the ListBox to ensure that any recalculated columns are 
-    // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
-    AfxRedrawWindow(hListBox);
-
-
-    // If trades exist then select the first trade so that its history will show
-    if (ListBox_GetCount(hListBox) == 0) {
-        ListBoxData_AddBlankLine(hListBox);
-    }
-    ActiveTrades_ShowListBoxItem(0);
-    
 
     // Ensure that the Trades panel is set
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
@@ -197,16 +141,73 @@ void ActiveTrades_ShowActiveTrades()
     // Show the Category control
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
 
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
+    // Determine if we need to initialize the listbox and request market data
+    if (PrevMarketDataLoaded == false) {
+        ListBox_ResetContent(hListBox);
+
+        // Prevent ListBox redrawing until all calculations are completed
+        SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
+
+        // In case of newly added/deleted data ensure data is sorted.
+        // Sort the trades vector based on ticker symbol
+        std::sort(trades.begin(), trades.end(),
+            [](const auto trade1, const auto trade2) {
+                return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
+            });
+
+        // Get the currently active Category index. By default, this will be ALL categories
+        // but the user may have selected a specific category.
+        int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
+
+        // Create the new ListBox line data and initiate the new market data.
+        for (const auto& trade : trades) {
+            // We are displaying only all open trades for the selected Category
+            if (trade->isOpen) {
+                if (category == (int)Category::CategoryAll) {   // ALL categories
+                    ListBoxData_OpenPosition(hListBox, trade, tickerId);
+                    tickerId++;
+                }
+                else if (trade->category == category) {   // specific selected category
+                    ListBoxData_OpenPosition(hListBox, trade, tickerId);
+                    tickerId++;
+                }
+                if (tickerId > 500) tickerId = 100;
+            }
+        }
+
+        // Calculate the actual column widths based on the size of the strings in
+        // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
+        // This function is also called when receiving new price data from TWS because
+        // that data may need the column width to be wider.
+        ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1);
+
+
+        // If trades exist then select the first trade so that its history will show
+        if (ListBox_GetCount(hListBox) == 0) {
+            ListBoxData_AddBlankLine(hListBox);
+        }
+        ActiveTrades_ShowListBoxItem(0);
+
+
+        // Redraw the ListBox to ensure that any recalculated columns are 
+        // displayed correctly. Re-enable redraw.
+        SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+        AfxRedrawWindow(hListBox);
+
+
+        // Start getting the price data for all of the tickers
+        ListBoxData_RequestMarketData(hListBox);
+
+    }
+
+
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     ListBox_SetSel(hListBox, true, 0);
     SetFocus(hListBox);
 
     tws_ResumeTWS();
-
-    // Start getting the price data for all of the tickers
-    ListBoxData_RequestMarketData(hListBox);
 
 }
 
@@ -339,6 +340,9 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     SaveDatabase();
 
     // Reload the trade list
+    // Destroy any existing ListBox line data
+    // This will also clear the LineData pointers and cancel any previous market data
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
 }
@@ -450,6 +454,9 @@ void ActiveTrades_CalledAwayAssignment(
     SaveDatabase();
 
     // Reload the trade list
+    // Destroy any existing ListBox line data
+    // This will also clear the LineData pointers and cancel any previous market data
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
 }
@@ -557,6 +564,9 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     SaveDatabase();
 
     // Reload the trade list
+    // Destroy any existing ListBox line data
+    // This will also clear the LineData pointers and cancel any previous market data
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 }
 
@@ -997,7 +1007,7 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ActiveTrades.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | //LBS_MULTIPLESEL | 
+            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | 
             LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)ActiveTrades_ListBox_SubclassProc,

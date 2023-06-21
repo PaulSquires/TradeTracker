@@ -165,6 +165,7 @@ void MainWindow_StartupShowTrades()
             if (tws_isConnected()) {
                 // Need to re-populate the Trades if successfully connected in order
                 // to send the request market data for each ticker.
+                ListBoxData_DestroyItemData(GetDlgItem(ActiveTrades.WindowHandle(), IDC_TRADES_LISTBOX));
                 ActiveTrades_ShowActiveTrades();
             }
         }
@@ -502,6 +503,9 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_CATEGORY_CHANGED:
     {
         if (HWND_MIDDLEPANEL == ActiveTrades.WindowHandle()) {
+            // Destroy any existing ListBox line data
+            // This will also clear the LineData pointers and cancel any previous market data
+            ListBoxData_DestroyItemData(GetDlgItem(ActiveTrades.WindowHandle(), IDC_TRADES_LISTBOX));
             ActiveTrades_ShowActiveTrades();
         }
         if (HWND_MIDDLEPANEL == TransPanel.WindowHandle()) {
