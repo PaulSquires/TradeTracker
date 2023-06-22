@@ -37,8 +37,8 @@ public:
 
 const int IDC_SIDEMENU_FIRSTITEM       = 100;
 const int IDC_SIDEMENU_LOGO            = IDC_SIDEMENU_FIRSTITEM;
-const int IDC_SIDEMENU_TRADERNAME      = 102;
-const int IDC_SIDEMENU_APPNAME         = 103;
+const int IDC_SIDEMENU_APPNAME         = 102;
+const int IDC_SIDEMENU_APPVERSION      = 103;
 const int IDC_SIDEMENU_ACTIVETRADES    = 104;
 const int IDC_SIDEMENU_CLOSEDTRADES    = 105;
 const int IDC_SIDEMENU_CONNECTTWS      = 106;

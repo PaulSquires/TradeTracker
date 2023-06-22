@@ -126,14 +126,7 @@ int APIENTRY wWinMain(
 #endif
 
 
-    // Set the Trader's name that will display in the Menu panel.
-    // LoadConfig may override this setting if a setting is found.
-    // Default to the name used to log into this computer.
-    SetTraderName(AfxGetUserName());
-
-
-    // Load the Config file. Settings found in the Config file will override
-    // previously set values from SetTraderName.
+    // Load the Configuration file. 
     LoadConfig();
 
 

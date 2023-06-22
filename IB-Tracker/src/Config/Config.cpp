@@ -38,35 +38,10 @@ const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 
-std::wstring wszTraderName;
 bool StartupConnect = false;
 
 extern HWND HWND_SIDEMENU;
 
-
-
-
-// ========================================================================================
-// Get the Trader's name that displays in the Navigation Panel.
-// This value is saved and restored from database. 
-// ========================================================================================
-std::wstring GetTraderName()
-{
-    return wszTraderName;
-}
-
-
-// ========================================================================================
-// Set the Trader's name that displays in the Navigation Panel.
-// This value is saved and restored from database. 
-// ========================================================================================
-void SetTraderName(std::wstring wszName)
-{
-    wszTraderName = wszName;
-    HWND hCtl = GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_TRADERNAME);
-    if (IsWindow(hCtl))
-        CustomLabel_SetText(hCtl, wszName);
-}
 
 
 // ========================================================================================
@@ -107,7 +82,6 @@ bool SaveConfig()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "TRADERNAME|" << GetTraderName() << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
     db.close();
@@ -171,16 +145,6 @@ bool LoadConfig()
 
 
         std::wstring arg = AfxTrim(st.at(0));
-
-
-        // Check for configuration identifiers
-        if (arg == L"TRADERNAME") {
-            std::wstring wszTraderName = AfxTrim(st.at(1));
-            if (wszTraderName.length() == 0)
-                wszTraderName = AfxGetUserName();
-            SetTraderName(wszTraderName);
-            continue;
-        }
 
 
         // Check for configuration identifiers

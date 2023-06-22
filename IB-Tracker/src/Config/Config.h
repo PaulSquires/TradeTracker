@@ -31,8 +31,5 @@ const std::wstring version = L"1.0.0";
 bool SaveConfig();
 bool LoadConfig();
 
-std::wstring GetTraderName();
-void SetTraderName(std::wstring wszName);
-
 bool GetStartupConnect();
 void SetStartupConnect(bool bConnect);

@@ -72,7 +72,8 @@ void SideMenu_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_BLACK);
+    Color backColor(COLOR_BLACK);
+    SolidBrush backBrush(backColor);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
@@ -172,27 +173,9 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_SIDEMENU_TRADERNAME,
-        CustomLabelType::TextOnly,
-        0, 100, SideMenu_WIDTH, 18);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->HotTestEnable = false;
-        pData->BackColor = COLOR_BLACK;
-        pData->TextColor = COLOR_WHITEMEDIUM;
-        pData->FontSize = 10;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = GetTraderName();
-        pData->wszTextHot = pData->wszText;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-
-    hCtl = CreateCustomLabel(
-        hwnd,
         IDC_SIDEMENU_APPNAME,
         CustomLabelType::TextOnly,
-        0, 118, SideMenu_WIDTH, 18);
+        0, 100, SideMenu_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
@@ -200,7 +183,25 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->TextColor = COLOR_WHITELIGHT;
         pData->FontSize = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"IB-Tracker v" + version;
+        pData->wszText = L"IB-Tracker";
+        pData->wszTextHot = pData->wszText;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+
+    hCtl = CreateCustomLabel(
+        hwnd,
+        IDC_SIDEMENU_APPVERSION,
+        CustomLabelType::TextOnly,
+        0, 118, SideMenu_WIDTH, 18);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->HotTestEnable = false;
+        pData->BackColor = COLOR_BLACK;
+        pData->TextColor = COLOR_WHITEMEDIUM;
+        pData->FontSize = 10;
+        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
+        pData->wszText = L"v" + version;
         pData->wszTextHot = pData->wszText;
         CustomLabel_SetOptions(hCtl, pData);
     }
