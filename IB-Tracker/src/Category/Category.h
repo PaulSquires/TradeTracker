@@ -60,7 +60,8 @@ enum class Category
     Category2 = 2,
     Category3 = 3,
     Category4 = 4,
-    CategoryAll = 5
+    CategoryAll = 5,
+    CategorySetup = 200
 };
 
 const int IDC_CATEGORYCONTROL_FIRST  = 140;
@@ -71,6 +72,7 @@ const int IDC_CATEGORYCONTROL_GREEN  = 143;
 const int IDC_CATEGORYCONTROL_ORANGE = 144;
 const int IDC_CATEGORYCONTROL_ALL    = 145;
 const int IDC_CATEGORYCONTROL_LAST   = 145;
+const int IDC_CATEGORYCONTROL_SETUP  = 200;
 
 CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
 int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);

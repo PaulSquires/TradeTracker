@@ -239,7 +239,29 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
+    nLeft += 24 + margin;
 
+    if (AllowAllButton == true) {
+        hCtl = CreateCustomLabel(
+            hwnd,
+            IDC_CATEGORYCONTROL_SETUP,
+            CustomLabelType::TextOnly,
+            nLeft, 0, 24, 24);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (pData) {
+            pData->BackColor = COLOR_GRAYMEDIUM;
+            pData->SelectorColor = pData->BackColor;
+            pData->TextColor = COLOR_WHITEDARK;
+            pData->TextColorHot = COLOR_WHITEMEDIUM;
+            pData->BackColorHot = COLOR_GRAYLIGHT;
+            pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
+            pData->wszText = GLYPH_SETUP;
+            pData->wszToolTip = L"Configure Categories";
+            pData->HotTestEnable = true;
+            pData->PointerHot = CustomLabelPointer::Hand;
+            CustomLabel_SetOptions(hCtl, pData);
+        }
+    }
 }
 
 
@@ -264,8 +286,14 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         if (hCtl == NULL) return 0;
 
-        CategoryControl_SetSelectedId(hWnd, CtrlId);
-        SendMessage(pData->hParent, MSG_CATEGORY_CHANGED, CtrlId, 0);
+        if (CtrlId == IDC_CATEGORYCONTROL_SETUP) {
+            // TODO: Configure categories dialog
+            std::cout << "CONFIGURE CATEGORIES" << std::endl;
+        }
+        else {
+            CategoryControl_SetSelectedId(hWnd, CtrlId);
+            SendMessage(pData->hParent, MSG_CATEGORY_CHANGED, CtrlId, 0);
+        }
         return 0;
     }
     break;

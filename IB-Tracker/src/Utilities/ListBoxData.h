@@ -37,6 +37,7 @@ const std::wstring GLYPH_DROPDOWN = L"\uE015";
 const std::wstring GLYPH_MAGNIFYGLASS = L"\uE0BD";
 const std::wstring GLYPH_RESETLINE = L"\u2B8C";
 const std::wstring GLYPH_CHECKMARK = L"\u2713";
+const std::wstring GLYPH_SETUP = L"\uE292";
 
 // ListBox data structure that will be directly accessed for each row 
 // during the WM_DRAWITEM notification. 
