@@ -1,4 +1,4 @@
-# IB-Tracker
+# IB-Tracker: Interactive Brokers (IBKR) Options Tracker
 [![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?label=release)](https://github.com/PaulSquires/IB-Tracker/releases)
 ![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?label=downloads)
 [![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?label=license)](LICENSE.txt)
@@ -42,15 +42,19 @@ Start IB Trader Workstation (TWS) and then click "Connect to TWS" from within IB
 IB-Tracker can run without connecting to TWS but obviously you will not get streaming price data or be able to "reconcile" your trade data to what is in your IBKR account.
 
 ### Configuration
-The configuration file (IB-Tracker-config.txt) is an extremely simple text file. Each line is composed of two items (key and value) separated by a pipe ("|") character.
+The configuration file (IB-Tracker-config.txt) is an extremely simple text file. Each line is composed of two items (key and values) separated by one or more pipe ("|") characters.
 
 ```
 IB-TRACKER-CONFIG|1.0.0
-TRADERNAME|TheDude
 STARTUPCONNECT|false
+CATEGORY|0|Gray
+CATEGORY|1|Blue
+CATEGORY|2|Pink
+CATEGORY|3|Green
+CATEGORY|4|Orange
 ```
 
-STARTUPCONNECT can be set directly from inside the IB-Tracker application. TRADERNAME can only be set by manually editing the configuration text file. TRADERNAME shows on the main menu.
+STARTUPCONNECT and CATEGORY descriptions can be set directly from inside the IB-Tracker application.
 
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "TradeDialog/TradeDialog.h"
 #include "Database/database.h"
 #include "Category/Category.h"
+#include "Config/Config.h"
 #include "ActiveTrades.h"
 
 
@@ -132,8 +133,18 @@ void ActiveTrades_ShowActiveTrades()
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
 
+    // Get the currently active Category index. By default, this will be ALL categories
+    // but the user may have selected a specific category.
+    int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
+
     // Set the label text indicated the type of trades being listed
-    CustomLabel_SetText(hLabel, L"Active Trades");
+    std::wstring wszText = L"Active Trades: ";
+    if (category == (int)Category::CategoryAll) {
+        wszText += L"ALL";
+    } else{
+        wszText += GetCategoryDescription(category);
+    }
+    CustomLabel_SetText(hLabel, wszText);
 
     // Ensure that the Trades panel is set
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
@@ -155,10 +166,6 @@ void ActiveTrades_ShowActiveTrades()
             [](const auto trade1, const auto trade2) {
                 return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
             });
-
-        // Get the currently active Category index. By default, this will be ALL categories
-        // but the user may have selected a specific category.
-        int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
 
         // Create the new ListBox line data and initiate the new market data.
         for (const auto& trade : trades) {
