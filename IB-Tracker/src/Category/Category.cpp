@@ -29,8 +29,11 @@ SOFTWARE.
 #include "Utilities/ListBoxData.h"
 #include "Utilities/Colors.h"
 #include "CustomLabel/CustomLabel.h"
+#include "Utilities/UserMessages.h"
+#include "Config/Config.h"
 
 #include "Category.h"
+#include "CategoryDialog.h"
 
 
 
@@ -150,7 +153,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = L"Gray";
+        pData->wszToolTip = GetCategoryDescription(0);
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
@@ -171,7 +174,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = L"Blue";
+        pData->wszToolTip = GetCategoryDescription(1);
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
@@ -192,7 +195,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = L"Pink";
+        pData->wszToolTip = GetCategoryDescription(2);
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
@@ -213,7 +216,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = L"Green";
+        pData->wszToolTip = GetCategoryDescription(3);
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
@@ -234,7 +237,7 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
         pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = L"Orange";
+        pData->wszToolTip = GetCategoryDescription(4);
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
@@ -287,8 +290,9 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         if (hCtl == NULL) return 0;
 
         if (CtrlId == IDC_CATEGORYCONTROL_SETUP) {
-            // TODO: Configure categories dialog
-            std::cout << "CONFIGURE CATEGORIES" << std::endl;
+            if (CategoryDialog_Show() == DIALOG_RETURN_OK) {
+
+            }
         }
         else {
             CategoryControl_SetSelectedId(hWnd, CtrlId);

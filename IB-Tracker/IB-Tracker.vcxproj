@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Category\Category.h" />
+    <ClInclude Include="src\Category\CategoryDialog.h" />
     <ClInclude Include="src\ClosedTrades\ClosedTrades.h" />
     <ClInclude Include="src\Config\Config.h" />
     <ClInclude Include="src\DatePicker\Calendar.h" />
@@ -122,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Category\Category.cpp" />
+    <ClCompile Include="src\Category\CategoryDialog.cpp" />
     <ClCompile Include="src\ClosedTrades\ClosedTrades.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\DatePicker\Calendar.cpp" />

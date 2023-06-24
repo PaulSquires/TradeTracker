@@ -26,12 +26,19 @@ SOFTWARE.
 
 #pragma once
 
-const std::wstring version = L"1.0.0";
+#include "Utilities/CWindowBase.h"
+#include "Utilities/UserMessages.h"
+#include "Database/trade.h"
 
-bool SaveConfig();
-bool LoadConfig();
 
-std::wstring GetCategoryDescription(int idxCategory);
-void SetCategoryDescription(int idxCategory, std::wstring wszDescription);
-bool GetStartupConnect();
-void SetStartupConnect(bool bConnect);
+class CCategoryDialog : public CWindowBase<CCategoryDialog>
+{
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+};
+
+
+const int IDC_CATEGORYDIALOG_SAVE = 100;
+
+int CategoryDialog_Show();

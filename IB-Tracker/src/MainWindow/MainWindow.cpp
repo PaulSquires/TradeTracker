@@ -41,6 +41,7 @@ SOFTWARE.
 #include "DailyTotals/DailyTotals.h"
 #include "TickerTotals/TickerTotals.h"
 #include "Category/Category.h"
+#include "Category/CategoryDialog.h"
 
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -314,7 +315,6 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     TransDetail.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
 
     // We create the Category control at the bottom of the MainWindow
     CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);

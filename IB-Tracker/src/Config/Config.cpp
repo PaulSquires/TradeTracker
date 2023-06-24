@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "pch.h"
 
+#include <unordered_map>
 #include "Utilities/AfxWin.h"
 
 #include "SideMenu/SideMenu.h"
@@ -42,6 +43,34 @@ bool StartupConnect = false;
 
 extern HWND HWND_SIDEMENU;
 
+
+std::unordered_map<int, std::wstring> mapCategoryDescriptions {
+    { 0, L"Gray"},
+    { 1, L"Blue" },
+    { 2, L"Pink" },
+    { 3, L"Green" },
+    { 4, L"Orange" }
+};
+
+const int CATEGORY_COUNT = 5;
+
+
+// ========================================================================================
+// Get the Category Description for the incoming category number.
+// ========================================================================================
+std::wstring GetCategoryDescription(int idxCategory)
+{
+    return mapCategoryDescriptions.at(idxCategory);
+}
+
+
+// ========================================================================================
+// Set the Category Description for the incoming category number.
+// ========================================================================================
+void SetCategoryDescription(int idxCategory, std::wstring wszDescription)
+{
+    mapCategoryDescriptions.at(idxCategory) = wszDescription;
+}
 
 
 // ========================================================================================
@@ -81,8 +110,13 @@ bool SaveConfig()
         return false;
     }
 
+
     db << idMagic << "|" << version << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
+
+    for (int i = 0; i < CATEGORY_COUNT; ++i) {
+        db << "CATEGORY|" << i << "|" << GetCategoryDescription(i) << "\n";
+    }
 
     db.close();
 
@@ -149,9 +183,29 @@ bool LoadConfig()
 
         // Check for configuration identifiers
         if (arg == L"STARTUPCONNECT") {
-            std::wstring wszConnect = AfxTrim(st.at(1));
+            std::wstring wszConnect;
+            
+            try {wszConnect = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+        
             bool bConnect = AfxWStringCompareI(wszConnect, L"true");
             SetStartupConnect(bConnect);
+            continue;
+        }
+
+
+        // Check for category descriptions
+        if (arg == L"CATEGORY") {
+            int idxCategory;
+            std::wstring wszDescription;
+            
+            try {idxCategory = stoi(st.at(1));}
+            catch (...) {continue;}
+            
+            try {wszDescription = st.at(2);}
+            catch (...) {continue;}
+            
+            SetCategoryDescription(idxCategory, wszDescription);
             continue;
         }
 
