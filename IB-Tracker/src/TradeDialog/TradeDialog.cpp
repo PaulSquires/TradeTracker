@@ -138,13 +138,6 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     switch (id)
     {
-    case (IDC_TRADEDIALOG_SAVE):
-        if (codeNotify == BN_CLICKED) {
-            // SaveDatabase();
-            SendMessage(hwnd, WM_CLOSE, 0, 0);
-        }
-        break;
-
     case (IDC_TRADEDIALOG_TXTTICKER):
         if (codeNotify == EN_KILLFOCUS) {
             // Show the Futures contract date field and set the label descriptions if needed.
@@ -422,6 +415,10 @@ int TradeDialog_Show(TradeAction inTradeAction)
     MSG msg{};
     while (GetMessage(&msg, NULL, 0, 0))
     {
+        if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
+            SendMessage(hwnd, WM_CLOSE, 0, 0);
+        }
+
         // We handle VK_TAB processing ourselves rather than using IsDialogMessage
         // Translates virtual-key messages into character messages.
         TranslateMessage(&msg);

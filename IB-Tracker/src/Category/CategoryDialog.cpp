@@ -29,6 +29,11 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 #include "MainWindow/MainWindow.h"
 #include "Utilities/UserMessages.h"
+#include "Config/Config.h"
+#include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
+
+#include "Category.h"
 #include "CategoryDialog.h"
 
 
@@ -68,7 +73,71 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_CATEGORYDIALOG = hwnd;
 
-    //TradeDialogControls_CreateControls(hwnd);
+    DWORD lightBackColor = COLOR_GRAYLIGHT;
+    DWORD lightTextColor = COLOR_WHITELIGHT;
+
+    DWORD darkBackColor = COLOR_GRAYMEDIUM;
+    DWORD darkTextColor = COLOR_WHITEDARK;
+
+    DWORD TextColor = COLOR_WHITELIGHT;
+    DWORD TextColorDim = COLOR_WHITEDARK;
+    DWORD BackColor = COLOR_GRAYDARK;
+
+    int HTextMargin = 0;
+    int VTextMargin = 3;
+
+    HWND hCtl = NULL;
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Category", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 20, 100, 22);
+    CustomLabel_SimpleLabel(hwnd, -1, L"Description", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 159, 20, 115, 22);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Gray", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 45, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_GRAY, ES_LEFT, L"", 159, 45, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Blue", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 70, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_BLUE, ES_LEFT, L"", 159, 70, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Pink", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 95, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_PINK, ES_LEFT, L"", 159, 95, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Green", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 120, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_GREEN, ES_LEFT, L"", 159, 120, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Orange", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 145, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_ORANGE, ES_LEFT, L"", 159, 145, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_GRAY), GetCategoryDescription(0));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_BLUE), GetCategoryDescription(1));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_PINK), GetCategoryDescription(2));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_GREEN), GetCategoryDescription(3));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_ORANGE), GetCategoryDescription(4));
+
+    // SAVE button
+    std::wstring wszFontName = L"Segoe UI";
+    int FontSize = 9;
+    bool bold = false;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
+        CustomLabelAlignment::MiddleCenter, 279, 190, 80, 23);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     return TRUE;
 }
@@ -122,24 +191,6 @@ void CategoryDialog_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: CategoryDialog
-// ========================================================================================
-void CategoryDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-    switch (id)
-    {
-    case (IDC_CATEGORYDIALOG_SAVE):
-        if (codeNotify == BN_CLICKED) {
-            // SaveDatabase();
-            SendMessage(hwnd, WM_CLOSE, 0, 0);
-        }
-        break;
-
-    }
-}
-
-
-// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -147,7 +198,6 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, CategoryDialog_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, CategoryDialog_OnCommand);
         HANDLE_MSG(m_hwnd, WM_DESTROY, CategoryDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, CategoryDialog_OnClose);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, CategoryDialog_OnEraseBkgnd);
@@ -208,6 +258,12 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (hCtl == NULL) return 0;
 
         if (CtrlId == IDC_CATEGORYDIALOG_SAVE) {
+            SetCategoryDescription(0, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_GRAY)));
+            SetCategoryDescription(1, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_BLUE)));
+            SetCategoryDescription(2, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_PINK)));
+            SetCategoryDescription(3, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_GREEN)));
+            SetCategoryDescription(4, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_ORANGE)));
+            SaveConfig();
             DialogReturnCode = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
@@ -226,8 +282,8 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 int CategoryDialog_Show()
 {
-    int nWidth = 715;
-    int nHeight = 500;
+    int nWidth = 410;
+    int nHeight = 280;
 
     HWND hwnd = CategoryDialog.Create(HWND_MAINWINDOW, L"Category Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -272,6 +328,10 @@ int CategoryDialog_Show()
     MSG msg{};
     while (GetMessage(&msg, NULL, 0, 0))
     {
+        if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
+            SendMessage(hwnd, WM_CLOSE, 0, 0);
+        }
+
         // We handle VK_TAB processing ourselves rather than using IsDialogMessage
         // Translates virtual-key messages into character messages.
         TranslateMessage(&msg);

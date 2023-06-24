@@ -52,7 +52,6 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 4, L"Orange" }
 };
 
-const int CATEGORY_COUNT = 5;
 
 
 // ========================================================================================

@@ -291,7 +291,11 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         if (CtrlId == IDC_CATEGORYCONTROL_SETUP) {
             if (CategoryDialog_Show() == DIALOG_RETURN_OK) {
-
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_GRAY), GetCategoryDescription(0));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_BLUE), GetCategoryDescription(1));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_PINK), GetCategoryDescription(2));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_GREEN), GetCategoryDescription(3));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_ORANGE), GetCategoryDescription(4));
             }
         }
         else {

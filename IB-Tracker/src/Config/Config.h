@@ -28,6 +28,8 @@ SOFTWARE.
 
 const std::wstring version = L"1.0.0";
 
+const int CATEGORY_COUNT = 5;
+
 bool SaveConfig();
 bool LoadConfig();
 

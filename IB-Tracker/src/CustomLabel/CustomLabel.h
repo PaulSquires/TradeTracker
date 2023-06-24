@@ -165,6 +165,7 @@ CustomLabel* CustomLabel_GetOptions(HWND hCtrl);
 int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
 void CustomLabel_SetText(HWND hCtrl, std::wstring wszText);
 std::wstring CustomLabel_GetText(HWND hCtrl);
+void CustomLabel_SetToolTip(HWND hCtrl, std::wstring wszText);
 void CustomLabel_SetTextColor(HWND hCtrl, DWORD TextColor);
 void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD TextColorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, DWORD BackColor);

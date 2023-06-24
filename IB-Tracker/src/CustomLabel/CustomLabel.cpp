@@ -632,6 +632,19 @@ DWORD CustomLabel_GetBackColor(HWND hCtrl)
 
 
 // ========================================================================================
+// Set the tooltip text for the custom control.
+// ========================================================================================
+void CustomLabel_SetToolTip(HWND hCtrl, std::wstring wszText)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->wszToolTip = wszText;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
 // Get the text for the custom control.
 // ========================================================================================
 std::wstring CustomLabel_GetText(HWND hCtrl)
