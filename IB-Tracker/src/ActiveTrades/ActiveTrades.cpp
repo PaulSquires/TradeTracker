@@ -138,7 +138,7 @@ void ActiveTrades_ShowActiveTrades()
     int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
 
     // Set the label text indicated the type of trades being listed
-    std::wstring wszText = L"Active Trades: ";
+    std::wstring wszText = L"Active Trades:  ";
     if (category == (int)Category::CategoryAll) {
         wszText += L"ALL";
     } else{
