@@ -11,7 +11,7 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 ![screenshot](https://pragtical.github.io/assets/img/editor.png)
 
 ## Goals
-* Very Option focused (although stocks and futures can be tracked also).
+* Equity and Futures Options focused (although underlying stocks and futures can also be tracked).
 * Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
 * Easy to learn and very intuitive with all information available on the main screen. 
 * Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.

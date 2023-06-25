@@ -46,6 +46,7 @@ TradeDialogData tdd;
 
 extern HWND HWND_CALENDAR;
 extern CCalendar Calendar;
+extern HWND HWND_STRATEGYPOPUP;
 
 int DialogReturnCode = DIALOG_RETURN_CANCEL;
 
@@ -416,7 +417,15 @@ int TradeDialog_Show(TradeAction inTradeAction)
     while (GetMessage(&msg, NULL, 0, 0))
     {
         if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
-            SendMessage(hwnd, WM_CLOSE, 0, 0);
+            if (IsWindowVisible(HWND_CALENDAR)) {
+                DestroyWindow(HWND_CALENDAR);
+            }
+            else if (IsWindowVisible(HWND_STRATEGYPOPUP)) {
+                DestroyWindow(HWND_STRATEGYPOPUP);
+            }
+            else {
+                SendMessage(hwnd, WM_CLOSE, 0, 0);
+            }
         }
 
         // We handle VK_TAB processing ourselves rather than using IsDialogMessage

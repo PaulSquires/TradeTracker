@@ -116,9 +116,10 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     case WM_CHAR:
     {
         // Prevent the TAB character causing a BEEP. We handle TAB key navigation
-        // ourselves in WM_KEYDOW. Likewise for ENTER key.
+        // ourselves in WM_KEYDOW. Likewise for ENTER ans ESCAPE key.
         if (wParam == VK_TAB) return 0;
         if (wParam == VK_RETURN) return 0;
+        if (wParam == VK_ESCAPE) return 0;
 
         if (pData == nullptr) break;
 

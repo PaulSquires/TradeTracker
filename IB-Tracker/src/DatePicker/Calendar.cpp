@@ -186,6 +186,7 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         // Reset our destroyed variable for future use of the DatePicker
         destroyed = false;
+        HWND_CALENDAR = NULL;
         return 0;
     }
     break;

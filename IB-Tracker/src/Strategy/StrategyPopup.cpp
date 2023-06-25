@@ -162,6 +162,7 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         // Reset our destroyed variable for future use of the popup
         destroyed = false;
+        HWND_STRATEGYPOPUP = NULL;
         return 0;
     }
     break;
