@@ -284,11 +284,24 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 void Reconcile_Show(std::wstring& wszText)
 {
 	HWND hwnd = Reconcile.Create(HWND_MAINWINDOW, L"Reconcile Local Data to IBKR TWS", 0, 0, 600, 390,
-		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+	// Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
+	BOOL value = true;
+	::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
+	HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+	SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
 
 	HANDLE hIconSmall = LoadImage(Reconcile.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
 	SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
+
+	// Blur the underlying MainWindow panels in order to reduce "visual noise" while
+	// our Trade Management popup is active. The MainWindow panels are shown again
+	// during our call to TradeDialog_OnClose() prior to enabling the MainWindow
+	// and this popup closing.
+	MainWindow_BlurPanels(true);
 
 	AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
@@ -300,13 +313,26 @@ void Reconcile_Show(std::wstring& wszText)
 	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
 
+	// Fix Windows 10 white flashing
+	BOOL cloak = TRUE;
+	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
 	ShowWindow(hwnd, SW_SHOWNORMAL);
+	UpdateWindow(hwnd);
+
+	cloak = FALSE;
+	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
+	SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	// Call modal message pump and wait for it to end.
 	MSG msg{};
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
+		if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
+			SendMessage(hwnd, WM_CLOSE, 0, 0);
+		}
+
 		// Determines whether a message is intended for the specified
 		// dialog box and, if it is, processes the message.
 		if (!IsDialogMessage(hwnd, &msg)) {
