@@ -287,21 +287,11 @@ void Reconcile_Show(std::wstring& wszText)
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-	// Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
-	BOOL value = true;
-	::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-
 	HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
 	SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
 
 	HANDLE hIconSmall = LoadImage(Reconcile.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
 	SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
-
-	// Blur the underlying MainWindow panels in order to reduce "visual noise" while
-	// our Trade Management popup is active. The MainWindow panels are shown again
-	// during our call to TradeDialog_OnClose() prior to enabling the MainWindow
-	// and this popup closing.
-	MainWindow_BlurPanels(true);
 
 	AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 

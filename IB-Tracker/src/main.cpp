@@ -34,6 +34,8 @@ SOFTWARE.
 
 CMainWindow Main;
 
+extern HWND HWND_TRANSDATEFILTER;
+extern HWND HWND_CALENDAR;
 
 // Use the following pragma instead of having to include a manifest with the application
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -192,6 +194,15 @@ int APIENTRY wWinMain(
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {
+        if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
+            if (IsWindowVisible(HWND_TRANSDATEFILTER)) {
+                DestroyWindow(HWND_TRANSDATEFILTER);
+            }
+            else if (IsWindowVisible(HWND_CALENDAR)) {
+                DestroyWindow(HWND_CALENDAR);
+            }
+        }
+
         // Processes accelerator keys for menu commands
         if (Main.hAccel() == NULL || (!TranslateAccelerator(hWndMain, Main.hAccel(), &msg))) {
 #if (USEDLGMSG >= 1)
