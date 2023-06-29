@@ -199,7 +199,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->HotTestEnable = false;
         pData->BackColor = COLOR_BLACK;
         pData->TextColor = COLOR_WHITEMEDIUM;
-        pData->FontSize = 10;
+        pData->FontSize = 9;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
         pData->wszText = L"v" + version;
         pData->wszTextHot = pData->wszText;

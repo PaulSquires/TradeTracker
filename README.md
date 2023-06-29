@@ -56,10 +56,31 @@ CATEGORY|4|Orange
 
 STARTUPCONNECT and CATEGORY descriptions can be set directly from inside the IB-Tracker application.
 
+### TRADES, TRANSACTIONS, AND LEGS
+
+### CATEGORIES
+
+### CREATING A NEW TRADE
+
+### ADDING TO AN EXISTING TRADE
+
+### CLOSING OR EXPIRING LEGS OF A TRADE
+
+### ROLLING LEGS OF A TRADE
+
+### OPTION ASSIGNMENT
+
+### EDITING TRANSACTIONS
+
+### MULTIPLE INSTANCES OF IB-TRACKER
+
+### RECONCILE LOCAL DATABASE TO TWS
+
+
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.
 
-Having written low level WinAPI based applications for many years in non "C" based language, I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills.
+Having written low level WinAPI based applications for many years in non "C" based language, I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills because I realize that my approach to C++ may not be optimal.
 
 ## License
 This project is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [LICENSE](https://github.com/PaulSquires/IB-Tracker/blob/main/LICENSE.txt) for details.
