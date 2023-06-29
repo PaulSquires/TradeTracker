@@ -176,9 +176,9 @@ void MainWindow_StartupShowTrades()
 
 
 // ========================================================================================
-// Process WM_DESTROY message for window/dialog: MainWindow
+// Process WM_CLOSE message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnDestroy(HWND hwnd)
+void MainWindow_OnClose(HWND hwnd)
 {
     // Disconnect from IBKR TWS and shut down monitoring thread.
     tws_disconnect();
@@ -186,6 +186,15 @@ void MainWindow_OnDestroy(HWND hwnd)
     // Destroy the popup shadow window should it exist.
     if (Shadow.WindowHandle()) DestroyWindow(Shadow.WindowHandle());
 
+    DestroyWindow(hwnd);
+}
+
+
+// ========================================================================================
+// Process WM_DESTROY message for window/dialog: MainWindow
+// ========================================================================================
+void MainWindow_OnDestroy(HWND hwnd)
+{
     // Quit the application
     PostQuitMessage(0);
 }
@@ -457,6 +466,7 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, MainWindow_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_CLOSE, MainWindow_OnClose);
         HANDLE_MSG(m_hwnd, WM_DESTROY, MainWindow_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, MainWindow_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, MainWindow_OnPaint);
