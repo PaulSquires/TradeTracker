@@ -82,7 +82,6 @@ std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd);
 std::wstring AfxLongDate(const std::wstring& wszDate);
 
 
-bool isWineActive();
 std::wstring AfxGetDefaultFont();
 std::string unicode2ansi(const std::wstring& wstr);
 std::wstring ansi2unicode(const std::string& str);

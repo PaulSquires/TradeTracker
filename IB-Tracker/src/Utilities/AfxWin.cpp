@@ -749,40 +749,15 @@ std::wstring AfxMakeISODate(int year, int month, int day)
 
 
 // ========================================================================================
-// Check if running under Linux Wine
-// ========================================================================================
-bool isWineActive()
-{
-    bool res = false;
-
-    //static const char* (CDECL * pwine_get_version)(void);
-    HMODULE hntdll = GetModuleHandleA("ntdll.dll");
-    if (!hntdll) {
-        return false;
-    }
-
-    if (GetProcAddress(hntdll, "wine_get_version")) {
-        res = true;
-    }
-    else {
-        res = false;
-    }
-    FreeLibrary(hntdll);
-    return res;
-}
-
-
-// ========================================================================================
-// Retrieve name of font to use for GUI elements under Windows or Wine/Linux
+// Retrieve name of font to use for GUI elements
 // ========================================================================================
 std::wstring AfxGetDefaultFont()
 {
-    // Tahoma seems to exist on base Windows and Wine installs.
+    // Tahoma seems to exist on base Windows.
     std::wstring wszFont = L"Tahoma";
 
     // Use macro from versionhelpers.h
     if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   // Segoe has been default Windows font since Vista
-    if (isWineActive()) wszFont = L"Tahoma";
 
     return wszFont;
 }
