@@ -42,6 +42,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
+#include "CustomLabel/CustomLabel.h"
 
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -275,6 +276,14 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nWidth = nMiddlePanelWidth; 
     DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+
+    // Position the Warning label
+    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
+    nTop = AfxScaleY(32);
+    nHeight = AfxScaleY(25);
+    nWidth = nRightPanelWidth; 
+    DeferWindowPos(hdwp, hCtl, 0, cx - nRightPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
+
     EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
@@ -327,6 +336,11 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // We create the Category control at the bottom of the MainWindow
     CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);
+
+    // Create a Warning label at bottom of the MainWindow to display warning messages.
+    CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"WARNING !!!", COLOR_YELLOW, COLOR_RED,
+        CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+
 
     return TRUE;
 }

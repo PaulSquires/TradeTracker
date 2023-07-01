@@ -44,6 +44,7 @@ extern void DailyTotals_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_SIDEMENU = NULL;
 
+extern HWND HWND_MAINWINDOW;
 extern HWND HWND_ACTIVETRADES;
 extern HWND HWND_TRADEHISTORY;
 extern HWND HWND_DAILYTOTALS;
@@ -365,6 +366,16 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             pData->TextColorHot = COLOR_GREEN;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
+        return 0;
+        break;
+    }
+
+
+    case MSG_TWS_WARNING_EXCEPTION:
+    {
+        CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), 
+            L"Monitoring thread exception! Please restart application.");
+        ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
         return 0;
         break;
     }

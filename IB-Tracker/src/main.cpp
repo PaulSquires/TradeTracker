@@ -96,8 +96,14 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
 
-    // Ensure only one running instance
-    HANDLE hMutexHandle = CreateMutex(NULL, TRUE, L"ibtracker.mutex");
+    // Ensure only one running instance based on the EXE folder. We use the EXE folder
+    // because we want to allow multiple instances of the program IF they are run from
+    // differing folders, thereby using different databases.
+    // Must remove any invalid backslash characters (\). 
+    std::wstring wszMutex = AfxGetExePath();
+    wszMutex.erase(remove(wszMutex.begin(), wszMutex.end(), L'\\'), wszMutex.end());
+
+    HANDLE hMutexHandle = CreateMutex(NULL, TRUE, wszMutex.c_str());
     if (hMutexHandle != nullptr && GetLastError() == ERROR_ALREADY_EXISTS)
     {
         // Try to bring the existing instance to the foreground

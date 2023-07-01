@@ -90,6 +90,7 @@ void threadFunction(std::future<void> future) {
 			}
 		}
 		catch (...) {
+			PostMessage(HWND_SIDEMENU, MSG_TWS_WARNING_EXCEPTION, 0, 0);
 			break;
 		}
 
