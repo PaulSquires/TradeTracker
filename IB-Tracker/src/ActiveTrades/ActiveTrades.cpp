@@ -504,7 +504,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     // Close the Option. Save this transaction's leg quantities
     trans = std::make_shared<Transaction>();
-    trans->transDate = AfxCurrentDate();
+    trans->transDate = leg->expiryDate;  // AfxCurrentDate();
     trans->description = L"Assignment";
     trans->underlying = L"OPTIONS";
     trade->Transactions.push_back(trans);
@@ -529,7 +529,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     // Make the SHARES/FUTURES that have been assigned.
     trans = std::make_shared<Transaction>();
-    trans->transDate = AfxCurrentDate();
+    trans->transDate = leg->expiryDate;  // AfxCurrentDate();
     trans->description = L"Assignment";
     trans->underlying = (isShares == true) ? L"SHARES" : L"FUTURES";
     trans->quantity = QuantityAssigned;

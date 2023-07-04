@@ -105,10 +105,10 @@ void Reconcile_positionEnd()
 			}
 
 
-			// If this is a STK then check to see if it already exists in the vector. If it
+			// If this is a STK or FUT then check to see if it already exists in the vector. If it
 			// does then simply update the Local quantity. We need to do this because IBKR
-			// aggregates all similar stock trades.
-			if (p.underlying == L"STK") {
+			// aggregates all similar stock and future trades.
+			if (p.underlying == L"STK" || p.underlying == L"FUT") {
 				bool found = false;
 				for (auto& l : LocalPositions) {
 					if (l.tickerSymbol == p.tickerSymbol) {
@@ -136,7 +136,6 @@ void Reconcile_positionEnd()
 		bool found = false;
 		for (const auto& l : LocalPositions) {
 			if (i.underlying == L"OPT" || 
-				i.underlying == L"FUT" || 
 				i.underlying == L"FOP") {
 				if (i.strikePrice == l.strikePrice &&
 					i.openQuantity == l.openQuantity &&  
@@ -148,7 +147,8 @@ void Reconcile_positionEnd()
 					break;
 				}
 			}
-			if (i.underlying == L"STK") {
+			if (i.underlying == L"STK" ||
+				i.underlying == L"FUT") {
 				if (i.openQuantity == l.openQuantity &&
 					i.tickerSymbol == l.tickerSymbol &&
 					i.underlying == l.underlying) {
@@ -175,7 +175,6 @@ void Reconcile_positionEnd()
 		bool found = false;
 		for (const auto& i : IBKRPositions) {
 			if (i.underlying == L"OPT" || 
-				i.underlying == L"FUT" ||
 				i.underlying == L"FOP") {
 				if (i.strikePrice == l.strikePrice &&
 					i.openQuantity == l.openQuantity &&
@@ -187,8 +186,9 @@ void Reconcile_positionEnd()
 					break;
 				}
 			}
-			if (i.underlying == L"STK") {
-				if (i.openQuantity == l.openQuantity &&
+			if (i.underlying == L"STK" ||
+				i.underlying == L"FUT") {
+					if (i.openQuantity == l.openQuantity &&
 					i.tickerSymbol == l.tickerSymbol &&
 					i.underlying == l.underlying) {
 					found = true;

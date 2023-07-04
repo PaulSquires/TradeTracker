@@ -78,7 +78,10 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
         tdd.tradeAction == TradeAction::ManageFutures ||
         tdd.tradeAction == TradeAction::AddFuturesToTrade) {
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Futures");
-        wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+    }
+    if (tdd.tradeAction == TradeAction::ManageFutures ||
+        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
+        wszText = tdd.trade->tickerSymbol;
         if (wszText.substr(0, 1) != L"/") wszErrMsg += L"- Invalid Futures Ticker Symbol.\n";
     }
 
