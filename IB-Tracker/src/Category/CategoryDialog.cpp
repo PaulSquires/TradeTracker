@@ -132,7 +132,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // SAVE button
     std::wstring wszFontName = L"Segoe UI";
     int FontSize = 9;
-    bool bold = false;
+    bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 279, 190, 80, 23);
