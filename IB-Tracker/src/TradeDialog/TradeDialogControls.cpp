@@ -269,7 +269,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     if (tdd.tradeAction == TradeAction::NewFuturesTrade) return;
 
     // Update the Trade Management table with the details of the Trade.
-    if (tdd.trade != nullptr) {
+    if (tdd.trade != nullptr && 
+        tdd.tradeAction == TradeAction::EditTransaction) {
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tdd.trade->tickerName);
 
         wszText = tdd.trade->tickerSymbol;
@@ -289,7 +290,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     }
 
 
-    if (tdd.tradeAction == TradeAction::NewIronCondor) {
+    if (tdd.tradeAction == TradeAction::NewShortLT112) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
@@ -299,8 +300,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         CustomLabel_SetText(hCtl, L"");
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
-        CustomLabel_SetUserDataInt(hCtl,(int)Strategy::IronCondor);
-        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::IronCondor));
+        CustomLabel_SetUserDataInt(hCtl,(int)Strategy::LT112);
+        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::LT112));
         CustomLabel_SetText(hCtl, wszText);
 
         StrategyButton_InvokeStrategy();
@@ -479,7 +480,7 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
     case TradeAction::NewOptionsTrade:
     case TradeAction::NewShortStrangle:
     case TradeAction::NewShortCall:
-    case TradeAction::NewIronCondor:
+    case TradeAction::NewShortLT112:
     case TradeAction::NewShortPut:
         wszDescription = L"Options";
         wszGridMain = L"New Transaction";

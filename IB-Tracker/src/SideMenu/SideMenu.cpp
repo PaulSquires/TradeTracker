@@ -234,9 +234,6 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWIRONCONDOR, nTop, L"Iron Condor");
-
-    nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTSTRANGLE, nTop, L"Short Strangle");
 
     nTop += nItemHeight;
@@ -244,6 +241,9 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTCALL, nTop, L"Short Call");
+
+    nTop += nItemHeight;
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTLT112, nTop, L"Short LT112");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
@@ -440,11 +440,11 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-            case IDC_SIDEMENU_NEWIRONCONDOR:
+            case IDC_SIDEMENU_NEWSHORTLT112:
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewIronCondor) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::NewShortLT112) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, currSelection);
                 }
             }

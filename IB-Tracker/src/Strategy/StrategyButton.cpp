@@ -103,6 +103,8 @@ std::wstring StrategyButton_GetStrategyEnumText(Strategy s)
         return L"Butterfly";
     case Strategy::RatioSpread:
         return L"Ratio Spread";
+    case Strategy::LT112:
+        return L"LT112";
     default:
         return L"";
     }
@@ -265,6 +267,7 @@ bool StrategyButton_StrategyAllowPutCall(HWND hCtl)
     case Strategy::Covered:
     case Strategy::Butterfly:
     case Strategy::RatioSpread:
+    case Strategy::LT112:
         return true;
     case Strategy::Straddle:
     case Strategy::Strangle:
@@ -494,6 +497,52 @@ void StrategyButton_InvokeStrategy()
         TradeGrid_CalculateDTE(pData->hWindow);
         wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
         AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
+        CustomTextBox_SetText(hCtlQuantity, L"1");
+    }
+    break;
+
+
+    case Strategy::LT112:
+    {
+        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        if (ls == LongShort::Long) {
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 2; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"2");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
+        }
+        if (ls == LongShort::Short) {
+            row = 0; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
+            row = 1; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-1");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            row = 2; col = 0;
+            TradeGrid_SetColData(hGrid, row, col, L"-2");
+            TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
+            TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
+        }
+        TradeGrid_CalculateDTE(pData->hWindow);
+        AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
         CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;

@@ -45,7 +45,7 @@ enum class TradeAction
     AddFuturesToTrade,
     AddPutToTrade,
     AddCallToTrade,
-    NewIronCondor,
+    NewShortLT112,
     NewShortStrangle,
     NewShortPut,
     NewShortCall,

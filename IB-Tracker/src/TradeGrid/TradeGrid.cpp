@@ -467,7 +467,7 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 // when the first row leg quantity or leg expiry date changes then those changes get 
 // populated to the other three rows in the trade grid.
 // ========================================================================================
-void TradeGrid_PopulateTriggerCells(HWND hWnd)
+void TradeGrid_PopulateTriggerCells(HWND hWnd, auto col)
 {
     TradeGrid* pData = TradeGrid_GetOptions(hWnd);
     if (pData == nullptr) return;
@@ -485,17 +485,21 @@ void TradeGrid_PopulateTriggerCells(HWND hWnd)
     std::wstring wszText;
 
     for (int i = 1; i < 4; ++i) {
-        wszText = TradeGrid_GetText(hWnd, i, 0);
-        if (wszText.length() != 0) {
-            int intQuantity = 0;
-            intQuantity = stoi(wszText);   // will GPF if empty wszText string
-            int intNewQuantity = (intQuantity < 0) ? intCellQuantity * -1 : intCellQuantity;
-            wszText = std::to_wstring(intNewQuantity);
-            TradeGrid_SetColData(hWnd, i, 0, wszText);
+        if (col->colType == GridColType::TextBox) {
+            wszText = TradeGrid_GetText(hWnd, i, 0);
+            if (wszText.length() != 0) {
+                int intQuantity = 0;
+                intQuantity = stoi(wszText);   // will GPF if empty wszText string
+                int intNewQuantity = (intQuantity < 0) ? intCellQuantity * -1 : intCellQuantity;
+                wszText = std::to_wstring(intNewQuantity);
+                TradeGrid_SetColData(hWnd, i, 0, wszText);
+            }
         }
-        wszText = TradeGrid_GetText(hWnd, i, 1);
-        if (wszText.length() != 0) {
-            TradeGrid_SetColData(hWnd, i, 1, wszISODate);
+        if (col->colType == GridColType::DatePicker) {
+            wszText = TradeGrid_GetText(hWnd, i, 1);
+            if (wszText.length() != 0) {
+                TradeGrid_SetColData(hWnd, i, 1, wszISODate);
+            }
         }
     }
 
@@ -527,7 +531,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             for (const auto& col : pData->gridCols) {
                 if (col->hCtl == hCtl) {
                     if (col->isTriggerCell == true) {
-                        TradeGrid_PopulateTriggerCells(hWnd);
+                        TradeGrid_PopulateTriggerCells(hWnd, col);
                     }
                     break;
                 }
@@ -549,7 +553,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         for (const auto& col : pData->gridCols) {
             if (col->idCtrl == CtrlId) {
                 if (col->isTriggerCell == true) {
-                    TradeGrid_PopulateTriggerCells(hWnd);
+                    TradeGrid_PopulateTriggerCells(hWnd, col);
                 }
                 break;
             }

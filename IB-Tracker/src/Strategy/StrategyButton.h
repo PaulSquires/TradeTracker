@@ -66,6 +66,7 @@ enum class Strategy
     Covered,
     Butterfly,
     RatioSpread,
+    LT112,
     Count
 };
 

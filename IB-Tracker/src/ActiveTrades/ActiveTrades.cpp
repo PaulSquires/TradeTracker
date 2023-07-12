@@ -66,7 +66,7 @@ bool IsNewOptionsTradeAction(TradeAction action)
     switch (action)
     {
     case TradeAction::NewOptionsTrade:
-    case TradeAction::NewIronCondor:
+    case TradeAction::NewShortLT112:
     case TradeAction::NewShortStrangle:
     case TradeAction::NewShortPut:
     case TradeAction::NewShortCall:
