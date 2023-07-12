@@ -320,11 +320,17 @@ void TwsClient::requestMktData(ListBoxData* ld)
 		contract.symbol = symbol.substr(1);
 		contract.secType = "FUT";
 		contract.currency = "USD";
-		contract.exchange = "CME";
-		contract.primaryExchange = "CME";
 		contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
 
+		std::string futExchange = "CME";
+		if (contract.symbol == "GC") futExchange = "COMEX";
+		if (contract.symbol == "NG") futExchange = "NYMEX";
+		if (contract.symbol == "CL") futExchange = "NYMEX";
+		if (contract.symbol == "ZS") futExchange = "CBOT";
+		if (contract.symbol == "ZC") futExchange = "CBOT";
 
+		contract.exchange = futExchange;
+		contract.primaryExchange = futExchange;
 	}
 	else {
 		contract.symbol = symbol;
