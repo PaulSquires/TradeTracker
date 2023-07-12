@@ -221,6 +221,8 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
+    tdd.trade = nullptr;
+
     tws_ResumeTWS();
 
 }
@@ -471,6 +473,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
+    tdd.trade = nullptr;
+
     tws_ResumeTWS();
 
 }
@@ -683,6 +687,8 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
+    tdd.trade = nullptr;
+    
     tws_ResumeTWS();
 
 }

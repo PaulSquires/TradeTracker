@@ -269,8 +269,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     if (tdd.tradeAction == TradeAction::NewFuturesTrade) return;
 
     // Update the Trade Management table with the details of the Trade.
-    if (tdd.trade != nullptr && 
-        tdd.tradeAction == TradeAction::EditTransaction) {
+    if (tdd.trade != nullptr) {
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tdd.trade->tickerName);
 
         wszText = tdd.trade->tickerSymbol;
