@@ -326,8 +326,10 @@ void TwsClient::requestMktData(ListBoxData* ld)
 		if (contract.symbol == "GC") futExchange = "COMEX";
 		if (contract.symbol == "NG") futExchange = "NYMEX";
 		if (contract.symbol == "CL") futExchange = "NYMEX";
-		if (contract.symbol == "ZS") futExchange = "CBOT";
+		if (contract.symbol == "MCL") futExchange = "NYMEX";
+		if (contract.symbol == "ZB") futExchange = "CBOT";
 		if (contract.symbol == "ZC") futExchange = "CBOT";
+		if (contract.symbol == "ZS") futExchange = "CBOT";
 
 		contract.exchange = futExchange;
 		contract.primaryExchange = futExchange;
