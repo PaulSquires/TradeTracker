@@ -359,6 +359,9 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
                 CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_PINK), GetCategoryDescription(2));
                 CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_GREEN), GetCategoryDescription(3));
                 CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_ORANGE), GetCategoryDescription(4));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_RED), GetCategoryDescription(5));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_TEAL), GetCategoryDescription(6));
+                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_KHAKI), GetCategoryDescription(7));
             }
         }
         else {

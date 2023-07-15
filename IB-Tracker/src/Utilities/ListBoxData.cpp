@@ -209,6 +209,9 @@ DWORD GetCategoryColor(int category)
     case 2: catTextColor = COLOR_PINK; break;
     case 3: catTextColor = COLOR_GREEN; break;
     case 4: catTextColor = COLOR_ORANGE; break;
+    case 5: catTextColor = COLOR_RED; break;
+    case 6: catTextColor = COLOR_TEAL; break;
+    case 7: catTextColor = COLOR_KHAKI; break;
     default: catTextColor = COLOR_WHITEDARK;
     }
     return catTextColor;
