@@ -52,6 +52,36 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 4, L"Orange" }
 };
 
+std::unordered_map<std::string, std::string> mapFuturesExchanges {
+    { "ES",  "CME" }, 
+    { "MES", "CME" }, 
+    { "GC",  "COMEX" }, 
+    { "NG",  "NYMEX" },
+    { "CL",  "NYMEX" },
+    { "MCL", "NYMEX" },
+    { "ZB",  "CBOT" },
+    { "ZC",  "CBOT" },
+    { "ZS",  "CBOT" }
+};
+
+
+
+// ========================================================================================
+// Get the Futures Exchanges for the incoming underlying.
+// ========================================================================================
+std::string GetFuturesExchange(std::string szUnderlying)
+{
+    return mapFuturesExchanges.at(szUnderlying);
+}
+
+
+// ========================================================================================
+// Set the Futures Exchanges for the incoming underlying.
+// ========================================================================================
+void SetFuturesExchange(std::string szUnderlying, std::string szExchange)
+{
+    mapFuturesExchanges[szUnderlying] = szExchange;
+}
 
 
 // ========================================================================================
@@ -68,7 +98,7 @@ std::wstring GetCategoryDescription(int idxCategory)
 // ========================================================================================
 void SetCategoryDescription(int idxCategory, std::wstring wszDescription)
 {
-    mapCategoryDescriptions.at(idxCategory) = wszDescription;
+    mapCategoryDescriptions[idxCategory] = wszDescription;
 }
 
 
@@ -115,6 +145,10 @@ bool SaveConfig()
 
     for (int i = 0; i < CATEGORY_COUNT; ++i) {
         db << "CATEGORY|" << i << "|" << GetCategoryDescription(i) << "\n";
+    }
+
+    for (auto item : mapFuturesExchanges) {
+        db << "EXCHANGE|" << ansi2unicode(item.first) << "|" << ansi2unicode(item.second) << "\n";
     }
 
     db.close();
@@ -205,6 +239,25 @@ bool LoadConfig()
             catch (...) {continue;}
             
             SetCategoryDescription(idxCategory, wszDescription);
+            continue;
+        }
+
+
+        // Check for Futures Exchanges
+        if (arg == L"EXCHANGE") {
+            std::wstring wszUnderlying;
+            std::wstring wszExchange;
+            
+            try {wszUnderlying = st.at(1);}
+            catch (...) {continue;}
+            
+            try {wszExchange = st.at(2);}
+            catch (...) {continue;}
+            
+            std::string szUnderlying = unicode2ansi(wszUnderlying);
+            std::string szExchange = unicode2ansi(wszExchange);
+            SetFuturesExchange(szUnderlying, szExchange);
+
             continue;
         }
 

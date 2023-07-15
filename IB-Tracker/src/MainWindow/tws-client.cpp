@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
+#include "Config/Config.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "Reconcile/Reconcile.h"
 
@@ -322,14 +323,8 @@ void TwsClient::requestMktData(ListBoxData* ld)
 		contract.currency = "USD";
 		contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
 
-		std::string futExchange = "CME";
-		if (contract.symbol == "GC") futExchange = "COMEX";
-		if (contract.symbol == "NG") futExchange = "NYMEX";
-		if (contract.symbol == "CL") futExchange = "NYMEX";
-		if (contract.symbol == "MCL") futExchange = "NYMEX";
-		if (contract.symbol == "ZB") futExchange = "CBOT";
-		if (contract.symbol == "ZC") futExchange = "CBOT";
-		if (contract.symbol == "ZS") futExchange = "CBOT";
+		std::string futExchange = GetFuturesExchange(contract.symbol);
+		if (futExchange.length() == 0) futExchange = "CME";
 
 		contract.exchange = futExchange;
 		contract.primaryExchange = futExchange;

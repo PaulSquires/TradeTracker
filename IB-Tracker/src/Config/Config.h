@@ -33,6 +33,8 @@ const int CATEGORY_COUNT = 5;
 bool SaveConfig();
 bool LoadConfig();
 
+std::string GetFuturesExchange(std::string szUnderlying);
+void SetFuturesExchange(std::string szUnderlying, std::string szExchange);
 std::wstring GetCategoryDescription(int idxCategory);
 void SetCategoryDescription(int idxCategory, std::wstring wszDescription);
 bool GetStartupConnect();
