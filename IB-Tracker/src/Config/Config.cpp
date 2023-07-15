@@ -49,7 +49,10 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 1, L"Blue" },
     { 2, L"Pink" },
     { 3, L"Green" },
-    { 4, L"Orange" }
+    { 4, L"Orange" },
+    { 5, L"Red" },
+    { 6, L"Teal" },
+    { 7, L"Khaki" }
 };
 
 std::unordered_map<std::string, std::string> mapFuturesExchanges {
@@ -143,8 +146,8 @@ bool SaveConfig()
     db << idMagic << "|" << version << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
-    for (int i = 0; i < CATEGORY_COUNT; ++i) {
-        db << "CATEGORY|" << i << "|" << GetCategoryDescription(i) << "\n";
+    for (auto item : mapCategoryDescriptions) {
+        db << "CATEGORY|" << item.first << "|" << item.second << "\n";
     }
 
     for (auto item : mapFuturesExchanges) {

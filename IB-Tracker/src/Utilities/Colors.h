@@ -17,6 +17,8 @@ const DWORD COLOR_ORANGE = Color::MakeARGB(255, 193, 98, 24);  // burnt orange
 const DWORD COLOR_PURPLE = Color::MediumOrchid;
 const DWORD COLOR_BLUE = Color::CornflowerBlue;
 const DWORD COLOR_PINK = Color::Pink;
+const DWORD COLOR_TEAL = Color::Teal;
+const DWORD COLOR_KHAKI = Color::DarkKhaki;
 
 const DWORD COLOR_MENUNOTCH = Color::MakeARGB(255, 38, 38, 38);
 const DWORD COLOR_SEPARATOR = Color::MakeARGB(255, 53, 59, 69);

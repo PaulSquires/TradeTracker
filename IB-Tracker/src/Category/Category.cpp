@@ -244,6 +244,69 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
     }
     nLeft += 24 + margin;
 
+    hCtl = CreateCustomLabel(
+        hwnd,
+        IDC_CATEGORYCONTROL_RED,
+        CustomLabelType::TextOnly,
+        nLeft, 0, 24, 24);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = COLOR_GRAYMEDIUM;
+        pData->SelectorColor = pData->BackColor;
+        pData->TextColor = COLOR_RED;
+        pData->TextColorHot = pData->TextColor;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
+        pData->wszText = GLYPH_CIRCLE;
+        pData->wszToolTip = GetCategoryDescription(5);
+        pData->HotTestEnable = true;
+        pData->PointerHot = CustomLabelPointer::Hand;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+    nLeft += 24 + margin;
+
+    hCtl = CreateCustomLabel(
+        hwnd,
+        IDC_CATEGORYCONTROL_TEAL,
+        CustomLabelType::TextOnly,
+        nLeft, 0, 24, 24);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = COLOR_GRAYMEDIUM;
+        pData->SelectorColor = pData->BackColor;
+        pData->TextColor = COLOR_TEAL;
+        pData->TextColorHot = pData->TextColor;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
+        pData->wszText = GLYPH_CIRCLE;
+        pData->wszToolTip = GetCategoryDescription(6);
+        pData->HotTestEnable = true;
+        pData->PointerHot = CustomLabelPointer::Hand;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+    nLeft += 24 + margin;
+
+    hCtl = CreateCustomLabel(
+        hwnd,
+        IDC_CATEGORYCONTROL_KHAKI,
+        CustomLabelType::TextOnly,
+        nLeft, 0, 24, 24);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = COLOR_GRAYMEDIUM;
+        pData->SelectorColor = pData->BackColor;
+        pData->TextColor = COLOR_KHAKI;
+        pData->TextColorHot = pData->TextColor;
+        pData->BackColorHot = COLOR_GRAYLIGHT;
+        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
+        pData->wszText = GLYPH_CIRCLE;
+        pData->wszToolTip = GetCategoryDescription(7);
+        pData->HotTestEnable = true;
+        pData->PointerHot = CustomLabelPointer::Hand;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+    nLeft += 24 + margin;
+
     if (AllowAllButton == true) {
         hCtl = CreateCustomLabel(
             hwnd,

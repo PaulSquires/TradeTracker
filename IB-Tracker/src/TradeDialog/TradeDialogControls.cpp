@@ -887,7 +887,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
         IsNewSharesTradeAction(tdd.tradeAction) == true ||
         tdd.tradeAction == TradeAction::EditTransaction) {
-        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 540, 45, 124, 23, false);
+        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 465, 45, 200, 23, false);
     }
 
 

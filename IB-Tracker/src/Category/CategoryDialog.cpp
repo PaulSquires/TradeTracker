@@ -123,11 +123,32 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
 
+    CustomLabel_SimpleLabel(hwnd, -1, L"Red", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 170, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_RED, ES_LEFT, L"", 159, 170, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Teal", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 195, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_TEAL, ES_LEFT, L"", 159, 195, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Khaki", TextColor, BackColor,
+        CustomLabelAlignment::MiddleLeft, 40, 220, 86, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_KHAKI, ES_LEFT, L"", 159, 220, 200, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+
     AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_GRAY), GetCategoryDescription(0));
     AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_BLUE), GetCategoryDescription(1));
     AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_PINK), GetCategoryDescription(2));
     AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_GREEN), GetCategoryDescription(3));
     AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_ORANGE), GetCategoryDescription(4));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_RED), GetCategoryDescription(5));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_TEAL), GetCategoryDescription(6));
+    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_KHAKI), GetCategoryDescription(7));
 
     // SAVE button
     std::wstring wszFontName = L"Segoe UI";
@@ -135,7 +156,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
-        CustomLabelAlignment::MiddleCenter, 279, 190, 80, 23);
+        CustomLabelAlignment::MiddleCenter, 279, 265, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
@@ -263,6 +284,9 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SetCategoryDescription(2, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_PINK)));
             SetCategoryDescription(3, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_GREEN)));
             SetCategoryDescription(4, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_ORANGE)));
+            SetCategoryDescription(5, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_RED)));
+            SetCategoryDescription(6, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_TEAL)));
+            SetCategoryDescription(7, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_KHAKI)));
             SaveConfig();
             DialogReturnCode = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
@@ -283,7 +307,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 int CategoryDialog_Show()
 {
     int nWidth = 410;
-    int nHeight = 280;
+    int nHeight = 345;
 
     HWND hwnd = CategoryDialog.Create(HWND_MAINWINDOW, L"Category Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

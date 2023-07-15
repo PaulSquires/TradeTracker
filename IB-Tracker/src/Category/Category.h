@@ -55,12 +55,15 @@ public:
 
 enum class Category
 {
-    Category0 = 0,
-    Category1 = 1,
-    Category2 = 2,
-    Category3 = 3,
-    Category4 = 4,
-    CategoryAll = 5,
+    Category0 = 0,   // gray
+    Category1 = 1,   // blue
+    Category2 = 2,   // pink
+    Category3 = 3,   // green
+    Category4 = 4,   // orange
+    Category5 = 5,   // red
+    Category6 = 6,   // teal
+    Category7 = 7,   // Khaki
+    CategoryAll = 8,
     CategorySetup = 200
 };
 
@@ -70,8 +73,11 @@ const int IDC_CATEGORYCONTROL_BLUE   = 141;
 const int IDC_CATEGORYCONTROL_PINK   = 142;
 const int IDC_CATEGORYCONTROL_GREEN  = 143;
 const int IDC_CATEGORYCONTROL_ORANGE = 144;
-const int IDC_CATEGORYCONTROL_ALL    = 145;
-const int IDC_CATEGORYCONTROL_LAST   = 145;
+const int IDC_CATEGORYCONTROL_RED    = 145;
+const int IDC_CATEGORYCONTROL_TEAL   = 146;
+const int IDC_CATEGORYCONTROL_KHAKI  = 147;
+const int IDC_CATEGORYCONTROL_ALL    = 148;
+const int IDC_CATEGORYCONTROL_LAST   = 148;
 const int IDC_CATEGORYCONTROL_SETUP  = 200;
 
 CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
