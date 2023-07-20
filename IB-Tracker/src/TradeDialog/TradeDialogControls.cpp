@@ -230,6 +230,10 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), AfxLongDate(tdd.trans->transDate));
     CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), tdd.trans->transDate);
 
+    // FUTURES CONTRACT DATE
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), AfxLongDate(tdd.trade->futureExpiry));
+    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), tdd.trade->futureExpiry);
+
     // DESCRIPTION
     AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), tdd.trans->description);
 
@@ -275,6 +279,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         wszText = tdd.trade->tickerSymbol;
         if (tdd.trade->futureExpiry.length()) {
             wszText = wszText + L": " + AfxFormatFuturesDate(tdd.trade->futureExpiry);
+            CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), AfxLongDate(tdd.trade->futureExpiry));
+            CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), tdd.trade->futureExpiry);
         }
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
     }
@@ -283,7 +289,6 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     // Editing a previously created Transaction requires a separate function to
     // load the existing data into the table(s).
     if (tdd.tradeAction == TradeAction::EditTransaction) {
-        // TODO: Shares/Futures EDIT must be handled differently than Options.
         TradeDialog_LoadEditTransactionInTradeTable(hwnd);
         return;
     }
