@@ -53,33 +53,24 @@ extern HWND HWND_SIDEMENU;
 extern HWND HWND_ACTIVETRADES;
 
 
-bool isThreadFinished = false;
-bool isThreadPaused = false;
-bool isMonitorThreadActive = false;
-std::atomic<bool> killThread = false;    // used to exit thread loop in case future fails and thread hangs
+std::atomic<bool> isThreadPaused = false;
+std::atomic<bool> isMonitorThreadActive = false;
 
 TwsClient client;
-
 
 
 //
 // Thread function
 //
-
-std::promise<void> signal_exit; //create promise object
-std::future<void> future;
-std::thread my_thread;
+std::jthread monitoring_thread;
 
 
-void threadFunction(std::future<void> future) {
+void monitoringFunction(std::stop_token st) {
 	std::cout << "Starting the thread" << std::endl;
+	
 	isMonitorThreadActive = true;
 
-	while (future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
-
-		// Check killThread global variable. This variable is true when thread has been
-		// requested to terminate but could be hanging due to the future not taking effect.
-		if (killThread == true) break;
+	while (!st.stop_requested()) {
 
 		try {
 			if (tws_isConnected()) {
@@ -96,6 +87,7 @@ void threadFunction(std::future<void> future) {
 		}
 
 	}
+
 	isMonitorThreadActive = false;
 	std::cout << "Thread Terminated" << std::endl;
 	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
@@ -105,8 +97,7 @@ void threadFunction(std::future<void> future) {
 void StartMonitorThread()
 {
 	if (isMonitorThreadActive) return;
-	future = signal_exit.get_future();   // create future objects
-    my_thread = std::thread(&threadFunction, std::move(future));  // start thread, and move future
+	monitoring_thread = std::jthread(monitoringFunction);
 }
 
 
@@ -115,11 +106,7 @@ void EndMonitorThread()
 	if (isMonitorThreadActive) {
 		isThreadPaused = true;   // prevent processing TickData, etc while thread is shutting down
 		std::cout << "Threads will be stopped soon...." << std::endl;
-		signal_exit.set_value(); // set value into promise
-		killThread = true;
-
-		// wait for background thread to finish then join to main thread
-		my_thread.join();
+		monitoring_thread.request_stop();
 	}
 }
 
@@ -176,8 +163,8 @@ bool tws_disconnect()
 	isThreadPaused = true;
 
     EndMonitorThread();
-
     client.disconnect();
+
     bool res = (tws_isConnected(), false, true);
 
     return res;
