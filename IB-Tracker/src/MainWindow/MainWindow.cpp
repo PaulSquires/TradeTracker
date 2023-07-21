@@ -269,20 +269,13 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
-    // Position the Category control
-    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_CATEGORY);
+    // Position the Warning label
+    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
     int nTop = AfxScaleY(32);
     int nHeight = AfxScaleY(25);
     int nWidth = nMiddlePanelWidth; 
-    DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
 
-
-    // Position the Warning label
-    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
-    nTop = AfxScaleY(32);
-    nHeight = AfxScaleY(25);
-    nWidth = nRightPanelWidth; 
-    DeferWindowPos(hdwp, hCtl, 0, cx - nRightPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
 
     EndDeferWindowPos(hdwp);
 
@@ -334,11 +327,9 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    // We create the Category control at the bottom of the MainWindow
-    CreateCategoryControl(hwnd, IDC_MAINWINDOW_CATEGORY, 0, 0, 0, 0, true);
 
     // Create a Warning label at bottom of the MainWindow to display warning messages.
-    CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"WARNING !!!", COLOR_YELLOW, COLOR_RED,
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"WARNING !!!", COLOR_YELLOW, COLOR_RED,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
 
 

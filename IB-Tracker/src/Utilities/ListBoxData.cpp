@@ -34,6 +34,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
 #include "DailyTotals/DailyTotals.h"
+#include "Config/Config.h"
 #include "Utilities/Colors.h"
 
 extern HWND HWND_SIDEMENU;
@@ -296,6 +297,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     for (int ii = nStart; ii <= nEnd; ii++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
+        if (ld->lineType == LineType::CategoryHeader) break;
         for (int i = 0; i < 10; i++) {
             if (nColWidth[i] == 0) continue;
             fontSize = ld->col[i].fontSize;
@@ -407,6 +409,23 @@ void ListBoxData_RequestMarketData(HWND hListBox)
 
     if (tws_isConnected())
         PrevMarketDataLoaded = true;
+}
+
+
+// ========================================================================================
+// Create the display data for a Category Header line
+// ========================================================================================
+void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    std::wstring wszText = AfxUpper(GetCategoryDescription(trade->category));
+
+    ld->SetData(0, nullptr, -1, wszText, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleRegular);
+
+    ld->lineType = LineType::CategoryHeader;
+    ListBox_AddString(hListBox, ld);
 }
 
 
@@ -1081,9 +1100,20 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
         int nLeft = 0;
         int colWidth = 0;
+        int colStart = 0;
+        int colEnd = 10;
+
+        // If this is a Category separator line then we need to draw it differently
+        // then a regular that would be drawn (full line width)
+        if (ld != nullptr) {
+            if (ld->lineType == LineType::CategoryHeader) {
+                colStart = 0;
+                colEnd = 1;
+            }
+        }
 
         // Draw each of the columns
-        for (int i = 0; i < 10; i++) {
+        for (int i = colStart; i < colEnd; i++) {
             if (ld == nullptr) break;
             if (ld->col[i].colWidth == 0) break;
 
@@ -1097,7 +1127,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
 
-            colWidth = AfxScaleX((float)ld->col[i].colWidth);
+            colWidth = (ld->lineType == LineType::CategoryHeader) ? nWidth : AfxScaleX((float)ld->col[i].colWidth);
 
             backBrush.SetColor(nBackColor);
             graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);

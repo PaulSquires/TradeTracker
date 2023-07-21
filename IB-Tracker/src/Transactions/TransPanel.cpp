@@ -141,10 +141,6 @@ void TransPanel_ShowTransactions()
     std::vector<TransData> tdata;
     tdata.reserve(2000);    // reserve space for 2000 Transactions
 
-    // Get the currently active Category index. By default, this will be ALL categories
-    // but the user may have selected a specific category.
-    int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
-
     bool processTrade = false;
     std::wstring wszText;
     std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
@@ -152,11 +148,11 @@ void TransPanel_ShowTransactions()
 
     for (auto& trade : trades) {
         for (auto& trans : trade->Transactions) {
-            processTrade = false;
-            if (category == (int)Category::CategoryAll) processTrade = true;   // ALL categories
-            if (trade->category == category) processTrade = true;   // specific selected category
+            //processTrade = false;
+            //if (category == (int)Category::CategoryAll) processTrade = true;   // ALL categories
+            //if (trade->category == category) processTrade = true;   // specific selected category
 
-            if (processTrade == false) continue;
+            //if (processTrade == false) continue;
 
             wszText = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
             wszText = AfxTrim(wszText);
@@ -217,9 +213,6 @@ void TransPanel_ShowTransactions()
     // Ensure that the TransDetail panel and Detail Panel are set
     MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
     MainWindow_SetRightPanel(HWND_TRANSDETAIL);
-
-    // Show the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 

@@ -130,30 +130,17 @@ void ActiveTrades_ShowActiveTrades()
     HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
     static int tickerId = 100;
+    int curSel = 1;
 
     tws_PauseTWS();
 
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
 
-    // Get the currently active Category index. By default, this will be ALL categories
-    // but the user may have selected a specific category.
-    int category = CategoryControl_GetSelectedIndex(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY));
-
-    // Set the label text indicated the type of trades being listed
-    std::wstring wszText = L"Active Trades:  ";
-    if (category == (int)Category::CategoryAll) {
-        wszText += L"ALL";
-    } else{
-        wszText += GetCategoryDescription(category);
-    }
-    CustomLabel_SetText(hLabel, wszText);
+    CustomLabel_SetText(hLabel, L"Active Trades");
 
     // Ensure that the Trades panel is set
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
-
-    // Show the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_SHOW);
 
 
     // Determine if we need to initialize the listbox and request market data
@@ -164,24 +151,34 @@ void ActiveTrades_ShowActiveTrades()
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
         // In case of newly added/deleted data ensure data is sorted.
-        // Sort the trades vector based on ticker symbol
+        // Sort based on Category and then TickerSymbol
         std::sort(trades.begin(), trades.end(),
             [](const auto trade1, const auto trade2) {
-                return (trade1->tickerSymbol < trade2->tickerSymbol) ? true : false;
+                {
+                    if (trade1->category < trade2->category) return true;
+                    if (trade2->category < trade1->category) return false;
+
+                    // a=b for primary condition, go to secondary
+                    if (trade1->tickerSymbol < trade2->tickerSymbol) return true;
+                    if (trade2->tickerSymbol < trade1->tickerSymbol) return false;
+
+                    return false;
+                } 
             });
 
+
+
         // Create the new ListBox line data and initiate the new market data.
+        int categoryHeader = -1;
         for (const auto& trade : trades) {
             // We are displaying only all open trades for the selected Category
             if (trade->isOpen) {
-                if (category == (int)Category::CategoryAll) {   // ALL categories
-                    ListBoxData_OpenPosition(hListBox, trade, tickerId);
-                    tickerId++;
+                if (trade->category != categoryHeader) {
+                    ListBoxData_AddCategoryHeader(hListBox, trade);
+                    categoryHeader = trade->category;
                 }
-                else if (trade->category == category) {   // specific selected category
-                    ListBoxData_OpenPosition(hListBox, trade, tickerId);
-                    tickerId++;
-                }
+                ListBoxData_OpenPosition(hListBox, trade, tickerId);
+                tickerId++;
                 if (tickerId > 500) tickerId = 100;
             }
         }
@@ -196,8 +193,9 @@ void ActiveTrades_ShowActiveTrades()
         // If trades exist then select the first trade so that its history will show
         if (ListBox_GetCount(hListBox) == 0) {
             ListBoxData_AddBlankLine(hListBox);
+            curSel = 0;
         }
-        ActiveTrades_ShowListBoxItem(0);
+        ActiveTrades_ShowListBoxItem(curSel);
 
 
         // Redraw the ListBox to ensure that any recalculated columns are 
@@ -214,7 +212,7 @@ void ActiveTrades_ShowActiveTrades()
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
-    ListBox_SetSel(hListBox, true, 0);
+    ListBox_SetSel(hListBox, true, curSel);
     SetFocus(hListBox);
 
     tws_ResumeTWS();

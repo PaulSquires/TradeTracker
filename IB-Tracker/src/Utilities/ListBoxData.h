@@ -62,7 +62,8 @@ enum class LineType {
     OptionsLeg,
     Shares,
     Futures,
-    TransactionHeader
+    TransactionHeader,
+    CategoryHeader
 };
 
 class ListBoxData {
@@ -132,6 +133,7 @@ void ListBoxData_HistoryOptionsLeg(
 void ListBoxData_HistorySharesLeg(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg);
 void ListBoxData_AddBlankLine(HWND hListBox);
+void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade);
 void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closedDate);
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
 void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);

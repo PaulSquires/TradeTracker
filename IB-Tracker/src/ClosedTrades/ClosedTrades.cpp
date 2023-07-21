@@ -156,8 +156,6 @@ void ClosedTrades_ShowClosedTrades()
     // Ensure that the Closed panel is set
     MainWindow_SetMiddlePanel(HWND_CLOSEDTRADES);
 
-    // Hide the Category control
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_CATEGORY), SW_HIDE);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
