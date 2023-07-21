@@ -243,7 +243,7 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
     
-    int MARGIN = AfxScaleY(35);
+    int MARGIN = AfxScaleY(23);
     int INNER_MARGIN = AfxScaleY(6);
     int SPLITTER_WIDTH = AfxScaleX(6);
 
@@ -271,8 +271,8 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     // Position the Warning label
     HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
-    int nTop = AfxScaleY(32);
-    int nHeight = AfxScaleY(25);
+    int nTop = AfxScaleY(20);
+    int nHeight = AfxScaleY(16);
     int nWidth = nMiddlePanelWidth; 
     DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
 
@@ -295,11 +295,11 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_MAINWINDOW = hwnd;
 
-    HWND_LEFTPANEL = SideMenu.Create( hwnd, L"", 0, 0, SideMenu_WIDTH, 0,
+    HWND_LEFTPANEL = SideMenu.Create( hwnd, L"", 0, 0, SIDEMENU_WIDTH, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, TradeHistory_WIDTH, 0,
+    HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, TRADEHISTORY_WIDTH, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 

@@ -27,39 +27,21 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "Category.h"
 
 
-class CSideMenu : public CWindowBase<CSideMenu>
+class CCategoryPopup: public CWindowBase<CCategoryPopup>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
-const int IDC_SIDEMENU_FIRSTITEM       = 100;
-const int IDC_SIDEMENU_LOGO            = IDC_SIDEMENU_FIRSTITEM;
-const int IDC_SIDEMENU_APPNAME         = 102;
-const int IDC_SIDEMENU_APPVERSION      = 103;
-const int IDC_SIDEMENU_ACTIVETRADES    = 104;
-const int IDC_SIDEMENU_CLOSEDTRADES    = 105;
-const int IDC_SIDEMENU_CONNECTTWS      = 106;
-const int IDC_SIDEMENU_TICKERTOTALS    = 107;
-const int IDC_SIDEMENU_DAILYTOTALS     = 108;
-const int IDC_SIDEMENU_RECONCILE       = 109;
-const int IDC_SIDEMENU_TRANSACTIONS    = 110;
-const int IDC_SIDEMENU_NEWSHARESTRADE  = 111;
-const int IDC_SIDEMENU_NEWFUTURESTRADE = 112;
-const int IDC_SIDEMENU_NEWOPTIONSTRADE = 113;
 
-const int IDC_SIDEMENU_NEWSHORTLT112   = 114;
-const int IDC_SIDEMENU_NEWSHORTSTRANGLE= 115;
-const int IDC_SIDEMENU_NEWSHORTPUT     = 116;
-const int IDC_SIDEMENU_NEWSHORTCALL    = 117;
+const int IDC_CATEGORYPOPUP_LISTBOX = 100;
 
-const int IDC_SIDEMENU_LASTITEM = IDC_SIDEMENU_NEWSHORTCALL;
+const int CATEGORYPOPUP_LISTBOX_ROWHEIGHT = 24;
+const int CATEGORYPOPUP_WIDTH = CATEGORYCONTROL_COMBOBOX_WIDTH + CATEGORYCONTROL_COMMAND_WIDTH;
 
-const int IDC_SIDEMENU_AUTOCONNECT     = 120;
+HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl);
 
-const int SIDEMENU_WIDTH = 180;
-
-void SideMenu_SelectMenuItem(HWND hParent, int CtrlId);
-int SideMenu_GetActiveMenuItem(HWND hParent);

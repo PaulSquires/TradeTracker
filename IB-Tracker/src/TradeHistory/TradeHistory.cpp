@@ -351,7 +351,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
-    int margin = AfxScaleY(TradeHistory_MARGIN);
+    int margin = AfxScaleY(TRADEHISTORY_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 

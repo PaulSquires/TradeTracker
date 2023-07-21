@@ -94,7 +94,7 @@ void SideMenu_MakeSeparator(HWND hwnd, int nTop)
     HWND hCtl = CreateCustomLabel(
         hwnd, -1,
         CustomLabelType::LineHorizontal,
-        0, nTop, SideMenu_WIDTH, 10);
+        0, nTop, SIDEMENU_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = COLOR_BLACK;
@@ -116,7 +116,7 @@ void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring w
     HWND hCtl = CreateCustomLabel(
         hwnd, CtrlId,
         CustomLabelType::TextOnly,
-        0, nTop, SideMenu_WIDTH, 28);
+        0, nTop, SIDEMENU_WIDTH, 28);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = true;
@@ -154,7 +154,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel* pData = nullptr;
 
     // HEADER CONTROLS
-    nLeft = (SideMenu_WIDTH - 68) / 2;
+    nLeft = (SIDEMENU_WIDTH - 68) / 2;
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_LOGO,
@@ -176,7 +176,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         hwnd,
         IDC_SIDEMENU_APPNAME,
         CustomLabelType::TextOnly,
-        0, 100, SideMenu_WIDTH, 18);
+        0, 100, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
@@ -194,7 +194,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         hwnd,
         IDC_SIDEMENU_APPVERSION,
         CustomLabelType::TextOnly,
-        0, 118, SideMenu_WIDTH, 18);
+        0, 118, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;

@@ -42,9 +42,6 @@ public:
     DWORD BackColor{};
     DWORD BackColorHot{};
     DWORD BackColorButtonDown{};
-
-    int UnderlineHeight = 2;
-    DWORD UnderlineColor = COLOR_WHITEMEDIUM;
     DWORD BackColorSelected{};
 
     DWORD TextColor{};
@@ -55,36 +52,46 @@ public:
 
 enum class Category
 {
-    Category0 = 0,   // gray
-    Category1 = 1,   // blue
-    Category2 = 2,   // pink
-    Category3 = 3,   // green
-    Category4 = 4,   // orange
-    Category5 = 5,   // red
-    Category6 = 6,   // teal
-    Category7 = 7,   // Khaki
-    CategoryAll = 8,
-    CategorySetup = 200
+    Category_Start = 0,
+    Category0 = 0,   
+    Category1 = 1,   
+    Category2 = 2,   
+    Category3 = 3,   
+    Category4 = 4,   
+    Category5 = 5,   
+    Category6 = 6,   
+    Category7 = 7,   
+    Category_End = 7
 };
 
+
+const int IDC_CATEGORYCONTROL_COMBOBOX = 100;
+const int IDC_CATEGORYCONTROL_COMMAND  = 101;
+const int IDC_CATEGORYCONTROL_SETUP    = 102;
+
+const int CATEGORYCONTROL_COMBOBOX_WIDTH = 170;
+const int CATEGORYCONTROL_COMMAND_WIDTH  = 23;
+const int CATEGORYCONTROL_SETUP_WIDTH    = 23;
+const int CATEGORYCONTROL_HMARGIN        = 1;
+const int CATEGORYCONTROL_HEIGHT         = 23;
+
+
 const int IDC_CATEGORYCONTROL_FIRST  = 140;
-const int IDC_CATEGORYCONTROL_GRAY   = 140;
-const int IDC_CATEGORYCONTROL_BLUE   = 141;
-const int IDC_CATEGORYCONTROL_PINK   = 142;
-const int IDC_CATEGORYCONTROL_GREEN  = 143;
-const int IDC_CATEGORYCONTROL_ORANGE = 144;
-const int IDC_CATEGORYCONTROL_RED    = 145;
-const int IDC_CATEGORYCONTROL_TEAL   = 146;
-const int IDC_CATEGORYCONTROL_KHAKI  = 147;
-const int IDC_CATEGORYCONTROL_ALL    = 148;
+const int IDC_CATEGORYCONTROL_0      = 140;
+const int IDC_CATEGORYCONTROL_1      = 141;
+const int IDC_CATEGORYCONTROL_2      = 142;
+const int IDC_CATEGORYCONTROL_3      = 143;
+const int IDC_CATEGORYCONTROL_4      = 144;
+const int IDC_CATEGORYCONTROL_5      = 145;
+const int IDC_CATEGORYCONTROL_6      = 146;
+const int IDC_CATEGORYCONTROL_7      = 147;
+const int IDC_CATEGORYCONTROL_8      = 148;
 const int IDC_CATEGORYCONTROL_LAST   = 148;
-const int IDC_CATEGORYCONTROL_SETUP  = 200;
 
 CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
 int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);
 int CategoryControl_GetSelectedIndex(HWND hwnd);
 void CategoryControl_SetSelectedIndex(HWND hwnd, int index);
 
-HWND CreateCategoryControl(HWND hWndParent, int CtrlId,
-    int nLeft, int nTop, int nWidth, int nHeight, bool AllowAllButton);
+HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex);
 

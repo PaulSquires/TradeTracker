@@ -45,14 +45,14 @@ extern HWND HWND_SIDEMENU;
 
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
-    { 0, L"Gray"},
-    { 1, L"Blue" },
-    { 2, L"Pink" },
-    { 3, L"Green" },
-    { 4, L"Orange" },
-    { 5, L"Red" },
-    { 6, L"Teal" },
-    { 7, L"Khaki" }
+    { 0, L"Category 0"},
+    { 1, L"Category 1" },
+    { 2, L"Category 2" },
+    { 3, L"Category 3" },
+    { 4, L"Category 4" },
+    { 5, L"Category 5" },
+    { 6, L"Category 6" },
+    { 7, L"Category 7" }
 };
 
 std::unordered_map<std::string, std::string> mapFuturesExchanges {

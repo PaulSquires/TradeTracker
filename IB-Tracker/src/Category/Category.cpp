@@ -34,27 +34,8 @@ SOFTWARE.
 
 #include "Category.h"
 #include "CategoryDialog.h"
+#include "CategoryPopup.h"
 
-
-
-// ========================================================================================
-// Get the control id of the selected Category in the group.
-// ========================================================================================
-int CategoryControl_GetSelectedId(HWND hwnd)
-{
-    CustomLabel* pData = nullptr;
-
-    for (int i = IDC_CATEGORYCONTROL_FIRST; i <= IDC_CATEGORYCONTROL_LAST; ++i) {
-        HWND hCtl = GetDlgItem(hwnd, i);
-        pData = CustomLabel_GetOptions(hCtl);
-
-        if (pData != nullptr) {
-            if (pData->IsSelected)
-                return i;
-        }
-    }
-    return -1;
-}
 
 
 // ========================================================================================
@@ -62,35 +43,7 @@ int CategoryControl_GetSelectedId(HWND hwnd)
 // ========================================================================================
 int CategoryControl_GetSelectedIndex(HWND hwnd)
 {
-    return CategoryControl_GetSelectedId(hwnd) - IDC_CATEGORYCONTROL_FIRST;
-}
-
-
-// ========================================================================================
-// Select the incoming control id in the Category group.
-// ========================================================================================
-void CategoryControl_SetSelectedId(HWND hwnd, int CtrlId)
-{
-    CustomLabel* pData = nullptr;
-
-    for (int i = IDC_CATEGORYCONTROL_FIRST; i <= IDC_CATEGORYCONTROL_LAST; ++i) {
-        HWND hCtl = GetDlgItem(hwnd, i);
-        pData = CustomLabel_GetOptions(hCtl);
-
-        if (pData != nullptr) {
-            pData->IsSelected = false;
-            CustomLabel_SetOptions(hCtl, pData);
-        }
-    }
-
-    HWND hCtl = GetDlgItem(hwnd, CtrlId);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData != nullptr) {
-        pData->IsSelected = true;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
-    AfxRedrawWindow(hwnd);
+    return CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX));
 }
 
 
@@ -99,51 +52,45 @@ void CategoryControl_SetSelectedId(HWND hwnd, int CtrlId)
 // ========================================================================================
 void CategoryControl_SetSelectedIndex(HWND hwnd, int index)
 {
-    int CtrlId = index + IDC_CATEGORYCONTROL_FIRST;
-    CategoryControl_SetSelectedId(hwnd, CtrlId);
+    CustomLabel_SetUserDataInt(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX), index);
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX), GetCategoryDescription(index));
 }
 
 
 // ========================================================================================
 // Create child controls for the Window.
 // ========================================================================================
-void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
+void CategoryControl_OnCreate(HWND hwnd)
 {
     HWND hCtl = NULL;
 
-    int margin = 1;
     int nLeft = 0;
 
     CustomLabel* pData = nullptr;
 
-    if (AllowAllButton == true) {
-        hCtl = CreateCustomLabel(
-            hwnd,
-            IDC_CATEGORYCONTROL_ALL,
-            CustomLabelType::TextOnly,
-            nLeft, 0, 24, 24);
-        pData = CustomLabel_GetOptions(hCtl);
-        if (pData) {
-            pData->BackColor = COLOR_GRAYMEDIUM;
-            pData->SelectorColor = pData->BackColor;
-            pData->TextColor = COLOR_WHITEDARK;
-            pData->TextColorHot = COLOR_WHITEMEDIUM;
-            pData->BackColorHot = COLOR_GRAYLIGHT;
-            pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-            pData->wszText = L"ALL";
-            pData->wszToolTip = L"All Categories";
-            pData->HotTestEnable = true;
-            pData->PointerHot = CustomLabelPointer::Hand;
-            CustomLabel_SetOptions(hCtl, pData);
-        }
-        nLeft += 24 + margin;
-    }
+    std::wstring wszFontName = L"Segoe UI";
+    int FontSize = 8;
 
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, GetCategoryDescription((int)Category::Category0),
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM,
+        CustomLabelAlignment::MiddleLeft, nLeft, 0, CATEGORYCONTROL_COMBOBOX_WIDTH, CATEGORYCONTROL_HEIGHT);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+    CustomLabel_SetUserDataInt(hCtl, (int)Category::Category0);
+
+    nLeft += CATEGORYCONTROL_COMBOBOX_WIDTH;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMMAND, GLYPH_DROPDOWN,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        CustomLabelAlignment::MiddleCenter, nLeft, 0, CATEGORYCONTROL_COMMAND_WIDTH, CATEGORYCONTROL_HEIGHT);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    nLeft += CATEGORYCONTROL_COMMAND_WIDTH + CATEGORYCONTROL_HMARGIN;
     hCtl = CreateCustomLabel(
         hwnd,
-        IDC_CATEGORYCONTROL_GRAY,
+        IDC_CATEGORYCONTROL_SETUP,
         CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
+        nLeft, 0, CATEGORYCONTROL_SETUP_WIDTH, CATEGORYCONTROL_HEIGHT);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = COLOR_GRAYMEDIUM;
@@ -152,182 +99,13 @@ void CategoryControl_OnCreate(HWND hwnd, bool AllowAllButton)
         pData->TextColorHot = COLOR_WHITEMEDIUM;
         pData->BackColorHot = COLOR_GRAYLIGHT;
         pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = GetCategoryDescription(0);
+        pData->wszText = GLYPH_SETUP;
+        pData->wszToolTip = L"Configure Categories";
         pData->HotTestEnable = true;
         pData->PointerHot = CustomLabelPointer::Hand;
         CustomLabel_SetOptions(hCtl, pData);
     }
-    nLeft += 24 + margin;
 
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_BLUE,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_BLUE;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = GetCategoryDescription(1);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_PINK,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_PINK;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = GetCategoryDescription(2);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_GREEN,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_GREEN;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = GetCategoryDescription(3);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_ORANGE,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_ORANGE;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE; 
-        pData->wszToolTip = GetCategoryDescription(4);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_RED,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_RED;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE;
-        pData->wszToolTip = GetCategoryDescription(5);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_TEAL,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_TEAL;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE;
-        pData->wszToolTip = GetCategoryDescription(6);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_KHAKI,
-        CustomLabelType::TextOnly,
-        nLeft, 0, 24, 24);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_KHAKI;
-        pData->TextColorHot = pData->TextColor;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_CIRCLE;
-        pData->wszToolTip = GetCategoryDescription(7);
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-    nLeft += 24 + margin;
-
-    if (AllowAllButton == true) {
-        hCtl = CreateCustomLabel(
-            hwnd,
-            IDC_CATEGORYCONTROL_SETUP,
-            CustomLabelType::TextOnly,
-            nLeft, 0, 24, 24);
-        pData = CustomLabel_GetOptions(hCtl);
-        if (pData) {
-            pData->BackColor = COLOR_GRAYMEDIUM;
-            pData->SelectorColor = pData->BackColor;
-            pData->TextColor = COLOR_WHITEDARK;
-            pData->TextColorHot = COLOR_WHITEMEDIUM;
-            pData->BackColorHot = COLOR_GRAYLIGHT;
-            pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-            pData->wszText = GLYPH_SETUP;
-            pData->wszToolTip = L"Configure Categories";
-            pData->HotTestEnable = true;
-            pData->PointerHot = CustomLabelPointer::Hand;
-            CustomLabel_SetOptions(hCtl, pData);
-        }
-    }
 }
 
 
@@ -352,22 +130,16 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 
         if (hCtl == NULL) return 0;
 
+        if (CtrlId == IDC_CATEGORYCONTROL_COMBOBOX || CtrlId == IDC_CATEGORYCONTROL_COMMAND) {
+            // Clicked on the combobox dropdown or label itself
+            CategoryPopup_CreatePopup(hWnd, GetDlgItem(hWnd, IDC_CATEGORYCONTROL_COMBOBOX));
+        }
+
         if (CtrlId == IDC_CATEGORYCONTROL_SETUP) {
             if (CategoryDialog_Show() == DIALOG_RETURN_OK) {
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_GRAY), GetCategoryDescription(0));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_BLUE), GetCategoryDescription(1));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_PINK), GetCategoryDescription(2));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_GREEN), GetCategoryDescription(3));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_ORANGE), GetCategoryDescription(4));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_RED), GetCategoryDescription(5));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_TEAL), GetCategoryDescription(6));
-                CustomLabel_SetToolTip(GetDlgItem(hWnd, IDC_CATEGORYCONTROL_KHAKI), GetCategoryDescription(7));
             }
         }
-        else {
-            CategoryControl_SetSelectedId(hWnd, CtrlId);
-            SendMessage(pData->hParent, MSG_CATEGORY_CHANGED, CtrlId, 0);
-        }
+        
         return 0;
     }
     break;
@@ -397,17 +169,6 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         Color backColor(pData->BackColor);
         SolidBrush backBrush(backColor);
         graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
-
-        int selectId = CategoryControl_GetSelectedId(hWnd);
-        RECT rc; GetWindowRect(GetDlgItem(hWnd, selectId), &rc);
-        MapWindowPoints(HWND_DESKTOP, hWnd, (LPPOINT)&rc, 2);
-
-        ARGB clrPen = pData->UnderlineColor;
-        Pen pen(clrPen, (REAL)pData->UnderlineHeight);
-
-        RectF rectF((REAL)rc.left- ps.rcPaint.left, (REAL)(ps.rcPaint.bottom - pData->UnderlineHeight),
-            (REAL)rc.right-rc.left, (REAL)pData->UnderlineHeight);
-        graphics.DrawRectangle(&pen, rectF);
 
         // Copy the entire memory bitmap to the main display
         BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -471,10 +232,7 @@ int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData)
 // ========================================================================================
 // Create the Category control.
 // ========================================================================================
-HWND CreateCategoryControl(
-    HWND hWndParent,
-    int CtrlId,
-    int nLeft, int nTop, int nWidth, int nHeight, bool AllowAllButton)
+HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex)
 {
     std::wstring wszClassName(L"CATEGORYCONTROL_CONTROL");
 
@@ -501,11 +259,15 @@ HWND CreateCategoryControl(
     float rx = AfxScaleRatioX();
     float ry = AfxScaleRatioY();
 
+    int nWidth = CATEGORYCONTROL_COMBOBOX_WIDTH + CATEGORYCONTROL_COMMAND_WIDTH + 
+                    CATEGORYCONTROL_HMARGIN + CATEGORYCONTROL_SETUP_WIDTH;
+    int nHeight = CATEGORYCONTROL_HEIGHT;
+
     HWND hCtl =
         CreateWindowEx(0, wszClassName.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), 
-            (int)(nWidth * rx), (int)((nHeight + 4) * ry),   // add room for underline
+            (int)(nWidth * rx), (int)(nHeight * ry),   
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
@@ -514,18 +276,11 @@ HWND CreateCategoryControl(
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
         pData->CtrlId = CtrlId;
-        pData->BackColor = (AllowAllButton == true) ? COLOR_BLACK : COLOR_GRAYDARK;
+        pData->BackColor = COLOR_GRAYDARK;
 
         CategoryControl_SetOptions(hCtl, pData);
-
-        CategoryControl_OnCreate(hCtl, AllowAllButton);
-
-        if (AllowAllButton) {
-            CategoryControl_SetSelectedId(hCtl, IDC_CATEGORYCONTROL_ALL);
-        }
-        else {
-            CategoryControl_SetSelectedId(hCtl, IDC_CATEGORYCONTROL_GRAY);
-        }
+        CategoryControl_OnCreate(hCtl);
+        CategoryControl_SetSelectedIndex(hCtl, SelectedIndex);
     }
 
     return hCtl;

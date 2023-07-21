@@ -189,11 +189,6 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
                 AfxMoney(abs(transEditDelete->total)) + wszDRCR;
     CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), wszText);
     
-    CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY), GLYPH_CIRCLE);
-    CustomLabel_SetTextColor(
-        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CATEGORY),
-        GetCategoryColor(trade->category));
-
     wszText = trade->tickerSymbol + L": " + trade->tickerName;
     if (trade->futureExpiry.length()) {
         wszText = wszText + L" ( " + AfxFormatFuturesDate(trade->futureExpiry) + L" )";
@@ -395,11 +390,8 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
         0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop += margin;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CATEGORY), 0,
-        0, nTop, AfxScaleX(18), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
-
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_SYMBOL), 0,
-        AfxScaleX(18), nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nTop += margin;
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LBLCOST), 0,
@@ -455,9 +447,6 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL1, L"Transaction Details",
         COLOR_WHITELIGHT, COLOR_BLACK);
-
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_CATEGORY, L"",
-        COLOR_WHITEDARK, COLOR_BLACK);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_SYMBOL, L"",
         COLOR_WHITEDARK, COLOR_BLACK);

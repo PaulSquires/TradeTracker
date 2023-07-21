@@ -45,6 +45,6 @@ const int IDC_HISTORY_LISTBOX_TransDetailS = 117;
 
 const int HISTORY_LISTBOX_ROWHEIGHT = 20;
 const int TICKER_TOTALS_LISTBOX_ROWHEIGHT = 16;
-const int TradeHistory_WIDTH = 400;
-const int TradeHistory_MARGIN = 24;
+const int TRADEHISTORY_WIDTH = 400;
+const int TRADEHISTORY_MARGIN = 24;
 

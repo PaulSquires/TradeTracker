@@ -111,7 +111,6 @@ int nClosedMinColWidth[10] =
 int nTransMinColWidth[10] =
 {
     15,     /* empty */
-    25,     /* Category */
     65,     /* Transaction Date */
     45,     /* Ticker Symbol */
     90,     /* Transaction Description */
@@ -119,6 +118,7 @@ int nTransMinColWidth[10] =
     60,     /* Price */
     60,     /* Fees */
     70,     /* Total */
+    0,
     0
 };
 
@@ -797,30 +797,26 @@ void ListBoxData_OutputTransaction(
     ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_ORANGE, font8, FontStyleRegular);
 
-    DWORD catTextColor = GetCategoryColor(trade->category);
-    ld->SetData(1, trade, tickerId, GLYPH_CIRCLE, StringAlignmentCenter, StringAlignmentCenter,
-        COLOR_GRAYDARK, catTextColor, font8, FontStyleRegular);
-
-    ld->SetData(2, trade, tickerId, trans->transDate, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(1, trade, tickerId, trans->transDate, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(3, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(2, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_ORANGE, font8, FontStyleRegular);
 
-    ld->SetData(4, trade, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(3, trade, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(5, trade, tickerId, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(4, trade, tickerId, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(6, trade, tickerId, AfxMoney(trans->price), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(5, trade, tickerId, AfxMoney(trans->price), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(7, trade, tickerId, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(6, trade, tickerId, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
     DWORD clr = (trans->total >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(8, trade, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(7, trade, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);

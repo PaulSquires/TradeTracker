@@ -569,7 +569,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // EDIT ACTION LABEL
     hCtl = CreateCustomLabel(
         hwnd, IDC_TRADEDIALOG_LBLEDITACTION, CustomLabelType::TextOnly,
-        545, 10, 120, 20);
+        542, 10, 120, 20);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->BackColor = COLOR_GRAYDARK;
@@ -892,7 +892,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
         IsNewSharesTradeAction(tdd.tradeAction) == true ||
         tdd.tradeAction == TradeAction::EditTransaction) {
-        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 465, 45, 200, 23, false);
+        int SelectedIndex = (tdd.trade != nullptr) ? tdd.trade->category : 0;
+        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 444, 45, SelectedIndex);
     }
 
 

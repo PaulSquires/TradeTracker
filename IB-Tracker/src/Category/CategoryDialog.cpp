@@ -39,7 +39,7 @@ SOFTWARE.
 
 HWND HWND_CATEGORYDIALOG = NULL;
 
-extern HWND HWND_MAINWINDOW;
+extern HWND HWND_TRADEDIALOG;
 extern int DialogReturnCode;
 
 CCategoryDialog CategoryDialog;
@@ -51,8 +51,7 @@ CCategoryDialog CategoryDialog;
 // ========================================================================================
 void CategoryDialog_OnClose(HWND hwnd)
 {
-    MainWindow_BlurPanels(false);
-    EnableWindow(HWND_MAINWINDOW, TRUE);
+    EnableWindow(HWND_TRADEDIALOG, TRUE);
     DestroyWindow(hwnd);
 }
 
@@ -89,66 +88,24 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = NULL;
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Category", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 20, 100, 22);
+        CustomLabelAlignment::MiddleLeft, 40, 20, 68, 22);
     CustomLabel_SimpleLabel(hwnd, -1, L"Description", TextColorDim, BackColor,
-        CustomLabelAlignment::MiddleLeft, 159, 20, 115, 22);
+        CustomLabelAlignment::MiddleLeft, 108, 20, 115, 22);
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Gray", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 45, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_GRAY, ES_LEFT, L"", 159, 45, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    int nTop = 45;
+    int ctlID = IDC_CATEGORYCONTROL_FIRST;
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Blue", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 70, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_BLUE, ES_LEFT, L"", 159, 70, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    for (int i = 0; i < 8; ++i) {
+        CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), TextColor, BackColor,
+            CustomLabelAlignment::MiddleLeft, 60, nTop, 20, 23);
+        hCtl = CreateCustomTextBox(hwnd, ctlID, ES_LEFT, L"", 110, nTop, 249, 23);
+        CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+        CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+        AfxSetWindowText(hCtl, GetCategoryDescription(i));
+        nTop += 25;
+        ctlID++;
+    }
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Pink", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 95, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_PINK, ES_LEFT, L"", 159, 95, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
-    CustomLabel_SimpleLabel(hwnd, -1, L"Green", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 120, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_GREEN, ES_LEFT, L"", 159, 120, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
-    CustomLabel_SimpleLabel(hwnd, -1, L"Orange", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 145, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_ORANGE, ES_LEFT, L"", 159, 145, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
-    CustomLabel_SimpleLabel(hwnd, -1, L"Red", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 170, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_RED, ES_LEFT, L"", 159, 170, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
-    CustomLabel_SimpleLabel(hwnd, -1, L"Teal", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 195, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_TEAL, ES_LEFT, L"", 159, 195, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
-    CustomLabel_SimpleLabel(hwnd, -1, L"Khaki", TextColor, BackColor,
-        CustomLabelAlignment::MiddleLeft, 40, 220, 86, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CATEGORYCONTROL_KHAKI, ES_LEFT, L"", 159, 220, 200, 23);
-    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
-
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_GRAY), GetCategoryDescription(0));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_BLUE), GetCategoryDescription(1));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_PINK), GetCategoryDescription(2));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_GREEN), GetCategoryDescription(3));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_ORANGE), GetCategoryDescription(4));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_RED), GetCategoryDescription(5));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_TEAL), GetCategoryDescription(6));
-    AfxSetWindowText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_KHAKI), GetCategoryDescription(7));
 
     // SAVE button
     std::wstring wszFontName = L"Segoe UI";
@@ -279,14 +236,11 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (hCtl == NULL) return 0;
 
         if (CtrlId == IDC_CATEGORYDIALOG_SAVE) {
-            SetCategoryDescription(0, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_GRAY)));
-            SetCategoryDescription(1, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_BLUE)));
-            SetCategoryDescription(2, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_PINK)));
-            SetCategoryDescription(3, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_GREEN)));
-            SetCategoryDescription(4, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_ORANGE)));
-            SetCategoryDescription(5, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_RED)));
-            SetCategoryDescription(6, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_TEAL)));
-            SetCategoryDescription(7, AfxGetWindowText(GetDlgItem(m_hwnd, IDC_CATEGORYCONTROL_KHAKI)));
+            int cID = IDC_CATEGORYCONTROL_FIRST;
+            for (int i = 0; i < 8; ++i) {
+                SetCategoryDescription(i, AfxGetWindowText(GetDlgItem(m_hwnd, cID)));
+                cID++;
+            }
             SaveConfig();
             DialogReturnCode = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
@@ -309,7 +263,7 @@ int CategoryDialog_Show()
     int nWidth = 410;
     int nHeight = 345;
 
-    HWND hwnd = CategoryDialog.Create(HWND_MAINWINDOW, L"Category Management", 0, 0, nWidth, nHeight,
+    HWND hwnd = CategoryDialog.Create(HWND_TRADEDIALOG, L"Category Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -324,15 +278,9 @@ int CategoryDialog_Show()
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
 
-    // Blur the underlying MainWindow panels in order to reduce "visual noise" while
-    // our Trade Management popup is active. The MainWindow panels are shown again
-    // during our call to TradeDialog_OnClose() prior to enabling the MainWindow
-    // and this popup closing.
-    MainWindow_BlurPanels(true);
+    AfxCenterWindow(hwnd, HWND_TRADEDIALOG);
 
-    AfxCenterWindow(hwnd, HWND_MAINWINDOW);
-
-    EnableWindow(HWND_MAINWINDOW, FALSE);
+    EnableWindow(HWND_TRADEDIALOG, FALSE);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;

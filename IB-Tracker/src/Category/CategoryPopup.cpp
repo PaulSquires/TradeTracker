@@ -26,62 +26,38 @@ SOFTWARE.
 
 #include "pch.h"
 
+#include "Config/Config.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/ListBoxData.h"
-#include "TransDateFilter.h"
+#include "CategoryPopup.h"
 
 
-HWND HWND_TRANSDATEFILTER = NULL;
+HWND HWND_CATEGORYPOPUP = NULL;
 
-CTransDateFilter TransDateFilter;
+CCategoryPopup CategoryPopup;
 
-// Control on parent window that new selected date will be stored in and displayed.
-// That control must be a CustomLabel because we store the full ISO date in that
-// control's UserData string.
-HWND hDateUpdateParentCtl = NULL;
-TransDateFilterType SelectedFilterType = TransDateFilterType::Today;
+// Control on parent window that new selected category will be stored in and displayed.
+HWND hCategoryUpdateParentCtl = NULL;
+Category SelectedCategory = Category::Category0;
 
-
-
-// ========================================================================================
-// Return string based on TransDateFilterType
-// ========================================================================================
-std::wstring TransDateFilter_GetString(int idx)
-{
-    switch ((TransDateFilterType)idx)
-    {
-    case TransDateFilterType::Today: return L"Today";
-    case TransDateFilterType::Yesterday: return L"Yesterday";
-    case TransDateFilterType::Days7: return L"7 days";
-    case TransDateFilterType::Days14: return L"14 days";
-    case TransDateFilterType::Days30: return L"30 days";
-    case TransDateFilterType::Days60: return L"60 days";
-    case TransDateFilterType::Days120: return L"120 days";
-    case TransDateFilterType::YearToDate: return L"Year to Date";
-    case TransDateFilterType::Custom: return L"Custom";
-    default: return L"";
-    }
-}
 
 
 // ========================================================================================
 // Handle selecting an item in the listview. This will set the parent label window, update
 // its CustomDataInt, and set its text label. Finally, it will close the popup dialog.
 // ========================================================================================
-void TransDateFilter_DoSelected(int idx)
+void CategoryPopup_DoSelected(int idx)
 {
-    CustomLabel_SetUserDataInt(hDateUpdateParentCtl, idx);
-    CustomLabel_SetText(hDateUpdateParentCtl, TransDateFilter_GetString(idx).c_str());
-    PostMessage(GetParent(hDateUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
-        GetDlgCtrlID(hDateUpdateParentCtl), (LPARAM)hDateUpdateParentCtl);
-    DestroyWindow(HWND_TRANSDATEFILTER);
+    CustomLabel_SetUserDataInt(hCategoryUpdateParentCtl, idx);
+    CustomLabel_SetText(hCategoryUpdateParentCtl, GetCategoryDescription(idx));
+    DestroyWindow(HWND_CATEGORYPOPUP);
 }
 
 
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
+LRESULT CALLBACK CategoryPopup_ListBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -123,7 +99,7 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        TransDateFilter_DoSelected(idx);
+        CategoryPopup_DoSelected(idx);
         return 0;
     }
     break;
@@ -174,7 +150,7 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
 
     case WM_DESTROY:
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransDateFilter_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hWnd, CategoryPopup_ListBox_SubclassProc, uIdSubclass);
         break;
 
 
@@ -187,21 +163,21 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TransDateFilter
+// Process WM_SIZE message for window/dialog: CategoryPopup
 // ========================================================================================
-void TransDateFilter_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void CategoryPopup_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     int margin = AfxScaleX(1);
-    SetWindowPos(GetDlgItem(hwnd, IDC_TRANSDATEFILTER_LISTBOX), 0, 
-        margin, margin, cx-(margin*2), cy-(margin*2), SWP_NOZORDER | SWP_SHOWWINDOW);
+    SetWindowPos(GetDlgItem(hwnd, IDC_CATEGORYPOPUP_LISTBOX), 0,
+        margin, margin, cx - (margin * 2), cy - (margin * 2), SWP_NOZORDER | SWP_SHOWWINDOW);
     return;
 }
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: TransDateFilter
+// Process WM_ERASEBKGND message for window/dialog: CategoryPopup
 // ========================================================================================
-BOOL TransDateFilter_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL CategoryPopup_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -209,9 +185,9 @@ BOOL TransDateFilter_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: TransDateFilter
+// Process WM_PAINT message for window/dialog: CategoryPopup
 // ========================================================================================
-void TransDateFilter_OnPaint(HWND hwnd)
+void CategoryPopup_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -232,9 +208,9 @@ void TransDateFilter_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_DRAWITEM message for window/dialog: TransDateFilter
+// Process WM_DRAWITEM message for window/dialog: CategoryPopup
 // ========================================================================================
-void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
+void CategoryPopup_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 {
     if (lpDrawItem->itemID == -1) return;
 
@@ -287,8 +263,8 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         stringF.SetLineAlignment(StringAlignment::StringAlignmentCenter);
 
         std::wstring wszText;
-        
-        if ((int)SelectedFilterType == lpDrawItem->itemID) wszText = GLYPH_CHECKMARK;
+
+        if ((int)SelectedCategory == lpDrawItem->itemID) wszText = GLYPH_CHECKMARK;
         RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
         graphics.DrawString(wszText.c_str(), -1, &font, rcText1, &stringF, &textBrush);
@@ -311,32 +287,32 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: TransDateFilter
+// Process WM_MEASUREITEM message for window/dialog: CategoryPopup
 // ========================================================================================
-void TransDateFilter_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+void CategoryPopup_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    lpMeasureItem->itemHeight = AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT);
+    lpMeasureItem->itemHeight = AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT);
 }
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: TransDateFilter
+// Process WM_CREATE message for window/dialog: CategoryPopup
 // ========================================================================================
-BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL CategoryPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_TRANSDATEFILTER = hwnd;
+    HWND_CATEGORYPOPUP = hwnd;
 
     HWND hCtl =
-        TransDateFilter.AddControl(Controls::ListBox, hwnd, IDC_TRANSDATEFILTER_LISTBOX, L"",
+        CategoryPopup.AddControl(Controls::ListBox, hwnd, IDC_CATEGORYPOPUP_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)TransDateFilter_ListBox_SubclassProc,
-            IDC_TRANSDATEFILTER_LISTBOX, NULL);
+            (SUBCLASSPROC)CategoryPopup_ListBox_SubclassProc,
+            IDC_CATEGORYPOPUP_LISTBOX, NULL);
 
-    for (int i = (int)TransDateFilterType::Today; i <= (int)TransDateFilterType::Custom; ++i) {
-        int idx = ListBox_AddString(hCtl, TransDateFilter_GetString(i).c_str());
+    for (int i = (int)Category::Category_Start; i <= (int)Category::Category_End; ++i) {
+        int idx = ListBox_AddString(hCtl, GetCategoryDescription(i).c_str());
         ListBox_SetItemData(hCtl, idx, i);
     }
 
@@ -347,19 +323,19 @@ BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CCategoryPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
     static bool destroyed = false;
 
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, TransDateFilter_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDateFilter_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TransDateFilter_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TransDateFilter_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDateFilter_OnMeasureItem);
-        HANDLE_MSG(m_hwnd, WM_DRAWITEM, TransDateFilter_OnDrawItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, CategoryPopup_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, CategoryPopup_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, CategoryPopup_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, CategoryPopup_OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, CategoryPopup_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, CategoryPopup_OnDrawItem);
 
 
     case WM_DESTROY:
@@ -373,7 +349,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_NCACTIVATE:
     {
-        // Detect that we have clicked outside the popup TransDateFilter picker and will now close it.
+        // Detect that we have clicked outside the popup CategoryPopup and will now close it.
         if (wParam == false) {
             // Set our static flag to prevent recursion
             if (destroyed == false) {
@@ -393,31 +369,31 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 // ========================================================================================
-// Create TransDateFilter picker control and move it into position under the 
+// Create category popup control and move it into position under the 
 // specified incoming control.
 // ========================================================================================
-HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
+HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 {
-    TransDateFilter.Create(hParent, L"", 0, 0, 0, 0,
+    CategoryPopup.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(TransDateFilter.WindowHandle(), HWND_TOP,
-        rc.left-margin, rc.bottom,
-        AfxScaleX(TRANSDATEFILTER_WIDTH) + (margin * 2),
-        AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT * 9),
+    SetWindowPos(CategoryPopup.WindowHandle(), HWND_TOP,
+        rc.left - margin, rc.bottom,
+        AfxScaleX(CATEGORYPOPUP_WIDTH),
+        AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT * ((int)Category::Category_End + 1)),
         SWP_SHOWWINDOW);
 
-    // Get the current selected filter and apply it to the popup
-    SelectedFilterType = (TransDateFilterType)CustomLabel_GetUserDataInt(hParentCtl);
+    // Get the current selected category and apply it to the popup
+    SelectedCategory = (Category)CustomLabel_GetUserDataInt(hParentCtl);
 
 
     // Set the module global hUpdateParentCtl after the above is created in
     // to ensure the variable address is correct.
-    hDateUpdateParentCtl = hParentCtl;
+    hCategoryUpdateParentCtl = hParentCtl;
 
-    return TransDateFilter.WindowHandle();
+    return CategoryPopup.WindowHandle();
 }
 

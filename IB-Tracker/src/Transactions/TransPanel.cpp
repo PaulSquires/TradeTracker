@@ -615,14 +615,13 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         IDC_TRANS_HEADER, NULL);
     int nWidth = AfxScaleX(50);
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Cat", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Description", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 5, nWidth, L"Quantity", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 6, nWidth, L"Price", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 7, nWidth, L"Fees", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 8, nWidth, L"Total", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Description", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, nWidth, L"Quantity", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 5, nWidth, L"Price", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 6, nWidth, L"Fees", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 7, nWidth, L"Total", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 
@@ -730,7 +729,6 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRANS_CMDTRANSDATE || CtrlId == IDC_TRANS_TRANSDATE) {
             // Clicked on the Date Filter dropdown or label itself
-            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE));
             TransDateFilter_CreatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE));
         }
 
