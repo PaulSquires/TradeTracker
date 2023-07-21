@@ -422,7 +422,7 @@ void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& 
     std::wstring wszText = AfxUpper(GetCategoryDescription(trade->category));
 
     ld->SetData(0, nullptr, -1, wszText, StringAlignmentNear, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleRegular);
+        COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleBold);
 
     ld->lineType = LineType::CategoryHeader;
     ListBox_AddString(hListBox, ld);
@@ -461,7 +461,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     }
     else {
         // The Category icon will be colored 
-        DWORD catTextColor = GetCategoryColor(trade->category);
+        DWORD catTextColor = COLOR_WHITEDARK;  
         ld->SetData(0, trade, tickerId, GLYPH_CIRCLE, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             catTextColor, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
