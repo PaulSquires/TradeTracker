@@ -56,7 +56,8 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
 };
 
 std::unordered_map<std::string, std::string> mapFuturesExchanges {
-    { "ES",  "CME" }, 
+    { "AUD", "CME" },
+    { "ES",  "CME" },
     { "MES", "CME" }, 
     { "GC",  "COMEX" }, 
     { "NG",  "NYMEX" },
@@ -74,7 +75,12 @@ std::unordered_map<std::string, std::string> mapFuturesExchanges {
 // ========================================================================================
 std::string GetFuturesExchange(std::string szUnderlying)
 {
-    return mapFuturesExchanges.at(szUnderlying);
+    if (mapFuturesExchanges.count(szUnderlying)) {
+        return mapFuturesExchanges.at(szUnderlying);
+    }
+    else {
+        return "CME";
+    }
 }
 
 
