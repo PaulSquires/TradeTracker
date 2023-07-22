@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "Utilities/UserMessages.h"
+#include <wchar.h>
 
 
 CMainWindow Main;
@@ -43,15 +44,6 @@ name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 
-
-#ifndef ENABLECONSOLE
-// Set to zero to disable the console window when the application runs.
-// We would disable the console when distributing/deploying the final app.
-#define ENABLECONSOLE 1
-#endif
-
-
-#if (ENABLECONSOLE >= 1)
 void BindStdHandlesToConsole()
 {
     // Redirect the CRT standard input, output, and error handles to the console
@@ -79,7 +71,6 @@ void BindStdHandlesToConsole()
     std::wcin.clear();
     std::cin.clear();
 }
-#endif
 
 
 
@@ -124,14 +115,13 @@ int APIENTRY wWinMain(
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 
-
-#if (ENABLECONSOLE >= 1)
-    // Create console terminal for GUI application in order to print out debug messages
-    AllocConsole();
-
-    // Redirect stderr/stdout/stdin to new console
-    BindStdHandlesToConsole();
-#endif
+    // Only create the console if command line argument /console is passed.
+    if (wcscmp(lpCmdLine, L"/console") == 0) {
+        // Create console terminal for GUI application in order to print out debug messages
+        AllocConsole();
+        // Redirect stderr/stdout/stdin to new console
+        BindStdHandlesToConsole();
+    }
 
 
     // Load the Configuration file. 
