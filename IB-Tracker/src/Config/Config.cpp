@@ -56,18 +56,75 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
 };
 
 std::unordered_map<std::string, std::string> mapFuturesExchanges {
-    { "AUD", "CME" },
-    { "ES",  "CME" },
-    { "MES", "CME" }, 
-    { "GC",  "COMEX" }, 
-    { "NG",  "NYMEX" },
-    { "CL",  "NYMEX" },
-    { "MCL", "NYMEX" },
-    { "ZB",  "CBOT" },
-    { "ZC",  "CBOT" },
-    { "ZS",  "CBOT" }
+    { "/AUD", "CME" },
+    { "/ES",  "CME" },
+    { "/MES", "CME" }, 
+    { "/GC",  "COMEX" }, 
+    { "/NG",  "NYMEX" },
+    { "/CL",  "NYMEX" },
+    { "/MCL", "NYMEX" },
+    { "/ZB",  "CBOT" },
+    { "/ZC",  "CBOT" },
+    { "/ZS",  "CBOT" }
 };
 
+std::unordered_map<std::wstring, std::wstring> mapMultipliers {
+    { L"/AUD", L"100000" },
+    { L"/ES",  L"50" },
+    { L"/MES", L"5" },
+    { L"/CL",  L"1000" },
+    { L"/ZB",  L"1000" }
+};
+
+std::unordered_map<std::wstring, int> mapTickerDecimals {
+    { L"/AUD", 5 }
+};
+
+
+// ========================================================================================
+// Get the Ticker Decimals for the incoming underlying.
+// ========================================================================================
+int GetTickerDecimals(std::wstring wszUnderlying)
+{
+    if (mapTickerDecimals.count(wszUnderlying)) {
+        return mapTickerDecimals.at(wszUnderlying);
+    }
+    else {
+        return 2;
+    }
+}
+
+
+// ========================================================================================
+// Set the Ticker Decimals for the incoming underlying.
+// ========================================================================================
+void SetTickerDecimals(std::wstring wszUnderlying, int numDecimals)
+{
+    mapTickerDecimals[wszUnderlying] = numDecimals;
+}
+
+
+// ========================================================================================
+// Get the Futures Multiplier for the incoming underlying.
+// ========================================================================================
+std::wstring GetMultiplier(std::wstring wszUnderlying)
+{
+    if (mapMultipliers.count(wszUnderlying)) {
+        return mapMultipliers.at(wszUnderlying);
+    }
+    else {
+        return L"100";
+    }
+}
+
+
+// ========================================================================================
+// Set the Futures Multiplier for the incoming underlying.
+// ========================================================================================
+void SetMultiplier(std::wstring wszUnderlying, std::wstring wszMultiplier)
+{
+    mapMultipliers[wszUnderlying] = wszMultiplier;
+}
 
 
 // ========================================================================================
@@ -158,6 +215,14 @@ bool SaveConfig()
 
     for (auto item : mapFuturesExchanges) {
         db << "EXCHANGE|" << ansi2unicode(item.first) << "|" << ansi2unicode(item.second) << "\n";
+    }
+
+    for (auto item : mapMultipliers) {
+        db << "MULTIPLIER|" << item.first << "|" << item.second << "\n";
+    }
+
+    for (auto item : mapTickerDecimals) {
+        db << "TICKERDECIMALS|" << item.first << "|" << item.second << "\n";
     }
 
     db.close();
@@ -266,6 +331,40 @@ bool LoadConfig()
             std::string szUnderlying = unicode2ansi(wszUnderlying);
             std::string szExchange = unicode2ansi(wszExchange);
             SetFuturesExchange(szUnderlying, szExchange);
+
+            continue;
+        }
+
+
+        // Check for Multipliers
+        if (arg == L"MULTIPLIER") {
+            std::wstring wszUnderlying;
+            std::wstring wszMultiplier;
+            
+            try {wszUnderlying = st.at(1);}
+            catch (...) {continue;}
+            
+            try { wszMultiplier = st.at(2);}
+            catch (...) {continue;}
+            
+            SetMultiplier(wszUnderlying, wszMultiplier);
+
+            continue;
+        }
+
+
+        // Check for Ticker Decimals
+        if (arg == L"TICKERDECIMALS") {
+            std::wstring wszUnderlying;
+            int numDecimals;
+            
+            try {wszUnderlying = st.at(1);}
+            catch (...) {continue;}
+            
+            try { numDecimals = stoi(st.at(2));}
+            catch (...) {continue;}
+            
+            SetTickerDecimals(wszUnderlying, numDecimals);
 
             continue;
         }

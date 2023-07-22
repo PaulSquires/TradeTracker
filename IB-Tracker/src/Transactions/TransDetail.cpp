@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Database/database.h"
 #include "TradeDialog/TradeDialog.h"
 #include "Utilities/ListBoxData.h"
+#include "Config/Config.h"
 
 #include "TransDetail.h"
 
@@ -184,7 +185,7 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
     std::wstring wszPlusMinus = (transEditDelete->total < 0) ? L" + " : L" - ";
     std::wstring wszText;
     wszText = std::to_wstring(transEditDelete->quantity) + L" @ " +
-                AfxMoney(transEditDelete->price, false, 4) + wszPlusMinus +
+                AfxMoney(transEditDelete->price, false, GetTickerDecimals(trade->tickerSymbol)) + wszPlusMinus +
                 AfxMoney(transEditDelete->fees) + L" = " +
                 AfxMoney(abs(transEditDelete->total)) + wszDRCR;
     CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), wszText);

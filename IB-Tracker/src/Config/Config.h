@@ -31,6 +31,10 @@ const std::wstring version = L"1.0.0";
 bool SaveConfig();
 bool LoadConfig();
 
+int GetTickerDecimals(std::wstring wszUnderlying);
+void SetTickerDecimals(std::wstring wszUnderlying, int numDecimals);
+std::wstring GetMultiplier(std::wstring wszUnderlying);
+void SetMultiplier(std::wstring wszUnderlying, std::wstring wszMultiplier);
 std::string GetFuturesExchange(std::string szUnderlying);
 void SetFuturesExchange(std::string szUnderlying, std::string szExchange);
 std::wstring GetCategoryDescription(int idxCategory);

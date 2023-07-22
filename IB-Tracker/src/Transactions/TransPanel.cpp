@@ -148,12 +148,6 @@ void TransPanel_ShowTransactions()
 
     for (auto& trade : trades) {
         for (auto& trans : trade->Transactions) {
-            //processTrade = false;
-            //if (category == (int)Category::CategoryAll) processTrade = true;   // ALL categories
-            //if (trade->category == category) processTrade = true;   // specific selected category
-
-            //if (processTrade == false) continue;
-
             wszText = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
             wszText = AfxTrim(wszText);
             if (wszText.length() > 0) {
@@ -170,10 +164,19 @@ void TransPanel_ShowTransactions()
     }
 
 
-    // Sort the vector based on most recent date
+    // Sort the vector based on most recent date then by ticker
     std::sort(tdata.begin(), tdata.end(),
         [](const TransData data1, const TransData data2) {
-            return (data1.trans->transDate > data2.trans->transDate) ? true : false;
+            {
+                if (data1.trans->transDate > data2.trans->transDate) return true;
+                if (data2.trans->transDate > data1.trans->transDate) return false;
+
+                // a=b for primary condition, go to secondary
+                if (data1.trade->tickerSymbol < data2.trade->tickerSymbol) return true;
+                if (data2.trade->tickerSymbol < data1.trade->tickerSymbol) return false;
+
+                return false;
+            }
         });
 
 

@@ -233,7 +233,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // STRIKE PRICE
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
-        CustomTextBox_SetNumericAttributes(hCtl, 4, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
+        CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, lightBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         col = new GridColInfo;

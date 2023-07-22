@@ -809,8 +809,8 @@ void ListBoxData_OutputTransaction(
     ld->SetData(4, trade, tickerId, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(5, trade, tickerId, AfxMoney(trans->price), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+    ld->SetData(5, trade, tickerId, AfxMoney(trans->price, false, GetTickerDecimals(trade->tickerSymbol)), 
+        StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
     ld->SetData(6, trade, tickerId, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);

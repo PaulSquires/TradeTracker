@@ -40,6 +40,8 @@ SOFTWARE.
 
 #include "tws-client.h"
 
+extern double intelDecimalToDouble(Decimal decimal);
+
 
 
 // The NavPanel window is exposed external because other
@@ -310,7 +312,7 @@ void TwsClient::requestMktData(ListBoxData* ld)
 		contract.currency = "USD";
 		contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
 
-		std::string futExchange = GetFuturesExchange(contract.symbol);
+		std::string futExchange = GetFuturesExchange(symbol);
 		if (futExchange.length() == 0) futExchange = "CME";
 
 		contract.exchange = futExchange;
@@ -342,12 +344,46 @@ void TwsClient::connectAck() {
 }
 
 
+void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) {
+	if (isThreadPaused) return;
+
+	// Handle any HALTED tickers (Halted notifications only arrive via tickGeneric).
+	//Value	Description
+	//	- 1	Halted status not available.Usually returned with frozen data.
+	//	0	Not halted.This value will only be returned if the contract is in a TWS watchlist.
+	//	1	General halt.Trading halt is imposed for purely regulatory reasons with / without volatility halt.
+	//	2	Volatility halt.Trading halt is imposed by the exchange to protect against extreme volatility.
+
+	if (tickType == HALTED && value == 1 || value == 2) {  // 49
+		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+		int lbCount = ListBox_GetCount(hListBox);
+
+		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
+			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+			if (ld == nullptr) continue;
+
+			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
+				ld->SetTextData(COLUMN_TICKER_CHANGE, L"HALTED", COLOR_RED);
+				ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, nIndex);
+
+				// Only update/repaint the line containing the halt rather than the whole ListBox.
+				RECT rc{};
+				ListBox_GetItemRect(hListBox, nIndex, &rc);
+				InvalidateRect(hListBox, &rc, TRUE);
+				UpdateWindow(hListBox);
+
+				break;
+			}
+		}
+	}
+}
+
+
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 	if (isThreadPaused) return;
 
-
-	// Market data tick price callback. Handles all price related ticks.Every tickPrice callback is followed 
-	// by a tickSize.A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
+	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed 
+	// by a tickSize. A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
 	// this field currently available, whereas a tickPrice with a Green tickSize indicates an active 
 	// quote of 0 (typically for a combo contract).
 
@@ -372,7 +408,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		int lbCount = ListBox_GetCount(hListBox);
 		
 		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
-
+			
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
 			if (ld == nullptr) continue;
 
@@ -394,7 +430,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					if (ld->trade->tickerClosePrice == 0)
 						ld->trade->tickerClosePrice = price;
 				}
-
 
 				// Calculate the price change
 				double delta = 0;
@@ -439,11 +474,11 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				ld->SetTextData(COLUMN_TICKER_ITM, wszText, themeEl);  // ITM
 
-				wszText = AfxMoney(delta, true);
+				wszText = AfxMoney(delta, true, ld->trade->tickerDecimals);
 				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
 				ld->SetTextData(COLUMN_TICKER_CHANGE, wszText, themeEl);  // price change
 
-				wszText = AfxMoney(ld->trade->tickerLastPrice);
+				wszText = AfxMoney(ld->trade->tickerLastPrice, false, ld->trade->tickerDecimals);
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
 
 				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100, true) + L"%";
@@ -467,6 +502,8 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		}  // for
 	}  // if
 }
+
+
 
 void TwsClient::connectionClosed() {
 	printf("Connection Closed\n");
@@ -497,23 +534,15 @@ void TwsClient::positionEnd()
 	Reconcile_positionEnd();
 }
 
-
-
-
-void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
-	if (isThreadPaused) return;
-	// printf("Tick Size. Ticker Id: %ld, Field: %d, Size: %s\n", tickerId, (int)field, decimalStringToDisplay(size).c_str());
-}
-
 void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
 	double optPrice, double pvDividend,
 	double gamma, double vega, double theta, double undPrice) {
 	if (isThreadPaused) return;
 }
 
-void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) {
-	// printf("Tick Generic. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, Utils::doubleMaxString(value).c_str());
+void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
 	if (isThreadPaused) return;
+	//std::cout << "tickSize  id: " << tickerId << "  size: " << (int)intelDecimalToDouble(size) << std::endl;
 }
 
 void TwsClient::tickString(TickerId tickerId, TickType tickType, const std::string& value) {

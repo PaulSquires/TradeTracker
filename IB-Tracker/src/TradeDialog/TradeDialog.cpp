@@ -34,6 +34,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/UserMessages.h"
+#include "Config/Config.h"
 #include "TradeGrid/TradeGrid.h"
 
 
@@ -144,7 +145,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             // Show the Futures contract date field and set the label descriptions if needed.
             TradeDialogControls_ShowFuturesContractDate(hwnd);
 
-            // Attempt to lookup the specified Ticker and fill in the corresponding Company Name.
+            // Attempt to lookup the specified Ticker and fill in the corresponding Company Name & Multiplier.
             std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
             std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
             std::wstring companyName;
@@ -158,6 +159,9 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             }
 
             AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), companyName);
+
+            std::wstring wszMultiplier = GetMultiplier(tickerSymbol);
+            CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), wszMultiplier);
 
         }
         break;
