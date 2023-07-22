@@ -650,10 +650,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
     CustomLabel_SetUserData(hCtl, wszContractDate);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
-        TextColor, COLOR_GRAYMEDIUM, CustomLabelAlignment::MiddleLeft, 340, 45, 86, 23);
+        TextColor, COLOR_GRAYMEDIUM, CustomLabelAlignment::MiddleLeft, 340, 45, 79, 23);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, GLYPH_DROPDOWN,
         TextColorDim, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
-        CustomLabelAlignment::MiddleCenter, 426, 45, 23, 23);
+        CustomLabelAlignment::MiddleCenter, 419, 45, 23, 23);
         
     if (ShowContractExpiry == true) {
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), L"Futures Contract");

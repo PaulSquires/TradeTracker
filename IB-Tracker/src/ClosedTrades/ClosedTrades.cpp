@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/ListBoxData.h"
+#include "SideMenu/SideMenu.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Database/database.h"
@@ -59,6 +60,9 @@ void ClosedTrades_ShowListBoxItem(int index)
     HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
     ListBox_SetCurSel(hListBox, index);
+
+    // Ensure that the ActiveTrades menu item is selected
+    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_CLOSEDTRADES);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
