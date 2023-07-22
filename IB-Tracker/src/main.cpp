@@ -116,7 +116,7 @@ int APIENTRY wWinMain(
 
 
     // Only create the console if command line argument /console is passed.
-    if (wcscmp(lpCmdLine, L"/console") == 0) {
+    if (wcscmp(lpCmdLine, L"-console") == 0) {
         // Create console terminal for GUI application in order to print out debug messages
         AllocConsole();
         // Redirect stderr/stdout/stdin to new console

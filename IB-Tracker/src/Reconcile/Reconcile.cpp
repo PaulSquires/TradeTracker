@@ -41,11 +41,11 @@ extern std::vector<std::shared_ptr<Trade>> trades;
 // These are used for the reconciliation between IB-Tracker and IBKR.
 struct positionStruct {
     int openQuantity = 0;
-    std::wstring tickerSymbol;
-    std::wstring underlying;
+	std::wstring tickerSymbol;
+	std::wstring underlying;
 	std::wstring expiryDate;
     double strikePrice = 0;
-    std::wstring PutCall;
+	std::wstring PutCall;
 };
 std::vector<positionStruct> IBKRPositions;
 std::vector<positionStruct> LocalPositions;
@@ -64,17 +64,51 @@ CReconcile Reconcile;
 void Reconcile_position(const Contract& contract, Decimal position)
 {
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
+	// This will receive every open position as reported by IBKR. We take these positions and
+	// store them in the IBKRPositions vector for later processing.
 	if (position == 0) return;
 
-	positionStruct p;
+	positionStruct p{};
 	p.openQuantity = (int)intelDecimalToDouble(position);
 	p.tickerSymbol = ansi2unicode(contract.symbol);
-	p.underlying = ansi2unicode(contract.secType);
-	p.expiryDate = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
-	p.strikePrice = contract.strike;
-	p.PutCall = ansi2unicode(contract.right);
+	p.underlying   = ansi2unicode(contract.secType);
+	p.expiryDate   = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
+	p.strikePrice  = contract.strike;
+	p.PutCall      = ansi2unicode(contract.right);
 	IBKRPositions.push_back(p);
 }
+
+
+// ========================================================================================
+// Test if IBKR and LOCAL position are equal
+// ========================================================================================
+bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
+{
+	bool equal = false;
+
+	if (ibkr.underlying == L"OPT" ||
+		ibkr.underlying == L"FOP") {
+		if (ibkr.strikePrice == local.strikePrice &&
+			ibkr.openQuantity == local.openQuantity &&
+			ibkr.tickerSymbol == local.tickerSymbol &&
+			ibkr.expiryDate == local.expiryDate &&
+			ibkr.PutCall == local.PutCall &&
+			ibkr.underlying == local.underlying) {
+			equal = true;
+		}
+	}
+	if (ibkr.underlying == L"STK" ||
+		ibkr.underlying == L"FUT") {
+		if (ibkr.openQuantity == local.openQuantity &&
+			ibkr.tickerSymbol == local.tickerSymbol &&
+			ibkr.underlying == local.underlying) {
+			equal = true;
+		}
+	}
+
+	return equal;
+}
+
 
 
 // ========================================================================================
@@ -82,13 +116,13 @@ void Reconcile_position(const Contract& contract, Decimal position)
 // ========================================================================================
 void Reconcile_positionEnd()
 {
-	// Add all of the current "Open" positions to the ReconcilePositions vector
-	for (const auto& t : trades) {
-		if (!t->isOpen) continue;
-		for (const auto& leg : t->openLegs) {
-			positionStruct p;
+	// Add all of the current LOCAL "Open" positions to the LocalPositions vector
+	for (const auto& trade : trades) {
+		if (!trade->isOpen) continue;
+		for (const auto& leg : trade->openLegs) {
+			positionStruct p{};
 			p.openQuantity = leg->openQuantity;
-			p.tickerSymbol = t->tickerSymbol;
+			p.tickerSymbol = trade->tickerSymbol;
 
 			if (leg->underlying == L"FUTURES") p.underlying = L"FUT";
 			if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
@@ -100,68 +134,62 @@ void Reconcile_positionEnd()
 
 			// Check if the ticker is a future
 			if (p.tickerSymbol.substr(0, 1) == L"/") {
-				p.tickerSymbol = t->tickerSymbol.substr(1);
+				p.tickerSymbol = trade->tickerSymbol.substr(1);
 				if (p.underlying == L"OPT") p.underlying = L"FOP";
 			}
 
 
-			// If this is a STK or FUT then check to see if it already exists in the vector. If it
+			// Check to see if the LOCAL position already exists in the vector. If it
 			// does then simply update the Local quantity. We need to do this because IBKR
-			// aggregates all similar stock and future trades.
-			if (p.underlying == L"STK" || p.underlying == L"FUT") {
-				bool found = false;
-				for (auto& l : LocalPositions) {
-					if (l.tickerSymbol == p.tickerSymbol) {
+			// aggregates all similar positions.
+			bool found = false;
+			for (auto& local : LocalPositions) {
+				if (p.underlying == L"OPT" ||
+					p.underlying == L"FOP") {
+					if (p.strikePrice  == local.strikePrice &&
+						p.tickerSymbol == local.tickerSymbol &&
+						p.expiryDate   == local.expiryDate &&
+						p.PutCall      == local.PutCall) {
 						found = true;
-						l.openQuantity += p.openQuantity;
+						local.openQuantity += p.openQuantity;
 						break;
 					}
 				}
-				if (found == false) {
-					LocalPositions.push_back(p);
+				if (p.underlying == L"STK" ||
+					p.underlying == L"FUT") {
+					if (p.tickerSymbol == local.tickerSymbol &&
+						p.underlying   == local.underlying) {
+						found = true;
+						local.openQuantity += p.openQuantity;
+						break;
+					}
 				}
 			}
-			else {
+
+			if (found == false) {
 				LocalPositions.push_back(p);
 			}
+
 		}
 	}
 
 	std::wstring text;
 
-	// Determine what IBKR "real" positions do not exist in the Local database.
+
+	// (1) Determine what IBKR "real" positions do not exist in the Local database.
 	text = L"IBKR that do not exist in Local:\r\n";
-	for (const auto& i : IBKRPositions) {
-		if (i.openQuantity == 0) continue;
+	for (const auto& ibkr : IBKRPositions) {
+		if (ibkr.openQuantity == 0) continue;
 		bool found = false;
-		for (const auto& l : LocalPositions) {
-			if (i.underlying == L"OPT" || 
-				i.underlying == L"FOP") {
-				if (i.strikePrice == l.strikePrice &&
-					i.openQuantity == l.openQuantity &&  
-					i.tickerSymbol == l.tickerSymbol &&
-					i.expiryDate == l.expiryDate &&
-					i.PutCall == l.PutCall &&
-					i.underlying == l.underlying) {
-					found = true;
-					break;
-				}
-			}
-			if (i.underlying == L"STK" ||
-				i.underlying == L"FUT") {
-				if (i.openQuantity == l.openQuantity &&
-					i.tickerSymbol == l.tickerSymbol &&
-					i.underlying == l.underlying) {
-					found = true;
-					break;
-				}
-			}
+		for (const auto& local : LocalPositions) {
+			found = Reconcile_ArePositionsEqual(ibkr, local);
+			if (found == true) break;
 		}
 		if (!found) {
-			text = text + L"   " + std::to_wstring(i.openQuantity) + L" " +
-				i.tickerSymbol + L" " + i.underlying;
-			if (i.underlying == L"OPT" || i.underlying == L"FOP") {
-				text = text + L" " + i.expiryDate + L" " + std::to_wstring(i.strikePrice) + L" " + i.PutCall;
+			text = text + L"   " + std::to_wstring(ibkr.openQuantity) + L" " +
+				ibkr.tickerSymbol + L" " + ibkr.underlying;
+			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
+				text = text + L" " + ibkr.expiryDate + L" " + std::to_wstring(ibkr.strikePrice) + L" " + ibkr.PutCall;
 			}
 			text = text + L"\r\n";
 		}
@@ -169,39 +197,20 @@ void Reconcile_positionEnd()
 
 	text = text + L"\r\n";   // blank line
 
-	// Determine what Local positions do not exist in the IBKR "real" database.
+	// (2) Determine what Local positions do not exist in the IBKR "real" database.
 	text = text + L"Local that do not exist in IBKR:\r\n";
-	for (const auto& l : LocalPositions) {
+	for (const auto& local : LocalPositions) {
 		bool found = false;
-		for (const auto& i : IBKRPositions) {
-			if (i.underlying == L"OPT" || 
-				i.underlying == L"FOP") {
-				if (i.strikePrice == l.strikePrice &&
-					i.openQuantity == l.openQuantity &&
-					i.tickerSymbol == l.tickerSymbol &&
-					i.expiryDate == l.expiryDate &&
-					i.PutCall == l.PutCall &&
-					i.underlying == l.underlying) {
-					found = true;
-					break;
-				}
-			}
-			if (i.underlying == L"STK" ||
-				i.underlying == L"FUT") {
-					if (i.openQuantity == l.openQuantity &&
-					i.tickerSymbol == l.tickerSymbol &&
-					i.underlying == l.underlying) {
-					found = true;
-					break;
-				}
-			}
+		for (const auto& ibkr : IBKRPositions) {
+			found = Reconcile_ArePositionsEqual(ibkr, local);
+			if (found == true) break;
 		}
 		if (!found) {
-			if (l.openQuantity > 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
-				text = text + L"   " + std::to_wstring(l.openQuantity) + L" " +
-					l.tickerSymbol + L" " + l.underlying;
-				if (l.underlying == L"OPT" || l.underlying == L"FOP") {
-					text = text + L" " + l.expiryDate + L" " + std::to_wstring(l.strikePrice) + L" " + l.PutCall;
+			if (local.openQuantity > 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
+				text = text + L"   " + std::to_wstring(local.openQuantity) + L" " +
+					local.tickerSymbol + L" " + local.underlying;
+				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
+					text = text + L" " + local.expiryDate + L" " + std::to_wstring(local.strikePrice) + L" " + local.PutCall;
 				}
 				text = text + L"\r\n";
 			}
