@@ -29,6 +29,7 @@ SOFTWARE.
 bool LoadDatabase();
 bool SaveDatabase();
 
+std::wstring InsertDateHyphens(const std::wstring& dateString);
 std::wstring RemoveDateHyphens(const std::wstring& dateString);
 
 

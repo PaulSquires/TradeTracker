@@ -34,6 +34,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
 #include "DailyTotals/DailyTotals.h"
+#include "Database/database.h"
 #include "Config/Config.h"
 #include "Utilities/Colors.h"
 
@@ -430,6 +431,49 @@ void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& 
 
 
 // ========================================================================================
+// Create the display data for BP, Days,ROI (for a Trade History trade).
+// ========================================================================================
+void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    REAL font8 = 8;
+    std::wstring text;
+
+    text = AfxMoney(trade->TradeBP, true, 0);
+    ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITELIGHT, font8, FontStyleRegular);
+    text = L"BP";
+    ld->SetData(3, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITEDARK, font8, FontStyleRegular);
+    ListBox_AddString(hListBox, ld);
+
+    ld = new ListBoxData;
+    std::wstring startDate = InsertDateHyphens(trade->BPstartDate);
+    std::wstring endDate = InsertDateHyphens(trade->BPendDate);
+    int days = AfxDaysBetween(startDate, endDate);
+    text = AfxMoney(days, true, 0);
+    ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITELIGHT, font8, FontStyleRegular);
+    text = L"Days";
+    ld->SetData(3, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITEDARK, font8, FontStyleRegular);
+    text = AfxMoney(0, true, 1) + L"%";
+    if (trade->TradeBP != 0 && days != 0) {
+        text = AfxMoney((trade->ACB / trade->TradeBP * 100 / days * 30), true, 1) + L"%";
+    }
+    ld->SetData(4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITELIGHT, font8, FontStyleRegular);
+    text = L"30d";
+    ld->SetData(5, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITEDARK, font8, FontStyleRegular);
+    ListBox_AddString(hListBox, ld);
+
+    ListBoxData_AddBlankLine(hListBox);
+}
+
+    
+// ========================================================================================
 // Create the display data for an Open Position that displays in Trades & History tables.
 // ========================================================================================
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId)
@@ -443,13 +487,11 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
     if (isHistory) {
         tickerId = -1;
-        font8 = 8;  // make the History table a little smaller than the Trades table
-        font9 = 8;
 
         ld->SetData(0, trade, tickerId, GLYPH_TREEOPEN, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);
 
-        std::wstring text = (trade->isOpen ? L"Open Pos" : L"Closed Pos");
+        text = (trade->isOpen ? L"Open Pos" : L"Closed Pos");
         ld->SetData(1, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_ORANGE, font8, FontStyleRegular);   // orange
 
@@ -460,10 +502,8 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
     }
     else {
-        // The Category icon will be colored 
-        DWORD catTextColor = COLOR_WHITEDARK;  
         ld->SetData(0, trade, tickerId, GLYPH_CIRCLE, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
-            catTextColor, font8, FontStyleRegular);
+            COLOR_WHITEDARK, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);
         // Col 1 to 6 are set based on incoming TWS price data 
@@ -481,6 +521,9 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITEDARK, font8, FontStyleRegular);   // price percentage change
     }
     ListBox_AddString(hListBox, ld);
+
+    // If the Trade is closed then there is nothing to output as an "open position".
+    if (!trade->isOpen) return;
 
 
     // All tickerId will now be -1 because we are no longer dealing with the main isTickerLine.
@@ -617,9 +660,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
 
     // *** BLANK SEPARATION LINE ***
-    ld = new ListBoxData;
-    ld->lineType = LineType::None;
-    ListBox_AddString(hListBox, ld);
+    ListBoxData_AddBlankLine(hListBox);
 
 }
 

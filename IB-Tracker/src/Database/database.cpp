@@ -148,7 +148,8 @@ bool SaveDatabase()
             << trade->tickerSymbol << "|"
             << trade->tickerName << "|"
             << RemoveDateHyphens(trade->futureExpiry) << "|"
-            << trade->category
+            << trade->category << "|"
+            << std::fixed << std::setprecision(0) << trade->TradeBP
             << "\n";
 
         for (const auto trans : trade->Transactions) {
@@ -196,6 +197,15 @@ int try_catch_int(std::vector<std::wstring>& st, int idx) {
 double try_catch_double(std::vector<std::wstring>& st, int idx) {
     try {
         return stod(st.at(idx));
+    }
+    catch (...) {
+        return 0;
+    }
+}
+
+double try_catch_stod(std::wstring& st) {
+    try {
+        return stod(st);
     }
     catch (...) {
         return 0;
@@ -276,13 +286,15 @@ bool LoadDatabase()
             trade->tickerName = try_catch_wstring(st, 4);
             trade->futureExpiry = InsertDateHyphens(try_catch_wstring(st, 5));
             trade->category = try_catch_int(st, 6);
+            trade->TradeBP = try_catch_double(st, 7);
             trades.push_back(trade);
             continue;
         }
 
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
-            trans->transDate = InsertDateHyphens(try_catch_wstring(st, 1));
+            std::wstring wszDate = try_catch_wstring(st, 1);
+            trans->transDate = InsertDateHyphens(wszDate);
             trans->description = try_catch_wstring(st, 2);
             trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
             trans->quantity = try_catch_int(st, 4);
@@ -290,8 +302,13 @@ bool LoadDatabase()
             trans->multiplier = try_catch_double(st, 6);
             trans->fees = try_catch_double(st, 7);
             trans->total = try_catch_double(st, 8);
-            if (trade != nullptr)
+            if (trade != nullptr) {
+                // Determine earliest and latest dates for BP ROI calculation.
+                if (try_catch_stod(wszDate) < try_catch_stod(trade->BPstartDate)) trade->BPstartDate = wszDate;
+                if (try_catch_stod(wszDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszDate;
+                if (try_catch_stod(wszDate) > try_catch_stod(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
                 trade->Transactions.push_back(trans);
+            }
             continue;
         }
 
@@ -301,13 +318,19 @@ bool LoadDatabase()
             leg->legBackPointerID = try_catch_int(st, 2);
             leg->origQuantity = try_catch_int(st, 3);
             leg->openQuantity = try_catch_int(st, 4);
-            leg->expiryDate = InsertDateHyphens(try_catch_wstring(st, 5));
+            std::wstring wszExpiryDate = try_catch_wstring(st, 5);
+            leg->expiryDate = InsertDateHyphens(wszExpiryDate);
             leg->strikePrice = try_catch_wstring(st, 6);
             leg->PutCall = try_catch_wstring(st, 7); 
             leg->action = NumberToAction(try_catch_int(st, 8));
             leg->underlying = NumberToUnderlying(try_catch_int(st, 9));
-            if (trans != nullptr)
+            if (trans != nullptr) {
+                if (trade != nullptr) {
+                    // Determine latest date for BP ROI calculation.
+                    if (try_catch_stod(wszExpiryDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+                }
                 trans->legs.push_back(leg);
+            }
             continue;
         }
     
@@ -319,7 +342,13 @@ bool LoadDatabase()
     // manually edit individual Transactions externally and not have to go through
     // an error prone process of recalculating the ACB with the new change.
     for (auto trade : trades) {
-        if (trade->isOpen) trade->createOpenLegsVector();
+        if (trade->isOpen) {
+            trade->createOpenLegsVector();
+        }
+        else {
+            // Trade is closed so set the BPendDate to be the oldest transaction in the Trade
+            trade->BPendDate = trade->OldestTradeTransDate;
+        }
 
         trade->ACB = 0;
         for (const auto trans : trade->Transactions) {

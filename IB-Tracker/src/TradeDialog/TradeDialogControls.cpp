@@ -250,6 +250,7 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
     CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(tdd.trans->multiplier));
     CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES), std::to_wstring(tdd.trans->fees));
     CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL), std::to_wstring(tdd.trans->total));
+    CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), std::to_wstring(tdd.trade->TradeBP));
 
     if (tdd.trans->total < 0) {
         TradeDialog_SetComboDRCR(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR), L"DR");
@@ -864,10 +865,20 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
+    // TRADE BUYING POWER
+    CustomLabel_SimpleLabel(hwnd, -1, L"Buying Power", TextColorDim, BackColor,
+        CustomLabelAlignment::MiddleLeft, 580, 310, 100, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTRADEBP, ES_RIGHT,
+        L"0", 580, 337, 80, 23);
+    CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Allow);
+
+
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
-        CustomLabelAlignment::MiddleCenter, 580, 337, 80, 23);
+        CustomLabelAlignment::MiddleCenter, 580, 396, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 

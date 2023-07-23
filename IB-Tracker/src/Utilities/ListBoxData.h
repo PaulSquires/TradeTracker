@@ -126,6 +126,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
+void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_HistoryOptionsLeg(

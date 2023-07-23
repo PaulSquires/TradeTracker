@@ -80,6 +80,10 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     // Show the final rolled up Open position for this trade
     ListBoxData_OpenPosition(hListBox, trade, -1);
         
+    // Output the BP, Days, ROI
+    ListBoxData_TradeROI(hListBox, trade, -1);
+
+
 
     // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
     for (int i = trade->Transactions.size() - 1; i >= 0; --i) {

@@ -79,11 +79,18 @@ public:
     std::wstring  futureExpiry = L"";     // YYYYMM of Futures contract expiry
     int           category     = 0;       // blue, purple, etc (0 to 4)
     double        ACB          = 0;
+    double        TradeBP      = 0;       // Buying Power for the entire trade 
     int           nextLegID    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
 
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
-    int     tickerDecimals = 2;       // upated via data from Config. 
+    int     tickerDecimals = 2;           // upated via data from Config. 
+
+    // Dates used to calculate ROI on TradeBP.
+    std::wstring  BPstartDate = L"99999999";           // YYYYMMDD  First transaction date
+    std::wstring  BPendDate = L"00000000";             // YYYYMMDD  Last trans expiry date or trade close date if earlier) 
+    std::wstring  OldestTradeTransDate = L"00000000";  // If Trade is closed then this trans will be the BPendDate
+
 
     std::vector<std::shared_ptr<Transaction>> Transactions;     // pointer list for all TransDetail in the trade
     std::vector<std::shared_ptr<Leg>> openLegs;                 // sorted list of open legs for this trade
