@@ -792,6 +792,76 @@ void ListBoxData_HistoryOptionsLeg(
 }
 
 
+
+// ========================================================================================
+// Create the display data line for closed position yearly total.
+// ========================================================================================
+void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+
+    ld->SetData(1, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+
+    ld->SetData(2, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+
+    DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
+    
+    std::wstring wszText = std::to_wstring(year) + L" TOTAL";
+    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(4, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ListBox_InsertString(hListBox, 0, ld);
+    // *** BLANK SEPARATION LINE AFTER THE YTD ***
+    ld = new ListBoxData;
+    ld->lineType = LineType::None;
+    ListBox_InsertString(hListBox, 1, ld);
+}
+
+// ========================================================================================
+// Create the display data line for a closed position month subtotal.
+// ========================================================================================
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+
+    ld->SetData(1, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+
+    ld->SetData(2, nullptr, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
+
+    DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
+    
+    std::wstring wszText = AfxUpper(AfxGetLongMonthName(closedDate)) + L" " + std::to_wstring(AfxGetYear(closedDate));
+    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(4, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ListBox_AddString(hListBox, ld);
+    ListBoxData_AddBlankLine(hListBox);
+
+}
+
+
 // ========================================================================================
 // Create the display data line for a closed position.
 // ========================================================================================

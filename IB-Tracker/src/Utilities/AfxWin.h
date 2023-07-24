@@ -68,6 +68,8 @@ bool AfxIsLeapYear(int nYear);
 int AfxDaysInMonth(int nMonth, int nYear);
 int AfxDaysInMonthISODate(const std::wstring& wszDate);
 std::wstring AfxShortDate(const std::wstring& wszDate);
+std::wstring AfxGetShortMonthName(const std::wstring& wszDate);
+std::wstring AfxGetLongMonthName(const std::wstring& wszDate);
 std::wstring AfxGetShortDayName(const std::wstring& wszDate);
 std::wstring AfxMakeISODate(int year, int month, int day);
 std::wstring AfxFormatFuturesDate(const std::wstring& wszDate);

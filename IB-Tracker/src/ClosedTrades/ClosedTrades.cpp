@@ -105,7 +105,7 @@ void ClosedTrades_ShowClosedTrades()
         if (!trade->isOpen) {
             ClosedData data;
 
-            // Iterate the TransDetail to find the latest closed date
+            // Iterate to find the latest closed date
             for (auto& trans : trade->Transactions) {
                 if (trans->transDate > data.closedDate) {
                     data.closedDate = trans->transDate;
@@ -128,8 +128,30 @@ void ClosedTrades_ShowClosedTrades()
         });
 
 
-    for (const auto& ClosedData : vectorClosed) {
-        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
+    // Output the closed trades and subtotals based on month when the month changes.
+    if (vectorClosed.size() > 0) {
+        double subTotalAmount = 0;
+        double YTD = 0;
+        int subTotalMonth = 0;
+        int curMonth = 0;
+        int curYear = 0;
+        std::wstring curDate = L"";
+        for (const auto& ClosedData : vectorClosed) {
+            curMonth = AfxGetMonth(ClosedData.closedDate);
+            if (curYear == 0) curYear = AfxGetYear(ClosedData.closedDate);
+            if (subTotalMonth != curMonth && subTotalMonth != 0) {
+                ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
+                curDate = ClosedData.closedDate;
+                subTotalAmount = 0;
+            }
+            curDate = ClosedData.closedDate;
+            subTotalMonth = curMonth;
+            subTotalAmount += ClosedData.trade->ACB;
+            if (curYear == AfxGetYear(curDate)) YTD += ClosedData.trade->ACB;
+            ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
+        }
+        if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
+        ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD);
     }
 
 
@@ -154,7 +176,6 @@ void ClosedTrades_ShowClosedTrades()
     if (ListBox_GetCount(hListBox) == 0) {
         ListBoxData_AddBlankLine(hListBox);
     }
-    ClosedTrades_ShowListBoxItem(0);
 
 
     // Ensure that the Closed panel is set
@@ -163,7 +184,11 @@ void ClosedTrades_ShowClosedTrades()
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
-    ListBox_SetCurSel(hListBox, 0);
+    // Select row past the YTD total line if possible
+    int curSel = min(ListBox_GetCount(hListBox)-1, 2);
+    ListBox_SetCurSel(hListBox, curSel);
+    ClosedTrades_ShowListBoxItem(curSel);  
+
     SetFocus(hListBox);
 }
 
