@@ -204,6 +204,7 @@ double try_catch_double(std::vector<std::wstring>& st, int idx) {
 }
 
 double try_catch_stod(std::wstring& st) {
+    if (st.length() == 0) return 0;
     try {
         return stod(st);
     }

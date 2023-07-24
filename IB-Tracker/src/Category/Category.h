@@ -65,28 +65,28 @@ enum class Category
 };
 
 
-const int IDC_CATEGORYCONTROL_COMBOBOX = 100;
-const int IDC_CATEGORYCONTROL_COMMAND  = 101;
-const int IDC_CATEGORYCONTROL_SETUP    = 102;
+constexpr int IDC_CATEGORYCONTROL_COMBOBOX = 100;
+constexpr int IDC_CATEGORYCONTROL_COMMAND  = 101;
+constexpr int IDC_CATEGORYCONTROL_SETUP    = 102;
 
-const int CATEGORYCONTROL_COMBOBOX_WIDTH = 165;
-const int CATEGORYCONTROL_COMMAND_WIDTH  = 23;
-const int CATEGORYCONTROL_SETUP_WIDTH    = 23;
-const int CATEGORYCONTROL_HMARGIN        = 1;
-const int CATEGORYCONTROL_HEIGHT         = 23;
+constexpr int CATEGORYCONTROL_COMBOBOX_WIDTH = 165;
+constexpr int CATEGORYCONTROL_COMMAND_WIDTH  = 23;
+constexpr int CATEGORYCONTROL_SETUP_WIDTH    = 23;
+constexpr int CATEGORYCONTROL_HMARGIN        = 1;
+constexpr int CATEGORYCONTROL_HEIGHT         = 23;
 
 
-const int IDC_CATEGORYCONTROL_FIRST  = 140;
-const int IDC_CATEGORYCONTROL_0      = 140;
-const int IDC_CATEGORYCONTROL_1      = 141;
-const int IDC_CATEGORYCONTROL_2      = 142;
-const int IDC_CATEGORYCONTROL_3      = 143;
-const int IDC_CATEGORYCONTROL_4      = 144;
-const int IDC_CATEGORYCONTROL_5      = 145;
-const int IDC_CATEGORYCONTROL_6      = 146;
-const int IDC_CATEGORYCONTROL_7      = 147;
-const int IDC_CATEGORYCONTROL_8      = 148;
-const int IDC_CATEGORYCONTROL_LAST   = 148;
+constexpr int IDC_CATEGORYCONTROL_FIRST  = 140;
+constexpr int IDC_CATEGORYCONTROL_0      = 140;
+constexpr int IDC_CATEGORYCONTROL_1      = 141;
+constexpr int IDC_CATEGORYCONTROL_2      = 142;
+constexpr int IDC_CATEGORYCONTROL_3      = 143;
+constexpr int IDC_CATEGORYCONTROL_4      = 144;
+constexpr int IDC_CATEGORYCONTROL_5      = 145;
+constexpr int IDC_CATEGORYCONTROL_6      = 146;
+constexpr int IDC_CATEGORYCONTROL_7      = 147;
+constexpr int IDC_CATEGORYCONTROL_8      = 148;
+constexpr int IDC_CATEGORYCONTROL_LAST   = 148;
 
 CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
 int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);

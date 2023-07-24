@@ -38,13 +38,13 @@ public:
 };
 
 
-const int IDC_TRADES_LISTBOX = 100;
-const int IDC_TRADES_LABEL = 101;
-const int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
-const int IDC_TRADES_HEADER = 103;
+constexpr int IDC_TRADES_LISTBOX = 100;
+constexpr int IDC_TRADES_LABEL = 101;
+constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
+constexpr const int IDC_TRADES_HEADER = 103;
 
-const int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
-const int ACTIVETRADES_MARGIN = 24;
+constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
+constexpr int ACTIVETRADES_MARGIN = 24;
 
 
 // These columns in the table are updated in real time when connected
@@ -52,10 +52,10 @@ const int ACTIVETRADES_MARGIN = 24;
 // and the correct ListBox line is invalidated/redrawn in order to force
 // display of the new price data. Refer to TwsClient::tickPrice in the
 // tws-client.cpp file to see this in action.
-const int COLUMN_TICKER_ITM          = 2;    // ITM (In the Money)
-const int COLUMN_TICKER_CHANGE       = 5;    // price change
-const int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
-const int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
+constexpr int COLUMN_TICKER_ITM          = 2;    // ITM (In the Money)
+constexpr int COLUMN_TICKER_CHANGE       = 5;    // price change
+constexpr int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
+constexpr int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
 
 bool IsNewOptionsTradeAction(TradeAction action);

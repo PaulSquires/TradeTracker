@@ -51,10 +51,10 @@ enum class TransDateFilterType
 };
 
 
-const int IDC_TRANSDATEFILTER_LISTBOX = 100;
+constexpr int IDC_TRANSDATEFILTER_LISTBOX = 100;
 
-const int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
-const int TRANSDATEFILTER_WIDTH = 113;
+constexpr int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
+constexpr int TRANSDATEFILTER_WIDTH = 113;
 
 HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl);
 

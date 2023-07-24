@@ -39,6 +39,6 @@ public:
 };
 
 
-const int IDC_CATEGORYDIALOG_SAVE = 100;
+constexpr int IDC_CATEGORYDIALOG_SAVE = 100;
 
 int CategoryDialog_Show();

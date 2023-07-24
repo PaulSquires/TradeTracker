@@ -38,7 +38,7 @@ public:
 };
 
 
-const int IDC_RECONCILE_TEXTBOX = 100;
+constexpr int IDC_RECONCILE_TEXTBOX = 100;
 
 void Reconcile_position(const Contract& contract, Decimal position);
 void Reconcile_positionEnd();

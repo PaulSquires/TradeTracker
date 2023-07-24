@@ -55,7 +55,7 @@ public:
 };
 
 
-const int CUSTOMVSCROLLBAR_WIDTH = 14;
+constexpr int CUSTOMVSCROLLBAR_WIDTH = 14;
 
 HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hListBox);
 CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl);

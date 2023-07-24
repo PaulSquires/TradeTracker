@@ -43,10 +43,10 @@ enum class CalendarPickerReturnType
     ISODate       // 2023-03-01
 };
 
-const int IDC_CALENDAR_CALENDAR = 100;
+constexpr int IDC_CALENDAR_CALENDAR = 100;
 
-const int CALENDAR_WIDTH = 210;
-const int CALENDAR_HEIGHT = 160;
+constexpr int CALENDAR_WIDTH = 210;
+constexpr int CALENDAR_HEIGHT = 160;
 
 HWND Calendar_CreateDatePicker(
     HWND hParent, HWND hParentCtl, std::wstring wszDate, 

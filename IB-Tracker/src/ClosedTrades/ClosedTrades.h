@@ -37,13 +37,13 @@ public:
 };
 
 
-const int IDC_CLOSED_LISTBOX = 100;
-const int IDC_CLOSED_LABEL = 101;
-const int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
-const int IDC_CLOSED_HEADER = 103;
+constexpr int IDC_CLOSED_LISTBOX = 100;
+constexpr int IDC_CLOSED_LABEL = 101;
+constexpr int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
+constexpr int IDC_CLOSED_HEADER = 103;
 
-const int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
-const int CLOSEDTRADES_MARGIN = 24;
+constexpr int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
+constexpr int CLOSEDTRADES_MARGIN = 24;
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);

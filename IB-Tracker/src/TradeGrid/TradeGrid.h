@@ -92,9 +92,9 @@ public:
 };
 
 
-const int IDC_TRADEGRID_FIRSTCONTROL = 100;
+constexpr int IDC_TRADEGRID_FIRSTCONTROL = 100;
 
-const int TRADEGRID_LINERESETICONWIDTH = 24;
+constexpr int TRADEGRID_LINERESETICONWIDTH = 24;
 
 TradeGrid* TradeGrid_GetOptions(HWND hCtrl);
 int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData);

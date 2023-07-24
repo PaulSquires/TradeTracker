@@ -44,7 +44,7 @@ public:
 
 #define IDI_MAINICON 106
 
-const int IDC_MAINWINDOW_WARNING = 100;
+constexpr int IDC_MAINWINDOW_WARNING = 100;
 
 
 void MainWindow_BlurPanels(bool active);
