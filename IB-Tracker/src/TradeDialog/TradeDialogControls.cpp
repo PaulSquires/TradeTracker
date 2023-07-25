@@ -378,7 +378,10 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
 
     int DefaultQuantity = 0;
 
+    // Display the Trade's Buying Power BP in case that needs to be edited also.
+    CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), std::to_wstring(tdd.trade->TradeBP));
 
+     
     // Display the legs being closed and set each to the needed inverse action.
     HWND hGridMain = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
     TradeGrid* pData = TradeGrid_GetOptions(hGridMain);

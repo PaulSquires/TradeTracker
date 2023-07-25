@@ -31,6 +31,7 @@ bool SaveDatabase();
 
 std::wstring InsertDateHyphens(const std::wstring& dateString);
 std::wstring RemoveDateHyphens(const std::wstring& dateString);
+double try_catch_stod(std::wstring& st);
 
 
 

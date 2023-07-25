@@ -374,6 +374,11 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     if (DRCR == L"DR") { trans->total = trans->total * -1; }
     trade->ACB = trade->ACB + trans->total;
 
+    // Determine earliest and latest dates for BP ROI calculation.
+    std::wstring wszDate = RemoveDateHyphens(trans->transDate);
+    if (try_catch_stod(wszDate) < try_catch_stod(trade->BPstartDate)) trade->BPstartDate = wszDate;
+    if (try_catch_stod(wszDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszDate;
+    if (try_catch_stod(wszDate) > try_catch_stod(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
 
     // Add the new transaction legs
     for (int row = 0; row < 4; ++row) {
@@ -397,6 +402,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         leg->PutCall = legPutCall;
         leg->action = legAction;
 
+        std::wstring wszExpiryDate = RemoveDateHyphens(legExpiry);
+        if (try_catch_stod(wszExpiryDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
 
         switch (tdd.tradeAction) {
 
@@ -451,6 +458,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->strikePrice = legStrike;
             leg->PutCall = legPutCall;
             leg->action = legAction;
+
+            std::wstring wszExpiryDate = RemoveDateHyphens(legExpiry);
+            if (try_catch_stod(wszExpiryDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
 
             leg->origQuantity = intQuantity;
             leg->openQuantity = intQuantity;
@@ -603,6 +613,12 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
     if (DRCR == L"DR") { tdd.trans->total = tdd.trans->total * -1; }
 
+    // Determine earliest and latest dates for BP ROI calculation.
+    std::wstring wszDate = RemoveDateHyphens(tdd.trans->transDate);
+    if (try_catch_stod(wszDate) < try_catch_stod(tdd.trade->BPstartDate)) tdd.trade->BPstartDate = wszDate;
+    if (try_catch_stod(wszDate) > try_catch_stod(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszDate;
+    if (try_catch_stod(wszDate) > try_catch_stod(tdd.trade->OldestTradeTransDate)) tdd.trade->OldestTradeTransDate = wszDate;
+
     std::vector<int> legsToDelete;
 
     // Cycle through both grids and add changes to the legs
@@ -658,6 +674,9 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         leg->strikePrice = legStrike;
         leg->PutCall = legPutCall;
         leg->action = legAction;
+
+        std::wstring wszExpiryDate = RemoveDateHyphens(legExpiry);
+        if (try_catch_stod(wszExpiryDate) > try_catch_stod(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszExpiryDate;
 
         if (row >= (int)tdd.trans->legs.size()) {
             tdd.trans->legs.push_back(leg);
