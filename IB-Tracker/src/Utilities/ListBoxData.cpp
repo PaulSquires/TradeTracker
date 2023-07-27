@@ -440,24 +440,38 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     REAL font8 = 8;
     std::wstring text;
 
+    std::wstring startDate = InsertDateHyphens(trade->BPstartDate);
+    std::wstring endDate = InsertDateHyphens(trade->BPendDate);
+
+    // Buying Power
     text = AfxMoney(trade->TradeBP, true, 0);
     ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
     text = L"BP";
     ld->SetData(3, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITEDARK, font8, FontStyleRegular);
+    
+    // Days In Trade
+    int days = AfxDaysBetween(startDate, AfxCurrentDate());
+    text = AfxMoney(days, true, 0);
+    ld->SetData(4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITELIGHT, font8, FontStyleRegular);
+    text = L"DIT";
+    ld->SetData(5, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        COLOR_WHITEDARK, font8, FontStyleRegular);
     ListBox_AddString(hListBox, ld);
 
+    // Totals Days for Trade
     ld = new ListBoxData;
-    std::wstring startDate = InsertDateHyphens(trade->BPstartDate);
-    std::wstring endDate = InsertDateHyphens(trade->BPendDate);
-    int days = AfxDaysBetween(startDate, endDate);
+    days = AfxDaysBetween(startDate, endDate);
     text = AfxMoney(days, true, 0);
     ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
     text = L"Days";
     ld->SetData(3, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITEDARK, font8, FontStyleRegular);
+    
+    // ROI% per 30 days 
     text = AfxMoney(0, true, 1) + L"%";
     if (trade->TradeBP != 0 && days != 0) {
         text = AfxMoney((trade->ACB / trade->TradeBP * 100 / days * 30), true, 1) + L"%";
