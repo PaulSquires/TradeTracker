@@ -115,7 +115,7 @@ int APIENTRY wWinMain(
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 
-    // Only create the console if command line argument /console is passed.
+    // Only create the console if command line argument -console is passed.
     if (wcscmp(lpCmdLine, L"-console") == 0) {
         // Create console terminal for GUI application in order to print out debug messages
         AllocConsole();
@@ -201,21 +201,10 @@ int APIENTRY wWinMain(
 
         // Processes accelerator keys for menu commands
         if (Main.hAccel() == NULL || (!TranslateAccelerator(hWndMain, Main.hAccel(), &msg))) {
-#if (USEDLGMSG >= 1)
-            // Determines whether a message is intended for the specified
-            // dialog box and, if it is, processes the message.
-            if (!IsDialogMessage(hWndMain, &msg)) {
-                // Translates virtual-key messages into character messages.
-                TranslateMessage(&msg);
-                // Dispatches a message to a window procedure.
-                DispatchMessage(&msg);
-            }
-#else
             // Translates virtual-key messages into character messages.
             TranslateMessage(&msg);
             // Dispatches a message to a window procedure.
             DispatchMessage(&msg);
-#endif
         }
     }
 
