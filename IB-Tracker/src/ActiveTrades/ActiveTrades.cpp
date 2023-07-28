@@ -32,6 +32,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeDialog/TradeDialog.h"
+#include "TradeHistory/TradeHistory.h"
 #include "Database/database.h"
 #include "Category/Category.h"
 #include "Config/Config.h"
@@ -51,10 +52,6 @@ extern CActiveTrades ActiveTrades;
 extern TradeDialogData tdd;
 
 extern bool PrevMarketDataLoaded;
-
-extern void MainWindow_SetMiddlePanel(HWND hPanel);
-extern void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
-void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
 

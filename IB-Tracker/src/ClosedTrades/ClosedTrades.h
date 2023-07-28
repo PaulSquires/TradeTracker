@@ -47,4 +47,5 @@ constexpr int CLOSEDTRADES_MARGIN = 24;
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);
+void ClosedTrades_ShowClosedTrades();
 

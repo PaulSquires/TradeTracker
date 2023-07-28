@@ -38,7 +38,6 @@ SOFTWARE.
 #include "ClosedTrades/ClosedTrades.h"
 #include "Transactions/TransPanel.h"
 #include "Transactions/TransDetail.h"
-#include "DailyTotals/DailyTotals.h"
 #include "TickerTotals/TickerTotals.h"
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
@@ -59,13 +58,9 @@ CTradeHistory     TradeHistory;
 CActiveTrades     ActiveTrades;
 CClosedTrades     ClosedTrades;
 CTickerPanel      TickerPanel;
-CDailyTotals      DailyTotals;
 CTransPanel       TransPanel;
 CTransDetail      TransDetail;
 
-
-extern void ActiveTrades_ShowActiveTrades();
-extern void TransPanel_ShowTransactions();
 
 RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter
@@ -312,10 +307,6 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     TickerPanel.Create(hwnd, L"", 0, 0, 0, 0,
-        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
-    DailyTotals.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 

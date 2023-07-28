@@ -62,3 +62,5 @@ constexpr int IDC_TRANS_CMDENDDATE = 127;
 constexpr int TRANSPANEL_LISTBOX_ROWHEIGHT = 18;
 constexpr int TRANSPANEL_MARGIN = 80;
 
+void TransPanel_ShowTransactions();
+

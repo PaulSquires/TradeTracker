@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "Database/trade.h"
 
 
 class CTransDetail: public CWindowBase<CTransDetail>
@@ -49,3 +50,4 @@ constexpr int TRANSDETAIL_LISTBOX_ROWHEIGHT = 20;
 constexpr int TRANSDETAIL_WIDTH = 400;
 constexpr int TRANSDETAIL_MARGIN = 24;
 
+void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);

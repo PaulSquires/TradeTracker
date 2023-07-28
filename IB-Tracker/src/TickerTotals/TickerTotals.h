@@ -47,3 +47,4 @@ constexpr int TICKER_LISTBOX_ROWHEIGHT = 20;
 constexpr int TICKERTOTALS_WIDTH = 400;
 constexpr int TICKERTOTALS_MARGIN = 24;
 
+void TickerPanel_ShowTickerTotals();

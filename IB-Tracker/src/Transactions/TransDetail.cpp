@@ -114,7 +114,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
             {
                 // Cycle through the legs being deleted to see if any contains a leg backpointer.
                 // If yes, then retrieve the leg related to that pointer and update its open
-                // quantity amount. Backpointers exist for TransDetail that modify quantity
+                // quantity amount. Backpointers exist for Transactions that modify quantity
                 // amounts like CLOSE, EXPIRE, ROLL.
                 for (auto leg : transEditDelete->legs) {
                     if (leg->legBackPointerID != 0) {

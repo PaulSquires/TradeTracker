@@ -40,3 +40,5 @@ constexpr int IDC_STRATEGYPOPUP_LONGSHORT = 100;
 constexpr int IDC_STRATEGYPOPUP_PUTCALL   = 150;
 constexpr int IDC_STRATEGYPOPUP_STRATEGY  = 200;
 constexpr int IDC_STRATEGYPOPUP_GO        = 250;
+
+HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl);

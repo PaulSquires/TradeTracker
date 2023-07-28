@@ -48,3 +48,5 @@ constexpr int IDC_MAINWINDOW_WARNING = 100;
 
 
 void MainWindow_BlurPanels(bool active);
+void MainWindow_SetMiddlePanel(HWND hPanel);
+void MainWindow_SetRightPanel(HWND hPanel);

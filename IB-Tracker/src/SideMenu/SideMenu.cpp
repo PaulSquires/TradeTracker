@@ -33,14 +33,11 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "ClosedTrades/ClosedTrades.h"
 #include "TradeDialog/TradeDialog.h"
+#include "Transactions/TransPanel.h"
+#include "TickerTotals/TickerTotals.h"
 #include "Utilities/ListBoxData.h"
 #include "SideMenu.h"
 
-extern void ActiveTrades_ShowActiveTrades();
-extern void TransPanel_ShowTransactions();
-extern void ClosedTrades_ShowClosedTrades();
-extern void TickerPanel_ShowTickerTotals();
-extern void DailyTotals_ShowDailyTotals(const ListBoxData* ld);
 
 HWND HWND_SIDEMENU = NULL;
 
@@ -250,9 +247,6 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     nTop += 10;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TICKERTOTALS, nTop, L"Ticker Totals");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_DAILYTOTALS, nTop, L"Daily Totals");
 
     nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TRANSACTIONS, nTop, L"Transactions");
@@ -522,13 +516,6 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 TickerPanel_ShowTickerTotals();
-                break;
-            }
-
-            case IDC_SIDEMENU_DAILYTOTALS:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                DailyTotals_ShowDailyTotals(nullptr);
                 break;
             }
 

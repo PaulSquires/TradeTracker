@@ -30,6 +30,7 @@ SOFTWARE.
 #include "SideMenu/SideMenu.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "TradeHistory/TradeHistory.h"
 #include "Database/database.h"
 
 #include "ClosedTrades.h"
@@ -45,9 +46,6 @@ extern HWND HWND_SIDEMENU;
 extern HWND HWND_MIDDLEPANEL;
 
 extern CClosedTrades ClosedTrades;
-
-extern void MainWindow_SetMiddlePanel(HWND hPanel);
-extern void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);
 
 
 

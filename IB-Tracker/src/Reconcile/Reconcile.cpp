@@ -28,10 +28,9 @@ SOFTWARE.
 
 #include "MainWindow/MainWindow.h"
 #include "Database/trade.h"
-
+#include "Utilities/IntelDecimal.h"
 #include "Reconcile.h"
 
-extern double intelDecimalToDouble(Decimal decimal);
 
 extern HWND HWND_MAINWINDOW;
 extern std::vector<std::shared_ptr<Trade>> trades;

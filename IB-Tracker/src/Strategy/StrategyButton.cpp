@@ -42,7 +42,6 @@ extern HWND HWND_TRADEDIALOG;
 extern CStrategyButton StrategyButton;
 
 CStrategyPopup StrategyPopup;
-extern HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl);
 
 
 

@@ -114,8 +114,6 @@ enum class TableType
     ClosedTrades,
     TradeHistory,
     TickerTotals,
-    DailyTotals,
-    DailyTotalsSummary,
     TradeTemplates,
     TradeManagement,
     TransPanel

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Category/Category.h"
 #include "Transactions/TransDateFilter.h"
+#include "Transactions/TransDetail.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
 
@@ -44,11 +45,6 @@ extern CTransPanel TransPanel;
 extern HWND HWND_MAINWINDOW;
 extern HWND HWND_TRANSDETAIL;
 extern HWND HWND_MIDDLEPANEL;
-
-extern void MainWindow_SetMiddlePanel(HWND hPanel);
-extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
-extern std::wstring TransDateFilter_GetString(int idx);
 
 
 
@@ -205,7 +201,7 @@ void TransPanel_ShowTransactions()
     AfxRedrawWindow(hListBox);
 
 
-    // If TransDetail exist then select the first transaction so that its detail will show
+    // If Transactions exist then select the first transaction so that its detail will show
     if (ListBox_GetCount(hListBox)) {
         TransPanel_ShowListBoxItem(0);
     }
@@ -382,7 +378,7 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
 
 
 // ========================================================================================
-// Process WM_MEASUREITEM message for window/dialog: TransDetail
+// Process WM_MEASUREITEM message for window/dialog: TransPanel
 // ========================================================================================
 void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
@@ -391,7 +387,7 @@ void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: TransDetail
+// Process WM_ERASEBKGND message for window/dialog: TransPanel
 // ========================================================================================
 BOOL TransPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
@@ -401,7 +397,7 @@ BOOL TransPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: TransDetail
+// Process WM_PAINT message for window/dialog: TransPanel
 // ========================================================================================
 void TransPanel_OnPaint(HWND hwnd)
 {
@@ -425,7 +421,7 @@ void TransPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TransDetail
+// Process WM_SIZE message for window/dialog: TransPanel
 // ========================================================================================
 void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
@@ -534,7 +530,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: TransDetail
+// Process WM_CREATE message for window/dialog: TransPanel
 // ========================================================================================
 BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
@@ -549,7 +545,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int FontSize = 8;
 
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"TransDetail",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"Transactions",
         COLOR_WHITELIGHT, COLOR_BLACK);
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
@@ -629,7 +625,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SetWindowTheme(hCtl, L"", L"");
 
 
-    // Create an Ownerdraw listbox that we will use to custom paint our TransDetail.
+    // Create an Ownerdraw listbox that we will use to custom paint our Transactions.
     hCtl =
         TransPanel.AddControl(Controls::ListBox, hwnd, IDC_TRANS_LISTBOX, L"",
             0, 0, 0, 0,
@@ -649,7 +645,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: TransDetail
+// Process WM_COMMAND message for window/dialog: TransPanel
 // ========================================================================================
 void TransPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {

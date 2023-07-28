@@ -57,4 +57,5 @@ constexpr int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
 constexpr int TRANSDATEFILTER_WIDTH = 113;
 
 HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl);
+std::wstring TransDateFilter_GetString(int idx);
 

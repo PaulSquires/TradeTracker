@@ -28,7 +28,8 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
-
+#include "MainWindow/MainWindow.h"
+#include "Transactions/TransDetail.h"
 #include "TradeHistory.h"
 
 
@@ -41,8 +42,6 @@ extern int nColWidth[];
 
 extern HWND HWND_SIDEMENU;
 
-extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
 
 
 

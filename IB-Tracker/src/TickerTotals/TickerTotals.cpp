@@ -28,7 +28,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
-
+#include "MainWindow/MainWindow.h"
 #include "TickerTotals.h"
 
 
@@ -39,7 +39,6 @@ extern CTickerPanel TickerPanel;
 extern std::vector<std::shared_ptr<Trade>> trades;
 extern int nColWidth[];
 
-extern void MainWindow_SetRightPanel(HWND hPanel);
 
 
 // ========================================================================================

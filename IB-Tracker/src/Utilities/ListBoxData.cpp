@@ -33,7 +33,6 @@ SOFTWARE.
 #include "TradeHistory/TradeHistory.h"
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
-#include "DailyTotals/DailyTotals.h"
 #include "Config/Config.h"
 #include "Utilities/Colors.h"
 
@@ -150,34 +149,6 @@ int nTickerTotalsMaxColWidth[10] =
     0
 };
 
-int nDailyTotalsMinColWidth[10] =
-{
-    5,      /* dropdown arrow */
-    75,     /* Date/Ticker */
-    150,    /* Day/Description */
-    100,    /* Amount */
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-};
-
-int nDailyTotalsSummaryMinColWidth[10] =
-{
-    75,     /* Profit/Loss */
-    75,     /* Stock value */
-    75,     /* Net Profit/Loss */
-    75,     /* MTD */
-    75,     /* YTD */
-    0,
-    0,
-    0,
-    0,
-    0
-};
-
 int nTradeTemplatesMinColWidth[10] =
 {
     5,     /* spacer */
@@ -247,14 +218,6 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
         case TableType::TickerTotals:
             nColWidth[i] = nTickerTotalsMinColWidth[i];
-            break;
-
-        case TableType::DailyTotals:
-            nColWidth[i] = nDailyTotalsMinColWidth[i];
-            break;
-
-        case TableType::DailyTotalsSummary:
-            nColWidth[i] = nDailyTotalsSummaryMinColWidth[i];
             break;
 
         case TableType::TradeTemplates:
@@ -343,8 +306,6 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     HWND hHeader = NULL;
     if (tabletype == TableType::ClosedTrades) hHeader = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_HEADER);
     if (tabletype == TableType::TickerTotals) hHeader = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_HEADER_TOTALS);
-    if (tabletype == TableType::DailyTotalsSummary) hHeader = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_HEADER_SUMMARY);
-    if (tabletype == TableType::DailyTotals) hHeader = GetDlgItem(HWND_DAILYTOTALS, IDC_DAILY_HEADER_TOTALS);
     if (tabletype == TableType::TransPanel) hHeader = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_HEADER);
     
     if (hHeader) {
@@ -976,120 +937,6 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double a
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
-}
-
-
-// ========================================================================================
-// Create the display data line for a daily total node header line.
-// ========================================================================================
-void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen)
-{
-    ListBoxData* ld = new ListBoxData;
-
-    TickerId tickerId = -1;
-    REAL font8 = 8;
-    REAL font9 = 9;
-
-    ld->isDailyTotalsNode = true;
-    ld->isDailyTotalsNodeOpen = isOpen;
-    ld->DailyTotalsDate = date;
-
-    // Triangle open/closed
-    ld->SetData(0, nullptr, tickerId, (isOpen ? GLYPH_TREEOPEN : GLYPH_TREECLOSED), StringAlignmentCenter, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
-
-    std::wstring wszText = date;
-    ld->SetData(1, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_ORANGE, font8, FontStyleRegular);
-
-    wszText = AfxGetShortDayName(date);
-    ld->SetData(2, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_ORANGE, font8, FontStyleRegular);
-
-    DWORD clr = (amount >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(3, nullptr, tickerId, AfxMoney(amount), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    ListBox_AddString(hListBox, ld);
-}
-
-
-// ========================================================================================
-// Create the display data line for a daily total detail line.
-// ========================================================================================
-void ListBoxData_OutputDailyTotalsDetailLine(
-    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans)
-{
-    ListBoxData* ld = new ListBoxData;
-
-    TickerId tickerId = -1;
-    REAL font8 = 8;
-    REAL font9 = 9;
-
-    ld->SetData(0, nullptr, tickerId, L"", StringAlignmentCenter, StringAlignmentCenter, 
-        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
-
-    ld->SetData(1, nullptr, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
-
-    ld->SetData(2, nullptr, tickerId, trans->description, StringAlignmentNear, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
-
-    ld->SetData(3, nullptr, tickerId, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
-
-    ListBox_AddString(hListBox, ld);
-}
-
-
-// ========================================================================================
-// Create the display data line for a daily total SUMMARY lines.
-// ========================================================================================
-void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD)
-{
-    ListBoxData* ld = new ListBoxData;
-
-    TickerId tickerId = -1;
-    REAL font8 = 8;
-    REAL font9 = 9;
-
-
-    // Populate the summary data
-    ld = new ListBoxData;
-    
-    double stockValue = 0;
-    for (const auto& trade : trades) {
-        if (!trade->isOpen) continue;
-        for (const auto& leg : trade->openLegs) {
-            if (leg->underlying == L"SHARES") {
-                stockValue = stockValue + (leg->openQuantity * trade->tickerLastPrice);
-            }
-        }
-    }
-
-    DWORD clr = (grandTotal >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(0, nullptr, tickerId, AfxMoney(grandTotal), StringAlignmentCenter, StringAlignmentCenter, 
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    clr = (stockValue >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(1, nullptr, tickerId, AfxMoney(stockValue), StringAlignmentCenter, StringAlignmentCenter, 
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    double netValue = grandTotal + stockValue;
-    clr = (netValue >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(2, nullptr, tickerId, AfxMoney(netValue), StringAlignmentCenter, StringAlignmentCenter, 
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    clr = (MTD >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(3, nullptr, tickerId, AfxMoney(MTD), StringAlignmentCenter, StringAlignmentCenter, 
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    clr = (YTD >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(4, nullptr, tickerId, AfxMoney(YTD), StringAlignmentCenter, StringAlignmentCenter, 
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    ListBox_AddString(hListBox, ld);
-
 }
 
 

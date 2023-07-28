@@ -41,8 +41,6 @@ SOFTWARE.
 extern HWND HWND_TRADEDIALOG;
 extern CTradeDialog TradeDialog;
 
-extern void ActiveTrades_ShowActiveTrades();
-
 CStrategyButton StrategyButton;
 extern HWND HWND_STRATEGYBUTTON;
 extern TradeDialogData tdd;
