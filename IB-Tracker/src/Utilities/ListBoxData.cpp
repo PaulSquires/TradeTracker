@@ -34,7 +34,6 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
 #include "DailyTotals/DailyTotals.h"
-#include "Database/database.h"
 #include "Config/Config.h"
 #include "Utilities/Colors.h"
 
@@ -440,8 +439,8 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     REAL font8 = 8;
     std::wstring text;
 
-    std::wstring startDate = InsertDateHyphens(trade->BPstartDate);
-    std::wstring endDate = InsertDateHyphens(trade->BPendDate);
+    std::wstring startDate = AfxInsertDateHyphens(trade->BPstartDate);
+    std::wstring endDate = AfxInsertDateHyphens(trade->BPendDate);
 
     // Buying Power
     text = AfxMoney(trade->TradeBP, true, 0);

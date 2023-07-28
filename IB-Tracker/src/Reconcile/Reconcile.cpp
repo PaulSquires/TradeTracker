@@ -27,7 +27,6 @@ SOFTWARE.
 #include "pch.h"
 
 #include "MainWindow/MainWindow.h"
-#include "Database/database.h"
 #include "Database/trade.h"
 
 #include "Reconcile.h"
@@ -129,7 +128,7 @@ void Reconcile_positionEnd()
 			if (leg->underlying == L"SHARES") p.underlying = L"STK";
 
 			p.strikePrice = stod(leg->strikePrice);
-			p.expiryDate = RemoveDateHyphens(leg->expiryDate);
+			p.expiryDate = AfxRemoveDateHyphens(leg->expiryDate);
 			p.PutCall = leg->PutCall;
 
 			// Check if the ticker is a future

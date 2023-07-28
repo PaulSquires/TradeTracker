@@ -64,6 +64,11 @@ std::wstring AfxGetExePath();
 std::wstring AfxGetUserName();
 std::wstring AfxCurrentDate();
 
+int AfxValInteger(std::wstring st);
+double AfxValDouble(std::wstring st);
+
+std::wstring AfxInsertDateHyphens(const std::wstring& dateString);
+std::wstring AfxRemoveDateHyphens(const std::wstring& dateString);
 bool AfxIsLeapYear(int nYear);
 int AfxDaysInMonth(int nMonth, int nYear);
 int AfxDaysInMonthISODate(const std::wstring& wszDate);

@@ -44,7 +44,6 @@ extern HWND HWND_ACTIVETRADES;
 extern CTradeDialog TradeDialog;
 extern TradeDialogData tdd;
 
-extern void ActiveTrades_ShowActiveTrades();
 
 
 // ========================================================================================
@@ -370,15 +369,15 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trade->Transactions.push_back(trans);
 
     std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-    trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+    trans->total = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
     if (DRCR == L"DR") { trans->total = trans->total * -1; }
     trade->ACB = trade->ACB + trans->total;
 
     // Determine earliest and latest dates for BP ROI calculation.
-    std::wstring wszDate = RemoveDateHyphens(trans->transDate);
-    if (try_catch_stod(wszDate) < try_catch_stod(trade->BPstartDate)) trade->BPstartDate = wszDate;
-    if (try_catch_stod(wszDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszDate;
-    if (try_catch_stod(wszDate) > try_catch_stod(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
+    std::wstring wszDate = AfxRemoveDateHyphens(trans->transDate);
+    if (AfxValDouble(wszDate) < AfxValDouble(trade->BPstartDate)) trade->BPstartDate = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
 
     // Add the new transaction legs
     for (int row = 0; row < 4; ++row) {
@@ -402,8 +401,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         leg->PutCall = legPutCall;
         leg->action = legAction;
 
-        std::wstring wszExpiryDate = RemoveDateHyphens(legExpiry);
-        if (try_catch_stod(wszExpiryDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+        std::wstring wszExpiryDate = AfxRemoveDateHyphens(legExpiry);
+        if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
 
         switch (tdd.tradeAction) {
 
@@ -459,8 +458,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->PutCall = legPutCall;
             leg->action = legAction;
 
-            std::wstring wszExpiryDate = RemoveDateHyphens(legExpiry);
-            if (try_catch_stod(wszExpiryDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+            std::wstring wszExpiryDate = AfxRemoveDateHyphens(legExpiry);
+            if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
 
             leg->origQuantity = intQuantity;
             leg->openQuantity = intQuantity;
@@ -614,10 +613,10 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     if (DRCR == L"DR") { tdd.trans->total = tdd.trans->total * -1; }
 
     // Determine earliest and latest dates for BP ROI calculation.
-    std::wstring wszDate = RemoveDateHyphens(tdd.trans->transDate);
-    if (try_catch_stod(wszDate) < try_catch_stod(tdd.trade->BPstartDate)) tdd.trade->BPstartDate = wszDate;
-    if (try_catch_stod(wszDate) > try_catch_stod(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszDate;
-    if (try_catch_stod(wszDate) > try_catch_stod(tdd.trade->OldestTradeTransDate)) tdd.trade->OldestTradeTransDate = wszDate;
+    std::wstring wszDate = AfxRemoveDateHyphens(tdd.trans->transDate);
+    if (AfxValDouble(wszDate) < AfxValDouble(tdd.trade->BPstartDate)) tdd.trade->BPstartDate = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(tdd.trade->OldestTradeTransDate)) tdd.trade->OldestTradeTransDate = wszDate;
 
     std::vector<int> legsToDelete;
 
@@ -675,8 +674,8 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         leg->PutCall = legPutCall;
         leg->action = legAction;
 
-        std::wstring wszExpiryDate = RemoveDateHyphens(legExpiry);
-        if (try_catch_stod(wszExpiryDate) > try_catch_stod(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszExpiryDate;
+        std::wstring wszExpiryDate = AfxRemoveDateHyphens(legExpiry);
+        if (AfxValDouble(wszExpiryDate) > AfxValDouble(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszExpiryDate;
 
         if (row >= (int)tdd.trans->legs.size()) {
             tdd.trans->legs.push_back(leg);

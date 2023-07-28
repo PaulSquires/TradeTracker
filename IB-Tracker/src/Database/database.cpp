@@ -44,34 +44,6 @@ std::vector<std::shared_ptr<Trade>> trades;
 
 
 
-std::wstring InsertDateHyphens(const std::wstring& dateString)
-{
-    if (dateString.length() != 8) return L"";
-
-    std::wstring newDate = dateString;
-    // YYYYMMDD
-    // 01234567
-
-    newDate.insert(4, L"-");
-    // YYYY-MMDD
-    // 012345678
-
-    newDate.insert(7, L"-");
-    // YYYY-MM-DD
-    // 0123456789
-
-    return newDate;
-}
-
-
-std::wstring RemoveDateHyphens(const std::wstring& dateString)
-{
-    std::wstring newDate = dateString;
-    newDate.erase(remove(newDate.begin(), newDate.end(), L'-'), newDate.end()); 
-    return newDate;
-}
-
-
 int UnderlyingToNumber(const std::wstring& underlying)
 {
     if (underlying == L"OPTIONS") return 0;
@@ -147,14 +119,14 @@ bool SaveDatabase()
             << trade->nextLegID << "|"
             << trade->tickerSymbol << "|"
             << trade->tickerName << "|"
-            << RemoveDateHyphens(trade->futureExpiry) << "|"
+            << AfxRemoveDateHyphens(trade->futureExpiry) << "|"
             << trade->category << "|"
             << std::fixed << std::setprecision(0) << trade->TradeBP
             << "\n";
 
         for (const auto trans : trade->Transactions) {
             db << "X|"
-                << RemoveDateHyphens(trans->transDate) << "|"
+                << AfxRemoveDateHyphens(trans->transDate) << "|"
                 << trans->description << "|"
                 << UnderlyingToNumber(trans->underlying) << "|"
                 << trans->quantity << "|"
@@ -170,7 +142,7 @@ bool SaveDatabase()
                     << leg->legBackPointerID << "|"
                     << leg->origQuantity << "|"
                     << leg->openQuantity << "|"
-                    << RemoveDateHyphens(leg->expiryDate) << "|"
+                    << AfxRemoveDateHyphens(leg->expiryDate) << "|"
                     << leg->strikePrice << "|"
                     << leg->PutCall << "|"
                     << ActionToNumber(leg->action) << "|"
@@ -185,34 +157,6 @@ bool SaveDatabase()
 }
 
 
-int try_catch_int(std::vector<std::wstring>& st, int idx) {
-    try {
-        return stoi(st.at(idx));
-    }
-    catch (...) {
-        return 0;
-    }
-}
-
-double try_catch_double(std::vector<std::wstring>& st, int idx) {
-    try {
-        return stod(st.at(idx));
-    }
-    catch (...) {
-        return 0;
-    }
-}
-
-double try_catch_stod(std::wstring& st) {
-    if (st.length() == 0) return 0;
-    try {
-        return stod(st);
-    }
-    catch (...) {
-        return 0;
-    }
-}
-
 std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
     try {
         return st.at(idx);
@@ -220,6 +164,18 @@ std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
     catch (...) {
         return L"";
     }
+}
+
+
+int try_catch_int(std::vector<std::wstring>& st, int idx) {
+    std::wstring wszText = try_catch_wstring(st, idx);
+    return AfxValInteger(wszText);
+}
+
+
+double try_catch_double(std::vector<std::wstring>& st, int idx) {
+    std::wstring wszText = try_catch_wstring(st, idx);
+    return AfxValDouble(wszText);
 }
 
 
@@ -285,7 +241,7 @@ bool LoadDatabase()
             trade->nextLegID = try_catch_int(st, 2);
             trade->tickerSymbol = try_catch_wstring(st, 3);
             trade->tickerName = try_catch_wstring(st, 4);
-            trade->futureExpiry = InsertDateHyphens(try_catch_wstring(st, 5));
+            trade->futureExpiry = AfxInsertDateHyphens(try_catch_wstring(st, 5));
             trade->category = try_catch_int(st, 6);
             trade->TradeBP = try_catch_double(st, 7);
             trades.push_back(trade);
@@ -295,7 +251,7 @@ bool LoadDatabase()
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
             std::wstring wszDate = try_catch_wstring(st, 1);
-            trans->transDate = InsertDateHyphens(wszDate);
+            trans->transDate = AfxInsertDateHyphens(wszDate);
             trans->description = try_catch_wstring(st, 2);
             trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
             trans->quantity = try_catch_int(st, 4);
@@ -305,9 +261,9 @@ bool LoadDatabase()
             trans->total = try_catch_double(st, 8);
             if (trade != nullptr) {
                 // Determine earliest and latest dates for BP ROI calculation.
-                if (try_catch_stod(wszDate) < try_catch_stod(trade->BPstartDate)) trade->BPstartDate = wszDate;
-                if (try_catch_stod(wszDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszDate;
-                if (try_catch_stod(wszDate) > try_catch_stod(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
+                if (AfxValDouble(wszDate) < AfxValDouble(trade->BPstartDate)) trade->BPstartDate = wszDate;
+                if (AfxValDouble(wszDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszDate;
+                if (AfxValDouble(wszDate) > AfxValDouble(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
                 trade->Transactions.push_back(trans);
             }
             continue;
@@ -320,7 +276,7 @@ bool LoadDatabase()
             leg->origQuantity = try_catch_int(st, 3);
             leg->openQuantity = try_catch_int(st, 4);
             std::wstring wszExpiryDate = try_catch_wstring(st, 5);
-            leg->expiryDate = InsertDateHyphens(wszExpiryDate);
+            leg->expiryDate = AfxInsertDateHyphens(wszExpiryDate);
             leg->strikePrice = try_catch_wstring(st, 6);
             leg->PutCall = try_catch_wstring(st, 7); 
             leg->action = NumberToAction(try_catch_int(st, 8));
@@ -328,7 +284,7 @@ bool LoadDatabase()
             if (trans != nullptr) {
                 if (trade != nullptr) {
                     // Determine latest date for BP ROI calculation.
-                    if (try_catch_stod(wszExpiryDate) > try_catch_stod(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+                    if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
                 }
                 trans->legs.push_back(leg);
             }

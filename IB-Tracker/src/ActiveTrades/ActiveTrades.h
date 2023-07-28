@@ -60,4 +60,5 @@ constexpr int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);
+void ActiveTrades_ShowActiveTrades();
 

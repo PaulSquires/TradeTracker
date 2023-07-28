@@ -422,6 +422,36 @@ std::wstring AfxGetExePath()
 }
 
 
+
+// ========================================================================================
+// Convert wstring to integer catching any exceptions
+// ========================================================================================
+int AfxValInteger(std::wstring st) {
+    if (st.length() == 0) return 0;
+    try {
+        return stoi(st);
+    }
+    catch (...) {
+        return 0;
+    }
+}
+
+
+// ========================================================================================
+// Convert wstring to double catching any exceptions
+// ========================================================================================
+double AfxValDouble(std::wstring st) {
+    if (st.length() == 0) return 0;
+    try {
+        return stod(st);
+    }
+    catch (...) {
+        return 0;
+    }
+}
+
+
+
 // ========================================================================================
 // Retrieves the name of the user associated with the current thread.
 // ========================================================================================
@@ -431,6 +461,42 @@ std::wstring AfxGetUserName()
     std::wstring buffer(dwBufLen, NULL);
     GetUserName((LPWSTR)buffer.c_str(), &dwBufLen);
     return buffer.substr(0, dwBufLen - 1);
+}
+
+
+// ========================================================================================
+// Insert embedded hyphen "-" into a date string.
+// e.g.  20230728 would be returned as 2023-07-28
+// ========================================================================================
+std::wstring AfxInsertDateHyphens(const std::wstring& dateString)
+{
+    if (dateString.length() != 8) return L"";
+
+    std::wstring newDate = dateString;
+    // YYYYMMDD
+    // 01234567
+
+    newDate.insert(4, L"-");
+    // YYYY-MMDD
+    // 012345678
+
+    newDate.insert(7, L"-");
+    // YYYY-MM-DD
+    // 0123456789
+
+    return newDate;
+}
+
+
+// ========================================================================================
+// Remove any embedded hyphen "-" from a date string.
+// e.g.  2023-07-28 would be returned as 20230728
+// ========================================================================================
+std::wstring AfxRemoveDateHyphens(const std::wstring& dateString)
+{
+    std::wstring newDate = dateString;
+    newDate.erase(remove(newDate.begin(), newDate.end(), L'-'), newDate.end());
+    return newDate;
 }
 
 
