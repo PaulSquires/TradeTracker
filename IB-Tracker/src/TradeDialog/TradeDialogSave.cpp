@@ -524,30 +524,28 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 bool TradeDialog_ValidateEditTradeData(HWND hwnd)
 {
 
+    // Collect the GUI data as it currently exists
+    CGuiData guiData;
+
     // Do an error check to ensure that the data about to be saved does not contain
     // any missing data, etc.
     std::wstring wszErrMsg;
     std::wstring wszText;
 
-    wszText = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE));
-    if (wszText.length() == 0) wszErrMsg += L"- Missing Description.\n";
+    if (guiData.description.length() == 0) wszErrMsg += L"- Missing Description.\n";
 
     // In adition to validating each leg, we count the number of non blank legs. If all legs
     // are blank then there is nothing to save to add that to the error message.
     int NumBlankLegs = 0;
 
     for (int row = 0; row < 4; ++row) {
-        std::wstring legOrigQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0);
-        std::wstring legOpenQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
-        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 2);
-        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
-        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
-        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 6);
-
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (legOrigQuantity.length() == 0 && legOpenQuantity.length() == 0
-            && legExpiry.length() == 0 && legStrike.length() == 0
-            && legPutCall.length() == 0 && legAction.length() == 0) {
+        if (guiData.legs.at(row).origQuantity == 0 &&
+            guiData.legs.at(row).openQuantity == 0 &&
+            guiData.legs.at(row).expiryDate.length() == 0 &&
+            guiData.legs.at(row).strikePrice.length() == 0 &&
+            guiData.legs.at(row).PutCall.length() == 0 &&
+            guiData.legs.at(row).action.length() == 0) {
             NumBlankLegs++;
             continue;
         }
@@ -555,12 +553,11 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool bIncomplete = false;
 
-        if (legOrigQuantity.length() == 0) bIncomplete = true;
-        if (legOpenQuantity.length() == 0) bIncomplete = true;
-        if (legExpiry.length() == 0) bIncomplete = true;
-        if (legStrike.length() == 0) bIncomplete = true;
-        if (legPutCall.length() == 0) bIncomplete = true;
-        if (legAction.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).origQuantity == 0) bIncomplete = true;
+        if (guiData.legs.at(row).expiryDate.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).strikePrice.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).PutCall.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).action.length() == 0) bIncomplete = true;
 
         if (bIncomplete == true) {
             wszErrMsg += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
@@ -572,29 +569,25 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     }
 
     for (int row = 0; row < 4; ++row) {
-        std::wstring legOrigQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0);
-        std::wstring legOpenQuantity = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
-        std::wstring legExpiry = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 2);
-        std::wstring legStrike = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
-        std::wstring legPutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
-        std::wstring legAction = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 6);
-
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (legOrigQuantity.length() == 0 && legOpenQuantity.length() == 0 
-            && legExpiry.length() == 0 && legStrike.length() == 0
-            && legPutCall.length() == 0 && legAction.length() == 0) {
+        if (guiData.legsRoll.at(row).origQuantity == 0 &&
+            guiData.legsRoll.at(row).openQuantity == 0 &&
+            guiData.legsRoll.at(row).expiryDate.length() == 0 &&
+            guiData.legsRoll.at(row).strikePrice.length() == 0 &&
+            guiData.legsRoll.at(row).PutCall.length() == 0 &&
+            guiData.legsRoll.at(row).action.length() == 0) {
+            NumBlankLegs++;
             continue;
         }
 
         // If any of the strings are zero length at this point then the row has incompete data.
         bool bIncomplete = false;
 
-        if (legOrigQuantity.length() == 0) bIncomplete = true;
-        if (legOpenQuantity.length() == 0) bIncomplete = true;
-        if (legExpiry.length() == 0) bIncomplete = true;
-        if (legStrike.length() == 0) bIncomplete = true;
-        if (legPutCall.length() == 0) bIncomplete = true;
-        if (legAction.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).origQuantity == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).expiryDate.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).strikePrice.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).PutCall.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).action.length() == 0) bIncomplete = true;
 
         if (bIncomplete == true) {
             wszErrMsg += L"- Leg #" + std::to_wstring(row + 5) + L" has incomplete or missing data.\n";
@@ -618,26 +611,22 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
 
-    // Do Total calculation because it is possible that the user did not move off of
-    // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
-    TradeDialog_CalculateTradeTotal(hwnd);
+    // Collect the GUI data as it currently exists
+    CGuiData guiData;
 
     // Save the modified data
-    tdd.trade->futureExpiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
-    tdd.trade->category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
+    tdd.trade->futureExpiry = guiData.futureExpiry;
+    tdd.trade->category = guiData.category;
     
-    tdd.trans->transDate = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-    tdd.trans->description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
-    tdd.trans->underlying = L"OPTIONS";
-    tdd.trans->quantity = AfxValInteger(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-    tdd.trans->price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
-    tdd.trans->multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
-    tdd.trans->fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-    tdd.trade->TradeBP = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP)));
-
-    std::wstring DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-    tdd.trans->total = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
-    if (DRCR == L"DR") { tdd.trans->total = tdd.trans->total * -1; }
+    tdd.trans->transDate   = guiData.transDate;
+    tdd.trans->description = guiData.description;
+    tdd.trans->underlying  = guiData.underlying;
+    tdd.trans->quantity    = guiData.quantity;
+    tdd.trans->price       = guiData.price;
+    tdd.trans->multiplier  = guiData.multiplier;
+    tdd.trans->fees        = guiData.fees;
+    tdd.trade->TradeBP     = guiData.TradeBP;
+    tdd.trans->total       = guiData.total;
 
     // Determine earliest and latest dates for BP ROI calculation.
     std::wstring wszDate = AfxRemoveDateHyphens(tdd.trans->transDate);
