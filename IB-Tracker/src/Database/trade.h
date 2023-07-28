@@ -99,6 +99,7 @@ public:
     void createOpenLegsVector();
 };
 
+
 // pointer list for all trades (initially loaded from database)
 extern std::vector<std::shared_ptr<Trade>> trades;
 

@@ -116,6 +116,9 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // PROCEED TO SAVE THE TRADE DATA
     tws_PauseTWS();
 
+    // Retrieve all TradeDialog GUI data
+
+
     // Do Total calculation because it is possible that the user did not move off of
     // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
     TradeDialog_CalculateTradeTotal(hwnd);
