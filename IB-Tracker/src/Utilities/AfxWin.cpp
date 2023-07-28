@@ -451,19 +451,6 @@ double AfxValDouble(std::wstring st) {
 }
 
 
-
-// ========================================================================================
-// Retrieves the name of the user associated with the current thread.
-// ========================================================================================
-std::wstring AfxGetUserName()
-{
-    DWORD dwBufLen = (DWORD)MAX_PATH;
-    std::wstring buffer(dwBufLen, NULL);
-    GetUserName((LPWSTR)buffer.c_str(), &dwBufLen);
-    return buffer.substr(0, dwBufLen - 1);
-}
-
-
 // ========================================================================================
 // Insert embedded hyphen "-" into a date string.
 // e.g.  20230728 would be returned as 2023-07-28
@@ -551,6 +538,7 @@ int AfxDaysInMonthISODate(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
+    if (wszDate.length() != 10) return 0;
     int nYear = std::stoi(wszDate.substr(0, 4));
     int nMonth = std::stoi(wszDate.substr(5, 2));
     return AfxDaysInMonth(nMonth, nYear);
@@ -564,6 +552,7 @@ std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd)
 {
     // YYYY-MM-DD
     // 0123456789
+    if (wszDate.length() != 10) return L"";
 
     SYSTEMTIME st = { 0 };
     FILETIME ft = { 0 };
@@ -597,8 +586,8 @@ std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd)
 // ========================================================================================
 int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
 {
-    if (date1.length() == 0) return 0;
-    if (date2.length() == 0) return 0;
+    if (date1.length() != 10) return 0;
+    if (date2.length() != 10) return 0;
     static const ULONGLONG FT_SECOND = ((ULONGLONG)10000000);
     static const ULONGLONG FT_MINUTE = (60 * FT_SECOND);
     static const ULONGLONG FT_HOUR = (60 * FT_MINUTE);
@@ -661,6 +650,7 @@ int AfxGetYear(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
+    if (wszDate.length() != 10) return 0;
     return std::stoi(wszDate.substr(0, 4));
 }
 
@@ -672,6 +662,7 @@ int AfxGetMonth(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
+    if (wszDate.length() != 10) return 0;
     return std::stoi(wszDate.substr(5, 2));
 }
 
@@ -683,6 +674,7 @@ int AfxGetDay(const std::wstring& wszDate)
 {
     // YYYY-MM-DD
     // 0123456789
+    if (wszDate.length() != 10) return 0;
     return std::stoi(wszDate.substr(8, 2));
 }
 

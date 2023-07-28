@@ -276,6 +276,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     // Update the Trade Management table with the details of the Trade.
     if (tdd.trade != nullptr) {
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tdd.trade->tickerName);
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), tdd.trade->tickerName);  // hidden
 
         wszText = tdd.trade->tickerSymbol;
         if (tdd.trade->futureExpiry.length()) {
@@ -284,6 +285,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), tdd.trade->futureExpiry);
         }
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), tdd.trade->tickerSymbol);  // hidden
     }
 
     
@@ -559,17 +561,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int HTextMargin = 0;
     int VTextMargin = 3;
 
-    DWORD lightBackColor = COLOR_GRAYLIGHT;
-    DWORD lightTextColor = COLOR_WHITELIGHT;
-
-    DWORD darkBackColor = COLOR_GRAYMEDIUM;
-    DWORD darkTextColor = COLOR_WHITEDARK;
-
-    DWORD TextColor = COLOR_WHITELIGHT;
-    DWORD TextColorDim = COLOR_WHITEDARK;
-    DWORD BackColor = COLOR_GRAYDARK;
-
-
     // EDIT ACTION LABEL
     hCtl = CreateCustomLabel(
         hwnd, IDC_TRADEDIALOG_LBLEDITACTION, CustomLabelType::TextOnly,
@@ -589,23 +580,28 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // NEW TRADE SHOWS TEXTBOXES, OTHERS JUST LABELS
     if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
         IsNewSharesTradeAction(tdd.tradeAction) == true) {
-        CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", TextColorDim, BackColor,
+        CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", COLOR_WHITEDARK, COLOR_GRAYDARK,
             CustomLabelAlignment::MiddleLeft, 40, 20, 65, 22);
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-        CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+        CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCOMPANY, L"Company Name", TextColorDim, BackColor,
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCOMPANY, L"Company Name", COLOR_WHITEDARK, COLOR_GRAYDARK,
             CustomLabelAlignment::MiddleLeft, 115, 20, 115, 22);
         if (tdd.tradeAction == TradeAction::NewFuturesTrade) {
             CustomLabel_SetText(hCtl, L"Futures Contract");
         }
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-        CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+        CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
     }
     else {
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+        ShowWindow(hCtl, SW_HIDE);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 0, 0, 0, 0);
+        ShowWindow(hCtl, SW_HIDE);
+
         hCtl = CreateCustomLabel(
             hwnd, IDC_TRADEDIALOG_LBLCOMPANY, CustomLabelType::TextOnly,
             40, 10, 250, 22);
@@ -650,13 +646,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         }
     }
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", TextColorDim, BackColor,
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACT, L"Contract Expiry", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 340, 20, 120, 22);
     CustomLabel_SetUserData(hCtl, wszContractDate);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
-        TextColor, COLOR_GRAYMEDIUM, CustomLabelAlignment::MiddleLeft, 340, 45, 79, 23);
+        COLOR_WHITELIGHT, COLOR_GRAYMEDIUM, CustomLabelAlignment::MiddleLeft, 340, 45, 79, 23);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, GLYPH_DROPDOWN,
-        TextColorDim, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 419, 45, 23, 23);
         
     if (ShowContractExpiry == true) {
@@ -669,27 +665,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Date", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Date", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 40, 72, 100, 22);
     std::wstring wszDate = AfxCurrentDate();
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), TextColor, COLOR_GRAYMEDIUM,
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserData(hCtl, wszDate);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, GLYPH_DROPDOWN,
-        TextColorDim, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
     // We always want the Description textbox to exists because even for rolled and closed transaction
     // we need to set the description (even though the user will never see the actual textbox in those
     // types of actions).
 
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, ES_LEFT, L"", 159, 97, 171, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
     if (IsNewOptionsTradeAction(tdd.tradeAction) == false ||
         IsNewSharesTradeAction(tdd.tradeAction) == true) {
@@ -710,14 +706,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.tradeAction == TradeAction::AddPutToTrade ||
         tdd.tradeAction == TradeAction::AddCallToTrade) {
 
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLSTRATEGY, L"Strategy", TextColorDim, BackColor,
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLSTRATEGY, L"Strategy", COLOR_WHITEDARK, COLOR_GRAYDARK,
             CustomLabelAlignment::MiddleLeft, 340, 72, 100, 22);
         hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,
             WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CONTROLPARENT);
     }
 
 
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 40, 155, 300, 22);
 
     if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
@@ -783,43 +779,43 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         // If we are rolling or editing then create the second trade grid.
         if (tdd.tradeAction == TradeAction::RollLeg || tdd.tradeAction == TradeAction::EditTransaction) {
             int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
-            CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", TextColorDim, BackColor,
+            CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
                 CustomLabelAlignment::MiddleLeft, nWidth, 155, 300, 22);
             HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, bShowOriginalQuantity);
         }
     }
 
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 40, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT,
         L"0", 40, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
     if (tdd.tradeAction == TradeAction::ManageShares ||
         tdd.tradeAction == TradeAction::ManageFutures) {
         // If the aggregate shares are negative then toggle the sell to buy in order to close the trade
-        int aggregate = stoi(tdd.sharesAggregateEdit);
+        int aggregate = AfxValInteger(tdd.sharesAggregateEdit);
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
     }
 
     
-    CustomLabel_SimpleLabel(hwnd, -1, L"Price", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Price", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 130, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
         L"0", 130, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 220, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT,
         L"100.0000", 220, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
     if (tdd.tradeAction == TradeAction::NewSharesTrade ||
         tdd.tradeAction == TradeAction::NewFuturesTrade ||
@@ -831,21 +827,21 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Fees", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Fees", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 310, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, ES_RIGHT,
         L"0", 310, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Total", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Total", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 400, 310, 80, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, ES_RIGHT,
         L"0", 400, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
 
 
@@ -869,12 +865,12 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // TRADE BUYING POWER
-    CustomLabel_SimpleLabel(hwnd, -1, L"Buying Power", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Buying Power", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 580, 310, 100, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTRADEBP, ES_RIGHT,
         L"0", 580, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-    CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Allow);
 
 
@@ -894,7 +890,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // when the calculate totals eventually gets called during the DR/CR toggle.
     if (tdd.tradeAction == TradeAction::ManageShares ||
         tdd.tradeAction == TradeAction::ManageFutures) {
-        int aggregate = stoi(tdd.sharesAggregateEdit);
+        int aggregate = AfxValInteger(tdd.sharesAggregateEdit);
         if (aggregate < 0) {
             TradeDialog_ToggleSellLongShortText(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
             TradeDialog_SetLongShortBackColor(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
@@ -912,13 +908,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // EDIT TRANSACTION WARNING
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1, L"", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 40, 380, 80, 16);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2, L"", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 120, 380, 500, 16);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 120, 396, 500, 16);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 120, 412, 500, 16);
 
     if (tdd.tradeAction == TradeAction::NewFuturesTrade ||

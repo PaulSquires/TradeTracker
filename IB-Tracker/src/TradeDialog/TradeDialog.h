@@ -92,7 +92,7 @@ constexpr int IDC_TRADEDIALOG_SELLSHARES_DROPDOWN = 155;
 
 constexpr int IDC_TRADEDIALOG_CATEGORY       = 160;
 
-
+std::wstring RemovePipeChar(const std::wstring& wszText);
 int TradeDialog_Show(TradeAction inTradeAction);
 void TradeDialog_CalculateTradeTotal(HWND hwnd);
 void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd);

@@ -161,6 +161,14 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), companyName);
 
             std::wstring wszMultiplier = GetMultiplier(tickerSymbol);
+            if (tdd.tradeAction == TradeAction::NewSharesTrade ||
+                tdd.tradeAction == TradeAction::NewFuturesTrade ||
+                tdd.tradeAction == TradeAction::ManageShares ||
+                tdd.tradeAction == TradeAction::ManageFutures ||
+                tdd.tradeAction == TradeAction::AddSharesToTrade ||
+                tdd.tradeAction == TradeAction::AddFuturesToTrade) {
+                wszMultiplier = L"1";
+            }
             CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), wszMultiplier);
 
         }

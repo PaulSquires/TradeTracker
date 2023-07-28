@@ -61,7 +61,6 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText);
 std::wstring AfxGetListBoxText(HWND hListBox, int nIndex);
 
 std::wstring AfxGetExePath();
-std::wstring AfxGetUserName();
 std::wstring AfxCurrentDate();
 
 int AfxValInteger(std::wstring st);
