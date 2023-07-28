@@ -28,7 +28,6 @@ SOFTWARE.
 
 
 // Various actions that can be performed on selected Trade or Legs.
-// TODO: Add default multipliers for known futures contracts.
 enum class TradeAction
 {
     NewOptionsTrade,

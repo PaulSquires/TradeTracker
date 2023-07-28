@@ -50,10 +50,6 @@ void CustomTextBox_OnSize(HWND hCtrl)
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData) {
         RECT rc; GetClientRect(hCtrl, &rc);
-        if (pData->BorderStyle != CustomTextBoxBorder::BorderNone && pData->BorderWidth) {
-            int BorderWidth = AfxScaleX((float)pData->BorderWidth);
-            InflateRect(&rc, -BorderWidth, -BorderWidth);
-        }
         if (pData->HTextMargin) {
             int HMarginWidth = AfxScaleX((float)pData->HTextMargin);
             InflateRect(&rc, -HMarginWidth, 0);
@@ -534,24 +530,6 @@ void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
 
 
 // ========================================================================================
-// Set the border attributes for the custom control (width, colors, style).
-// ========================================================================================
-void CustomTextBox_SetBorderAttributes(
-    HWND hCtrl, int BorderWidth, COLORREF clrGotFocus, COLORREF clrLostFocus, CustomTextBoxBorder BorderStyle)
-{
-    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
-    if (pData != nullptr) {
-        pData->BorderWidth = BorderWidth;
-        pData->BorderColorFocus = clrGotFocus;
-        pData->BorderColor = clrLostFocus;
-        pData->BorderStyle = BorderStyle;
-        CustomTextBox_SetOptions(hCtrl, pData);
-        AfxRedrawWindow(hCtrl);
-    }
-}
-
-
-// ========================================================================================
 // Set the numeric attributes for the custom control.
 // ========================================================================================
 void CustomTextBox_SetNumericAttributes(
@@ -628,11 +606,11 @@ HWND CreateCustomTextBox(
         pData->TextColor = COLOR_WHITELIGHT;
         pData->HTextMargin = 0;
         pData->VTextMargin = 0;
-        pData->BorderWidth = 0;
-        pData->BorderColorFocus = COLOR_WHITELIGHT;
-        pData->BorderColor = COLOR_WHITEDARK;
+        //pData->BorderWidth = 0;
+        //pData->BorderColorFocus = COLOR_WHITELIGHT;
+        //pData->BorderColor = COLOR_WHITEDARK;
+        //pData->BorderStyle = CustomTextBoxBorder::BorderNone;
         pData->Alignment = Alignment;
-        pData->BorderStyle = CustomTextBoxBorder::BorderNone;
 
 
         // Create the child embedded TextBox control

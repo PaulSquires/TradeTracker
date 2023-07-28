@@ -79,24 +79,13 @@ public:
 	int NumDecimals = 0;
 	CustomTextBoxNegative AllowNegative = CustomTextBoxNegative::Disallow;
 	CustomTextBoxFormatting AllowFormatting = CustomTextBoxFormatting::Disallow;
-
-	// Border
-	CustomTextBoxBorder BorderStyle = CustomTextBoxBorder::BorderNone;
-	int BorderWidth = 0;
-	COLORREF BorderColor{};
-	COLORREF BorderColorFocus = BorderColor;
-
 };
 
-
-// TODO: Do we need TextBox border attributes?
 
 CustomTextBox* CustomTextBox_GetOptions(HWND hCtrl);
 int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData);
 void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText);
 void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
-void CustomTextBox_SetBorderAttributes(
-	HWND hCtrl, int BorderWidth, COLORREF clrGotFocus, COLORREF clrLostFocus, CustomTextBoxBorder BorderStyle);
 void CustomTextBox_SetNumericAttributes(
 	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
 void CustomTextBox_SetColors(HWND hCtrl, DWORD TextColor, DWORD BackColor);
