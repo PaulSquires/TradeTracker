@@ -180,8 +180,14 @@ void TransPanel_ShowTransactions()
 
     // Create the new Listbox data that will display for the Transactions
     if (tdata.size() > 0) {
-        double subTotalAmount = 0;
-        double runningTotal = 0;
+        double subGrossAmount = 0;
+        double subFeesAmount = 0;
+        double subNetAmount = 0;
+
+        double runningGrossTotal = 0;
+        double runningFeesTotal = 0;
+        double runningNetTotal = 0;
+
         int subTotalDay = 0;
         int curDay = 0;
         int curYear = 0;
@@ -189,18 +195,28 @@ void TransPanel_ShowTransactions()
         for (const auto& td : tdata) {
             curDay = AfxGetDay(td.trans->transDate);
             if (subTotalDay != curDay && subTotalDay != 0) {
-                ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subTotalAmount);
+                ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
                 curDate = td.trans->transDate;
-                subTotalAmount = 0;
+                subGrossAmount = 0;
+                subFeesAmount = 0;
+                subNetAmount = 0;
             }
             curDate = td.trans->transDate;
             subTotalDay = curDay;
-            subTotalAmount += td.trans->total;
+            
+            subNetAmount += td.trans->total;
+            subFeesAmount += td.trans->fees;
+            subGrossAmount += (td.trans->total + td.trans->fees);
             ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
-            runningTotal += td.trans->total;
+
+            runningNetTotal += td.trans->total;
+            runningFeesTotal += td.trans->fees;
+            runningGrossTotal += (td.trans->total + td.trans->fees);
         }
-        if (subTotalAmount != 0) ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subTotalAmount);
-        ListBoxData_OutputTransactionRunningTotal(hListBox, runningTotal);
+        if (subNetAmount != 0) {
+            ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
+        }
+        ListBoxData_OutputTransactionRunningTotal(hListBox, runningGrossTotal, runningFeesTotal, runningNetTotal);
     }
 
 

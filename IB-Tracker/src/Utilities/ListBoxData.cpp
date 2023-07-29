@@ -758,7 +758,6 @@ void ListBoxData_HistoryOptionsLeg(
 }
 
 
-
 // ========================================================================================
 // Create the display data line for closed position yearly total.
 // ========================================================================================
@@ -784,6 +783,7 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal)
     ld->lineType = LineType::None;
     ListBox_InsertString(hListBox, 1, ld);
 }
+
 
 // ========================================================================================
 // Create the display data line for a closed position month subtotal.
@@ -843,20 +843,27 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
 // ========================================================================================
 // Create the display data line for Transaction running total.
 // ========================================================================================
-void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double subtotal)
+void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, 
+    double runningGrossTotal, double runningFeesTotal, double runningNetTotal)
 {
     ListBoxData* ld = new ListBoxData;
 
     TickerId tickerId = -1;
     REAL font8 = 8;
 
-    DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
+    DWORD clr = (runningNetTotal >= 0) ? COLOR_GREEN : COLOR_RED;
 
     std::wstring wszText = L"TOTAL";
-    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
-    ld->SetData(7, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(5, nullptr, tickerId, AfxMoney(runningGrossTotal), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(6, nullptr, tickerId, AfxMoney(runningFeesTotal), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(7, nullptr, tickerId, AfxMoney(runningNetTotal), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
     ListBox_InsertString(hListBox, 0, ld);
@@ -870,22 +877,29 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double subtotal)
 // ========================================================================================
 // Create the display data line for a transaction day subtotal.
 // ========================================================================================
-void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring transDate, double subtotal)
+void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring transDate, 
+        double subGrossAmount, double subFeesAmount, double subNetAmount)
 {
     ListBoxData* ld = new ListBoxData;
 
     TickerId tickerId = -1;
     REAL font8 = 8;
 
-    DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
+    DWORD clr = (subNetAmount >= 0) ? COLOR_GREEN : COLOR_RED;
 
     //  example: MON JUL 5
     std::wstring wszText = AfxUpper(AfxGetShortDayName(transDate) + L" " + 
         AfxGetShortMonthName(transDate)) + L" " + std::to_wstring(AfxGetDay(transDate));
-    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
-    ld->SetData(7, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
+    ld->SetData(5, nullptr, tickerId, AfxMoney(subGrossAmount), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(6, nullptr, tickerId, AfxMoney(subFeesAmount), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(7, nullptr, tickerId, AfxMoney(subNetAmount), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
     ListBox_AddString(hListBox, ld);
