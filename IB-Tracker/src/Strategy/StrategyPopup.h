@@ -36,6 +36,10 @@ public:
 
 };
 
+extern CStrategyPopup StrategyPopup;
+extern HWND HWND_STRATEGYPOPUP;
+
+
 constexpr int IDC_STRATEGYPOPUP_LONGSHORT = 100;
 constexpr int IDC_STRATEGYPOPUP_PUTCALL   = 150;
 constexpr int IDC_STRATEGYPOPUP_STRATEGY  = 200;

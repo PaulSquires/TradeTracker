@@ -30,11 +30,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "DatePicker/Calendar.h"
 #include "TradeDialog/TradeDialog.h"
-
 #include "TradeGrid.h"
-
-extern HWND HWND_TRADEDIALOG;
-extern CMainWindow Main;
 
 
 // ========================================================================================

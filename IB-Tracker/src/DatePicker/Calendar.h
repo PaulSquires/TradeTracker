@@ -36,6 +36,10 @@ public:
 
 };
 
+extern CCalendar Calendar;
+extern HWND HWND_CALENDAR;
+
+
 enum class CalendarPickerReturnType
 {
     ShortDate,    // Mar 1

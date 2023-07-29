@@ -49,6 +49,10 @@ public:
     std::wstring sharesAggregateEdit = L"0";
 };
 
+extern TradeDialogData tdd;
+extern HWND HWND_TRADEDIALOG;
+extern int DialogReturnCode;
+
 
 constexpr int IDC_TRADEDIALOG_LBLEDITACTION  = 101;
 constexpr int IDC_TRADEDIALOG_LBLTICKER      = 102;

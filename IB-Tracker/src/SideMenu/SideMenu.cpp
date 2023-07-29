@@ -38,14 +38,9 @@ SOFTWARE.
 #include "Utilities/ListBoxData.h"
 #include "SideMenu.h"
 
+CSideMenu SideMenu;
 
 HWND HWND_SIDEMENU = NULL;
-
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_ACTIVETRADES;
-extern HWND HWND_TRADEHISTORY;
-extern HWND HWND_DAILYTOTALS;
-extern HWND HWND_TICKERPANEL;
 
 
 // ========================================================================================

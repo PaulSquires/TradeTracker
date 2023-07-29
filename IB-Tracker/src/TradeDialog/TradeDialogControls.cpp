@@ -38,13 +38,6 @@ SOFTWARE.
 #include "Category/Category.h"
 
 
-extern HWND HWND_TRADEDIALOG;
-extern CTradeDialog TradeDialog;
-
-CStrategyButton StrategyButton;
-extern HWND HWND_STRATEGYBUTTON;
-extern TradeDialogData tdd;
-
 
 // ========================================================================================
 // Set the Short/Long background color.

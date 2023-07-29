@@ -37,6 +37,9 @@ public:
 
 };
 
+extern CTransDetail TransDetail;
+extern HWND HWND_TRANSDETAIL;
+
 
 constexpr int IDC_TRANSDETAIL_LISTBOX = 110;
 constexpr int IDC_TRANSDETAIL_LABEL1 = 111;

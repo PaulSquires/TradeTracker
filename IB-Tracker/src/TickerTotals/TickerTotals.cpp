@@ -28,16 +28,14 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
+#include "Database/trade.h"
 #include "MainWindow/MainWindow.h"
 #include "TickerTotals.h"
 
 
 HWND HWND_TICKERPANEL = NULL;
 
-extern CTickerPanel TickerPanel;
-
-extern std::vector<std::shared_ptr<Trade>> trades;
-extern int nColWidth[];
+CTickerPanel TickerPanel;
 
 
 

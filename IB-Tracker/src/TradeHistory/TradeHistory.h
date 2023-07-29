@@ -37,6 +37,8 @@ public:
 
 };
 
+extern CTradeHistory TradeHistory;
+extern HWND HWND_TRADEHISTORY;
 
 constexpr int IDC_HISTORY_LISTBOX = 110;
 constexpr int IDC_HISTORY_SYMBOL = 111;

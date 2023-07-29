@@ -37,6 +37,8 @@ public:
 
 };
 
+extern CActiveTrades ActiveTrades;
+extern HWND HWND_ACTIVETRADES;
 
 constexpr int IDC_TRADES_LISTBOX = 100;
 constexpr int IDC_TRADES_LABEL = 101;

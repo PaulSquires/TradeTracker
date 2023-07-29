@@ -34,18 +34,12 @@ SOFTWARE.
 #include "Transactions/TransDetail.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
-
 #include "TransPanel.h"
 
 
 HWND HWND_TRANSPANEL = NULL;
 
-extern CTransPanel TransPanel;
-
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_TRANSDETAIL;
-extern HWND HWND_MIDDLEPANEL;
-
+CTransPanel TransPanel;
 
 
 // ========================================================================================

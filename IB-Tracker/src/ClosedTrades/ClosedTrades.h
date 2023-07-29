@@ -36,6 +36,8 @@ public:
 
 };
 
+extern CClosedTrades ClosedTrades;
+extern HWND HWND_CLOSEDTRADES;
 
 constexpr int IDC_CLOSED_LISTBOX = 100;
 constexpr int IDC_CLOSED_LABEL = 101;

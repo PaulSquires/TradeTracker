@@ -36,6 +36,9 @@ public:
 
 };
 
+extern CTickerPanel TickerPanel;
+extern HWND HWND_TICKERPANEL;
+
 
 constexpr int IDC_TICKER_LISTBOX = 110;
 constexpr int IDC_TICKER_SYMBOL = 111;

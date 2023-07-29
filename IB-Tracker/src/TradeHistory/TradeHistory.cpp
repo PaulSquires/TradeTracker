@@ -29,19 +29,15 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
+#include "SideMenu/SideMenu.h"
 #include "Transactions/TransDetail.h"
+#include "Database/trade.h"
 #include "TradeHistory.h"
 
 
 HWND HWND_TRADEHISTORY = NULL;
 
-extern CTradeHistory TradeHistory;
-
-extern std::vector<std::shared_ptr<Trade>> trades;
-extern int nColWidth[];
-
-extern HWND HWND_SIDEMENU;
-
+CTradeHistory TradeHistory;
 
 
 

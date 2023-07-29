@@ -35,6 +35,9 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 };
+extern CStrategyButton StrategyButton;
+extern HWND HWND_STRATEGYBUTTON;
+
 
 constexpr int IDC_STRATEGYBUTTON_LONGSHORT = 100;
 constexpr int IDC_STRATEGYBUTTON_PUTCALL   = 101;

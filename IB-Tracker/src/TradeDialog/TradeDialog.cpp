@@ -33,6 +33,7 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "CustomLabel/CustomLabel.h"
 #include "DatePicker/Calendar.h"
+#include "Strategy/StrategyPopup.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 #include "TradeGrid/TradeGrid.h"
@@ -40,14 +41,8 @@ SOFTWARE.
 
 HWND HWND_TRADEDIALOG = NULL;
 
-extern HWND HWND_MAINWINDOW;
-
 CTradeDialog TradeDialog;
 TradeDialogData tdd;
-
-extern HWND HWND_CALENDAR;
-extern CCalendar Calendar;
-extern HWND HWND_STRATEGYPOPUP;
 
 int DialogReturnCode = DIALOG_RETURN_CANCEL;
 

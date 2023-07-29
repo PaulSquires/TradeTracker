@@ -38,13 +38,6 @@ SOFTWARE.
 #include "Strategy/StrategyButton.h"
 
 
-
-extern HWND HWND_TRADEDIALOG;
-extern HWND HWND_ACTIVETRADES;
-extern CTradeDialog TradeDialog;
-extern TradeDialogData tdd;
-
-
 class CGuiData
 {
 public:

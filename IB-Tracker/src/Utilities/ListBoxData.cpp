@@ -31,20 +31,12 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "ClosedTrades/ClosedTrades.h"
 #include "TradeHistory/TradeHistory.h"
+#include "TradeDialog/TradeDialog.h"
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
+#include "SideMenu/SideMenu.h"
 #include "Config/Config.h"
 #include "Utilities/Colors.h"
-
-extern HWND HWND_SIDEMENU;
-extern HWND HWND_ACTIVETRADES;
-extern HWND HWND_CLOSEDTRADES;
-extern HWND HWND_TRADEHISTORY;
-extern HWND HWND_TICKERPANEL;
-extern HWND HWND_DAILYTOTALS;
-extern HWND HWND_TRANSPANEL;
-extern HWND HWND_TRADEDIALOG;
-
 
 
 int nHistoryMinColWidth[10] =

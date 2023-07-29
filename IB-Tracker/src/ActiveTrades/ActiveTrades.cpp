@@ -33,7 +33,7 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeDialog/TradeDialog.h"
 #include "TradeHistory/TradeHistory.h"
-#include "Database/database.h"
+#include "Database/trade.h"
 #include "Category/Category.h"
 #include "Config/Config.h"
 #include "ActiveTrades.h"
@@ -41,18 +41,7 @@ SOFTWARE.
 
 HWND HWND_ACTIVETRADES = NULL;
 
-extern std::vector<std::shared_ptr<Trade>> trades;
-
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_TRADEHISTORY;
-extern HWND HWND_SIDEMENU;
-extern HWND HWND_MIDDLEPANEL;
-extern CActiveTrades ActiveTrades;
-
-extern TradeDialogData tdd;
-
-extern bool PrevMarketDataLoaded;
-
+CActiveTrades ActiveTrades;
 
 
 // ========================================================================================

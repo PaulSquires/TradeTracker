@@ -41,8 +41,6 @@ const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 
 bool StartupConnect = false;
 
-extern HWND HWND_SIDEMENU;
-
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 0, L"Category 0"},

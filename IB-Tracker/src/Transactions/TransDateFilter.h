@@ -36,6 +36,9 @@ public:
 
 };
 
+extern CTransDateFilter TransDateFilter;
+extern HWND HWND_TRANSDATEFILTER;
+
 
 enum class TransDateFilterType
 {

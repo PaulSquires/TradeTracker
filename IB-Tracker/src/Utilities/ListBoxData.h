@@ -119,6 +119,8 @@ enum class TableType
     TransPanel
 };
 
+extern bool PrevMarketDataLoaded;
+
 DWORD GetCategoryColor(int category);
 void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);

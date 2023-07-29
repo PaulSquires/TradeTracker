@@ -35,6 +35,10 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
+extern CSideMenu SideMenu;
+extern HWND HWND_SIDEMENU;
+
+
 const int IDC_SIDEMENU_FIRSTITEM       = 100;
 const int IDC_SIDEMENU_LOGO            = IDC_SIDEMENU_FIRSTITEM;
 const int IDC_SIDEMENU_APPNAME         = 102;

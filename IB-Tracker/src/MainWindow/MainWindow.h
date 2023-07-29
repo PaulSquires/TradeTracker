@@ -41,6 +41,9 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
+extern CMainWindow Main;
+extern HWND HWND_MAINWINDOW;
+extern HWND HWND_MIDDLEPANEL;
 
 #define IDI_MAINICON 106
 
@@ -50,3 +53,4 @@ constexpr int IDC_MAINWINDOW_WARNING = 100;
 void MainWindow_BlurPanels(bool active);
 void MainWindow_SetMiddlePanel(HWND hPanel);
 void MainWindow_SetRightPanel(HWND hPanel);
+

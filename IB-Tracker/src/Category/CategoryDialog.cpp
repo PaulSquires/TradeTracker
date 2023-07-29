@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Utilities/CWindowBase.h"
 #include "MainWindow/MainWindow.h"
+#include "TradeDialog/TradeDialog.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 #include "CustomLabel/CustomLabel.h"
@@ -38,9 +39,6 @@ SOFTWARE.
 
 
 HWND HWND_CATEGORYDIALOG = NULL;
-
-extern HWND HWND_TRADEDIALOG;
-extern int DialogReturnCode;
 
 CCategoryDialog CategoryDialog;
 

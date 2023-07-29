@@ -31,21 +31,13 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeHistory/TradeHistory.h"
-#include "Database/database.h"
-
+#include "Database/trade.h"
 #include "ClosedTrades.h"
 
 
 HWND HWND_CLOSEDTRADES = NULL;
 
-extern std::vector<std::shared_ptr<Trade>> trades;
-
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_TRADEHISTORY;
-extern HWND HWND_SIDEMENU;
-extern HWND HWND_MIDDLEPANEL;
-
-extern CClosedTrades ClosedTrades;
+CClosedTrades ClosedTrades;
 
 
 

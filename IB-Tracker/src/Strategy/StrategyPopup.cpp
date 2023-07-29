@@ -34,9 +34,7 @@ SOFTWARE.
 
 HWND HWND_STRATEGYPOPUP = NULL;
 
-extern HWND HWND_STRATEGYBUTTON;
-extern CStrategyButton StrategyButton;
-extern CStrategyPopup StrategyPopup;
+CStrategyPopup StrategyPopup;
 
 
 

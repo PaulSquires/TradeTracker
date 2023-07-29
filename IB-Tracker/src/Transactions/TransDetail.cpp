@@ -27,31 +27,24 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "MainWindow/MainWindow.h"
+#include "Transactions/TransPanel.h"
 #include "MainWindow/tws-client.h"
 #include "Database/database.h"
+#include "Database/trade.h"
 #include "TradeDialog/TradeDialog.h"
+#include "SideMenu/SideMenu.h"
 #include "Utilities/ListBoxData.h"
 #include "Config/Config.h"
-
 #include "TransDetail.h"
 
 
 HWND HWND_TRANSDETAIL = NULL;
 
-extern CTransDetail TransDetail;
-
-extern std::vector<std::shared_ptr<Trade>> trades;
-extern int nColWidth[];
-
-extern HWND HWND_SIDEMENU;
-
-extern void MainWindow_SetRightPanel(HWND hPanel);
-extern void TransPanel_ShowTransactions();
-
-extern TradeDialogData tdd;
-
 std::shared_ptr<Trade> tradeEditDelete = nullptr;
 std::shared_ptr<Transaction> transEditDelete = nullptr;
+
+CTransDetail TransDetail;
 
 
 

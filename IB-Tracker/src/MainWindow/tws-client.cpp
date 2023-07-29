@@ -32,6 +32,8 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "Reconcile/Reconcile.h"
+#include "Utilities/IntelDecimal.h"
+#include "SideMenu/SideMenu.h"
 
 #include "tws-api/EClientSocket.h"
 #include "tws-api/EPosixClientSocketPlatform.h"
@@ -39,20 +41,6 @@ SOFTWARE.
 #include "tws-api/Utils.h"
 
 #include "tws-client.h"
-
-extern double intelDecimalToDouble(Decimal decimal);
-
-
-
-// The NavPanel window is exposed external because other
-// areas of the application need to send messages to the
-// "messages" label to display. e.g TWS connection status.
-extern HWND HWND_SIDEMENU;
-
-// The ActiveTrades window is exposed external because we
-// call the ListBox on that panel to display updated
-// real time price data.
-extern HWND HWND_ACTIVETRADES;
 
 
 std::atomic<bool> isThreadPaused = false;

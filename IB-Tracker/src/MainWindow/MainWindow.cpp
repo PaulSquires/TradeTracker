@@ -53,14 +53,7 @@ HWND HWND_MIDDLEPANEL = NULL;
 HWND HWND_RIGHTPANEL = NULL;
 
 CMainWindowShadow Shadow;
-CSideMenu         SideMenu;
-CTradeHistory     TradeHistory;
-CActiveTrades     ActiveTrades;
-CClosedTrades     ClosedTrades;
-CTickerPanel      TickerPanel;
-CTransPanel       TransPanel;
-CTransDetail      TransDetail;
-
+CMainWindow Main;
 
 RECT rcSplitter{};
 bool isDragging = false;    // If dragging our splitter

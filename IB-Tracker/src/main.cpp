@@ -29,14 +29,11 @@ SOFTWARE.
 #include "Database/database.h"
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
+#include "Transactions/TransDateFilter.h"
+#include "DatePicker/Calendar.h"
 #include "Utilities/UserMessages.h"
 #include <wchar.h>
 
-
-CMainWindow Main;
-
-extern HWND HWND_TRANSDATEFILTER;
-extern HWND HWND_CALENDAR;
 
 // Use the following pragma instead of having to include a manifest with the application
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
