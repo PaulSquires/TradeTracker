@@ -157,15 +157,29 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 // ========================================================================================
 void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
 {
-    if (trade == nullptr) return;
-    if (trans == nullptr) return;
-
     tradeEditDelete = trade;
     transEditDelete = trans;
 
     // Clear the current transaction history table
     HWND hListBox = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LISTBOX);
     ListBoxData_DestroyItemData(hListBox);
+
+    // Ensure that the Transaction panel is set
+    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
+
+    if (trade == nullptr) {
+        CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1), L"");
+        CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), L"");
+        CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), L"");
+        ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDEDIT), SW_HIDE);
+        ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDDELETE), SW_HIDE);
+        ListBoxData_AddBlankLine(hListBox);
+        AfxRedrawWindow(hListBox);
+        return;
+    }
+
+    ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDEDIT), SW_SHOW);
+    ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDDELETE), SW_SHOW);
 
     ListBoxData_HistoryHeader(hListBox, trade, trans);
 
@@ -207,9 +221,6 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, TableType::TradeHistory, -1);
-
-    // Ensure that the Transaction Detail panel is set
-    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
     // Set the ListBox to the topline.
     ListBox_SetTopIndex(hListBox, 0);

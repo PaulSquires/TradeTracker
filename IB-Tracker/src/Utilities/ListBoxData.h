@@ -139,9 +139,8 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal)
 void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal);
 void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closedDate);
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
-void ListBoxData_OutputDailyTotalsNodeHeader(HWND hListBox, std::wstring date, double amount, bool isOpen);
-void ListBoxData_OutputDailyTotalsDetailLine(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
-void ListBoxData_OutputDailyTotalsSummary(HWND hListBox, double grandTotal, double MTD, double YTD);
+void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double subtotal);
+void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring transDate, double subtotal);
 void ListBoxData_OutputTransaction(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
 void Header_OnPaint(HWND hWnd);

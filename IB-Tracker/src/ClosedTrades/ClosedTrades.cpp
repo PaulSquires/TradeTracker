@@ -162,7 +162,7 @@ void ClosedTrades_ShowClosedTrades()
     AfxRedrawWindow(hListBox);
 
 
-    // If closed trades exist then select the first trade so that its history will show
+    // If no closed trades exist then add at least one line
     if (ListBox_GetCount(hListBox) == 0) {
         ListBoxData_AddBlankLine(hListBox);
     }

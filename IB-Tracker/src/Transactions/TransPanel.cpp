@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "Transactions/TransDateFilter.h"
 #include "Transactions/TransDetail.h"
+#include "SideMenu/SideMenu.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
 #include "TransPanel.h"
@@ -95,6 +96,9 @@ void TransPanel_ShowListBoxItem(int index)
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
     ListBox_SetCurSel(hListBox, index);
+
+    // Ensure that the Transactions menu item is selected
+    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_TRANSACTIONS);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -175,8 +179,28 @@ void TransPanel_ShowTransactions()
 
 
     // Create the new Listbox data that will display for the Transactions
-    for (const auto& td: tdata) {
-        ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
+    if (tdata.size() > 0) {
+        double subTotalAmount = 0;
+        double runningTotal = 0;
+        int subTotalDay = 0;
+        int curDay = 0;
+        int curYear = 0;
+        std::wstring curDate = L"";
+        for (const auto& td : tdata) {
+            curDay = AfxGetDay(td.trans->transDate);
+            if (subTotalDay != curDay && subTotalDay != 0) {
+                ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subTotalAmount);
+                curDate = td.trans->transDate;
+                subTotalAmount = 0;
+            }
+            curDate = td.trans->transDate;
+            subTotalDay = curDay;
+            subTotalAmount += td.trans->total;
+            ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
+            runningTotal += td.trans->total;
+        }
+        if (subTotalAmount != 0) ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subTotalAmount);
+        ListBoxData_OutputTransactionRunningTotal(hListBox, runningTotal);
     }
 
 
@@ -195,11 +219,8 @@ void TransPanel_ShowTransactions()
     AfxRedrawWindow(hListBox);
 
 
-    // If Transactions exist then select the first transaction so that its detail will show
+    // If no transactions then add at least one line
     if (ListBox_GetCount(hListBox)) {
-        TransPanel_ShowListBoxItem(0);
-    }
-    else {
         ListBoxData_AddBlankLine(hListBox);
     }
 
@@ -209,7 +230,11 @@ void TransPanel_ShowTransactions()
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
-    ListBox_SetCurSel(hListBox, 0);
+    // Select row past the YTD total line if possible
+    int curSel = min(ListBox_GetCount(hListBox) - 1, 2);
+    ListBox_SetCurSel(hListBox, curSel);
+    TransPanel_ShowListBoxItem(curSel);
+
     SetFocus(hListBox);
 }
 
