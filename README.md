@@ -15,7 +15,7 @@ I wrote this program because tracking trades and their corresponding transaction
 ## Goals
 * Equity and Futures Options focused (although underlying stocks and futures can also be tracked).
 * Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
-* Allow trades to be grouped and tracked by Category (or maybe Strategy would be a better description).
+* Allow trades to be grouped and tracked by Category/Strategy.
 * Easy to learn and very intuitive with all information available on the main screen. 
 * Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
