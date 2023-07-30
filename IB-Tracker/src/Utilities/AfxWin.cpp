@@ -755,6 +755,26 @@ std::wstring AfxGetShortDayName(const std::wstring& wszDate)
 
 
 // ========================================================================================
+// Returns the long format day based on the specified date in ISO format (YYYY-MM-DD)
+// ========================================================================================
+std::wstring AfxGetLongDayName(const std::wstring& wszDate)
+{
+    if (wszDate.length() == 0) return L"";
+    // YYYY-MM-DD
+    // 0123456789
+
+    SYSTEMTIME st;
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+
+    std::wstring buffer(260, NULL);
+    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"dddd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+}
+
+
+// ========================================================================================
 // Returns the short format month based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
 std::wstring AfxGetShortMonthName(const std::wstring& wszDate)

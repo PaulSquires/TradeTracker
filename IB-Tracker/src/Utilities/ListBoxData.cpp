@@ -855,7 +855,7 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox,
 
     std::wstring wszText = L"TOTAL";
     ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(5, nullptr, tickerId, AfxMoney(runningGrossTotal), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
@@ -888,10 +888,11 @@ void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring transD
     DWORD clr = (subNetAmount >= 0) ? COLOR_GREEN : COLOR_RED;
 
     //  example: MON JUL 5
-    std::wstring wszText = AfxUpper(AfxGetShortDayName(transDate) + L" " + 
-        AfxGetShortMonthName(transDate)) + L" " + std::to_wstring(AfxGetDay(transDate));
+    //std::wstring wszText = AfxUpper(AfxGetShortDayName(transDate) + L" " + 
+    //    AfxGetShortMonthName(transDate)) + L" " + std::to_wstring(AfxGetDay(transDate));
+    std::wstring wszText = AfxUpper(AfxGetLongDayName(transDate));
     ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(5, nullptr, tickerId, AfxMoney(subGrossAmount), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
