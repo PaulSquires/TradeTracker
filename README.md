@@ -21,6 +21,7 @@ I wrote this program because tracking trades and their corresponding transaction
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
 * Small (about 475K), fast (written in C++), and self-contained (no external dependencies).
 * Simple text file "database" that can easily be manually edited if needed. No database engine needed.
+* The only pain point is that you have to manually enter your transactions into IB-Tracker in order ensure that transactions are grouped with the correct trades. However there is a "Reconcile" functionality that ensures that your local data always matches what exists in IBKR/TWS. 
 * Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed. It will work on Linux using Wine but you may experience some visual glitches due to the font family unicode characters that the program uses.
 
 ## Download
