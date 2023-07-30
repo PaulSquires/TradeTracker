@@ -186,14 +186,14 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetText(hCtl, wszText);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_GO, L"GO",
-        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM,
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 203, 0, 30, nHeight);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYBUTTON_DROPDOWN, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 234, 0, 30, nHeight);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);

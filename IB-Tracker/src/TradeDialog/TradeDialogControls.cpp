@@ -288,6 +288,24 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     }
 
 
+    if (tdd.tradeAction == TradeAction::NewIronCondor) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, wszText);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetText(hCtl, L"");
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl,(int)Strategy::IronCondor);
+        wszText = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::IronCondor));
+        CustomLabel_SetText(hCtl, wszText);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
+
     if (tdd.tradeAction == TradeAction::NewShortLT112) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
@@ -643,7 +661,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE, AfxLongDate(wszContractDate),
         COLOR_WHITELIGHT, COLOR_GRAYMEDIUM, CustomLabelAlignment::MiddleLeft, 340, 45, 79, 23);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 419, 45, 23, 23);
         
     if (ShowContractExpiry == true) {
@@ -665,7 +683,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SetUserData(hCtl, wszDate);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 126, 97, 23, 23);
 
     // We always want the Description textbox to exists because even for rolled and closed transaction
@@ -730,7 +748,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetText(hCtl, wszText);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_BUYSHARES_DROPDOWN, GLYPH_DROPDOWN,
-            COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+            COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
             CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
@@ -754,7 +772,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetText(hCtl, wszText);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES_DROPDOWN, GLYPH_DROPDOWN,
-            COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+            COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
             CustomLabelAlignment::MiddleCenter, 191, 180, 30, 23);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
         CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
@@ -842,7 +860,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // DR / CR toggle label
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",
-        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 490, 337, 30, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
@@ -867,7 +885,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
-        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 580, 396, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);

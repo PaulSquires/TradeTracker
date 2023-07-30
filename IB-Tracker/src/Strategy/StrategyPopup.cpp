@@ -127,7 +127,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         StrategyButton_SetLongShortTextColor(hCtlLongShort);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYPOPUP_GO + i, L"GO",
-            COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM,
+            COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
             CustomLabelAlignment::MiddleCenter, 203, nTop, 30, nHeight);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
         CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);

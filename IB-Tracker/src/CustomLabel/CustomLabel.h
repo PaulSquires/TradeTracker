@@ -80,6 +80,7 @@ public:
 	std::wstring wszToolTip{};
 	std::wstring UserData{};
 	int UserDataInt = 0;
+	bool AllowTabStop = false;
 
 	int CtrlId = 0;
 	CustomLabelType CtrlType = CustomLabelType::TextOnly;
@@ -186,7 +187,7 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
-	DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown,
+	DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown, DWORD FocusBorderColor,
 	CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 

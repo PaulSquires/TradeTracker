@@ -278,10 +278,17 @@ void CustomLabel::DrawBordersInBuffer()
     case CustomLabelType::ImageAndText:
     case CustomLabelType::TextOnly:
     {
-        ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
         if (BorderVisible == true) {
+            ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
             Pen pen(BackColor, BorderWidth);
             RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
+            Graphics graphics(m_memDC);
+            graphics.DrawRectangle(&pen, rectF);
+        }
+        if (AllowTabStop == true) {
+            ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : BorderColor);
+            Pen pen(BackColor, 1);
+            RectF rectF(0, 0, (REAL)m_rcClient.right - 1, (REAL)m_rcClient.bottom - 1);
             Graphics graphics(m_memDC);
             graphics.DrawRectangle(&pen, rectF);
         }
@@ -356,14 +363,12 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
         }
     }
 
-    if (pStream)
-    {
+    if (pStream) {
         pStream->Release();
         pStream = nullptr;
     }
 
-    if (hGlobal)
-    {
+    if (hGlobal) {
         GlobalFree(hGlobal);
         hGlobal = nullptr;
     }
@@ -473,6 +478,12 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         break;
 
 
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+        AfxRedrawWindow(hWnd);
+        break;
+
+
     case WM_ERASEBKGND:
     {
         // Handle all of the painting in WM_PAINT
@@ -544,6 +555,9 @@ int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
             AfxSetTooltipText(pData->hToolTip, hCtrl, pData->wszToolTip);
         }
     }
+
+    AfxRemoveWindowStyle(hCtrl, WS_TABSTOP);
+    if (pData->AllowTabStop) AfxAddWindowStyle(hCtrl, WS_TABSTOP);
     
     SetWindowLongPtr(hCtrl, 0, (LONG_PTR)pData);
     AfxRedrawWindow(hCtrl);
@@ -809,6 +823,7 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
         pData->TextColor = TextColor;
         pData->BackColorButtonDown = BackColor;
         pData->TextAlignment = alignment;
+        pData->AllowTabStop = false;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -820,7 +835,7 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 // Creates a simple label that acts like a push button.
 // ========================================================================================
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
-    DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown,
+    DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown, DWORD FocusBorderColor,
     CustomLabelAlignment alignment, int nLeft, int nTop, int nWidth, int nHeight)
 {
     // Creates a simple button type of label
@@ -840,6 +855,9 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
         pData->TextColor = TextColor;
         pData->TextColorHot = TextColor;
         pData->TextAlignment = alignment;
+        pData->AllowTabStop = true;
+        pData->BorderColorHot = FocusBorderColor;
+        pData->BorderColor = BackColor;
         CustomLabel_SetOptions(hCtl, pData);
     }
 

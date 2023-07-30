@@ -1097,6 +1097,8 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
     DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
     DWORD dwNewStyle = dwOldStyle & ~(dwStyle);
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
+    SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+    InvalidateRect(hwnd, NULL, TRUE);
     return dwOldStyle;
 }
 
@@ -1111,8 +1113,10 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
 DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle)
 {
     DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
-    DWORD dwNewStyle = dwOldStyle & (dwStyle);
+    DWORD dwNewStyle = dwOldStyle | (dwStyle);
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
+    SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+    InvalidateRect(hwnd, NULL, TRUE);
     return dwOldStyle;
 }
 
@@ -1143,7 +1147,7 @@ DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
 DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle)
 {
     DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
-    DWORD dwNewStyle = dwOldStyle & (dwExStyle);
+    DWORD dwNewStyle = dwOldStyle | (dwExStyle);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewStyle);
     return dwOldStyle;
 }

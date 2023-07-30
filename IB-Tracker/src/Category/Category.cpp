@@ -72,7 +72,7 @@ void CategoryControl_OnCreate(HWND hwnd)
     int FontSize = 8;
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, GetCategoryDescription((int)Category::Category0),
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleLeft, nLeft, 0, CATEGORYCONTROL_COMBOBOX_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
@@ -80,7 +80,7 @@ void CategoryControl_OnCreate(HWND hwnd)
 
     nLeft += CATEGORYCONTROL_COMBOBOX_WIDTH;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMMAND, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, nLeft, 0, CATEGORYCONTROL_COMMAND_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);

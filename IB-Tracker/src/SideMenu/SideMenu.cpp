@@ -226,6 +226,9 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWIRONCONDOR, nTop, L"Iron Condor");
+
+    nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTSTRANGLE, nTop, L"Short Strangle");
 
     nTop += nItemHeight;
@@ -424,6 +427,16 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewFuturesTrade) == DIALOG_RETURN_CANCEL) {
+                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                }
+            }
+            break;
+
+            case IDC_SIDEMENU_NEWIRONCONDOR:
+            {
+                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
+                if (TradeDialog_Show(TradeAction::NewIronCondor) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, currSelection);
                 }
             }

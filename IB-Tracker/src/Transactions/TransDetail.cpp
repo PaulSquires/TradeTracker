@@ -462,14 +462,14 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // EDIT button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDEDIT, L"EDIT",
-        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // DELETE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDDELETE, L"DELETE",
-        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM,
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
