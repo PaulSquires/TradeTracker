@@ -46,6 +46,8 @@ IB-Tracker can run without connecting to TWS but obviously you will not get stre
 ### Configuration
 The configuration file (IB-Tracker-config.txt) is an extremely simple text file. Each line is composed of two items (key and values) separated by one or more pipe ("|") characters.
 
+**NOTE: Until the documentation is completed, you will find functionality available via right-click popup menus. Simply try right clicking on the trade's ticker line or any one (or more) selected legs of a trade. Doing so should popup a menu with related actions (such as rolling legs, expiring or closing legs, taking assignments, etc).**
+
 ### Trades, Transaction, and Legs
 Documentation work in progress...
 
