@@ -8,22 +8,24 @@ Interactive Brokers (IBKR) Stocks, Futures and Options positions tracker
 ## What is IB-Tracker
 IB-Tracker a free application that connects to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your recorded stock, futures and options positions. You can record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you a instant look at the cost basis of your trade. 
 
-I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process enjoyable.
+I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick. I use the Discord handle "TheDude"), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process as enjoyable and painless as possible.
 
 ![screenshot](https://pragtical.github.io/assets/img/editor.png)
 
 ## Goals
 * Equity and Futures Options focused (although underlying stocks and futures can also be tracked).
 * Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
+* Allow trades to be grouped and tracked by Category (or maybe Strategy would be a better description).
 * Easy to learn and very intuitive with all information available on the main screen. 
 * Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
 * Small (about 465K), fast (written in C++), and self-contained (no external dependencies).
 * Simple text file "database" that can easily be manually edited if needed. No database engine needed.
-* Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed.
+* Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed. It will work on Linux using Wine but you may experience some visual glitches due to the font family unicode characters that the program uses.
 
 ## Download
 The latest package can be downloaded from the [RELEASES](https://github.com/PaulSquires/IB-Tracker/releases) page.
+If you wish to compile the source code yourself, it was created using Microsoft Visual Studio Community 2022 and you will find the necessary solution and project files bundled in the source code. It compiles using the C++20 standard.
 
 ## Installation
 All release packages come with a compiled EXE. That is all the application requires. Yes, just one file.
