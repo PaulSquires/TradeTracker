@@ -21,7 +21,7 @@ I wrote this program because tracking trades and their corresponding transaction
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
 * Small (about 475K), fast (written in C++), and self-contained (no external dependencies).
 * Simple text file "database" that can easily be manually edited if needed. No database engine needed.
-* The only pain point is that you have to manually enter your transactions into IB-Tracker in order ensure that transactions are grouped with the correct trades. However there is a "Reconcile" functionality that ensures that your local data always matches what exists in IBKR/TWS. 
+* The only pain point is that you have to manually enter your transactions into IB-Tracker in order to ensure that transactions are grouped with the correct trades. However, there is a "Reconcile" functionality that ensures that your local data always matches what exists in IBKR/TWS. 
 * Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed. It will work on Linux using Wine but you may experience some visual glitches due to the font family unicode characters that the program uses.
 
 ## Download
@@ -85,7 +85,7 @@ Documentation work in progress...
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.
 
-Having written low level WinAPI based applications for many years in non "C" based language, I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills because I realize that my approach to C++ may not be optimal.
+Having written low level WinAPI based applications for many years in non "C" based languages, I wanted to learn C++ and write an application without a framework such as MFC, ATL or WTL. If you are a seasoned C++ programmer then feel free to peruse the source code and offer suggestions on how I can improve the code and my C++ skills because I realize that my approach to C++ may not be optimal.
 
 ## License
 This project is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [LICENSE](https://github.com/PaulSquires/IB-Tracker/blob/main/LICENSE.txt) for details.
