@@ -8,6 +8,8 @@ Interactive Brokers (IBKR) Stocks, Futures and Options positions tracker
 ## What is IB-Tracker
 IB-Tracker a free application that connects to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your recorded stock, futures and options positions. You can record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you a instant look at the cost basis of your trade. 
 
+I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process enjoyable.
+
 ![screenshot](https://pragtical.github.io/assets/img/editor.png)
 
 ## Goals
@@ -44,37 +46,35 @@ IB-Tracker can run without connecting to TWS but obviously you will not get stre
 ### Configuration
 The configuration file (IB-Tracker-config.txt) is an extremely simple text file. Each line is composed of two items (key and values) separated by one or more pipe ("|") characters.
 
-```
-IB-TRACKER-CONFIG|1.0.0
-STARTUPCONNECT|false
-CATEGORY|0|Gray
-CATEGORY|1|Blue
-CATEGORY|2|Pink
-CATEGORY|3|Green
-CATEGORY|4|Orange
-```
+### Trades, Transaction, and Legs
+Documentation work in progress...
 
-STARTUPCONNECT and CATEGORY descriptions can be set directly from inside the IB-Tracker application.
+### Categories
+Documentation work in progress...
 
-### TRADES, TRANSACTIONS, AND LEGS
+### Creating a New Trade
+Documentation work in progress...
 
-### CATEGORIES
+### Adding to an Existing Trade
+Documentation work in progress...
 
-### CREATING A NEW TRADE
+### Closing or Expiring Legs of a Trade
+Documentation work in progress...
 
-### ADDING TO AN EXISTING TRADE
+### Rolling Legs of a Trade
+Documentation work in progress...
 
-### CLOSING OR EXPIRING LEGS OF A TRADE
+### Option Assignment
+Documentation work in progress...
 
-### ROLLING LEGS OF A TRADE
+### Editing Transactions
+Documentation work in progress...
 
-### OPTION ASSIGNMENT
+### Multiple Instances of IB-Tracker
+Documentation work in progress...
 
-### EDITING TRANSACTIONS
-
-### MULTIPLE INSTANCES OF IB-TRACKER
-
-### RECONCILE LOCAL DATABASE TO TWS
+### Reconcile Local Database to TWS
+Documentation work in progress...
 
 
 ## Contributing
