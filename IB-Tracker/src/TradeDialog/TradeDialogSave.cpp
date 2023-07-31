@@ -269,9 +269,15 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // Rebuild the openLegs position vector
     trade->createOpenLegsVector();
 
-    // Save/Load the new data
+    // Recalculate the ACB for the trade
+    trade->ACB = 0;
+    for (const auto trans : trade->Transactions) {
+        trade->ACB = trade->ACB + trans->total;
+    }
+
+    // Save the new data
     SaveDatabase();
-    LoadDatabase();
+
 
     // Show our new list of open trades
     // Destroy any existing ListBox line data
@@ -496,9 +502,15 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     // Rebuild the openLegs position vector
     trade->createOpenLegsVector();
 
-    // Save/Load the new data
+    // Recalculate the ACB for the trade
+    trade->ACB = 0;
+    for (const auto trans : trade->Transactions) {
+        trade->ACB = trade->ACB + trans->total;
+    }
+
+    // Save the new data
     SaveDatabase();
-    LoadDatabase();
+
 
     // Show our new list of open trades
     // Destroy any existing ListBox line data
@@ -698,17 +710,17 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         tdd.trans->legs.erase(tdd.trans->legs.begin() + idx);
     }
 
-    // Recalculate the ACB for the trade
-    tdd.trade->ACB = 0;
-    for (const auto trans : tdd.trade->Transactions) {
-        tdd.trade->ACB = tdd.trade->ACB + trans->total;
-    }
-
     // Set the open status of the entire trade based on the new modified legs
     tdd.trade->setTradeOpenStatus();
 
     // Rebuild the openLegs position vector
     tdd.trade->createOpenLegsVector();
+
+    // Recalculate the ACB for the trade
+    tdd.trade->ACB = 0;
+    for (const auto trans : tdd.trade->Transactions) {
+        tdd.trade->ACB = tdd.trade->ACB + trans->total;
+    }
 
     // Save/Load the new data
     SaveDatabase();

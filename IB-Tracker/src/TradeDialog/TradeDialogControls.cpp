@@ -675,11 +675,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // CATEGORY SELECTOR
+    int SelectedIndex = (tdd.trade != nullptr) ? tdd.trade->category : 0;
+    hCtl = CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 450, 45, SelectedIndex);
+    ShowWindow(hCtl, SW_HIDE);
     if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
         IsNewSharesTradeAction(tdd.tradeAction) == true ||
         tdd.tradeAction == TradeAction::EditTransaction) {
-        int SelectedIndex = (tdd.trade != nullptr) ? tdd.trade->category : 0;
-        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 450, 45, SelectedIndex);
+        ShowWindow(hCtl, SW_SHOW);
     }
 
 
