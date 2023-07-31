@@ -156,12 +156,6 @@ void ClosedTrades_ShowClosedTrades()
     CustomLabel_SetText(hLabel, L"Closed Trades");
 
 
-    // Redraw the ListBox to ensure that any recalculated columns are 
-    // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
-    AfxRedrawWindow(hListBox);
-
-
     // If no closed trades exist then add at least one line
     if (ListBox_GetCount(hListBox) == 0) {
         ListBoxData_AddBlankLine(hListBox);
@@ -176,10 +170,12 @@ void ClosedTrades_ShowClosedTrades()
 
     // Select row past the YTD total line if possible
     int curSel = min(ListBox_GetCount(hListBox)-1, 2);
-    ListBox_SetCurSel(hListBox, curSel);
     ClosedTrades_ShowListBoxItem(curSel);  
 
-    SetFocus(hListBox);
+    // Redraw the ListBox to ensure that any recalculated columns are 
+    // displayed correctly. Re-enable redraw.
+    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    AfxRedrawWindow(hListBox);
 }
 
 

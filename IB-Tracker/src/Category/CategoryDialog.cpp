@@ -96,7 +96,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     for (int i = 0; i < 8; ++i) {
         CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), TextColor, BackColor,
             CustomLabelAlignment::MiddleLeft, 60, nTop, 20, 23);
-        hCtl = CreateCustomTextBox(hwnd, ctlID, ES_LEFT, L"", 110, nTop, 249, 23);
+        hCtl = CreateCustomTextBox(hwnd, ctlID, ES_LEFT, L"", 110, nTop, 300, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
         AfxSetWindowText(hCtl, GetCategoryDescription(i));
@@ -111,7 +111,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
-        CustomLabelAlignment::MiddleCenter, 279, 265, 80, 23);
+        CustomLabelAlignment::MiddleCenter, 330, 265, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
@@ -258,7 +258,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 int CategoryDialog_Show()
 {
-    int nWidth = 410;
+    int nWidth = 460;
     int nHeight = 345;
 
     HWND hwnd = CategoryDialog.Create(HWND_TRADEDIALOG, L"Category Management", 0, 0, nWidth, nHeight,
