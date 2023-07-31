@@ -361,25 +361,6 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             SolidBrush backBrush(pData->BackColor);
             graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
-            //if (pData->BorderWidth > 0 && pData->BorderStyle != CustomTextBoxBorder::BorderNone) {
-            //    Color clrPen; 
-            //    if (GetFocus() == pData->hTextBox) {
-            //        clrPen.SetColor(pData->BorderColorFocus);
-            //    }
-            //    else {
-            //        clrPen.SetColor(pData->BorderColor);
-            //    }
-
-            //    int nTop = ps.rcPaint.top;
-            //    if (pData->BorderStyle == CustomTextBoxBorder::BorderUnderline)
-            //        nTop = ps.rcPaint.bottom - pData->BorderWidth;
-            //    nWidth = nWidth - pData->BorderWidth;
-            //    nHeight = nHeight - pData->BorderWidth;
-            //    Pen pen(clrPen, (REAL)pData->BorderWidth);
-            //    RectF rectF((REAL)ps.rcPaint.left, (REAL)nTop, (REAL)nWidth, (REAL)nHeight);
-            //    graphics.DrawRectangle(&pen, rectF);
-            //}
-
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
 

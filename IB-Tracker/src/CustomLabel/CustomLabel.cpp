@@ -278,19 +278,20 @@ void CustomLabel::DrawBordersInBuffer()
     case CustomLabelType::ImageAndText:
     case CustomLabelType::TextOnly:
     {
-        if (BorderVisible == true) {
-            ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
-            Pen pen(BackColor, BorderWidth);
-            RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
-            Graphics graphics(m_memDC);
-            graphics.DrawRectangle(&pen, rectF);
-        }
+        //if (BorderVisible == true) {
+        //    ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
+        //    Pen pen(BackColor, BorderWidth);
+        //    RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
+        //    Graphics graphics(m_memDC);
+        //    graphics.DrawRectangle(&pen, rectF);
+        //}
         if (AllowTabStop == true) {
             ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : BorderColor);
-            Pen pen(BackColor, 1);
-            RectF rectF(0, 0, (REAL)m_rcClient.right - 1, (REAL)m_rcClient.bottom - 1);
+            Pen pen(clrPen, 2);
+            int nWidth = (m_rcClient.right - m_rcClient.left) - 2;
+            int nHeight = (m_rcClient.bottom - m_rcClient.top) - 2;
             Graphics graphics(m_memDC);
-            graphics.DrawRectangle(&pen, rectF);
+            graphics.DrawRectangle(&pen, 0, 0, nWidth, nHeight);
         }
         break;
     }
@@ -392,6 +393,17 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     switch (uMsg)
     {
+
+    case WM_KEYDOWN:
+    {
+        // Parent to handle the TAB navigation key to move amongst constrols.
+        if (wParam == VK_TAB) {
+            if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
+                return 0;
+        }
+    }
+    break;
+
 
     case WM_SETCURSOR:
     {
