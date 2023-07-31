@@ -26,11 +26,12 @@ SOFTWARE.
 
 #pragma once
 
-const DWORD COLOR_BLACK = Color::MakeARGB(255, 0, 0, 0);
+const DWORD COLOR_BLACK = Color::Black;  // MakeARGB(255, 0, 0, 0);
 const DWORD COLOR_GRAYDARK = Color::MakeARGB(255, 38, 38, 38);
 const DWORD COLOR_GRAYMEDIUM = Color::MakeARGB(255, 51, 51, 51);
 const DWORD COLOR_GRAYLIGHT = Color::MakeARGB(255, 68, 68, 68);
 
+const DWORD COLOR_WHITE = Color::White;
 const DWORD COLOR_WHITEDARK = Color::Gray;
 const DWORD COLOR_WHITEMEDIUM = Color::MakeARGB(255, 157, 165, 180);
 const DWORD COLOR_WHITELIGHT = Color::MakeARGB(255, 212, 212, 212);

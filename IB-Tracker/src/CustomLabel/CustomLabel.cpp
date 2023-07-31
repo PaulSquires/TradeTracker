@@ -287,9 +287,9 @@ void CustomLabel::DrawBordersInBuffer()
         //}
         if (AllowTabStop == true) {
             ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : BorderColor);
-            Pen pen(clrPen, 2);
-            int nWidth = (m_rcClient.right - m_rcClient.left) - 2;
-            int nHeight = (m_rcClient.bottom - m_rcClient.top) - 2;
+            Pen pen(clrPen, 1);
+            int nWidth = (m_rcClient.right - m_rcClient.left) - 1;
+            int nHeight = (m_rcClient.bottom - m_rcClient.top) - 1;
             Graphics graphics(m_memDC);
             graphics.DrawRectangle(&pen, 0, 0, nWidth, nHeight);
         }
@@ -400,6 +400,12 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         if (wParam == VK_TAB) {
             if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
                 return 0;
+        }
+
+        if (wParam == VK_SPACE) {
+            SendMessage(hWnd, WM_LBUTTONDOWN, wParam, lParam);
+            SendMessage(hWnd, WM_LBUTTONUP, wParam, lParam);
+            return 0;
         }
     }
     break;

@@ -330,6 +330,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     DialogReturnCode = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
+                SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
             }
             else if (tdd.tradeAction == TradeAction::EditTransaction) {
                 if (TradeDialog_ValidateEditTradeData(m_hwnd) == true) {
@@ -337,6 +338,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     DialogReturnCode = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
+                SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
             }
             else {
                 if (TradeDialog_ValidateOptionsTradeData(m_hwnd) == true) {
@@ -344,6 +346,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     DialogReturnCode = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
+                SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
             }
         }
 
