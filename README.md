@@ -1,7 +1,7 @@
 # IB-Tracker: Interactive Brokers (IBKR) Options Tracker
-[![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?label=release)](https://github.com/PaulSquires/IB-Tracker/releases)
-![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?label=downloads)
-[![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?label=license)](LICENSE.txt)
+[![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?style=flat-square)](https://github.com/PaulSquires/IB-Tracker/releases)
+![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?style=flat-square)
+[![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?style=flat-square)](LICENSE)
 
 Interactive Brokers (IBKR) Stocks, Futures and Options positions tracker
 
@@ -10,7 +10,7 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 
 I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick. I use the Discord handle "TheDude"), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process as enjoyable and painless as possible.
 
-![screenshot](https://pragtical.github.io/assets/img/editor.png)
+![screenshot](/IB-Tracker/assets/ib-tracker-main.png?raw=true "IB-Tracker")
 
 ## Goals
 * Equity and Futures Options focused (although underlying stocks and futures can also be tracked).
@@ -84,6 +84,7 @@ Documentation work in progress...
 ## TO DO
 - Continue to improve the keyboard navigation of the custom built controls.
 - Implement a "purge closed trades" function to remove closed trades (useful for closing out at year end).
+- Continue to refine and refactor existing functionality and code base.
 
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.

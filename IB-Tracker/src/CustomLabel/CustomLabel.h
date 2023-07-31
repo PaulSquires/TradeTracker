@@ -171,6 +171,8 @@ void CustomLabel_SetTextColor(HWND hCtrl, DWORD TextColor);
 void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD TextColorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, DWORD BackColor);
 void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD BackColorHot);
+void CustomLabel_SetBorderColor(HWND hCtrl, DWORD BorderColor);
+void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD BorderColorHot);
 DWORD CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold);

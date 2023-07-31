@@ -110,7 +110,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int FontSize = 9;
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
-        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 330, 265, 80, 23);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
