@@ -86,26 +86,12 @@ void CategoryControl_OnCreate(HWND hwnd)
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     nLeft += CATEGORYCONTROL_COMMAND_WIDTH + CATEGORYCONTROL_HMARGIN;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_CATEGORYCONTROL_SETUP,
-        CustomLabelType::TextOnly,
-        nLeft, 0, CATEGORYCONTROL_SETUP_WIDTH, CATEGORYCONTROL_HEIGHT);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->BackColor = COLOR_GRAYMEDIUM;
-        pData->SelectorColor = pData->BackColor;
-        pData->TextColor = COLOR_WHITEDARK;
-        pData->TextColorHot = COLOR_WHITEMEDIUM;
-        pData->BackColorHot = COLOR_GRAYLIGHT;
-        pData->BackColorButtonDown = COLOR_GRAYMEDIUM;
-        pData->wszText = GLYPH_SETUP;
-        pData->wszToolTip = L"Configure Categories";
-        pData->HotTestEnable = true;
-        pData->PointerHot = CustomLabelPointer::Hand;
-        pData->AllowTabStop = true;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
+
+
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_SETUP, GLYPH_SETUP,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::MiddleCenter, nLeft, 0, CATEGORYCONTROL_SETUP_WIDTH, CATEGORYCONTROL_HEIGHT);
+    CustomLabel_SetToolTip(hCtl, L"Configure Categories");
 
 }
 
@@ -276,7 +262,7 @@ HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int
     int nHeight = CATEGORYCONTROL_HEIGHT;
 
     HWND hCtl =
-        CreateWindowEx(0, wszClassName.c_str(), L"",
+        CreateWindowEx(WS_EX_CONTROLPARENT, wszClassName.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), 
             (int)(nWidth * rx), (int)(nHeight * ry),   

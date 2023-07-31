@@ -286,7 +286,7 @@ void CustomLabel::DrawBordersInBuffer()
         //    graphics.DrawRectangle(&pen, rectF);
         //}
         if (AllowTabStop == true) {
-            ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : BorderColor);
+            ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : BackColor);
             Pen pen(clrPen, 1);
             int nWidth = (m_rcClient.right - m_rcClient.left) - 1;
             int nHeight = (m_rcClient.bottom - m_rcClient.top) - 1;
@@ -645,6 +645,32 @@ void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD BackColorHot)
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
         pData->BackColorHot = BackColorHot;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Set the border color for the custom control.
+// ========================================================================================
+void CustomLabel_SetBorderColor(HWND hCtrl, DWORD BorderColor)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->BorderColorHot = BorderColor;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Set the border hot color for the custom control.
+// ========================================================================================
+void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD BorderColorHot)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->BorderColorHot = BorderColorHot;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }

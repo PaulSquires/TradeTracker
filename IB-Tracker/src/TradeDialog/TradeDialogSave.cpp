@@ -269,8 +269,9 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // Rebuild the openLegs position vector
     trade->createOpenLegsVector();
 
-    // Save the new data
+    // Save/Load the new data
     SaveDatabase();
+    LoadDatabase();
 
     // Show our new list of open trades
     // Destroy any existing ListBox line data
@@ -495,8 +496,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     // Rebuild the openLegs position vector
     trade->createOpenLegsVector();
 
-    // Save the new data
+    // Save/Load the new data
     SaveDatabase();
+    LoadDatabase();
 
     // Show our new list of open trades
     // Destroy any existing ListBox line data
@@ -708,8 +710,9 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     // Rebuild the openLegs position vector
     tdd.trade->createOpenLegsVector();
 
-    // Save the new data
+    // Save/Load the new data
     SaveDatabase();
+    LoadDatabase();
 
     // Show our new list of open trades
     // Destroy any existing ListBox line data

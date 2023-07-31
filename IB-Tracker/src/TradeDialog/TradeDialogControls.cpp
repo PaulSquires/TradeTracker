@@ -674,6 +674,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     }
 
 
+    // CATEGORY SELECTOR
+    if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
+        IsNewSharesTradeAction(tdd.tradeAction) == true ||
+        tdd.tradeAction == TradeAction::EditTransaction) {
+        int SelectedIndex = (tdd.trade != nullptr) ? tdd.trade->category : 0;
+        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 450, 45, SelectedIndex);
+    }
+
+
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 40, 72, 100, 22);
     std::wstring wszDate = AfxCurrentDate();
@@ -706,6 +715,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_SHOW);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_SHOW);
     }
+
+
 
     // We create the Strategy button and label but we only show it for New options
     // However we do need the window for other tradeAction cases for example "Add To"
@@ -904,15 +915,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             TradeDialog_ToggleSellLongShortText(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
             TradeDialog_SetLongShortBackColor(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
         }
-    }
-
-
-    // CATEGORY SELECTOR
-    if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
-        IsNewSharesTradeAction(tdd.tradeAction) == true ||
-        tdd.tradeAction == TradeAction::EditTransaction) {
-        int SelectedIndex = (tdd.trade != nullptr) ? tdd.trade->category : 0;
-        CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 450, 45, SelectedIndex);
     }
 
 

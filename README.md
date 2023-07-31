@@ -10,7 +10,7 @@ IB-Tracker a free application that connects to your running IB Trader Workstatio
 
 I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick. I use the Discord handle "TheDude"), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process as enjoyable and painless as possible.
 
-![screenshot](https://pragtical.github.io/assets/img/editor.png)
+![screenshot]("https://github.com/PaulSquires/IB-Tracker/assets/14793592/b51d6f0f-cf8a-4c5a-9237-9ba40fcab3cd")
 
 ## Goals
 * Equity and Futures Options focused (although underlying stocks and futures can also be tracked).
