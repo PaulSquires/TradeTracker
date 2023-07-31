@@ -1,7 +1,7 @@
 # IB-Tracker: Interactive Brokers (IBKR) Options Tracker
 [![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?style=flat-square)](https://github.com/PaulSquires/IB-Tracker/releases)
-<!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?style=flat-square) -->
 [![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?style=flat-square)](LICENSE)
+<!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?style=flat-square) -->
 
 Interactive Brokers (IBKR) Stocks, Futures and Options positions tracker
 
