@@ -84,6 +84,7 @@ Documentation work in progress...
 ## TO DO
 - Continue to improve the keyboard navigation of the custom built controls.
 - Implement a "purge closed trades" function to remove closed trades (useful for closing out at year end).
+- Continue to refine and refactor existing functionality and code base.
 
 ## Contributing
 Feel free to contribute something that would be convenient and useful to include in the application. You are welcome to open a pull request and contribute.

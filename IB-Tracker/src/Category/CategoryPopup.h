@@ -37,6 +37,7 @@ public:
 
 };
 
+extern HWND HWND_CATEGORYPOPUP;
 
 constexpr int IDC_CATEGORYPOPUP_LISTBOX = 100;
 

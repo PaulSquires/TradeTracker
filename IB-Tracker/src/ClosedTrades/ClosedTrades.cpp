@@ -119,30 +119,28 @@ void ClosedTrades_ShowClosedTrades()
 
 
     // Output the closed trades and subtotals based on month when the month changes.
-    if (vectorClosed.size() > 0) {
-        double subTotalAmount = 0;
-        double YTD = 0;
-        int subTotalMonth = 0;
-        int curMonth = 0;
-        int curYear = 0;
-        std::wstring curDate = L"";
-        for (const auto& ClosedData : vectorClosed) {
-            curMonth = AfxGetMonth(ClosedData.closedDate);
-            if (curYear == 0) curYear = AfxGetYear(ClosedData.closedDate);
-            if (subTotalMonth != curMonth && subTotalMonth != 0) {
-                ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
-                curDate = ClosedData.closedDate;
-                subTotalAmount = 0;
-            }
+    double subTotalAmount = 0;
+    double YTD = 0;
+    int subTotalMonth = 0;
+    int curMonth = 0;
+    int curYear = 0;
+    std::wstring curDate = L"";
+    for (const auto& ClosedData : vectorClosed) {
+        curMonth = AfxGetMonth(ClosedData.closedDate);
+        if (curYear == 0) curYear = AfxGetYear(ClosedData.closedDate);
+        if (subTotalMonth != curMonth && subTotalMonth != 0) {
+            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
             curDate = ClosedData.closedDate;
-            subTotalMonth = curMonth;
-            subTotalAmount += ClosedData.trade->ACB;
-            if (curYear == AfxGetYear(curDate)) YTD += ClosedData.trade->ACB;
-            ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
+            subTotalAmount = 0;
         }
-        if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
-        ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD);
+        curDate = ClosedData.closedDate;
+        subTotalMonth = curMonth;
+        subTotalAmount += ClosedData.trade->ACB;
+        if (curYear == AfxGetYear(curDate)) YTD += ClosedData.trade->ACB;
+        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
     }
+    if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
+    ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD);
 
 
     // Calculate the actual column widths based on the size of the strings in

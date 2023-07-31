@@ -136,16 +136,16 @@ void TransPanel_ShowTransactions()
     tdata.reserve(2000);    // reserve space for 2000 Transactions
 
     bool processTrade = false;
-    std::wstring wszText;
     std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
     std::wstring wszEndDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
 
+    std::wstring wszTicker = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
+    wszTicker = AfxTrim(wszTicker);
+
     for (auto& trade : trades) {
         for (auto& trans : trade->Transactions) {
-            wszText = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
-            wszText = AfxTrim(wszText);
-            if (wszText.length() > 0) {
-                if (wszText != trade->tickerSymbol) continue;
+            if (wszTicker.length() > 0) {
+                if (wszTicker != trade->tickerSymbol) continue;
             }
 
             if (trans->transDate < wszStartDate || trans->transDate > wszEndDate) continue;
@@ -179,45 +179,44 @@ void TransPanel_ShowTransactions()
 
 
     // Create the new Listbox data that will display for the Transactions
-    if (tdata.size() > 0) {
-        double subGrossAmount = 0;
-        double subFeesAmount = 0;
-        double subNetAmount = 0;
+    double subGrossAmount = 0;
+    double subFeesAmount = 0;
+    double subNetAmount = 0;
 
-        double runningGrossTotal = 0;
-        double runningFeesTotal = 0;
-        double runningNetTotal = 0;
+    double runningGrossTotal = 0;
+    double runningFeesTotal = 0;
+    double runningNetTotal = 0;
 
-        int subTotalDay = 0;
-        int curDay = 0;
-        int curYear = 0;
-        std::wstring curDate = L"";
-        for (const auto& td : tdata) {
-            curDay = AfxGetDay(td.trans->transDate);
-            if (subTotalDay != curDay && subTotalDay != 0) {
-                ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
-                curDate = td.trans->transDate;
-                subGrossAmount = 0;
-                subFeesAmount = 0;
-                subNetAmount = 0;
-            }
-            curDate = td.trans->transDate;
-            subTotalDay = curDay;
-            
-            subNetAmount += td.trans->total;
-            subFeesAmount += td.trans->fees;
-            subGrossAmount += (td.trans->total + td.trans->fees);
-            ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
+    int subTotalDay = 0;
+    int curDay = 0;
+    int curYear = 0;
+    std::wstring curDate = L"";
 
-            runningNetTotal += td.trans->total;
-            runningFeesTotal += td.trans->fees;
-            runningGrossTotal += (td.trans->total + td.trans->fees);
-        }
-        if (subNetAmount != 0) {
+    for (const auto& td : tdata) {
+        curDay = AfxGetDay(td.trans->transDate);
+        if (subTotalDay != curDay && subTotalDay != 0 && wszTicker.length() == 0) {
             ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
+            curDate = td.trans->transDate;
+            subGrossAmount = 0;
+            subFeesAmount = 0;
+            subNetAmount = 0;
         }
-        ListBoxData_OutputTransactionRunningTotal(hListBox, runningGrossTotal, runningFeesTotal, runningNetTotal);
+        curDate = td.trans->transDate;
+        subTotalDay = curDay;
+            
+        subNetAmount += td.trans->total;
+        subFeesAmount += td.trans->fees;
+        subGrossAmount += (td.trans->total + td.trans->fees);
+        ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
+
+        runningNetTotal += td.trans->total;
+        runningFeesTotal += td.trans->fees;
+        runningGrossTotal += (td.trans->total + td.trans->fees);
     }
+    if (subNetAmount != 0 && wszTicker.length() == 0) {
+        ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
+    }
+    ListBoxData_OutputTransactionRunningTotal(hListBox, runningGrossTotal, runningFeesTotal, runningNetTotal);
 
 
     // Calculate the actual column widths based on the size of the strings in
@@ -227,12 +226,6 @@ void TransPanel_ShowTransactions()
 
     // Set the ListBox to the topline.
     ListBox_SetTopIndex(hListBox, 0);
-
-
-    // Redraw the ListBox to ensure that any recalculated columns are 
-    // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
-    AfxRedrawWindow(hListBox);
 
 
     // If no transactions then add at least one line
@@ -248,10 +241,13 @@ void TransPanel_ShowTransactions()
 
     // Select row past the YTD total line if possible
     int curSel = min(ListBox_GetCount(hListBox) - 1, 2);
-    ListBox_SetCurSel(hListBox, curSel);
     TransPanel_ShowListBoxItem(curSel);
 
-    SetFocus(hListBox);
+    // Redraw the ListBox to ensure that any recalculated columns are 
+    // displayed correctly. Re-enable redraw.
+    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    AfxRedrawWindow(hListBox);
+
 }
 
 
@@ -308,6 +304,17 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
 
     switch (uMsg)
     {
+
+    case WM_KEYDOWN:
+    {
+        // Parent to handle the TAB navigation key to move amongst constrols.
+        if (wParam == VK_TAB) {
+            if (SendMessage(GetParent(hWnd), uMsg, wParam, lParam) == TRUE)
+                return 0;
+        }
+    }
+    break;
+
 
     case WM_MOUSEWHEEL:
     {
@@ -589,7 +596,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTICKERGO, L"GO",
-        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
@@ -599,14 +606,14 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"7 days",
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Days7);
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
@@ -615,12 +622,12 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
         COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, L"",
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
@@ -629,12 +636,12 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
         COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_ENDDATE, L"",
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITELIGHT,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
@@ -674,6 +681,8 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR, hCtl);
+
+    SetFocus(GetDlgItem(hwnd, IDC_TRANS_TXTTICKER));
 
     return TRUE;
 }
@@ -715,6 +724,24 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, TransPanel_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
+
+
+    case WM_KEYDOWN:
+    {
+        // We are handling the TAB naviagation ourselves.
+        if (wParam == VK_TAB) {
+            HWND hFocus = GetFocus();
+            HWND hNextCtrl = NULL;
+            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+            }
+            else {
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+            }
+            SetFocus(hNextCtrl);
+            return TRUE;
+        }
+    }
 
 
     case WM_KEYUP:
