@@ -62,6 +62,7 @@ void TickerPanel_ShowTickerTotals()
 
     for (const auto& trade : trades) {
         if (trade->tickerSymbol == L"OPENBAL") continue;
+        if (trade->isOpen == true) continue;
         double total = mapTicker[trade->tickerSymbol] + trade->ACB;
         mapTicker[trade->tickerSymbol] = total;
     }
