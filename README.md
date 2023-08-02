@@ -39,6 +39,8 @@ IB-Tracker will create two additional files when it first executes:
 * IB-Tracker-config.txt
 * IB-Tracker-database.db
 
+**NOTE:** If you get a popup warning message box from the operating system saying that a DLL is not found and reinstalling the program may fix this problem, then it means that you are missing the Visual C++ redistributable package that is normally available on most Windows 10 and Windows 11 machines. Download and install it from this Microsoft page:  https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170   Here is the direct link to the file: https://aka.ms/vs/17/release/vc_redist.x86.exe  
+
 ## Usage
 
 ### Getting Started
