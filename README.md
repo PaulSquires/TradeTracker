@@ -57,14 +57,20 @@ Documentation work in progress...
 ### Categories
 Documentation work in progress...
 
+When you enter or modify a Trade, you can specify that the Trade belongs to a Category. A Category is simply a logical grouping that you have designated for the Trade. For example, you may wish to group all 90 DTE Strangles together. When the list of Active Trades are shown, they will be displayed in order using your list of Categories.
+
 ### Creating a New Trade
 Documentation work in progress...
+
+When entering the ticker symbol, ensure that any Futures symbol is preceeded by a forward slash. For example, Futures oil would be */CL*. This is necessary within IB-Tracker even though IBKR itself does not use a forward slash precceding Futures ticker symbols. For Futures, you will also have to enter the ending date for the contract. This ensures that IB-Tracker can correctly query TWS in order to get real time price data.
 
 ### Adding to an Existing Trade
 Documentation work in progress...
 
 ### Closing or Expiring Legs of a Trade
 Documentation work in progress...
+
+Click (while holding down the CTRL key) on each Leg you wish to Close or Expire. With the Legs selected, right click on one of those legs to display a popup menu. Select the Close or Expire action from that menu.
 
 ### Rolling Legs of a Trade
 Documentation work in progress...
@@ -78,8 +84,12 @@ Documentation work in progress...
 ### Multiple Instances of IB-Tracker
 Documentation work in progress...
 
+If IB-Tracker is executed multiple times then the previous instance of the program will be found and that instance will be displayed. This prevents multiple copies of the application from running at one time thereby overwriting the database data by each application instances. The exception to this rule is if IB-Tracker.exe is executed from different folders/subdirectories. In this case, individual instances of IB-Tracker will run because their databases will exist in different folders thereby avoiding the overwrite issue.
+
 ### Reconcile Local Database to TWS
 Documentation work in progress...
+
+If you are connected to TWS, performing a Reconcile will fetch your position data from the IBKR servers and then compare them to your locally stored data. Any discrepencies between the data will be displayed allowing you to find and correct any anomolies. This is a very useful feature to ensure that trades and transactions that you have created with IB-Tracker match trades that you have executed through TWS.
 
 ## TO DO
 - Continue to improve the keyboard navigation of the custom built controls.

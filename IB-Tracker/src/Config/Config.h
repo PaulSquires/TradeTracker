@@ -26,7 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-constexpr std::wstring version = L"1.0.0";
+constexpr std::wstring version = L"1.0.1";
 
 bool SaveConfig();
 bool LoadConfig();
