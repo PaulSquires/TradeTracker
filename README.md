@@ -29,9 +29,9 @@ The latest package can be downloaded from the [RELEASES](https://github.com/Paul
 If you wish to compile the source code yourself, it was created using Microsoft Visual Studio Community 2022 and you will find the necessary solution and project files bundled in the source code. It compiles using the C++20 standard.
 
 ## Installation
-All release packages come with a compiled EXE. That is all the application requires. Yes, just one file.
+All release packages come with a compiled EXE. That is all the application requires. Yes, just one file. The compiled EXE can be found inside the IB-Tracker.zip download from the [RELEASES](https://github.com/PaulSquires/IB-Tracker/releases) page.
 1. Create a folder on your computer that you will use for IB-Tracker.
-2. Unpack/Unzip the downloaded archive into your IB-Tracker folder.
+2. Unpack/Unzip the downloaded archive (IB-Tracker.zip) into your IB-Tracker folder.
 3. Click on the IB-Tracker.exe application. That's it. Simple.
 4. To uninstall, just delete the files and folder.
 
