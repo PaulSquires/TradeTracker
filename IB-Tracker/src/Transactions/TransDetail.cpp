@@ -128,15 +128,22 @@ void TransDetail_DeleteTransaction(HWND hwnd)
         }
 
     }
-    
-    // Calculate the Trade open status because we may have just deleted the 
-    // transaction that sets the trades OpenQuantity to zero.
-    tradeEditDelete->setTradeOpenStatus();
+
+    // If no more Transactions exist in the Trade then delete the Trade itself
+    if (tradeEditDelete->Transactions.size() == 0) {
+        auto it = std::find(trades.begin(), trades.end(), tradeEditDelete);
+        if (it != trades.end()) trades.erase(it);
+    }
+    else {
+        // Calculate the Trade open status because we may have just deleted the 
+        // transaction that sets the trades OpenQuantity to zero.
+        tradeEditDelete->setTradeOpenStatus();
+    }
 
 
     tws_PauseTWS();
 
-    // Save the modified data
+    // Save/Load the modified data
     SaveDatabase();
     LoadDatabase();
 
