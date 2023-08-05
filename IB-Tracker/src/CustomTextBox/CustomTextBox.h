@@ -26,13 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-enum class CustomTextBoxBorder
-{
-	BorderNone,
-	BorderBox,
-	BorderUnderline
-};
-
 enum class CustomTextBoxNegative
 {
 	Allow,
@@ -73,6 +66,7 @@ public:
 	int VTextMargin = 0;
 	DWORD TextColor{};
 	int Alignment = ES_LEFT;
+	bool isMultiLine = false;
 
 	// Numeric
 	bool isNumeric = false;
@@ -94,6 +88,6 @@ void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 
 
-HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, 
+HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool isMultiLine,
 	int Alignment, std::wstring wszText, int nLeft, int nTop, int nWidth, int nHeight);
 

@@ -591,7 +591,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         IsNewSharesTradeAction(tdd.tradeAction) == true) {
         CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", COLOR_WHITEDARK, COLOR_GRAYDARK,
             CustomLabelAlignment::MiddleLeft, 40, 20, 65, 22);
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 23);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
@@ -600,15 +600,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         if (tdd.tradeAction == TradeAction::NewFuturesTrade) {
             CustomLabel_SetText(hCtl, L"Futures Contract");
         }
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 115, 45, 215, 23);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, false, ES_LEFT, L"", 115, 45, 215, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
     }
     else {
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
         ShowWindow(hCtl, SW_HIDE);
-        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, ES_LEFT, L"", 0, 0, 0, 0);
+        hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTCOMPANY, false, ES_LEFT, L"", 0, 0, 0, 0);
         ShowWindow(hCtl, SW_HIDE);
 
         hCtl = CreateCustomLabel(
@@ -703,7 +703,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE, L"Description", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 159, 72, 115, 22);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, ES_LEFT, L"", 159, 97, 171, 23);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE, false, ES_LEFT, L"", 159, 97, 171, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
@@ -810,7 +810,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 40, 310, 80, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, ES_RIGHT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTQUANTITY, false, ES_RIGHT,
         L"0", 40, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
@@ -825,7 +825,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     
     CustomLabel_SimpleLabel(hwnd, -1, L"Price", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 130, 310, 80, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, ES_RIGHT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTPRICE, false, ES_RIGHT,
         L"0", 130, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
@@ -834,7 +834,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 220, 310, 80, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, ES_RIGHT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER, false, ES_RIGHT,
         L"100.0000", 220, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
@@ -851,7 +851,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Fees", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 310, 310, 80, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, ES_RIGHT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTFEES, false, ES_RIGHT,
         L"0", 310, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
@@ -860,7 +860,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Total", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleRight, 400, 310, 80, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, ES_RIGHT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTOTAL, false, ES_RIGHT,
         L"0", 400, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
@@ -889,7 +889,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // TRADE BUYING POWER
     CustomLabel_SimpleLabel(hwnd, -1, L"Buying Power", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 580, 310, 100, 23);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTRADEBP, ES_RIGHT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTRADEBP, false, ES_RIGHT,
         L"0", 580, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);

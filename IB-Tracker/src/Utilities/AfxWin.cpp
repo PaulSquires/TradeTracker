@@ -1064,6 +1064,37 @@ std::wstring& AfxLTrim(std::wstring& s)
 
 
 // ========================================================================================
+// Replace one char/string another char/string. Return a copy.
+// ========================================================================================
+std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to)
+{
+    std::wstring wszString = str;
+    if (from.empty()) return wszString;
+    size_t start_pos = 0;
+    while ((start_pos = wszString.find(from, start_pos)) != std::wstring::npos) {
+        wszString.replace(start_pos, from.length(), to);
+        start_pos += to.length();     // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+    return wszString;
+}
+
+
+// ========================================================================================
+// Remove char/string from string. Return a copy.
+// ========================================================================================
+std::wstring AfxRemove(std::wstring wszText, std::wstring repl)
+{
+    std::wstring wszString = wszText;
+    std::string::size_type i = wszString.find(repl);
+    while (i != std::string::npos) {
+        wszString.erase(i, repl.length());
+        i = wszString.find(repl, i);
+    }
+    return wszString;
+}
+
+
+// ========================================================================================
 // Remove all trailing whitespace characters from a string
 // ========================================================================================
 std::wstring& AfxRTrim(std::wstring& s)

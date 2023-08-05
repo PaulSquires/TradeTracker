@@ -98,6 +98,8 @@ bool AfxStringCompareI(const std::string& s1, const std::string& s2);
 bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
 std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter);
 bool AfxFileExists(const std::wstring& wszFileSpec);
+std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to);
+std::wstring AfxRemove(std::wstring wszText, std::wstring repl);
 std::wstring& AfxLTrim(std::wstring& s);
 std::wstring& AfxRTrim(std::wstring& s);
 std::wstring& AfxTrim(std::wstring& s);

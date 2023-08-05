@@ -592,7 +592,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTICKERGO, L"GO",

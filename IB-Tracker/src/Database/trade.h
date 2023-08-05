@@ -77,6 +77,7 @@ public:
     std::wstring  tickerSymbol = L"";
     std::wstring  tickerName   = L"";
     std::wstring  futureExpiry = L"";     // YYYYMM of Futures contract expiry
+    std::wstring  notes        = L"";     
     int           category     = 0;       // blue, purple, etc (0 to 4)
     double        ACB          = 0;
     double        TradeBP      = 0;       // Buying Power for the entire trade 

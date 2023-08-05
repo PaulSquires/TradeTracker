@@ -43,7 +43,7 @@ extern HWND HWND_ACTIVETRADES;
 constexpr int IDC_TRADES_LISTBOX = 100;
 constexpr int IDC_TRADES_LABEL = 101;
 constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
-constexpr const int IDC_TRADES_HEADER = 103;
+constexpr int IDC_TRADES_HEADER = 103;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 24;

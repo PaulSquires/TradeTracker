@@ -103,7 +103,7 @@ bool SaveDatabase()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "// TRADE          T|isOpen|nextLegID|TickerSymbol|TickerName|FutureExpiry|Category\n"
+        << "// TRADE          T|isOpen|nextLegID|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
         << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
         << "// LEG            L|legID|legBackPointerID|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
         << "// isOpen:        0:FALSE, 1:TRUE\n"
@@ -121,7 +121,8 @@ bool SaveDatabase()
             << trade->tickerName << "|"
             << AfxRemoveDateHyphens(trade->futureExpiry) << "|"
             << trade->category << "|"
-            << std::fixed << std::setprecision(0) << trade->TradeBP
+            << std::fixed << std::setprecision(0) << trade->TradeBP  << "|"
+            << AfxReplace(trade->notes, L"\r\n", L"~~") 
             << "\n";
 
         for (const auto trans : trade->Transactions) {
@@ -201,6 +202,7 @@ bool LoadDatabase()
     bool isFirstline = true;
 
     std::wstring line;
+    std::wstring wszText;
 
     while (!db.eof()) {
         std::getline(db, line);
@@ -244,9 +246,14 @@ bool LoadDatabase()
             trade->futureExpiry = AfxInsertDateHyphens(try_catch_wstring(st, 5));
             trade->category = try_catch_int(st, 6);
             trade->TradeBP = try_catch_double(st, 7);
+            wszText = try_catch_wstring(st, 8);
+            trade->notes = AfxReplace(wszText, L"~~", L"\r\n");
+            
+
             trades.push_back(trade);
             continue;
         }
+
 
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
@@ -290,7 +297,7 @@ bool LoadDatabase()
             }
             continue;
         }
-    
+
     }
 
     // Now that the trades have been constructed, create the open position vector based

@@ -96,7 +96,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     for (int i = 0; i < 8; ++i) {
         CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), TextColor, BackColor,
             CustomLabelAlignment::MiddleLeft, 60, nTop, 20, 23);
-        hCtl = CreateCustomTextBox(hwnd, ctlID, ES_LEFT, L"", 110, nTop, 300, 23);
+        hCtl = CreateCustomTextBox(hwnd, ctlID, false, ES_LEFT, L"", 110, nTop, 300, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
         AfxSetWindowText(hCtl, GetCategoryDescription(i));

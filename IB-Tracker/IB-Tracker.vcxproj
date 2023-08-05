@@ -262,10 +262,10 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>Disabled</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <StringPooling>true</StringPooling>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <CallingConvention>Cdecl</CallingConvention>

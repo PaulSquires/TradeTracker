@@ -26,18 +26,24 @@ SOFTWARE.
 
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
 #include "SideMenu/SideMenu.h"
 #include "Transactions/TransDetail.h"
 #include "Database/trade.h"
+#include "Utilities/AfxWin.h"
 #include "TradeHistory.h"
 
 
 HWND HWND_TRADEHISTORY = NULL;
 
 CTradeHistory TradeHistory;
+
+// Save the Trade pointer in module scope because we need it when dealing with
+// the Notes text in order to save that text to the correct Trade.
+std::shared_ptr<Trade> tradeHistoryPtr = nullptr;
 
 
 
@@ -49,14 +55,16 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
 
-    // Clear the current trade history table
-    ListBoxData_DestroyItemData(hListBox);
+    tradeHistoryPtr = trade;
 
     // Ensure that the Trade History panel is set
     MainWindow_SetRightPanel(HWND_TRADEHISTORY);
 
 
     if (trade == nullptr) {
+        // Clear the current trade history table
+        ListBoxData_DestroyItemData(hListBox);
+        CustomTextBox_SetText(GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES), L"");
         CustomLabel_SetText(GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL), L"");
         ListBoxData_AddBlankLine(hListBox);
         AfxRedrawWindow(hListBox);
@@ -71,6 +79,13 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
         GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL),
         trade->tickerSymbol + L": " + trade->tickerName);
 
+    CustomTextBox_SetText(
+        GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES), 
+        trade->notes);
+
+
+    // Clear the current trade history table
+    ListBoxData_DestroyItemData(hListBox);
 
     // Show the final rolled up Open position for this trade
     ListBoxData_OpenPosition(hListBox, trade, -1);
@@ -343,12 +358,53 @@ void TradeHistory_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
+// Process WM_COMMAND message for window/dialog: TradeHistory
+// ========================================================================================
+void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+    static bool isNotesDirty = false;
+
+    switch (id)
+    {
+    case (IDC_HISTORY_TXTNOTES):
+        if (codeNotify == EN_KILLFOCUS) {
+            if (tradeHistoryPtr != nullptr) {
+                // Get the Notes text and save it into the Trade
+                tradeHistoryPtr->notes = AfxGetWindowText(hwndCtl);
+
+                // Save the database because the Notes for this Trade has been updated.
+                SaveDatabase();
+            }
+
+            isNotesDirty = false;
+            break;
+        }
+
+        if (codeNotify == EN_CHANGE) {
+            isNotesDirty = true;
+            break;
+        }
+
+        if (codeNotify == EN_SETFOCUS) {
+            isNotesDirty = false;
+            break;
+        }
+
+    default:
+        break;
+    }
+}
+
+
+// ========================================================================================
 // Process WM_SIZE message for window/dialog: TradeHistory
 // ========================================================================================
 void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR);
+    HWND hNotesLabel = GetDlgItem(hwnd, IDC_HISTORY_LBLNOTES);
+    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_HISTORY_TXTNOTES);
 
     int margin = AfxScaleY(TRADEHISTORY_MARGIN);
 
@@ -373,12 +429,25 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
+    int heightNotesTextBox = AfxScaleY(100);
+    int heightNotesLabel = AfxScaleY(24);
+
     int nTop = margin;
     int nLeft = 0;
     int nWidth = cx - CustomVScrollBarWidth;
-    int nHeight = cy - nTop;
+    int nHeight = cy - nTop - heightNotesTextBox - heightNotesLabel - AfxScaleY(10);
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    nTop = cy - heightNotesTextBox - heightNotesLabel;
+    nWidth = cx;
+    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, nLeft, nTop, nWidth, heightNotesLabel, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = cy - heightNotesTextBox;
+    nWidth = cx;
+    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, nLeft, nTop, nWidth, heightNotesTextBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = margin;
+    nHeight = cy - nTop - heightNotesTextBox - heightNotesLabel;
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = CustomVScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
@@ -413,6 +482,13 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR, hCtl);
 
+    CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_LBLNOTES, L"Notes", COLOR_WHITEDARK, COLOR_GRAYDARK,
+        CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+    hCtl = CreateCustomTextBox(hwnd, IDC_HISTORY_TXTNOTES, true, ES_LEFT,
+        L"", 0, 0, 0, 0);
+    CustomTextBox_SetMargins(hCtl, 3, 3);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
+
     return TRUE;
 }
 
@@ -427,6 +503,7 @@ LRESULT CTradeHistory::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CREATE, TradeHistory_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradeHistory_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradeHistory_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, TradeHistory_OnCommand);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradeHistory_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeHistory_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);

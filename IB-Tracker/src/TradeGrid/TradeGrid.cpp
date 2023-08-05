@@ -167,7 +167,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // QUANTITY (ORIGINAL)
         if (pData->bShowOriginalQuantity == true) {
             nWidth = 25;
-            hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
+            hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
             CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
             CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
             CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
@@ -182,7 +182,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // QUANTITY (OPEN)
         nWidth = (pData->bShowOriginalQuantity == true) ? 25 : 50;
-        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
+        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
         CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
@@ -228,7 +228,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         nLeft = nLeft + nWidth + hsp;
 
         // STRIKE PRICE
-        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
+        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
         CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
         CustomTextBox_SetColors(hCtl, lightTextColor, lightBackColor);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);

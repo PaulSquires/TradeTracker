@@ -977,10 +977,10 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int nLeft = 0;
     int nTop = margin;
-    int nHeight = cy - nTop; 
+    int nHeight = cy - nTop;
     int nWidth = cx - CustomVScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
+    
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = CustomVScrollBarWidth;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
@@ -1012,7 +1012,6 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             (SUBCLASSPROC)ActiveTrades_ListBox_SubclassProc,
             IDC_TRADES_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
-
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl);

@@ -114,13 +114,16 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         // Prevent the TAB character causing a BEEP. We handle TAB key navigation
         // ourselves in WM_KEYDOW. Likewise for ENTER ans ESCAPE key.
         if (wParam == VK_TAB) return 0;
-        if (wParam == VK_RETURN) return 0;
+        if (pData->isNumeric && wParam == VK_RETURN) return 0;
         if (wParam == VK_ESCAPE) return 0;
 
         if (pData == nullptr) break;
 
         // Allow any character for non-numeric these TextBoxes
-        if (!pData->isNumeric) break;
+        if (!pData->isNumeric) {
+            PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
+            break;
+        }
 
         // Handle Numeric textboxes
 
@@ -214,6 +217,13 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         // to be processed.
         if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
             return 0;
+    }
+    break;
+
+
+    case WM_PASTE:
+    {
+        PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
     }
     break;
 
@@ -534,6 +544,7 @@ void CustomTextBox_SetNumericAttributes(
 HWND CreateCustomTextBox(
     HWND hWndParent,
     LONG_PTR CtrlId,
+    bool isMultiLine,
     int Alignment,
     std::wstring wszText,
     int nLeft,
@@ -587,17 +598,14 @@ HWND CreateCustomTextBox(
         pData->TextColor = COLOR_WHITELIGHT;
         pData->HTextMargin = 0;
         pData->VTextMargin = 0;
-        //pData->BorderWidth = 0;
-        //pData->BorderColorFocus = COLOR_WHITELIGHT;
-        //pData->BorderColor = COLOR_WHITEDARK;
-        //pData->BorderStyle = CustomTextBoxBorder::BorderNone;
         pData->Alignment = Alignment;
-
+        pData->isMultiLine = isMultiLine;
 
         // Create the child embedded TextBox control
         pData->hTextBox =
             CreateWindowEx(0, L"Edit", L"",
-                WS_CHILD | WS_VISIBLE | WS_TABSTOP | Alignment | ES_AUTOHSCROLL,
+                WS_CHILD | WS_VISIBLE | WS_TABSTOP | Alignment | 
+                (isMultiLine ? ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL : ES_AUTOHSCROLL),
                 0, 0, 0, 0, hCtl, (HMENU)100, hInst, (LPVOID)NULL);
         SetWindowTheme(pData->hTextBox, L"", L"");
 
