@@ -22,7 +22,7 @@ I wrote this program because tracking trades and their corresponding transaction
 * Small (about 475K), fast (written in C++), and self-contained (no external dependencies).
 * Simple text file "database" that can easily be manually edited if needed. No database engine needed.
 * The only pain point is that you have to manually enter your transactions into IB-Tracker in order to ensure that transactions are grouped with the correct trades. However, there is a "Reconcile" functionality that ensures that your local data always matches what exists in IBKR/TWS. 
-* Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed. It will work on Linux using Wine but you may experience some visual glitches due to the font family unicode characters that the program uses.
+* Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed. It will work on Linux using Wine but you may experience some visual glitches due to the font family Unicode characters that the program uses.
 
 ## Download
 The latest package can be downloaded from the [RELEASES](https://github.com/PaulSquires/IB-Tracker/releases) page.
@@ -39,7 +39,7 @@ IB-Tracker will create two additional files when it first executes:
 * IB-Tracker-config.txt
 * IB-Tracker-database.db
 
-**NOTE:** If you get a popup warning message box from the operating system saying that a DLL is not found and reinstalling the program may fix this problem, then it means that you are missing the Visual C++ redistributable package that is normally available on most Windows 10 and Windows 11 machines. Download and install it from this Microsoft page:  https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170   Here is the direct link to the file: https://aka.ms/vs/17/release/vc_redist.x86.exe  
+**NOTE:** If you get a popup warning message box from the operating system saying that "a DLL is not found and reinstalling the program may fix this problem", then it means that you are missing the Visual C++ redistributable package that is normally available on most Windows 10 and Windows 11 machines. Download and install it from this Microsoft page:  https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170   Here is the direct link to the file: https://aka.ms/vs/17/release/vc_redist.x86.exe  
 
 ## Usage
 
@@ -64,7 +64,7 @@ When you enter or modify a Trade, you can specify that the Trade belongs to a Ca
 ### Creating a New Trade
 Documentation work in progress...
 
-When entering the ticker symbol, ensure that any Futures symbol is preceeded by a forward slash. For example, Futures oil would be */CL*. This is necessary within IB-Tracker even though IBKR itself does not use a forward slash precceding Futures ticker symbols. For Futures, you will also have to enter the ending date for the contract. This ensures that IB-Tracker can correctly query TWS in order to get real time price data.
+When entering the ticker symbol, ensure that any Futures symbol is preceded by a forward slash. For example, Futures oil would be */CL*. This is necessary within IB-Tracker even though IBKR itself does not use a forward slash preceding Futures ticker symbols. For Futures, you will also have to enter the ending date for the contract. This ensures that IB-Tracker can correctly query TWS in order to get real time price data.
 
 ### Adding to an Existing Trade
 Documentation work in progress...
@@ -91,7 +91,7 @@ If IB-Tracker is executed multiple times then the previous instance of the progr
 ### Reconcile Local Database to TWS
 Documentation work in progress...
 
-If you are connected to TWS, performing a Reconcile will fetch your position data from the IBKR servers and then compare them to your locally stored data. Any discrepencies between the data will be displayed allowing you to find and correct any anomolies. This is a very useful feature to ensure that trades and transactions that you have created with IB-Tracker match trades that you have executed through TWS.
+If you are connected to TWS, performing a Reconcile will fetch your position data from the IBKR servers and then compare them to your locally stored data. Any discrepancies between the data will be displayed allowing you to find and correct any anomalies. This is a very useful feature to ensure that trades and transactions that you have created with IB-Tracker match trades that you have executed through TWS.
 
 ## TO DO
 - Continue to improve the keyboard navigation of the custom built controls.
