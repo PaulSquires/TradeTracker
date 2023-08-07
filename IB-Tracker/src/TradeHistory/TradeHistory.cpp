@@ -46,6 +46,8 @@ CTradeHistory TradeHistory;
 std::shared_ptr<Trade> tradeHistoryPtr = nullptr;
 
 
+void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy);
+
 
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
@@ -54,6 +56,7 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 {
     HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
+    HWND hSeparator = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SEPARATOR);
 
     tradeHistoryPtr = trade;
 
@@ -127,6 +130,9 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     // displayed correctly. Re-enable redraw.
     SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
     AfxRedrawWindow(hListBox);
+
+    RECT rc; GetClientRect(HWND_TRADEHISTORY, &rc);
+    TradeHistory_OnSize(HWND_TRADEHISTORY, 0, rc.right, rc.bottom);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -448,7 +454,8 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nLeft = 0;
     nTop = nTop + nHeight;
     nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight,
+        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     nLeft = 0;
     nTop = cy - heightNotesTextBox - heightNotesLabel;
