@@ -831,6 +831,7 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == 1) break;
+        ActiveTrades_SelectListBoxItem(hWnd, idx);
     }
     break;
 
