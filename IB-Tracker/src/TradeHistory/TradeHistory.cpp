@@ -403,6 +403,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR);
+    HWND hSeparator = GetDlgItem(hwnd, IDC_HISTORY_SEPARATOR);
     HWND hNotesLabel = GetDlgItem(hwnd, IDC_HISTORY_LBLNOTES);
     HWND hNotesTextBox = GetDlgItem(hwnd, IDC_HISTORY_TXTNOTES);
 
@@ -432,26 +433,32 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int heightNotesTextBox = AfxScaleY(100);
     int heightNotesLabel = AfxScaleY(24);
 
-    int nTop = margin;
     int nLeft = 0;
+    int nTop = margin;
     int nWidth = cx - CustomVScrollBarWidth;
     int nHeight = cy - nTop - heightNotesTextBox - heightNotesLabel - AfxScaleY(10);
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    nLeft = nLeft + nWidth;   // right edge of ListBox
+    nTop = margin;
+    nWidth = CustomVScrollBarWidth;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
+    nLeft = 0;
+    nTop = nTop + nHeight;
+    nWidth = cx;
+    hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft = 0;
     nTop = cy - heightNotesTextBox - heightNotesLabel;
     nWidth = cx;
     hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, nLeft, nTop, nWidth, heightNotesLabel, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    nLeft = 0;
     nTop = cy - heightNotesTextBox;
     nWidth = cx;
     hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, nLeft, nTop, nWidth, heightNotesTextBox, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    nTop = margin;
-    nHeight = cy - nTop - heightNotesTextBox - heightNotesLabel;
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = CustomVScrollBarWidth;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
 }
@@ -482,12 +489,29 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR, hCtl);
 
+
     CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_LBLNOTES, L"Notes", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
     hCtl = CreateCustomTextBox(hwnd, IDC_HISTORY_TXTNOTES, true, ES_LEFT,
         L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, 3, 3);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
+
+    CustomLabel* pData = nullptr;
+    hCtl = CreateCustomLabel(
+        hwnd, IDC_HISTORY_SEPARATOR,
+        CustomLabelType::LineHorizontal,
+        0, 0, 0, 0);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->BackColor = COLOR_GRAYDARK;
+        pData->LineColor = COLOR_SEPARATOR;
+        pData->LineWidth = 2;
+        pData->MarginLeft = 0;
+        pData->MarginRight = 0;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
 
     return TRUE;
 }
