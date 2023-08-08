@@ -54,6 +54,7 @@ public:
 	void cancelMktData(TickerId tickerId);
 	void requestMktData(ListBoxData* ld);
 	void requestPositions();
+	void requestPortfolioUpdates();
 
 public:
 	// events
@@ -72,7 +73,6 @@ private:
 
 };
 
-void threadFunction(std::future<void> future);
 void StartMonitorThread();
 void EndMonitorThread();
 bool tws_connect();
@@ -83,4 +83,5 @@ void tws_requestMktData(ListBoxData* ld);
 void tws_performReconciliation();
 void tws_PauseTWS();
 void tws_ResumeTWS();
+void tws_requestPortfolioUpdates();
 

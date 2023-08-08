@@ -187,6 +187,12 @@ void tws_requestMktData(ListBoxData* ld)
 }
 
 
+void tws_requestPortfolioUpdates()
+{
+	client.requestPortfolioUpdates();
+}
+
+
 void tws_PauseTWS()
 {
 	if (!tws_isConnected()) return;
@@ -279,6 +285,13 @@ void TwsClient::processMsgs()
 {
 	m_pReader->processMsgs();
 }
+
+
+void TwsClient::requestPortfolioUpdates()
+{
+	m_pClient->reqAccountUpdates(true, "");
+}
+
 
 void TwsClient::cancelMktData(TickerId tickerId)
 {
@@ -508,7 +521,7 @@ void TwsClient::error(int id, int errorCode, const std::string& errorString, con
 	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, errorCode, errorString.c_str());
 }
 
-void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost) 
+void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost)
 {
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
 	Reconcile_position(contract, position);
@@ -569,6 +582,12 @@ void TwsClient::updateAccountValue(const std::string& key, const std::string& va
 void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	double marketPrice, double marketValue, double averageCost,
 	double unrealizedPNL, double realizedPNL, const std::string& accountName) {
+
+	printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
+		(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
+		Utils::doubleMaxString(marketPrice).c_str(), Utils::doubleMaxString(marketValue).c_str(), Utils::doubleMaxString(averageCost).c_str(),
+		Utils::doubleMaxString(unrealizedPNL).c_str(), Utils::doubleMaxString(realizedPNL).c_str(), accountName.c_str());
+
 }
 
 void TwsClient::updateAccountTime(const std::string& timeStamp) {

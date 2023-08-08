@@ -362,6 +362,10 @@ void ListBoxData_RequestMarketData(HWND hListBox)
 
     if (tws_isConnected())
         PrevMarketDataLoaded = true;
+
+
+    // TODO: Implement portfolio updates
+    //tws_requestPortfolioUpdates();
 }
 
 
