@@ -39,7 +39,9 @@ SOFTWARE.
 #include "Utilities/Colors.h"
 
 
-int nHistoryMinColWidth[10] =
+
+
+int nHistoryMinColWidth[MAX_COLUMNS] =
 {
     15,     /* dropdown arrow */
     60,     /* Description */
@@ -50,6 +52,8 @@ int nHistoryMinColWidth[10] =
     30,     /* put/call */
     40,     /* ACB, BTC/STO, etc */
     15,     /* view transaction icon */
+    0,
+    0,
     0
 };
 
@@ -57,7 +61,7 @@ int nHistoryMinColWidth[10] =
 // user may end a very long description and we don't want the column
 // to expand to fit this whole trade description. We will still
 // display the description but it will wrap in the display rectangle.
-int nHistoryMaxColWidth[10] =
+int nHistoryMaxColWidth[MAX_COLUMNS] =
 {
     15,      /* dropdown arrow */
     100,     /* Description */
@@ -68,10 +72,12 @@ int nHistoryMaxColWidth[10] =
     100,     /* put/call */
     100,     /* ACB, BTC/STO, etc */
     15,      /* view transaction icon */
+    0,
+    0,
     0
 };
 
-int nTradesMinColWidth[10] =
+int nTradesMinColWidth[MAX_COLUMNS] =
 {
     25,     /* dropdown arrow */
     50,     /* ticker symbol */
@@ -81,11 +87,13 @@ int nTradesMinColWidth[10] =
     45,     /* DTE */
     50,     /* strike price / current price */
     45,     /* put/call */
-    0,
-    0
+    0,      /* AvgPX and Cost Basis*/
+    0,      /* Market Value and Last Price */
+    0,      /* Percentages */
+    0       /* Unrealized PNL */
 };
 
-int nClosedMinColWidth[10] =
+int nClosedMinColWidth[MAX_COLUMNS] =
 {
     15,     /* empty */
     65,     /* Close Date */
@@ -95,11 +103,13 @@ int nClosedMinColWidth[10] =
     0,     
     0,     
     0,     
+    0,     
+    0,     
     0,
     0
 };
 
-int nTransMinColWidth[10] =
+int nTransMinColWidth[MAX_COLUMNS] =
 {
     15,     /* empty */
     65,     /* Transaction Date */
@@ -110,10 +120,12 @@ int nTransMinColWidth[10] =
     60,     /* Fees */
     70,     /* Total */
     0,
+    0,
+    0,
     0
 };
 
-int nTickerTotalsMinColWidth[10] =
+int nTickerTotalsMinColWidth[MAX_COLUMNS] =
 {
     5,     /* empty */
     50,    /* Ticker Symbol */
@@ -124,10 +136,12 @@ int nTickerTotalsMinColWidth[10] =
     0,
     0,
     0,
+    0,
+    0,
     0
 };
 
-int nTickerTotalsMaxColWidth[10] =
+int nTickerTotalsMaxColWidth[MAX_COLUMNS] =
 {
     5,        /* empty */
     50,       /* Ticker Symbol */
@@ -138,10 +152,12 @@ int nTickerTotalsMaxColWidth[10] =
     0,
     0,
     0,
+    0,
+    0,
     0
 };
 
-int nTradeTemplatesMinColWidth[10] =
+int nTradeTemplatesMinColWidth[MAX_COLUMNS] =
 {
     5,     /* spacer */
     80,    /* Description */
@@ -152,10 +168,12 @@ int nTradeTemplatesMinColWidth[10] =
     0,
     0,
     0,
+    0,
+    0,
     0
 };
 
-int nColWidth[10] = { 0,0,0,0,0,0,0,0,0 };
+int nColWidth[MAX_COLUMNS] = { 0,0,0,0,0,0,0,0,0,0,0 };
 
 bool PrevMarketDataLoaded = false;
 
@@ -193,7 +211,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     HDC hdc = GetDC(hListBox);
 
     // Initialize the nColWidth array based on the incoming ListBox
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < MAX_COLUMNS; i++) {
         switch (tabletype)
         {
         case TableType::ActiveTrades:
@@ -253,7 +271,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
         if (ld->lineType == LineType::CategoryHeader) break;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < MAX_COLUMNS; i++) {
             if (nColWidth[i] == 0) continue;
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
@@ -288,7 +306,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     for (int ii = nStart; ii <= nEnd; ii++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < MAX_COLUMNS; i++) {
             ld->col[i].colWidth = nColWidth[i];
         }
         ListBox_SetItemData(hListBox, ii, ld);
@@ -301,7 +319,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     if (tabletype == TableType::TransPanel) hHeader = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_HEADER);
     
     if (hHeader) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < MAX_COLUMNS; i++) {
             Header_SetItemWidth(hHeader, i, AfxScaleX((float)nColWidth[i]));
         }
     }
@@ -364,8 +382,10 @@ void ListBoxData_RequestMarketData(HWND hListBox)
         PrevMarketDataLoaded = true;
 
 
-    // TODO: Implement portfolio updates
-    //tws_requestPortfolioUpdates();
+    // Request portfolio updates. This also loads the IBKR and local vectors that 
+    // are used for performing Reconciliations and also displaying position/leg real time data.
+    if (tws_isConnected())
+        tws_requestPortfolioUpdates();
 }
 
 
@@ -487,7 +507,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITEDARK, font8, FontStyleRegular);   // price change
         ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, L"0.00", StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
-        ld->SetData(COLUMN_TICKER_PERCENTAGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // price percentage change
     }
     ListBox_AddString(hListBox, ld);
@@ -1114,7 +1134,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         int nLeft = 0;
         int colWidth = 0;
         int colStart = 0;
-        int colEnd = 10;
+        int colEnd = MAX_COLUMNS;
 
         // If this is a Category separator line then we need to draw it differently
         // then a regular that would be drawn (full line width)

@@ -187,23 +187,32 @@ void tws_requestMktData(ListBoxData* ld)
 }
 
 
-void tws_requestPortfolioUpdates()
-{
-	client.requestPortfolioUpdates();
-}
-
-
 void tws_PauseTWS()
 {
 	if (!tws_isConnected()) return;
 	isThreadPaused = true;
 }
 
+
 void tws_ResumeTWS()
 {
 	if (!tws_isConnected()) return;
 	isThreadPaused = false;
 }
+
+
+void tws_requestPortfolioUpdates()
+{
+	// Clear the vectors.
+	Reconcile_ClearVectors();
+
+	// Load the IBKR and Local positions into the vectors and do the matching
+	client.requestPositions();
+
+	// Start requesting the portfolio updates real time data
+	client.requestPortfolioUpdates();
+}
+
 
 void tws_performReconciliation()
 {
@@ -216,7 +225,14 @@ void tws_performReconciliation()
 		return;
 	}
 
-	client.requestPositions();
+	// Vectors have already been claeard, loaded and matched via tws_requestPortfolioUpdates
+	// The results have been loaded into module global resultsText which will be displayed
+	// when Reconcile_Show() is called.
+
+	// Show the results
+	Reconcile_Show();
+
+
 }
 
 
@@ -484,7 +500,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100, true) + L"%";
 				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-				ld->SetTextData(COLUMN_TICKER_PERCENTAGE, wszText, themeEl);  // price percentage change
+				ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, wszText, themeEl);  // price percentage change
 
 
 				// Do calculation to ensure column widths are wide enough to accommodate the new
@@ -504,6 +520,69 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	}  // if
 }
 
+
+
+void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
+	double marketPrice, double marketValue, double averageCost,
+	double unrealizedPNL, double realizedPNL, const std::string& accountName) {
+
+	if (isThreadPaused) return;
+
+	//printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
+	//	(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
+	//	Utils::doubleMaxString(marketPrice).c_str(), Utils::doubleMaxString(marketValue).c_str(), Utils::doubleMaxString(averageCost).c_str(),
+	//	Utils::doubleMaxString(unrealizedPNL).c_str(), Utils::doubleMaxString(realizedPNL).c_str(), accountName.c_str());
+
+
+	// Lookup contractID in the Local positions vector. The Legs vector in that found record will point
+	// to one or more legs in the Active Trades that can be updated in real time.
+	for (auto& local : LocalPositions) {
+		if (local.contractId == contract.conId) {
+
+			HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+			int lbCount = ListBox_GetCount(hListBox);
+
+			std::wstring wszText = L"";
+			DWORD themeEl = COLOR_WHITELIGHT;
+
+			for (auto& leg : local.legs) {
+
+				for (int nIndex = 0; nIndex < lbCount; nIndex++) {
+					ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+					if (ld == nullptr) continue;
+
+					if (leg == ld->leg) {
+
+
+						std::cout << "Portfolio value MATCHED" << std::endl;
+
+
+						wszText = AfxMoney(0, true, ld->trade->tickerDecimals);
+						themeEl = COLOR_GREEN;
+						ld->SetTextData(COLUMN_TICKER_AVGPX, wszText, themeEl);
+						ld->SetTextData(COLUMN_TICKER_LASTPX, wszText, themeEl);
+						ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);
+						ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);  
+
+						// std::wcout << L"Contract id: " << local.contractId << L" matched leg: " << leg << L"  Symbol: " << ld->trade->tickerSymbol << std::endl;
+						// Do calculation to ensure column widths are wide enough to accommodate the new data
+						ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, nIndex);
+
+						// Only update/repaint the line containing the new data rather than the whole ListBox.
+						RECT rc{};
+						ListBox_GetItemRect(hListBox, nIndex, &rc);
+						InvalidateRect(hListBox, &rc, TRUE);
+						UpdateWindow(hListBox);
+					}
+				}
+
+			}
+
+		}
+	}
+
+
+}
 
 
 void TwsClient::connectionClosed() {
@@ -577,17 +656,6 @@ void TwsClient::openOrderEnd() {
 
 void TwsClient::updateAccountValue(const std::string& key, const std::string& val,
 	const std::string& currency, const std::string& accountName) {
-}
-
-void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
-	double marketPrice, double marketValue, double averageCost,
-	double unrealizedPNL, double realizedPNL, const std::string& accountName) {
-
-	printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
-		(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
-		Utils::doubleMaxString(marketPrice).c_str(), Utils::doubleMaxString(marketValue).c_str(), Utils::doubleMaxString(averageCost).c_str(),
-		Utils::doubleMaxString(unrealizedPNL).c_str(), Utils::doubleMaxString(realizedPNL).c_str(), accountName.c_str());
-
 }
 
 void TwsClient::updateAccountTime(const std::string& timeStamp) {

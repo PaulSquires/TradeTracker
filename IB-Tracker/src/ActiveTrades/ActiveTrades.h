@@ -54,10 +54,20 @@ constexpr int ACTIVETRADES_MARGIN = 24;
 // and the correct ListBox line is invalidated/redrawn in order to force
 // display of the new price data. Refer to TwsClient::tickPrice in the
 // tws-client.cpp file to see this in action.
-constexpr int COLUMN_TICKER_ITM          = 2;    // ITM (In the Money)
-constexpr int COLUMN_TICKER_CHANGE       = 5;    // price change
-constexpr int COLUMN_TICKER_CURRENTPRICE = 6;    // current price
-constexpr int COLUMN_TICKER_PERCENTAGE   = 7;    // price percentage change
+constexpr int COLUMN_TICKER_ITM             = 2;    // ITM (In the Money)
+constexpr int COLUMN_TICKER_CHANGE          = 5;    // price change
+constexpr int COLUMN_TICKER_CURRENTPRICE    = 6;    // current price
+constexpr int COLUMN_TICKER_PERCENTCHANGE   = 7;    // price percentage change
+
+// These columns in the table are updated in real time when connected
+// to TWS. The LineData pointer is updated via a call to SetColumnData
+// and the correct ListBox line is invalidated/redrawn in order to force
+// display of the new price data. Refer to TwsClient::updatePortfolio in the
+// tws-client.cpp file to see this in action.
+constexpr int COLUMN_TICKER_AVGPX           = 8;    // Book Value and average Price
+constexpr int COLUMN_TICKER_LASTPX          = 9;    // Market Value and Last Price
+constexpr int COLUMN_TICKER_PERCENTCOMPLETE = 10;   // Percentage values for the previous two columns data
+constexpr int COLUMN_TICKER_UPNL            = 11;   // Unrealized profit or loss
 
 
 bool IsNewOptionsTradeAction(TradeAction action);

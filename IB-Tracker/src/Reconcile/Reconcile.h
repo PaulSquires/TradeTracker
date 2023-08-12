@@ -38,9 +38,24 @@ public:
 };
 
 
+// Structure & vector to hold all positions returned from connection to IBKR (TWS).
+// These are used for the reconciliation between IB-Tracker and IBKR.
+struct positionStruct {
+	int contractId = 0;
+	std::vector<std::shared_ptr<Leg>> legs;    // pointer list for all legs that make up the position
+	int openQuantity = 0;
+	std::wstring tickerSymbol;
+	std::wstring underlying;
+	std::wstring expiryDate;
+	double strikePrice = 0;
+	std::wstring PutCall;
+};
+
+
 constexpr int IDC_RECONCILE_TEXTBOX = 100;
 
+void Reconcile_ClearVectors();
 void Reconcile_position(const Contract& contract, Decimal position);
 void Reconcile_positionEnd();
-void Reconcile_Show(std::wstring& wszText);
+void Reconcile_Show();
 

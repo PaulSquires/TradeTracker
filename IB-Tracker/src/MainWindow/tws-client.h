@@ -31,6 +31,7 @@ SOFTWARE.
 #include "tws-api/EReader.h"
 
 #include "Utilities/ListBoxData.h"
+#include "Reconcile/Reconcile.h"
 
 
 class EClientSocket;
@@ -72,6 +73,9 @@ private:
 	std::string m_bboExchange;
 
 };
+
+extern std::vector<positionStruct> LocalPositions;
+
 
 void StartMonitorThread();
 void EndMonitorThread();

@@ -32,16 +32,6 @@ SOFTWARE.
 #include "Reconcile.h"
 
 
-// Structure & vector to hold all positions returned from connection to IBKR (TWS).
-// These are used for the reconciliation between IB-Tracker and IBKR.
-struct positionStruct {
-    int openQuantity = 0;
-	std::wstring tickerSymbol;
-	std::wstring underlying;
-	std::wstring expiryDate;
-    double strikePrice = 0;
-	std::wstring PutCall;
-};
 std::vector<positionStruct> IBKRPositions;
 std::vector<positionStruct> LocalPositions;
 
@@ -50,7 +40,20 @@ HWND HWND_RECONCILE = NULL;
 
 CReconcile Reconcile;
 
+std::wstring ResultsText;
 
+
+
+
+// ========================================================================================
+// Clear the Local and IBKR vectors
+// ========================================================================================
+void Reconcile_ClearVectors()
+{
+	// Clear the vectors in case we run reconcile again
+	LocalPositions.clear();
+	IBKRPositions.clear();
+}
 
 
 // ========================================================================================
@@ -64,6 +67,7 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	if (position == 0) return;
 
 	positionStruct p{};
+	p.contractId   = contract.conId;
 	p.openQuantity = (int)intelDecimalToDouble(position);
 	p.tickerSymbol = ansi2unicode(contract.symbol);
 	p.underlying   = ansi2unicode(contract.secType);
@@ -147,6 +151,7 @@ void Reconcile_positionEnd()
 						p.PutCall      == local.PutCall) {
 						found = true;
 						local.openQuantity += p.openQuantity;
+						local.legs.push_back(leg);
 						break;
 					}
 				}
@@ -156,6 +161,7 @@ void Reconcile_positionEnd()
 						p.underlying   == local.underlying) {
 						found = true;
 						local.openQuantity += p.openQuantity;
+						local.legs.push_back(leg);
 						break;
 					}
 				}
@@ -168,32 +174,36 @@ void Reconcile_positionEnd()
 		}
 	}
 
-	std::wstring text;
 
 
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.
-	text = L"IBKR that do not exist in Local:\r\n";
+	ResultsText = L"IBKR that do not exist in Local:\r\n";
 	for (const auto& ibkr : IBKRPositions) {
 		if (ibkr.openQuantity == 0) continue;
 		bool found = false;
-		for (const auto& local : LocalPositions) {
+		for (auto& local : LocalPositions) {
 			found = Reconcile_ArePositionsEqual(ibkr, local);
-			if (found == true) break;
+			// If found, then update the Local vector to point to the ContractId of the 
+			// actual IBKR psoition. We use this when dealing with UpdatePortfolio() callbacks.
+			if (found == true) {
+				local.contractId = ibkr.contractId;
+				break;
+			}
 		}
 		if (!found) {
-			text = text + L"   " + std::to_wstring(ibkr.openQuantity) + L" " +
+			ResultsText = ResultsText + L"   " + std::to_wstring(ibkr.openQuantity) + L" " +
 				ibkr.tickerSymbol + L" " + ibkr.underlying;
 			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
-				text = text + L" " + ibkr.expiryDate + L" " + std::to_wstring(ibkr.strikePrice) + L" " + ibkr.PutCall;
+				ResultsText = ResultsText + L" " + ibkr.expiryDate + L" " + std::to_wstring(ibkr.strikePrice) + L" " + ibkr.PutCall;
 			}
-			text = text + L"\r\n";
+			ResultsText = ResultsText + L"\r\n";
 		}
 	}
 
-	text = text + L"\r\n";   // blank line
+	ResultsText = ResultsText + L"\r\n";   // blank line
 
 	// (2) Determine what Local positions do not exist in the IBKR "real" database.
-	text = text + L"Local that do not exist in IBKR:\r\n";
+	ResultsText = ResultsText + L"Local that do not exist in IBKR:\r\n";
 	for (const auto& local : LocalPositions) {
 		bool found = false;
 		for (const auto& ibkr : IBKRPositions) {
@@ -202,21 +212,16 @@ void Reconcile_positionEnd()
 		}
 		if (!found) {
 			if (local.openQuantity > 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
-				text = text + L"   " + std::to_wstring(local.openQuantity) + L" " +
+				ResultsText = ResultsText + L"   " + std::to_wstring(local.openQuantity) + L" " +
 					local.tickerSymbol + L" " + local.underlying;
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
-					text = text + L" " + local.expiryDate + L" " + std::to_wstring(local.strikePrice) + L" " + local.PutCall;
+					ResultsText = ResultsText + L" " + local.expiryDate + L" " + std::to_wstring(local.strikePrice) + L" " + local.PutCall;
 				}
-				text = text + L"\r\n";
+				ResultsText = ResultsText + L"\r\n";
 			}
 		}
 	}
 
-	// Clear the vectors in case we run reconcile again
-	LocalPositions.clear();
-	IBKRPositions.clear();
-
-	Reconcile_Show(text);
 }
 
 
@@ -285,7 +290,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Reconcile modal dialog.
 // ========================================================================================
-void Reconcile_Show(std::wstring& wszText)
+void Reconcile_Show()
 {
 	HWND hwnd = Reconcile.Create(HWND_MAINWINDOW, L"Reconcile Local Data to IBKR TWS", 0, 0, 600, 390,
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -301,7 +306,7 @@ void Reconcile_Show(std::wstring& wszText)
 
 	EnableWindow(HWND_MAINWINDOW, FALSE);
 
-	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), wszText.c_str());
+	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), ResultsText.c_str());
 
 	// Apply fixed width font for better readability
 	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
