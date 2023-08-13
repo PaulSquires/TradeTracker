@@ -317,6 +317,7 @@ bool LoadDatabase()
         trade->ACB = 0;
         for (const auto trans : trade->Transactions) {
             trade->ACB = trade->ACB + trans->total;
+            trade->multiplier = trans->multiplier;
         }
     }
 

@@ -168,6 +168,7 @@ void Reconcile_positionEnd()
 			}
 
 			if (found == false) {
+				p.legs.push_back(leg);
 				LocalPositions.push_back(p);
 			}
 
@@ -186,7 +187,9 @@ void Reconcile_positionEnd()
 			// If found, then update the Local vector to point to the ContractId of the 
 			// actual IBKR psoition. We use this when dealing with UpdatePortfolio() callbacks.
 			if (found == true) {
-				local.contractId = ibkr.contractId;
+				for (auto& leg : local.legs) {
+					leg->contractId = ibkr.contractId;
+				}
 				break;
 			}
 		}

@@ -940,7 +940,7 @@ std::wstring AfxMoney(double value, bool UseMinusSign, int NumDecimalPlaces)
         if (UseMinusSign == false) money.insert(1, L" ");
     }
 
-    return money;   // -1 to remove null terminator
+    return money;
 
 }
 

@@ -534,53 +534,48 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	//	Utils::doubleMaxString(unrealizedPNL).c_str(), Utils::doubleMaxString(realizedPNL).c_str(), accountName.c_str());
 
 
-	// Lookup contractID in the Local positions vector. The Legs vector in that found record will point
-	// to one or more legs in the Active Trades that can be updated in real time.
-	for (auto& local : LocalPositions) {
-		if (local.contractId == contract.conId) {
+	// Match the incoming contractID with the contractId stored in the Leg.
 
-			HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
-			int lbCount = ListBox_GetCount(hListBox);
+	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+	int lbCount = ListBox_GetCount(hListBox);
 
-			std::wstring wszText = L"";
-			DWORD themeEl = COLOR_WHITELIGHT;
-
-			for (auto& leg : local.legs) {
-
-				for (int nIndex = 0; nIndex < lbCount; nIndex++) {
-					ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
-					if (ld == nullptr) continue;
-
-					if (leg == ld->leg) {
+	std::wstring wszText = L"";
+	DWORD themeEl = COLOR_WHITEDARK;
 
 
-						std::cout << "Portfolio value MATCHED" << std::endl;
+	for (int nIndex = 0; nIndex < lbCount; nIndex++) {
+		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+		if (ld == nullptr) continue;
+		if (ld->leg == nullptr) continue;
 
 
-						wszText = AfxMoney(0, true, ld->trade->tickerDecimals);
-						themeEl = COLOR_GREEN;
-						ld->SetTextData(COLUMN_TICKER_AVGPX, wszText, themeEl);
-						ld->SetTextData(COLUMN_TICKER_LASTPX, wszText, themeEl);
-						ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);
-						ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);  
+		if (ld->leg->contractId == contract.conId) {
 
-						// std::wcout << L"Contract id: " << local.contractId << L" matched leg: " << leg << L"  Symbol: " << ld->trade->tickerSymbol << std::endl;
-						// Do calculation to ensure column widths are wide enough to accommodate the new data
-						ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, nIndex);
+			double averagePrice = (averageCost / ld->trade->multiplier);
+			wszText = AfxMoney(averagePrice, true, ld->trade->tickerDecimals);
+			ld->SetTextData(COLUMN_TICKER_AVGPX, wszText, themeEl);   // Book Value and average Price
 
-						// Only update/repaint the line containing the new data rather than the whole ListBox.
-						RECT rc{};
-						ListBox_GetItemRect(hListBox, nIndex, &rc);
-						InvalidateRect(hListBox, &rc, TRUE);
-						UpdateWindow(hListBox);
-					}
-				}
+			wszText = AfxMoney(marketPrice, true, ld->trade->tickerDecimals);
+			ld->SetTextData(COLUMN_TICKER_LASTPX, wszText, themeEl);   // Market Value and Last Price
 
-			}
+			wszText = AfxMoney((averagePrice - marketPrice) / averagePrice * 100, true, 1) + L"%";
+			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);  // Percentage values for the previous two columns data
+			
+			wszText = AfxMoney(unrealizedPNL, false, 0);
+			ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);    // Unrealized profit or loss
 
+
+			// Do calculation to ensure column widths are wide enough to accommodate the new data
+			ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, nIndex);
+
+			// Only update/repaint the line containing the new data rather than the whole ListBox.
+			RECT rc{};
+			ListBox_GetItemRect(hListBox, nIndex, &rc);
+			InvalidateRect(hListBox, &rc, TRUE);
+			UpdateWindow(hListBox);
 		}
-	}
 
+	}
 
 }
 

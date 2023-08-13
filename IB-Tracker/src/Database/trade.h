@@ -40,6 +40,7 @@ SOFTWARE.
 class Leg
 {
 public:
+    int          contractId = 0;          // Contract ID received from IBKR 
     int          legID = 0;               // Unique id for this leg within the Trade (see Trade nextLegID) 
     int          legBackPointerID = 0;    // If transaction is CLOSE, EXPIRE, ROLL this points back to leg where quantity modified
     int          origQuantity = 0;
@@ -82,6 +83,7 @@ public:
     double        ACB          = 0;
     double        TradeBP      = 0;       // Buying Power for the entire trade 
     int           nextLegID    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
+    double        multiplier   = 0;       // Updated from Transaction and needed for updatePortfolio real time calculations
 
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
