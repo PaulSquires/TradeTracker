@@ -550,6 +550,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 
 		if (ld->leg->contractId == contract.conId) {
+			themeEl = COLOR_WHITEDARK;
 
 			double averagePrice = (averageCost / ld->trade->multiplier);
 			wszText = AfxMoney(averagePrice, true, ld->trade->tickerDecimals);
@@ -558,9 +559,12 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 			wszText = AfxMoney(marketPrice, true, ld->trade->tickerDecimals);
 			ld->SetTextData(COLUMN_TICKER_LASTPX, wszText, themeEl);   // Market Value and Last Price
 
-			wszText = AfxMoney((averagePrice - marketPrice) / averagePrice * 100, true, 1) + L"%";
+			double percentage = (averagePrice - marketPrice) / averagePrice * 100;
+			if (ld->leg->openQuantity > 0) percentage = percentage * -1;
+			wszText = AfxMoney(percentage, true, 1) + L"%";
 			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);  // Percentage values for the previous two columns data
 			
+			themeEl = (unrealizedPNL < 0) ? COLOR_RED : COLOR_GREEN;
 			wszText = AfxMoney(unrealizedPNL, false, 0);
 			ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);    // Unrealized profit or loss
 
