@@ -207,9 +207,11 @@ void tws_requestPortfolioUpdates()
 	Reconcile_ClearVectors();
 
 	// Load the IBKR and Local positions into the vectors and do the matching
+	client.cancelPositions();
 	client.requestPositions();
 
 	// Start requesting the portfolio updates real time data
+	client.cancelPortfolioUpdates();
 	client.requestPortfolioUpdates();
 }
 
@@ -225,7 +227,7 @@ void tws_performReconciliation()
 		return;
 	}
 
-	// Vectors have already been claeard, loaded and matched via tws_requestPortfolioUpdates
+	// Vectors have already been cleared, loaded and matched via tws_requestPortfolioUpdates
 	// The results have been loaded into module global resultsText which will be displayed
 	// when Reconcile_Show() is called.
 
@@ -303,6 +305,11 @@ void TwsClient::processMsgs()
 }
 
 
+void TwsClient::cancelPortfolioUpdates()
+{
+	m_pClient->reqAccountUpdates(false, "");
+}
+
 void TwsClient::requestPortfolioUpdates()
 {
 	m_pClient->reqAccountUpdates(true, "");
@@ -346,6 +353,11 @@ void TwsClient::requestMktData(ListBoxData* ld)
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 }
 	
+void TwsClient::cancelPositions()
+{
+	m_pClient->cancelPositions();
+}
+
 void TwsClient::requestPositions()
 {
 	m_pClient->reqPositions();

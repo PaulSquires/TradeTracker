@@ -54,7 +54,9 @@ public:
 	void processMsgs();
 	void cancelMktData(TickerId tickerId);
 	void requestMktData(ListBoxData* ld);
+	void cancelPositions();
 	void requestPositions();
+	void cancelPortfolioUpdates();
 	void requestPortfolioUpdates();
 
 public:
