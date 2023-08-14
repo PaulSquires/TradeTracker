@@ -1069,6 +1069,7 @@ std::wstring& AfxLTrim(std::wstring& s)
 std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to)
 {
     std::wstring wszString = str;
+    if (str.empty() == 0) return wszString;
     if (from.empty()) return wszString;
     size_t start_pos = 0;
     while ((start_pos = wszString.find(from, start_pos)) != std::wstring::npos) {

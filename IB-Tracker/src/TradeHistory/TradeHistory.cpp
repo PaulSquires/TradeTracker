@@ -41,9 +41,7 @@ HWND HWND_TRADEHISTORY = NULL;
 
 CTradeHistory TradeHistory;
 
-// Save the Trade pointer in module scope because we need it when dealing with
-// the Notes text in order to save that text to the correct Trade.
-std::shared_ptr<Trade> tradeHistoryPtr = nullptr;
+std::shared_ptr<Trade> tradeNotes = nullptr;
 
 
 void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy);
@@ -58,7 +56,6 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
     HWND hSeparator = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SEPARATOR);
 
-    tradeHistoryPtr = trade;
 
     // Ensure that the Trade History panel is set
     MainWindow_SetRightPanel(HWND_TRADEHISTORY);
@@ -74,6 +71,7 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
         return;
     }
 
+    tradeNotes = trade;
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -369,35 +367,40 @@ void TradeHistory_OnPaint(HWND hwnd)
 void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     static bool isNotesDirty = false;
+    static std::shared_ptr<Trade> trade = nullptr;
+    static std::wstring wszNotes = L"";
 
     switch (id)
     {
     case (IDC_HISTORY_TXTNOTES):
         if (codeNotify == EN_KILLFOCUS) {
-            if (tradeHistoryPtr != nullptr) {
-                // Get the Notes text and save it into the Trade
-                tradeHistoryPtr->notes = AfxGetWindowText(hwndCtl);
-
+            if (isNotesDirty == true) {
+                if (trade != nullptr) trade->notes = wszNotes;
+                
                 // Save the database because the Notes for this Trade has been updated.
                 SaveDatabase();
-            }
 
-            isNotesDirty = false;
+                isNotesDirty = false;
+                trade = nullptr;
+                wszNotes = L"";
+            }
             break;
         }
 
         if (codeNotify == EN_CHANGE) {
+            wszNotes = AfxGetWindowText(hwndCtl);
             isNotesDirty = true;
             break;
         }
 
         if (codeNotify == EN_SETFOCUS) {
+            trade = tradeNotes;
             isNotesDirty = false;
             break;
         }
 
-    default:
         break;
+
     }
 }
 
