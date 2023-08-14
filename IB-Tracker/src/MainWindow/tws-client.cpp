@@ -338,26 +338,36 @@ void TwsClient::requestMktData(ListBoxData* ld)
 	//	struct Contract;
 	Contract contract;
 
-	if (symbol.substr(0,1) == "/") {
-		contract.symbol = symbol.substr(1);
-		contract.secType = "FUT";
-		contract.currency = "USD";
-		contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
-
-		std::string futExchange = GetFuturesExchange(symbol);
-		if (futExchange.length() == 0) futExchange = "CME";
-
-		contract.exchange = futExchange;
-		contract.primaryExchange = futExchange;
-	}
-	else {
+	if (symbol == "SPX" || symbol == "DJX" || symbol == "VIX") {
 		contract.symbol = symbol;
-		contract.secType = "STK";
+		contract.secType = "IND";
 		contract.currency = "USD";
-		contract.exchange = "SMART";
+		contract.exchange = "CBOE";
 		contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
 	}
+	else {
 
+		if (symbol.substr(0,1) == "/") {
+			contract.symbol = symbol.substr(1);
+			contract.secType = "FUT";
+			contract.currency = "USD";
+			contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
+
+			std::string futExchange = GetFuturesExchange(symbol);
+			if (futExchange.length() == 0) futExchange = "CME";
+
+			contract.exchange = futExchange;
+			contract.primaryExchange = futExchange;
+		}
+		else {
+			contract.symbol = symbol;
+			contract.secType = "STK";
+			contract.currency = "USD";
+			contract.exchange = "SMART";
+			contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
+		}
+
+	}
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 }
 	
