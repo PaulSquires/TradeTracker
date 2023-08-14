@@ -227,14 +227,22 @@ void tws_performReconciliation()
 		return;
 	}
 
+	// Prevent Reconcile from running prior to previous invocation completing
+	static bool isRunning = false;
+	if (isRunning == true) return;
+
+	isRunning = true;
+
 	// Vectors have already been cleared, loaded and matched via tws_requestPortfolioUpdates
 	// The results have been loaded into module global resultsText which will be displayed
 	// when Reconcile_Show() is called.
 
+	tws_requestPortfolioUpdates();
+
 	// Show the results
 	Reconcile_Show();
 
-
+	isRunning = false;
 }
 
 

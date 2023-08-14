@@ -214,7 +214,7 @@ void Reconcile_positionEnd()
 			if (found == true) break;
 		}
 		if (!found) {
-			if (local.openQuantity > 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
+			if (local.openQuantity != 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
 				ResultsText = ResultsText + L"   " + std::to_wstring(local.openQuantity) + L" " +
 					local.tickerSymbol + L" " + local.underlying;
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
@@ -344,6 +344,8 @@ void Reconcile_Show()
 			DispatchMessage(&msg);
 		}
 	}
+
+	ResultsText = L"";
 
 	DeleteFont(hFont);
 
