@@ -8,7 +8,7 @@ Interactive Brokers (IBKR) Stocks, Futures and Options positions tracker
 ## What is IB-Tracker
 IB-Tracker a free application that connects to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your recorded stock, futures and options positions. You can record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you a instant look at the cost basis of your trade. 
 
-I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick. I use the Discord handle "TheDude"), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process as enjoyable and painless as possible.
+I wrote this program because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy. Being a member of several trading groups (Scott Stewart, MrTopPick. I use the Discord handle "TheDude"), I was jealous of users of those other non-IBKR platforms. Being a Canadian, IBKR is the only available and viable alternative for me for options trading so I am trying to make the trade tracking process as enjoyable and painless as possible. 
 
 ![screenshot](/IB-Tracker/assets/ib-tracker-main.png?raw=true "IB-Tracker")
 
