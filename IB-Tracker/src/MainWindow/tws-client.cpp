@@ -235,8 +235,8 @@ void tws_performReconciliation()
 
 	// Vectors have already been cleared, loaded and matched via tws_requestPortfolioUpdates
 	// The results have been loaded into module global resultsText which will be displayed
-	// when Reconcile_Show() is called.
-
+	// when Reconcile_Show() is called and Reconcile_positionEnd() has SendMessage notification
+	// to the dialog to say that text is ready.
 	tws_requestPortfolioUpdates();
 
 	// Show the results

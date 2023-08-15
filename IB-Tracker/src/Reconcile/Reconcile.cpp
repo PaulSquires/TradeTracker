@@ -29,6 +29,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Database/trade.h"
 #include "Utilities/IntelDecimal.h"
+#include "Utilities/UserMessages.h"
 #include "Reconcile.h"
 
 
@@ -225,6 +226,7 @@ void Reconcile_positionEnd()
 		}
 	}
 
+	SendMessage(HWND_RECONCILE, MSG_RECONCILIATION_READY, 0, 0);
 }
 
 
@@ -285,6 +287,12 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 		HANDLE_MSG(m_hwnd, WM_CLOSE, Reconcile_OnClose);
         HANDLE_MSG(m_hwnd, WM_SIZE, Reconcile_OnSize);
 
+	case MSG_RECONCILIATION_READY:
+	{
+		AfxSetWindowText(GetDlgItem(m_hwnd, IDC_RECONCILE_TEXTBOX), ResultsText.c_str());
+	}
+		break;
+
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
 }
@@ -309,8 +317,6 @@ void Reconcile_Show()
 
 	EnableWindow(HWND_MAINWINDOW, FALSE);
 
-	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), ResultsText.c_str());
-
 	// Apply fixed width font for better readability
 	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
@@ -319,8 +325,8 @@ void Reconcile_Show()
 	BOOL cloak = TRUE;
 	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
-	ShowWindow(hwnd, SW_SHOWNORMAL);
-	UpdateWindow(hwnd);
+	ShowWindow(HWND_RECONCILE, SW_SHOWNORMAL);
+	UpdateWindow(HWND_RECONCILE);
 
 	cloak = FALSE;
 	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
