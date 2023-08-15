@@ -474,6 +474,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
     }
 
+    // Set the multiplier based on the incoming trade
+    CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(tdd.trade->multiplier));
 }
 
 
