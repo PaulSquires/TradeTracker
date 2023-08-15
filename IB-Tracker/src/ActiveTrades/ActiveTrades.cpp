@@ -117,7 +117,7 @@ void ActiveTrades_ShowActiveTrades()
     HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
     static int tickerId = 100;
-    int curSel = 1;
+    int curSel = 0;
 
     tws_PauseTWS();
 
@@ -181,14 +181,6 @@ void ActiveTrades_ShowActiveTrades()
         ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1);
 
 
-        // If trades exist then select the first trade so that its history will show
-        if (ListBox_GetCount(hListBox) == 0) {
-            ListBoxData_AddBlankLine(hListBox);
-            curSel = 0;
-        }
-        ActiveTrades_ShowListBoxItem(curSel);
-
-
         // Redraw the ListBox to ensure that any recalculated columns are 
         // displayed correctly. Re-enable redraw.
         SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
@@ -203,7 +195,20 @@ void ActiveTrades_ShowActiveTrades()
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
+    curSel = ListBox_GetCurSel(hListBox);
+    if (curSel <= 1) curSel = 1;
+
+
+    // If trades exist then select the first trade so that its history will show
+    if (ListBox_GetCount(hListBox) == 0) {
+        ListBoxData_AddBlankLine(hListBox);
+        curSel = 0;
+    }
+
     ListBox_SetSel(hListBox, true, curSel);
+    ActiveTrades_ShowListBoxItem(curSel);
+
+
     SetFocus(hListBox);
 
     tws_ResumeTWS();

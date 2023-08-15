@@ -290,8 +290,8 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 	case MSG_RECONCILIATION_READY:
 	{
 		AfxSetWindowText(GetDlgItem(m_hwnd, IDC_RECONCILE_TEXTBOX), ResultsText.c_str());
+		return 0;
 	}
-		break;
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
