@@ -349,6 +349,7 @@ void ListBoxData_DestroyItemData(HWND hListBox)
                 // to use ever increasing tickerid numbers to avoid duplicate ticker id
                 // errors when the listbox is reloaded.
                 tws_cancelMktData(ld->tickerId);
+                PrevMarketDataLoaded = false;
             }
             delete(ld);
         }

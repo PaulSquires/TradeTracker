@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/MainWindow.h"
 #include "Transactions/TransPanel.h"
 #include "MainWindow/tws-client.h"
@@ -151,6 +152,9 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;
+
+    // Reset the Active Trades
+    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
     // Show our new list of Transactions.
     TransPanel_ShowTransactions();
