@@ -257,6 +257,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             return TRUE;
         }
     }
+    break;
 
     
     case MSG_DATEPICKER_DATECHANGED:
