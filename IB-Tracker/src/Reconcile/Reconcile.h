@@ -55,7 +55,6 @@ struct positionStruct {
 
 constexpr int IDC_RECONCILE_TEXTBOX = 100;
 
-void Reconcile_ClearVectors();
 void Reconcile_position(const Contract& contract, Decimal position);
 void Reconcile_positionEnd();
 void Reconcile_Show();
