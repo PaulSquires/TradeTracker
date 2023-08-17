@@ -238,7 +238,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
-    break;
+    return 0;
 
 
     case WM_KEYDOWN:
@@ -257,15 +257,15 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             return TRUE;
         }
     }
+    return 0;
 
     
     case MSG_DATEPICKER_DATECHANGED:
     {
         TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN));
         TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL));
-        return 0;
     }
-    break;
+    return 0;
 
 
     case MSG_CUSTOMLABEL_CLICK:
@@ -351,9 +351,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-    }
     return 0;
-
+    }
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

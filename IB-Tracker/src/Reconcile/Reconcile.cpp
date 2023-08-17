@@ -44,19 +44,6 @@ CReconcile Reconcile;
 std::wstring ResultsText;
 
 
-
-
-// ========================================================================================
-// Clear the Local and IBKR vectors
-// ========================================================================================
-void Reconcile_ClearVectors()
-{
-	// Clear the vectors in case we run reconcile again
-	LocalPositions.clear();
-	IBKRPositions.clear();
-}
-
-
 // ========================================================================================
 // Information received from TwsClient::position callback
 // ========================================================================================
@@ -225,6 +212,10 @@ void Reconcile_positionEnd()
 			}
 		}
 	}
+
+	// Clear the vectors in case we run reconcile again
+	LocalPositions.clear();
+	IBKRPositions.clear();
 
 	SendMessage(HWND_RECONCILE, MSG_RECONCILIATION_READY, 0, 0);
 }

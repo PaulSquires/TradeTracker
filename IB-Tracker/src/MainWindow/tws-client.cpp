@@ -203,9 +203,6 @@ void tws_ResumeTWS()
 
 void tws_requestPortfolioUpdates()
 {
-	// Clear the vectors.
-	Reconcile_ClearVectors();
-
 	// Load the IBKR and Local positions into the vectors and do the matching
 	client.cancelPositions();
 	client.requestPositions();
