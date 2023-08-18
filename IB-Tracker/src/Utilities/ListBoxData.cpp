@@ -497,7 +497,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITEDARK, font8, FontStyleRegular);
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);
-        // Col 1 to 6 are set based on incoming TWS price data 
+
         ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);   // ITM
         ld->SetData(3, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -511,15 +511,6 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
         ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // price percentage change
-
-        //ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, L"0.00", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-        //    COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
-        //ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, L"0.00", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-        //    COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
-        //ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, L"0.00%", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-        //    COLOR_WHITEDARK, font8, FontStyleRegular);   // Percentage values for the previous two columns data
-        //ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, L"0.00", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-        //    COLOR_WHITEDARK, font8, FontStyleRegular);   // Unrealized profit or loss
     }
     ListBox_AddString(hListBox, ld);
 
@@ -535,7 +526,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
 
 
-    // *** SHARES ***
+    // *** SHARES/FUTURES ***
     // Roll up all of the SHARES or FUTURES Transactions and display the aggregate rather than the individual legs.
     std::wstring textShares;
     int aggregate = 0;
@@ -565,7 +556,10 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         col++;
 
         if (textShares == L"SHARES") ld->lineType = LineType::Shares;
-        if (textShares == L"FUTURES") ld->lineType = LineType::Futures;
+        if (textShares == L"FUTURES") {
+            ld->lineType = LineType::Futures;
+            textShares = textShares + L": " + AfxFormatFuturesDate(trade->futureExpiry);
+        }
 
         ld->SetData(col, trade, tickerId, textShares, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
@@ -578,6 +572,12 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;
+
+        if (isHistory) {
+            ld->SetData(col, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
+                COLOR_WHITEDARK, font8, FontStyleRegular);
+            col++;
+        }
 
         text = AfxMoney(std::abs(trade->ACB / aggregate));
         ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYMEDIUM,
@@ -737,7 +737,7 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
 
 
 // ========================================================================================
-// Create the display data for a History SHARES leg.
+// Create the display data for a History SHARES/FUTURES leg.
 // ========================================================================================
 void ListBoxData_HistorySharesLeg(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg)
@@ -750,11 +750,15 @@ void ListBoxData_HistorySharesLeg(
     ld->SetData(2, trade, tickerId, trans->underlying, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-    for (int i = 3; i < 7; i++) {
+    for (int i = 3; i < 6; i++) {
         ld->SetData(i, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
     }
     
+    std::wstring wszText = AfxMoney(trans->price, false, trade->tickerDecimals);
+    ld->SetData(6, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
     ld->SetData(7, trade, tickerId, std::to_wstring(leg->openQuantity), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
@@ -882,7 +886,9 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
     ld->SetData(2, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(3, trade, tickerId, trade->tickerName, StringAlignmentNear, StringAlignmentCenter,
+    std::wstring wszTickerName = trade->tickerName;
+    if (IsFuturesTicker(trade->tickerSymbol)) wszTickerName = wszTickerName + L" (" + AfxFormatFuturesDate(trade->futureExpiry) + L")";
+    ld->SetData(3, trade, tickerId, wszTickerName, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
     DWORD clr = (trade->ACB >= 0) ? COLOR_GREEN : COLOR_RED;

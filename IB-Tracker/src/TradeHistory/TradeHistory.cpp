@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Transactions/TransDetail.h"
 #include "Database/trade.h"
 #include "Utilities/AfxWin.h"
+#include "Config/Config.h"
 #include "TradeHistory.h"
 
 
@@ -55,6 +56,9 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
     HWND hSeparator = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SEPARATOR);
+    HWND hSymbol = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL);
+    HWND hNotesText = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES);
+    HWND hNotesLabel = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LBLNOTES);
 
 
     // Ensure that the Trade History panel is set
@@ -64,10 +68,11 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     if (trade == nullptr) {
         // Clear the current trade history table
         ListBoxData_DestroyItemData(hListBox);
-        CustomTextBox_SetText(GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES), L"");
-        CustomLabel_SetText(GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL), L"");
+        CustomTextBox_SetText(hNotesText, L"");
+        CustomLabel_SetText(hSymbol, L"Trade History");
         ListBoxData_AddBlankLine(hListBox);
-        AfxRedrawWindow(hListBox);
+        RECT rc; GetClientRect(HWND_TRADEHISTORY, &rc);
+        TradeHistory_OnSize(HWND_TRADEHISTORY, 0, rc.right, rc.bottom);
         return;
     }
 
@@ -76,13 +81,12 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
-    CustomLabel_SetText(
-        GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL),
-        trade->tickerSymbol + L": " + trade->tickerName);
+    
+    std::wstring wszTicker = trade->tickerSymbol + L": " + trade->tickerName;
+    if (IsFuturesTicker(trade->tickerSymbol)) wszTicker = wszTicker + L" (" + AfxFormatFuturesDate(trade->futureExpiry) + L")";
+    CustomLabel_SetText(hSymbol, wszTicker);
 
-    CustomTextBox_SetText(
-        GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES), 
-        trade->notes);
+    CustomTextBox_SetText(hNotesText, trade->notes);
 
 
     // Clear the current trade history table
@@ -418,6 +422,9 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int margin = AfxScaleY(TRADEHISTORY_MARGIN);
 
+    // If no entries exist for the ListBox then don't show any child controls
+    int showflag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
+
     HDWP hdwp = BeginDeferWindowPos(10);
 
     // Move and size the top label into place
@@ -446,31 +453,35 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nTop = margin;
     int nWidth = cx - CustomVScrollBarWidth;
     int nHeight = cy - nTop - heightNotesTextBox - heightNotesLabel - AfxScaleY(10);
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | showflag);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nTop = margin;
     nWidth = CustomVScrollBarWidth;
+
+    int showscrollbar = (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
+    if (showflag == SWP_HIDEWINDOW) showscrollbar = SWP_HIDEWINDOW;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+        SWP_NOZORDER | showscrollbar);
 
     nLeft = 0;
     nTop = nTop + nHeight;
     nWidth = cx;
     hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+        SWP_NOZORDER | showscrollbar);
 
     nLeft = 0;
     nTop = cy - heightNotesTextBox - heightNotesLabel;
     nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, nLeft, nTop, nWidth, heightNotesLabel, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, nLeft, nTop, nWidth, heightNotesLabel, SWP_NOZORDER | showflag);
 
     nLeft = 0;
     nTop = cy - heightNotesTextBox;
     nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, nLeft, nTop, nWidth, heightNotesTextBox, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, nLeft, nTop, nWidth, heightNotesTextBox, SWP_NOZORDER | showflag);
 
     EndDeferWindowPos(hdwp);
+
 }
 
 
@@ -521,7 +532,6 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->MarginRight = 0;
         CustomLabel_SetOptions(hCtl, pData);
     }
-
 
     return TRUE;
 }

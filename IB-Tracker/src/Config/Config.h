@@ -26,7 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-constexpr std::wstring version = L"1.2.1";
+constexpr std::wstring version = L"2.0.0";
 
 bool SaveConfig();
 bool LoadConfig();
@@ -41,3 +41,4 @@ std::wstring GetCategoryDescription(int idxCategory);
 void SetCategoryDescription(int idxCategory, std::wstring wszDescription);
 bool GetStartupConnect();
 void SetStartupConnect(bool bConnect);
+bool IsFuturesTicker(const std::wstring& wszTicker);

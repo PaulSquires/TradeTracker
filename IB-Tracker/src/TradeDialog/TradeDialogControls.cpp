@@ -36,6 +36,7 @@ SOFTWARE.
 #include "MainWindow/tws-client.h"
 #include "Database/database.h"
 #include "Category/Category.h"
+#include "Config/Config.h"
 
 
 
@@ -132,7 +133,7 @@ void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
 
     // Futures Ticker symbols will start with a forward slash character.
     std::wstring wszTicker = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
-    int nShow = (wszTicker.substr(0, 1) == L"/") ? SW_SHOW : SW_HIDE;
+    int nShow = (IsFuturesTicker(wszTicker)) ? SW_SHOW : SW_HIDE;
 
     ShowWindow(hCtl1, nShow);
     ShowWindow(hCtl2, nShow);
@@ -195,11 +196,11 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         if (row > 7) break;
 
         // QUANTITY (ORIGINAL)
-        std::wstring legOrigQuantity = std::to_wstring(leg->origQuantity);
+        std::wstring legOrigQuantity = std::to_wstring(leg->origQuantity / tdd.trans->quantity);
         TradeGrid_SetColData(hGrid, row, 0, legOrigQuantity);
 
         // QUANTITY (OPEN)
-        std::wstring legOpenQuantity = std::to_wstring(leg->openQuantity);
+        std::wstring legOpenQuantity = std::to_wstring(leg->openQuantity / tdd.trans->quantity);
         TradeGrid_SetColData(hGrid, row, 1, legOpenQuantity);
 
         // EXPIRY DATE
@@ -277,6 +278,18 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         }
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTICKER), wszText);
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER), tdd.trade->tickerSymbol);  // hidden
+
+        // Set the multiplier based on the incoming trade. Ensure that multiplier is always 100 for Option
+        // transactions because it could be set to 1 if the Trade only contains existing Shares.
+        double multiplier = tdd.trade->multiplier;
+        if (IsNewOptionsTradeAction(tdd.tradeAction) ||
+            tdd.tradeAction == TradeAction::AddCallToTrade ||
+            tdd.tradeAction == TradeAction::AddPutToTrade ||
+            tdd.tradeAction == TradeAction::AddOptionsToTrade) {
+            if (IsFuturesTicker(tdd.trade->tickerSymbol) == false) multiplier = 100;
+        }
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(multiplier));
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), std::to_wstring(tdd.trade->TradeBP));
     }
 
     
@@ -405,8 +418,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         if (row > 3) break;
 
         // QUANTITY
-        DefaultQuantity = leg->openQuantity;
-        std::wstring legQuantity = std::to_wstring(leg->openQuantity * -1);
+        DefaultQuantity = leg->trans->quantity;
+        std::wstring legQuantity = std::to_wstring(leg->openQuantity / leg->trans->quantity * -1);
         TradeGrid_SetColData(hGridMain, row, 0, legQuantity);
 
         // EXPIRY DATE
@@ -446,7 +459,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             if (row > 3) break;
 
             // QUANTITY
-            std::wstring legQuantity = std::to_wstring(leg->openQuantity);
+            std::wstring legQuantity = std::to_wstring(leg->openQuantity / leg->trans->quantity);
             TradeGrid_SetColData(hGridRoll, row, 0, legQuantity);
 
             // EXPIRY DATE
@@ -474,8 +487,6 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
     }
 
-    // Set the multiplier based on the incoming trade
-    CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(tdd.trade->multiplier));
 }
 
 
@@ -651,7 +662,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         ShowContractExpiry = true;
     }
     if (tdd.tradeAction == TradeAction::EditTransaction) {
-        if (tdd.trade->tickerSymbol.substr(0, 1) == L"/") {   // this is a Future
+        if (IsFuturesTicker(tdd.trade->tickerSymbol)) {   // this is a Future
             wszContractDate = tdd.trade->futureExpiry;
             ShowContractExpiry = true;
         }
@@ -889,7 +900,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // TRADE BUYING POWER
-    CustomLabel_SimpleLabel(hwnd, -1, L"Buying Power", COLOR_WHITEDARK, COLOR_GRAYDARK,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRADEBP, L"Buying Power", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 580, 310, 100, 23);
     hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTRADEBP, false, ES_RIGHT,
         L"0", 580, 337, 80, 23);
@@ -897,6 +908,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Allow);
 
+    if (tdd.tradeAction == TradeAction::NewSharesTrade ||
+        tdd.tradeAction == TradeAction::ManageShares ||
+        tdd.tradeAction == TradeAction::AddSharesToTrade ||
+        tdd.tradeAction == TradeAction::NewFuturesTrade ||
+        tdd.tradeAction == TradeAction::ManageFutures ||
+        tdd.tradeAction == TradeAction::AddFuturesToTrade) {
+        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRADEBP), SW_HIDE);
+        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), SW_HIDE);
+    }
 
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",

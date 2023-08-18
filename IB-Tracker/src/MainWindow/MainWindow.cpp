@@ -498,21 +498,6 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-
-    case MSG_CATEGORY_CHANGED:
-    {
-        if (HWND_MIDDLEPANEL == ActiveTrades.WindowHandle()) {
-            // Destroy any existing ListBox line data
-            // This will also clear the LineData pointers and cancel any previous market data
-            ListBoxData_DestroyItemData(GetDlgItem(ActiveTrades.WindowHandle(), IDC_TRADES_LISTBOX));
-            ActiveTrades_ShowActiveTrades();
-        }
-        if (HWND_MIDDLEPANEL == TransPanel.WindowHandle()) {
-            TransPanel_ShowTransactions();
-        }
-        return 0;
-    }
-
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
 }

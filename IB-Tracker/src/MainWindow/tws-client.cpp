@@ -234,7 +234,9 @@ void tws_performReconciliation()
 	// The results have been loaded into module global resultsText which will be displayed
 	// when Reconcile_Show() is called and Reconcile_positionEnd() has SendMessage notification
 	// to the dialog to say that text is ready.
-	tws_requestPortfolioUpdates();
+	// Load the IBKR and Local positions into the vectors and do the matching
+	client.cancelPositions();
+	client.requestPositions();
 
 	// Show the results
 	Reconcile_Show();
@@ -487,14 +489,14 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				for (const auto& leg : ld->trade->openLegs) {
 					if (leg->underlying == L"OPTIONS") {
 						if (leg->PutCall == L"P") {
-							if (ld->trade->tickerLastPrice < std::stod(leg->strikePrice)) {
+							if (ld->trade->tickerLastPrice < AfxValDouble(leg->strikePrice)) {
 								leg->openQuantity < 0 ? isITMred = true : isITMred = false;
 								leg->openQuantity > 0 ? isITMgreen = true : isITMgreen = false;
 								break;
 							}
 						}
 						else if (leg->PutCall == L"C") {
-							if (ld->trade->tickerLastPrice > std::stod(leg->strikePrice)) {
+							if (ld->trade->tickerLastPrice > AfxValDouble(leg->strikePrice)) {
 								leg->openQuantity < 0 ? isITMred = true : isITMred = false;
 								leg->openQuantity > 0 ? isITMgreen = true : isITMgreen = false;
 								break;
@@ -559,7 +561,6 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	//	(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
 	//	Utils::doubleMaxString(marketPrice).c_str(), Utils::doubleMaxString(marketValue).c_str(), Utils::doubleMaxString(averageCost).c_str(),
 	//	Utils::doubleMaxString(unrealizedPNL).c_str(), Utils::doubleMaxString(realizedPNL).c_str(), accountName.c_str());
-
 
 	// Match the incoming contractID with the contractId stored in the Leg.
 

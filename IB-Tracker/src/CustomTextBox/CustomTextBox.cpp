@@ -466,6 +466,7 @@ std::wstring CustomTextBox_GetUserData(HWND hCtrl)
     if (pData != nullptr) {
         return pData->UserData;
     }
+    return L"";
 }
 
 

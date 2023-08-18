@@ -75,8 +75,22 @@ std::unordered_map<std::wstring, std::wstring> mapMultipliers {
 };
 
 std::unordered_map<std::wstring, int> mapTickerDecimals {
-    { L"/AUD", 5 }
+    { L"/AUD", 5 },
+    { L"/ZB", 3 },
+    { L"/ZC", 3 },
+    { L"/ZS", 4 }
 };
+
+
+
+// ========================================================================================
+// Determine if the incoming ticker symbol is a Future.
+// ========================================================================================
+bool IsFuturesTicker(const std::wstring& wszTicker)
+{
+    return (wszTicker.substr(0, 1) == L"/");
+}
+
 
 
 // ========================================================================================

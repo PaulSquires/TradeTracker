@@ -289,6 +289,7 @@ bool LoadDatabase()
             leg->action = NumberToAction(try_catch_int(st, 8));
             leg->underlying = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr) {
+                leg->trans = trans;
                 if (trade != nullptr) {
                     // Determine latest date for BP ROI calculation.
                     if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
@@ -317,7 +318,6 @@ bool LoadDatabase()
         trade->ACB = 0;
         for (const auto trans : trade->Transactions) {
             trade->ACB = trade->ACB + trans->total;
-            trade->multiplier = trans->multiplier;
         }
     }
 

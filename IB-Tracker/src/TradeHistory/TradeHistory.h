@@ -50,7 +50,7 @@ constexpr int IDC_HISTORY_TXTNOTES = 119;
 
 constexpr int HISTORY_LISTBOX_ROWHEIGHT = 20;
 constexpr int TICKER_TOTALS_LISTBOX_ROWHEIGHT = 16;
-constexpr int TRADEHISTORY_WIDTH = 400;
+constexpr int TRADEHISTORY_WIDTH = 440;
 constexpr int TRADEHISTORY_MARGIN = 24;
 
 void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade);

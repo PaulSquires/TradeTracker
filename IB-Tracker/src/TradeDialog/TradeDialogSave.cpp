@@ -220,6 +220,12 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     std::shared_ptr<Leg> leg = std::make_shared<Leg>();
     leg->underlying = trans->underlying;
 
+    // Determine earliest and latest dates for BP ROI calculation.
+    std::wstring wszDate = AfxRemoveDateHyphens(trans->transDate);
+    if (AfxValDouble(wszDate) < AfxValDouble(trade->BPstartDate)) trade->BPstartDate = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
+
     // Set the Share/Futures quantity based on whether Long or Short based on 
     // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
 
@@ -433,7 +439,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         leg->strikePrice = guiData.legs.at(row).strikePrice;
         leg->PutCall     = guiData.legs.at(row).PutCall;
         leg->action      = guiData.legs.at(row).action;
-        int intQuantity  = guiData.legs.at(row).origQuantity;
+        leg->trans       = trans;
+        int intQuantity  = guiData.legs.at(row).origQuantity * trans->quantity;
         if (intQuantity == 0) continue;
 
         std::wstring wszExpiryDate = AfxRemoveDateHyphens(leg->expiryDate);
@@ -482,7 +489,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->strikePrice = guiData.legsRoll.at(row).strikePrice;
             leg->PutCall     = guiData.legsRoll.at(row).PutCall;
             leg->action      = guiData.legsRoll.at(row).action;
-            int intQuantity  = guiData.legsRoll.at(row).origQuantity;
+            leg->trans       = trans;
+            int intQuantity  = guiData.legsRoll.at(row).origQuantity * trans->quantity;
             if (intQuantity == 0) continue;
 
             std::wstring wszExpiryDate = AfxRemoveDateHyphens(leg->expiryDate);
@@ -688,8 +696,8 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             leg->legID = tdd.trade->nextLegID;
         }
 
-        leg->origQuantity = intOrigQuantity;
-        leg->openQuantity = intOpenQuantity;
+        leg->origQuantity = intOrigQuantity * tdd.trans->quantity;
+        leg->openQuantity = intOpenQuantity * tdd.trans->quantity;
 
         leg->underlying = tdd.trans->underlying;
         leg->expiryDate = legExpiry;

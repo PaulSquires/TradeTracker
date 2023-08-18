@@ -47,6 +47,14 @@ public:
     std::shared_ptr<Transaction> trans = nullptr;
     std::vector< std::shared_ptr<Leg> > legs;
     std::wstring sharesAggregateEdit = L"0";
+
+    void ResetDefaults() {
+        tradeAction = TradeAction::NoAction;
+        trade = nullptr;
+        trans = nullptr;
+        legs.clear();
+        sharesAggregateEdit = L"0";
+    }
 };
 
 extern TradeDialogData tdd;
@@ -66,17 +74,18 @@ constexpr int IDC_TRADEDIALOG_TXTFEES        = 109;
 constexpr int IDC_TRADEDIALOG_TXTTOTAL       = 110;
 constexpr int IDC_TRADEDIALOG_COMBODRCR      = 111;
 constexpr int IDC_TRADEDIALOG_TXTTRADEBP     = 112;
-constexpr int IDC_TRADEDIALOG_LBLSTRATEGY    = 113;
-constexpr int IDC_TRADEDIALOG_STRATEGY       = 114;
-constexpr int IDC_TRADEDIALOG_LBLDESCRIBE    = 115;
-constexpr int IDC_TRADEDIALOG_TXTDESCRIBE    = 116;
-constexpr int IDC_TRADEDIALOG_LBLEDITWARNING1 = 117;
-constexpr int IDC_TRADEDIALOG_LBLEDITWARNING2 = 118;
-constexpr int IDC_TRADEDIALOG_LBLEDITWARNING3 = 119;
-constexpr int IDC_TRADEDIALOG_LBLEDITWARNING4 = 120;
+constexpr int IDC_TRADEDIALOG_LBLTRADEBP     = 113;
+constexpr int IDC_TRADEDIALOG_LBLSTRATEGY    = 114;
+constexpr int IDC_TRADEDIALOG_STRATEGY       = 115;
+constexpr int IDC_TRADEDIALOG_LBLDESCRIBE    = 116;
+constexpr int IDC_TRADEDIALOG_TXTDESCRIBE    = 117;
+constexpr int IDC_TRADEDIALOG_LBLEDITWARNING1= 118;
+constexpr int IDC_TRADEDIALOG_LBLEDITWARNING2= 119;
+constexpr int IDC_TRADEDIALOG_LBLEDITWARNING3= 120;
+constexpr int IDC_TRADEDIALOG_LBLEDITWARNING4= 121;
 
-constexpr int IDC_TRADEDIALOG_LBLGRIDMAIN    = 121;
-constexpr int IDC_TRADEDIALOG_LBLGRIDROLL    = 122;
+constexpr int IDC_TRADEDIALOG_LBLGRIDMAIN    = 122;
+constexpr int IDC_TRADEDIALOG_LBLGRIDROLL    = 123;
 
 constexpr int IDC_TRADEDIALOG_LBLTRANSDATE   = 125;
 constexpr int IDC_TRADEDIALOG_CMDTRANSDATE   = 126;

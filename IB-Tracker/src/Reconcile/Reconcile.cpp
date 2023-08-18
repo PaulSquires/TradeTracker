@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Database/trade.h"
 #include "Utilities/IntelDecimal.h"
 #include "Utilities/UserMessages.h"
+#include "Config/Config.h"
 #include "Reconcile.h"
 
 
@@ -115,12 +116,12 @@ void Reconcile_positionEnd()
 			if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
 			if (leg->underlying == L"SHARES") p.underlying = L"STK";
 
-			p.strikePrice = stod(leg->strikePrice);
+			p.strikePrice = AfxValDouble(leg->strikePrice);
 			p.expiryDate = AfxRemoveDateHyphens(leg->expiryDate);
 			p.PutCall = leg->PutCall;
 
 			// Check if the ticker is a future
-			if (p.tickerSymbol.substr(0, 1) == L"/") {
+			if (IsFuturesTicker(p.tickerSymbol)) {
 				p.tickerSymbol = trade->tickerSymbol.substr(1);
 				if (p.underlying == L"OPT") p.underlying = L"FOP";
 			}
@@ -162,7 +163,6 @@ void Reconcile_positionEnd()
 
 		}
 	}
-
 
 
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.

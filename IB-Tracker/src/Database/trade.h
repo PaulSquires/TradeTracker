@@ -36,6 +36,8 @@ SOFTWARE.
 //
 
 
+class Transaction;   // forward declare
+
 
 class Leg
 {
@@ -51,6 +53,7 @@ public:
     std::wstring action       = L"";      // STO,BTO,STC,BTC
     std::wstring underlying   = L"";      // OPTIONS, STOCKS, FUTURES
     bool         isOpen();                // method to calc if leg quantity is not zero
+    std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
 };
 
 
@@ -83,7 +86,7 @@ public:
     double        ACB          = 0;
     double        TradeBP      = 0;       // Buying Power for the entire trade 
     int           nextLegID    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
-    double        multiplier   = 0;       // Updated from Transaction and needed for updatePortfolio real time calculations
+    double        multiplier   = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
 
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
@@ -95,7 +98,7 @@ public:
     std::wstring  OldestTradeTransDate = L"00000000";  // If Trade is closed then this trans will be the BPendDate
 
 
-    std::vector<std::shared_ptr<Transaction>> Transactions;     // pointer list for all TransDetail in the trade
+    std::vector<std::shared_ptr<Transaction>> Transactions;     // pointer list for all transactions in the trade
     std::vector<std::shared_ptr<Leg>> openLegs;                 // sorted list of open legs for this trade
 
     void setTradeOpenStatus();

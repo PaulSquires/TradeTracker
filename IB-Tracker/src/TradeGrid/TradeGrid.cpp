@@ -190,9 +190,6 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
         col->colType = GridColType::TextBox;
-        if (pData->bShowOriginalQuantity == false) {
-            if (row == 0) col->isTriggerCell = true;
-        }
         pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + nWidth + hsp;
@@ -470,27 +467,12 @@ void TradeGrid_PopulateTriggerCells(HWND hWnd, auto col)
 
     std::wstring wszCellText = TradeGrid_GetText(hWnd, 0, 0);
     
-    int intCellQuantity = 0;
-    if (wszCellText.length()) {
-        intCellQuantity = abs(stoi(wszCellText));   // will GPF if empty wszCellText string
-    }
-
     int offset = (pData->bShowOriginalQuantity) ? 1 : 0;
 
     std::wstring wszISODate = CustomLabel_GetUserData(pData->gridCols.at(1+offset)->hCtl);
     std::wstring wszText;
 
     for (int i = 1; i < 4; ++i) {
-        if (col->colType == GridColType::TextBox) {
-            wszText = TradeGrid_GetText(hWnd, i, 0);
-            if (wszText.length() != 0) {
-                int intQuantity = 0;
-                intQuantity = stoi(wszText);   // will GPF if empty wszText string
-                int intNewQuantity = (intQuantity < 0) ? intCellQuantity * -1 : intCellQuantity;
-                wszText = std::to_wstring(intNewQuantity);
-                TradeGrid_SetColData(hWnd, i, 0, wszText);
-            }
-        }
         if (col->colType == GridColType::DatePicker) {
             wszText = TradeGrid_GetText(hWnd, i, 1);
             if (wszText.length() != 0) {
@@ -498,10 +480,8 @@ void TradeGrid_PopulateTriggerCells(HWND hWnd, auto col)
             }
         }
     }
-
-    CustomTextBox_SetText(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TXTQUANTITY), 
-        std::to_wstring(intCellQuantity));
 }
+
 
 // ========================================================================================
 // Windows callback function.

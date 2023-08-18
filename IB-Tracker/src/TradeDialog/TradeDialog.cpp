@@ -158,11 +158,8 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
             std::wstring wszMultiplier = GetMultiplier(tickerSymbol);
             if (tdd.tradeAction == TradeAction::NewSharesTrade ||
-                tdd.tradeAction == TradeAction::NewFuturesTrade ||
                 tdd.tradeAction == TradeAction::ManageShares ||
-                tdd.tradeAction == TradeAction::ManageFutures ||
-                tdd.tradeAction == TradeAction::AddSharesToTrade ||
-                tdd.tradeAction == TradeAction::AddFuturesToTrade) {
+                tdd.tradeAction == TradeAction::AddSharesToTrade) {
                 wszMultiplier = L"1";
             }
             CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), wszMultiplier);
@@ -447,6 +444,9 @@ int TradeDialog_Show(TradeAction inTradeAction)
         // Dispatches a message to a window procedure.
         DispatchMessage(&msg);
     }
+
+    // Clear the tdd module global trade variable
+    tdd.ResetDefaults();
 
     return DialogReturnCode;
 }

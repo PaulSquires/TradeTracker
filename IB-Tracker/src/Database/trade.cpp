@@ -79,8 +79,10 @@ void Trade::createOpenLegsVector()
     openLegs.clear();
 
     for (const auto &trans : Transactions) {
-        for (const auto &leg : trans->legs) {
+        if (trans->multiplier > 0) this->multiplier = trans->multiplier;
+        for (auto &leg : trans->legs) {
             if (leg->isOpen()) {
+                leg->trans = trans;
                 openLegs.push_back(leg);
             }
         }
