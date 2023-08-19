@@ -31,6 +31,9 @@ SOFTWARE.
 #include <string>
 #include <winver.h>
 
+
+std::wstring AfxExecCmd(std::wstring cmd);
+
 void AfxRedrawWindow(HWND hwnd);
 std::wstring AfxGetWindowText(HWND hwnd);
 bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText);

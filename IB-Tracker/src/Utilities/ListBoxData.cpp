@@ -379,8 +379,9 @@ void ListBoxData_RequestMarketData(HWND hListBox)
         }
     }
 
-    if (tws_isConnected())
+    if (tws_isConnected()) {
         PrevMarketDataLoaded = true;
+    }
 
 
     // Request portfolio updates. This also loads the IBKR and local vectors that 

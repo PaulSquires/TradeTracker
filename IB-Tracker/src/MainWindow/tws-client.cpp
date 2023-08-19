@@ -46,7 +46,104 @@ SOFTWARE.
 std::atomic<bool> isThreadPaused = false;
 std::atomic<bool> isMonitorThreadActive = false;
 
+bool MarketDataSubscriptionError = false;
+
 TwsClient client;
+
+
+
+//
+// If not connected to TWS or after hours and no market data then attmept to scrape yahoo finance
+// to get the closing price of the stock.
+//
+double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
+{
+	static std::wstring curlCommand = L"C:/Windows/System32/curl.exe";
+	static bool curlExists = AfxFileExists(curlCommand);
+	if (!curlExists) return 0;
+
+	std::wstring cmd = L"C:/Windows/System32/curl.exe \"https://query1.finance.yahoo.com/v7/finance/download/" + wszTickerSymbol + L"?interval=1d&events=history\"";
+	std::wstring wszText = AfxExecCmd(cmd);
+
+	std::wstring wszClosingPrice = L"";
+
+	// Get the last line and parse for the closing price
+	if (wszText.size()) {
+		std::vector<std::wstring> lines = AfxSplit(wszText, L"\n");
+		std::wstring wszLastLine = lines.at(lines.size() - 1);
+		std::vector<std::wstring> prices = AfxSplit(wszLastLine, L",");
+		try { wszClosingPrice = prices.at(4); }
+		catch (...) {}
+	}
+
+	return AfxValDouble(wszClosingPrice);
+}
+
+
+//
+// Could not connect to TWS so we don't have any market data. Allow user the opportunity to try to get scraped data.
+//
+void UpdateTickersWithScrapedData()
+{
+	std::unordered_map<std::wstring, double> mapPrices;
+
+	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+
+	int lbCount = ListBox_GetCount(hListBox);
+
+	for (int nIndex = 0; nIndex < lbCount; nIndex++) {
+		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+		if (ld == nullptr) continue;
+
+		if ((ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
+
+			if (ld->trade->tickerLastPrice == 0 && ld->trade->tickerClosePrice == 0) {
+
+				std::wstring wszTickerSymbol = ld->trade->tickerSymbol;
+				if (wszTickerSymbol == L"SPX") wszTickerSymbol = L"^SPX";
+				if (wszTickerSymbol == L"NDX") wszTickerSymbol = L"^NDX";
+				if (wszTickerSymbol == L"RUT") wszTickerSymbol = L"^RUT";
+				if (wszTickerSymbol == L"VIX") wszTickerSymbol = L"^VIX";
+				if (IsFuturesTicker(wszTickerSymbol)) {
+					wszTickerSymbol = wszTickerSymbol.substr(1);
+					if (wszTickerSymbol == L"AUD") wszTickerSymbol = L"6A";
+					if (wszTickerSymbol == L"GBP") wszTickerSymbol = L"6B";
+					if (wszTickerSymbol == L"EUR") wszTickerSymbol = L"6E";
+					if (wszTickerSymbol == L"CAD") wszTickerSymbol = L"CD";
+					if (wszTickerSymbol == L"JPY") wszTickerSymbol = L"JY";
+					if (wszTickerSymbol == L"CHF") wszTickerSymbol = L"SF";
+					if (wszTickerSymbol == L"INR") wszTickerSymbol = L"IR";
+					wszTickerSymbol = wszTickerSymbol + L"=F";
+				}
+
+				// Lookup our map to see if we have already retrieved the price from a previous scrap. If
+				// yes, then use that value rather than doing yet another scrap.
+				if (mapPrices.count(wszTickerSymbol)) {
+					ld->trade->tickerClosePrice = mapPrices.at(wszTickerSymbol);
+				}
+				else {
+					ld->trade->tickerClosePrice = GetScrapedClosingPrice(wszTickerSymbol);
+					mapPrices[wszTickerSymbol] = ld->trade->tickerClosePrice;
+				}
+
+
+				std::wstring wszText = AfxMoney(ld->trade->tickerClosePrice, false, ld->trade->tickerDecimals);
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
+
+				// Do calculation to ensure column widths are wide enough to accommodate the new
+				// price data that has just arrived.
+				ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, nIndex);
+
+				RECT rc{};
+				ListBox_GetItemRect(hListBox, nIndex, &rc);
+				InvalidateRect(hListBox, &rc, TRUE);
+				UpdateWindow(hListBox);
+
+			}
+		}
+	}
+}
+
 
 
 //
@@ -138,9 +235,14 @@ bool tws_connect()
 	
 	if (res == false) {
         SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
-		std::wstring wszText = 
-			L"Could not connect to TWS.\n\nConfirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.";
-		MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		std::wstring wszText =
+			L"Could not connect to TWS.\n\n" \
+			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.\n\n" \
+			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
+		if (MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
+			UpdateTickersWithScrapedData();
+		}
+		return false;
     }
 
     return res;
@@ -425,6 +527,8 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 }
 
 
+
+
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 	if (isThreadPaused) return;
 
@@ -476,6 +580,8 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					if (ld->trade->tickerClosePrice == 0)
 						ld->trade->tickerClosePrice = price;
 				}
+
+
 
 				// Calculate the price change
 				double delta = 0;
@@ -625,7 +731,18 @@ void TwsClient::error(int id, int errorCode, const std::string& errorString, con
 		return;
 	}
 	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, errorCode, errorString.c_str());
+
+
+	// If error codes 10091 or 10089 then we are connected most likely after hours and we do not have
+	// access to streaming data. In this case we will attempt scrap for the closing price.
+	switch (errorCode) {
+	case 10089:
+	case 10091:
+		MarketDataSubscriptionError = true;
+		return;
+	}
 }
+
 
 void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost)
 {
@@ -639,6 +756,16 @@ void TwsClient::positionEnd()
 	// the position callback.
 	m_pClient->cancelPositions();
 	Reconcile_positionEnd();
+
+	// We have finished requesting positions. It is possible that some position closing prices were 
+	// not retrieved because maybe we are connected but it is after hours and we need additional
+	// subscriptions to access the data.
+	// Check global variable for the market subscription error and then attempt scraping from yahoo finance.
+	if (MarketDataSubscriptionError) {
+		UpdateTickersWithScrapedData();
+		MarketDataSubscriptionError = false;
+	}
+
 }
 
 void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
