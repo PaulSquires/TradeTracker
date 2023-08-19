@@ -40,6 +40,9 @@ const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 
 bool StartupConnect = false;
+int StartupWidth = 0;
+int StartupHeight = 0;
+int StartupRightPanelWidth = 0;
 
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
@@ -81,6 +84,86 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
     { L"/ZS", 4 }
 };
 
+
+
+// ========================================================================================
+// Return the application's startup width value as returned from the Config file.
+// If no value exits then return default value.
+// ========================================================================================
+int GetStartupWidth()
+{
+    if (StartupWidth > 0) return StartupWidth;
+
+    // Size the main window to encompass 75% of screen width.
+    int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
+
+    // Impose a maximum size on the initial height/width in order
+    // to ensure that the main window does not display exceptionally
+    // large especially when run on very large monitors.
+    // Target a minimum 720p screen resolution size (1280 x 720).
+    if (InitalMainWidth > 1280) InitalMainWidth = 1280;
+
+    return InitalMainWidth;
+}
+
+
+// ========================================================================================
+// Return the application's startup height value as returned from the Config file.
+// If no value exits then return default value.
+// ========================================================================================
+int GetStartupHeight()
+{
+    if (StartupHeight > 0) return StartupHeight;
+
+    // Size the main window to encompass 85% of screen height.
+    int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
+
+    // Impose a maximum size on the initial height/width in order
+    // to ensure that the main window does not display exceptionally
+    // large especially when run on very large monitors.
+    // Target a minimum 720p screen resolution size (1280 x 720).
+    if (InitalMainHeight > 720) InitalMainHeight = 720;
+
+    return InitalMainHeight;
+}
+
+
+// ========================================================================================
+// Set the application's startup height value.
+// ========================================================================================
+void SetStartupHeight(int height)
+{
+    StartupHeight = AfxUnScaleY((float)height);
+}
+
+
+// ========================================================================================
+// Set the application's startup width value.
+// ========================================================================================
+void SetStartupWidth(int width)
+{
+    StartupWidth = AfxUnScaleX((float)width);
+}
+
+
+// ========================================================================================
+// Return the application's Right Panel startup width value as returned from the Config file.
+// If no value exits then return default value.
+// ========================================================================================
+int GetStartupRightPanelWidth()
+{
+    if (StartupRightPanelWidth > 0) return StartupRightPanelWidth;
+    return 440;
+}
+
+
+// ========================================================================================
+// Set the application's Right Panel startup width value.
+// ========================================================================================
+void SetStartupRightPanelWidth(int width)
+{
+    StartupRightPanelWidth = AfxUnScaleX((float)width);
+}
 
 
 // ========================================================================================
@@ -221,6 +304,12 @@ bool SaveConfig()
     db << idMagic << "|" << version << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
+    db << "STARTUPWIDTH" << "|" << StartupWidth << "\n";
+
+    db << "STARTUPHEIGHT" << "|" << StartupHeight << "\n";
+
+    db << "STARTUPRIGHTPANELWIDTH" << "|" << StartupRightPanelWidth << "\n";
+
     for (auto item : mapCategoryDescriptions) {
         db << "CATEGORY|" << item.first << "|" << item.second << "\n";
     }
@@ -313,6 +402,30 @@ bool LoadConfig()
         }
 
 
+        // Check for StartupWidth
+        if (arg == L"STARTUPWIDTH") {
+            std::wstring wszWidth;
+
+            try { wszWidth = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+
+            StartupWidth = AfxValInteger(wszWidth);
+            continue;
+        }
+
+
+        // Check for StartupHeight
+        if (arg == L"STARTUPHEIGHT") {
+            std::wstring wszHeight;
+
+            try { wszHeight = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+
+            StartupHeight = AfxValInteger(wszHeight);
+            continue;
+        }
+
+
         // Check for category descriptions
         if (arg == L"CATEGORY") {
             int idxCategory;
@@ -325,6 +438,18 @@ bool LoadConfig()
             catch (...) {continue;}
             
             SetCategoryDescription(idxCategory, wszDescription);
+            continue;
+        }
+
+
+        // Check for StartupRightPanelWidth
+        if (arg == L"STARTUPRIGHTPANELWIDTH") {
+            std::wstring wszWidth;
+
+            try { wszWidth = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+
+            StartupRightPanelWidth = AfxValInteger(wszWidth);
             continue;
         }
 

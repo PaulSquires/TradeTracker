@@ -129,25 +129,12 @@ int APIENTRY wWinMain(
     LoadDatabase();
 
 
-    // Size the main window to encompass 75% of screen width
-    // and 85% of screen height.
-    int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
-    int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
-
-    // Impose a maximum size on the initial height/width in order
-    // to ensure that the main window does not display exceptionally
-    // large especially when run on very large monitors.
-    // Target a minimum 720p screen resolution size (1280 x 720).
-    if (InitalMainWidth > 1280) InitalMainWidth = 1280;
-    if (InitalMainHeight > 720) InitalMainHeight = 720;
-
-
     HWND hWndMain = Main.Create(
                         HWND_DESKTOP,
                         L"IB-Tracker",
                         CW_USEDEFAULT, CW_USEDEFAULT,
-                        InitalMainWidth,
-                        InitalMainHeight);
+                        GetStartupWidth(),
+                        GetStartupHeight());
 
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.

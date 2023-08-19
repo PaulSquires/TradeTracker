@@ -175,6 +175,14 @@ void MainWindow_OnClose(HWND hwnd)
     // Destroy the popup shadow window should it exist.
     if (Shadow.WindowHandle()) DestroyWindow(Shadow.WindowHandle());
 
+    // Save the Config file so that StartupWidth and StartupHeight will persist
+    // for the time application is executed.
+    SetStartupWidth(AfxGetWindowWidth(hwnd));
+    SetStartupHeight(AfxGetWindowHeight(hwnd));
+    SetStartupRightPanelWidth(AfxGetWindowWidth(HWND_RIGHTPANEL));
+
+    SaveConfig();
+
     DestroyWindow(hwnd);
 }
 
@@ -287,7 +295,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, TRADEHISTORY_WIDTH, 0,
+    HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, GetStartupRightPanelWidth(), 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
