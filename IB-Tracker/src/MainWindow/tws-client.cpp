@@ -592,19 +592,29 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
 				bool isITMred = false;
 				bool isITMgreen = false;
+				bool inLongSpread = true;
+
 				for (const auto& leg : ld->trade->openLegs) {
 					if (leg->underlying == L"OPTIONS") {
 						if (leg->PutCall == L"P") {
 							if (ld->trade->tickerLastPrice < AfxValDouble(leg->strikePrice)) {
-								leg->openQuantity < 0 ? isITMred = true : isITMred = false;
-								leg->openQuantity > 0 ? isITMgreen = true : isITMgreen = false;
+								if (leg->openQuantity < 0) {
+									(inLongSpread == true) ? isITMred = false : isITMred = true;
+								} 
+								if (leg->openQuantity > 0) {
+									isITMgreen = true; isITMred = false; inLongSpread = true;
+								} 
 								break;
 							}
 						}
 						else if (leg->PutCall == L"C") {
 							if (ld->trade->tickerLastPrice > AfxValDouble(leg->strikePrice)) {
-								leg->openQuantity < 0 ? isITMred = true : isITMred = false;
-								leg->openQuantity > 0 ? isITMgreen = true : isITMgreen = false;
+								if (leg->openQuantity < 0) {
+									(inLongSpread == true) ? isITMred = false : isITMred = true;
+								}
+								if (leg->openQuantity > 0) {
+									isITMgreen = true; isITMred = false; inLongSpread = true;
+								}
 								break;
 							}
 						}
