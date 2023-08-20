@@ -79,7 +79,6 @@ double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
 		L"&events=history\"";
 	std::wstring wszText = AfxExecCmd(cmd);
 
-
 	std::wstring wszClosingPrice = L"";
 
 	// Get the last line and parse for the closing price
@@ -89,8 +88,6 @@ double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
 		std::vector<std::wstring> prices = AfxSplit(wszLastLine, L",");
 		try { wszClosingPrice = prices.at(4); }
 		catch (...) {}
-
-		std::wcout << wszLastLine << std::endl;
 	}
 
 	return AfxValDouble(wszClosingPrice);
