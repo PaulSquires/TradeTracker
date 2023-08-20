@@ -766,13 +766,61 @@ int AfxLocalYear()
 
 
 // ========================================================================================
-// Returns the current local month. The valid values are 1 thorugh 12 (1 = January, etc.).
+// Returns the current local month. The valid values are 1 through 12 (1 = January, etc.).
 // ========================================================================================
 int AfxLocalMonth()
 {
     SYSTEMTIME st;
     GetLocalTime(&st);
     return st.wMonth;
+}
+
+
+// ========================================================================================
+// Returns the current local day. The valid values are 1 through 31.
+// ========================================================================================
+int AfxLocalDay()
+{
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    return st.wDay;
+}
+
+
+// ========================================================================================
+// Returns the current day of the week.
+// It is a numeric value in the range of 0-6 (representing Sunday through Saturday).
+// ========================================================================================
+int AfxLocalDayOfWeek()
+{
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    return st.wDayOfWeek;
+}
+
+
+// ========================================================================================
+// Returns the UNIX (Epoch) time given the incoming ISO date (YYYY-MM-DD).
+// ========================================================================================
+unsigned int AfxUnixTime(const std::wstring& wszDate)
+{
+    // YYYY-MM-DD
+    // 0123456789
+    if (wszDate.length() != 10) return 0;
+
+    SYSTEMTIME st = { 0 };
+    FILETIME ft = { 0 };
+
+    st.wYear = std::stoi(wszDate.substr(0, 4));
+    st.wMonth = std::stoi(wszDate.substr(5, 2));
+    st.wDay = std::stoi(wszDate.substr(8, 2));
+
+    SystemTimeToFileTime(&st, &ft);
+
+    //convert FILETIME to ULARGE_INTEGER
+    //then QuadPart is 64bit timestamp
+    ULARGE_INTEGER ul{ ft.dwLowDateTime, ft.dwHighDateTime };
+    return (unsigned int)((ul.QuadPart - 116444736000000000ULL) / 10000000);
 }
 
 

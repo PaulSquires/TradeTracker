@@ -741,7 +741,9 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SetFocus(hNextCtrl);
             return TRUE;
         }
+        return 0;
     }
+    break;
 
 
     case WM_KEYUP:

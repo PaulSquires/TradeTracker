@@ -337,6 +337,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_TWS_CONNECT_START:
     {
+        SetCursor(LoadCursor(0, IDC_WAIT));
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
@@ -350,6 +351,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_TWS_CONNECT_SUCCESS:
     {
+        SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
@@ -365,7 +367,8 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case MSG_TWS_WARNING_EXCEPTION:
     {
-        CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), 
+        SetCursor(LoadCursor(0, IDC_ARROW));
+        CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
             L"Monitoring thread exception! Please restart application.");
         ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
         return 0;
@@ -376,6 +379,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_FAILURE:
     case MSG_TWS_CONNECT_DISCONNECT:
     {
+        SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {

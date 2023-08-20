@@ -62,8 +62,23 @@ double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
 	static bool curlExists = AfxFileExists(curlCommand);
 	if (!curlExists) return 0;
 
-	std::wstring cmd = L"C:/Windows/System32/curl.exe \"https://query1.finance.yahoo.com/v7/finance/download/" + wszTickerSymbol + L"?interval=1d&events=history\"";
+	std::wstring wszDate1 = AfxCurrentDate();
+
+	// If this is a Saturday or Sunday then we need to get the epoch timestamp for the preceeding Friday.
+	static int DayOfWeek = AfxLocalDayOfWeek();
+	if (DayOfWeek == 0) wszDate1 = AfxDateAddDays(wszDate1, -2);   // Sunday
+	if (DayOfWeek == 6) wszDate1 = AfxDateAddDays(wszDate1, -1);   // Saturday
+
+	std::wstring wszDate2 = AfxDateAddDays(wszDate1, 1);
+
+	std::wstring cmd = L"C:/Windows/System32/curl.exe \"https://query1.finance.yahoo.com/v7/finance/download/" 
+		+ wszTickerSymbol + 
+		L"?interval=1d" + 
+		L"&period1=" + std::to_wstring(AfxUnixTime(wszDate1)) + 
+		L"&period2=" + std::to_wstring(AfxUnixTime(wszDate2)) + 
+		L"&events=history\"";
 	std::wstring wszText = AfxExecCmd(cmd);
+
 
 	std::wstring wszClosingPrice = L"";
 
@@ -74,6 +89,8 @@ double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
 		std::vector<std::wstring> prices = AfxSplit(wszLastLine, L",");
 		try { wszClosingPrice = prices.at(4); }
 		catch (...) {}
+
+		std::wcout << wszLastLine << std::endl;
 	}
 
 	return AfxValDouble(wszClosingPrice);
@@ -85,6 +102,8 @@ double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
 //
 void UpdateTickersWithScrapedData()
 {
+	SetCursor(LoadCursor(0, IDC_WAIT));
+
 	std::unordered_map<std::wstring, double> mapPrices;
 
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
@@ -113,6 +132,10 @@ void UpdateTickersWithScrapedData()
 					if (wszTickerSymbol == L"JPY") wszTickerSymbol = L"JY";
 					if (wszTickerSymbol == L"CHF") wszTickerSymbol = L"SF";
 					if (wszTickerSymbol == L"INR") wszTickerSymbol = L"IR";
+					if (wszTickerSymbol == L"MCL") wszTickerSymbol = L"CL";
+					if (wszTickerSymbol == L"MES") wszTickerSymbol = L"ES";
+					if (wszTickerSymbol == L"MNQ") wszTickerSymbol = L"NQ";
+					if (wszTickerSymbol == L"M2K") wszTickerSymbol = L"2K";
 					wszTickerSymbol = wszTickerSymbol + L"=F";
 				}
 
@@ -126,7 +149,6 @@ void UpdateTickersWithScrapedData()
 					mapPrices[wszTickerSymbol] = ld->trade->tickerClosePrice;
 				}
 
-
 				std::wstring wszText = AfxMoney(ld->trade->tickerClosePrice, false, ld->trade->tickerDecimals);
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
 
@@ -138,10 +160,10 @@ void UpdateTickersWithScrapedData()
 				ListBox_GetItemRect(hListBox, nIndex, &rc);
 				InvalidateRect(hListBox, &rc, TRUE);
 				UpdateWindow(hListBox);
-
 			}
 		}
 	}
+	SetCursor(LoadCursor(0, IDC_ARROW));
 }
 
 
