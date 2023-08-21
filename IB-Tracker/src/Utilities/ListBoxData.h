@@ -124,7 +124,7 @@ enum class TableType
 extern bool PrevMarketDataLoaded;
 
 DWORD GetCategoryColor(int category);
-void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
+bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
@@ -137,8 +137,8 @@ void ListBoxData_HistorySharesLeg(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg);
 void ListBoxData_AddBlankLine(HWND hListBox);
 void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade);
-void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal);
-void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal);
+void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal, int YearWin, int YearLoss);
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal, int MonthWin, int MonthLoss);
 void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closedDate);
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
 void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double runningGrossTotal, 

@@ -43,9 +43,11 @@ constexpr int IDC_CLOSED_LISTBOX = 100;
 constexpr int IDC_CLOSED_LABEL = 101;
 constexpr int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_CLOSED_HEADER = 103;
+constexpr int IDC_CLOSED_LBLCATEGORYFILTER = 104;
+constexpr int IDC_CLOSED_CATEGORY = 105;
 
 constexpr int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
-constexpr int CLOSEDTRADES_MARGIN = 24;
+constexpr int CLOSEDTRADES_MARGIN = 80;
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);

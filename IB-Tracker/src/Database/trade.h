@@ -54,6 +54,10 @@ public:
     std::wstring underlying   = L"";      // OPTIONS, STOCKS, FUTURES
     bool         isOpen();                // method to calc if leg quantity is not zero
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
+    double averagePrice = 0;              // real time data receive via updatePortfolio
+    double marketPrice = 0;               // real time data receive via updatePortfolio
+    double percentage = 0;                // real time data receive via updatePortfolio
+    double unrealizedPNL = 0;             // real time data receive via updatePortfolio
 };
 
 

@@ -47,23 +47,13 @@ public:
     DWORD TextColor{};
     int FontSize = 9;
     std::wstring wszText;
+    bool AllowAllCategories = false;
 };
 
 
-enum class Category
-{
-    Category_Start = 0,
-    Category0 = 0,   
-    Category1 = 1,   
-    Category2 = 2,   
-    Category3 = 3,   
-    Category4 = 4,   
-    Category5 = 5,   
-    Category6 = 6,   
-    Category7 = 7,   
-    Category_End = 7
-};
-
+constexpr int CATEGORY_START = 0;
+constexpr int CATEGORY_END = 7;
+constexpr int CATEGORY_ALL = 99;
 
 constexpr int IDC_CATEGORYCONTROL_COMBOBOX = 100;
 constexpr int IDC_CATEGORYCONTROL_COMMAND  = 101;
@@ -92,6 +82,7 @@ CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
 int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);
 int CategoryControl_GetSelectedIndex(HWND hwnd);
 void CategoryControl_SetSelectedIndex(HWND hwnd, int index);
+bool CategoryControl_GetAllowAllCategories(HWND hwnd);
 
-HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex);
+HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex, bool AllowAllCategories);
 

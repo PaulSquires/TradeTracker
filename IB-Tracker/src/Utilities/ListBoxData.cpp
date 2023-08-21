@@ -84,8 +84,8 @@ int nTradesMinColWidth[MAX_COLUMNS] =
     50,     /* ITM */
     50,     /* position quantity */  
     50,     /* expiry date */
-    45,     /* DTE */
-    50,     /* strike price / current price */
+    50,     /* DTE */
+    60,     /* strike price / current price */
     45,     /* put/call */
     50,     /* AvgPX and Cost Basis*/
     50,     /* Market Value and Last Price */
@@ -100,8 +100,8 @@ int nClosedMinColWidth[MAX_COLUMNS] =
     50,     /* Ticker Symbol */
     200,    /* Ticker Name */
     100,    /* Amount */
-    0,     
-    0,     
+    5,      /* spacer */
+    150,    /* Category Description */
     0,     
     0,     
     0,     
@@ -173,7 +173,6 @@ int nTradeTemplatesMinColWidth[MAX_COLUMNS] =
     0
 };
 
-int nColWidth[MAX_COLUMNS] = { 0,0,0,0,0,0,0,0,0,0,0 };
 
 bool PrevMarketDataLoaded = false;
 
@@ -205,10 +204,13 @@ DWORD GetCategoryColor(int category)
 // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
 // This function is also called when receiving new price data from TWS because
 // that data may need the column width to be wider.
+// Returns bool to indicate whether ListBox should be redrawn.
 // ========================================================================================
-void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex)
+bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex)
 {
     HDC hdc = GetDC(hListBox);
+
+    int nColWidth[MAX_COLUMNS] = { 0,0,0,0,0,0,0,0,0,0,0 };
 
     // Initialize the nColWidth array based on the incoming ListBox
     for (int i = 0; i < MAX_COLUMNS; i++) {
@@ -257,7 +259,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     bool bRedrawListBox = false;
 
     int nEnd = (int)ListBox_GetCount(hListBox) - 1;
-    if (nEnd < 0) return;
+    if (nEnd < 0) return false;
     int nStart = 0;
 
     // If a specific line number was passed into this function then we only
@@ -270,33 +272,35 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
     for (int ii = nStart; ii <= nEnd; ii++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
-        if (ld->lineType == LineType::CategoryHeader) break;
-        for (int i = 0; i < MAX_COLUMNS; i++) {
-            if (nColWidth[i] == 0) continue;
-            fontSize = ld->col[i].fontSize;
-            fontStyle = ld->col[i].fontStyle;
-            Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            
-            graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(),
-                &font, layoutRect, &format, &boundRect);
+        if (ld->lineType != LineType::CategoryHeader) {
+            for (int i = 0; i < MAX_COLUMNS; i++) {
+                if (nColWidth[i] == 0) continue;
+                fontSize = ld->col[i].fontSize;
+                fontStyle = ld->col[i].fontStyle;
+                Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
 
-            int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
+                graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(),
+                    &font, layoutRect, &format, &boundRect);
 
-            if (textLength > nColWidth[i]) {
-                nColWidth[i] = textLength;
+                int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
 
-                if (tabletype == TableType::TradeHistory) {
-                    nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
+                
+                if (textLength > nColWidth[i]) {
+                
+                    nColWidth[i] = textLength;
+
+                    if (tabletype == TableType::TradeHistory) {
+                        nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
+                    }
+
+                    if (tabletype == TableType::TickerTotals) {
+                        nColWidth[i] = min(nColWidth[i], nTickerTotalsMaxColWidth[i]);
+                    }
+
+                    bRedrawListBox = true;
                 }
-
-                if (tabletype == TableType::TickerTotals) {
-                    nColWidth[i] = min(nColWidth[i], nTickerTotalsMaxColWidth[i]);
-                }
-
-                bRedrawListBox = true;
             }
         }
-
             
         if (nIndex != -1) break;
     }
@@ -326,9 +330,7 @@ void ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
     ReleaseDC(hListBox, hdc);
     
-    if (bRedrawListBox) {
-        AfxRedrawWindow(hListBox);
-    }
+    return bRedrawListBox;
 }
 
 
@@ -512,6 +514,15 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
         ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // price percentage change
+
+        ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
+        ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
+        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
+        ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
     }
     ListBox_AddString(hListBox, ld);
 
@@ -819,7 +830,7 @@ void ListBoxData_HistoryOptionsLeg(
 // ========================================================================================
 // Create the display data line for closed position yearly total.
 // ========================================================================================
-void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal)
+void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal, int YearWin, int YearLoss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -835,7 +846,16 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal)
     ld->SetData(4, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
+    // col 5 is a "spacer" column
+
+    clr = (YearWin >= YearLoss) ? COLOR_GREEN : COLOR_RED;
+    wszText = std::to_wstring(YearWin) + L"W " + std::to_wstring(YearLoss)
+        + L"L  " + AfxMoney((double)YearWin / (max(YearWin + YearLoss,1)) * 100, false, 0) + L"%";
+    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+
     ListBox_InsertString(hListBox, 0, ld);
+
     // *** BLANK SEPARATION LINE AFTER THE YTD ***
     ld = new ListBoxData;
     ld->lineType = LineType::None;
@@ -846,7 +866,7 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal)
 // ========================================================================================
 // Create the display data line for a closed position month subtotal.
 // ========================================================================================
-void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal)
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal, int MonthWin, int MonthLoss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -861,6 +881,14 @@ void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDat
 
     ld->SetData(4, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    // col 5 is a "spacer" column
+
+    clr = (MonthWin >= MonthLoss) ? COLOR_GREEN : COLOR_RED;
+    wszText = std::to_wstring(MonthWin) + L"W " + std::to_wstring(MonthLoss)
+        + L"L  " + AfxMoney((double)MonthWin / (max(MonthWin + MonthLoss,1)) * 100, false, 0) + L"%";
+    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
     ListBoxData_AddBlankLine(hListBox);
@@ -895,6 +923,11 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
     DWORD clr = (trade->ACB >= 0) ? COLOR_GREEN : COLOR_RED;
     ld->SetData(4, trade, tickerId, AfxMoney(trade->ACB), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+
+    // col 5 is a "spacer" column
+
+    ld->SetData(6, trade, tickerId, GetCategoryDescription(trade->category), StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }

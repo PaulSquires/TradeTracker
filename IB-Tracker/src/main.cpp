@@ -31,6 +31,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Transactions/TransDateFilter.h"
 #include "DatePicker/Calendar.h"
+#include "Category/CategoryPopup.h"
 #include "Utilities/UserMessages.h"
 #include <wchar.h>
 
@@ -184,6 +185,10 @@ int APIENTRY wWinMain(
             else if (IsWindowVisible(HWND_CALENDAR)) {
                 DestroyWindow(HWND_CALENDAR);
             }
+            else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {
+                DestroyWindow(HWND_CATEGORYPOPUP);
+            }
+
         }
 
         // Processes accelerator keys for menu commands

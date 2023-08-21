@@ -38,7 +38,7 @@ CCategoryPopup CategoryPopup;
 
 // Control on parent window that new selected category will be stored in and displayed.
 HWND hCategoryUpdateParentCtl = NULL;
-Category SelectedCategory = Category::Category0;
+int SelectedCategory = 0;
 
 
 
@@ -46,10 +46,14 @@ Category SelectedCategory = Category::Category0;
 // Handle selecting an item in the listview. This will set the parent label window, update
 // its CustomDataInt, and set its text label. Finally, it will close the popup dialog.
 // ========================================================================================
-void CategoryPopup_DoSelected(int idx)
+void CategoryPopup_DoSelected(HWND hListBox, int idx)
 {
-    CustomLabel_SetUserDataInt(hCategoryUpdateParentCtl, idx);
-    CustomLabel_SetText(hCategoryUpdateParentCtl, GetCategoryDescription(idx));
+    int itemData = ListBox_GetItemData(hListBox, idx);
+    if (itemData != SelectedCategory) {
+        CustomLabel_SetUserDataInt(hCategoryUpdateParentCtl, itemData);
+        CustomLabel_SetText(hCategoryUpdateParentCtl, GetCategoryDescription(itemData));
+        SendMessage(GetParent(GetParent(hCategoryUpdateParentCtl)), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
+    }
     DestroyWindow(HWND_CATEGORYPOPUP);
 }
 
@@ -99,7 +103,7 @@ LRESULT CALLBACK CategoryPopup_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        CategoryPopup_DoSelected(idx);
+        CategoryPopup_DoSelected(hWnd, idx);
         return 0;
     }
     break;
@@ -264,7 +268,7 @@ void CategoryPopup_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
         std::wstring wszText;
 
-        if ((int)SelectedCategory == lpDrawItem->itemID) wszText = GLYPH_CHECKMARK;
+        if (SelectedCategory == lpDrawItem->itemData) wszText = GLYPH_CHECKMARK;
         RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
         graphics.DrawString(wszText.c_str(), -1, &font, rcText1, &stringF, &textBrush);
@@ -311,7 +315,7 @@ BOOL CategoryPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             (SUBCLASSPROC)CategoryPopup_ListBox_SubclassProc,
             IDC_CATEGORYPOPUP_LISTBOX, NULL);
 
-    for (int i = (int)Category::Category_Start; i <= (int)Category::Category_End; ++i) {
+    for (int i = CATEGORY_START; i <= CATEGORY_END; ++i) {
         int idx = ListBox_AddString(hCtl, GetCategoryDescription(i).c_str());
         ListBox_SetItemData(hCtl, idx, i);
     }
@@ -340,8 +344,9 @@ LRESULT CCategoryPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
-        // Reset our destroyed variable for future use of the DatePicker
+        // Reset our destroyed variable for future use of the popup
         destroyed = false;
+        HWND_CATEGORYPOPUP = NULL;
         return 0;
     }
     break;
@@ -374,26 +379,36 @@ LRESULT CCategoryPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 {
-    CategoryPopup.Create(hParent, L"", 0, 0, 0, 0,
+    HWND hPopup = CategoryPopup.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
+    int numCategories = CATEGORY_END + 1;
+    if (CategoryControl_GetAllowAllCategories(hParent)) ++numCategories;
+    
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(CategoryPopup.WindowHandle(), HWND_TOP,
+    SetWindowPos(hPopup, HWND_TOP,
         rc.left - margin, rc.bottom,
         AfxScaleX(CATEGORYPOPUP_WIDTH),
-        AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT * ((int)Category::Category_End + 1)),
+        AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT * (float)numCategories),
         SWP_SHOWWINDOW);
 
+
+    if (CategoryControl_GetAllowAllCategories(hParent)) {
+        HWND hListBox = GetDlgItem(hPopup, IDC_CATEGORYPOPUP_LISTBOX);
+        int idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_ALL).c_str());
+        ListBox_SetItemData(hListBox, idx, CATEGORY_ALL);
+    }
+
     // Get the current selected category and apply it to the popup
-    SelectedCategory = (Category)CustomLabel_GetUserDataInt(hParentCtl);
+    SelectedCategory = CustomLabel_GetUserDataInt(hParentCtl);
 
 
-    // Set the module global hUpdateParentCtl after the above is created in
+    // Set the module global hUpdateParentCtl after the above is created in order
     // to ensure the variable address is correct.
     hCategoryUpdateParentCtl = hParentCtl;
 
-    return CategoryPopup.WindowHandle();
+    return hPopup;
 }
 

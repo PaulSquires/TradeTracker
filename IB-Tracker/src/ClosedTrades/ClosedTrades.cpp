@@ -29,8 +29,10 @@ SOFTWARE.
 #include "Utilities/ListBoxData.h"
 #include "SideMenu/SideMenu.h"
 #include "MainWindow/MainWindow.h"
+#include "Category/Category.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeHistory/TradeHistory.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "Database/trade.h"
 #include "ClosedTrades.h"
 
@@ -77,6 +79,7 @@ void ClosedTrades_ShowClosedTrades()
     HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LABEL);
+    HWND hCategory = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CATEGORY);
 
 
     // Prevent ListBox redrawing until all calculations are completed.
@@ -91,8 +94,16 @@ void ClosedTrades_ShowClosedTrades()
     std::vector<ClosedData> vectorClosed;
     vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
 
+    
+    int SelectedCategory = CategoryControl_GetSelectedIndex(hCategory);
+
     for (auto& trade : trades) {
         if (!trade->isOpen) {
+
+            if (SelectedCategory != CATEGORY_ALL) {
+                if (trade->category != SelectedCategory) continue;
+            }
+
             ClosedData data;
 
             // Iterate to find the latest closed date
@@ -121,26 +132,44 @@ void ClosedTrades_ShowClosedTrades()
     // Output the closed trades and subtotals based on month when the month changes.
     double subTotalAmount = 0;
     double YTD = 0;
+    
     int subTotalMonth = 0;
+    
     int curMonth = 0;
     int curYear = 0;
+    
+    int MonthWin = 0;
+    int MonthLoss = 0;
+
+    int YearWin = 0;
+    int YearLoss = 0;
+
     std::wstring curDate = L"";
     for (const auto& ClosedData : vectorClosed) {
         curMonth = AfxGetMonth(ClosedData.closedDate);
         if (curYear == 0) curYear = AfxGetYear(ClosedData.closedDate);
         if (subTotalMonth != curMonth && subTotalMonth != 0) {
-            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
+            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount, MonthWin, MonthLoss);
             curDate = ClosedData.closedDate;
             subTotalAmount = 0;
+            MonthWin = 0;
+            MonthLoss = 0;
         }
         curDate = ClosedData.closedDate;
         subTotalMonth = curMonth;
         subTotalAmount += ClosedData.trade->ACB;
-        if (curYear == AfxGetYear(curDate)) YTD += ClosedData.trade->ACB;
+        if (ClosedData.trade->ACB >= 0) ++MonthWin;
+        if (ClosedData.trade->ACB < 0) ++MonthLoss;
+
+        if (curYear == AfxGetYear(curDate)) {
+            if (ClosedData.trade->ACB >= 0) ++YearWin;
+            if (ClosedData.trade->ACB < 0) ++YearLoss;
+            YTD += ClosedData.trade->ACB;
+        }
         ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
     }
-    if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount);
-    ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD);
+    if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount, MonthWin, MonthLoss);
+    ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD, YearWin, YearLoss);
 
 
     // Calculate the actual column widths based on the size of the strings in
@@ -362,7 +391,7 @@ void ClosedTrades_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD nBackColor = COLOR_GRAYDARK;
+    DWORD nBackColor = COLOR_BLACK;
 
     // Create the background brush
     SolidBrush backBrush(nBackColor);
@@ -383,15 +412,13 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeader = GetDlgItem(hwnd, IDC_CLOSED_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_CLOSED_LISTBOX);
+    HWND hCategory = GetDlgItem(hwnd, IDC_CLOSED_CATEGORY);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
-    // Move and size the top label into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LABEL), 0,
-        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -410,10 +437,27 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
     int nLeft = 0;
-    int nTop = margin;
+    int nTop = 0;
     int nWidth = cx;
-    int nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
+    int nHeight = AfxScaleY(23);
 
+    // Move and size the top label into place
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LABEL), 0,
+        0, 0, cx, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nTop = nTop + nHeight;
+
+
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LBLCATEGORYFILTER), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    nTop = nTop + nHeight;
+    nHeight = AfxScaleY(CATEGORYCONTROL_HEIGHT);
+    hdwp = DeferWindowPos(hdwp, hCategory, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    
+    nTop = margin;
+    nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
 
@@ -452,6 +496,14 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
+
+
+    CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LBLCATEGORYFILTER, L"Category Filter",
+        COLOR_WHITEDARK, COLOR_BLACK);
+
+
+    // CATEGORY SELECTOR
+    hCtl = CreateCategoryControl(hwnd, IDC_CLOSED_CATEGORY, 0, 0, CATEGORY_ALL, true);
 
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
@@ -510,6 +562,18 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, ClosedTrades_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, ClosedTrades_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
+
+
+    case MSG_CATEGORY_CATEGORYCHANGED:
+    {
+        // Categories have change so update the Closed Trades list.
+        ClosedTrades_ShowClosedTrades();
+
+        // Also need to update Active Trades list because Category headers have changed.
+        AfxRedrawWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+    }
+    return 0;
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

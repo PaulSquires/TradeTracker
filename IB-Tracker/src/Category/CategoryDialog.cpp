@@ -49,7 +49,7 @@ CCategoryDialog CategoryDialog;
 // ========================================================================================
 void CategoryDialog_OnClose(HWND hwnd)
 {
-    EnableWindow(HWND_TRADEDIALOG, TRUE);
+    EnableWindow(GetParent(hwnd), TRUE);
     DestroyWindow(hwnd);
 }
 
@@ -223,7 +223,9 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SetFocus(hNextCtrl);
             return TRUE;
         }
+        return 0;
     }
+    break;
 
 
     case MSG_CUSTOMLABEL_CLICK:
@@ -256,12 +258,12 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Category modal dialog.
 // ========================================================================================
-int CategoryDialog_Show()
+int CategoryDialog_Show(HWND hWndParent)
 {
     int nWidth = 460;
     int nHeight = 345;
 
-    HWND hwnd = CategoryDialog.Create(HWND_TRADEDIALOG, L"Category Management", 0, 0, nWidth, nHeight,
+    HWND hwnd = CategoryDialog.Create(hWndParent, L"Category Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -276,9 +278,9 @@ int CategoryDialog_Show()
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
 
-    AfxCenterWindow(hwnd, HWND_TRADEDIALOG);
+    AfxCenterWindow(hwnd, hWndParent);
 
-    EnableWindow(HWND_TRADEDIALOG, FALSE);
+    EnableWindow(hWndParent, FALSE);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;

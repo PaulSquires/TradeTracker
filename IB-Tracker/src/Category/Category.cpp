@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Utilities/Colors.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/UserMessages.h"
+#include "ClosedTrades/ClosedTrades.h"
+#include "MainWindow/MainWindow.h"
 #include "Config/Config.h"
 
 #include "Category.h"
@@ -66,17 +68,16 @@ void CategoryControl_OnCreate(HWND hwnd)
 
     int nLeft = 0;
 
-    CustomLabel* pData = nullptr;
-
     std::wstring wszFontName = L"Segoe UI";
     int FontSize = 8;
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, GetCategoryDescription((int)Category::Category0),
+    int category = CategoryControl_GetAllowAllCategories(hwnd) ? CATEGORY_ALL : CATEGORY_START;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, GetCategoryDescription(category),
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleLeft, nLeft, 0, CATEGORYCONTROL_COMBOBOX_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserDataInt(hCtl, (int)Category::Category0);
+    CustomLabel_SetUserDataInt(hCtl, category);
 
     nLeft += CATEGORYCONTROL_COMBOBOX_WIDTH;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMMAND, GLYPH_DROPDOWN,
@@ -134,7 +135,12 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         }
 
         if (CtrlId == IDC_CATEGORYCONTROL_SETUP) {
-            if (CategoryDialog_Show() == DIALOG_RETURN_OK) {
+            HWND hWndParent = GetParent(hWnd);
+            if (hWndParent == HWND_CLOSEDTRADES) hWndParent = HWND_MAINWINDOW;
+            if (CategoryDialog_Show(hWndParent) == DIALOG_RETURN_OK) {
+                int SelectedCategory = CategoryControl_GetSelectedIndex(hWnd);   // Update the label in case text has changed
+                CategoryControl_SetSelectedIndex(hWnd, SelectedCategory);
+                SendMessage(GetParent(hWnd), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
             }
         }
         
@@ -228,9 +234,22 @@ int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData)
 
 
 // ========================================================================================
+// Return if control will allow the "All Categories" menu option.
+// ========================================================================================
+bool CategoryControl_GetAllowAllCategories(HWND hwnd)
+{
+    CategoryControl* pData = CategoryControl_GetOptions(hwnd);
+    if (pData != nullptr) {
+        return pData->AllowAllCategories;
+    }
+    return false;
+}
+
+
+// ========================================================================================
 // Create the Category control.
 // ========================================================================================
-HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex)
+HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex, bool AllowAllCategories)
 {
     std::wstring wszClassName(L"CATEGORYCONTROL_CONTROL");
 
@@ -270,11 +289,11 @@ HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int
 
     if (hCtl) {
         CategoryControl* pData = new CategoryControl;
-
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
         pData->CtrlId = CtrlId;
-        pData->BackColor = COLOR_GRAYDARK;
+        pData->BackColor = (hWndParent == HWND_CLOSEDTRADES) ? COLOR_BLACK :COLOR_GRAYDARK;
+        pData->AllowAllCategories = AllowAllCategories;
 
         CategoryControl_SetOptions(hCtl, pData);
         CategoryControl_OnCreate(hCtl);

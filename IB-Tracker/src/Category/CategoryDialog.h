@@ -41,4 +41,4 @@ public:
 
 constexpr int IDC_CATEGORYDIALOG_SAVE = 100;
 
-int CategoryDialog_Show();
+int CategoryDialog_Show(HWND hWndParent);
