@@ -533,8 +533,8 @@ LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRANSDETAIL_CMDDELETE) {
             TransDetail_DeleteTransaction(m_hwnd);
-            return 0;
         }
+        return 0;
 
     }
 

@@ -334,7 +334,6 @@ void tws_requestPortfolioUpdates()
 	// Start requesting the portfolio updates real time data
 	client.cancelPortfolioUpdates();
 	client.requestPortfolioUpdates();
-
 }
 
 
@@ -578,6 +577,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
 			
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+			if (ld == (void*)-1) continue;
 			if (ld == nullptr) continue;
 
 			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
@@ -709,6 +709,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	for (int nIndex = 0; nIndex < lbCount; nIndex++) {
 		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
 
+		if (ld == (void*)-1) continue;
 		if (ld == nullptr) continue;
 
 		if (ld->lineType == LineType::TickerLine) nIndexTrade = nIndex;

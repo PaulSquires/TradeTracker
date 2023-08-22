@@ -258,8 +258,8 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
     bool bRedrawListBox = false;
 
-    int nEnd = (int)ListBox_GetCount(hListBox) - 1;
-    if (nEnd < 0) return false;
+    int nEnd = (int)ListBox_GetCount(hListBox);
+    if (nEnd == 0) return false;
     int nStart = 0;
 
     // If a specific line number was passed into this function then we only
@@ -269,9 +269,10 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
         nStart = nIndex; nEnd = nIndex;
     }
 
-    for (int ii = nStart; ii <= nEnd; ii++) {
+    for (int ii = nStart; ii < nEnd; ++ii) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
+        if (ld == (void*)-1) continue;
         if (ld->lineType != LineType::CategoryHeader) {
             for (int i = 0; i < MAX_COLUMNS; i++) {
                 if (nColWidth[i] == 0) continue;
@@ -307,9 +308,10 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nInd
 
 
     // Update the newly calculated column widths into each of the ld structures
-    for (int ii = nStart; ii <= nEnd; ii++) {
+    for (int ii = nStart; ii < nEnd; ++ii) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
+        if (ld == (void*)-1) continue;
         for (int i = 0; i < MAX_COLUMNS; i++) {
             ld->col[i].colWidth = nColWidth[i];
         }
@@ -353,6 +355,7 @@ void ListBoxData_DestroyItemData(HWND hListBox)
                 tws_cancelMktData(ld->tickerId);
                 PrevMarketDataLoaded = false;
             }
+            ld = nullptr;
             delete(ld);
         }
     }

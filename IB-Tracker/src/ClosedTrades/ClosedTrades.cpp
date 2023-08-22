@@ -604,8 +604,8 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_CLOSED_CMDYEAREND) {
             YearEndDialog_Show();
-            return 0;
         }
+        return 0;
     }
 
 
