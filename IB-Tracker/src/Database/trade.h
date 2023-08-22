@@ -35,6 +35,8 @@ SOFTWARE.
 //  between them by iterating the vector and testing the isOpen() boolean method.
 //
 
+#include "Utilities/Colors.h"
+
 
 class Transaction;   // forward declare
 
@@ -58,6 +60,15 @@ public:
     double marketPrice = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                // real time data receive via updatePortfolio
     double unrealizedPNL = 0;             // real time data receive via updatePortfolio
+    // The following are string representations of the updatePortfolio values. We save them here
+    // so that the Activetrades lists gets visually updated immediately after a new Trade or close trade.
+    // There is a delay from the time portfolio values are cancelled and when the new request data arrives
+    // therefore the user will always see the most recent data until the new data arrives.
+    std::wstring wszAveragePrice = L"";
+    std::wstring wszMarketPrice = L"";
+    std::wstring wszPercentage = L"";
+    std::wstring wszUnrealizedPNL = L"";
+    DWORD clrUnrealizedPNL = COLOR_WHITEDARK;
 };
 
 
@@ -95,6 +106,22 @@ public:
     double  tickerLastPrice = 0;
     double  tickerClosePrice = 0;
     int     tickerDecimals = 2;           // upated via data from Config. 
+
+    // The following are string representations of the marketdata and updatePortfolio values. We save them here
+    // so that the Activetrades lists gets visually updated immediately after a new Trade or close trade.
+    // There is a delay from the time portfolio values are cancelled and when the new request data arrives
+    // therefore the user will always see the most recent data until the new data arrives.
+    std::wstring wszITM = L"";
+    std::wstring wszTickerChange = L"";
+    std::wstring wszTickerLastPrice = L"0.00";
+    std::wstring wszTickerPercentChange = L"";
+    std::wstring wszPercentage = L"";
+    std::wstring wszUnrealizedPNL = L"";
+    DWORD clrITM = COLOR_WHITELIGHT;
+    DWORD clrTickerChange = COLOR_WHITELIGHT;
+    DWORD clrTickerPercentChange = COLOR_WHITELIGHT;
+    DWORD clrUnrealizedPNL = COLOR_WHITEDARK;
+
 
     // Dates used to calculate ROI on TradeBP.
     std::wstring  BPstartDate = L"99999999";           // YYYYMMDD  First transaction date

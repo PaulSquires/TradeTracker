@@ -1083,6 +1083,15 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, ActiveTrades_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
+    
+    case MSG_POSITIONS_READY:
+        // Request Positions has completed and has sent this notification so 
+        // we can now start requesting the portfolio updates real time data.
+        client.cancelPortfolioUpdates();
+        client.requestPortfolioUpdates();
+        return 0;
+
+
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
 }

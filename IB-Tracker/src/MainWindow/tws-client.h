@@ -77,6 +77,7 @@ private:
 };
 
 extern std::vector<positionStruct> LocalPositions;
+extern TwsClient client;
 
 
 void StartMonitorThread();

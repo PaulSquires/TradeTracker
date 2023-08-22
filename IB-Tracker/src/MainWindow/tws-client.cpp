@@ -327,13 +327,15 @@ void tws_ResumeTWS()
 
 void tws_requestPortfolioUpdates()
 {
-	// Load the IBKR and Local positions into the vectors and do the matching
+	// Load the IBKR and Local positions into the vectors and do the matching. This is
+	// important because we need get the contract id's loaded into each option leg
+	// in irder for the Portfolio Value updates to match it.
 	client.cancelPositions();
 	client.requestPositions();
 
-	// Start requesting the portfolio updates real time data
-	client.cancelPortfolioUpdates();
-	client.requestPortfolioUpdates();
+	// When requestPositions completes, it sends a notification to the Active Trades
+	// window that it is now okay to request the Portfolio Updates. We make those
+	// portfolio update calls there rather than here.
 }
 
 
@@ -354,11 +356,10 @@ void tws_performReconciliation()
 
 	isRunning = true;
 
-	// Vectors have already been cleared, loaded and matched via tws_requestPortfolioUpdates
-	// The results have been loaded into module global resultsText which will be displayed
+	// Load the IBKR and Local positions into the vectors and do the matching
+	// The results will be saved into module global resultsText which will be displayed
 	// when Reconcile_Show() is called and Reconcile_positionEnd() has SendMessage notification
 	// to the dialog to say that text is ready.
-	// Load the IBKR and Local positions into the vectors and do the matching
 	client.cancelPositions();
 	client.requestPositions();
 
@@ -649,17 +650,24 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					themeEl = COLOR_GREEN;
 				}
 
+				ld->trade->wszITM = wszText;
+				ld->trade->clrITM = themeEl;
 				ld->SetTextData(COLUMN_TICKER_ITM, wszText, themeEl);  // ITM
 
 				wszText = AfxMoney(delta, true, ld->trade->tickerDecimals);
+				ld->trade->wszTickerChange = wszText;
 				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+				ld->trade->clrTickerChange = themeEl;
 				ld->SetTextData(COLUMN_TICKER_CHANGE, wszText, themeEl);  // price change
 
 				wszText = AfxMoney(ld->trade->tickerLastPrice, false, ld->trade->tickerDecimals);
+				ld->trade->wszTickerLastPrice = wszText;
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
 
 				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100, true) + L"%";
+				ld->trade->wszTickerPercentChange = wszText;
 				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+				ld->trade->clrTickerPercentChange = themeEl;
 				ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, wszText, themeEl);  // price percentage change
 
 
@@ -722,21 +730,26 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 			double averagePrice = (averageCost / ld->trade->multiplier);
 			ld->leg->averagePrice = averagePrice;
 			wszText = AfxMoney(averagePrice, true, ld->trade->tickerDecimals);
+			ld->leg->wszAveragePrice = wszText;
 			ld->SetTextData(COLUMN_TICKER_AVGPX, wszText, themeEl);   // Book Value and average Price
 
 			ld->leg->marketPrice = marketPrice;
 			wszText = AfxMoney(marketPrice, true, ld->trade->tickerDecimals);
+			ld->leg->wszMarketPrice = wszText;
 			ld->SetTextData(COLUMN_TICKER_LASTPX, wszText, themeEl);   // Market Value and Last Price
 
 			double percentage = (averagePrice - marketPrice) / averagePrice * 100;
 			if (ld->leg->openQuantity > 0) percentage = percentage * -1;
 			ld->leg->percentage = percentage;
 			wszText = AfxMoney(percentage, true, 1) + L"%";
+			ld->leg->wszPercentage = wszText;
 			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);  // Percentage values for the previous two columns data
 			
 			ld->leg->unrealizedPNL = unrealizedPNL;
 			themeEl = (unrealizedPNL < 0) ? COLOR_RED : COLOR_GREEN;
 			wszText = AfxMoney(unrealizedPNL, false, 0);
+			ld->leg->wszUnrealizedPNL = wszText;
+			ld->leg->clrUnrealizedPNL = themeEl;
 			ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);    // Unrealized profit or loss
 
 			RECT rc{};
@@ -759,10 +772,13 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 				themeEl = COLOR_WHITEDARK;
 				wszText = AfxMoney(percentage / numLegs, true, 1) + L"%";
+				ld->trade->wszPercentage = wszText;
 				ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);  // Percentage values
 
 				themeEl = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
 				wszText = AfxMoney(uPNL, false, 0);
+				ld->trade->wszUnrealizedPNL = wszText;
+				ld->trade->clrUnrealizedPNL = themeEl;
 				ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);    // Unrealized profit or loss
 
 				RECT rc{};
@@ -832,6 +848,14 @@ void TwsClient::positionEnd()
 
 }
 
+void TwsClient::updateAccountValue(const std::string& key, const std::string& val,
+	const std::string& currency, const std::string& accountName) {
+	// This callback will fire when PortfolioValue updates are initiated. We look for the
+	// string "AccountReady". 
+	//std::cout << "updateAccountValue: " << key << std::endl;
+}
+
+
 void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
 	double optPrice, double pvDividend,
 	double gamma, double vega, double theta, double undPrice) {
@@ -870,10 +894,6 @@ void TwsClient::openOrder(OrderId orderId, const Contract& contract, const Order
 }
 
 void TwsClient::openOrderEnd() {
-}
-
-void TwsClient::updateAccountValue(const std::string& key, const std::string& val,
-	const std::string& currency, const std::string& accountName) {
 }
 
 void TwsClient::updateAccountTime(const std::string& timeStamp) {

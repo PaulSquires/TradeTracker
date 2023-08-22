@@ -216,22 +216,6 @@ void YearEndDialog_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: YearEndDialog
-// ========================================================================================
-void YearEndDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-    //switch (id)
-    //{
-    //case (IDC_YearEndDialog_TXTTICKER):
-    //case (IDC_YearEndDialog_TXTQUANTITY):
-    //case (IDC_YearEndDialog_TXTMULTIPLIER):
-    //case (IDC_YearEndDialog_TXTPRICE):
-    //case (IDC_YearEndDialog_TXTFEES):
-    //}
-}
-
-
-// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -239,7 +223,6 @@ LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, YearEndDialog_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, YearEndDialog_OnCommand);
         HANDLE_MSG(m_hwnd, WM_DESTROY, YearEndDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, YearEndDialog_OnClose);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, YearEndDialog_OnEraseBkgnd);

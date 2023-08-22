@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "MainWindow/MainWindow.h"
 #include "Database/trade.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "Utilities/IntelDecimal.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -217,7 +218,14 @@ void Reconcile_positionEnd()
 	LocalPositions.clear();
 	IBKRPositions.clear();
 
+	// Send notification to the reconciliation popup dialog that it can now access the
+	// reconciliation string and display it in the textbox.
 	SendMessage(HWND_RECONCILE, MSG_RECONCILIATION_READY, 0, 0);
+
+
+	// Send notification to ActiveTrades window that positions have all been loaded
+	// thereby allowing the loading of portfolio values.
+	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
 }
 
 

@@ -565,6 +565,8 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
         }   // if
     }  // case
+    break;
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
 

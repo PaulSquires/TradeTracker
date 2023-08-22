@@ -68,6 +68,7 @@ constexpr int MSG_STARTUP_SHOWTRADES        = WM_USER + 1008;
 constexpr int MSG_DATEPICKER_DATECHANGED    = WM_USER + 1009;
 constexpr int MSG_RECONCILIATION_READY      = WM_USER + 1010;
 constexpr int MSG_CATEGORY_CATEGORYCHANGED  = WM_USER + 1011;
+constexpr int MSG_POSITIONS_READY           = WM_USER + 1012;
 
 constexpr int DIALOG_RETURN_OK = 0;
 constexpr int DIALOG_RETURN_CANCEL = 1;

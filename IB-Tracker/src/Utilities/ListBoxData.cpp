@@ -480,6 +480,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     bool isHistory = GetDlgCtrlID(hListBox) == IDC_HISTORY_LISTBOX ? true : false;
     REAL font8 = 8;
     REAL font9 = 9;
+    DWORD clr = COLOR_WHITELIGHT;
     std::wstring text; 
 
     if (isHistory) {
@@ -493,7 +494,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_ORANGE, font8, FontStyleRegular);   // orange
 
         text = AfxMoney(std::abs(trade->ACB));
-        DWORD clr = (trade->ACB >= 0) ? COLOR_GREEN : COLOR_RED;
+        clr = (trade->ACB >= 0) ? COLOR_GREEN : COLOR_RED;
         ld->SetData(7, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);  
 
@@ -504,28 +505,46 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(1, trade, tickerId, trade->tickerSymbol, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);
 
-        ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITELIGHT, font8, FontStyleRegular);   // ITM
+        std::wstring wszText = L"";
+
+        
+        wszText = (trade->wszITM.length()) ? trade->wszITM : L"";
+        clr = (trade->clrITM != COLOR_WHITELIGHT) ? trade->clrITM : COLOR_WHITELIGHT;
+        ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+            clr, font8, FontStyleRegular);   // ITM
         ld->SetData(3, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);
         ld->SetData(4, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-        ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // price change
-        ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, L"0.00", StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
+
+        wszText = (trade->wszTickerChange.length()) ? trade->wszTickerChange : L"";
+        clr = (trade->clrTickerChange != COLOR_WHITELIGHT) ? trade->clrTickerChange : COLOR_WHITELIGHT;
+        ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            clr, font8, FontStyleRegular);   // price change
+        
+        wszText = (trade->wszTickerLastPrice.length()) ? trade->wszTickerLastPrice : L"";
+        ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, wszText, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
-        ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // price percentage change
+        
+        wszText = (trade->wszTickerPercentChange.length()) ? trade->wszTickerPercentChange : L"";
+        clr = (trade->clrTickerPercentChange != COLOR_WHITELIGHT) ? trade->clrTickerPercentChange : COLOR_WHITELIGHT;
+        ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+            clr, font8, FontStyleRegular);   // price percentage change
 
         ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
         ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
-        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+
+        wszText = (trade->wszPercentage.length()) ? trade->wszPercentage : L"";
+        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
-        ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
+        
+        wszText = (trade->wszUnrealizedPNL.length()) ? trade->wszUnrealizedPNL: L"";
+        clr = (trade->clrUnrealizedPNL != COLOR_WHITEDARK) ? trade->clrUnrealizedPNL : COLOR_WHITEDARK;
+        ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            clr, font8, FontStyleRegular);   // unrealized PNL
     }
     ListBox_AddString(hListBox, ld);
 
@@ -672,20 +691,28 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             col++;
 
             if (!isHistory) {
-                ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+
+                std::wstring wszText = L"";
+
+                wszText = (leg->wszAveragePrice.length()) ? leg->wszAveragePrice : L"";
+                ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
                 col++;
                 
-                ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                wszText = (leg->wszMarketPrice.length()) ? leg->wszMarketPrice : L"";
+                ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
                 col++;
                 
-                ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                wszText = (leg->wszPercentage.length()) ? leg->wszPercentage: L"";
+                ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Percentage values for the previous two columns data
                 col++;
                 
-                ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Unrealized profit or loss
+                wszText = (leg->wszUnrealizedPNL.length()) ? leg->wszUnrealizedPNL : L"";
+                clr = (leg->clrUnrealizedPNL != COLOR_WHITEDARK) ? leg->clrUnrealizedPNL : COLOR_WHITEDARK;
+                ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                    clr, font8, FontStyleRegular);   // Unrealized profit or loss
             }
 
             ListBox_AddString(hListBox, ld);
