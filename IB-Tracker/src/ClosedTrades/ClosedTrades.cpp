@@ -33,6 +33,7 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "YearEndDialog/YearEndDialog.h"
 #include "Database/trade.h"
 #include "ClosedTrades.h"
 
@@ -413,6 +414,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hHeader = GetDlgItem(hwnd, IDC_CLOSED_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_CLOSED_LISTBOX);
     HWND hCategory = GetDlgItem(hwnd, IDC_CLOSED_CATEGORY);
+    HWND hYearEnd = GetDlgItem(hwnd, IDC_CLOSED_CMDYEAREND);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
@@ -438,10 +440,11 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int nLeft = 0;
     int nTop = 0;
-    int nWidth = cx;
+    int nWidth = 0;
     int nHeight = AfxScaleY(23);
 
     // Move and size the top label into place
+    nWidth = cx;
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LABEL), 0,
         0, 0, cx, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight;
@@ -452,11 +455,18 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
     nTop = nTop + nHeight;
+    hdwp = DeferWindowPos(hdwp, hCategory, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+
+    nWidth = 100;
+    nLeft = cx - nWidth - CustomVScrollBarWidth;
     nHeight = AfxScaleY(CATEGORYCONTROL_HEIGHT);
-    hdwp = DeferWindowPos(hdwp, hCategory, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hYearEnd, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     
+    nLeft = 0;
     nTop = margin;
+    nWidth = cx;
     nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
@@ -504,6 +514,16 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // CATEGORY SELECTOR
     hCtl = CreateCategoryControl(hwnd, IDC_CLOSED_CATEGORY, 0, 0, CATEGORY_ALL, true);
+
+    
+    // YEAR END CLOSE
+    std::wstring wszFontName = L"Segoe UI";
+    int FontSize = 9;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSED_CMDYEAREND, L"Year End",
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
@@ -573,6 +593,20 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         AfxRedrawWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     }
     return 0;
+
+
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_CLOSED_CMDYEAREND) {
+            YearEndDialog_Show();
+            return 0;
+        }
+    }
 
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

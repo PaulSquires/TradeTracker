@@ -26,25 +26,26 @@ SOFTWARE.
 
 #pragma once
 
-constexpr std::wstring version = L"2.2.0";
+#include "Utilities/CWindowBase.h"
+#include "Utilities/UserMessages.h"
+#include "Database/trade.h"
 
-bool SaveConfig();
-bool LoadConfig();
 
-int GetTickerDecimals(std::wstring wszUnderlying);
-void SetTickerDecimals(std::wstring wszUnderlying, int numDecimals);
-std::wstring GetMultiplier(std::wstring wszUnderlying);
-void SetMultiplier(std::wstring wszUnderlying, std::wstring wszMultiplier);
-std::string GetFuturesExchange(std::string szUnderlying);
-void SetFuturesExchange(std::string szUnderlying, std::string szExchange);
-std::wstring GetCategoryDescription(int idxCategory);
-void SetCategoryDescription(int idxCategory, std::wstring wszDescription);
-bool GetStartupConnect();
-void SetStartupConnect(bool bConnect);
-bool IsFuturesTicker(const std::wstring& wszTicker);
-int GetStartupWidth();
-int GetStartupHeight();
-int GetStartupRightPanelWidth();
-void SetStartupWidth(int width);
-void SetStartupHeight(int height);
-void SetStartupRightPanelWidth(int width);
+class CYearEndDialog : public CWindowBase<CYearEndDialog>
+{
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+};
+
+
+extern HWND HWND_YEARENDDIALOG;
+extern int DialogReturnCode;
+
+
+constexpr int IDC_YEARENDDIALOG_TXTDATE = 100;
+constexpr int IDC_YEARENDDIALOG_PROCESS = 101;
+
+
+int YearEndDialog_Show();
+

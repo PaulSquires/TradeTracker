@@ -110,6 +110,7 @@
     <ClInclude Include="src\CustomLabel\CustomLabel.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
     <ClInclude Include="src\CustomVScrollBar\CustomVScrollBar.h" />
+    <ClInclude Include="src\YearEndDialog\YearEndDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />
@@ -182,6 +183,7 @@
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
     <ClCompile Include="src\CustomLabel\CustomLabel.cpp" />
     <ClCompile Include="src\CustomVScrollBar\CustomVScrollBar.cpp" />
+    <ClCompile Include="src\YearEndDialog\YearEndDialog.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

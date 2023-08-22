@@ -85,7 +85,7 @@ BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TradeDialog
 // ========================================================================================
-BOOL TradesDialog_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL TradeDialog_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -95,7 +95,7 @@ BOOL TradesDialog_OnEraseBkgnd(HWND hwnd, HDC hdc)
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TradeDialog
 // ========================================================================================
-void TradesDialog_OnPaint(HWND hwnd)
+void TradeDialog_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -206,8 +206,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_COMMAND, TradeDialog_OnCommand);
         HANDLE_MSG(m_hwnd, WM_DESTROY, TradeDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, TradeDialog_OnClose);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradesDialog_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TradesDialog_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradeDialog_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, TradeDialog_OnPaint);
 
     
     case WM_SHOWWINDOW:
