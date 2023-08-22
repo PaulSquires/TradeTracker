@@ -512,6 +512,7 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
     case TradeAction::NewOptionsTrade:
     case TradeAction::NewShortStrangle:
     case TradeAction::NewShortCall:
+    case TradeAction::NewIronCondor:
     case TradeAction::NewShortLT112:
     case TradeAction::NewShortPut:
         wszDescription = L"Options";

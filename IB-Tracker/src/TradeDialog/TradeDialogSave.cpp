@@ -449,6 +449,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         switch (tdd.tradeAction) {
 
         case TradeAction::NewOptionsTrade:
+        case TradeAction::NewIronCondor:
         case TradeAction::NewShortLT112:
         case TradeAction::NewShortStrangle:
         case TradeAction::NewShortPut:
