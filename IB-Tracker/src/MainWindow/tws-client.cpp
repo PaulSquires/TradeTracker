@@ -53,6 +53,60 @@ TwsClient client;
 
 
 //
+// Perform the ITM calculation and update the Trade pointer with the values.
+//
+void PerformITMcalculation(std::shared_ptr<Trade>& trade)
+{
+
+	bool isITMred = false;
+	bool isITMgreen = false;
+	bool inLongSpread = false;
+
+	for (const auto& leg : trade->openLegs) {
+		if (leg->underlying == L"OPTIONS") {
+			if (leg->PutCall == L"P") {
+				if (trade->tickerLastPrice < AfxValDouble(leg->strikePrice)) {
+					if (leg->openQuantity < 0) {
+						isITMred = (inLongSpread == true) ? false : true;
+					}
+					if (leg->openQuantity > 0) {
+						isITMgreen = true; isITMred = false; inLongSpread = true;
+					}
+				}
+			}
+			else if (leg->PutCall == L"C") {
+				if (trade->tickerLastPrice > AfxValDouble(leg->strikePrice)) {
+					if (leg->openQuantity < 0) {
+						isITMred = (inLongSpread == true) ? false : true;
+					}
+					if (leg->openQuantity > 0) {
+						isITMgreen = true; isITMred = false; inLongSpread = true;
+					}
+				}
+			}
+		}
+	}
+
+	std::wstring wszText = L"";
+
+	DWORD themeEl = COLOR_WHITELIGHT;
+	if (isITMred) {
+		wszText = L"ITM";
+		themeEl = COLOR_RED;
+	}
+	if (isITMgreen) {
+		wszText = L"ITM";
+		themeEl = COLOR_GREEN;
+	}
+
+	trade->wszITM = wszText;
+	trade->clrITM = themeEl;
+
+}
+
+
+
+//
 // If not connected to TWS or after hours and no market data then attmept to scrape yahoo finance
 // to get the closing price of the stock.
 //
@@ -145,6 +199,10 @@ void UpdateTickersWithScrapedData()
 					ld->trade->tickerClosePrice = GetScrapedClosingPrice(wszTickerSymbol);
 					mapPrices[wszTickerSymbol] = ld->trade->tickerClosePrice;
 				}
+				ld->trade->tickerLastPrice = ld->trade->tickerClosePrice;
+
+				PerformITMcalculation(ld->trade);
+				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->wszITM, ld->trade->clrITM);  // ITM
 
 				std::wstring wszText = AfxMoney(ld->trade->tickerClosePrice, false, ld->trade->tickerDecimals);
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
@@ -608,51 +666,18 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 					delta = (ld->trade->tickerLastPrice - ld->trade->tickerClosePrice);
 				}
 
-				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
-				bool isITMred = false;
-				bool isITMgreen = false;
-				bool inLongSpread = false;
-			
-				for (const auto& leg : ld->trade->openLegs) {
-					if (leg->underlying == L"OPTIONS") {
-						if (leg->PutCall == L"P") {
-							if (ld->trade->tickerLastPrice < AfxValDouble(leg->strikePrice)) {
-								if (leg->openQuantity < 0) {
-									isITMred = (inLongSpread == true) ? false : true;
-								}
-								if (leg->openQuantity > 0) {
-									isITMgreen = true; isITMred = false; inLongSpread = true;
-								} 
-							}
-						}
-						else if (leg->PutCall == L"C") {
-							if (ld->trade->tickerLastPrice > AfxValDouble(leg->strikePrice)) {
-								if (leg->openQuantity < 0) {
-									isITMred = (inLongSpread == true) ? false : true;
-								}
-								if (leg->openQuantity > 0) {
-									isITMgreen = true; isITMred = false; inLongSpread = true;
-								}
-							}
-						}
-					}
-				}
-
-				std::wstring wszText = L"";
-
+				
+				std::wstring wszText;
 				DWORD themeEl = COLOR_WHITELIGHT;
-				if (isITMred) {
-					wszText = L"ITM";
-					themeEl = COLOR_RED;
-				}
-				if (isITMgreen) {
-					wszText = L"ITM";
-					themeEl = COLOR_GREEN;
-				}
 
-				ld->trade->wszITM = wszText;
-				ld->trade->clrITM = themeEl;
-				ld->SetTextData(COLUMN_TICKER_ITM, wszText, themeEl);  // ITM
+				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
+				// We use a separate function call because scrapped data will need acces to the 
+				// ITM calculation also.
+				PerformITMcalculation(ld->trade);
+
+
+				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->wszITM, ld->trade->clrITM);  // ITM
+
 
 				wszText = AfxMoney(delta, true, ld->trade->tickerDecimals);
 				ld->trade->wszTickerChange = wszText;
