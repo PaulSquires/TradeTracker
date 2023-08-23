@@ -1,14 +1,16 @@
-# IB-Tracker: Stocks, Futures and Options positions tracker (includes Interactive Brokers (IBKR TWS API) integration)
+# IB-Tracker: Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 [![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?style=flat-square)](https://github.com/PaulSquires/IB-Tracker/releases)
 [![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?style=flat-square) -->
 
-Stocks, Futures and Options positions tracker (includes Interactive Brokers (IBKR TWS API) integration)
+Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 
 ## What is IB-Tracker 
 IB-Tracker a free application that allows you to track your Stocks, Futures and Options positions. A fantastic alternative to using spreadsheets like Microsoft Excel or Google Sheets! 
 
-You do not need an Interactive Brokers account but if you have one then IB-Tracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture. If you are not using TWS integration, IB-Tracker allows you to "scrape" stock and futures prices from Yahoo Finance (albeit, the prices will be at least 15 minutes delayed).
+You do not need an Interactive Brokers account but if you have one then IB-Tracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture. 
+
+If you are not using TWS integration, IB-Tracker allows you to "scrape" stock and futures prices from Yahoo Finance (albeit, the prices will be at least 15 minutes delayed). You just need to attempt to connect to TWS and when that fails, you will get a popup asking if you would like to retrieve the scraped market prices.
 
 This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. IB-Trader aims to make the trade tracking process as enjoyable and painless as possible. 
 
