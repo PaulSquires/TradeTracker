@@ -188,6 +188,7 @@ void ActiveTrades_ShowActiveTrades()
 
 
         // Start getting the price data for all of the tickers
+        tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
         ListBoxData_RequestMarketData(hListBox);
 
     }
@@ -205,6 +206,7 @@ void ActiveTrades_ShowActiveTrades()
         curSel = 0;
     }
 
+
     ListBox_SetSel(hListBox, true, curSel);
     ActiveTrades_ShowListBoxItem(curSel);
 
@@ -212,8 +214,6 @@ void ActiveTrades_ShowActiveTrades()
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);
 
     SetFocus(hListBox);
-
-    tws_ResumeTWS();
 
 }
 
