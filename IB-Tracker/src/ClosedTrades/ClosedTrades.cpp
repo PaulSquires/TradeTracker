@@ -209,8 +209,8 @@ void ClosedTrades_ShowClosedTrades()
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
-    // Select row past the YTD total line if possible
-    int curSel = min(ListBox_GetCount(hListBox)-1, 2);
+    // Select row past the DAY total line if possible
+    int curSel = min(ListBox_GetCount(hListBox)-1, 3);
     ClosedTrades_ShowListBoxItem(curSel);  
 
     // Redraw the ListBox to ensure that any recalculated columns are 

@@ -365,6 +365,22 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
+    case MSG_TWS_CONNECT_WAIT_RECONNECTION:
+    {
+        SetCursor(LoadCursor(0, IDC_ARROW));
+        CustomLabel* pData = nullptr;
+        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+        if (pData) {
+            pData->wszText = L"Reconnect Wait";
+            pData->TextColor = COLOR_RED;
+            pData->TextColorHot = COLOR_RED;
+            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+        }
+        return 0;
+        break;
+    }
+
+
     case MSG_TWS_WARNING_EXCEPTION:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
@@ -497,15 +513,6 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 if (bProcessingConnectClick) break;
                 bProcessingConnectClick = true;
                 bool res = tws_connect();
-
-                // If we connect to TWS successfully then we need to start showing
-                // the price data for any active trades displaying in our table.
-                if (tws_isConnected()) {
-                    // Destroy any existing ListBox line data
-                    // This will also clear the LineData pointers and cancel any previous market data
-                    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-                    ActiveTrades_ShowActiveTrades();
-                }
                 bProcessingConnectClick = false;
                 break;
             }

@@ -12,7 +12,7 @@ You do not need an Interactive Brokers account but if you have one then IB-Track
 
 If you are not using TWS integration, IB-Tracker allows you to "scrape" stock and futures prices from Yahoo Finance (albeit, the prices will be at least 15 minutes delayed). You just need to attempt to connect to TWS and when that fails, you will get a popup asking if you would like to retrieve the scraped market prices.
 
-This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. IB-Trader aims to make the trade tracking process as enjoyable and painless as possible. 
+This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. IB-Trader aims to make the trade tracking process as enjoyable and painless as possible.
 
 ![screenshot](/IB-Tracker/assets/ib-tracker-main.png?raw=true "IB-Tracker")
 
@@ -24,7 +24,7 @@ This program exists because tracking trades and their corresponding transactions
 * Easy to learn and very intuitive with all information available on the main screen. 
 * Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
-* Small (about 495K), fast (written in C++), and self-contained (no external dependencies).
+* Small (about 500K), fast (written in C++), and self-contained (no external dependencies).
 * Simple text file "database" that can easily be manually edited if needed. No additional database engine required.
 * The only pain point is that you have to manually enter your transactions into IB-Tracker in order to ensure that transactions are grouped with the correct trades. However, there is a "Reconcile" functionality that ensures that your local data always matches what exists in IBKR/TWS. 
 * Currently, only Windows compatible (Windows 10 and Windows 11). May work on older Windows versions but not guaranteed. It will work on Linux using Wine but you may experience some visual glitches due to the font family Unicode characters that the program uses.

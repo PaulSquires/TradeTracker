@@ -26,6 +26,8 @@ SOFTWARE.
 
 #include "pch.h"
 
+#include <chrono>
+
 #include "Utilities/UserMessages.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
@@ -230,12 +232,42 @@ void UpdateTickersWithScrapedData()
 // Thread function
 //
 std::jthread monitoring_thread;
+std::jthread ping_thread;
+
+
+void pingFunction(std::stop_token st) {
+	std::cout << "Starting the ping thread" << std::endl;
+
+	while (!st.stop_requested()) {
+
+		try {
+			if (isMonitorThreadActive == true) {
+				// Send a request time message (ping)
+				client.pingTWS();
+			}
+			else {
+				break;
+			}
+		}
+		catch (...) {
+			break;
+		}
+		// Sleep for 10 seconds
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	}
+
+	std::cout << "Ping Thread Terminated" << std::endl;
+}
 
 
 void monitoringFunction(std::stop_token st) {
-	std::cout << "Starting the thread" << std::endl;
+	std::cout << "Starting the monitoring thread" << std::endl;
 	
 	isMonitorThreadActive = true;
+
+	// Create and start the ping thread
+	ping_thread = std::jthread(pingFunction);
+
 
 	while (!st.stop_requested()) {
 
@@ -256,7 +288,12 @@ void monitoringFunction(std::stop_token st) {
 	}
 
 	isMonitorThreadActive = false;
-	std::cout << "Thread Terminated" << std::endl;
+
+	// Shut down the Ping thread prior to ending this Monitoring thread
+	ping_thread.request_stop();
+
+
+	std::cout << "Monitoring Thread Terminated" << std::endl;
 	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
@@ -264,6 +301,7 @@ void monitoringFunction(std::stop_token st) {
 void StartMonitorThread()
 {
 	if (isMonitorThreadActive) return;
+	isThreadPaused = false;   // allow processing TickData
 	monitoring_thread = std::jthread(monitoringFunction);
 }
 
@@ -297,10 +335,15 @@ bool tws_connect()
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected.
 			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+			
+			StartMonitorThread();
 
-			if (client.isConnected()) {
-				StartMonitorThread();
-			}
+			// Destroy any existing ListBox line data
+			// This will also clear the LineData pointers and cancel any previous market data
+			PrevMarketDataLoaded = false;
+			ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+			ActiveTrades_ShowActiveTrades();
+
 		}
 
 	}
@@ -345,7 +388,7 @@ bool tws_disconnect()
 
 bool tws_isConnected()
 {
-    bool res = false;
+	bool res = false;
     if ((client.isSocketOK()) && (client.isConnected())) {
         res = true;
     }
@@ -464,6 +507,13 @@ bool TwsClient::connect(const char* host, int port, int clientId)
 		printf("Cannot connect to %s:%d clientId:%d\n", m_pClient->host().c_str(), m_pClient->port(), clientId);
 	}
 	return bRes;
+}
+
+void TwsClient::pingTWS() const
+{
+	m_pClient->reqCurrentTime();
+
+	printf("ping\n");
 }
 
 void TwsClient::disconnect() const
@@ -849,7 +899,24 @@ void TwsClient::error(int id, int errorCode, const std::string& errorString, con
 
 	switch (errorCode) {
 	case 1100:   // 'Connectivity between IB and Trader Workstation has been lost.'
-		EndMonitorThread();    // will terminate thread and reset Connect to TWS button
+	{
+		// This normally occurs when the internet connection is lost. It refers to the 
+		// connection between TWS and IBKR, and not TWS and IB-Tracker. The connection
+		// between IB-Tracker and TWS will resume as soon as TWS reconnects back to the
+		// IBKR servers (ie. IB-Trackers sockets remain open).
+		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
+		std::wstring wszText =
+			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nIB-Tracker will resume automatically when TWS reconnects to IBKR.";
+		MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+	}
+	break;
+
+	case 1102:   // 'Connectivity between IB and Trader Workstation reestablished.'
+	{
+		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+	}
+	break;
+	
 	}
 }
 
@@ -913,6 +980,7 @@ void TwsClient::nextValidId(OrderId orderId) {
 }
 
 void TwsClient::currentTime(long time) {
+	std::cout << "current time " << time << std::endl;
 }
 
 void TwsClient::orderStatus(OrderId orderId, const std::string& status, Decimal filled,
