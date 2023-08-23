@@ -133,6 +133,7 @@ void ClosedTrades_ShowClosedTrades()
     // Output the closed trades and subtotals based on month when the month changes.
     double subTotalAmount = 0;
     double YTD = 0;
+    double dailyAmount = 0;
     
     int subTotalMonth = 0;
     
@@ -142,10 +143,15 @@ void ClosedTrades_ShowClosedTrades()
     int MonthWin = 0;
     int MonthLoss = 0;
 
+    int DayWin = 0;
+    int DayLoss = 0;
+
     int YearWin = 0;
     int YearLoss = 0;
 
+    std::wstring todayDate = AfxCurrentDate();
     std::wstring curDate = L"";
+
     for (const auto& ClosedData : vectorClosed) {
         curMonth = AfxGetMonth(ClosedData.closedDate);
         if (curYear == 0) curYear = AfxGetYear(ClosedData.closedDate);
@@ -162,6 +168,12 @@ void ClosedTrades_ShowClosedTrades()
         if (ClosedData.trade->ACB >= 0) ++MonthWin;
         if (ClosedData.trade->ACB < 0) ++MonthLoss;
 
+        if (curDate == todayDate) {
+            dailyAmount += ClosedData.trade->ACB;
+            if (ClosedData.trade->ACB >= 0) ++DayWin;
+            if (ClosedData.trade->ACB < 0) ++DayLoss;
+        }
+
         if (curYear == AfxGetYear(curDate)) {
             if (ClosedData.trade->ACB >= 0) ++YearWin;
             if (ClosedData.trade->ACB < 0) ++YearLoss;
@@ -171,6 +183,7 @@ void ClosedTrades_ShowClosedTrades()
     }
     if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount, MonthWin, MonthLoss);
     ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD, YearWin, YearLoss);
+    ListBoxData_OutputClosedDayTotal(hListBox, dailyAmount, DayWin, DayLoss);
 
 
     // Calculate the actual column widths based on the size of the strings in

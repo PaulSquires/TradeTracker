@@ -846,6 +846,11 @@ void TwsClient::error(int id, int errorCode, const std::string& errorString, con
 		MarketDataSubscriptionError = true;
 		return;
 	}
+
+	switch (errorCode) {
+	case 1100:   // 'Connectivity between IB and Trader Workstation has been lost.'
+		EndMonitorThread();    // will terminate thread and reset Connect to TWS button
+	}
 }
 
 

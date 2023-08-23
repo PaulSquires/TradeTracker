@@ -885,11 +885,42 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_InsertString(hListBox, 0, ld);
+}
+
+
+// ========================================================================================
+// Create the display data line for total closed daily total.
+// ========================================================================================
+void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayWin, int DayLoss)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    DWORD clr = (dailyTotal >= 0) ? COLOR_GREEN : COLOR_RED;
+    
+    std::wstring wszText = L"TODAY";
+    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(4, nullptr, tickerId, AfxMoney(dailyTotal), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    // col 5 is a "spacer" column
+
+    clr = (DayWin >= DayLoss) ? COLOR_GREEN : COLOR_RED;
+    wszText = std::to_wstring(DayWin) + L"W " + std::to_wstring(DayLoss)
+        + L"L  " + AfxMoney((double)DayWin / (max(DayWin + DayLoss,1)) * 100, false, 0) + L"%";
+    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+
+    ListBox_InsertString(hListBox, 1, ld);
 
     // *** BLANK SEPARATION LINE AFTER THE YTD ***
     ld = new ListBoxData;
     ld->lineType = LineType::None;
-    ListBox_InsertString(hListBox, 1, ld);
+    ListBox_InsertString(hListBox, 2, ld);
 }
 
 
