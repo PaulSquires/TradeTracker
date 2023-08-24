@@ -186,11 +186,6 @@ void ActiveTrades_ShowActiveTrades()
         SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
         AfxRedrawWindow(hListBox);
 
-
-        // Start getting the price data for all of the tickers
-        tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
-        ListBoxData_RequestMarketData(hListBox);
-
     }
 
 
@@ -212,6 +207,13 @@ void ActiveTrades_ShowActiveTrades()
 
     RECT rc; GetClientRect(HWND_ACTIVETRADES, &rc);
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);
+
+
+    // Start getting the price data for all of the tickers
+    tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
+    if (PrevMarketDataLoaded == false) {
+        ListBoxData_RequestMarketData(hListBox);
+    }
 
     SetFocus(hListBox);
 
