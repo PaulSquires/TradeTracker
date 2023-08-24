@@ -400,7 +400,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
 
     if (tdd.legs.size() == 0) return;
 
-    int DefaultQuantity = 0;
+    int DefaultQuantity = 1;
 
     // Display the Trade's Buying Power BP in case that needs to be edited also.
     CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), std::to_wstring(tdd.trade->TradeBP));
@@ -418,8 +418,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         if (row > 3) break;
 
         // QUANTITY
-        DefaultQuantity = leg->trans->quantity;
-        std::wstring legQuantity = std::to_wstring(leg->openQuantity / leg->trans->quantity * -1);
+        std::wstring legQuantity = std::to_wstring(leg->openQuantity * -1);
+
         TradeGrid_SetColData(hGridMain, row, 0, legQuantity);
 
         // EXPIRY DATE
@@ -459,7 +459,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             if (row > 3) break;
 
             // QUANTITY
-            std::wstring legQuantity = std::to_wstring(leg->openQuantity / leg->trans->quantity);
+            std::wstring legQuantity = std::to_wstring(leg->openQuantity);
+
             TradeGrid_SetColData(hGridRoll, row, 0, legQuantity);
 
             // EXPIRY DATE
