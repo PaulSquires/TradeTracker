@@ -196,11 +196,11 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         if (row > 7) break;
 
         // QUANTITY (ORIGINAL)
-        std::wstring legOrigQuantity = std::to_wstring(leg->origQuantity / tdd.trans->quantity);
+        std::wstring legOrigQuantity = std::to_wstring(leg->origQuantity / max(tdd.trans->quantity,1));
         TradeGrid_SetColData(hGrid, row, 0, legOrigQuantity);
 
         // QUANTITY (OPEN)
-        std::wstring legOpenQuantity = std::to_wstring(leg->openQuantity / tdd.trans->quantity);
+        std::wstring legOpenQuantity = std::to_wstring(leg->openQuantity / max(tdd.trans->quantity,1));
         TradeGrid_SetColData(hGrid, row, 1, legOpenQuantity);
 
         // EXPIRY DATE
