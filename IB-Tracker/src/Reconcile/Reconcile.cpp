@@ -166,8 +166,11 @@ void Reconcile_positionEnd()
 	}
 
 
+	std::wstring wszText = L"";
+
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.
 	ResultsText = L"IBKR that do not exist in Local:\r\n";
+
 	for (const auto& ibkr : IBKRPositions) {
 		if (ibkr.openQuantity == 0) continue;
 		bool found = false;
@@ -183,19 +186,22 @@ void Reconcile_positionEnd()
 			}
 		}
 		if (!found) {
-			ResultsText = ResultsText + L"   " + std::to_wstring(ibkr.openQuantity) + L" " +
+			wszText += L"   " + std::to_wstring(ibkr.openQuantity) + L" " +
 				ibkr.tickerSymbol + L" " + ibkr.underlying;
 			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
-				ResultsText = ResultsText + L" " + ibkr.expiryDate + L" " + std::to_wstring(ibkr.strikePrice) + L" " + ibkr.PutCall;
+				wszText += L" " + ibkr.expiryDate + L" " + std::to_wstring(ibkr.strikePrice) + L" " + ibkr.PutCall;
 			}
-			ResultsText = ResultsText + L"\r\n";
+			wszText += L"\r\n";
 		}
 	}
+	if (wszText.length() == 0) wszText = L"** Everything matches correctly **";
+	ResultsText += wszText;
 
-	ResultsText = ResultsText + L"\r\n";   // blank line
+	ResultsText += L"\r\n\r\n";   // blank lines
 
 	// (2) Determine what Local positions do not exist in the IBKR "real" database.
-	ResultsText = ResultsText + L"Local that do not exist in IBKR:\r\n";
+	ResultsText += L"Local that do not exist in IBKR:\r\n";
+	wszText = L"";
 	for (const auto& local : LocalPositions) {
 		bool found = false;
 		for (const auto& ibkr : IBKRPositions) {
@@ -204,15 +210,17 @@ void Reconcile_positionEnd()
 		}
 		if (!found) {
 			if (local.openQuantity != 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
-				ResultsText = ResultsText + L"   " + std::to_wstring(local.openQuantity) + L" " +
+				wszText += L"   " + std::to_wstring(local.openQuantity) + L" " +
 					local.tickerSymbol + L" " + local.underlying;
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
-					ResultsText = ResultsText + L" " + local.expiryDate + L" " + std::to_wstring(local.strikePrice) + L" " + local.PutCall;
+					wszText += L" " + local.expiryDate + L" " + std::to_wstring(local.strikePrice) + L" " + local.PutCall;
 				}
-				ResultsText = ResultsText + L"\r\n";
+				wszText += L"\r\n";
 			}
 		}
 	}
+	if (wszText.length() == 0) wszText = L"** Everything matches correctly **";
+	ResultsText += wszText;
 
 	// Clear the vectors in case we run reconcile again
 	LocalPositions.clear();
@@ -319,6 +327,7 @@ void Reconcile_Show()
 	// Apply fixed width font for better readability
 	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
+	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
 
 	// Fix Windows 10 white flashing
 	BOOL cloak = TRUE;
