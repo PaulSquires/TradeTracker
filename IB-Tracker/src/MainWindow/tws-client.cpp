@@ -293,6 +293,7 @@ void monitoringFunction(std::stop_token st) {
 	ping_thread.request_stop();
 
 
+	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
 	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
@@ -656,6 +657,7 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 
 
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
+
 	if (isThreadPaused) return;
 
 	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed 
