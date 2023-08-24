@@ -955,7 +955,7 @@ void ActiveTrades_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    Color backColor(COLOR_GRAYDARK);
+    Color backColor(COLOR_BLACK);
     SolidBrush backBrush(backColor);
 
     // Paint the background using brush.
@@ -969,6 +969,20 @@ void ActiveTrades_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
+// Show/Hide the Net and Excess liquidity labels and values.
+// ========================================================================================
+void ActiveTrades_ShowHideLiquidityLabels(HWND hwnd)
+{
+    int nShow = (tws_isConnected()) ? SW_SHOW : SW_HIDE;
+
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION), nShow);
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE), nShow);
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY), nShow);
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), nShow);
+}
+    
+    
+ // ========================================================================================
 // Process WM_SIZE message for window/dialog: ActiveTrades
 // ========================================================================================
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
@@ -982,15 +996,18 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // If no entries exist for the ListBox then don't show any child controls
     int showflag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
 
-    HDWP hdwp = BeginDeferWindowPos(5);
+    HDWP hdwp = BeginDeferWindowPos(10);
 
-    // Move and size the top label into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0,
-        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+    // Move and size the top labels into place
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, 200, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION),        0, 610, 0, 75, margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE),  0, 685, 0, 100, margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY),       0, 780, 0, 95, margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), 0, 875, 0, 100, margin, SWP_NOZORDER);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
-    // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
+    // calculation then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bShowScrollBar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
@@ -1018,6 +1035,9 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
         SWP_NOZORDER | showflag);
 
     EndDeferWindowPos(hdwp);
+
+    ActiveTrades_ShowHideLiquidityLabels(hwnd);
+
 }
 
 
@@ -1029,6 +1049,18 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_ACTIVETRADES = hwnd;
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
+        COLOR_WHITELIGHT, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_NETLIQUIDATION, L"Net Liq:",
+        COLOR_WHITEDARK, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE, L"",
+        COLOR_WHITELIGHT, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_EXCESSLIQUIDITY, L"Excess Liq:",
+        COLOR_WHITEDARK, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE, L"",
         COLOR_WHITELIGHT, COLOR_BLACK);
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom

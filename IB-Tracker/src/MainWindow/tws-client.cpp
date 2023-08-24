@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Reconcile/Reconcile.h"
 #include "Utilities/IntelDecimal.h"
 #include "SideMenu/SideMenu.h"
+#include "CustomLabel/CustomLabel.h"
 
 #include "tws-api/EClientSocket.h"
 #include "tws-api/EPosixClientSocketPlatform.h"
@@ -339,6 +340,9 @@ bool tws_connect()
 			
 			StartMonitorThread();
 
+			// Request Account Summary in order to get liquity amounts
+			client.requestAccountSummary();
+
 			// Destroy any existing ListBox line data
 			// This will also clear the LineData pointers and cancel any previous market data
 			PrevMarketDataLoaded = false;
@@ -612,6 +616,11 @@ void TwsClient::cancelPositions()
 void TwsClient::requestPositions()
 {
 	m_pClient->reqPositions();
+}
+
+void TwsClient::requestAccountSummary()
+{
+	m_pClient->reqAccountSummary(1000, "All", "NetLiquidation,ExcessLiquidity");
 }
 
 
@@ -961,6 +970,49 @@ void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int 
 	if (isThreadPaused) return;
 }
 
+#include "MainWindow/MainWindow.h"
+
+void TwsClient::accountSummary(int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& currency) 
+{
+	// Values will return immediately when first requested and then everytime they change or 3 minutes.
+
+	//	std::cout << "reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
+	
+	std::wstring wszValue = ansi2unicode(value);
+
+	// Get the value and convert it into K amounts
+	double amount = AfxValDouble(wszValue);
+	if (amount > 1000) {
+		amount = amount / 1000;
+		wszValue = AfxMoney(amount, false, 1) + L"K";
+	}
+	else {
+		wszValue = AfxMoney(amount, false);
+	}
+
+
+	if (AfxStringCompareI(tag, "NetLiquidation")) {
+		//std::cout << "reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
+		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), wszValue);
+		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+	}
+
+	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
+		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), wszValue);
+		//CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), L"12345");
+		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+	}
+
+}
+
+void TwsClient::accountSummaryEnd(int reqId) {
+	std::cout << "account summary end" << std::endl;
+}
+
+
+
+
+
 void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
 	if (isThreadPaused) return;
 	//std::cout << "tickSize  id: " << tickerId << "  size: " << (int)intelDecimalToDouble(size) << std::endl;
@@ -1068,12 +1120,6 @@ void TwsClient::marketDataType(TickerId reqId, int marketDataType) {
 }
 
 void TwsClient::commissionReport(const CommissionReport& commissionReport) {
-}
-
-void TwsClient::accountSummary(int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& currency) {
-}
-
-void TwsClient::accountSummaryEnd(int reqId) {
 }
 
 void TwsClient::verifyMessageAPI(const std::string& apiData) {

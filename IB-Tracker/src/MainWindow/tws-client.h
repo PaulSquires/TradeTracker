@@ -58,6 +58,7 @@ public:
 	void requestPositions();
 	void cancelPortfolioUpdates();
 	void requestPortfolioUpdates();
+	void requestAccountSummary();
 	void pingTWS() const;
 
 public:
