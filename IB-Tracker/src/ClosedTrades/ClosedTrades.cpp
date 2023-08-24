@@ -133,6 +133,7 @@ void ClosedTrades_ShowClosedTrades()
     // Output the closed trades and subtotals based on month when the month changes.
     double subTotalAmount = 0;
     double YTD = 0;
+    double weeklyAmount = 0;
     double dailyAmount = 0;
     
     int subTotalMonth = 0;
@@ -143,6 +144,9 @@ void ClosedTrades_ShowClosedTrades()
     int MonthWin = 0;
     int MonthLoss = 0;
 
+    int WeekWin = 0;
+    int WeekLoss = 0;
+
     int DayWin = 0;
     int DayLoss = 0;
 
@@ -150,6 +154,8 @@ void ClosedTrades_ShowClosedTrades()
     int YearLoss = 0;
 
     std::wstring todayDate = AfxCurrentDate();
+    std::wstring weekStartDate = AfxDateAddDays(todayDate, -AfxLocalDayOfWeek());
+    std::wstring weekEndDate = AfxDateAddDays(weekStartDate, 6);
     std::wstring curDate = L"";
 
     for (const auto& ClosedData : vectorClosed) {
@@ -168,6 +174,12 @@ void ClosedTrades_ShowClosedTrades()
         if (ClosedData.trade->ACB >= 0) ++MonthWin;
         if (ClosedData.trade->ACB < 0) ++MonthLoss;
 
+        if (curDate >= weekStartDate && curDate <= weekEndDate) {
+            weeklyAmount += ClosedData.trade->ACB;
+            if (ClosedData.trade->ACB >= 0) ++WeekWin;
+            if (ClosedData.trade->ACB < 0) ++WeekLoss;
+        }
+
         if (curDate == todayDate) {
             dailyAmount += ClosedData.trade->ACB;
             if (ClosedData.trade->ACB >= 0) ++DayWin;
@@ -183,6 +195,7 @@ void ClosedTrades_ShowClosedTrades()
     }
     if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount, MonthWin, MonthLoss);
     ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD, YearWin, YearLoss);
+    ListBoxData_OutputClosedWeekTotal(hListBox, weeklyAmount, WeekWin, WeekLoss);
     ListBoxData_OutputClosedDayTotal(hListBox, dailyAmount, DayWin, DayLoss);
 
 
@@ -210,7 +223,7 @@ void ClosedTrades_ShowClosedTrades()
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     // Select row past the DAY total line if possible
-    int curSel = min(ListBox_GetCount(hListBox)-1, 3);
+    int curSel = min(ListBox_GetCount(hListBox)-1, 4);
     ClosedTrades_ShowListBoxItem(curSel);  
 
     // Redraw the ListBox to ensure that any recalculated columns are 

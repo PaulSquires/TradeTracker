@@ -889,6 +889,37 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 
 
 // ========================================================================================
+// Create the display data line for total closed weekly total.
+// ========================================================================================
+void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int WeekWin, int WeekLoss)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    DWORD clr = (weeklyTotal >= 0) ? COLOR_GREEN : COLOR_RED;
+    
+    std::wstring wszText = L"THIS WEEK";
+    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(4, nullptr, tickerId, AfxMoney(weeklyTotal), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    // col 5 is a "spacer" column
+
+    clr = (WeekWin >= WeekLoss) ? COLOR_GREEN : COLOR_RED;
+    wszText = std::to_wstring(WeekWin) + L"W " + std::to_wstring(WeekLoss)
+        + L"L  " + AfxMoney((double)WeekWin / (max(WeekWin + WeekLoss,1)) * 100, false, 0) + L"%";
+    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+
+    ListBox_InsertString(hListBox, 1, ld);
+}
+
+
+// ========================================================================================
 // Create the display data line for total closed daily total.
 // ========================================================================================
 void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayWin, int DayLoss)
@@ -915,12 +946,12 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayW
     ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
-    ListBox_InsertString(hListBox, 1, ld);
+    ListBox_InsertString(hListBox, 2, ld);
 
-    // *** BLANK SEPARATION LINE AFTER THE YTD ***
+    // *** BLANK SEPARATION LINE AFTER THE DAY TOTAL ***
     ld = new ListBoxData;
     ld->lineType = LineType::None;
-    ListBox_InsertString(hListBox, 2, ld);
+    ListBox_InsertString(hListBox, 3, ld);
 }
 
 
