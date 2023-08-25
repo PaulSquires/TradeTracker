@@ -71,9 +71,6 @@ enum class LineType {
 class ListBoxData {
 public:
     LineType        lineType = LineType::None;
-    bool            isDailyTotalsNode = false;
-    bool            isDailyTotalsNodeOpen = false;
-    std::wstring    DailyTotalsDate;
     std::wstring    AggregateShares;
     TickerId        tickerId = -1;
     std::shared_ptr<Trade> trade = nullptr;

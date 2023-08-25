@@ -338,16 +338,18 @@ bool tws_connect()
 			// and poll if TWS remains connected.
 			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 			
-			StartMonitorThread();
+			if (tws_isConnected()) {
+				StartMonitorThread();
 
-			// Request Account Summary in order to get liquity amounts
-			client.requestAccountSummary();
+				// Request Account Summary in order to get liquity amounts
+				client.requestAccountSummary();
 
-			// Destroy any existing ListBox line data
-			// This will also clear the LineData pointers and cancel any previous market data
-			PrevMarketDataLoaded = false;
-			ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-			ActiveTrades_ShowActiveTrades();
+				// Destroy any existing ListBox line data
+				// This will also clear the LineData pointers and cancel any previous market data
+				PrevMarketDataLoaded = false;
+				ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+				ActiveTrades_ShowActiveTrades();
+			}
 
 		}
 
@@ -970,7 +972,6 @@ void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int 
 	if (isThreadPaused) return;
 }
 
-#include "MainWindow/MainWindow.h"
 
 void TwsClient::accountSummary(int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& currency) 
 {
@@ -992,21 +993,19 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 
 
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
-		//std::cout << "reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), wszValue);
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
 		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), wszValue);
-		//CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), L"12345");
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 }
 
 void TwsClient::accountSummaryEnd(int reqId) {
-	std::cout << "account summary end" << std::endl;
+	// std::cout << "account summary end" << std::endl;
 }
 
 

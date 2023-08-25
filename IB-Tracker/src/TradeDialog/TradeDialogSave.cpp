@@ -463,11 +463,11 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
         case TradeAction::CloseLeg:
         case TradeAction::RollLeg:
-            leg->origQuantity = intQuantity;
+            leg->origQuantity = guiData.legs.at(row).origQuantity;
             leg->openQuantity = 0;
             // Update the original transaction being Closed quantities
             if (!tdd.legs.empty()) {
-                tdd.legs.at(row)->openQuantity = tdd.legs.at(row)->openQuantity + intQuantity;
+                tdd.legs.at(row)->openQuantity += (tdd.legs.at(row)->openQuantity < 0) ? guiData.legs.at(row).origQuantity : -guiData.legs.at(row).origQuantity;
                 leg->legBackPointerID = tdd.legs.at(row)->legID;
             }
             break;

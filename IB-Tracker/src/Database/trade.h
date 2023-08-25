@@ -56,12 +56,14 @@ public:
     std::wstring underlying   = L"";      // OPTIONS, STOCKS, FUTURES
     bool         isOpen();                // method to calc if leg quantity is not zero
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
+
     double averagePrice = 0;              // real time data receive via updatePortfolio
     double marketPrice = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                // real time data receive via updatePortfolio
     double unrealizedPNL = 0;             // real time data receive via updatePortfolio
+    
     // The following are string representations of the updatePortfolio values. We save them here
-    // so that the Activetrades lists gets visually updated immediately after a new Trade or close trade.
+    // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives
     // therefore the user will always see the most recent data until the new data arrives.
     std::wstring wszAveragePrice = L"";
@@ -108,7 +110,7 @@ public:
     int     tickerDecimals = 2;           // upated via data from Config. 
 
     // The following are string representations of the marketdata and updatePortfolio values. We save them here
-    // so that the Activetrades lists gets visually updated immediately after a new Trade or close trade.
+    // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives
     // therefore the user will always see the most recent data until the new data arrives.
     std::wstring wszITM = L"";
