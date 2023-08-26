@@ -999,11 +999,11 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HDWP hdwp = BeginDeferWindowPos(10);
 
     // Move and size the top labels into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, 200, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION),        0, 610, 0, 75, margin, SWP_NOZORDER);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE),  0, 685, 0, 100, margin, SWP_NOZORDER);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY),       0, 780, 0, 95, margin, SWP_NOZORDER);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), 0, 875, 0, 100, margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, AfxScaleX(200), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION),        0, AfxScaleX(380), 0, AfxScaleX(60), margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE),  0, AfxScaleX(440), 0, AfxScaleX(50), margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY),       0, AfxScaleX(490), 0, AfxScaleX(65), margin, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), 0, AfxScaleX(555), 0, AfxScaleX(50), margin, SWP_NOZORDER);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()

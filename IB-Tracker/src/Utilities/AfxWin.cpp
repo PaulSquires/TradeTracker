@@ -146,12 +146,20 @@ int AfxScaleX(float cx)
 {
     return (int)round((cx * AfxScaleRatioX()));
 }
+int AfxScaleX(int cx)
+{
+    return (int)round((cx * AfxScaleRatioX()));
+}
 
 
 // ========================================================================================
 // Scales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
 // ========================================================================================
 int AfxScaleY(float cy)
+{
+    return (int)round((cy * AfxScaleRatioX()));
+}
+int AfxScaleY(int cy)
 {
     return (int)round((cy * AfxScaleRatioX()));
 }
