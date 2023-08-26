@@ -204,10 +204,14 @@ void UpdateTickersWithScrapedData()
 				}
 				ld->trade->tickerLastPrice = ld->trade->tickerClosePrice;
 
+				std::wstring wszText = AfxMoney(ld->trade->tickerLastPrice, false, ld->trade->tickerDecimals);
+				ld->trade->wszTickerLastPrice = wszText;
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
+
 				PerformITMcalculation(ld->trade);
 				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->wszITM, ld->trade->clrITM);  // ITM
 
-				std::wstring wszText = AfxMoney(ld->trade->tickerClosePrice, false, ld->trade->tickerDecimals);
+				wszText = AfxMoney(ld->trade->tickerClosePrice, false, ld->trade->tickerDecimals);
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
 
 				RECT rc{};
