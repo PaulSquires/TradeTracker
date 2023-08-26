@@ -1093,13 +1093,13 @@ inline bool caseInsCharCompareW(wchar_t a, wchar_t b) {
 bool AfxStringCompareI(const std::string& s1, const std::string& s2)
 {
     return ((s1.size() == s2.size()) &&
-    equal (s1.begin(), s1.end(), s2.begin(), caseInsCharCompareN));
+    std::equal (s1.begin(), s1.end(), s2.begin(), caseInsCharCompareN));
 }
 
 bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2) 
 {
     return ((s1.size() == s2.size()) &&
-    equal(s1.begin(), s1.end(), s2.begin(), caseInsCharCompareW));
+    std::equal(s1.begin(), s1.end(), s2.begin(), caseInsCharCompareW));
 }
 
 
@@ -1397,7 +1397,7 @@ std::wstring AfxUpper(const std::wstring& wszText)
 {
     // using transform() function and ::toupper in STL
     std::wstring s = wszText;
-    transform(s.begin(), s.end(), s.begin(), ::toupper);
+    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     return s;
 }
 
@@ -1405,7 +1405,7 @@ std::wstring AfxLower(const std::wstring& wszText)
 {
     // using transform() function and ::tolower in STL
     std::wstring s = wszText;
-    transform(s.begin(), s.end(), s.begin(), ::tolower);
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
     return s;
 }
 
