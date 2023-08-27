@@ -31,6 +31,7 @@ SOFTWARE.
 
 #include "SideMenu/SideMenu.h"
 #include "CustomLabel/CustomLabel.h"
+#include "MainWindow/MainWindow.h"
 
 #include "Config.h"
 
@@ -43,6 +44,8 @@ bool StartupConnect = false;
 int StartupWidth = 0;
 int StartupHeight = 0;
 int StartupRightPanelWidth = 0;
+
+bool StartupPaperTrading = false;
 
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
@@ -85,6 +88,30 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
     { L"/ZS", 4 }
 };
 
+
+
+// ========================================================================================
+// Display Paper Trading warning message if port is enabled. 
+// Normal Trading 7496;   7497 is paper trading account.
+// ========================================================================================
+void DisplayPaperTradingWarning()
+{
+    if (!StartupPaperTrading) return;
+
+    CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
+        L"*** USING PAPER TRADING ACCOUNT ***");
+    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+}
+
+
+// ========================================================================================
+// Return the TWS connect Port. 
+// Normal Trading 7496;   7497 is paper trading account.
+// ========================================================================================
+int GetStartupPort()
+{
+    return (StartupPaperTrading ? 7497 : 7496);   // paper trading port is 7497
+}
 
 
 // ========================================================================================
@@ -305,6 +332,8 @@ bool SaveConfig()
     db << idMagic << "|" << version << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
+    db << "ENABLEPAPERTRADING|" << (StartupPaperTrading ? L"true" : L"false") << "\n";
+
     db << "STARTUPWIDTH" << "|" << StartupWidth << "\n";
 
     db << "STARTUPHEIGHT" << "|" << StartupHeight << "\n";
@@ -399,6 +428,18 @@ bool LoadConfig()
         
             bool bConnect = AfxWStringCompareI(wszConnect, L"true");
             SetStartupConnect(bConnect);
+            continue;
+        }
+
+
+        // Check for paper trading
+        if (arg == L"ENABLEPAPERTRADING") {
+            std::wstring wszPaper;
+            
+            try {wszPaper = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+        
+            StartupPaperTrading = AfxWStringCompareI(wszPaper, L"true");
             continue;
         }
 

@@ -166,6 +166,10 @@ int APIENTRY wWinMain(
     ShowWindow(hWndMain, (nCmdShow == 0) ? SW_SHOW : nCmdShow);
     UpdateWindow(hWndMain);
 
+    
+    // Display message if Paper Trading is enabled.
+    DisplayPaperTradingWarning();
+
 
     // Now that the child panels are created we can *post* a message to MainWindow to ask
     // to show any trades that already exist. We need to postmessage because we need for

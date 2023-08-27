@@ -41,6 +41,8 @@ std::wstring GetCategoryDescription(int idxCategory);
 void SetCategoryDescription(int idxCategory, std::wstring wszDescription);
 bool GetStartupConnect();
 void SetStartupConnect(bool bConnect);
+void DisplayPaperTradingWarning();
+int GetStartupPort();
 bool IsFuturesTicker(const std::wstring& wszTicker);
 int GetStartupWidth();
 int GetStartupHeight();

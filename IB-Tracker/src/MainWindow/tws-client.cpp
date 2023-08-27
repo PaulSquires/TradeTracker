@@ -327,7 +327,7 @@ bool tws_connect()
     if (tws_isConnected()) return false;
 
     const char* host = "";
-    int port = 7496;   // 7497 is paper trading account
+	int port = GetStartupPort();  // 7496;   // 7497 is paper trading account
     int clientId = 0;
 
 	
@@ -371,7 +371,7 @@ bool tws_connect()
         SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring wszText =
 			L"Could not connect to TWS.\n\n" \
-			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496.\n\n" \
+			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
 			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
 		if (MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
 			UpdateTickersWithScrapedData();
