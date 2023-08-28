@@ -484,7 +484,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hCategory, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
 
 
-    nWidth = 100;
+    nWidth = AfxScaleX(100);
     nLeft = cx - nWidth - CustomVScrollBarWidth;
     nHeight = AfxScaleY(CATEGORYCONTROL_HEIGHT);
     hdwp = DeferWindowPos(hdwp, hYearEnd, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
