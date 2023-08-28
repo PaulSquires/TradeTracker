@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Utilities/CWindowBase.h"
 #include "MainWindow/MainWindow.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "TradeDialog/TradeDialog.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -243,6 +244,9 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
             SaveConfig();
             DialogReturnCode = DIALOG_RETURN_OK;
+            if (HWND_MIDDLEPANEL == HWND_ACTIVETRADES) {
+                ActiveTrades_ShowActiveTrades();
+            }
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
 
