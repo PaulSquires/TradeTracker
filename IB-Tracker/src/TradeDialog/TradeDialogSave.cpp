@@ -491,7 +491,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->PutCall     = guiData.legsRoll.at(row).PutCall;
             leg->action      = guiData.legsRoll.at(row).action;
             leg->trans       = trans;
-            int intQuantity  = guiData.legsRoll.at(row).origQuantity * trans->quantity;
+            int intQuantity  = guiData.legsRoll.at(row).origQuantity;
             if (intQuantity == 0) continue;
 
             std::wstring wszExpiryDate = AfxRemoveDateHyphens(leg->expiryDate);
