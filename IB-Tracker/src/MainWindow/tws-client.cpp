@@ -245,6 +245,9 @@ void pingFunction(std::stop_token st) {
 
 	while (!st.stop_requested()) {
 
+		// Sleep for 10 seconds
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+
 		try {
 			if (isMonitorThreadActive == true) {
 				// Send a request time message (ping)
@@ -257,8 +260,6 @@ void pingFunction(std::stop_token st) {
 		catch (...) {
 			break;
 		}
-		// Sleep for 10 seconds
-		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 	}
 
 	std::cout << "Ping Thread Terminated" << std::endl;
@@ -345,7 +346,7 @@ bool tws_connect()
 			if (tws_isConnected()) {
 				StartMonitorThread();
 
-				// Request Account Summary in order to get liquity amounts
+				// Request Account Summary in order to get liquidity amounts
 				client.requestAccountSummary();
 
 				// Destroy any existing ListBox line data
@@ -388,8 +389,8 @@ bool tws_disconnect()
     if (tws_isConnected() == false) return true;
 	isThreadPaused = true;
 
-    EndMonitorThread();
     client.disconnect();
+    EndMonitorThread();
 
     bool res = (tws_isConnected(), false, true);
 
