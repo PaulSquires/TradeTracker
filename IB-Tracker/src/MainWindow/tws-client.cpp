@@ -271,10 +271,6 @@ void monitoringFunction(std::stop_token st) {
 	
 	isMonitorThreadActive = true;
 
-	// Create and start the ping thread
-	ping_thread = std::jthread(pingFunction);
-
-
 	while (!st.stop_requested()) {
 
 		try {
@@ -295,7 +291,7 @@ void monitoringFunction(std::stop_token st) {
 
 	isMonitorThreadActive = false;
 
-	// Shut down the Ping thread prior to ending this Monitoring thread
+	// Request to shut down the Ping thread also
 	ping_thread.request_stop();
 
 
@@ -354,6 +350,10 @@ bool tws_connect()
 				PrevMarketDataLoaded = false;
 				ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 				ActiveTrades_ShowActiveTrades();
+
+				// Create and start the ping thread
+				ping_thread = std::jthread(pingFunction);
+
 			}
 
 		}
