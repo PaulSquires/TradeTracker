@@ -467,7 +467,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->openQuantity = 0;
             // Update the original transaction being Closed quantities
             if (!tdd.legs.empty()) {
-                tdd.legs.at(row)->openQuantity += (tdd.legs.at(row)->openQuantity < 0) ? guiData.legs.at(row).origQuantity : -guiData.legs.at(row).origQuantity;
+                tdd.legs.at(row)->openQuantity += guiData.legs.at(row).origQuantity;
                 leg->legBackPointerID = tdd.legs.at(row)->legID;
             }
             break;
