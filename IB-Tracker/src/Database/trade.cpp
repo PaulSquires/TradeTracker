@@ -66,6 +66,9 @@ void Trade::setTradeOpenStatus()
         this->isOpen = (aggregate == 0 ? false : true);
         return;
     }
+
+    // If the Trade is closed then set the latest Buying Power date tot he close date
+    this->BPendDate = this->OldestTradeTransDate;
 }
 
 

@@ -435,8 +435,8 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
         COLOR_WHITEDARK, font8, FontStyleRegular);
     
     // Days In Trade
-    int days = AfxDaysBetween(startDate, (trade->isOpen ? AfxCurrentDate() : endDate));
-    text = AfxMoney(days, true, 0);
+    int daysInTrade = AfxDaysBetween(startDate, (trade->isOpen ? AfxCurrentDate() : endDate));
+    text = AfxMoney(daysInTrade, true, 0);
     ld->SetData(4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
     text = L"DIT";
@@ -446,18 +446,18 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
 
     // Totals Days for Trade
     ld = new ListBoxData;
-    days = AfxDaysBetween(startDate, endDate);
-    text = AfxMoney(days, true, 0);
+    int daysTotal = AfxDaysBetween(startDate, endDate);
+    text = AfxMoney(daysTotal, true, 0);
     ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
     text = L"Days";
     ld->SetData(3, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITEDARK, font8, FontStyleRegular);
     
-    // ROI% per 30 days 
+    // ROI% per 30 days  
     text = AfxMoney(0, true, 1) + L"%";
-    if (trade->TradeBP != 0 && days != 0) {
-        text = AfxMoney((trade->ACB / trade->TradeBP * 100 / days * 30), true, 1) + L"%";
+    if (trade->TradeBP != 0 && daysTotal != 0) {
+        text = AfxMoney((trade->ACB / trade->TradeBP * 100 / daysTotal * 30), true, 1) + L"%";
     }
     ld->SetData(4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
