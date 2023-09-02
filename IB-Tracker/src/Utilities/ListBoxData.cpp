@@ -435,7 +435,7 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
         COLOR_WHITEDARK, font8, FontStyleRegular);
     
     // Days In Trade
-    int days = AfxDaysBetween(startDate, AfxCurrentDate());
+    int days = AfxDaysBetween(startDate, (trade->isOpen ? AfxCurrentDate() : endDate));
     text = AfxMoney(days, true, 0);
     ld->SetData(4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
