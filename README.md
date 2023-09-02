@@ -18,6 +18,10 @@ This program exists because tracking trades and their corresponding transactions
 
 ![screenshot](/IB-Tracker/assets/ib-tracker-closed.png?raw=true "IB-Tracker Closed")
 
+![screenshot](/IB-Tracker/assets/ib-tracker-trade.png?raw=true "IB-Tracker Trade")
+
+![screenshot](/IB-Tracker/assets/ib-tracker-trans.png?raw=true "IB-Tracker Transactions")
+
 ## Goals
 * Can easily be used with or without an IBKR account allowing IB-Tracker to be a great alternative to tracking your positions using spreadsheets.
 * Equity and Futures Options focused (underlying stocks and futures can also be tracked).
