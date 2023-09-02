@@ -4,12 +4,12 @@
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?style=flat-square) -->
 
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
-Let IB-Tracker free you from the constraints of spreadsheets.
-
-Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
+**Let IB-Tracker free you from the constraints of spreadsheets.**
 
 ## What is IB-Tracker 
 IB-Tracker a free application that allows you to track your Stocks, Futures and Options positions. A fantastic alternative to using spreadsheets like Microsoft Excel or Google Sheets! 
+
+Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 
 You do not need an Interactive Brokers account but if you have one then IB-Tracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture. 
 
