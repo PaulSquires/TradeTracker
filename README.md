@@ -14,7 +14,9 @@ If you are not using TWS integration, IB-Tracker allows you to "scrape" stock an
 
 This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. IB-Trader aims to make the trade tracking process as enjoyable and painless as possible.
 
-![screenshot](/IB-Tracker/assets/ib-tracker-main.png?raw=true "IB-Tracker")
+![screenshot](/IB-Tracker/assets/ib-tracker-main.png?raw=true "IB-Tracker Main")
+
+![screenshot](/IB-Tracker/assets/ib-tracker-closed.png?raw=true "IB-Tracker Closed")
 
 ## Goals
 * Can easily be used with or without an IBKR account allowing IB-Tracker to be a great alternative to tracking your positions using spreadsheets.
