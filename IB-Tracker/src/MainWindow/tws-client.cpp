@@ -319,6 +319,28 @@ void EndMonitorThread()
 }
 
 
+void tws_ConnectionSuccessful()
+{
+	// This function is called when TWS has successfully connected and has
+	// sent the nextValidId callback. This signals that the connection is
+	// ready to start to receive messages from us, etc.
+	// This function is called from nextValidId();
+
+	if (tws_isConnected()) {
+
+		// Request Account Summary in order to get liquidity amounts
+		ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
+		client.requestAccountSummary();
+
+		// Start getting market data and portfolio updates.
+		ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+
+		// Create and start the ping thread
+		ping_thread = std::jthread(pingFunction);
+	}
+}
+
+
 bool tws_connect()
 {
     if (tws_isConnected()) return false;
@@ -338,24 +360,7 @@ bool tws_connect()
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected.
 			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
-			
-			if (tws_isConnected()) {
-				StartMonitorThread();
-
-				// Request Account Summary in order to get liquidity amounts
-				client.requestAccountSummary();
-
-				// Destroy any existing ListBox line data
-				// This will also clear the LineData pointers and cancel any previous market data
-				PrevMarketDataLoaded = false;
-				ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-				ActiveTrades_ShowActiveTrades();
-
-				// Create and start the ping thread
-				ping_thread = std::jthread(pingFunction);
-
-			}
-
+			StartMonitorThread();
 		}
 
 	}
@@ -1035,6 +1040,9 @@ void TwsClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints
 void TwsClient::winError(const std::string& str, int lastError) {}
 
 void TwsClient::nextValidId(OrderId orderId) {
+	// We have made a successful connection to start our threads and load market data.
+	std::cout << "orderId: " << orderId << std::endl;
+	tws_ConnectionSuccessful();
 }
 
 void TwsClient::currentTime(long time) {

@@ -78,4 +78,5 @@ bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);
 void ActiveTrades_ShowActiveTrades();
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
+void ActiveTrades_ShowHideLiquidityLabels(HWND hwnd);
 
