@@ -188,7 +188,7 @@ struct Order
 	TagValueListSPtr orderMiscOptions;
 
 	//VER PEG2BENCH fields:
-	int referenceContractId = UNSET_INTEGER;
+	int referencecontract_id = UNSET_INTEGER;
 	double peggedChangeAmount = UNSET_DOUBLE;
 	bool isPeggedChangeAmountDecrease = false;
 	double referenceChangeAmount = UNSET_DOUBLE;

@@ -38,7 +38,7 @@ enum class GridColType
 	Label,
 	TextBox,
 	DatePicker,
-	PutCallCombo,
+	put_callCombo,
 	ActionCombo,
 	LineReset
 };

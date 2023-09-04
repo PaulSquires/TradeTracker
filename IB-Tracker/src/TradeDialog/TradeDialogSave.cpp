@@ -110,20 +110,20 @@ public:
 
         for (int row = 0; row < 4; ++row) {
             Leg leg;
-            leg.origQuantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0));
-            leg.expiryDate = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
-            leg.strikePrice = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
-            leg.PutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+            leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0));
+            leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
+            leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
+            leg.put_call = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
             leg.action = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
             legs.push_back(leg);
         }
 
         for (int row = 0; row < 4; ++row) {
             Leg leg;
-            leg.origQuantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0));
-            leg.expiryDate = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
-            leg.strikePrice = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
-            leg.PutCall = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+            leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0));
+            leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
+            leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
+            leg.put_call = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
             leg.action = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
             legsRoll.push_back(leg);
         }
@@ -199,15 +199,15 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         trade = tdd.trade;
     }
 
-    trade->tickerSymbol = guiData.tickerSymbol;
-    trade->tickerName   = guiData.tickerName;
-    trade->futureExpiry = guiData.futureExpiry;
+    trade->ticker_symbol = guiData.tickerSymbol;
+    trade->ticker_name   = guiData.tickerName;
+    trade->future_expiry = guiData.futureExpiry;
     trade->category     = guiData.category;
-    trade->TradeBP      = guiData.TradeBP;
-    trade->ACB          = guiData.ACB;
+    trade->trade_bp      = guiData.TradeBP;
+    trade->acb          = guiData.ACB;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
-    trans->transDate    = guiData.transDate;
+    trans->trans_date    = guiData.transDate;
     trans->description  = guiData.description;
     trans->underlying   = guiData.underlying;
     trans->quantity     = guiData.quantity; 
@@ -215,16 +215,16 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trans->multiplier   = guiData.multiplier;
     trans->fees         = guiData.fees;
     trans->total        = guiData.total;
-    trade->Transactions.push_back(trans);
+    trade->transactions.push_back(trans);
 
     std::shared_ptr<Leg> leg = std::make_shared<Leg>();
     leg->underlying = trans->underlying;
 
     // Determine earliest and latest dates for BP ROI calculation.
-    std::wstring wszDate = AfxRemoveDateHyphens(trans->transDate);
-    if (AfxValDouble(wszDate) < AfxValDouble(trade->BPstartDate)) trade->BPstartDate = wszDate;
-    if (AfxValDouble(wszDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszDate;
-    if (AfxValDouble(wszDate) > AfxValDouble(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
+    std::wstring wszDate = AfxRemoveDateHyphens(trans->trans_date);
+    if (AfxValDouble(wszDate) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = wszDate;
 
     // Set the Share/Futures quantity based on whether Long or Short based on 
     // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
@@ -234,16 +234,16 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         tdd.tradeAction == TradeAction::AddFuturesToTrade) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_BUYSHARES));
         if (sel == (int)LongShort::Long) {
-            leg->origQuantity = trans->quantity;
-            leg->openQuantity = trans->quantity;
-            leg->strikePrice = std::to_wstring(trans->price);
+            leg->original_quantity = trans->quantity;
+            leg->open_quantity = trans->quantity;
+            leg->strike_price = std::to_wstring(trans->price);
             leg->action = L"BTO";
         }
         else {
             if (sel == (int)LongShort::Short) {
-                leg->origQuantity = trans->quantity * -1;
-                leg->openQuantity = trans->quantity * -1;
-                leg->strikePrice = std::to_wstring(trans->price);
+                leg->original_quantity = trans->quantity * -1;
+                leg->open_quantity = trans->quantity * -1;
+                leg->strike_price = std::to_wstring(trans->price);
                 leg->action = L"STO";
             }
         }
@@ -253,14 +253,14 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         tdd.tradeAction == TradeAction::ManageFutures) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
         if (sel == (int)LongShort::Long) {
-            leg->origQuantity = trans->quantity;
-            leg->openQuantity = trans->quantity;
+            leg->original_quantity = trans->quantity;
+            leg->open_quantity = trans->quantity;
             leg->action = L"BTC";
         }
         else {
             if (sel == (int)LongShort::Short) {
-                leg->origQuantity = trans->quantity * -1;
-                leg->openQuantity = trans->quantity * -1;
+                leg->original_quantity = trans->quantity * -1;
+                leg->open_quantity = trans->quantity * -1;
                 leg->action = L"STC";
             }
         }
@@ -270,15 +270,15 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
 
     // Set the open status of the entire trade based on the new modified legs
-    trade->setTradeOpenStatus();
+    trade->SetTradeOpenStatus();
 
     // Rebuild the openLegs position vector
-    trade->createOpenLegsVector();
+    trade->CreateOpenLegsVector();
 
     // Recalculate the ACB for the trade
-    trade->ACB = 0;
-    for (const auto trans : trade->Transactions) {
-        trade->ACB = trade->ACB + trans->total;
+    trade->acb = 0;
+    for (const auto trans : trade->transactions) {
+        trade->acb = trade->acb + trans->total;
     }
 
     // Save the new data
@@ -321,10 +321,10 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
 
     for (int row = 0; row < 4; ++row) {
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (guiData.legs.at(row).origQuantity == 0 && 
-            guiData.legs.at(row).expiryDate.length() == 0 && 
-            guiData.legs.at(row).strikePrice.length() == 0 && 
-            guiData.legs.at(row).PutCall.length() == 0 && 
+        if (guiData.legs.at(row).original_quantity == 0 && 
+            guiData.legs.at(row).expiry_date.length() == 0 && 
+            guiData.legs.at(row).strike_price.length() == 0 && 
+            guiData.legs.at(row).put_call.length() == 0 && 
             guiData.legs.at(row).action.length() == 0) {
             NumBlankLegs++;
             continue;
@@ -333,10 +333,10 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incomplete data.
         bool bIncomplete = false;
 
-        if (guiData.legs.at(row).origQuantity == 0) bIncomplete = true;
-        if (guiData.legs.at(row).expiryDate.length() == 0) bIncomplete = true;
-        if (guiData.legs.at(row).strikePrice.length() == 0) bIncomplete = true;
-        if (guiData.legs.at(row).PutCall.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).original_quantity == 0) bIncomplete = true;
+        if (guiData.legs.at(row).expiry_date.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).strike_price.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).put_call.length() == 0) bIncomplete = true;
         if (guiData.legs.at(row).action.length() == 0) bIncomplete = true;
 
         if (bIncomplete == true) {
@@ -350,10 +350,10 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
 
     if (tdd.tradeAction == TradeAction::RollLeg) {
         for (int row = 0; row < 4; ++row) {
-            if (guiData.legsRoll.at(row).origQuantity == 0 &&
-                guiData.legsRoll.at(row).expiryDate.length() == 0 &&
-                guiData.legsRoll.at(row).strikePrice.length() == 0 &&
-                guiData.legsRoll.at(row).PutCall.length() == 0 &&
+            if (guiData.legsRoll.at(row).original_quantity == 0 &&
+                guiData.legsRoll.at(row).expiry_date.length() == 0 &&
+                guiData.legsRoll.at(row).strike_price.length() == 0 &&
+                guiData.legsRoll.at(row).put_call.length() == 0 &&
                 guiData.legsRoll.at(row).action.length() == 0) {
                 NumBlankLegs++;
                 continue;
@@ -362,10 +362,10 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
             // If any of the strings are zero length at this point then the row has incomplete data.
             bool bIncomplete = false;
 
-            if (guiData.legsRoll.at(row).origQuantity == 0) bIncomplete = true;
-            if (guiData.legsRoll.at(row).expiryDate.length() == 0) bIncomplete = true;
-            if (guiData.legsRoll.at(row).strikePrice.length() == 0) bIncomplete = true;
-            if (guiData.legsRoll.at(row).PutCall.length() == 0) bIncomplete = true;
+            if (guiData.legsRoll.at(row).original_quantity == 0) bIncomplete = true;
+            if (guiData.legsRoll.at(row).expiry_date.length() == 0) bIncomplete = true;
+            if (guiData.legsRoll.at(row).strike_price.length() == 0) bIncomplete = true;
+            if (guiData.legsRoll.at(row).put_call.length() == 0) bIncomplete = true;
             if (guiData.legsRoll.at(row).action.length() == 0) bIncomplete = true;
 
             if (bIncomplete == true) {
@@ -404,15 +404,15 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         trade = tdd.trade;
     }
 
-    trade->tickerSymbol = guiData.tickerSymbol;
-    trade->tickerName   = guiData.tickerName;
-    trade->futureExpiry = guiData.futureExpiry;
+    trade->ticker_symbol = guiData.tickerSymbol;
+    trade->ticker_name   = guiData.tickerName;
+    trade->future_expiry = guiData.futureExpiry;
     trade->category     = guiData.category;
-    trade->ACB          = guiData.ACB;
-    trade->TradeBP      = guiData.TradeBP;
+    trade->acb          = guiData.ACB;
+    trade->trade_bp      = guiData.TradeBP;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
-    trans->transDate    = guiData.transDate;
+    trans->trans_date    = guiData.transDate;
     trans->description  = guiData.description;
     trans->underlying   = guiData.underlying;
     trans->quantity     = guiData.quantity;
@@ -420,31 +420,31 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trans->multiplier   = guiData.multiplier;
     trans->fees         = guiData.fees;
     trans->total        = guiData.total;
-    trade->Transactions.push_back(trans);
+    trade->transactions.push_back(trans);
 
     // Determine earliest and latest dates for BP ROI calculation.
-    std::wstring wszDate = AfxRemoveDateHyphens(trans->transDate);
-    if (AfxValDouble(wszDate) < AfxValDouble(trade->BPstartDate)) trade->BPstartDate = wszDate;
-    if (AfxValDouble(wszDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszDate;
-    if (AfxValDouble(wszDate) > AfxValDouble(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
+    std::wstring wszDate = AfxRemoveDateHyphens(trans->trans_date);
+    if (AfxValDouble(wszDate) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = wszDate;
 
     // Add the new transaction legs
     for (int row = 0; row < 4; ++row) {
         std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
-        trade->nextLegID += 1;
-        leg->legID       = trade->nextLegID;
+        trade->nextleg_id += 1;
+        leg->leg_id       = trade->nextleg_id;
         leg->underlying  = trans->underlying;
-        leg->expiryDate  = guiData.legs.at(row).expiryDate;
-        leg->strikePrice = guiData.legs.at(row).strikePrice;
-        leg->PutCall     = guiData.legs.at(row).PutCall;
+        leg->expiry_date  = guiData.legs.at(row).expiry_date;
+        leg->strike_price = guiData.legs.at(row).strike_price;
+        leg->put_call     = guiData.legs.at(row).put_call;
         leg->action      = guiData.legs.at(row).action;
         leg->trans       = trans;
-        int intQuantity  = guiData.legs.at(row).origQuantity * trans->quantity;
+        int intQuantity  = guiData.legs.at(row).original_quantity * trans->quantity;
         if (intQuantity == 0) continue;
 
-        std::wstring wszExpiryDate = AfxRemoveDateHyphens(leg->expiryDate);
-        if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+        std::wstring wszexpiry_date = AfxRemoveDateHyphens(leg->expiry_date);
+        if (AfxValDouble(wszexpiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszexpiry_date;
 
         switch (tdd.tradeAction) {
 
@@ -457,18 +457,18 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         case TradeAction::AddOptionsToTrade:
         case TradeAction::AddPutToTrade:
         case TradeAction::AddCallToTrade:
-            leg->origQuantity = intQuantity;
-            leg->openQuantity = intQuantity;
+            leg->original_quantity = intQuantity;
+            leg->open_quantity = intQuantity;
             break;
 
         case TradeAction::CloseLeg:
         case TradeAction::RollLeg:
-            leg->origQuantity = guiData.legs.at(row).origQuantity;
-            leg->openQuantity = 0;
+            leg->original_quantity = guiData.legs.at(row).original_quantity;
+            leg->open_quantity = 0;
             // Update the original transaction being Closed quantities
             if (!tdd.legs.empty()) {
-                tdd.legs.at(row)->openQuantity += guiData.legs.at(row).origQuantity;
-                leg->legBackPointerID = tdd.legs.at(row)->legID;
+                tdd.legs.at(row)->open_quantity += guiData.legs.at(row).original_quantity;
+                leg->leg_back_pointer_id = tdd.legs.at(row)->leg_id;
             }
             break;
         }
@@ -483,22 +483,22 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         for (int row = 0; row < 4; ++row) {
             std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
-            trade->nextLegID += 1;
-            leg->legID       = trade->nextLegID;
+            trade->nextleg_id += 1;
+            leg->leg_id       = trade->nextleg_id;
             leg->underlying  = trans->underlying;
-            leg->expiryDate  = guiData.legsRoll.at(row).expiryDate;
-            leg->strikePrice = guiData.legsRoll.at(row).strikePrice;
-            leg->PutCall     = guiData.legsRoll.at(row).PutCall;
+            leg->expiry_date  = guiData.legsRoll.at(row).expiry_date;
+            leg->strike_price = guiData.legsRoll.at(row).strike_price;
+            leg->put_call     = guiData.legsRoll.at(row).put_call;
             leg->action      = guiData.legsRoll.at(row).action;
             leg->trans       = trans;
-            int intQuantity  = guiData.legsRoll.at(row).origQuantity;
+            int intQuantity  = guiData.legsRoll.at(row).original_quantity;
             if (intQuantity == 0) continue;
 
-            std::wstring wszExpiryDate = AfxRemoveDateHyphens(leg->expiryDate);
-            if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+            std::wstring wszexpiry_date = AfxRemoveDateHyphens(leg->expiry_date);
+            if (AfxValDouble(wszexpiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszexpiry_date;
 
-            leg->origQuantity = intQuantity;
-            leg->openQuantity = intQuantity;
+            leg->original_quantity = intQuantity;
+            leg->open_quantity = intQuantity;
 
             trans->legs.push_back(leg);
         }
@@ -506,15 +506,15 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     }
 
     // Set the open status of the entire trade based on the new modified legs
-    trade->setTradeOpenStatus();
+    trade->SetTradeOpenStatus();
 
     // Rebuild the openLegs position vector
-    trade->createOpenLegsVector();
+    trade->CreateOpenLegsVector();
 
     // Recalculate the ACB for the trade
-    trade->ACB = 0;
-    for (const auto trans : trade->Transactions) {
-        trade->ACB = trade->ACB + trans->total;
+    trade->acb = 0;
+    for (const auto trans : trade->transactions) {
+        trade->acb = trade->acb + trans->total;
     }
 
     // Save the new data
@@ -556,11 +556,11 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
 
     for (int row = 0; row < 4; ++row) {
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (guiData.legs.at(row).origQuantity == 0 &&
-            guiData.legs.at(row).openQuantity == 0 &&
-            guiData.legs.at(row).expiryDate.length() == 0 &&
-            guiData.legs.at(row).strikePrice.length() == 0 &&
-            guiData.legs.at(row).PutCall.length() == 0 &&
+        if (guiData.legs.at(row).original_quantity == 0 &&
+            guiData.legs.at(row).open_quantity == 0 &&
+            guiData.legs.at(row).expiry_date.length() == 0 &&
+            guiData.legs.at(row).strike_price.length() == 0 &&
+            guiData.legs.at(row).put_call.length() == 0 &&
             guiData.legs.at(row).action.length() == 0) {
             NumBlankLegs++;
             continue;
@@ -569,10 +569,10 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool bIncomplete = false;
 
-        if (guiData.legs.at(row).origQuantity == 0) bIncomplete = true;
-        if (guiData.legs.at(row).expiryDate.length() == 0) bIncomplete = true;
-        if (guiData.legs.at(row).strikePrice.length() == 0) bIncomplete = true;
-        if (guiData.legs.at(row).PutCall.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).original_quantity == 0) bIncomplete = true;
+        if (guiData.legs.at(row).expiry_date.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).strike_price.length() == 0) bIncomplete = true;
+        if (guiData.legs.at(row).put_call.length() == 0) bIncomplete = true;
         if (guiData.legs.at(row).action.length() == 0) bIncomplete = true;
 
         if (bIncomplete == true) {
@@ -586,11 +586,11 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
 
     for (int row = 0; row < 4; ++row) {
         // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (guiData.legsRoll.at(row).origQuantity == 0 &&
-            guiData.legsRoll.at(row).openQuantity == 0 &&
-            guiData.legsRoll.at(row).expiryDate.length() == 0 &&
-            guiData.legsRoll.at(row).strikePrice.length() == 0 &&
-            guiData.legsRoll.at(row).PutCall.length() == 0 &&
+        if (guiData.legsRoll.at(row).original_quantity == 0 &&
+            guiData.legsRoll.at(row).open_quantity == 0 &&
+            guiData.legsRoll.at(row).expiry_date.length() == 0 &&
+            guiData.legsRoll.at(row).strike_price.length() == 0 &&
+            guiData.legsRoll.at(row).put_call.length() == 0 &&
             guiData.legsRoll.at(row).action.length() == 0) {
             NumBlankLegs++;
             continue;
@@ -599,10 +599,10 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool bIncomplete = false;
 
-        if (guiData.legsRoll.at(row).origQuantity == 0) bIncomplete = true;
-        if (guiData.legsRoll.at(row).expiryDate.length() == 0) bIncomplete = true;
-        if (guiData.legsRoll.at(row).strikePrice.length() == 0) bIncomplete = true;
-        if (guiData.legsRoll.at(row).PutCall.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).original_quantity == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).expiry_date.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).strike_price.length() == 0) bIncomplete = true;
+        if (guiData.legsRoll.at(row).put_call.length() == 0) bIncomplete = true;
         if (guiData.legsRoll.at(row).action.length() == 0) bIncomplete = true;
 
         if (bIncomplete == true) {
@@ -631,24 +631,24 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     CGuiData guiData;
 
     // Save the modified data
-    tdd.trade->futureExpiry = guiData.futureExpiry;
+    tdd.trade->future_expiry = guiData.futureExpiry;
     tdd.trade->category = guiData.category;
     
-    tdd.trans->transDate   = guiData.transDate;
+    tdd.trans->trans_date   = guiData.transDate;
     tdd.trans->description = guiData.description;
     tdd.trans->underlying  = guiData.underlying;
     tdd.trans->quantity    = guiData.quantity;
     tdd.trans->price       = guiData.price;
     tdd.trans->multiplier  = guiData.multiplier;
     tdd.trans->fees        = guiData.fees;
-    tdd.trade->TradeBP     = guiData.TradeBP;
+    tdd.trade->trade_bp     = guiData.TradeBP;
     tdd.trans->total       = guiData.total;
 
     // Determine earliest and latest dates for BP ROI calculation.
-    std::wstring wszDate = AfxRemoveDateHyphens(tdd.trans->transDate);
-    if (AfxValDouble(wszDate) < AfxValDouble(tdd.trade->BPstartDate)) tdd.trade->BPstartDate = wszDate;
-    if (AfxValDouble(wszDate) > AfxValDouble(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszDate;
-    if (AfxValDouble(wszDate) > AfxValDouble(tdd.trade->OldestTradeTransDate)) tdd.trade->OldestTradeTransDate = wszDate;
+    std::wstring wszDate = AfxRemoveDateHyphens(tdd.trans->trans_date);
+    if (AfxValDouble(wszDate) < AfxValDouble(tdd.trade->bp_start_date)) tdd.trade->bp_start_date = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(tdd.trade->bp_end_date)) tdd.trade->bp_end_date = wszDate;
+    if (AfxValDouble(wszDate) > AfxValDouble(tdd.trade->oldest_trade_trans_date)) tdd.trade->oldest_trade_trans_date = wszDate;
 
     std::vector<int> legsToDelete;
 
@@ -658,16 +658,16 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             ? GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN)
             : GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL);
 
-        std::wstring legOrigQuantity = TradeGrid_GetText(hGrid, row, 0);
-        std::wstring legOpenQuantity = TradeGrid_GetText(hGrid, row, 1);
+        std::wstring legoriginal_quantity = TradeGrid_GetText(hGrid, row, 0);
+        std::wstring legopen_quantity = TradeGrid_GetText(hGrid, row, 1);
         std::wstring legExpiry = TradeGrid_GetText(hGrid, row, 2);
         std::wstring legStrike = TradeGrid_GetText(hGrid, row, 4);
-        std::wstring legPutCall = TradeGrid_GetText(hGrid, row, 5);
+        std::wstring legput_call = TradeGrid_GetText(hGrid, row, 5);
         std::wstring legAction = TradeGrid_GetText(hGrid, row, 6);
 
             
         // Nothing new or changed to add? Just iterate to next line.
-        if (legOrigQuantity.length() == 0) {
+        if (legoriginal_quantity.length() == 0) {
             // If row from original legs has been deleted then simply remove it from the 
             // legs vector.
             if (row < (int)tdd.trans->legs.size()) {
@@ -676,11 +676,11 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
             continue;
         }
 
-        int intOrigQuantity = AfxValInteger(legOrigQuantity);   // will GPF if empty legOrigQuantity string
-        if (intOrigQuantity == 0) continue;
+        int intoriginal_quantity = AfxValInteger(legoriginal_quantity);   // will GPF if empty legoriginal_quantity string
+        if (intoriginal_quantity == 0) continue;
 
-        int intOpenQuantity = AfxValInteger(legOpenQuantity);   // will GPF if empty legOpenQuantity string
-        if (intOpenQuantity == 0) continue;
+        int intopen_quantity = AfxValInteger(legopen_quantity);   // will GPF if empty legopen_quantity string
+        if (intopen_quantity == 0) continue;
 
 
         // Determine if backpointers exist and if yes then re-use that leg instead
@@ -693,21 +693,21 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         }
         else {
             leg = std::make_shared<Leg>();
-            tdd.trade->nextLegID += 1;
-            leg->legID = tdd.trade->nextLegID;
+            tdd.trade->nextleg_id += 1;
+            leg->leg_id = tdd.trade->nextleg_id;
         }
 
-        leg->origQuantity = intOrigQuantity * tdd.trans->quantity;
-        leg->openQuantity = intOpenQuantity * tdd.trans->quantity;
+        leg->original_quantity = intoriginal_quantity * tdd.trans->quantity;
+        leg->open_quantity = intopen_quantity * tdd.trans->quantity;
 
         leg->underlying = tdd.trans->underlying;
-        leg->expiryDate = legExpiry;
-        leg->strikePrice = legStrike;
-        leg->PutCall = legPutCall;
+        leg->expiry_date = legExpiry;
+        leg->strike_price = legStrike;
+        leg->put_call = legput_call;
         leg->action = legAction;
 
-        std::wstring wszExpiryDate = AfxRemoveDateHyphens(legExpiry);
-        if (AfxValDouble(wszExpiryDate) > AfxValDouble(tdd.trade->BPendDate)) tdd.trade->BPendDate = wszExpiryDate;
+        std::wstring wszexpiry_date = AfxRemoveDateHyphens(legExpiry);
+        if (AfxValDouble(wszexpiry_date) > AfxValDouble(tdd.trade->bp_end_date)) tdd.trade->bp_end_date = wszexpiry_date;
 
         if (row >= (int)tdd.trans->legs.size()) {
             tdd.trans->legs.push_back(leg);
@@ -720,15 +720,15 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     }
 
     // Set the open status of the entire trade based on the new modified legs
-    tdd.trade->setTradeOpenStatus();
+    tdd.trade->SetTradeOpenStatus();
 
     // Rebuild the openLegs position vector
-    tdd.trade->createOpenLegsVector();
+    tdd.trade->CreateOpenLegsVector();
 
     // Recalculate the ACB for the trade
-    tdd.trade->ACB = 0;
-    for (const auto trans : tdd.trade->Transactions) {
-        tdd.trade->ACB = tdd.trade->ACB + trans->total;
+    tdd.trade->acb = 0;
+    for (const auto trans : tdd.trade->transactions) {
+        tdd.trade->acb = tdd.trade->acb + trans->total;
     }
 
     // Save/Load the new data

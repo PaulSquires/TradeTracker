@@ -46,10 +46,10 @@ SOFTWARE.
 #include "tws-client.h"
 
 
-std::atomic<bool> isThreadPaused = false;
-std::atomic<bool> isMonitorThreadActive = false;
+std::atomic<bool> is_thread_paused = false;
+std::atomic<bool> is_monitor_thread_active = false;
 
-bool MarketDataSubscriptionError = false;
+bool market_data_subscription_error = false;
 
 TwsClient client;
 
@@ -61,49 +61,49 @@ TwsClient client;
 void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 {
 
-	bool isITMred = false;
-	bool isITMgreen = false;
-	bool inLongSpread = false;
+	bool is_itm_red = false;
+	bool is_itm_green = false;
+	bool is_long_spread = false;
 
-	for (const auto& leg : trade->openLegs) {
+	for (const auto& leg : trade->open_legs) {
 		if (leg->underlying == L"OPTIONS") {
-			if (leg->PutCall == L"P") {
-				if (trade->tickerLastPrice < AfxValDouble(leg->strikePrice)) {
-					if (leg->openQuantity < 0) {
-						isITMred = (inLongSpread == true) ? false : true;
+			if (leg->put_call == L"P") {
+				if (trade->ticker_last_price < AfxValDouble(leg->strike_price)) {
+					if (leg->open_quantity < 0) {
+						is_itm_red = (is_long_spread == true) ? false : true;
 					}
-					if (leg->openQuantity > 0) {
-						isITMgreen = true; isITMred = false; inLongSpread = true;
+					if (leg->open_quantity > 0) {
+						is_itm_green = true; is_itm_red = false; is_long_spread = true;
 					}
 				}
 			}
-			else if (leg->PutCall == L"C") {
-				if (trade->tickerLastPrice > AfxValDouble(leg->strikePrice)) {
-					if (leg->openQuantity < 0) {
-						isITMred = (inLongSpread == true) ? false : true;
+			else if (leg->put_call == L"C") {
+				if (trade->ticker_last_price > AfxValDouble(leg->strike_price)) {
+					if (leg->open_quantity < 0) {
+						is_itm_red = (is_long_spread == true) ? false : true;
 					}
-					if (leg->openQuantity > 0) {
-						isITMgreen = true; isITMred = false; inLongSpread = true;
+					if (leg->open_quantity > 0) {
+						is_itm_green = true; is_itm_red = false; is_long_spread = true;
 					}
 				}
 			}
 		}
 	}
 
-	std::wstring wszText = L"";
+	std::wstring text = L"";
 
-	DWORD themeEl = COLOR_WHITELIGHT;
-	if (isITMred) {
-		wszText = L"ITM";
-		themeEl = COLOR_RED;
+	DWORD theme_color = COLOR_WHITELIGHT;
+	if (is_itm_red) {
+		text = L"ITM";
+		theme_color = COLOR_RED;
 	}
-	if (isITMgreen) {
-		wszText = L"ITM";
-		themeEl = COLOR_GREEN;
+	if (is_itm_green) {
+		text = L"ITM";
+		theme_color = COLOR_GREEN;
 	}
 
-	trade->wszITM = wszText;
-	trade->clrITM = themeEl;
+	trade->itm_text = text;
+	trade->itm_color = theme_color;
 
 }
 
@@ -113,41 +113,41 @@ void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 // If not connected to TWS or after hours and no market data then attmept to scrape yahoo finance
 // to get the closing price of the stock.
 //
-double GetScrapedClosingPrice(std::wstring wszTickerSymbol)
+double GetScrapedClosingPrice(std::wstring ticker_symbol)
 {
-	static std::wstring curlCommand = L"C:/Windows/System32/curl.exe";
-	static bool curlExists = AfxFileExists(curlCommand);
-	if (!curlExists) return 0;
+	static std::wstring curl_command = L"C:/Windows/System32/curl.exe";
+	static bool curl_exists = AfxFileExists(curl_command);
+	if (!curl_exists) return 0;
 
-	std::wstring wszDate1 = AfxCurrentDate();
+	std::wstring date1 = AfxCurrentDate();
 
 	// If this is a Saturday or Sunday then we need to get the epoch timestamp for the preceeding Friday.
-	static int DayOfWeek = AfxLocalDayOfWeek();
-	if (DayOfWeek == 0) wszDate1 = AfxDateAddDays(wszDate1, -2);   // Sunday
-	if (DayOfWeek == 6) wszDate1 = AfxDateAddDays(wszDate1, -1);   // Saturday
+	static int day_of_week = AfxLocalDayOfWeek();
+	if (day_of_week == 0) date1 = AfxDateAddDays(date1, -2);   // Sunday
+	if (day_of_week == 6) date1 = AfxDateAddDays(date1, -1);   // Saturday
 
-	std::wstring wszDate2 = AfxDateAddDays(wszDate1, 1);
+	std::wstring date2 = AfxDateAddDays(date1, 1);
 
 	std::wstring cmd = L"C:/Windows/System32/curl.exe \"https://query1.finance.yahoo.com/v7/finance/download/" 
-		+ wszTickerSymbol + 
+		+ ticker_symbol + 
 		L"?interval=1d" + 
-		L"&period1=" + std::to_wstring(AfxUnixTime(wszDate1)) + 
-		L"&period2=" + std::to_wstring(AfxUnixTime(wszDate2)) + 
+		L"&period1=" + std::to_wstring(AfxUnixTime(date1)) + 
+		L"&period2=" + std::to_wstring(AfxUnixTime(date2)) + 
 		L"&events=history\"";
-	std::wstring wszText = AfxExecCmd(cmd);
+	std::wstring text = AfxExecCmd(cmd);
 
-	std::wstring wszClosingPrice = L"";
+	std::wstring closing_price = L"";
 
 	// Get the last line and parse for the closing price
-	if (wszText.size()) {
-		std::vector<std::wstring> lines = AfxSplit(wszText, L"\n");
-		std::wstring wszLastLine = lines.at(lines.size() - 1);
-		std::vector<std::wstring> prices = AfxSplit(wszLastLine, L",");
-		try { wszClosingPrice = prices.at(4); }
+	if (text.size()) {
+		std::vector<std::wstring> lines = AfxSplit(text, L"\n");
+		std::wstring last_line = lines.at(lines.size() - 1);
+		std::vector<std::wstring> prices = AfxSplit(last_line, L",");
+		try { closing_price = prices.at(4); }
 		catch (...) {}
 	}
 
-	return AfxValDouble(wszClosingPrice);
+	return AfxValDouble(closing_price);
 }
 
 
@@ -158,64 +158,64 @@ void UpdateTickersWithScrapedData()
 {
 	SetCursor(LoadCursor(0, IDC_WAIT));
 
-	std::unordered_map<std::wstring, double> mapPrices;
+	std::unordered_map<std::wstring, double> map_prices;
 
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 
-	int lbCount = ListBox_GetCount(hListBox);
+	int item_count = ListBox_GetCount(hListBox);
 
-	for (int nIndex = 0; nIndex < lbCount; nIndex++) {
-		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+	for (int index = 0; index < item_count; index++) {
+		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 		if (ld == nullptr) continue;
 
 		if ((ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
 
-			if (ld->trade->tickerLastPrice == 0 && ld->trade->tickerClosePrice == 0) {
+			if (ld->trade->ticker_last_price == 0 && ld->trade->ticker_close_price == 0) {
 
-				std::wstring wszTickerSymbol = ld->trade->tickerSymbol;
-				if (wszTickerSymbol == L"SPX") wszTickerSymbol = L"^SPX";
-				if (wszTickerSymbol == L"NDX") wszTickerSymbol = L"^NDX";
-				if (wszTickerSymbol == L"RUT") wszTickerSymbol = L"^RUT";
-				if (wszTickerSymbol == L"VIX") wszTickerSymbol = L"^VIX";
-				if (IsFuturesTicker(wszTickerSymbol)) {
-					wszTickerSymbol = wszTickerSymbol.substr(1);
-					if (wszTickerSymbol == L"AUD") wszTickerSymbol = L"6A";
-					if (wszTickerSymbol == L"GBP") wszTickerSymbol = L"6B";
-					if (wszTickerSymbol == L"EUR") wszTickerSymbol = L"6E";
-					if (wszTickerSymbol == L"CAD") wszTickerSymbol = L"CD";
-					if (wszTickerSymbol == L"JPY") wszTickerSymbol = L"JY";
-					if (wszTickerSymbol == L"CHF") wszTickerSymbol = L"SF";
-					if (wszTickerSymbol == L"INR") wszTickerSymbol = L"IR";
-					if (wszTickerSymbol == L"MCL") wszTickerSymbol = L"CL";
-					if (wszTickerSymbol == L"MES") wszTickerSymbol = L"ES";
-					if (wszTickerSymbol == L"MNQ") wszTickerSymbol = L"NQ";
-					if (wszTickerSymbol == L"M2K") wszTickerSymbol = L"2K";
-					wszTickerSymbol = wszTickerSymbol + L"=F";
+				std::wstring ticker_symbol = ld->trade->ticker_symbol;
+				if (ticker_symbol == L"SPX") ticker_symbol = L"^SPX";
+				if (ticker_symbol == L"NDX") ticker_symbol = L"^NDX";
+				if (ticker_symbol == L"RUT") ticker_symbol = L"^RUT";
+				if (ticker_symbol == L"VIX") ticker_symbol = L"^VIX";
+				if (IsFuturesTicker(ticker_symbol)) {
+					ticker_symbol = ticker_symbol.substr(1);
+					if (ticker_symbol == L"AUD") ticker_symbol = L"6A";
+					if (ticker_symbol == L"GBP") ticker_symbol = L"6B";
+					if (ticker_symbol == L"EUR") ticker_symbol = L"6E";
+					if (ticker_symbol == L"CAD") ticker_symbol = L"CD";
+					if (ticker_symbol == L"JPY") ticker_symbol = L"JY";
+					if (ticker_symbol == L"CHF") ticker_symbol = L"SF";
+					if (ticker_symbol == L"INR") ticker_symbol = L"IR";
+					if (ticker_symbol == L"MCL") ticker_symbol = L"CL";
+					if (ticker_symbol == L"MES") ticker_symbol = L"ES";
+					if (ticker_symbol == L"MNQ") ticker_symbol = L"NQ";
+					if (ticker_symbol == L"M2K") ticker_symbol = L"2K";
+					ticker_symbol = ticker_symbol + L"=F";
 				}
 
 				// Lookup our map to see if we have already retrieved the price from a previous scrap. If
 				// yes, then use that value rather than doing yet another scrap.
-				if (mapPrices.count(wszTickerSymbol)) {
-					ld->trade->tickerClosePrice = mapPrices.at(wszTickerSymbol);
+				if (map_prices.count(ticker_symbol)) {
+					ld->trade->ticker_close_price = map_prices.at(ticker_symbol);
 				}
 				else {
-					ld->trade->tickerClosePrice = GetScrapedClosingPrice(wszTickerSymbol);
-					mapPrices[wszTickerSymbol] = ld->trade->tickerClosePrice;
+					ld->trade->ticker_close_price = GetScrapedClosingPrice(ticker_symbol);
+					map_prices[ticker_symbol] = ld->trade->ticker_close_price;
 				}
-				ld->trade->tickerLastPrice = ld->trade->tickerClosePrice;
+				ld->trade->ticker_last_price = ld->trade->ticker_close_price;
 
-				std::wstring wszText = AfxMoney(ld->trade->tickerLastPrice, false, ld->trade->tickerDecimals);
-				ld->trade->wszTickerLastPrice = wszText;
-				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
+				std::wstring text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
+				ld->trade->ticker_last_price_text = text;
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
 				PerformITMcalculation(ld->trade);
-				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->wszITM, ld->trade->clrITM);  // ITM
+				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
 
-				wszText = AfxMoney(ld->trade->tickerClosePrice, false, ld->trade->tickerDecimals);
-				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
+				text = AfxMoney(ld->trade->ticker_close_price, false, ld->trade->ticker_decimals);
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
 				RECT rc{};
-				ListBox_GetItemRect(hListBox, nIndex, &rc);
+				ListBox_GetItemRect(hListBox, index, &rc);
 				InvalidateRect(hListBox, &rc, TRUE);
 				UpdateWindow(hListBox);
 			}
@@ -240,7 +240,7 @@ std::jthread monitoring_thread;
 std::jthread ping_thread;
 
 
-void pingFunction(std::stop_token st) {
+void PingFunction(std::stop_token st) {
 	std::cout << "Starting the ping thread" << std::endl;
 
 	while (!st.stop_requested()) {
@@ -249,9 +249,9 @@ void pingFunction(std::stop_token st) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
 		try {
-			if (isMonitorThreadActive == true) {
+			if (is_monitor_thread_active == true) {
 				// Send a request time message (ping)
-				client.pingTWS();
+				client.PingTWS();
 			}
 			else {
 				break;
@@ -266,17 +266,17 @@ void pingFunction(std::stop_token st) {
 }
 
 
-void monitoringFunction(std::stop_token st) {
+void MonitoringFunction(std::stop_token st) {
 	std::cout << "Starting the monitoring thread" << std::endl;
 	
-	isMonitorThreadActive = true;
+	is_monitor_thread_active = true;
 
 	while (!st.stop_requested()) {
 
 		try {
-			if (tws_isConnected()) {
-				client.waitForSignal();
-				client.processMsgs();
+			if (tws_IsConnected()) {
+				client.WaitForSignal();
+				client.ProcessMsgs();
 			}
 			else {
 				break;
@@ -289,7 +289,7 @@ void monitoringFunction(std::stop_token st) {
 
 	}
 
-	isMonitorThreadActive = false;
+	is_monitor_thread_active = false;
 
 	// Request to shut down the Ping thread also
 	ping_thread.request_stop();
@@ -297,22 +297,22 @@ void monitoringFunction(std::stop_token st) {
 
 	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
-	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
+	PostMessage(HWND_SIDEMENU, MSG_tws_Connect_DISCONNECT, 0, 0);
 }
 
 
-void StartMonitorThread()
+void tws_StartMonitorThread()
 {
-	if (isMonitorThreadActive) return;
-	isThreadPaused = false;   // allow processing TickData
-	monitoring_thread = std::jthread(monitoringFunction);
+	if (is_monitor_thread_active) return;
+	is_thread_paused = false;   // allow processing TickData
+	monitoring_thread = std::jthread(MonitoringFunction);
 }
 
 
-void EndMonitorThread()
+void tws_EndMonitorThread()
 {
-	if (isMonitorThreadActive) {
-		isThreadPaused = true;   // prevent processing TickData, etc while thread is shutting down
+	if (is_monitor_thread_active) {
+		is_thread_paused = true;   // prevent processing TickData, etc while thread is shutting down
 		std::cout << "Threads will be stopped soon...." << std::endl;
 		monitoring_thread.request_stop();
 	}
@@ -326,60 +326,58 @@ void tws_ConnectionSuccessful()
 	// ready to start to receive messages from us, etc.
 	// This function is called from nextValidId();
 
-	if (tws_isConnected()) {
+	if (tws_IsConnected()) {
 
 		// Request Account Summary in order to get liquidity amounts
 		ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
-		client.requestAccountSummary();
+		client.RequestAccountSummary();
 
 		// Start getting market data and portfolio updates.
 		ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
 		// Create and start the ping thread
-		ping_thread = std::jthread(pingFunction);
+		ping_thread = std::jthread(PingFunction);
 	}
 }
 
 
-bool tws_connect()
+bool tws_Connect()
 {
-    if (tws_isConnected()) return false;
+    if (tws_IsConnected()) return false;
 
     const char* host = "";
 	int port = GetStartupPort();  // 7496;   // 7497 is paper trading account
-    int clientId = 0;
-
 	
-	SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_START, 0, 0);
+	SendMessage(HWND_SIDEMENU, MSG_tws_Connect_START, 0, 0);
 
 	bool res = false;
 
 	try {
-		res = client.connect(host, port, clientId);
+		res = client.Connect(host, port, 0);
 		if (res) {
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected.
-			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
-			StartMonitorThread();
+			SendMessage(HWND_SIDEMENU, MSG_tws_Connect_SUCCESS, 0, 0);
+			tws_StartMonitorThread();
 		}
 
 	}
 	catch (...) {
-		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
-		std::wstring wszText =
+		SendMessage(HWND_SIDEMENU, MSG_tws_Connect_FAILURE, 0, 0);
+		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
-		MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 
 	
 	if (res == false) {
-        SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
-		std::wstring wszText =
+        SendMessage(HWND_SIDEMENU, MSG_tws_Connect_FAILURE, 0, 0);
+		std::wstring text =
 			L"Could not connect to TWS.\n\n" \
 			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
 			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
-		if (MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
+		if (MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
 			UpdateTickersWithScrapedData();
 		}
 		return false;
@@ -389,67 +387,65 @@ bool tws_connect()
 }
 
 
-bool tws_disconnect()
+bool tws_Disconnect()
 {
-    if (tws_isConnected() == false) return true;
-	isThreadPaused = true;
+    if (tws_IsConnected() == false) return true;
+	is_thread_paused = true;
 
-    client.disconnect();
-    EndMonitorThread();
+    client.Disconnect();
+    tws_EndMonitorThread();
 
-    bool res = (tws_isConnected(), false, true);
-
-    return res;
+    return (tws_IsConnected(), false, true);
 }
 
 
-bool tws_isConnected()
+bool tws_IsConnected()
 {
 	bool res = false;
-    if ((client.isSocketOK()) && (client.isConnected())) {
+    if ((client.IsSocketOK()) && (client.IsConnected())) {
         res = true;
     }
     return res;
 }
 
 
-void tws_cancelMktData(TickerId tickerId)
+void tws_CancelMarketData(TickerId ticker_id)
 {
-	if (!tws_isConnected()) return;
-	if (tickerId < 1) return;
-	client.cancelMktData(tickerId);
+	if (!tws_IsConnected()) return;
+	if (ticker_id < 1) return;
+	client.CancelMarketData(ticker_id);
 }
 
 
-void tws_requestMktData(ListBoxData* ld)
+void tws_RequestMarketData(ListBoxData* ld)
 {
-	if (!tws_isConnected()) return;
+	if (!tws_IsConnected()) return;
 	if (ld->trade == nullptr) return;
-	client.requestMktData(ld);
+	client.RequestMarketData(ld);
 }
 
 
 void tws_PauseTWS()
 {
-	if (!tws_isConnected()) return;
-	isThreadPaused = true;
+	if (!tws_IsConnected()) return;
+	is_thread_paused = true;
 }
 
 
 void tws_ResumeTWS()
 {
-	if (!tws_isConnected()) return;
-	isThreadPaused = false;
+	if (!tws_IsConnected()) return;
+	is_thread_paused = false;
 }
 
 
-void tws_requestPortfolioUpdates()
+void tws_RequestPortfolioUpdates()
 {
 	// Load the IBKR and Local positions into the vectors and do the matching. This is
 	// important because we need get the contract id's loaded into each option leg
 	// in irder for the Portfolio Value updates to match it.
-	client.cancelPositions();
-	client.requestPositions();
+	client.CancelPositions();
+	client.RequestPositions();
 
 	// When requestPositions completes, it sends a notification to the Active Trades
 	// window that it is now okay to request the Portfolio Updates. We make those
@@ -457,9 +453,9 @@ void tws_requestPortfolioUpdates()
 }
 
 
-void tws_performReconciliation()
+void tws_PerformReconciliation()
 {
-	if (!tws_isConnected()) {
+	if (!tws_IsConnected()) {
 		MessageBox(
 			HWND_SIDEMENU,
 			(LPCWSTR)L"Must be connected to TWS to perform a reconciliation.",
@@ -469,22 +465,22 @@ void tws_performReconciliation()
 	}
 
 	// Prevent Reconcile from running prior to previous invocation completing
-	static bool isRunning = false;
-	if (isRunning == true) return;
+	static bool is_running = false;
+	if (is_running == true) return;
 
-	isRunning = true;
+	is_running = true;
 
 	// Load the IBKR and Local positions into the vectors and do the matching
 	// The results will be saved into module global resultsText which will be displayed
 	// when Reconcile_Show() is called and Reconcile_positionEnd() has SendMessage notification
 	// to the dialog to say that text is ready.
-	client.cancelPositions();
-	client.requestPositions();
+	client.CancelPositions();
+	client.RequestPositions();
 
 	// Show the results
 	Reconcile_Show();
 
-	isRunning = false;
+	is_running = false;
 }
 
 
@@ -507,7 +503,7 @@ TwsClient::~TwsClient()
 	delete m_pClient;
 }
 
-bool TwsClient::connect(const char* host, int port, int clientId)
+bool TwsClient::Connect(const char* host, int port, int clientId)
 {
 	// trying to connect
 	printf("Connecting to %s:%d clientId:%d\n", !(host && *host) ? "127.0.0.1" : host, port, clientId);
@@ -526,63 +522,63 @@ bool TwsClient::connect(const char* host, int port, int clientId)
 	return bRes;
 }
 
-void TwsClient::pingTWS() const
+void TwsClient::PingTWS() const
 {
 	m_pClient->reqCurrentTime();
 
 	printf("ping\n");
 }
 
-void TwsClient::disconnect() const
+void TwsClient::Disconnect() const
 {
 	m_pClient->eDisconnect();
 
 	printf("Disconnected\n");
 }
 
-bool TwsClient::isConnected() const
+bool TwsClient::IsConnected() const
 {
 	return m_pClient->isConnected();
 }
 
-bool TwsClient::isSocketOK() const
+bool TwsClient::IsSocketOK() const
 {
 	return m_pClient->isSocketOK();
 }
 
-void TwsClient::waitForSignal()
+void TwsClient::WaitForSignal()
 {
 	m_osSignal.waitForSignal();
 
 }
 
-void TwsClient::processMsgs()
+void TwsClient::ProcessMsgs()
 {
 	m_pReader->processMsgs();
 }
 
 
-void TwsClient::cancelPortfolioUpdates()
+void TwsClient::CancelPortfolioUpdates()
 {
 	m_pClient->reqAccountUpdates(false, "");
 }
 
-void TwsClient::requestPortfolioUpdates()
+void TwsClient::RequestPortfolioUpdates()
 {
 	m_pClient->reqAccountUpdates(true, "");
 }
 
 
-void TwsClient::cancelMktData(TickerId tickerId)
+void TwsClient::CancelMarketData(TickerId tickerId)
 {
 	m_pClient->cancelMktData(tickerId);
 }
 
 
-void TwsClient::requestMktData(ListBoxData* ld)
+void TwsClient::RequestMarketData(ListBoxData* ld)
 {
 	// Convert the unicode symbol to regular string type
-	std::string symbol = unicode2ansi(ld->trade->tickerSymbol);
+	std::string symbol = unicode2ansi(ld->trade->ticker_symbol);
 
 	//	struct Contract;
 	Contract contract;
@@ -600,7 +596,7 @@ void TwsClient::requestMktData(ListBoxData* ld)
 			contract.symbol = symbol.substr(1);
 			contract.secType = "FUT";
 			contract.currency = "USD";
-			contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->futureExpiry);   // YYYYMMDD
+			contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->future_expiry);   // YYYYMMDD
 
 			std::string futExchange = GetFuturesExchange(symbol);
 			if (futExchange.length() == 0) futExchange = "CME";
@@ -620,17 +616,17 @@ void TwsClient::requestMktData(ListBoxData* ld)
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 }
 	
-void TwsClient::cancelPositions()
+void TwsClient::CancelPositions()
 {
 	m_pClient->cancelPositions();
 }
 
-void TwsClient::requestPositions()
+void TwsClient::RequestPositions()
 {
 	m_pClient->reqPositions();
 }
 
-void TwsClient::requestAccountSummary()
+void TwsClient::RequestAccountSummary()
 {
 	m_pClient->reqAccountSummary(1000, "All", "NetLiquidation,ExcessLiquidity");
 }
@@ -646,7 +642,7 @@ void TwsClient::connectAck() {
 
 
 void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) {
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 
 	// Handle any HALTED tickers (Halted notifications only arrive via tickGeneric).
 	//Value	Description
@@ -657,10 +653,10 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 
 	if (tickType == HALTED && value == 1 || value == 2) {  // 49
 		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
-		int lbCount = ListBox_GetCount(hListBox);
+		int item_count = ListBox_GetCount(hListBox);
 
-		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
-			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+		for (int index = 0; index < item_count; index++) {
+			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 			if (ld == nullptr) continue;
 
 			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
@@ -679,7 +675,7 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 
 	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed 
 	// by a tickSize. A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
@@ -704,44 +700,44 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 
-		int lbCount = ListBox_GetCount(hListBox);
+		int item_count = ListBox_GetCount(hListBox);
 		
-		for (int nIndex = 0; nIndex < lbCount; nIndex++) {
+		for (int index = 0; index < item_count; index++) {
 			
-			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 			if (ld == (void*)-1) continue;
 			if (ld == nullptr) continue;
 
 			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
 
 				if (field == LAST) {
-					ld->trade->tickerLastPrice = price;
+					ld->trade->ticker_last_price = price;
 				}
 
 				if (field == CLOSE) {
-					ld->trade->tickerClosePrice = price;
-					if (ld->trade->tickerLastPrice == 0)
-						ld->trade->tickerLastPrice = price;
+					ld->trade->ticker_close_price = price;
+					if (ld->trade->ticker_last_price == 0)
+						ld->trade->ticker_last_price = price;
 				}
 
 				if (field == OPEN) {
-					if (ld->trade->tickerLastPrice == 0)
-						ld->trade->tickerLastPrice = price;
-					if (ld->trade->tickerClosePrice == 0)
-						ld->trade->tickerClosePrice = price;
+					if (ld->trade->ticker_last_price == 0)
+						ld->trade->ticker_last_price = price;
+					if (ld->trade->ticker_close_price == 0)
+						ld->trade->ticker_close_price = price;
 				}
 
 
 
 				// Calculate the price change
 				double delta = 0;
-				if (ld->trade->tickerClosePrice != 0) {
-					delta = (ld->trade->tickerLastPrice - ld->trade->tickerClosePrice);
+				if (ld->trade->ticker_close_price != 0) {
+					delta = (ld->trade->ticker_last_price - ld->trade->ticker_close_price);
 				}
 
 				
-				std::wstring wszText;
-				DWORD themeEl = COLOR_WHITELIGHT;
+				std::wstring text;
+				DWORD theme_color = COLOR_WHITELIGHT;
 
 				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
 				// We use a separate function call because scrapped data will need acces to the 
@@ -749,28 +745,28 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				PerformITMcalculation(ld->trade);
 
 
-				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->wszITM, ld->trade->clrITM);  // ITM
+				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
 
 
-				wszText = AfxMoney(delta, true, ld->trade->tickerDecimals);
-				ld->trade->wszTickerChange = wszText;
-				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-				ld->trade->clrTickerChange = themeEl;
-				ld->SetTextData(COLUMN_TICKER_CHANGE, wszText, themeEl);  // price change
+				text = AfxMoney(delta, true, ld->trade->ticker_decimals);
+				ld->trade->ticker_change_text = text;
+				theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+				ld->trade->ticker_change_color = theme_color;
+				ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
 
-				wszText = AfxMoney(ld->trade->tickerLastPrice, false, ld->trade->tickerDecimals);
-				ld->trade->wszTickerLastPrice = wszText;
-				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, wszText, COLOR_WHITELIGHT);  // current price
+				text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
+				ld->trade->ticker_last_price_text = text;
+				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
-				wszText = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->tickerLastPrice) * 100, true) + L"%";
-				ld->trade->wszTickerPercentChange = wszText;
-				themeEl = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-				ld->trade->clrTickerPercentChange = themeEl;
-				ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, wszText, themeEl);  // price percentage change
+				text = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
+				ld->trade->ticker_percent_change_text = text;
+				theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+				ld->trade->ticker_percent_change_color = theme_color;
+				ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, text, theme_color);  // price percentage change
 
 
 				RECT rc{};
-				ListBox_GetItemRect(hListBox, nIndex, &rc);
+				ListBox_GetItemRect(hListBox, index, &rc);
 				InvalidateRect(hListBox, &rc, TRUE);
 				UpdateWindow(hListBox);
 
@@ -792,99 +788,98 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 
 void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
-	double marketPrice, double marketValue, double averageCost,
-	double unrealizedPNL, double realizedPNL, const std::string& accountName) {
+	double market_price, double market_value, double average_cost,
+	double unrealized_PNL, double realized_PNL, const std::string& account_name) {
 
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 
 	//printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
 	//	(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
 	//	Utils::doubleMaxString(marketPrice).c_str(), Utils::doubleMaxString(marketValue).c_str(), Utils::doubleMaxString(averageCost).c_str(),
 	//	Utils::doubleMaxString(unrealizedPNL).c_str(), Utils::doubleMaxString(realizedPNL).c_str(), accountName.c_str());
 
-	// Match the incoming contractID with the contractId stored in the Leg.
+	// Match the incoming contract_id with the contract_id stored in the Leg.
 
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
-	int lbCount = ListBox_GetCount(hListBox);
+	int item_count = ListBox_GetCount(hListBox);
 
-	std::wstring wszText = L"";
-	DWORD themeEl = COLOR_WHITEDARK;
+	std::wstring text = L"";
+	DWORD theme_color = COLOR_WHITEDARK;
 
-	int nIndexTrade = 0;
+	int index_trade = 0;
 
-	for (int nIndex = 0; nIndex < lbCount; nIndex++) {
-		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndex);
+	for (int index = 0; index < item_count; index++) {
+		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 
 		if (ld == (void*)-1) continue;
 		if (ld == nullptr) continue;
 
-		if (ld->lineType == LineType::TickerLine) nIndexTrade = nIndex;
+		if (ld->lineType == LineType::TickerLine) index_trade = index;
 		if (ld->leg == nullptr) continue;
 
 
-		if (ld->leg->contractId == contract.conId) {
-			themeEl = COLOR_WHITEDARK;
+		if (ld->leg->contract_id == contract.conId) {
+			theme_color = COLOR_WHITEDARK;
 
-			double averagePrice = (averageCost / ld->trade->multiplier);
-			ld->leg->averagePrice = averagePrice;
-			wszText = AfxMoney(averagePrice, true, ld->trade->tickerDecimals);
-			ld->leg->wszAveragePrice = wszText;
-			ld->SetTextData(COLUMN_TICKER_AVGPX, wszText, themeEl);   // Book Value and average Price
+			double average_price = (average_cost / ld->trade->multiplier);
+			ld->leg->average_price = average_price;
+			text = AfxMoney(average_price, true, ld->trade->ticker_decimals);
+			ld->leg->average_price_text = text;
+			ld->SetTextData(COLUMN_TICKER_AVGPX, text, theme_color);   // Book Value and average Price
 
-			ld->leg->marketPrice = marketPrice;
-			wszText = AfxMoney(marketPrice, true, ld->trade->tickerDecimals);
-			ld->leg->wszMarketPrice = wszText;
-			ld->SetTextData(COLUMN_TICKER_LASTPX, wszText, themeEl);   // Market Value and Last Price
+			ld->leg->market_price = market_price;
+			text = AfxMoney(market_price, true, ld->trade->ticker_decimals);
+			ld->leg->market_price_text = text;
+			ld->SetTextData(COLUMN_TICKER_LASTPX, text, theme_color);   // Market Value and Last Price
 
-			double percentage = (averagePrice - marketPrice) / averagePrice * 100;
-			if (ld->leg->openQuantity > 0) percentage = percentage * -1;
+			double percentage = (average_price - market_price) / average_price * 100;
+			if (ld->leg->open_quantity > 0) percentage = percentage * -1;
 			ld->leg->percentage = percentage;
-			wszText = AfxMoney(percentage, true, 1) + L"%";
-			ld->leg->wszPercentage = wszText;
-			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);  // Percentage values for the previous two columns data
+			text = AfxMoney(percentage, true, 1) + L"%";
+			ld->leg->percentage_text = text;
+			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values for the previous two columns data
 			
-			ld->leg->unrealizedPNL = unrealizedPNL;
-			themeEl = (unrealizedPNL < 0) ? COLOR_RED : COLOR_GREEN;
-			wszText = AfxMoney(unrealizedPNL, false, 0);
-			ld->leg->wszUnrealizedPNL = wszText;
-			ld->leg->clrUnrealizedPNL = themeEl;
-			ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);    // Unrealized profit or loss
+			ld->leg->unrealized_pnl = unrealized_PNL;
+			theme_color = (unrealized_PNL < 0) ? COLOR_RED : COLOR_GREEN;
+			text = AfxMoney(unrealized_PNL, false, 0);
+			ld->leg->unrealized_pnl_text = text;
+			ld->leg->unrealized_pnl_color = theme_color;
+			ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
 
 			RECT rc{};
-			ListBox_GetItemRect(hListBox, nIndex, &rc);
+			ListBox_GetItemRect(hListBox, index, &rc);
 			InvalidateRect(hListBox, &rc, TRUE);
 			UpdateWindow(hListBox);
 
 
 			// Update the Trade's tickerLine with the new totals
-			ld = (ListBoxData*)ListBox_GetItemData(hListBox, nIndexTrade);
+			ld = (ListBoxData*)ListBox_GetItemData(hListBox, index_trade);
 			if (ld != nullptr) {
 				double percentage = 0;
 				double uPNL = 0;
 				int numLegs = 0;
-				for (const auto& leg : ld->trade->openLegs)	{
+				for (const auto& leg : ld->trade->open_legs)	{
 					percentage += leg->percentage;
-					uPNL += leg->unrealizedPNL;
+					uPNL += leg->unrealized_pnl;
 					++numLegs;
 				}
 
-				themeEl = COLOR_WHITEDARK;
-				wszText = AfxMoney(percentage / numLegs, true, 1) + L"%";
-				ld->trade->wszPercentage = wszText;
-				ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, wszText, themeEl);  // Percentage values
+				theme_color = COLOR_WHITEDARK;
+				text = AfxMoney(percentage / numLegs, true, 1) + L"%";
+				ld->trade->percentage_text = text;
+				ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values
 
-				themeEl = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
-				wszText = AfxMoney(uPNL, false, 0);
-				ld->trade->wszUnrealizedPNL = wszText;
-				ld->trade->clrUnrealizedPNL = themeEl;
-				ld->SetTextData(COLUMN_TICKER_UPNL, wszText, themeEl);    // Unrealized profit or loss
+				theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
+				text = AfxMoney(uPNL, false, 0);
+				ld->trade->unrealized_pnl_text = text;
+				ld->trade->unrealized_pnl_color = theme_color;
+				ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
 
 				RECT rc{};
-				ListBox_GetItemRect(hListBox, nIndexTrade, &rc);
+				ListBox_GetItemRect(hListBox, index_trade, &rc);
 				InvalidateRect(hListBox, &rc, TRUE);
 				UpdateWindow(hListBox);
 			}
-
 
 		}
 	}
@@ -900,43 +895,43 @@ void TwsClient::connectionClosed() {
 	printf("Connection Closed\n");
 }
 
-void TwsClient::error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson)
+void TwsClient::error(int id, int error_code, const std::string& error_string, const std::string& advanced_order_reject_json)
 {
-	switch (errorCode) {
+	switch (error_code) {
 	case 2104:
 	case 2106:
 	case 2158:
 		return;
 	}
-	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, errorCode, errorString.c_str());
+	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, error_code, error_string.c_str());
 
 
 	// If error codes 10091 or 10089 then we are connected most likely after hours and we do not have
 	// access to streaming data. In this case we will attempt scrap for the closing price.
-	switch (errorCode) {
+	switch (error_code) {
 	case 10089:
 	case 10091:
-		MarketDataSubscriptionError = true;
+		market_data_subscription_error = true;
 		return;
 	}
 
-	switch (errorCode) {
+	switch (error_code) {
 	case 1100:   // 'Connectivity between IB and Trader Workstation has been lost.'
 	{
 		// This normally occurs when the internet connection is lost. It refers to the 
 		// connection between TWS and IBKR, and not TWS and IB-Tracker. The connection
 		// between IB-Tracker and TWS will resume as soon as TWS reconnects back to the
 		// IBKR servers (ie. IB-Trackers sockets remain open).
-		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
-		std::wstring wszText =
+		SendMessage(HWND_SIDEMENU, MSG_tws_Connect_WAIT_RECONNECTION, 0, 0);
+		std::wstring text =
 			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nIB-Tracker will resume automatically when TWS reconnects to IBKR.";
-		MessageBox(HWND_ACTIVETRADES, wszText.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;
 
 	case 1102:   // 'Connectivity between IB and Trader Workstation reestablished.'
 	{
-		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+		SendMessage(HWND_SIDEMENU, MSG_tws_Connect_SUCCESS, 0, 0);
 	}
 	break;
 	
@@ -944,7 +939,7 @@ void TwsClient::error(int id, int errorCode, const std::string& errorString, con
 }
 
 
-void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avgCost)
+void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avg_cost)
 {
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
 	Reconcile_position(contract, position);
@@ -961,9 +956,9 @@ void TwsClient::positionEnd()
 	// not retrieved because maybe we are connected but it is after hours and we need additional
 	// subscriptions to access the data.
 	// Check global variable for the market subscription error and then attempt scraping from yahoo finance.
-	if (MarketDataSubscriptionError) {
+	if (market_data_subscription_error) {
 		UpdateTickersWithScrapedData();
-		MarketDataSubscriptionError = false;
+		market_data_subscription_error = false;
 	}
 
 }
@@ -979,7 +974,7 @@ void TwsClient::updateAccountValue(const std::string& key, const std::string& va
 void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
 	double optPrice, double pvDividend,
 	double gamma, double vega, double theta, double undPrice) {
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 }
 
 
@@ -989,26 +984,26 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 
 	//	std::cout << "reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	
-	std::wstring wszValue = ansi2unicode(value);
+	std::wstring account_value = ansi2unicode(value);
 
 	// Get the value and convert it into K amounts
-	double amount = AfxValDouble(wszValue);
+	double amount = AfxValDouble(account_value);
 	if (amount > 1000) {
 		amount = amount / 1000;
-		wszValue = AfxMoney(amount, false, 1) + L"K";
+		account_value = AfxMoney(amount, false, 1) + L"K";
 	}
 	else {
-		wszValue = AfxMoney(amount, false);
+		account_value = AfxMoney(amount, false);
 	}
 
 
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
-		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), wszValue);
+		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), account_value);
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
-		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), wszValue);
+		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), account_value);
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
@@ -1020,21 +1015,19 @@ void TwsClient::accountSummaryEnd(int reqId) {
 
 
 
-
-
 void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 	//std::cout << "tickSize  id: " << tickerId << "  size: " << (int)intelDecimalToDouble(size) << std::endl;
 }
 
 void TwsClient::tickString(TickerId tickerId, TickType tickType, const std::string& value) {
 	// printf("Tick String. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, value.c_str());
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 }
 
 void TwsClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const std::string& formattedBasisPoints,
 	double totalDividends, int holdDays, const std::string& futureLastTradeDate, double dividendImpact, double dividendsToLastTradeDate) {
-	if (isThreadPaused) return;
+	if (is_thread_paused) return;
 }
 
 void TwsClient::winError(const std::string& str, int lastError) {}

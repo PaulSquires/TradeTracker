@@ -66,13 +66,13 @@ bool YearEndDialog_Process(HWND hwnd)
     auto iter = trades.begin();
     while (iter != trades.end())
     {
-        if (!(*iter)->isOpen) {
+        if (!(*iter)->is_open) {
 
             // Iterate to find the latest closed date
             std::wstring wszTradeCloseDate = L"0000-00-00";
-            for (auto& trans : (*iter)->Transactions) {
-                if (trans->transDate > wszTradeCloseDate) {
-                    wszTradeCloseDate = trans->transDate;
+            for (auto& trans : (*iter)->transactions) {
+                if (trans->trans_date > wszTradeCloseDate) {
+                    wszTradeCloseDate = trans->trans_date;
                 }
             }
 

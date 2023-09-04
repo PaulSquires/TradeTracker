@@ -150,9 +150,9 @@ void MainWindow_StartupShowTrades()
         ActiveTrades_ShowActiveTrades();
 
         if (GetStartupConnect()) {
-            SendMessage(SideMenu.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
-            bool res = tws_connect();
-            if (tws_isConnected()) {
+            SendMessage(SideMenu.WindowHandle(), MSG_tws_Connect_START, 0, 0);
+            bool res = tws_Connect();
+            if (tws_IsConnected()) {
                 // Need to re-populate the Trades if successfully connected in order
                 // to send the request market data for each ticker.
                 ListBoxData_DestroyItemData(GetDlgItem(ActiveTrades.WindowHandle(), IDC_TRADES_LISTBOX));
@@ -170,7 +170,7 @@ void MainWindow_StartupShowTrades()
 void MainWindow_OnClose(HWND hwnd)
 {
     // Disconnect from IBKR TWS and shut down monitoring thread.
-    tws_disconnect();
+    tws_Disconnect();
 
     // Destroy the popup shadow window should it exist.
     if (Shadow.WindowHandle()) DestroyWindow(Shadow.WindowHandle());

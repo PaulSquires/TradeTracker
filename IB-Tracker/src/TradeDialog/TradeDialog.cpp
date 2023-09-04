@@ -147,11 +147,11 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             std::wstring companyName;
 
             auto iter = std::find_if(trades.begin(), trades.end(),
-                [&](const auto t) { return (t->tickerSymbol == tickerSymbol); });
+                [&](const auto t) { return (t->ticker_symbol == tickerSymbol); });
 
             if (iter != trades.end()) {
                 auto index = std::distance(trades.begin(), iter);
-                companyName = trades.at(index)->tickerName;
+                companyName = trades.at(index)->ticker_name;
             }
 
             AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), companyName);

@@ -54,9 +54,9 @@ CTransDetail TransDetail;
 // ========================================================================================
 std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int backPointerID)
 {
-    for (auto trans : trade->Transactions) {
+    for (auto trans : trade->transactions) {
         for (auto leg : trans->legs) {
-            if (leg->legID == backPointerID) {
+            if (leg->leg_id == backPointerID) {
                 return leg;
             }
         }
@@ -100,8 +100,8 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     // Iterate the trades and look into each TransDetail vector to match the 
     // transaction that we need to delete.
     for (auto trade : trades) {
-        auto iter = trade->Transactions.begin();
-        while (iter != trade->Transactions.end())
+        auto iter = trade->transactions.begin();
+        while (iter != trade->transactions.end())
         {
             // If element matches the element to be deleted then delete it
             if (*iter == transEditDelete)
@@ -111,16 +111,16 @@ void TransDetail_DeleteTransaction(HWND hwnd)
                 // quantity amount. Backpointers exist for Transactions that modify quantity
                 // amounts like CLOSE, EXPIRE, ROLL.
                 for (auto leg : transEditDelete->legs) {
-                    if (leg->legBackPointerID != 0) {
+                    if (leg->leg_back_pointer_id != 0) {
                         // Get the backpointer leg.
                         std::shared_ptr<Leg> LegBackPointer = nullptr;
-                        LegBackPointer = TransDetail_GetLegBackPointer(trade, leg->legBackPointerID);
+                        LegBackPointer = TransDetail_GetLegBackPointer(trade, leg->leg_back_pointer_id);
                         if (LegBackPointer != nullptr) {
-                            LegBackPointer->openQuantity = LegBackPointer->openQuantity - leg->origQuantity;
+                            LegBackPointer->open_quantity = LegBackPointer->open_quantity - leg->original_quantity;
                         }
                     }
                 }
-                iter = trade->Transactions.erase(iter);
+                iter = trade->transactions.erase(iter);
             }
             else
             {
@@ -131,14 +131,14 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     }
 
     // If no more Transactions exist in the Trade then delete the Trade itself
-    if (tradeEditDelete->Transactions.size() == 0) {
+    if (tradeEditDelete->transactions.size() == 0) {
         auto it = std::find(trades.begin(), trades.end(), tradeEditDelete);
         if (it != trades.end()) trades.erase(it);
     }
     else {
         // Calculate the Trade open status because we may have just deleted the 
-        // transaction that sets the trades OpenQuantity to zero.
-        tradeEditDelete->setTradeOpenStatus();
+        // transaction that sets the trades open_quantity to zero.
+        tradeEditDelete->SetTradeOpenStatus();
     }
 
 
@@ -203,14 +203,14 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
     std::wstring wszPlusMinus = (transEditDelete->total < 0) ? L" + " : L" - ";
     std::wstring wszText;
     wszText = std::to_wstring(transEditDelete->quantity) + L" @ " +
-                AfxMoney(transEditDelete->price, false, GetTickerDecimals(trade->tickerSymbol)) + wszPlusMinus +
+                AfxMoney(transEditDelete->price, false, GetTickerDecimals(trade->ticker_symbol)) + wszPlusMinus +
                 AfxMoney(transEditDelete->fees) + L" = " +
                 AfxMoney(abs(transEditDelete->total)) + wszDRCR;
     CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), wszText);
     
-    wszText = trade->tickerSymbol + L": " + trade->tickerName;
-    if (trade->futureExpiry.length()) {
-        wszText = wszText + L" ( " + AfxFormatFuturesDate(trade->futureExpiry) + L" )";
+    wszText = trade->ticker_symbol + L": " + trade->ticker_name;
+    if (trade->future_expiry.length()) {
+        wszText = wszText + L" ( " + AfxFormatFuturesDate(trade->future_expiry) + L" )";
     }
     CustomLabel_SetText(
         GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), wszText);

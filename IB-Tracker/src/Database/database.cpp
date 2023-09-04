@@ -103,9 +103,9 @@ bool SaveDatabase()
     }
 
     db << idMagic << "|" << version << "\n"
-        << "// TRADE          T|isOpen|nextLegID|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
+        << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
         << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
-        << "// LEG            L|legID|legBackPointerID|origQuantity|openQuantity|expiryDate|strikePrice|PutCall|action|underlying\n"
+        << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|put_call|action|underlying\n"
         << "// isOpen:        0:FALSE, 1:TRUE\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
         << "// Category:      0,1,2,3,4 (integer value)\n"
@@ -115,19 +115,19 @@ bool SaveDatabase()
 
     for (const auto trade : trades) {
         db << "T|"
-            << std::wstring(trade->isOpen ? L"1|" : L"0|")
-            << trade->nextLegID << "|"
-            << trade->tickerSymbol << "|"
-            << trade->tickerName << "|"
-            << AfxRemoveDateHyphens(trade->futureExpiry) << "|"
+            << std::wstring(trade->is_open ? L"1|" : L"0|")
+            << trade->nextleg_id << "|"
+            << trade->ticker_symbol << "|"
+            << trade->ticker_name << "|"
+            << AfxRemoveDateHyphens(trade->future_expiry) << "|"
             << trade->category << "|"
-            << std::fixed << std::setprecision(0) << trade->TradeBP  << "|"
+            << std::fixed << std::setprecision(0) << trade->trade_bp  << "|"
             << AfxReplace(trade->notes, L"\r\n", L"~~") 
             << "\n";
 
-        for (const auto trans : trade->Transactions) {
+        for (const auto trans : trade->transactions) {
             db << "X|"
-                << AfxRemoveDateHyphens(trans->transDate) << "|"
+                << AfxRemoveDateHyphens(trans->trans_date) << "|"
                 << trans->description << "|"
                 << UnderlyingToNumber(trans->underlying) << "|"
                 << trans->quantity << "|"
@@ -139,13 +139,13 @@ bool SaveDatabase()
 
             for (const auto leg : trans->legs) {
                 db << "L|"
-                    << leg->legID << "|"
-                    << leg->legBackPointerID << "|"
-                    << leg->origQuantity << "|"
-                    << leg->openQuantity << "|"
-                    << AfxRemoveDateHyphens(leg->expiryDate) << "|"
-                    << leg->strikePrice << "|"
-                    << leg->PutCall << "|"
+                    << leg->leg_id << "|"
+                    << leg->leg_back_pointer_id << "|"
+                    << leg->original_quantity << "|"
+                    << leg->open_quantity << "|"
+                    << AfxRemoveDateHyphens(leg->expiry_date) << "|"
+                    << leg->strike_price << "|"
+                    << leg->put_call << "|"
                     << ActionToNumber(leg->action) << "|"
                     << UnderlyingToNumber(leg->underlying)
                     << "\n";
@@ -239,13 +239,13 @@ bool LoadDatabase()
 
         if (try_catch_wstring(st, 0) == L"T") {
             trade = std::make_shared<Trade>();
-            trade->isOpen = (try_catch_wstring(st, 1) == L"0" ? false : true);
-            trade->nextLegID = try_catch_int(st, 2);
-            trade->tickerSymbol = try_catch_wstring(st, 3);
-            trade->tickerName = try_catch_wstring(st, 4);
-            trade->futureExpiry = AfxInsertDateHyphens(try_catch_wstring(st, 5));
+            trade->is_open = (try_catch_wstring(st, 1) == L"0" ? false : true);
+            trade->nextleg_id = try_catch_int(st, 2);
+            trade->ticker_symbol = try_catch_wstring(st, 3);
+            trade->ticker_name = try_catch_wstring(st, 4);
+            trade->future_expiry = AfxInsertDateHyphens(try_catch_wstring(st, 5));
             trade->category = try_catch_int(st, 6);
-            trade->TradeBP = try_catch_double(st, 7);
+            trade->trade_bp = try_catch_double(st, 7);
             wszText = try_catch_wstring(st, 8);
             trade->notes = AfxReplace(wszText, L"~~", L"\r\n");
             
@@ -258,7 +258,7 @@ bool LoadDatabase()
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
             std::wstring wszDate = try_catch_wstring(st, 1);
-            trans->transDate = AfxInsertDateHyphens(wszDate);
+            trans->trans_date = AfxInsertDateHyphens(wszDate);
             trans->description = try_catch_wstring(st, 2);
             trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
             trans->quantity = try_catch_int(st, 4);
@@ -268,31 +268,31 @@ bool LoadDatabase()
             trans->total = try_catch_double(st, 8);
             if (trade != nullptr) {
                 // Determine earliest and latest dates for BP ROI calculation.
-                if (AfxValDouble(wszDate) < AfxValDouble(trade->BPstartDate)) trade->BPstartDate = wszDate;
-                if (AfxValDouble(wszDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszDate;
-                if (AfxValDouble(wszDate) > AfxValDouble(trade->OldestTradeTransDate)) trade->OldestTradeTransDate = wszDate;
-                trade->Transactions.push_back(trans);
+                if (AfxValDouble(wszDate) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = wszDate;
+                if (AfxValDouble(wszDate) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszDate;
+                if (AfxValDouble(wszDate) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = wszDate;
+                trade->transactions.push_back(trans);
             }
             continue;
         }
 
         if (try_catch_wstring(st, 0) == L"L") {
             leg = std::make_shared<Leg>();
-            leg->legID = try_catch_int(st, 1);
-            leg->legBackPointerID = try_catch_int(st, 2);
-            leg->origQuantity = try_catch_int(st, 3);
-            leg->openQuantity = try_catch_int(st, 4);
-            std::wstring wszExpiryDate = try_catch_wstring(st, 5);
-            leg->expiryDate = AfxInsertDateHyphens(wszExpiryDate);
-            leg->strikePrice = try_catch_wstring(st, 6);
-            leg->PutCall = try_catch_wstring(st, 7); 
+            leg->leg_id = try_catch_int(st, 1);
+            leg->leg_back_pointer_id = try_catch_int(st, 2);
+            leg->original_quantity = try_catch_int(st, 3);
+            leg->open_quantity = try_catch_int(st, 4);
+            std::wstring wszexpiry_date = try_catch_wstring(st, 5);
+            leg->expiry_date = AfxInsertDateHyphens(wszexpiry_date);
+            leg->strike_price = try_catch_wstring(st, 6);
+            leg->put_call = try_catch_wstring(st, 7); 
             leg->action = NumberToAction(try_catch_int(st, 8));
             leg->underlying = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr) {
                 leg->trans = trans;
                 if (trade != nullptr) {
                     // Determine latest date for BP ROI calculation.
-                    if (AfxValDouble(wszExpiryDate) > AfxValDouble(trade->BPendDate)) trade->BPendDate = wszExpiryDate;
+                    if (AfxValDouble(wszexpiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszexpiry_date;
                 }
                 trans->legs.push_back(leg);
             }
@@ -307,17 +307,17 @@ bool LoadDatabase()
     // manually edit individual Transactions externally and not have to go through
     // an error prone process of recalculating the ACB with the new change.
     for (auto trade : trades) {
-        if (trade->isOpen) {
-            trade->createOpenLegsVector();
+        if (trade->is_open) {
+            trade->CreateOpenLegsVector();
         }
         else {
             // Trade is closed so set the BPendDate to be the oldest transaction in the Trade
-            trade->BPendDate = trade->OldestTradeTransDate;
+            trade->bp_end_date = trade->oldest_trade_trans_date;
         }
 
-        trade->ACB = 0;
-        for (const auto trans : trade->Transactions) {
-            trade->ACB = trade->ACB + trans->total;
+        trade->acb = 0;
+        for (const auto trans : trade->transactions) {
+            trade->acb = trade->acb + trans->total;
         }
     }
 

@@ -143,12 +143,12 @@ void TransPanel_ShowTransactions()
     wszTicker = AfxTrim(wszTicker);
 
     for (auto& trade : trades) {
-        for (auto& trans : trade->Transactions) {
+        for (auto& trans : trade->transactions) {
             if (wszTicker.length() > 0) {
-                if (wszTicker != trade->tickerSymbol) continue;
+                if (wszTicker != trade->ticker_symbol) continue;
             }
 
-            if (trans->transDate < wszStartDate || trans->transDate > wszEndDate) continue;
+            if (trans->trans_date < wszStartDate || trans->trans_date > wszEndDate) continue;
 
             TransData td;
             td.trade = trade;
@@ -162,12 +162,12 @@ void TransPanel_ShowTransactions()
     std::sort(tdata.begin(), tdata.end(),
         [](const TransData data1, const TransData data2) {
             {
-                if (data1.trans->transDate > data2.trans->transDate) return true;
-                if (data2.trans->transDate > data1.trans->transDate) return false;
+                if (data1.trans->trans_date > data2.trans->trans_date) return true;
+                if (data2.trans->trans_date > data1.trans->trans_date) return false;
 
                 // a=b for primary condition, go to secondary
-                if (data1.trade->tickerSymbol < data2.trade->tickerSymbol) return true;
-                if (data2.trade->tickerSymbol < data1.trade->tickerSymbol) return false;
+                if (data1.trade->ticker_symbol < data2.trade->ticker_symbol) return true;
+                if (data2.trade->ticker_symbol < data1.trade->ticker_symbol) return false;
 
                 return false;
             }
@@ -193,15 +193,15 @@ void TransPanel_ShowTransactions()
     std::wstring curDate = L"";
 
     for (const auto& td : tdata) {
-        curDay = AfxGetDay(td.trans->transDate);
+        curDay = AfxGetDay(td.trans->trans_date);
         if (subTotalDay != curDay && subTotalDay != 0 && wszTicker.length() == 0) {
             ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
-            curDate = td.trans->transDate;
+            curDate = td.trans->trans_date;
             subGrossAmount = 0;
             subFeesAmount = 0;
             subNetAmount = 0;
         }
-        curDate = td.trans->transDate;
+        curDate = td.trans->trans_date;
         subTotalDay = curDay;
             
         subNetAmount += td.trans->total;

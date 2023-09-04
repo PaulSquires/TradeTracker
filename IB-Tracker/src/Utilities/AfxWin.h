@@ -61,7 +61,7 @@ int AfxGetFileVersion(const std::wstring& pwszFileName);
 HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon = FALSE, bool bCentered = FALSE);
 void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText);
 
-std::wstring AfxGetListBoxText(HWND hListBox, int nIndex);
+std::wstring AfxGetListBoxText(HWND hListBox, int index);
 
 std::wstring AfxGetExePath();
 std::wstring AfxCurrentDate();

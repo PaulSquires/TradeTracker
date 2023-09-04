@@ -335,7 +335,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_PAINT, SideMenu_OnPaint);
 
 
-    case MSG_TWS_CONNECT_START:
+    case MSG_tws_Connect_START:
     {
         SetCursor(LoadCursor(0, IDC_WAIT));
         CustomLabel* pData = nullptr;
@@ -349,7 +349,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_TWS_CONNECT_SUCCESS:
+    case MSG_tws_Connect_SUCCESS:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
@@ -365,7 +365,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_TWS_CONNECT_WAIT_RECONNECTION:
+    case MSG_tws_Connect_WAIT_RECONNECTION:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
@@ -392,8 +392,8 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_TWS_CONNECT_FAILURE:
-    case MSG_TWS_CONNECT_DISCONNECT:
+    case MSG_tws_Connect_FAILURE:
+    case MSG_tws_Connect_DISCONNECT:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
@@ -404,7 +404,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             pData->TextColorHot = COLOR_WHITELIGHT;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
-        EndMonitorThread();
+        tws_EndMonitorThread();
         return 0;
         break;
     }
@@ -505,14 +505,14 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_SIDEMENU_CONNECTTWS:
             {
                 // If already connected then don't try to connect again
-                if (tws_isConnected()) break;
+                if (tws_IsConnected()) break;
 
                 // Prevent multiple clicks of the connect button by waiting until
                 // the first click is finished.
                 static bool bProcessingConnectClick = false;
                 if (bProcessingConnectClick) break;
                 bProcessingConnectClick = true;
-                bool res = tws_connect();
+                bool res = tws_Connect();
                 bProcessingConnectClick = false;
                 break;
             }
@@ -549,7 +549,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                tws_performReconciliation();
+                tws_PerformReconciliation();
                 SideMenu_SelectMenuItem(m_hwnd, currSelection);
                 break;
             }

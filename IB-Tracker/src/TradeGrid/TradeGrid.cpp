@@ -63,7 +63,7 @@ void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszT
         CustomLabel_SetText(pCol->hCtl, AfxShortDate(wszText));
         break;
 
-    case GridColType::PutCallCombo:
+    case GridColType::put_callCombo:
         CustomLabel_SetText(pCol->hCtl, wszText);
         break;
 
@@ -90,31 +90,31 @@ void TradeGrid_CalculateDTE(HWND hwnd)
 
     std::wstring transDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_LBLTRANSDATE));
         
-    std::wstring expiryDate;
+    std::wstring expiry_date;
     std::wstring wszDTE;
 
     for (int i = 0; i < 4; ++i) {
         int colStart = 0;
-        int expiryDateCol = 0;
+        int expiry_dateCol = 0;
         int dteCol = 0;
         
         if (pData->bShowOriginalQuantity) {
             colStart = i * 8;
-            expiryDateCol = colStart + 2;
+            expiry_dateCol = colStart + 2;
             dteCol = colStart + 3;
         }
         else {
             colStart = i * 7;
-            expiryDateCol = colStart + 1;
+            expiry_dateCol = colStart + 1;
             dteCol = colStart + 2;
         }
 
-        expiryDate = CustomLabel_GetUserData(pData->gridCols.at(expiryDateCol)->hCtl);
+        expiry_date = CustomLabel_GetUserData(pData->gridCols.at(expiry_dateCol)->hCtl);
         
         if (transDate.length() != 10) continue;
-        if (expiryDate.length() != 10) continue;
+        if (expiry_date.length() != 10) continue;
         
-        int days = AfxDaysBetween(transDate, expiryDate);
+        int days = AfxDaysBetween(transDate, expiry_date);
         wszDTE = std::to_wstring(days) + L"d";
         CustomLabel_SetText(pData->gridCols.at(dteCol)->hCtl, wszDTE);   // DTE
     }
@@ -245,7 +245,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
-        col->colType = GridColType::PutCallCombo;
+        col->colType = GridColType::put_callCombo;
         pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + (nWidth/2) + hsp;
@@ -325,21 +325,21 @@ void TradeGrid_SetText(GridColInfo* col, std::wstring wszText)
 
 
 // ========================================================================================
-// Handle when the PutCall button is clicked.
+// Handle when the put_call button is clicked.
 // ========================================================================================
-void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
+void TradeGrid_OnClickput_call(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
     if (col == nullptr) return;
 
-    std::wstring PutCall = CustomLabel_GetText(col->hCtl);
-    if (PutCall.length() == 0) {
-        PutCall = L"P";
+    std::wstring put_call = CustomLabel_GetText(col->hCtl);
+    if (put_call.length() == 0) {
+        put_call = L"P";
     }
     else {
-        PutCall = (PutCall == L"P") ? L"C" : L"P";
+        put_call = (put_call == L"P") ? L"C" : L"P";
     }
-    TradeGrid_SetText(col, PutCall);
+    TradeGrid_SetText(col, put_call);
 }
 
 
@@ -388,8 +388,8 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
     int colStart = (col->colData * numCols);
 
     if (pData->bShowOriginalQuantity) {
-        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // OrigQuantity
-        CustomTextBox_SetText(pData->gridCols.at(colStart+1)->hCtl, L"");   // OpenQuantity
+        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // original_quantity
+        CustomTextBox_SetText(pData->gridCols.at(colStart+1)->hCtl, L"");   // open_quantity
         CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"");     // Expiry Date
         CustomLabel_SetUserData(pData->gridCols.at(colStart+2)->hCtl, L"");  // ISO Date 
         CustomLabel_SetText(pData->gridCols.at(colStart+3)->hCtl, L"");     // DTE
@@ -398,7 +398,7 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
         CustomLabel_SetText(pData->gridCols.at(colStart+6)->hCtl, L"");     // Action
     }
     else {
-        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // OrigQuantity
+        CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // original_quantity
         CustomLabel_SetText(pData->gridCols.at(colStart + 1)->hCtl, L"");     // Expiry Date
         CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, L"");  // ISO Date 
         CustomLabel_SetText(pData->gridCols.at(colStart + 2)->hCtl, L"");     // DTE
@@ -557,8 +557,8 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
                     break;
                 }
 
-                if (col->colType == GridColType::PutCallCombo) {
-                    TradeGrid_OnClickPutCall(pData, col);
+                if (col->colType == GridColType::put_callCombo) {
+                    TradeGrid_OnClickput_call(pData, col);
                     break;
                 }
 

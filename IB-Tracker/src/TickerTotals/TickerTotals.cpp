@@ -61,10 +61,10 @@ void TickerPanel_ShowTickerTotals()
     mapTicker.clear();
 
     for (const auto& trade : trades) {
-        if (trade->tickerSymbol == L"OPENBAL") continue;
-        if (trade->isOpen == true) continue;
-        double total = mapTicker[trade->tickerSymbol] + trade->ACB;
-        mapTicker[trade->tickerSymbol] = total;
+        if (trade->ticker_symbol == L"OPENBAL") continue;
+        if (trade->is_open == true) continue;
+        double total = mapTicker[trade->ticker_symbol] + trade->acb;
+        mapTicker[trade->ticker_symbol] = total;
     }
 
     struct VecData {

@@ -46,20 +46,20 @@ public:
 
 public:
 
-	bool connect(const char* host, int port, int clientId = 0);
-	void disconnect() const;
-	bool isConnected() const;
-	bool isSocketOK() const;
-	void waitForSignal();
-	void processMsgs();
-	void cancelMktData(TickerId tickerId);
-	void requestMktData(ListBoxData* ld);
-	void cancelPositions();
-	void requestPositions();
-	void cancelPortfolioUpdates();
-	void requestPortfolioUpdates();
-	void requestAccountSummary();
-	void pingTWS() const;
+	bool Connect(const char* host, int port, int clientId = 0);
+	void Disconnect() const;
+	bool IsConnected() const;
+	bool IsSocketOK() const;
+	void WaitForSignal();
+	void ProcessMsgs();
+	void CancelMarketData(TickerId tickerId);
+	void RequestMarketData(ListBoxData* ld);
+	void CancelPositions();
+	void RequestPositions();
+	void CancelPortfolioUpdates();
+	void RequestPortfolioUpdates();
+	void RequestAccountSummary();
+	void PingTWS() const;
 
 public:
 	// events
@@ -78,19 +78,19 @@ private:
 
 };
 
-extern std::vector<positionStruct> LocalPositions;
+extern std::vector<positionStruct> local_positions;
 extern TwsClient client;
 
 
-void StartMonitorThread();
-void EndMonitorThread();
-bool tws_connect();
-bool tws_disconnect();
-bool tws_isConnected();
-void tws_cancelMktData(TickerId tickerId);
-void tws_requestMktData(ListBoxData* ld);
-void tws_performReconciliation();
+void tws_StartMonitorThread();
+void tws_EndMonitorThread();
+bool tws_Connect();
+bool tws_Disconnect();
+bool tws_IsConnected();
+void tws_CancelMarketData(TickerId tickerId);
+void tws_RequestMarketData(ListBoxData* ld);
+void tws_PerformReconciliation();
 void tws_PauseTWS();
 void tws_ResumeTWS();
-void tws_requestPortfolioUpdates();
+void tws_RequestPortfolioUpdates();
 

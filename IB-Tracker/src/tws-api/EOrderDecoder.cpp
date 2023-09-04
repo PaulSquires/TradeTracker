@@ -571,7 +571,7 @@ bool EOrderDecoder::decodeVolRandomizeFlags(const char*& ptr, const char* endPtr
 bool EOrderDecoder::decodePegBenchParams(const char*& ptr, const char* endPtr) {
     if (m_serverVersion >= MIN_SERVER_VER_PEGGED_TO_BENCHMARK) {
         if (m_order->orderType == "PEG BENCH") {
-            DECODE_FIELD( m_order->referenceContractId);
+            DECODE_FIELD( m_order->referencecontract_id);
             DECODE_FIELD( m_order->isPeggedChangeAmountDecrease);
             DECODE_FIELD( m_order->peggedChangeAmount);
             DECODE_FIELD( m_order->referenceChangeAmount);

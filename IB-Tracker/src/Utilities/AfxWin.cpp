@@ -476,14 +476,14 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText)
 // ========================================================================================
 // Gets a string from a list box.
 // - hListBox: A handle to the list box.
-// - nIndex: The zero-based index of the item.
+// - index: The zero-based index of the item.
 // ========================================================================================
-std::wstring AfxGetListBoxText(HWND hListBox, int nIndex)
+std::wstring AfxGetListBoxText(HWND hListBox, int index)
 {
-    DWORD dwBufLen = ListBox_GetTextLen(hListBox, nIndex) + 1;
+    DWORD dwBufLen = ListBox_GetTextLen(hListBox, index) + 1;
     std::wstring buffer;
     buffer.resize(dwBufLen);
-    ListBox_GetText(hListBox, nIndex, &buffer[0]);
+    ListBox_GetText(hListBox, index, &buffer[0]);
     buffer.resize(dwBufLen - 1);
     return buffer;
 }

@@ -1975,7 +1975,7 @@ void EClient::placeOrder( OrderId id, const Contract& contract, const Order& ord
 
         if (m_serverVersion >= MIN_SERVER_VER_PEGGED_TO_BENCHMARK) {
             if (order.orderType == "PEG BENCH") {
-                ENCODE_FIELD(order.referenceContractId);
+                ENCODE_FIELD(order.referencecontract_id);
                 ENCODE_FIELD(order.isPeggedChangeAmountDecrease);
                 ENCODE_FIELD(order.peggedChangeAmount);
                 ENCODE_FIELD(order.referenceChangeAmount);

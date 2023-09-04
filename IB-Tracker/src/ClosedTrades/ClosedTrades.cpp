@@ -99,7 +99,7 @@ void ClosedTrades_ShowClosedTrades()
     int SelectedCategory = CategoryControl_GetSelectedIndex(hCategory);
 
     for (auto& trade : trades) {
-        if (!trade->isOpen) {
+        if (!trade->is_open) {
 
             if (SelectedCategory != CATEGORY_ALL) {
                 if (trade->category != SelectedCategory) continue;
@@ -108,9 +108,9 @@ void ClosedTrades_ShowClosedTrades()
             ClosedData data;
 
             // Iterate to find the latest closed date
-            for (auto& trans : trade->Transactions) {
-                if (trans->transDate > data.closedDate) {
-                    data.closedDate = trans->transDate;
+            for (auto& trans : trade->transactions) {
+                if (trans->trans_date > data.closedDate) {
+                    data.closedDate = trans->trans_date;
                 }
             }
             data.trade = trade;
@@ -170,26 +170,26 @@ void ClosedTrades_ShowClosedTrades()
         }
         curDate = ClosedData.closedDate;
         subTotalMonth = curMonth;
-        subTotalAmount += ClosedData.trade->ACB;
-        if (ClosedData.trade->ACB >= 0) ++MonthWin;
-        if (ClosedData.trade->ACB < 0) ++MonthLoss;
+        subTotalAmount += ClosedData.trade->acb;
+        if (ClosedData.trade->acb >= 0) ++MonthWin;
+        if (ClosedData.trade->acb < 0) ++MonthLoss;
 
         if (curDate >= weekStartDate && curDate <= weekEndDate) {
-            weeklyAmount += ClosedData.trade->ACB;
-            if (ClosedData.trade->ACB >= 0) ++WeekWin;
-            if (ClosedData.trade->ACB < 0) ++WeekLoss;
+            weeklyAmount += ClosedData.trade->acb;
+            if (ClosedData.trade->acb >= 0) ++WeekWin;
+            if (ClosedData.trade->acb < 0) ++WeekLoss;
         }
 
         if (curDate == todayDate) {
-            dailyAmount += ClosedData.trade->ACB;
-            if (ClosedData.trade->ACB >= 0) ++DayWin;
-            if (ClosedData.trade->ACB < 0) ++DayLoss;
+            dailyAmount += ClosedData.trade->acb;
+            if (ClosedData.trade->acb >= 0) ++DayWin;
+            if (ClosedData.trade->acb < 0) ++DayLoss;
         }
 
         if (curYear == AfxGetYear(curDate)) {
-            if (ClosedData.trade->ACB >= 0) ++YearWin;
-            if (ClosedData.trade->ACB < 0) ++YearLoss;
-            YTD += ClosedData.trade->ACB;
+            if (ClosedData.trade->acb >= 0) ++YearWin;
+            if (ClosedData.trade->acb < 0) ++YearLoss;
+            YTD += ClosedData.trade->acb;
         }
         ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
     }

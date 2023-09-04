@@ -82,8 +82,8 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
     
-    std::wstring wszTicker = trade->tickerSymbol + L": " + trade->tickerName;
-    if (IsFuturesTicker(trade->tickerSymbol)) wszTicker = wszTicker + L" (" + AfxFormatFuturesDate(trade->futureExpiry) + L")";
+    std::wstring wszTicker = trade->ticker_symbol + L": " + trade->ticker_name;
+    if (IsFuturesTicker(trade->ticker_symbol)) wszTicker = wszTicker + L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
     CustomLabel_SetText(hSymbol, wszTicker);
 
     CustomTextBox_SetText(hNotesText, trade->notes);
@@ -101,8 +101,8 @@ void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
 
 
     // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
-    for (int i = trade->Transactions.size() - 1; i >= 0; --i) {
-        auto trans = trade->Transactions.at(i);
+    for (int i = trade->transactions.size() - 1; i >= 0; --i) {
+        auto trans = trade->transactions.at(i);
 
         ListBoxData_HistoryHeader(hListBox, trade, trans);
 

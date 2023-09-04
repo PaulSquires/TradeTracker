@@ -30,32 +30,32 @@ SOFTWARE.
 
 bool Leg::isOpen()
 {
-    return  (openQuantity == 0 ? false : true);
+    return  (open_quantity == 0 ? false : true);
 }
 
 
-void Trade::setTradeOpenStatus()
+void Trade::SetTradeOpenStatus()
 {
     // default that the Trade is closed
-    isOpen = false;
+    is_open = false;
 
     // Roll up all of the SHARES or FUTURES TransDetail and display the aggregate rather than the individual legs.
     int aggregate = 0;
     bool doQuantityCheck = false;
 
-    for (const auto &trans : Transactions) {
+    for (const auto &trans : transactions) {
         for (const auto &leg : trans->legs) {
             if (leg->underlying == L"OPTIONS") {
                 if (leg->isOpen()) {
                     // A leg is open so therefore the Trade must stay open
-                    this->isOpen = true;
+                    this->is_open = true;
                     return;
                 }
             } else if (leg->underlying == L"SHARES") {
-               aggregate = aggregate + leg->openQuantity;
+               aggregate = aggregate + leg->open_quantity;
                doQuantityCheck = true;
             } else if (leg->underlying == L"FUTURES") {
-                aggregate = aggregate + leg->openQuantity;
+                aggregate = aggregate + leg->open_quantity;
                 doQuantityCheck = true;
             }
         }
@@ -63,43 +63,43 @@ void Trade::setTradeOpenStatus()
 
     // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO. 
     if (doQuantityCheck) {
-        this->isOpen = (aggregate == 0 ? false : true);
+        this->is_open = (aggregate == 0 ? false : true);
         return;
     }
 
     // If the Trade is closed then set the latest Buying Power date tot he close date
-    this->BPendDate = this->OldestTradeTransDate;
+    this->bp_end_date = this->oldest_trade_trans_date;
 }
 
 
-void Trade::createOpenLegsVector()
+void Trade::CreateOpenLegsVector()
 {
     // Create the openLegs vector. We need this vector because we have to sort the
     // collection of open legs in order to have Puts before Calls. There could be
     // multiple TransDetail in this trade and therefore Puts and Calls would not
     // already be a suitable display order.
 
-    openLegs.clear();
+    open_legs.clear();
 
-    for (const auto &trans : Transactions) {
+    for (const auto &trans : transactions) {
         if (trans->multiplier > 0) this->multiplier = trans->multiplier;
         for (auto &leg : trans->legs) {
             if (leg->isOpen()) {
                 leg->trans = trans;
-                openLegs.push_back(leg);
+                open_legs.push_back(leg);
             }
         }
     }
 
     // Finally, sort the vector based on Puts first with lowest Strike Price.
-    std::sort(openLegs.begin(), openLegs.end(),
+    std::sort(open_legs.begin(), open_legs.end(),
         [](const auto leg1, const auto leg2) {
-            if (leg1->PutCall == L"P" && leg2->PutCall == L"C") {return true;}
-            if (leg1->PutCall == L"P" && leg2->PutCall == L"P") {
-                if (std::stod(leg1->strikePrice) < std::stod(leg2->strikePrice)) return true;
+            if (leg1->put_call == L"P" && leg2->put_call == L"C") {return true;}
+            if (leg1->put_call == L"P" && leg2->put_call == L"P") {
+                if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
             }
-            if (leg1->PutCall == L"C" && leg2->PutCall == L"C") {
-                if (std::stod(leg1->strikePrice) < std::stod(leg2->strikePrice)) return true;
+            if (leg1->put_call == L"C" && leg2->put_call == L"C") {
+                if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
             }
             return false;
         });

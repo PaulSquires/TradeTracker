@@ -121,7 +121,7 @@ enum class TableType
 extern bool PrevMarketDataLoaded;
 
 DWORD GetCategoryColor(int category);
-bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int nIndex);
+bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int index);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);

@@ -59,15 +59,15 @@ std::wstring StrategyButton_GetLongShortEnumText(LongShort ls)
 
 
 // ========================================================================================
-// Get the text for the specified PutCall
+// Get the text for the specified put_call
 // ========================================================================================
-std::wstring StrategyButton_GetPutCallEnumText(PutCall pc)
+std::wstring StrategyButton_Getput_callEnumText(put_call pc)
 {
     switch (pc)
     {
-    case PutCall::Put:
+    case put_call::Put:
         return L"Put";
-    case PutCall::Call:
+    case put_call::Call:
         return L"Call";
     default:
         return L"";
@@ -166,13 +166,13 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     wszText = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
     CustomLabel_SetText(hCtl, wszText);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_put_call, L"",
         COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleCenter, 51, 0, 50, nHeight);
-    CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
+    CustomLabel_SetUserDataInt(hCtl, (int)put_call::Put);
     CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    wszText = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
+    wszText = AfxUpper(StrategyButton_Getput_callEnumText(put_call::Put));
     CustomLabel_SetText(hCtl, wszText);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_STRATEGY, L"",
@@ -249,9 +249,9 @@ void StrategyButton_ToggleLongShortText(HWND hCtl)
 
 
 // ========================================================================================
-// Check to see if the currently selected Strategy allows PutCall
+// Check to see if the currently selected Strategy allows put_call
 // ========================================================================================
-bool StrategyButton_StrategyAllowPutCall(HWND hCtl)
+bool StrategyButton_StrategyAllowput_call(HWND hCtl)
 {
     Strategy s = (Strategy)CustomLabel_GetUserDataInt(hCtl);
 
@@ -277,19 +277,19 @@ bool StrategyButton_StrategyAllowPutCall(HWND hCtl)
 // ========================================================================================
 // Toggle the Put/Call text.
 // ========================================================================================
-void StrategyButton_TogglePutCallText(HWND hCtlPutCall, HWND hCtlStrategy)
+void StrategyButton_Toggleput_callText(HWND hCtlput_call, HWND hCtlStrategy)
 {
-    if (!StrategyButton_StrategyAllowPutCall(hCtlStrategy)) {
-        CustomLabel_SetText(hCtlPutCall, L"");
+    if (!StrategyButton_StrategyAllowput_call(hCtlStrategy)) {
+        CustomLabel_SetText(hCtlput_call, L"");
         return;
     }
 
-    int sel = CustomLabel_GetUserDataInt(hCtlPutCall) + 1;
-    if (sel == (int)PutCall::Count) sel = 0;
+    int sel = CustomLabel_GetUserDataInt(hCtlput_call) + 1;
+    if (sel == (int)put_call::Count) sel = 0;
 
-    CustomLabel_SetUserDataInt(hCtlPutCall, sel);
-    std::wstring wszText = AfxUpper(StrategyButton_GetPutCallEnumText((PutCall)sel));
-    CustomLabel_SetText(hCtlPutCall, wszText);
+    CustomLabel_SetUserDataInt(hCtlput_call, sel);
+    std::wstring wszText = AfxUpper(StrategyButton_Getput_callEnumText((put_call)sel));
+    CustomLabel_SetText(hCtlput_call, wszText);
 }
 
 
@@ -306,12 +306,12 @@ void StrategyButton_ToggleStrategyText(HWND hCtl)
     CustomLabel_SetText(hCtl, wszText);
 
     wszText = L"";
-    HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
-    if (StrategyButton_StrategyAllowPutCall(hCtl)) {
-        sel = CustomLabel_GetUserDataInt(hCtlPutCall);
-        wszText = AfxUpper(StrategyButton_GetPutCallEnumText((PutCall)sel));
+    HWND hCtlput_call = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
+    if (StrategyButton_StrategyAllowput_call(hCtl)) {
+        sel = CustomLabel_GetUserDataInt(hCtlput_call);
+        wszText = AfxUpper(StrategyButton_Getput_callEnumText((put_call)sel));
     }
-    CustomLabel_SetText(hCtlPutCall, wszText);
+    CustomLabel_SetText(hCtlput_call, wszText);
 }
 
 
@@ -322,7 +322,7 @@ void StrategyButton_InvokeStrategy()
 {
     Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT));
-    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL));
+    put_call pc = (put_call)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call));
 
     HWND hTradeGrid = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
 
@@ -357,17 +357,17 @@ void StrategyButton_InvokeStrategy()
     {
     case Strategy::Vertical:
     {
-        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        std::wstring wszput_call = (pc == put_call::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");  
             TradeGrid_SetColData(hGrid, row, col+1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col+4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col+4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col+5, L"BTO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
@@ -375,18 +375,18 @@ void StrategyButton_InvokeStrategy()
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
-        wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
-        AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
+        wszput_call = (pc == put_call::Put) ? L"Put " : L"Call ";
+        AfxSetWindowText(hCtlDescription, wszput_call + StrategyButton_GetStrategyEnumText(s));
         CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
@@ -430,12 +430,12 @@ void StrategyButton_InvokeStrategy()
     case Strategy::Option:
     case Strategy::Covered:
     {
-        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        std::wstring wszput_call = (pc == put_call::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
@@ -443,17 +443,17 @@ void StrategyButton_InvokeStrategy()
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
         if (s == Strategy::Covered) {
-            wszPutCall = (pc == PutCall::Put) ? L" Put" : L" Call";
-            AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s) + wszPutCall);
+            wszput_call = (pc == put_call::Put) ? L" Put" : L" Call";
+            AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s) + wszput_call);
         } else {
-            wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
-            AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
+            wszput_call = (pc == put_call::Put) ? L"Put " : L"Call ";
+            AfxSetWindowText(hCtlDescription, wszput_call + StrategyButton_GetStrategyEnumText(s));
         }
         CustomTextBox_SetText(hCtlQuantity, L"1");
     }
@@ -462,17 +462,17 @@ void StrategyButton_InvokeStrategy()
 
     case Strategy::RatioSpread:
     {
-        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        std::wstring wszput_call = (pc == put_call::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"2");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
@@ -480,18 +480,18 @@ void StrategyButton_InvokeStrategy()
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-2");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
-        wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
-        AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
+        wszput_call = (pc == put_call::Put) ? L"Put " : L"Call ";
+        AfxSetWindowText(hCtlDescription, wszput_call + StrategyButton_GetStrategyEnumText(s));
         CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;
@@ -499,22 +499,22 @@ void StrategyButton_InvokeStrategy()
 
     case Strategy::LT112:
     {
-        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        std::wstring wszput_call = (pc == put_call::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             row = 2; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"2");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
@@ -522,17 +522,17 @@ void StrategyButton_InvokeStrategy()
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             row = 2; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-2");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
@@ -600,22 +600,22 @@ void StrategyButton_InvokeStrategy()
 
     case Strategy::Butterfly:
     {
-        std::wstring wszPutCall = (pc == PutCall::Put) ? L"P" : L"C";
+        std::wstring wszput_call = (pc == put_call::Put) ? L"P" : L"C";
         if (ls == LongShort::Long) {
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-2");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             row = 2; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
@@ -623,17 +623,17 @@ void StrategyButton_InvokeStrategy()
             row = 0; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             row = 1; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"2");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"BTO");
             row = 2; col = 0;
             TradeGrid_SetColData(hGrid, row, col, L"-1");
             TradeGrid_SetColData(hGrid, row, col + 1, wszDate);
-            TradeGrid_SetColData(hGrid, row, col + 4, wszPutCall);
+            TradeGrid_SetColData(hGrid, row, col + 4, wszput_call);
             TradeGrid_SetColData(hGrid, row, col + 5, L"STO");
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
         }
@@ -682,8 +682,8 @@ LRESULT CStrategyButton::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             StrategyButton_ToggleLongShortText(hCtl);
             StrategyButton_SetLongShortBackColor(hCtl);
         }
-        if (CtrlId == IDC_STRATEGYBUTTON_PUTCALL) {
-            StrategyButton_TogglePutCallText(hCtl, GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
+        if (CtrlId == IDC_STRATEGYBUTTON_put_call) {
+            StrategyButton_Toggleput_callText(hCtl, GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
         }
         if (CtrlId == IDC_STRATEGYBUTTON_STRATEGY) {
             StrategyButton_ToggleStrategyText(hCtl);
