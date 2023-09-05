@@ -150,7 +150,7 @@ void MainWindow_StartupShowTrades()
         ActiveTrades_ShowActiveTrades();
 
         if (GetStartupConnect()) {
-            SendMessage(SideMenu.WindowHandle(), MSG_tws_Connect_START, 0, 0);
+            SendMessage(SideMenu.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
             bool res = tws_Connect();
             if (tws_IsConnected()) {
                 // Need to re-populate the Trades if successfully connected in order
@@ -175,7 +175,7 @@ void MainWindow_OnClose(HWND hwnd)
     // Destroy the popup shadow window should it exist.
     if (Shadow.WindowHandle()) DestroyWindow(Shadow.WindowHandle());
 
-    // Save the Config file so that StartupWidth and StartupHeight will persist
+    // Save the Config file so that startup_width and startup_height will persist
     // for the time application is executed.
     SetStartupWidth(AfxGetWindowWidth(hwnd));
     SetStartupHeight(AfxGetWindowHeight(hwnd));
@@ -246,22 +246,22 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HDWP hdwp = BeginDeferWindowPos(6);
 
     // Position the left hand side Navigation Panel
-    int nLeftPanelWidth = AfxGetWindowWidth(HWND_LEFTPANEL);
+    int left_panel_width = AfxGetWindowWidth(HWND_LEFTPANEL);
     hdwp = DeferWindowPos(hdwp, HWND_LEFTPANEL, 0,
-                0, 0, nLeftPanelWidth, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
+                0, 0, left_panel_width, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the right hand side History Panel
-    int nRightPanelWidth = AfxGetWindowWidth(HWND_RIGHTPANEL);
+    int right_panel_width = AfxGetWindowWidth(HWND_RIGHTPANEL);
     hdwp = DeferWindowPos(hdwp, HWND_RIGHTPANEL, 0,
-                cx - nRightPanelWidth - INNER_MARGIN, 0, nRightPanelWidth, cy - MARGIN,
+                cx - right_panel_width - INNER_MARGIN, 0, right_panel_width, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
         
     // Position the middle Trades Panel
-    int nMiddlePanelWidth = (cx - nRightPanelWidth - nLeftPanelWidth - SPLITTER_WIDTH - INNER_MARGIN);
+    int middle_panel_width = (cx - right_panel_width - left_panel_width - SPLITTER_WIDTH - INNER_MARGIN);
     hdwp = DeferWindowPos(hdwp, HWND_MIDDLEPANEL, 0,
-                nLeftPanelWidth, 0, nMiddlePanelWidth, cy - MARGIN,
+                left_panel_width, 0, middle_panel_width, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
@@ -269,14 +269,14 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
     int nTop = AfxScaleY(20);
     int nHeight = AfxScaleY(16);
-    int nWidth = nMiddlePanelWidth; 
-    DeferWindowPos(hdwp, hCtl, 0, nLeftPanelWidth, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
+    int nWidth = middle_panel_width; 
+    DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
 
 
     EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
-    rcSplitter.left = nLeftPanelWidth + nMiddlePanelWidth;
+    rcSplitter.left = left_panel_width + middle_panel_width;
     rcSplitter.top = 0;
     rcSplitter.right = rcSplitter.left + SPLITTER_WIDTH;
     rcSplitter.bottom = cy;
@@ -363,10 +363,10 @@ void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 // ========================================================================================
 void UpdateSplitterChildren(HWND hwnd, int xDelta)
 {
-    int nRightPanelWidth = AfxGetWindowWidth(HWND_RIGHTPANEL) + xDelta;
-    int nRightPanelHeight = AfxGetWindowHeight(HWND_RIGHTPANEL);
+    int right_panel_width = AfxGetWindowWidth(HWND_RIGHTPANEL) + xDelta;
+    int right_panel_height = AfxGetWindowHeight(HWND_RIGHTPANEL);
     SetWindowPos(HWND_RIGHTPANEL, 0,
-        0, 0, nRightPanelWidth, nRightPanelHeight, SWP_NOZORDER | SWP_NOMOVE);
+        0, 0, right_panel_width, right_panel_height, SWP_NOZORDER | SWP_NOMOVE);
 
     RECT rc; GetClientRect(hwnd, &rc);
     MainWindow_OnSize(hwnd, SIZE_RESTORED, rc.right, rc.bottom);

@@ -860,7 +860,7 @@ void ListBoxData_HistoryOptionsLeg(
 // ========================================================================================
 // Create the display data line for closed position yearly total.
 // ========================================================================================
-void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal, int YearWin, int YearLoss)
+void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal, int year_win, int year_loss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -878,9 +878,9 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 
     // col 5 is a "spacer" column
 
-    clr = (YearWin >= YearLoss) ? COLOR_GREEN : COLOR_RED;
-    text = std::to_wstring(YearWin) + L"W " + std::to_wstring(YearLoss)
-        + L"L  " + AfxMoney((double)YearWin / (max(YearWin + YearLoss,1)) * 100, false, 0) + L"%";
+    clr = (year_win >= year_loss) ? COLOR_GREEN : COLOR_RED;
+    text = std::to_wstring(year_win) + L"W " + std::to_wstring(year_loss)
+        + L"L  " + AfxMoney((double)year_win / (max(year_win + year_loss,1)) * 100, false, 0) + L"%";
     ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
@@ -891,7 +891,7 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 // ========================================================================================
 // Create the display data line for total closed weekly total.
 // ========================================================================================
-void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int WeekWin, int WeekLoss)
+void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int week_win, int week_loss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -909,9 +909,9 @@ void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int We
 
     // col 5 is a "spacer" column
 
-    clr = (WeekWin >= WeekLoss) ? COLOR_GREEN : COLOR_RED;
-    text = std::to_wstring(WeekWin) + L"W " + std::to_wstring(WeekLoss)
-        + L"L  " + AfxMoney((double)WeekWin / (max(WeekWin + WeekLoss,1)) * 100, false, 0) + L"%";
+    clr = (week_win >= week_loss) ? COLOR_GREEN : COLOR_RED;
+    text = std::to_wstring(week_win) + L"W " + std::to_wstring(week_loss)
+        + L"L  " + AfxMoney((double)week_win / (max(week_win + week_loss,1)) * 100, false, 0) + L"%";
     ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
@@ -922,7 +922,7 @@ void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int We
 // ========================================================================================
 // Create the display data line for total closed daily total.
 // ========================================================================================
-void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayWin, int DayLoss)
+void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int day_win, int day_loss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -940,9 +940,9 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayW
 
     // col 5 is a "spacer" column
 
-    clr = (DayWin >= DayLoss) ? COLOR_GREEN : COLOR_RED;
-    text = std::to_wstring(DayWin) + L"W " + std::to_wstring(DayLoss)
-        + L"L  " + AfxMoney((double)DayWin / (max(DayWin + DayLoss,1)) * 100, false, 0) + L"%";
+    clr = (day_win >= day_loss) ? COLOR_GREEN : COLOR_RED;
+    text = std::to_wstring(day_win) + L"W " + std::to_wstring(day_loss)
+        + L"L  " + AfxMoney((double)day_win / (max(day_win + day_loss,1)) * 100, false, 0) + L"%";
     ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
@@ -958,7 +958,7 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayW
 // ========================================================================================
 // Create the display data line for a closed position month subtotal.
 // ========================================================================================
-void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal, int MonthWin, int MonthLoss)
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal, int month_win, int month_loss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -976,9 +976,9 @@ void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDat
 
     // col 5 is a "spacer" column
 
-    clr = (MonthWin >= MonthLoss) ? COLOR_GREEN : COLOR_RED;
-    text = std::to_wstring(MonthWin) + L"W " + std::to_wstring(MonthLoss)
-        + L"L  " + AfxMoney((double)MonthWin / (max(MonthWin + MonthLoss,1)) * 100, false, 0) + L"%";
+    clr = (month_win >= month_loss) ? COLOR_GREEN : COLOR_RED;
+    text = std::to_wstring(month_win) + L"W " + std::to_wstring(month_loss)
+        + L"L  " + AfxMoney((double)month_win / (max(month_win + month_loss,1)) * 100, false, 0) + L"%";
     ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 

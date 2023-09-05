@@ -41,7 +41,7 @@ void Trade::SetTradeOpenStatus()
 
     // Roll up all of the SHARES or FUTURES TransDetail and display the aggregate rather than the individual legs.
     int aggregate = 0;
-    bool doQuantityCheck = false;
+    bool do_quantity_check = false;
 
     for (const auto &trans : transactions) {
         for (const auto &leg : trans->legs) {
@@ -53,16 +53,16 @@ void Trade::SetTradeOpenStatus()
                 }
             } else if (leg->underlying == L"SHARES") {
                aggregate = aggregate + leg->open_quantity;
-               doQuantityCheck = true;
+               do_quantity_check = true;
             } else if (leg->underlying == L"FUTURES") {
                 aggregate = aggregate + leg->open_quantity;
-                doQuantityCheck = true;
+                do_quantity_check = true;
             }
         }
     }
 
     // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO. 
-    if (doQuantityCheck) {
+    if (do_quantity_check) {
         this->is_open = (aggregate == 0 ? false : true);
         return;
     }

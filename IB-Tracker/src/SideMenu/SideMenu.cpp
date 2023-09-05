@@ -335,7 +335,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_PAINT, SideMenu_OnPaint);
 
 
-    case MSG_tws_Connect_START:
+    case MSG_TWS_CONNECT_START:
     {
         SetCursor(LoadCursor(0, IDC_WAIT));
         CustomLabel* pData = nullptr;

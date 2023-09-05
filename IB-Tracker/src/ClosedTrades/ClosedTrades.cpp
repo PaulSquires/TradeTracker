@@ -88,7 +88,7 @@ void ClosedTrades_ShowClosedTrades()
 
 
     struct ClosedData {
-        std::wstring closedDate;
+        std::wstring closed_date;
         std::shared_ptr<Trade> trade;
     };
 
@@ -109,8 +109,8 @@ void ClosedTrades_ShowClosedTrades()
 
             // Iterate to find the latest closed date
             for (auto& trans : trade->transactions) {
-                if (trans->trans_date > data.closedDate) {
-                    data.closedDate = trans->trans_date;
+                if (trans->trans_date > data.closed_date) {
+                    data.closed_date = trans->trans_date;
                 }
             }
             data.trade = trade;
@@ -126,77 +126,77 @@ void ClosedTrades_ShowClosedTrades()
     // Sort the closed vector based on trade closed date
     std::sort(vectorClosed.begin(), vectorClosed.end(),
         [](const ClosedData data1, const ClosedData data2) {
-            return (data1.closedDate > data2.closedDate) ? true : false;
+            return (data1.closed_date > data2.closed_date) ? true : false;
         });
 
 
     // Output the closed trades and subtotals based on month when the month changes.
-    double subTotalAmount = 0;
+    double subtotal_amount = 0;
     double YTD = 0;
-    double weeklyAmount = 0;
-    double dailyAmount = 0;
+    double weekly_amount = 0;
+    double daily_amount = 0;
     
-    int subTotalMonth = 0;
+    int subtotal_month = 0;
     
-    int curMonth = 0;
-    int curYear = 0;
+    int current_month = 0;
+    int current_year = 0;
     
-    int MonthWin = 0;
-    int MonthLoss = 0;
+    int month_win = 0;
+    int month_loss = 0;
 
-    int WeekWin = 0;
-    int WeekLoss = 0;
+    int week_win = 0;
+    int week_loss = 0;
 
-    int DayWin = 0;
-    int DayLoss = 0;
+    int day_win = 0;
+    int day_loss = 0;
 
-    int YearWin = 0;
-    int YearLoss = 0;
+    int year_win = 0;
+    int year_loss = 0;
 
-    std::wstring todayDate = AfxCurrentDate();
-    std::wstring weekStartDate = AfxDateAddDays(todayDate, -AfxLocalDayOfWeek());
-    std::wstring weekEndDate = AfxDateAddDays(weekStartDate, 6);
+    std::wstring today_date = AfxCurrentDate();
+    std::wstring week_start_date = AfxDateAddDays(today_date, -AfxLocalDayOfWeek());
+    std::wstring week_end_date = AfxDateAddDays(week_start_date, 6);
     std::wstring curDate = L"";
 
     for (const auto& ClosedData : vectorClosed) {
-        curMonth = AfxGetMonth(ClosedData.closedDate);
-        if (curYear == 0) curYear = AfxGetYear(ClosedData.closedDate);
-        if (subTotalMonth != curMonth && subTotalMonth != 0) {
-            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount, MonthWin, MonthLoss);
-            curDate = ClosedData.closedDate;
-            subTotalAmount = 0;
-            MonthWin = 0;
-            MonthLoss = 0;
+        current_month = AfxGetMonth(ClosedData.closed_date);
+        if (current_year == 0) current_year = AfxGetYear(ClosedData.closed_date);
+        if (subtotal_month != current_month && subtotal_month != 0) {
+            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, month_win, month_loss);
+            curDate = ClosedData.closed_date;
+            subtotal_amount = 0;
+            month_win = 0;
+            month_loss = 0;
         }
-        curDate = ClosedData.closedDate;
-        subTotalMonth = curMonth;
-        subTotalAmount += ClosedData.trade->acb;
-        if (ClosedData.trade->acb >= 0) ++MonthWin;
-        if (ClosedData.trade->acb < 0) ++MonthLoss;
+        curDate = ClosedData.closed_date;
+        subtotal_month = current_month;
+        subtotal_amount += ClosedData.trade->acb;
+        if (ClosedData.trade->acb >= 0) ++month_win;
+        if (ClosedData.trade->acb < 0) ++month_loss;
 
-        if (curDate >= weekStartDate && curDate <= weekEndDate) {
-            weeklyAmount += ClosedData.trade->acb;
-            if (ClosedData.trade->acb >= 0) ++WeekWin;
-            if (ClosedData.trade->acb < 0) ++WeekLoss;
-        }
-
-        if (curDate == todayDate) {
-            dailyAmount += ClosedData.trade->acb;
-            if (ClosedData.trade->acb >= 0) ++DayWin;
-            if (ClosedData.trade->acb < 0) ++DayLoss;
+        if (curDate >= week_start_date && curDate <= week_end_date) {
+            weekly_amount += ClosedData.trade->acb;
+            if (ClosedData.trade->acb >= 0) ++week_win;
+            if (ClosedData.trade->acb < 0) ++week_loss;
         }
 
-        if (curYear == AfxGetYear(curDate)) {
-            if (ClosedData.trade->acb >= 0) ++YearWin;
-            if (ClosedData.trade->acb < 0) ++YearLoss;
+        if (curDate == today_date) {
+            daily_amount += ClosedData.trade->acb;
+            if (ClosedData.trade->acb >= 0) ++day_win;
+            if (ClosedData.trade->acb < 0) ++day_loss;
+        }
+
+        if (current_year == AfxGetYear(curDate)) {
+            if (ClosedData.trade->acb >= 0) ++year_win;
+            if (ClosedData.trade->acb < 0) ++year_loss;
             YTD += ClosedData.trade->acb;
         }
-        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closedDate);
+        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closed_date);
     }
-    if (subTotalAmount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subTotalAmount, MonthWin, MonthLoss);
-    ListBoxData_OutputClosedYearTotal(hListBox, curYear, YTD, YearWin, YearLoss);
-    ListBoxData_OutputClosedWeekTotal(hListBox, weeklyAmount, WeekWin, WeekLoss);
-    ListBoxData_OutputClosedDayTotal(hListBox, dailyAmount, DayWin, DayLoss);
+    if (subtotal_amount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, month_win, month_loss);
+    ListBoxData_OutputClosedYearTotal(hListBox, current_year, YTD, year_win, year_loss);
+    ListBoxData_OutputClosedWeekTotal(hListBox, weekly_amount, week_win, week_loss);
+    ListBoxData_OutputClosedDayTotal(hListBox, daily_amount, day_win, day_loss);
 
 
     // Calculate the actual column widths based on the size of the strings in
@@ -336,7 +336,7 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
 
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
+        int item_height = (rcItem.bottom - rcItem.top);
         int items_count = ListBox_GetCount(hWnd);
         int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
@@ -346,12 +346,12 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
         int nHeight = (rc.bottom - rc.top);
 
         if (items_count > 0) {
-            items_per_page = (nHeight) / itemHeight;
+            items_per_page = (nHeight) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
             visible_rows = (bottom_index - top_index) + 1;
-            rc.top = visible_rows * itemHeight;
+            rc.top = visible_rows * item_height;
         }
 
         if (rc.top < rc.bottom) {
@@ -581,12 +581,12 @@ void ClosedTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     {
 
     case (LBN_SELCHANGE):
-        int nCurSel = ListBox_GetCurSel(hwndCtl);
-        if (nCurSel == -1) break;
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
+        int selected = ListBox_GetCurSel(hwndCtl);
+        if (selected == -1) break;
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, selected);
         if (ld != nullptr) {
             // Show the trade history for the selected trade
-            ClosedTrades_ShowListBoxItem(nCurSel);
+            ClosedTrades_ShowListBoxItem(selected);
         }
         break;
 

@@ -40,12 +40,12 @@ const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 
-bool StartupConnect = false;
-int StartupWidth = 0;
-int StartupHeight = 0;
-int StartupRightPanelWidth = 0;
+bool startup_connect = false;
+int startup_width = 0;
+int startup_height = 0;
+int startup_right_panel_width = 0;
 
-bool StartupPaperTrading = false;
+bool startup_paper_trading = false;
 
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
@@ -96,7 +96,7 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
 // ========================================================================================
 void DisplayPaperTradingWarning()
 {
-    if (!StartupPaperTrading) return;
+    if (!startup_paper_trading) return;
 
     CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
         L"*** USING PAPER TRADING ACCOUNT ***");
@@ -110,7 +110,7 @@ void DisplayPaperTradingWarning()
 // ========================================================================================
 int GetStartupPort()
 {
-    return (StartupPaperTrading ? 7497 : 7496);   // paper trading port is 7497
+    return (startup_paper_trading ? 7497 : 7496);   // paper trading port is 7497
 }
 
 
@@ -120,18 +120,18 @@ int GetStartupPort()
 // ========================================================================================
 int GetStartupWidth()
 {
-    if (StartupWidth > 0) return StartupWidth;
+    if (startup_width > 0) return startup_width;
 
     // Size the main window to encompass 75% of screen width.
-    int InitalMainWidth = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
+    int inital_main_width = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
 
     // Impose a maximum size on the initial height/width in order
     // to ensure that the main window does not display exceptionally
     // large especially when run on very large monitors.
     // Target a minimum 720p screen resolution size (1280 x 720).
-    if (InitalMainWidth > 1280) InitalMainWidth = 1280;
+    if (inital_main_width > 1280) inital_main_width = 1280;
 
-    return InitalMainWidth;
+    return inital_main_width;
 }
 
 
@@ -141,18 +141,18 @@ int GetStartupWidth()
 // ========================================================================================
 int GetStartupHeight()
 {
-    if (StartupHeight > 0) return StartupHeight;
+    if (startup_height > 0) return startup_height;
 
     // Size the main window to encompass 85% of screen height.
-    int InitalMainHeight = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
+    int inital_main_height = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
     // Impose a maximum size on the initial height/width in order
     // to ensure that the main window does not display exceptionally
     // large especially when run on very large monitors.
     // Target a minimum 720p screen resolution size (1280 x 720).
-    if (InitalMainHeight > 720) InitalMainHeight = 720;
+    if (inital_main_height > 720) inital_main_height = 720;
 
-    return InitalMainHeight;
+    return inital_main_height;
 }
 
 
@@ -161,7 +161,7 @@ int GetStartupHeight()
 // ========================================================================================
 void SetStartupHeight(int height)
 {
-    StartupHeight = AfxUnScaleY((float)height);
+    startup_height = AfxUnScaleY((float)height);
 }
 
 
@@ -170,7 +170,7 @@ void SetStartupHeight(int height)
 // ========================================================================================
 void SetStartupWidth(int width)
 {
-    StartupWidth = AfxUnScaleX((float)width);
+    startup_width = AfxUnScaleX((float)width);
 }
 
 
@@ -180,7 +180,7 @@ void SetStartupWidth(int width)
 // ========================================================================================
 int GetStartupRightPanelWidth()
 {
-    if (StartupRightPanelWidth > 0) return StartupRightPanelWidth;
+    if (startup_right_panel_width > 0) return startup_right_panel_width;
     return 440;
 }
 
@@ -190,16 +190,16 @@ int GetStartupRightPanelWidth()
 // ========================================================================================
 void SetStartupRightPanelWidth(int width)
 {
-    StartupRightPanelWidth = AfxUnScaleX((float)width);
+    startup_right_panel_width = AfxUnScaleX((float)width);
 }
 
 
 // ========================================================================================
 // Determine if the incoming ticker symbol is a Future.
 // ========================================================================================
-bool IsFuturesTicker(const std::wstring& wszTicker)
+bool IsFuturesTicker(const std::wstring& ticker)
 {
-    return (wszTicker.substr(0, 1) == L"/");
+    return (ticker.substr(0, 1) == L"/");
 }
 
 
@@ -207,10 +207,10 @@ bool IsFuturesTicker(const std::wstring& wszTicker)
 // ========================================================================================
 // Get the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-int GetTickerDecimals(std::wstring wszUnderlying)
+int GetTickerDecimals(std::wstring underlying)
 {
-    if (mapTickerDecimals.count(wszUnderlying)) {
-        return mapTickerDecimals.at(wszUnderlying);
+    if (mapTickerDecimals.count(underlying)) {
+        return mapTickerDecimals.at(underlying);
     }
     else {
         return 2;
@@ -221,19 +221,19 @@ int GetTickerDecimals(std::wstring wszUnderlying)
 // ========================================================================================
 // Set the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-void SetTickerDecimals(std::wstring wszUnderlying, int numDecimals)
+void SetTickerDecimals(std::wstring underlying, int decimals)
 {
-    mapTickerDecimals[wszUnderlying] = numDecimals;
+    mapTickerDecimals[underlying] = decimals;
 }
 
 
 // ========================================================================================
 // Get the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-std::wstring GetMultiplier(std::wstring wszUnderlying)
+std::wstring GetMultiplier(std::wstring underlying)
 {
-    if (mapMultipliers.count(wszUnderlying)) {
-        return mapMultipliers.at(wszUnderlying);
+    if (mapMultipliers.count(underlying)) {
+        return mapMultipliers.at(underlying);
     }
     else {
         return L"100";
@@ -244,19 +244,19 @@ std::wstring GetMultiplier(std::wstring wszUnderlying)
 // ========================================================================================
 // Set the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-void SetMultiplier(std::wstring wszUnderlying, std::wstring wszMultiplier)
+void SetMultiplier(std::wstring underlying, std::wstring multiplier)
 {
-    mapMultipliers[wszUnderlying] = wszMultiplier;
+    mapMultipliers[underlying] = multiplier;
 }
 
 
 // ========================================================================================
 // Get the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-std::string GetFuturesExchange(std::string szUnderlying)
+std::string GetFuturesExchange(std::string underlying)
 {
-    if (mapFuturesExchanges.count(szUnderlying)) {
-        return mapFuturesExchanges.at(szUnderlying);
+    if (mapFuturesExchanges.count(underlying)) {
+        return mapFuturesExchanges.at(underlying);
     }
     else {
         return "CME";
@@ -267,27 +267,27 @@ std::string GetFuturesExchange(std::string szUnderlying)
 // ========================================================================================
 // Set the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-void SetFuturesExchange(std::string szUnderlying, std::string szExchange)
+void SetFuturesExchange(std::string underlying, std::string exchange)
 {
-    mapFuturesExchanges[szUnderlying] = szExchange;
+    mapFuturesExchanges[underlying] = exchange;
 }
 
 
 // ========================================================================================
 // Get the Category Description for the incoming category number.
 // ========================================================================================
-std::wstring GetCategoryDescription(int idxCategory)
+std::wstring GetCategoryDescription(int category_index)
 {
-    return mapCategoryDescriptions.at(idxCategory);
+    return mapCategoryDescriptions.at(category_index);
 }
 
 
 // ========================================================================================
 // Set the Category Description for the incoming category number.
 // ========================================================================================
-void SetCategoryDescription(int idxCategory, std::wstring wszDescription)
+void SetCategoryDescription(int category_index, std::wstring wszDescription)
 {
-    mapCategoryDescriptions[idxCategory] = wszDescription;
+    mapCategoryDescriptions[category_index] = wszDescription;
 }
 
 
@@ -296,7 +296,7 @@ void SetCategoryDescription(int idxCategory, std::wstring wszDescription)
 // ========================================================================================
 bool GetStartupConnect()
 {
-    return StartupConnect;
+    return startup_connect;
 }
 
 
@@ -305,7 +305,7 @@ bool GetStartupConnect()
 // ========================================================================================
 void SetStartupConnect(bool bConnect)
 {
-    StartupConnect = bConnect;
+    startup_connect = bConnect;
 }
 
 
@@ -332,13 +332,13 @@ bool SaveConfig()
     db << idMagic << "|" << version << "\n"
         << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
 
-    db << "ENABLEPAPERTRADING|" << (StartupPaperTrading ? L"true" : L"false") << "\n";
+    db << "ENABLEPAPERTRADING|" << (startup_paper_trading ? L"true" : L"false") << "\n";
 
-    db << "STARTUPWIDTH" << "|" << StartupWidth << "\n";
+    db << "STARTUPWIDTH" << "|" << startup_width << "\n";
 
-    db << "STARTUPHEIGHT" << "|" << StartupHeight << "\n";
+    db << "STARTUPHEIGHT" << "|" << startup_height << "\n";
 
-    db << "STARTUPRIGHTPANELWIDTH" << "|" << StartupRightPanelWidth << "\n";
+    db << "STARTUPRIGHTPANELWIDTH" << "|" << startup_right_panel_width << "\n";
 
     for (auto item : mapCategoryDescriptions) {
         db << "CATEGORY|" << item.first << "|" << item.second << "\n";
@@ -379,7 +379,7 @@ bool LoadConfig()
     if (!db.is_open())
         return false;
 
-    std::wstring configVersion;
+    std::wstring config_version;
 
     bool isFirstline = true;
 
@@ -410,7 +410,7 @@ bool LoadConfig()
                 db.close();
                 return false;
             }
-            configVersion = st.at(1);
+            config_version = st.at(1);
             isFirstline = false;
             continue;
         }
@@ -421,12 +421,12 @@ bool LoadConfig()
 
         // Check for configuration identifiers
         if (arg == L"STARTUPCONNECT") {
-            std::wstring wszConnect;
+            std::wstring connect;
             
-            try {wszConnect = AfxTrim(st.at(1)); }
+            try {connect = AfxTrim(st.at(1)); }
             catch (...) { continue; }
         
-            bool bConnect = AfxWStringCompareI(wszConnect, L"true");
+            bool bConnect = AfxWStringCompareI(connect, L"true");
             SetStartupConnect(bConnect);
             continue;
         }
@@ -434,82 +434,82 @@ bool LoadConfig()
 
         // Check for paper trading
         if (arg == L"ENABLEPAPERTRADING") {
-            std::wstring wszPaper;
+            std::wstring paper;
             
-            try {wszPaper = AfxTrim(st.at(1)); }
+            try {paper = AfxTrim(st.at(1)); }
             catch (...) { continue; }
         
-            StartupPaperTrading = AfxWStringCompareI(wszPaper, L"true");
+            startup_paper_trading = AfxWStringCompareI(paper, L"true");
             continue;
         }
 
 
-        // Check for StartupWidth
+        // Check for startup_width
         if (arg == L"STARTUPWIDTH") {
-            std::wstring wszWidth;
+            std::wstring width;
 
-            try { wszWidth = AfxTrim(st.at(1)); }
+            try { width = AfxTrim(st.at(1)); }
             catch (...) { continue; }
 
-            StartupWidth = AfxValInteger(wszWidth);
+            startup_width = AfxValInteger(width);
             continue;
         }
 
 
-        // Check for StartupHeight
+        // Check for startup_height
         if (arg == L"STARTUPHEIGHT") {
-            std::wstring wszHeight;
+            std::wstring height;
 
-            try { wszHeight = AfxTrim(st.at(1)); }
+            try { height = AfxTrim(st.at(1)); }
             catch (...) { continue; }
 
-            StartupHeight = AfxValInteger(wszHeight);
+            startup_height = AfxValInteger(height);
             continue;
         }
 
 
         // Check for category descriptions
         if (arg == L"CATEGORY") {
-            int idxCategory;
-            std::wstring wszDescription;
+            int category_index;
+            std::wstring description;
             
-            try {idxCategory = stoi(st.at(1));}
+            try {category_index = stoi(st.at(1));}
             catch (...) {continue;}
             
-            try {wszDescription = st.at(2);}
+            try {description = st.at(2);}
             catch (...) {continue;}
             
-            SetCategoryDescription(idxCategory, wszDescription);
+            SetCategoryDescription(category_index, description);
             continue;
         }
 
 
-        // Check for StartupRightPanelWidth
+        // Check for startup_right_panel_width
         if (arg == L"STARTUPRIGHTPANELWIDTH") {
-            std::wstring wszWidth;
+            std::wstring width;
 
-            try { wszWidth = AfxTrim(st.at(1)); }
+            try { width = AfxTrim(st.at(1)); }
             catch (...) { continue; }
 
-            StartupRightPanelWidth = AfxValInteger(wszWidth);
+            startup_right_panel_width = AfxValInteger(width);
             continue;
         }
 
 
         // Check for Futures Exchanges
         if (arg == L"EXCHANGE") {
-            std::wstring wszUnderlying;
-            std::wstring wszExchange;
+            std::wstring text1;
+            std::wstring text2;
             
-            try {wszUnderlying = st.at(1);}
+            try {text1 = st.at(1);}
             catch (...) {continue;}
             
-            try {wszExchange = st.at(2);}
+            try {text2 = st.at(2);}
             catch (...) {continue;}
             
-            std::string szUnderlying = unicode2ansi(wszUnderlying);
-            std::string szExchange = unicode2ansi(wszExchange);
-            SetFuturesExchange(szUnderlying, szExchange);
+            std::string underlying = unicode2ansi(text1);
+            std::string exchange = unicode2ansi(text2);
+            SetFuturesExchange(underlying, exchange);
 
             continue;
         }
@@ -517,16 +517,16 @@ bool LoadConfig()
 
         // Check for Multipliers
         if (arg == L"MULTIPLIER") {
-            std::wstring wszUnderlying;
-            std::wstring wszMultiplier;
+            std::wstring underlying;
+            std::wstring multiplier;
             
-            try {wszUnderlying = st.at(1);}
+            try {underlying = st.at(1);}
             catch (...) {continue;}
             
-            try { wszMultiplier = st.at(2);}
+            try { multiplier = st.at(2);}
             catch (...) {continue;}
             
-            SetMultiplier(wszUnderlying, wszMultiplier);
+            SetMultiplier(underlying, multiplier);
 
             continue;
         }
@@ -534,16 +534,16 @@ bool LoadConfig()
 
         // Check for Ticker Decimals
         if (arg == L"TICKERDECIMALS") {
-            std::wstring wszUnderlying;
+            std::wstring underlying;
             int numDecimals;
             
-            try {wszUnderlying = st.at(1);}
+            try {underlying = st.at(1);}
             catch (...) {continue;}
             
             try { numDecimals = stoi(st.at(2));}
             catch (...) {continue;}
             
-            SetTickerDecimals(wszUnderlying, numDecimals);
+            SetTickerDecimals(underlying, numDecimals);
 
             continue;
         }

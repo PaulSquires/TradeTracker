@@ -189,7 +189,7 @@ void TransPanel_ShowTransactions()
 
     int subTotalDay = 0;
     int curDay = 0;
-    int curYear = 0;
+    int current_year = 0;
     std::wstring curDate = L"";
 
     for (const auto& td : tdata) {

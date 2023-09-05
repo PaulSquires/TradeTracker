@@ -348,7 +348,7 @@ bool tws_Connect()
     const char* host = "";
 	int port = GetStartupPort();  // 7496;   // 7497 is paper trading account
 	
-	SendMessage(HWND_SIDEMENU, MSG_tws_Connect_START, 0, 0);
+	SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_START, 0, 0);
 
 	bool res = false;
 
