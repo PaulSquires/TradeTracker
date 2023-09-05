@@ -45,7 +45,7 @@ HWND HWND_TRADEDIALOG = NULL;
 CTradeDialog TradeDialog;
 TradeDialogData tdd;
 
-int DialogReturnCode = DIALOG_RETURN_CANCEL;
+int dialog_return_code = DIALOG_RETURN_CANCEL;
 
 
 
@@ -112,8 +112,8 @@ void TradeDialog_OnPaint(HWND hwnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_GRAYDARK);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    SolidBrush back_brush(COLOR_GRAYDARK);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     // Copy the entire memory bitmap to the main display
     BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -184,11 +184,11 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Process a change in the DR/CR button (colors and trade totals).
 // ========================================================================================
-void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText)
+void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring text)
 {
-    CustomLabel_SetText(hCtl, wszText);
+    CustomLabel_SetText(hCtl, text);
 
-    DWORD clr = (wszText == L"CR") ? COLOR_GREEN : COLOR_RED;
+    DWORD clr = (text == L"CR") ? COLOR_GREEN : COLOR_RED;
     CustomLabel_SetBackColor(hCtl, clr);
     CustomLabel_SetBackColorHot(hCtl, clr);
     TradeDialog_CalculateTradeTotal(HWND_TRADEDIALOG);
@@ -274,31 +274,31 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRADEDIALOG_BUYSHARES) {
             TradeDialog_ToggleBuyLongShortText(hCtl);
-            TradeDialog_SetLongShortBackColor(hCtl);
+            TradeDialog_SetLongShortback_color(hCtl);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_BUYSHARES_DROPDOWN) {
             hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_BUYSHARES);
             TradeDialog_ToggleBuyLongShortText(hCtl);
-            TradeDialog_SetLongShortBackColor(hCtl);
+            TradeDialog_SetLongShortback_color(hCtl);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SELLSHARES) {
             TradeDialog_ToggleSellLongShortText(hCtl);
-            TradeDialog_SetLongShortBackColor(hCtl);
+            TradeDialog_SetLongShortback_color(hCtl);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SELLSHARES_DROPDOWN) {
             hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SELLSHARES);
             TradeDialog_ToggleSellLongShortText(hCtl);
-            TradeDialog_SetLongShortBackColor(hCtl);
+            TradeDialog_SetLongShortback_color(hCtl);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_COMBODRCR) {
             // Clicked on the DRCR combo so cycle through the choices
-            std::wstring wszText = CustomLabel_GetText(hCtl);
-            wszText = (wszText == L"DR") ? L"CR" : L"DR";
-            TradeDialog_SetComboDRCR(hCtl, wszText);
+            std::wstring text = CustomLabel_GetText(hCtl);
+            text = (text == L"DR") ? L"CR" : L"DR";
+            TradeDialog_SetComboDRCR(hCtl, text);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE || CtrlId == IDC_TRADEDIALOG_LBLTRANSDATE) {
@@ -325,7 +325,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 tdd.tradeAction == TradeAction::ManageFutures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
                     TradeDialog_CreateSharesTradeData(m_hwnd);
-                    DialogReturnCode = DIALOG_RETURN_OK;
+                    dialog_return_code = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
                 SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
@@ -333,7 +333,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             else if (tdd.tradeAction == TradeAction::EditTransaction) {
                 if (TradeDialog_ValidateEditTradeData(m_hwnd) == true) {
                     TradeDialog_CreateEditTradeData(m_hwnd);
-                    DialogReturnCode = DIALOG_RETURN_OK;
+                    dialog_return_code = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
                 SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
@@ -341,7 +341,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             else {
                 if (TradeDialog_ValidateOptionsTradeData(m_hwnd) == true) {
                     TradeDialog_CreateOptionsTradeData(m_hwnd);
-                    DialogReturnCode = DIALOG_RETURN_OK;
+                    dialog_return_code = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }
                 SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
@@ -417,7 +417,7 @@ int TradeDialog_Show(TradeAction inTradeAction)
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));
     }
      
-    DialogReturnCode = DIALOG_RETURN_CANCEL;
+    dialog_return_code = DIALOG_RETURN_CANCEL;
    
     // Call modal message pump and wait for it to end.
     MSG msg{};
@@ -448,6 +448,6 @@ int TradeDialog_Show(TradeAction inTradeAction)
     // Clear the tdd module global trade variable
     tdd.ResetDefaults();
 
-    return DialogReturnCode;
+    return dialog_return_code;
 }
 

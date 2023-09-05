@@ -54,17 +54,17 @@ public:
 
 	int CtrlId = 0;
 
-	DWORD BackColor{};
-	HBRUSH hBackBrush = NULL;
+	DWORD back_color{};
+	HBRUSH hback_brush = NULL;
 
 	// Text
-	std::wstring wszText;
-	std::wstring wszFontName;
-	int FontSize = 0;
+	std::wstring text;
+	std::wstring font_name;
+	int font_size = 0;
 	HFONT hFontText = NULL;
 	int HTextMargin = 0;
 	int VTextMargin = 0;
-	DWORD TextColor{};
+	DWORD text_color{};
 	int Alignment = ES_LEFT;
 	bool isMultiLine = false;
 
@@ -78,16 +78,16 @@ public:
 
 CustomTextBox* CustomTextBox_GetOptions(HWND hCtrl);
 int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData);
-void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText);
-void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize);
+void CustomTextBox_SetText(HWND hCtrl, std::wstring text);
+void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size);
 void CustomTextBox_SetNumericAttributes(
 	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
-void CustomTextBox_SetColors(HWND hCtrl, DWORD TextColor, DWORD BackColor);
+void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color);
 void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
 void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 
 
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool isMultiLine,
-	int Alignment, std::wstring wszText, int nLeft, int nTop, int nWidth, int nHeight);
+	int Alignment, std::wstring text, int nLeft, int nTop, int nWidth, int nHeight);
 

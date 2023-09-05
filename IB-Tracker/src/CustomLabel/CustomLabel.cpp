@@ -116,21 +116,21 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     Graphics graphics(m_memDC);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-    DWORD nBackColor = (m_bIsHot ? BackColorHot : BackColor);
+    DWORD nback_color = (m_bIsHot ? back_color_hot : back_color);
     if (IsSelected && AllowSelect)
-        nBackColor = BackColorSelected;
+        nback_color = back_color_selected;
 
     if (LButtonDown == true) {
-        nBackColor = BackColorButtonDown;
+        nback_color = back_color_button_down;
     }
 
     // Create the background brush
-    SolidBrush backBrush(nBackColor);
+    SolidBrush back_brush(nback_color);
 
     // Paint the background using brush and default pen. 
     int nWidth = (m_rcClient.right - m_rcClient.left);
     int nHeight = (m_rcClient.bottom - m_rcClient.top);
-    graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
 }
 
 
@@ -167,15 +167,15 @@ void CustomLabel::DrawTextInBuffer()
     case CustomLabelType::TextOnly:
     case CustomLabelType::ImageAndText:
 
-        wszFontName = AfxGetDefaultFont();
-        if (wszText.substr(0, 2) == L"\\u") {
-            wszFontName = L"Segoe UI Symbol";
+        font_name = AfxGetDefaultFont();
+        if (text.substr(0, 2) == L"\\u") {
+            font_name = L"Segoe UI Symbol";
         }
 
-        wszFontNameHot = wszFontName;
-        FontFamily fontFamily(m_bIsHot ? wszFontNameHot.c_str() : wszFontName.c_str());
+        font_nameHot = font_name;
+        FontFamily fontFamily(m_bIsHot ? font_nameHot.c_str() : font_name.c_str());
 
-        REAL fontSize = (m_bIsHot ? FontSizeHot : FontSize);
+        REAL fontSize = (m_bIsHot ? font_sizeHot : font_size);
         int fontStyle = FontStyleRegular;
 
         if (m_bIsHot) {
@@ -190,7 +190,7 @@ void CustomLabel::DrawTextInBuffer()
         }
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   textBrush(m_bIsHot ? TextColorHot : TextColor);
+        SolidBrush   text_brush(m_bIsHot ? text_colorHot : text_color);
 
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -208,7 +208,7 @@ void CustomLabel::DrawTextInBuffer()
 
         Graphics graphics(m_memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+        graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
     }
 
 }
@@ -250,7 +250,7 @@ void CustomLabel::DrawNotchInBuffer()
     // If selection mode is enabled then draw the little right hand side notch
     if (IsSelected && AllowNotch) {
         // Create the background brush
-        SolidBrush backBrush(SelectorColor);
+        SolidBrush back_brush(SelectorColor);
         // Need to center the notch vertically
         REAL nNotchHalfHeight = (16 * m_ry) / 2;
         REAL nTop = (m_rcClient.bottom / 2) - nNotchHalfHeight;
@@ -260,7 +260,7 @@ void CustomLabel::DrawNotchInBuffer()
         PointF points[3] = { point1, point2, point3 };
         PointF* pPoints = points;
         Graphics graphics(m_memDC);
-        graphics.FillPolygon(&backBrush, pPoints, 3);
+        graphics.FillPolygon(&back_brush, pPoints, 3);
     }
 }
 
@@ -280,13 +280,13 @@ void CustomLabel::DrawBordersInBuffer()
     {
         //if (BorderVisible == true) {
         //    ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
-        //    Pen pen(BackColor, BorderWidth);
+        //    Pen pen(back_color, BorderWidth);
         //    RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
         //    Graphics graphics(m_memDC);
         //    graphics.DrawRectangle(&pen, rectF);
         //}
         if (AllowTabStop == true) {
-            ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : BackColor);
+            ARGB clrPen = (GetFocus() == hWindow ? BorderColorHot : back_color);
             Pen pen(clrPen, 1);
             int nWidth = (m_rcClient.right - m_rcClient.left) - 1;
             int nHeight = (m_rcClient.bottom - m_rcClient.top) - 1;
@@ -568,9 +568,9 @@ int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
 {
     if (pData == nullptr) return 0;
 
-    if (pData->wszToolTip.length()) {
+    if (pData->tooltip_text.length()) {
         if (pData->hToolTip) {
-            AfxSetTooltipText(pData->hToolTip, hCtrl, pData->wszToolTip);
+            AfxSetTooltipText(pData->hToolTip, hCtrl, pData->tooltip_text);
         }
     }
 
@@ -587,12 +587,12 @@ int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
 // ========================================================================================
 // Set the text for the custom control.
 // ========================================================================================
-void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
+void CustomLabel_SetText(HWND hCtrl, std::wstring text)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->wszText = wszText;
-        pData->wszTextHot = wszText;
+        pData->text = text;
+        pData->textHot = text;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -601,11 +601,11 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring wszText)
 // ========================================================================================
 // Set the text foreground color for the custom control.
 // ========================================================================================
-void CustomLabel_SetTextColor(HWND hCtrl, DWORD TextColor)
+void CustomLabel_SetTextColor(HWND hCtrl, DWORD text_color)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->TextColor = TextColor;
+        pData->text_color = text_color;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -614,11 +614,11 @@ void CustomLabel_SetTextColor(HWND hCtrl, DWORD TextColor)
 // ========================================================================================
 // Set the text foreground hot color for the custom control.
 // ========================================================================================
-void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD TextColorHot)
+void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD text_colorHot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->TextColorHot = TextColorHot;
+        pData->text_colorHot = text_colorHot;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -627,11 +627,11 @@ void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD TextColorHot)
 // ========================================================================================
 // Set the text background color for the custom control.
 // ========================================================================================
-void CustomLabel_SetBackColor(HWND hCtrl, DWORD BackColor)
+void CustomLabel_SetBackColor(HWND hCtrl, DWORD back_color)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->BackColor = BackColor;
+        pData->back_color = back_color;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -640,11 +640,11 @@ void CustomLabel_SetBackColor(HWND hCtrl, DWORD BackColor)
 // ========================================================================================
 // Set the text background hot color for the custom control.
 // ========================================================================================
-void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD BackColorHot)
+void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD back_color_hot)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->BackColorHot = BackColorHot;
+        pData->back_color_hot = back_color_hot;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -679,11 +679,11 @@ void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD BorderColorHot)
 // ========================================================================================
 // Get the text background color for the custom control.
 // ========================================================================================
-DWORD CustomLabel_GetBackColor(HWND hCtrl)
+DWORD CustomLabel_Getback_color(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        return pData->BackColor;
+        return pData->back_color;
     }
     return COLOR_BLACK;
 }
@@ -692,11 +692,11 @@ DWORD CustomLabel_GetBackColor(HWND hCtrl)
 // ========================================================================================
 // Set the tooltip text for the custom control.
 // ========================================================================================
-void CustomLabel_SetToolTip(HWND hCtrl, std::wstring wszText)
+void CustomLabel_SetToolTip(HWND hCtrl, std::wstring text)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->wszToolTip = wszText;
+        pData->tooltip_text = text;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -709,7 +709,7 @@ std::wstring CustomLabel_GetText(HWND hCtrl)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        return pData->wszText;
+        return pData->text;
     }
     return L"";
 }
@@ -764,11 +764,11 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop)
 // ========================================================================================
 // Set the user defined text data (wstring) for the custom control.
 // ========================================================================================
-void CustomLabel_SetUserData(HWND hCtrl, std::wstring wszText)
+void CustomLabel_SetUserData(HWND hCtrl, std::wstring text)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->UserData = wszText;
+        pData->UserData = text;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -816,14 +816,14 @@ int CustomLabel_GetUserDataInt(HWND hCtrl)
 // ========================================================================================
 // Set the font for the custom control.
 // ========================================================================================
-void CustomLabel_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize, bool FontBold)
+void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool FontBold)
 {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->wszFontName = wszFontName;
-        pData->wszFontNameHot = wszFontName;
-        pData->FontSize = (REAL)FontSize;
-        pData->FontSizeHot = (REAL)FontSize;
+        pData->font_name = font_name;
+        pData->font_nameHot = font_name;
+        pData->font_size = (REAL)font_size;
+        pData->font_sizeHot = (REAL)font_size;
         pData->FontBold = FontBold;
         pData->FontBoldHot = pData->FontBold;
         CustomLabel_SetOptions(hCtrl, pData);
@@ -850,8 +850,8 @@ void CustomLabel_Select(HWND hCtrl, bool IsSelected)
 // Creates a simple "dumb" label that basically just makes it easier to deal
 // with coloring. No hot tracking or click notifications.
 // ========================================================================================
-HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
-    DWORD TextColor, DWORD BackColor, CustomLabelAlignment alignment, 
+HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
+    DWORD text_color, DWORD back_color, CustomLabelAlignment alignment, 
     int nLeft, int nTop, int nWidth, int nHeight)
 {
     CustomLabel* pData = nullptr;
@@ -861,11 +861,11 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
         nLeft, nTop, nWidth, nHeight);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->wszText = wszText;
+        pData->text = text;
         pData->HotTestEnable = false;
-        pData->BackColor = BackColor;
-        pData->TextColor = TextColor;
-        pData->BackColorButtonDown = BackColor;
+        pData->back_color = back_color;
+        pData->text_color = text_color;
+        pData->back_color_button_down = back_color;
         pData->TextAlignment = alignment;
         pData->AllowTabStop = false;
         CustomLabel_SetOptions(hCtl, pData);
@@ -878,8 +878,8 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring wszText,
 // ========================================================================================
 // Creates a simple label that acts like a push button.
 // ========================================================================================
-HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
-    DWORD TextColor, DWORD BackColor, DWORD BackColorHot, DWORD BackColorButtonDown, DWORD FocusBorderColor,
+HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
+    DWORD text_color, DWORD back_color, DWORD back_color_hot, DWORD back_color_button_down, DWORD FocusBorderColor,
     CustomLabelAlignment alignment, int nLeft, int nTop, int nWidth, int nHeight)
 {
     // Creates a simple button type of label
@@ -890,18 +890,18 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring wszText,
         nLeft, nTop, nWidth, nHeight);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->wszText = wszText;
-        pData->wszTextHot = wszText;
+        pData->text = text;
+        pData->textHot = text;
         pData->HotTestEnable = true;
-        pData->BackColor = BackColor;
-        pData->BackColorHot = BackColorHot;
-        pData->BackColorButtonDown = BackColorButtonDown;
-        pData->TextColor = TextColor;
-        pData->TextColorHot = TextColor;
+        pData->back_color = back_color;
+        pData->back_color_hot = back_color_hot;
+        pData->back_color_button_down = back_color_button_down;
+        pData->text_color = text_color;
+        pData->text_colorHot = text_color;
         pData->TextAlignment = alignment;
         pData->AllowTabStop = true;
         pData->BorderColorHot = FocusBorderColor;
-        pData->BorderColor = BackColor;
+        pData->BorderColor = back_color;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -928,8 +928,8 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = COLOR_BLACK;
-        pData->BackColorButtonDown = pData->BackColor;
+        pData->back_color = COLOR_BLACK;
+        pData->back_color_button_down = pData->back_color;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
@@ -952,13 +952,13 @@ HWND CreateCustomLabel(
     int nWidth, 
     int nHeight )
 {
-    std::wstring wszClassName(L"CUSTOMLABEL_CONTROL");
+    std::wstring class_name_text(L"CUSTOMLABEL_CONTROL");
 
     WNDCLASSEX wcex{};
     
     HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWndParent, GWLP_HINSTANCE);
 
-    if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
+    if (GetClassInfoEx(hInst, class_name_text.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = CustomLabelProc;
@@ -970,7 +970,7 @@ HWND CreateCustomLabel(
         wcex.hIconSm = NULL;
         wcex.hbrBackground = (HBRUSH)WHITE_BRUSH;
         wcex.lpszMenuName = NULL;
-        wcex.lpszClassName = wszClassName.c_str();
+        wcex.lpszClassName = class_name_text.c_str();
         if(RegisterClassEx(&wcex) == 0) return 0;
     }
         
@@ -979,7 +979,7 @@ HWND CreateCustomLabel(
    
 
     HWND hCtl =
-        CreateWindowEx(0, wszClassName.c_str(), L"",
+        CreateWindowEx(0, class_name_text.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), (int)(nWidth * rx), (int)(nHeight * ry),
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
@@ -993,10 +993,10 @@ HWND CreateCustomLabel(
         pData->CtrlId = CtrlId;
         pData->CtrlType = nCtrlType;
 
-        pData->wszFontName = L"Segoe UI";
-        pData->FontSize = 9;
-        pData->wszFontNameHot = pData->wszFontName;
-        pData->FontSizeHot = pData->FontSize;
+        pData->font_name = L"Segoe UI";
+        pData->font_size = 9;
+        pData->font_nameHot = pData->font_name;
+        pData->font_sizeHot = pData->font_size;
 
         pData->hToolTip = AfxAddTooltip(hCtl, L"", FALSE, FALSE);
 

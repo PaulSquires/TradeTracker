@@ -76,13 +76,13 @@ void Calendar_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    Color backColor(COLOR_GRAYDARK);
-    SolidBrush backBrush(backColor);
+    Color back_color(COLOR_GRAYDARK);
+    SolidBrush back_brush(back_color);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -152,22 +152,22 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     lpNMSelChange->stSelStart.wMonth,
                     lpNMSelChange->stSelStart.wDay);
 
-                std::wstring wszText;
+                std::wstring text;
                 switch (TheUpdateDateReturnType)
                 {
                 case CalendarPickerReturnType::ShortDate:
-                    wszText = AfxShortDate(wszTheSelectedDate);
+                    text = AfxShortDate(wszTheSelectedDate);
                     break;
                 case CalendarPickerReturnType::LongDate:
-                    wszText = AfxLongDate(wszTheSelectedDate);
+                    text = AfxLongDate(wszTheSelectedDate);
                     break;
                 case CalendarPickerReturnType::ISODate:
-                    wszText = wszTheSelectedDate;
+                    text = wszTheSelectedDate;
                     break;
                 }
 
                 CustomLabel_SetUserData(hTheUpdateParentCtl, wszTheSelectedDate);
-                CustomLabel_SetText(hTheUpdateParentCtl, wszText);
+                CustomLabel_SetText(hTheUpdateParentCtl, text);
                 SendMessage(GetParent(hTheUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
                     GetDlgCtrlID(hTheUpdateParentCtl), (LPARAM)hTheUpdateParentCtl);
                 DestroyWindow(m_hwnd);

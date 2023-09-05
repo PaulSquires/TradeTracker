@@ -40,7 +40,7 @@ public:
 
 
 extern HWND HWND_YEARENDDIALOG;
-extern int DialogReturnCode;
+extern int dialog_return_code;
 
 
 constexpr int IDC_YEARENDDIALOG_TXTDATE = 100;

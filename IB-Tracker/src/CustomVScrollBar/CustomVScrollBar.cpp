@@ -42,28 +42,28 @@ bool CustomVScrollBar::calcVThumbRect()
 {
     // calculate the vertical scrollbar in client coordinates
     SetRectEmpty(&rc);
-    int nTopIndex = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
+    int top_index = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
     
     RECT rcListBox{};
     GetClientRect(hListBox, &rcListBox);
     listBoxHeight = (rcListBox.bottom - rcListBox.top);
     itemHeight = ListBox_GetItemHeight(hListBox, 0);
-    numItems = ListBox_GetCount(hListBox);
+    items_count = ListBox_GetCount(hListBox);
 
     // If no items exist then exit to avoid division by zero GPF's.
-    if (numItems == 0) return FALSE;
+    if (items_count == 0) return FALSE;
 
-    itemsPerPage = (int)(std::round(listBoxHeight / (float)itemHeight));
-    thumbHeight = (int)(((float)itemsPerPage / (float)numItems) * (float)listBoxHeight);
+    items_per_page = (int)(std::round(listBoxHeight / (float)itemHeight));
+    thumbHeight = (int)(((float)items_per_page / (float)items_count) * (float)listBoxHeight);
 
     rc.left = rcListBox.left;
-    rc.top = (int)(rcListBox.top + (((float)nTopIndex / (float)numItems) * (float)listBoxHeight));
+    rc.top = (int)(rcListBox.top + (((float)top_index / (float)items_count) * (float)listBoxHeight));
     rc.right = rcListBox.right;
     rc.bottom = (rc.top + thumbHeight);
 
     // If the number of items in the listbox is less than what could display
     // on the screen then there is no need to show the scrollbar.
-    return (numItems < itemsPerPage) ? FALSE : TRUE;
+    return (items_count < items_per_page) ? FALSE : TRUE;
 }
 
 
@@ -96,18 +96,18 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             }
             else {
                 // we have clicked on a PageUp or PageDn
-                int nTopIndex = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
+                int top_index = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
                 if (pt.y < pData->rc.top) {
-                    nTopIndex = max(nTopIndex - pData->itemsPerPage, 0);
-                    SendMessage(pData->hListBox, LB_SETTOPINDEX, nTopIndex, 0);
+                    top_index = max(top_index - pData->items_per_page, 0);
+                    SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
                     pData->calcVThumbRect();
                     AfxRedrawWindow(pData->hwnd);
                 }
                 else {
                     if (pt.y > pData->rc.bottom) {
-                        int nMaxTopIndex = pData->numItems - pData->itemsPerPage;
-                        nTopIndex = min(nTopIndex + pData->itemsPerPage, nMaxTopIndex);
-                        SendMessage(pData->hListBox, LB_SETTOPINDEX, nTopIndex, 0);
+                        int nMaxTopIndex = pData->items_count - pData->items_per_page;
+                        top_index = min(top_index + pData->items_per_page, nMaxTopIndex);
+                        SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
                         pData->calcVThumbRect();
                         AfxRedrawWindow(pData->hwnd);
                     }
@@ -137,7 +137,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
                     pData->prev_pt = pt;
 
                     int nPrevTopLine = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
-                    int nTopLine = (int)std::round(pData->rc.top / (float)rc.bottom * pData->numItems);
+                    int nTopLine = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
                     if (nTopLine != nPrevTopLine)
                         SendMessage(pData->hListBox, LB_SETTOPINDEX, (WPARAM)nTopLine, 0);
 
@@ -181,12 +181,12 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-            SolidBrush backBrush(pData->ScrollBarBack);
-            graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+            SolidBrush back_brush(pData->ScrollBarBack);
+            graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
-            if (pData->numItems > pData->itemsPerPage) {
-                backBrush.SetColor(pData->ScrollBarThumb);
-                graphics.FillRectangle(&backBrush, pData->rc.left, pData->rc.top, nWidth, pData->thumbHeight);
+            if (pData->items_count > pData->items_per_page) {
+                back_brush.SetColor(pData->ScrollBarThumb);
+                graphics.FillRectangle(&back_brush, pData->rc.left, pData->rc.top, nWidth, pData->thumbHeight);
 
                 Pen pen(pData->ScrollBarLine, 1);
                 graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
@@ -253,13 +253,13 @@ HWND CreateCustomVScrollBar(
     HWND hListBox
     )
 {
-    std::wstring wszClassName(L"CUSTOMVSCROLLBAR_CONTROL");
+    std::wstring class_name_text(L"CUSTOMVSCROLLBAR_CONTROL");
 
     WNDCLASSEX wcex{};
 
     HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWndParent, GWLP_HINSTANCE);
 
-    if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
+    if (GetClassInfoEx(hInst, class_name_text.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = CustomVScrollBarProc;
@@ -271,12 +271,12 @@ HWND CreateCustomVScrollBar(
         wcex.hIconSm = NULL;
         wcex.hbrBackground = (HBRUSH)WHITE_BRUSH;
         wcex.lpszMenuName = NULL;
-        wcex.lpszClassName = wszClassName.c_str();
+        wcex.lpszClassName = class_name_text.c_str();
         if (RegisterClassEx(&wcex) == 0) return 0;
     }
 
     HWND hCtl =
-        CreateWindowEx(0, wszClassName.c_str(), L"",
+        CreateWindowEx(0, class_name_text.c_str(), L"",
             WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             0, 0, 0, 0,
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);

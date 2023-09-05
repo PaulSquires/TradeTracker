@@ -166,7 +166,7 @@ void Reconcile_positionEnd()
 	}
 
 
-	std::wstring wszText = L"";
+	std::wstring text = L"";
 
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.
 	ResultsText = L"IBKR that do not exist in Local:\r\n";
@@ -186,22 +186,22 @@ void Reconcile_positionEnd()
 			}
 		}
 		if (!found) {
-			wszText += L"   " + std::to_wstring(ibkr.open_quantity) + L" " +
+			text += L"   " + std::to_wstring(ibkr.open_quantity) + L" " +
 				ibkr.tickerSymbol + L" " + ibkr.underlying;
 			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
-				wszText += L" " + ibkr.expiry_date + L" " + std::to_wstring(ibkr.strike_price) + L" " + ibkr.put_call;
+				text += L" " + ibkr.expiry_date + L" " + std::to_wstring(ibkr.strike_price) + L" " + ibkr.put_call;
 			}
-			wszText += L"\r\n";
+			text += L"\r\n";
 		}
 	}
-	if (wszText.length() == 0) wszText = L"** Everything matches correctly **";
-	ResultsText += wszText;
+	if (text.length() == 0) text = L"** Everything matches correctly **";
+	ResultsText += text;
 
 	ResultsText += L"\r\n\r\n";   // blank lines
 
 	// (2) Determine what Local positions do not exist in the IBKR "real" database.
 	ResultsText += L"Local that do not exist in IBKR:\r\n";
-	wszText = L"";
+	text = L"";
 	for (const auto& local : local_positions) {
 		bool found = false;
 		for (const auto& ibkr : IBKRPositions) {
@@ -210,17 +210,17 @@ void Reconcile_positionEnd()
 		}
 		if (!found) {
 			if (local.open_quantity != 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
-				wszText += L"   " + std::to_wstring(local.open_quantity) + L" " +
+				text += L"   " + std::to_wstring(local.open_quantity) + L" " +
 					local.tickerSymbol + L" " + local.underlying;
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
-					wszText += L" " + local.expiry_date + L" " + std::to_wstring(local.strike_price) + L" " + local.put_call;
+					text += L" " + local.expiry_date + L" " + std::to_wstring(local.strike_price) + L" " + local.put_call;
 				}
-				wszText += L"\r\n";
+				text += L"\r\n";
 			}
 		}
 	}
-	if (wszText.length() == 0) wszText = L"** Everything matches correctly **";
-	ResultsText += wszText;
+	if (text.length() == 0) text = L"** Everything matches correctly **";
+	ResultsText += text;
 
 	// Clear the vectors in case we run reconcile again
 	local_positions.clear();

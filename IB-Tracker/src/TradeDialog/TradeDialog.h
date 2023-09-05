@@ -59,7 +59,7 @@ public:
 
 extern TradeDialogData tdd;
 extern HWND HWND_TRADEDIALOG;
-extern int DialogReturnCode;
+extern int dialog_return_code;
 
 
 constexpr int IDC_TRADEDIALOG_LBLEDITACTION  = 101;
@@ -105,12 +105,12 @@ constexpr int IDC_TRADEDIALOG_SELLSHARES_DROPDOWN = 155;
 
 constexpr int IDC_TRADEDIALOG_CATEGORY       = 160;
 
-std::wstring RemovePipeChar(const std::wstring& wszText);
+std::wstring RemovePipeChar(const std::wstring& text);
 int TradeDialog_Show(TradeAction inTradeAction);
 void TradeDialog_CalculateTradeTotal(HWND hwnd);
 void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd);
-void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring wszText);
-void TradeDialog_SetLongShortBackColor(HWND hCtl);
+void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring text);
+void TradeDialog_SetLongShortback_color(HWND hCtl);
 void TradeDialog_ToggleBuyLongShortText(HWND hCtl);
 void TradeDialog_ToggleSellLongShortText(HWND hCtl);
 bool TradeDialog_ValidateSharesTradeData(HWND hwnd);

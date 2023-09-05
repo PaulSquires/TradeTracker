@@ -38,7 +38,7 @@ CCategoryPopup CategoryPopup;
 
 // Control on parent window that new selected category will be stored in and displayed.
 HWND hCategoryUpdateParentCtl = NULL;
-int SelectedCategory = 0;
+int selected_category = 0;
 
 
 
@@ -48,10 +48,10 @@ int SelectedCategory = 0;
 // ========================================================================================
 void CategoryPopup_DoSelected(HWND hListBox, int idx)
 {
-    int itemData = ListBox_GetItemData(hListBox, idx);
-    if (itemData != SelectedCategory) {
-        CustomLabel_SetUserDataInt(hCategoryUpdateParentCtl, itemData);
-        CustomLabel_SetText(hCategoryUpdateParentCtl, GetCategoryDescription(itemData));
+    int item_data = ListBox_GetItemData(hListBox, idx);
+    if (item_data != selected_category) {
+        CustomLabel_SetUserDataInt(hCategoryUpdateParentCtl, item_data);
+        CustomLabel_SetText(hCategoryUpdateParentCtl, GetCategoryDescription(item_data));
         SendMessage(GetParent(GetParent(hCategoryUpdateParentCtl)), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
     }
     DestroyWindow(HWND_CATEGORYPOPUP);
@@ -119,30 +119,30 @@ LRESULT CALLBACK CategoryPopup_ListBox_SubclassProc(
 
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
-        int NumItems = ListBox_GetCount(hWnd);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hWnd);
+        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
-        int ItemsPerPage = 0;
+        int items_per_page = 0;
         int bottom_index = 0;
         int nWidth = (rc.right - rc.left);
         int nHeight = (rc.bottom - rc.top);
 
-        if (NumItems > 0) {
-            ItemsPerPage = (nHeight) / itemHeight;
-            bottom_index = (nTopIndex + ItemsPerPage);
-            if (bottom_index >= NumItems)
-                bottom_index = NumItems - 1;
-            visible_rows = (bottom_index - nTopIndex) + 1;
-            rc.top = visible_rows * itemHeight;
+        if (items_count > 0) {
+            items_per_page = (nHeight) / item_height;
+            bottom_index = (top_index + items_per_page);
+            if (bottom_index >= items_count)
+                bottom_index = items_count - 1;
+            visible_rows = (bottom_index - top_index) + 1;
+            rc.top = visible_rows * item_height;
         }
 
         if (rc.top < rc.bottom) {
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(COLOR_GRAYDARK);
-            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
+            SolidBrush back_brush(COLOR_GRAYDARK);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
         }
 
         ValidateRect(hWnd, &rc);
@@ -200,12 +200,12 @@ void CategoryPopup_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_BLACK);
+    SolidBrush back_brush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -248,35 +248,35 @@ void CategoryPopup_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-        DWORD nBackColor = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
-        DWORD nBackColorHot = COLOR_SELECTION;
-        DWORD nTextColor = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
+        DWORD back_color = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
+        DWORD back_color_hot = COLOR_SELECTION;
+        DWORD ntext_color = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
 
-        std::wstring wszFontName = AfxGetDefaultFont();
-        FontFamily   fontFamily(wszFontName.c_str());
+        std::wstring font_name = AfxGetDefaultFont();
+        FontFamily   fontFamily(font_name.c_str());
         REAL fontSize = 9;
         int fontStyle = FontStyleRegular;
 
         // Paint the full width background using brush 
-        SolidBrush backBrush(nBackColor);
-        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+        SolidBrush back_brush(back_color);
+        graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   textBrush(nTextColor);
+        SolidBrush   text_brush(ntext_color);
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetLineAlignment(StringAlignment::StringAlignmentCenter);
 
-        std::wstring wszText;
+        std::wstring text;
 
-        if (SelectedCategory == lpDrawItem->itemData) wszText = GLYPH_CHECKMARK;
+        if (selected_category == lpDrawItem->itemData) text = GLYPH_CHECKMARK;
         RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText1, &stringF, &textBrush);
+        graphics.DrawString(text.c_str(), -1, &font, rcText1, &stringF, &text_brush);
 
-        wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
+        text = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
         RectF rcText2((REAL)AfxScaleX(24), (REAL)0, (REAL)nWidth, (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentNear);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText2, &stringF, &textBrush);
+        graphics.DrawString(text.c_str(), -1, &font, rcText2, &stringF, &text_brush);
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
             lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
@@ -383,26 +383,26 @@ HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl)
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    int numCategories = CATEGORY_END + 1;
-    if (CategoryControl_GetAllowAllCategories(hParent)) ++numCategories;
+    int categories_count = CATEGORY_END + 1;
+    if (CategoryControl_Getallow_all_categories(hParent)) ++categories_count;
     
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(hPopup, HWND_TOP,
         rc.left - margin, rc.bottom,
         AfxScaleX(CATEGORYPOPUP_WIDTH),
-        AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT * (float)numCategories),
+        AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT * (float)categories_count),
         SWP_SHOWWINDOW);
 
 
-    if (CategoryControl_GetAllowAllCategories(hParent)) {
+    if (CategoryControl_Getallow_all_categories(hParent)) {
         HWND hListBox = GetDlgItem(hPopup, IDC_CATEGORYPOPUP_LISTBOX);
         int idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_ALL).c_str());
         ListBox_SetItemData(hListBox, idx, CATEGORY_ALL);
     }
 
     // Get the current selected category and apply it to the popup
-    SelectedCategory = CustomLabel_GetUserDataInt(hParentCtl);
+    selected_category = CustomLabel_GetUserDataInt(hParentCtl);
 
 
     // Set the module global hUpdateParentCtl after the above is created in order

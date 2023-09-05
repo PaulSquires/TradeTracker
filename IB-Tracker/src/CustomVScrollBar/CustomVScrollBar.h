@@ -41,8 +41,8 @@ public:
     POINT prev_pt{};
     int listBoxHeight = 0;
     int itemHeight = 0;
-    int numItems = 0;
-    int itemsPerPage = 0;
+    int items_count = 0;
+    int items_per_page = 0;
     int thumbHeight = 0;
     RECT rc{};
     

@@ -140,20 +140,20 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int itemHeight = (rcItem.bottom - rcItem.top);
-        int NumItems = ListBox_GetCount(hWnd);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int items_count = ListBox_GetCount(hWnd);
+        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
-        int ItemsPerPage = 0;
+        int items_per_page = 0;
         int bottom_index = 0;
         int nWidth = (rc.right - rc.left);
         int nHeight = (rc.bottom - rc.top);
 
-        if (NumItems > 0) {
-            ItemsPerPage = (nHeight) / itemHeight;
-            bottom_index = (nTopIndex + ItemsPerPage);
-            if (bottom_index >= NumItems)
-                bottom_index = NumItems - 1;
-            visible_rows = (bottom_index - nTopIndex) + 1;
+        if (items_count > 0) {
+            items_per_page = (nHeight) / itemHeight;
+            bottom_index = (top_index + items_per_page);
+            if (bottom_index >= items_count)
+                bottom_index = items_count - 1;
+            visible_rows = (bottom_index - top_index) + 1;
             rc.top = visible_rows * itemHeight;
         }
 
@@ -161,8 +161,8 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(COLOR_GRAYDARK);
-            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
+            SolidBrush back_brush(COLOR_GRAYDARK);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
         }
 
         ValidateRect(hWnd, &rc);
@@ -220,12 +220,12 @@ void TransDateFilter_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_BLACK);
+    SolidBrush back_brush(COLOR_BLACK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -268,35 +268,35 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-        DWORD nBackColor = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
-        DWORD nBackColorHot = COLOR_SELECTION;
-        DWORD nTextColor = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
+        DWORD back_color = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
+        DWORD back_color_hot = COLOR_SELECTION;
+        DWORD ntext_color = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
 
-        std::wstring wszFontName = AfxGetDefaultFont();
-        FontFamily   fontFamily(wszFontName.c_str());
+        std::wstring font_name = AfxGetDefaultFont();
+        FontFamily   fontFamily(font_name.c_str());
         REAL fontSize = 9;
         int fontStyle = FontStyleRegular;
 
         // Paint the full width background using brush 
-        SolidBrush backBrush(nBackColor);
-        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+        SolidBrush back_brush(back_color);
+        graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   textBrush(nTextColor);
+        SolidBrush   text_brush(ntext_color);
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetLineAlignment(StringAlignment::StringAlignmentCenter);
 
-        std::wstring wszText;
+        std::wstring text;
         
-        if ((int)SelectedFilterType == lpDrawItem->itemID) wszText = GLYPH_CHECKMARK;
+        if ((int)SelectedFilterType == lpDrawItem->itemID) text = GLYPH_CHECKMARK;
         RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText1, &stringF, &textBrush);
+        graphics.DrawString(text.c_str(), -1, &font, rcText1, &stringF, &text_brush);
 
-        wszText = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
+        text = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
         RectF rcText2((REAL)AfxScaleX(24), (REAL)0, (REAL)nWidth, (REAL)nHeight);
         stringF.SetAlignment(StringAlignment::StringAlignmentNear);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText2, &stringF, &textBrush);
+        graphics.DrawString(text.c_str(), -1, &font, rcText2, &stringF, &text_brush);
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
             lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);

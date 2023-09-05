@@ -137,9 +137,9 @@ public:
 // ========================================================================================
 // Remove pipe character from the string and return new copy. 
 // ========================================================================================
-std::wstring RemovePipeChar(const std::wstring& wszText)
+std::wstring RemovePipeChar(const std::wstring& text)
 {
-    std::wstring wszString = wszText;
+    std::wstring wszString = text;
     wszString.erase(remove(wszString.begin(), wszString.end(), L'|'), wszString.end());
     return wszString;
 }
@@ -157,7 +157,7 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
     // Do an error check to ensure that the data about to be saved does not contain
     // any missing data, etc.
     std::wstring wszErrMsg;
-    std::wstring wszText;
+    std::wstring text;
 
     if (tdd.tradeAction == TradeAction::ManageFutures ||
         tdd.tradeAction == TradeAction::AddFuturesToTrade) {
@@ -309,7 +309,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
     // Do an error check to ensure that the data about to be saved does not contain
     // any missing data, etc.
     std::wstring wszErrMsg;
-    std::wstring wszText;
+    std::wstring text;
 
     if (guiData.tickerSymbol.length() == 0) wszErrMsg += L"- Missing Ticker Symbol.\n";
     if (guiData.tickerName.length() == 0) wszErrMsg += L"- Missing Company or Futures Name.\n";
@@ -546,7 +546,7 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     // Do an error check to ensure that the data about to be saved does not contain
     // any missing data, etc.
     std::wstring wszErrMsg;
-    std::wstring wszText;
+    std::wstring text;
 
     if (guiData.description.length() == 0) wszErrMsg += L"- Missing Description.\n";
 

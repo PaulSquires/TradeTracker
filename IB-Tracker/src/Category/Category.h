@@ -37,17 +37,17 @@ public:
     INT CtrlId = 0;
 
     HWND hToolTip = NULL;
-    std::wstring wszToolTip;
+    std::wstring tooltip_text;
 
-    DWORD BackColor{};
-    DWORD BackColorHot{};
-    DWORD BackColorButtonDown{};
-    DWORD BackColorSelected{};
+    DWORD back_color{};
+    DWORD back_color_hot{};
+    DWORD back_color_button_down{};
+    DWORD back_color_selected{};
 
-    DWORD TextColor{};
-    int FontSize = 9;
-    std::wstring wszText;
-    bool AllowAllCategories = false;
+    DWORD text_color{};
+    int font_size = 9;
+    std::wstring text;
+    bool allow_all_categories = false;
 };
 
 
@@ -82,7 +82,7 @@ CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
 int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);
 int CategoryControl_GetSelectedIndex(HWND hwnd);
 void CategoryControl_SetSelectedIndex(HWND hwnd, int index);
-bool CategoryControl_GetAllowAllCategories(HWND hwnd);
+bool CategoryControl_Getallow_all_categories(HWND hwnd);
 
-HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int SelectedIndex, bool AllowAllCategories);
+HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int selected_index, bool allow_all_categories);
 

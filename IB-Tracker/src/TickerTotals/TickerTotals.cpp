@@ -175,18 +175,18 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         accumDelta += zDelta;
         if (accumDelta >= 120) {     // scroll up 3 lines
-            nTopIndex -= 3;
-            nTopIndex = max(0, nTopIndex);
-            SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+            top_index -= 3;
+            top_index = max(0, top_index);
+            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
             accumDelta = 0;
         }
         else {
             if (accumDelta <= -120) {     // scroll down 3 lines
-                nTopIndex += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+                top_index += +3;
+                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
                 accumDelta = 0;
             }
         }
@@ -208,20 +208,20 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int itemHeight = (rcItem.bottom - rcItem.top);
-        int NumItems = ListBox_GetCount(hWnd);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int items_count = ListBox_GetCount(hWnd);
+        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
-        int ItemsPerPage = 0;
+        int items_per_page = 0;
         int bottom_index = 0;
         int nWidth = (rc.right - rc.left);
         int nHeight = (rc.bottom - rc.top);
 
-        if (NumItems > 0) {
-            ItemsPerPage = (nHeight) / itemHeight;
-            bottom_index = (nTopIndex + ItemsPerPage);
-            if (bottom_index >= NumItems)
-                bottom_index = NumItems - 1;
-            visible_rows = (bottom_index - nTopIndex) + 1;
+        if (items_count > 0) {
+            items_per_page = (nHeight) / itemHeight;
+            bottom_index = (top_index + items_per_page);
+            if (bottom_index >= items_count)
+                bottom_index = items_count - 1;
+            visible_rows = (bottom_index - top_index) + 1;
             rc.top = visible_rows * itemHeight;
         }
 
@@ -229,8 +229,8 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush backBrush(COLOR_GRAYDARK);
-            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
+            SolidBrush back_brush(COLOR_GRAYDARK);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
         }
 
         ValidateRect(hWnd, &rc);
@@ -289,12 +289,12 @@ void TickerPanel_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_GRAYDARK);
+    SolidBrush back_brush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -320,17 +320,17 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
-    bool bShowScrollBar = false;
+    bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
-            bShowScrollBar = true;
+            bshow_scrollbar = true;
         }
         else {
-            bShowScrollBar = pData->calcVThumbRect();
+            bshow_scrollbar = pData->calcVThumbRect();
         }
     }
-    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
+    int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
@@ -340,14 +340,14 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hHeaderTickerTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleX(1);
 
-    nWidth = cx - CustomVScrollBarWidth;
+    nWidth = cx - custom_scrollbar_width;
     nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = CustomVScrollBarWidth;
+    nWidth = custom_scrollbar_width;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+        SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
 }

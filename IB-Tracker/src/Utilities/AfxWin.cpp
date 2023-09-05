@@ -200,9 +200,9 @@ std::wstring AfxGetWindowText(HWND hwnd)
 // ========================================================================================
 // Set text for the specified window
 // ========================================================================================
-bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText)
+bool AfxSetWindowText(HWND hwnd, const std::wstring& text)
 {
-    return SetWindowText(hwnd, wszText.c_str());
+    return SetWindowText(hwnd, text.c_str());
 }
 
 
@@ -383,13 +383,13 @@ int AfxComCtlVersion()
 // Creates a tooltip for a control.
 // Parameters:
 // - hwnd      = Handle of the window or control
-// - wszText   = Tooltip text
+// - text   = Tooltip text
 // - bBalloon  = Ballon tip (TRUE or FALSE)
 // - bCentered = Centered (TRUE or FALSE)
 // Return Value:
 //   The handle of the tooltip control
 // ========================================================================================
-HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon, bool bCentered)
+HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon, bool bCentered)
 {
     if (IsWindow(hwnd) == 0) return 0;
 
@@ -429,7 +429,7 @@ HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon, bool b
     if (bCentered)
         tti.uFlags = tti.uFlags | TTF_CENTERTIP;
     tti.hinst = GetModuleHandle(NULL);
-    tti.lpszText = (LPWSTR)&wszText;
+    tti.lpszText = (LPWSTR)&text;
     SendMessage(hTooltip, TTM_ADDTOOL, 0, (LPARAM)&tti);
 
     return hTooltip;
@@ -441,9 +441,9 @@ HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon, bool b
 // Parameters:
 // - hTooltip = Handle of the tooltip control
 // - hwnd     = Handle of the window or control
-// - wszText  = Tooltip text
+// - text  = Tooltip text
 // ========================================================================================
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText)
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& text)
 {
     if ((hTooltip == NULL) || (hwnd == NULL)) return;
     // 32-bit: The size of the TOOLINFOW structure is 48 bytes in
@@ -468,7 +468,7 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText)
     // Retrieve the tooltip information
     SendMessage(hTooltip, TTM_GETTOOLINFO, 0, (LPARAM)&tti);
     // Set the new tooltip text
-    tti.lpszText = &wszText[0];
+    tti.lpszText = &text[0];
     SendMessage(hTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&tti);
 }
 
@@ -846,8 +846,8 @@ std::wstring AfxFormatFuturesDate(const std::wstring& wszDate)
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
-    std::wstring wszText = buffer.substr(0, bytesWritten - 1); // remove terminating null
-    return AfxUpper(wszText);
+    std::wstring text = buffer.substr(0, bytesWritten - 1); // remove terminating null
+    return AfxUpper(text);
 }
 
 
@@ -1214,9 +1214,9 @@ std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::
 // ========================================================================================
 // Remove char/string from string. Return a copy.
 // ========================================================================================
-std::wstring AfxRemove(std::wstring wszText, std::wstring repl)
+std::wstring AfxRemove(std::wstring text, std::wstring repl)
 {
-    std::wstring wszString = wszText;
+    std::wstring wszString = text;
     std::string::size_type i = wszString.find(repl);
     while (i != std::string::npos) {
         wszString.erase(i, repl.length());
@@ -1332,13 +1332,13 @@ bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth)
 // ========================================================================================
 // Sets the Header text of the specified item. Returns TRUE or FALSE.
 // ========================================================================================
-bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText)
+bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR ptext)
 {
-    if (pwszText == nullptr) return 0;
+    if (ptext == nullptr) return 0;
     HDITEM hdi{};
     hdi.mask = HDI_TEXT;
-    hdi.cchTextMax = lstrlenW(pwszText);
-    hdi.pszText = (LPWSTR)pwszText;
+    hdi.cchTextMax = lstrlenW(ptext);
+    hdi.pszText = (LPWSTR)ptext;
     return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
 }
 
@@ -1385,13 +1385,13 @@ int Header_GetItemAlignment(HWND hwndHD, int nItem)
 // nWidth - width of the new item. 
 // lpsz - address of the item string. 
 // ========================================================================================
-bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment)
+bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR ptext, int Alignment)
 {
     HDITEM hdi{};
     hdi.mask = HDI_TEXT | HDI_FORMAT | HDI_WIDTH;
     hdi.cxy = nWidth;
-    hdi.pszText = (LPWSTR)pwszText; // lpsz;
-    hdi.cchTextMax = lstrlenW(pwszText);
+    hdi.pszText = (LPWSTR)ptext; // lpsz;
+    hdi.cchTextMax = lstrlenW(ptext);
     hdi.fmt = Alignment | HDF_STRING;
 
     return SendMessage(hwndHD, HDM_INSERTITEM, (WPARAM)iInsertAfter, (LPARAM)&hdi);
@@ -1401,18 +1401,18 @@ bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pws
 // ========================================================================================
 // Convert a string to uppercase or lowercase. 
 // ========================================================================================
-std::wstring AfxUpper(const std::wstring& wszText)
+std::wstring AfxUpper(const std::wstring& text)
 {
     // using transform() function and ::toupper in STL
-    std::wstring s = wszText;
+    std::wstring s = text;
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     return s;
 }
 
-std::wstring AfxLower(const std::wstring& wszText)
+std::wstring AfxLower(const std::wstring& text)
 {
     // using transform() function and ::tolower in STL
-    std::wstring s = wszText;
+    std::wstring s = text;
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
     return s;
 }

@@ -81,8 +81,8 @@ std::wstring StrategyButton_GetStrategyEnumText(Strategy s);
 
 void StrategyButton_ToggleLongShortText(HWND hCtl);
 void StrategyButton_Toggleput_callText(HWND hCtlput_call, HWND hCtlStrategy);
-void StrategyButton_SetLongShortTextColor(HWND hCtl);
-void StrategyButton_SetLongShortBackColor(HWND hCtl);
+void StrategyButton_SetLongShorttext_color(HWND hCtl);
+void StrategyButton_SetLongShortback_color(HWND hCtl);
 bool StrategyButton_StrategyAllowput_call(HWND hCtl);
 void StrategyButton_InvokeStrategy();
 

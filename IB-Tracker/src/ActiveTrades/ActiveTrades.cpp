@@ -131,7 +131,7 @@ void ActiveTrades_ShowActiveTrades()
 
 
     // Determine if we need to initialize the listbox and request market data
-    if (PrevMarketDataLoaded == false) {
+    if (previous_market_data_loaded == false) {
         ListBox_ResetContent(hListBox);
 
         // Prevent ListBox redrawing until all calculations are completed
@@ -156,16 +156,16 @@ void ActiveTrades_ShowActiveTrades()
 
 
         // Create the new ListBox line data and initiate the new market data.
-        int categoryHeader = -1;
+        int category_header = -1;
         for (auto& trade : trades) {
             // We are displaying only open trades 
             if (trade->is_open) {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
                 trade->ticker_decimals = GetTickerDecimals(trade->ticker_symbol);
 
-                if (trade->category != categoryHeader) {
+                if (trade->category != category_header) {
                     ListBoxData_AddCategoryHeader(hListBox, trade);
-                    categoryHeader = trade->category;
+                    category_header = trade->category;
                 }
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
 
@@ -211,7 +211,7 @@ void ActiveTrades_ShowActiveTrades()
 
     // Start getting the price data for all of the tickers
     tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
-    if (PrevMarketDataLoaded == false) {
+    if (previous_market_data_loaded == false) {
         ListBoxData_RequestMarketData(hListBox);
     }
 
@@ -248,7 +248,7 @@ bool ActiveTrades_SelectListBoxItem(HWND hListBox, int idx)
     // then we deselected everything else including legs of this same trade. We do this
     // because there are different popup menu actions applicable to the main header line
     // and/or the individual trade legs.
-    LineType CurSelLineType = ld->lineType;
+    LineType current_selected_line_type = ld->lineType;
 
     int nCount = ListBox_GetSelCount(hListBox);
 
@@ -266,7 +266,7 @@ bool ActiveTrades_SelectListBoxItem(HWND hListBox, int idx)
                 else {
                     // If selecting items within the same Trade then do not allow
                     // mixing selections of the header line and individual legs.
-                    if (CurSelLineType != ld->lineType) {
+                    if (current_selected_line_type != ld->lineType) {
                         ListBox_SetSel(hListBox, false, selItems[i]);
                     }
                 }
@@ -360,32 +360,32 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
 // Create Transaction for Shares or Futures that have been called away.
 // ========================================================================================
 void ActiveTrades_CalledAwayAssignment(
-    auto trade, auto leg, int NumSharesAggregate, int NumFuturesAggregate)
+    auto trade, auto leg, int aggregate_shares, int aggregate_futures)
 {
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
     bool isShares = (IsFuturesTicker(trade->ticker_symbol)) ? false : true;
 
-    int QuantityAssigned = 0;
-    int NumLegQuantity = 0;
+    int quantity_assigned = 0;
+    int leg_quantity = 0;
     double multiplier = 1;
 
     std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
 
     if (isShares == true) {
-        QuantityAssigned = min(abs(leg->open_quantity * 100), abs(NumSharesAggregate));
-        NumLegQuantity = QuantityAssigned / 100;
-        msg += std::to_wstring(QuantityAssigned) + L" shares called away at $" + leg->strike_price + L" per share.";
+        quantity_assigned = min(abs(leg->open_quantity * 100), abs(aggregate_shares));
+        leg_quantity = quantity_assigned / 100;
+        msg += std::to_wstring(quantity_assigned) + L" shares called away at $" + leg->strike_price + L" per share.";
         multiplier = 1;
     }
     else {
-        QuantityAssigned = min(abs(leg->open_quantity), abs(NumFuturesAggregate));
-        NumLegQuantity = QuantityAssigned;
-        msg += std::to_wstring(QuantityAssigned) + L" futures called away at $" + leg->strike_price + L" per future.";
+        quantity_assigned = min(abs(leg->open_quantity), abs(aggregate_futures));
+        leg_quantity = quantity_assigned;
+        msg += std::to_wstring(quantity_assigned) + L" futures called away at $" + leg->strike_price + L" per future.";
         multiplier = trade->multiplier;
     }
-    NumLegQuantity = (leg->open_quantity < 0) ? NumLegQuantity * -1 : NumLegQuantity;
+    leg_quantity = (leg->open_quantity < 0) ? leg_quantity * -1 : leg_quantity;
 
     int res = MessageBox(
         HWND_SIDEMENU,
@@ -407,10 +407,10 @@ void ActiveTrades_CalledAwayAssignment(
     trade->nextleg_id += 1;
     newleg->leg_id = trade->nextleg_id;
     newleg->underlying = trans->underlying;
-    newleg->original_quantity = NumLegQuantity * -1;
+    newleg->original_quantity = leg_quantity * -1;
     newleg->open_quantity = 0;
     newleg->leg_back_pointer_id = leg->leg_id;
-    leg->open_quantity = leg->open_quantity - NumLegQuantity;
+    leg->open_quantity = leg->open_quantity - leg_quantity;
 
     if (leg->action == L"STO") newleg->action = L"BTC";
     if (leg->action == L"BTO") newleg->action = L"STC";
@@ -426,7 +426,7 @@ void ActiveTrades_CalledAwayAssignment(
     trans->trans_date = AfxCurrentDate();
     trans->description = L"Called away";
     trans->underlying = (isShares == true) ? L"SHARES" : L"FUTURES";
-    trans->quantity = QuantityAssigned;
+    trans->quantity = quantity_assigned;
     trans->price = AfxValDouble(leg->strike_price);
     trans->multiplier = multiplier;
     trans->fees = 0;
@@ -440,15 +440,15 @@ void ActiveTrades_CalledAwayAssignment(
 
     if (leg->put_call == L"P") {
         newleg->action = L"BTC";
-        newleg->original_quantity = QuantityAssigned;
-        newleg->open_quantity = QuantityAssigned;
+        newleg->original_quantity = quantity_assigned;
+        newleg->open_quantity = quantity_assigned;
         trans->total = trans->quantity * multiplier * trans->price * -1;  // DR
         trade->acb = trade->acb + trans->total;
     }
     else {
         newleg->action = L"STC";
-        newleg->original_quantity = QuantityAssigned * -1;
-        newleg->open_quantity = QuantityAssigned * -1;
+        newleg->original_quantity = quantity_assigned * -1;
+        newleg->open_quantity = quantity_assigned * -1;
         trans->total = trans->quantity * multiplier * trans->price;  // CR
         trade->acb = trade->acb + trans->total;
     }
@@ -483,21 +483,21 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     bool isShares = (trade->ticker_symbol.substr(0,1) == L"/") ? false : true;
 
-    int QuantityAssigned = 0;
+    int quantity_assigned = 0;
     double multiplier = 1;
 
-    std::wstring wszLongShort = (leg->put_call == L"P") ? L"LONG " : L"SHORT ";
+    std::wstring long_short_text = (leg->put_call == L"P") ? L"LONG " : L"SHORT ";
     std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
         
     if (isShares == true) {
-        QuantityAssigned = abs(leg->open_quantity * 100);
+        quantity_assigned = abs(leg->open_quantity * 100);
         multiplier = 1;
-        msg += wszLongShort + std::to_wstring(QuantityAssigned) + L" shares at $" + leg->strike_price + L" per share.";
+        msg += long_short_text + std::to_wstring(quantity_assigned) + L" shares at $" + leg->strike_price + L" per share.";
     }
     else {
-        QuantityAssigned = abs(leg->open_quantity);
+        quantity_assigned = abs(leg->open_quantity);
         multiplier = trade->multiplier;
-        msg += wszLongShort + std::to_wstring(QuantityAssigned) + L" futures at $" + leg->strike_price + L" per future.";
+        msg += long_short_text + std::to_wstring(quantity_assigned) + L" futures at $" + leg->strike_price + L" per future.";
     }
 
     int res = MessageBox(
@@ -539,7 +539,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     trans->trans_date = leg->expiry_date;  // AfxCurrentDate();
     trans->description = L"Assignment";
     trans->underlying = (isShares == true) ? L"SHARES" : L"FUTURES";
-    trans->quantity = QuantityAssigned;
+    trans->quantity = quantity_assigned;
     trans->price = AfxValDouble(leg->strike_price);
     trans->multiplier = multiplier;
     trans->fees = 0;
@@ -553,15 +553,15 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     if (leg->put_call == L"P") {
         newleg->action = L"BTO";
-        newleg->original_quantity = QuantityAssigned;
-        newleg->open_quantity = QuantityAssigned;
+        newleg->original_quantity = quantity_assigned;
+        newleg->open_quantity = quantity_assigned;
         trans->total = trans->quantity * multiplier * trans->price * -1;  // DR
         trade->acb = trade->acb + trans->total;
     }
     else {
         newleg->action = L"STO";
-        newleg->original_quantity = QuantityAssigned * -1;
-        newleg->open_quantity = QuantityAssigned * -1;
+        newleg->original_quantity = quantity_assigned * -1;
+        newleg->open_quantity = quantity_assigned * -1;
         trans->total = trans->quantity * multiplier * trans->price;  // CR
         trade->acb = trade->acb + trans->total;
     }
@@ -602,16 +602,16 @@ void ActiveTrades_OptionAssignment(auto trade)
 
     // Check to see if Shares/Futures exist that could be "called away". If yes, then process
     // that type of transaction rather than adding a new assigned to transaction.
-    int NumSharesAggregate = 0;
-    int NumFuturesAggregate = 0;
+    int aggregate_shares = 0;
+    int aggregate_futures = 0;
 
     for (const auto& trans : trade->transactions) {
         for (const auto& leg : trans->legs) {
             if (leg->underlying == L"SHARES") {
-                NumSharesAggregate += leg->open_quantity;
+                aggregate_shares += leg->open_quantity;
             }
             else if (leg->underlying == L"FUTURES") {
-                NumFuturesAggregate += leg->open_quantity;
+                aggregate_futures += leg->open_quantity;
             }
         }
     }
@@ -620,13 +620,13 @@ void ActiveTrades_OptionAssignment(auto trade)
     auto leg = tdd.legs.at(0);
 
     // Are LONG SHARES or LONG FUTURES being called away
-    if ((NumSharesAggregate > 0 || NumFuturesAggregate > 0) && leg->put_call == L"C") {
-        ActiveTrades_CalledAwayAssignment(trade, leg, NumSharesAggregate, NumFuturesAggregate);
+    if ((aggregate_shares > 0 || aggregate_futures > 0) && leg->put_call == L"C") {
+        ActiveTrades_CalledAwayAssignment(trade, leg, aggregate_shares, aggregate_futures);
         return;
     }
     // Are SHORT SHARES or SHORT FUTURES being called away
-    if ((NumSharesAggregate < 0 || NumFuturesAggregate < 0) && leg->put_call == L"P") {
-        ActiveTrades_CalledAwayAssignment(trade, leg, NumSharesAggregate, NumFuturesAggregate);
+    if ((aggregate_shares < 0 || aggregate_futures < 0) && leg->put_call == L"P") {
+        ActiveTrades_CalledAwayAssignment(trade, leg, aggregate_shares, aggregate_futures);
         return;
     }
 
@@ -675,8 +675,8 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
 {
     HMENU hMenu = CreatePopupMenu();
 
-    std::wstring wszText;
-    std::wstring wszPlural;
+    std::wstring text;
+    std::wstring plural_text;
     int nCount = ListBox_GetSelCount(hListBox);
 
     std::shared_ptr<Trade> trade = nullptr;
@@ -704,19 +704,19 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
         }
     }
     else {
-        wszPlural = L"s";
+        plural_text = L"s";
     }
 
 
     if (ld->lineType == LineType::OptionsLeg) {
-        wszText = L"Roll Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::RollLeg, wszText.c_str());
+        text = L"Roll Leg" + plural_text;
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::RollLeg, text.c_str());
 
-        wszText = L"Close Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::CloseLeg, wszText.c_str());
+        text = L"Close Leg" + plural_text;
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::CloseLeg, text.c_str());
 
-        wszText = L"Expire Leg" + wszPlural;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ExpireLeg, wszText.c_str());
+        text = L"Expire Leg" + plural_text;
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ExpireLeg, text.c_str());
 
         if (nCount == 1) {
             InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 1, L"");
@@ -727,14 +727,14 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
 
 
     if (ld->lineType == LineType::Shares) {
-        wszText = L"Manage Shares";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageShares, wszText.c_str());
+        text = L"Manage Shares";
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageShares, text.c_str());
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
     }
 
     if (ld->lineType == LineType::Futures) {
-        wszText = L"Manage Futures";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageFutures, wszText.c_str());
+        text = L"Manage Futures";
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageFutures, text.c_str());
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
     }
 
@@ -806,18 +806,18 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         accumDelta += zDelta;
         if (accumDelta >= 120) {     // scroll up 3 lines
-            nTopIndex -= 3;
-            nTopIndex = max(0, nTopIndex);
-            SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+            top_index -= 3;
+            top_index = max(0, top_index);
+            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
             accumDelta = 0;
         }
         else {
             if (accumDelta <= -120) {     // scroll down 3 lines
-                nTopIndex += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, nTopIndex, 0);
+                top_index += +3;
+                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
                 accumDelta = 0;
             }
         }
@@ -871,31 +871,31 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
         
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
-        int NumItems = ListBox_GetCount(hWnd);
-        int nTopIndex = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hWnd);
+        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
-        int ItemsPerPage = 0;
+        int items_per_page = 0;
         int bottom_index = 0;
         int nWidth = (rc.right - rc.left);
         int nHeight = (rc.bottom - rc.top);
         
-        if (NumItems > 0) {
-            ItemsPerPage = (nHeight) / itemHeight;
-            bottom_index = (nTopIndex + ItemsPerPage);
-            if (bottom_index >= NumItems)
-                bottom_index = NumItems - 1;
-            visible_rows = (bottom_index - nTopIndex) + 1;
-            rc.top = visible_rows * itemHeight;
+        if (items_count > 0) {
+            items_per_page = (nHeight) / item_height;
+            bottom_index = (top_index + items_per_page);
+            if (bottom_index >= items_count)
+                bottom_index = items_count - 1;
+            visible_rows = (bottom_index - top_index) + 1;
+            rc.top = visible_rows * item_height;
         }
         
         if (rc.top < rc.bottom) {
             nHeight = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            Color backColor(COLOR_GRAYDARK);
-            SolidBrush backBrush(backColor);
-            graphics.FillRectangle(&backBrush, rc.left, rc.top, nWidth, nHeight);
+            Color back_color(COLOR_GRAYDARK);
+            SolidBrush back_brush(back_color);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
         }
 
         ValidateRect(hWnd, &rc);
@@ -955,14 +955,14 @@ void ActiveTrades_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    Color backColor(COLOR_BLACK);
-    SolidBrush backBrush(backColor);
+    Color back_color(COLOR_BLACK);
+    SolidBrush back_brush(back_color);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -994,7 +994,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int margin = AfxScaleY(ACTIVETRADES_MARGIN);
 
     // If no entries exist for the ListBox then don't show any child controls
-    int showflag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
+    int show_flag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
@@ -1008,31 +1008,31 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calculation then the scrollbar will appear "jumpy" under the user's mouse cursor.
-    bool bShowScrollBar = false;
+    bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
         if (pData->bDragActive) {
-            bShowScrollBar = true;
+            bshow_scrollbar = true;
         }
         else {
-            bShowScrollBar = pData->calcVThumbRect();
+            bshow_scrollbar = pData->calcVThumbRect();
         }
     }
-    int CustomVScrollBarWidth = bShowScrollBar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
+    int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
 
     int nLeft = 0;
     int nTop = margin;
     int nHeight = cy - nTop;
-    int nWidth = cx - CustomVScrollBarWidth;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | showflag);
+    int nWidth = cx - custom_scrollbar_width;
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
     
     nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = CustomVScrollBarWidth;
-    int showscrollbar = (bShowScrollBar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
-    if (showflag == SWP_HIDEWINDOW) showscrollbar = SWP_HIDEWINDOW;
+    nWidth = custom_scrollbar_width;
+    int show_scrollbar = (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
+    if (show_flag == SWP_HIDEWINDOW) show_scrollbar = SWP_HIDEWINDOW;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | showflag);
+        SWP_NOZORDER | show_flag);
 
     EndDeferWindowPos(hdwp);
 

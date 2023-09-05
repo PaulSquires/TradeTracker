@@ -65,13 +65,13 @@ void SideMenu_OnPaint(HWND hwnd)
     Graphics graphics(hdc);
 
     // Create the background brush
-    Color backColor(COLOR_BLACK);
-    SolidBrush backBrush(backColor);
+    Color back_color(COLOR_BLACK);
+    SolidBrush back_brush(back_color);
 
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
 }
@@ -89,7 +89,7 @@ void SideMenu_MakeSeparator(HWND hwnd, int nTop)
         0, nTop, SIDEMENU_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->BackColor = COLOR_BLACK;
+        pData->back_color = COLOR_BLACK;
         pData->LineColor = COLOR_SEPARATOR;
         pData->LineWidth = 2;
         pData->MarginLeft = 10;
@@ -102,7 +102,7 @@ void SideMenu_MakeSeparator(HWND hwnd, int nTop)
 // ========================================================================================
 // Generic helper function to create a menu item.
 // ========================================================================================
-void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring wszText)
+void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring text)
 {
     CustomLabel* pData = nullptr;
     HWND hCtl = CreateCustomLabel(
@@ -115,16 +115,16 @@ void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring w
         pData->AllowSelect = true;
         pData->AllowNotch = true;
         pData->SelectorColor = COLOR_GRAYDARK;   // MenuNotch should be same color as middle panel
-        pData->BackColor = COLOR_BLACK;
-        pData->BackColorHot = COLOR_SELECTION;
-        pData->BackColorSelected = COLOR_SELECTION;
-        pData->BackColorButtonDown = COLOR_SELECTION;
-        pData->TextColor = COLOR_WHITELIGHT;
-        pData->TextColorHot = COLOR_WHITELIGHT;
-        pData->FontSize = 10;
-        pData->FontSizeHot = 10;
-        pData->wszText = wszText;
-        pData->wszTextHot = pData->wszText;
+        pData->back_color = COLOR_BLACK;
+        pData->back_color_hot = COLOR_SELECTION;
+        pData->back_color_selected = COLOR_SELECTION;
+        pData->back_color_button_down = COLOR_SELECTION;
+        pData->text_color = COLOR_WHITELIGHT;
+        pData->text_colorHot = COLOR_WHITELIGHT;
+        pData->font_size = 10;
+        pData->font_sizeHot = 10;
+        pData->text = text;
+        pData->textHot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 }
@@ -155,7 +155,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = COLOR_BLACK;
+        pData->back_color = COLOR_BLACK;
         pData->ImageWidth = 68;
         pData->ImageHeight = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
@@ -172,12 +172,12 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = COLOR_BLACK;
-        pData->TextColor = COLOR_WHITELIGHT;
-        pData->FontSize = 10;
+        pData->back_color = COLOR_BLACK;
+        pData->text_color = COLOR_WHITELIGHT;
+        pData->font_size = 10;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"IB-Tracker";
-        pData->wszTextHot = pData->wszText;
+        pData->text = L"IB-Tracker";
+        pData->textHot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -190,12 +190,12 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->HotTestEnable = false;
-        pData->BackColor = COLOR_BLACK;
-        pData->TextColor = COLOR_WHITEMEDIUM;
-        pData->FontSize = 9;
+        pData->back_color = COLOR_BLACK;
+        pData->text_color = COLOR_WHITEMEDIUM;
+        pData->font_size = 9;
         pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
-        pData->wszText = L"v" + version;
-        pData->wszTextHot = pData->wszText;
+        pData->text = L"v" + version;
+        pData->textHot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -273,14 +273,14 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     if (pData) {
         pData->HotTestEnable = true;
         pData->AllowSelect = false;
-        pData->BackColor = COLOR_BLACK;
-        pData->BackColorHot = COLOR_SELECTION;
-        pData->TextColor = COLOR_WHITEMEDIUM;
-        pData->TextColorHot = COLOR_WHITEMEDIUM;
-        pData->FontSize = 8;
-        pData->FontSizeHot = 8;
-        pData->wszText = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
-        pData->wszTextHot = pData->wszText;
+        pData->back_color = COLOR_BLACK;
+        pData->back_color_hot = COLOR_SELECTION;
+        pData->text_color = COLOR_WHITEMEDIUM;
+        pData->text_colorHot = COLOR_WHITEMEDIUM;
+        pData->font_size = 8;
+        pData->font_sizeHot = 8;
+        pData->text = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
+        pData->textHot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -341,7 +341,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
-            pData->wszText = L"Connecting to TWS";
+            pData->text = L"Connecting to TWS";
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
@@ -355,9 +355,9 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
-            pData->wszText = L"TWS Connected";
-            pData->TextColor = COLOR_GREEN;
-            pData->TextColorHot = COLOR_GREEN;
+            pData->text = L"TWS Connected";
+            pData->text_color = COLOR_GREEN;
+            pData->text_colorHot = COLOR_GREEN;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
@@ -371,9 +371,9 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
-            pData->wszText = L"Reconnect Wait";
-            pData->TextColor = COLOR_RED;
-            pData->TextColorHot = COLOR_RED;
+            pData->text = L"Reconnect Wait";
+            pData->text_color = COLOR_RED;
+            pData->text_colorHot = COLOR_RED;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
@@ -399,9 +399,9 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         CustomLabel* pData = nullptr;
         pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         if (pData) {
-            pData->wszText = L"Connect to TWS";
-            pData->TextColor = COLOR_WHITELIGHT;
-            pData->TextColorHot = COLOR_WHITELIGHT;
+            pData->text = L"Connect to TWS";
+            pData->text_color = COLOR_WHITELIGHT;
+            pData->text_colorHot = COLOR_WHITELIGHT;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         tws_EndMonitorThread();

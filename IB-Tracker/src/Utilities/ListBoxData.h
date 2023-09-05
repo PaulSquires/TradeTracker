@@ -48,7 +48,7 @@ typedef long TickerId;
 
 class ColumnData {
 public:
-    std::wstring        wszText;
+    std::wstring        text;
     StringAlignment     HAlignment = StringAlignmentNear;  
     StringAlignment     VAlignment = StringAlignmentCenter;
     DWORD               backTheme = COLOR_GRAYDARK;
@@ -81,13 +81,13 @@ public:
 
     void SetData(
         int index, std::shared_ptr<Trade> tradeptr, TickerId tickId,
-        std::wstring wszText, StringAlignment HAlignment, StringAlignment VAlignment, 
+        std::wstring text, StringAlignment HAlignment, StringAlignment VAlignment, 
         DWORD backTheme, DWORD textTheme, REAL fontSize, int fontStyle)
     {
         if (tickId != -1) lineType = LineType::TickerLine;
         tickerId = tickId;
         trade = tradeptr;
-        col[index].wszText = wszText;
+        col[index].text = text;
         col[index].HAlignment = HAlignment;
         col[index].VAlignment = VAlignment;
         col[index].backTheme = backTheme;
@@ -98,9 +98,9 @@ public:
 
     // Update Text & color only. This is called from tws-client when TWS
     // sends new price data that needs to be updated.
-    void SetTextData(int index, std::wstring wszText, DWORD textTheme)
+    void SetTextData(int index, std::wstring text, DWORD textTheme)
     {
-        col[index].wszText = wszText;
+        col[index].text = text;
         col[index].textTheme = textTheme;
     }
 
@@ -118,7 +118,7 @@ enum class TableType
     TransPanel
 };
 
-extern bool PrevMarketDataLoaded;
+extern bool previous_market_data_loaded;
 
 DWORD GetCategoryColor(int category);
 bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int index);

@@ -74,8 +74,8 @@ public:
 
 	int CtrlId = 0;
 
-	COLORREF BackColor{};
-	HBRUSH hBackBrush = NULL;
+	COLORREF back_color{};
+	HBRUSH hback_brush = NULL;
 	HFONT hFont = NULL;
 	bool bShowOriginalQuantity = false;
 
@@ -98,10 +98,10 @@ constexpr int TRADEGRID_LINERESETICONWIDTH = 24;
 
 TradeGrid* TradeGrid_GetOptions(HWND hCtrl);
 int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData);
-void TradeGrid_SetText(GridColInfo* col, std::wstring wszText);
+void TradeGrid_SetText(GridColInfo* col, std::wstring text);
 std::wstring TradeGrid_GetText(HWND hCtl, int row, int col);
 void TradeGrid_CalculateDTE(HWND hwnd);
-void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& wszText);
+void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& text);
 
 HWND CreateTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight, bool bShowOriginalQuantity);
 

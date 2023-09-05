@@ -144,13 +144,13 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             int nEndPos = HIWORD(nPos);
 
             // Allow decimal (but only once), and digit if limit not reached
-            std::wstring wszText = AfxGetWindowText(hWnd);
+            std::wstring text = AfxGetWindowText(hWnd);
             // Remove any selected text that will be replaced
             if (nStartPos != nEndPos) {   // we have selected text
-                wszText.erase(nStartPos, (nEndPos - nStartPos + 1));
+                text.erase(nStartPos, (nEndPos - nStartPos + 1));
             }
 
-            int nFoundAt = wszText.find(L".");
+            int nFoundAt = text.find(L".");
             if (nFoundAt != std::wstring::npos) {
                 // Period already exists then don't allow another one.
                 if (wParam == 46) {
@@ -159,7 +159,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 else {
                     // Allow the digit is being entered before the decimal point
                     if (nStartPos <= nFoundAt) break;
-                    std::wstring wszFractional = wszText.substr(nFoundAt + 1);
+                    std::wstring wszFractional = text.substr(nFoundAt + 1);
                     if (wszFractional.length() == pData->NumDecimals)
                         return 0;
                 }
@@ -299,12 +299,12 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_CTLCOLOREDIT:
     {
         HDC hdc = (HDC)wParam;
-        if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
-        pData->hBackBrush = CreateSolidBrush(Color(pData->BackColor).ToCOLORREF());
-        SetTextColor(hdc, Color(pData->TextColor).ToCOLORREF());
-        SetBkColor(hdc, Color(pData->BackColor).ToCOLORREF());
+        if (pData->hback_brush) DeleteBrush(pData->hback_brush);
+        pData->hback_brush = CreateSolidBrush(Color(pData->back_color).ToCOLORREF());
+        SetTextColor(hdc, Color(pData->text_color).ToCOLORREF());
+        SetBkColor(hdc, Color(pData->back_color).ToCOLORREF());
         SetBkMode(hdc, OPAQUE);
-        return (LRESULT)pData->hBackBrush;
+        return (LRESULT)pData->hback_brush;
     }
     break;
 
@@ -367,9 +367,9 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-            Color backColor;
-            SolidBrush backBrush(pData->BackColor);
-            graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+            Color back_color;
+            SolidBrush back_brush(pData->back_color);
+            graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -390,7 +390,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
     case WM_NCDESTROY:
         if (pData) {
-            DeleteBrush(pData->hBackBrush);
+            DeleteBrush(pData->hback_brush);
             delete(pData);
         }
         break;
@@ -431,12 +431,12 @@ int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData)
 // ========================================================================================
 // Set the text for the custom control.
 // ========================================================================================
-void CustomTextBox_SetText(HWND hCtrl, std::wstring wszText)
+void CustomTextBox_SetText(HWND hCtrl, std::wstring text)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->wszText = wszText;
-        AfxSetWindowText(pData->hTextBox, wszText);
+        pData->text = text;
+        AfxSetWindowText(pData->hTextBox, text);
         CustomTextBox_SetOptions(hCtrl, pData);
         CustomTextBox_FormatDisplayDecimalPlaces(pData);
         AfxRedrawWindow(hCtrl);
@@ -489,14 +489,14 @@ void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
 // ========================================================================================
 // Set the text colors for the custom control (foreground and background).
 // ========================================================================================
-void CustomTextBox_SetColors(HWND hCtrl, DWORD TextColor, DWORD BackColor)
+void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        if (pData->hBackBrush) DeleteBrush(pData->hBackBrush);
-        pData->hBackBrush = CreateSolidBrush(BackColor);
-        pData->BackColor = BackColor;
-        pData->TextColor = TextColor;
+        if (pData->hback_brush) DeleteBrush(pData->hback_brush);
+        pData->hback_brush = CreateSolidBrush(back_color);
+        pData->back_color = back_color;
+        pData->text_color = text_color;
         CustomTextBox_SetOptions(hCtrl, pData);
         AfxRedrawWindow(hCtrl);
     }
@@ -506,14 +506,14 @@ void CustomTextBox_SetColors(HWND hCtrl, DWORD TextColor, DWORD BackColor)
 // ========================================================================================
 // Set the font for the custom control.
 // ========================================================================================
-void CustomTextBox_SetFont(HWND hCtrl, std::wstring wszFontName, int FontSize)
+void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
         if (pData->hFontText) DeleteFont(pData->hFontText);
-        pData->wszFontName = wszFontName;
-        pData->FontSize = FontSize;
-        pData->hFontText = Main.CreateFont(wszFontName, FontSize, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
+        pData->font_name = font_name;
+        pData->font_size = font_size;
+        pData->hFontText = Main.CreateFont(font_name, font_size, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
         if (pData->hFontText) SendMessage(pData->hTextBox, WM_SETFONT, (WPARAM)pData->hFontText, false);
         CustomTextBox_SetOptions(hCtrl, pData);
         AfxRedrawWindow(hCtrl);
@@ -547,19 +547,19 @@ HWND CreateCustomTextBox(
     LONG_PTR CtrlId,
     bool isMultiLine,
     int Alignment,
-    std::wstring wszText,
+    std::wstring text,
     int nLeft,
     int nTop,
     int nWidth,
     int nHeight)
 {
-    std::wstring wszClassName(L"CUSTOMTEXTBOX_CONTROL");
+    std::wstring class_name_text(L"CUSTOMTEXTBOX_CONTROL");
 
     WNDCLASSEX wcex{};
 
     HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWndParent, GWLP_HINSTANCE);
 
-    if (GetClassInfoEx(hInst, wszClassName.c_str(), &wcex) == 0) {
+    if (GetClassInfoEx(hInst, class_name_text.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = CustomTextBoxProc;
@@ -571,7 +571,7 @@ HWND CreateCustomTextBox(
         wcex.hIconSm = NULL;
         wcex.hbrBackground = (HBRUSH)HOLLOW_BRUSH;
         wcex.lpszMenuName = NULL;
-        wcex.lpszClassName = wszClassName.c_str();
+        wcex.lpszClassName = class_name_text.c_str();
         if (RegisterClassEx(&wcex) == 0) return 0;
     }
 
@@ -580,7 +580,7 @@ HWND CreateCustomTextBox(
 
 
     HWND hCtl =
-        CreateWindowEx(0, wszClassName.c_str(), L"",
+        CreateWindowEx(0, class_name_text.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), (int)(nWidth * rx), (int)(nHeight * ry),
             hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
@@ -592,11 +592,11 @@ HWND CreateCustomTextBox(
         pData->hParent = hWndParent;
         pData->hInst = hInst;
         pData->CtrlId = CtrlId;
-        pData->wszFontName = L"Segoe UI";
-        pData->FontSize = 9;
-        pData->BackColor = COLOR_GRAYDARK;
-        pData->hBackBrush = CreateSolidBrush(pData->BackColor);
-        pData->TextColor = COLOR_WHITELIGHT;
+        pData->font_name = L"Segoe UI";
+        pData->font_size = 9;
+        pData->back_color = COLOR_GRAYDARK;
+        pData->hback_brush = CreateSolidBrush(pData->back_color);
+        pData->text_color = COLOR_WHITELIGHT;
         pData->HTextMargin = 0;
         pData->VTextMargin = 0;
         pData->Alignment = Alignment;
@@ -614,12 +614,12 @@ HWND CreateCustomTextBox(
         if (pData->hTextBox)
             SetWindowSubclass(pData->hTextBox, CustomTextBox_SubclassProc, 100, NULL);
 
-        AfxSetWindowText(pData->hTextBox, wszText);
+        AfxSetWindowText(pData->hTextBox, text);
 
         CustomTextBox_SetOptions(hCtl, pData);
 
         // Create and set the text font
-        CustomTextBox_SetFont(hCtl, pData->wszFontName, pData->FontSize);
+        CustomTextBox_SetFont(hCtl, pData->font_name, pData->font_size);
 
         // If numeric then format and display the text to correct number of decimal places
         CustomTextBox_FormatDisplayDecimalPlaces(pData);

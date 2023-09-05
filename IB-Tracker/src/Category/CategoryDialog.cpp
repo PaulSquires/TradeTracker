@@ -71,35 +71,35 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_CATEGORYDIALOG = hwnd;
 
-    DWORD lightBackColor = COLOR_GRAYLIGHT;
-    DWORD lightTextColor = COLOR_WHITELIGHT;
+    DWORD light_back_color = COLOR_GRAYLIGHT;
+    DWORD light_text_color = COLOR_WHITELIGHT;
 
-    DWORD darkBackColor = COLOR_GRAYMEDIUM;
-    DWORD darkTextColor = COLOR_WHITEDARK;
+    DWORD dark_back_color = COLOR_GRAYMEDIUM;
+    DWORD dark_text_color = COLOR_WHITEDARK;
 
-    DWORD TextColor = COLOR_WHITELIGHT;
-    DWORD TextColorDim = COLOR_WHITEDARK;
-    DWORD BackColor = COLOR_GRAYDARK;
+    DWORD text_color = COLOR_WHITELIGHT;
+    DWORD text_color_dim = COLOR_WHITEDARK;
+    DWORD back_color = COLOR_GRAYDARK;
 
     int HTextMargin = 0;
     int VTextMargin = 3;
 
     HWND hCtl = NULL;
 
-    CustomLabel_SimpleLabel(hwnd, -1, L"Category", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Category", text_color_dim, back_color,
         CustomLabelAlignment::MiddleLeft, 40, 20, 68, 22);
-    CustomLabel_SimpleLabel(hwnd, -1, L"Description", TextColorDim, BackColor,
+    CustomLabel_SimpleLabel(hwnd, -1, L"Description", text_color_dim, back_color,
         CustomLabelAlignment::MiddleLeft, 108, 20, 115, 22);
 
     int nTop = 45;
     int ctlID = IDC_CATEGORYCONTROL_FIRST;
 
     for (int i = 0; i < 8; ++i) {
-        CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), TextColor, BackColor,
+        CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), text_color, back_color,
             CustomLabelAlignment::MiddleLeft, 60, nTop, 20, 23);
         hCtl = CreateCustomTextBox(hwnd, ctlID, false, ES_LEFT, L"", 110, nTop, 300, 23);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
-        CustomTextBox_SetColors(hCtl, lightTextColor, darkBackColor);
+        CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
         AfxSetWindowText(hCtl, GetCategoryDescription(i));
         nTop += 25;
         ctlID++;
@@ -107,13 +107,13 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // SAVE button
-    std::wstring wszFontName = L"Segoe UI";
-    int FontSize = 9;
+    std::wstring font_name = L"Segoe UI";
+    int font_size = 9;
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 330, 265, 80, 23);
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize, bold);
+    CustomLabel_SetFont(hCtl, font_name, font_size, bold);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     return TRUE;
@@ -150,8 +150,8 @@ void CategoryDialog_OnPaint(HWND hwnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_GRAYDARK);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    SolidBrush back_brush(COLOR_GRAYDARK);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     // Copy the entire memory bitmap to the main display
     BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -243,7 +243,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 cID++;
             }
             SaveConfig();
-            DialogReturnCode = DIALOG_RETURN_OK;
+            dialog_return_code = DIALOG_RETURN_OK;
             if (HWND_MIDDLEPANEL == HWND_ACTIVETRADES) {
                 ActiveTrades_ShowActiveTrades();
             }
@@ -298,7 +298,7 @@ int CategoryDialog_Show(HWND hWndParent)
 
     SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-    DialogReturnCode = DIALOG_RETURN_CANCEL;
+    dialog_return_code = DIALOG_RETURN_CANCEL;
 
     // Call modal message pump and wait for it to end.
     MSG msg{};
@@ -315,6 +315,6 @@ int CategoryDialog_Show(HWND hWndParent)
         DispatchMessage(&msg);
     }
 
-    return DialogReturnCode;
+    return dialog_return_code;
 }
 

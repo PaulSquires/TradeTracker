@@ -51,10 +51,10 @@ bool YearEndDialog_Process(HWND hwnd)
 
     std::wstring wszYear = AfxGetWindowText(hTextDate);
 
-    std::wstring wszText = L"Remove closed Trades on or before December 31, " + wszYear 
+    std::wstring text = L"Remove closed Trades on or before December 31, " + wszYear 
         + L"? \n\nDo not continue if you have not made a database backup.";
     
-    if (MessageBox(hwnd, wszText.c_str(), L"Remove Closed Trades", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) != IDYES) {
+    if (MessageBox(hwnd, text.c_str(), L"Remove Closed Trades", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) != IDYES) {
         return false;
     }
 
@@ -131,28 +131,28 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     HWND hCtl = NULL;
     
-    std::wstring wszFontName = L"Segoe UI";
-    int FontSize = 9;
+    std::wstring font_name = L"Segoe UI";
+    int font_size = 9;
 
-    std::wstring wszText;
+    std::wstring text;
     int cx = 715;  // AfxGetWindowWidth(hwnd);
 
 
-    wszText = L"*** IMPORTANT: BACKUP YOUR DATABASE PRIOR TO RUNNING THIS PROCEDURE ***";
-    hCtl = CustomLabel_SimpleLabel(hwnd, -1, wszText, COLOR_RED, COLOR_GRAYDARK,
+    text = L"*** IMPORTANT: BACKUP YOUR DATABASE PRIOR TO RUNNING THIS PROCEDURE ***";
+    hCtl = CustomLabel_SimpleLabel(hwnd, -1, text, COLOR_RED, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleCenter, 0, 40, cx, 23);
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
 
-    wszText = L"All closed trades dated before December 31 of the selected year will be removed from the database.";
-    hCtl = CustomLabel_SimpleLabel(hwnd, -1, wszText, COLOR_WHITELIGHT, COLOR_GRAYDARK,
+    text = L"All closed trades dated before December 31 of the selected year will be removed from the database.";
+    hCtl = CustomLabel_SimpleLabel(hwnd, -1, text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleCenter, 0, 80, cx, 23);
 
-    wszText = L"YEAR:";
-    hCtl = CustomLabel_SimpleLabel(hwnd, -1, wszText, COLOR_WHITELIGHT, COLOR_GRAYDARK,
+    text = L"YEAR:";
+    hCtl = CustomLabel_SimpleLabel(hwnd, -1, text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 290, 110, 45, 23);
 
-    wszText = std::to_wstring(AfxGetYear(AfxCurrentDate()) - 1);
-    hCtl = CreateCustomTextBox(hwnd, IDC_YEARENDDIALOG_TXTDATE, false, ES_CENTER, wszText, 335, 110, 50, 23);
+    text = std::to_wstring(AfxGetYear(AfxCurrentDate()) - 1);
+    hCtl = CreateCustomTextBox(hwnd, IDC_YEARENDDIALOG_TXTDATE, false, ES_CENTER, text, 335, 110, 50, 23);
     CustomTextBox_SetMargins(hCtl, 0, 3);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
@@ -161,7 +161,7 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_YEARENDDIALOG_PROCESS, L"PROCESS",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::MiddleCenter, 580, 396, 80, 23);
-    CustomLabel_SetFont(hCtl, wszFontName, FontSize, true);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     return TRUE;
@@ -198,8 +198,8 @@ void YearEndDialog_OnPaint(HWND hwnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     // Create the background brush
-    SolidBrush backBrush(COLOR_GRAYDARK);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    SolidBrush back_brush(COLOR_GRAYDARK);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     // Copy the entire memory bitmap to the main display
     BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -291,7 +291,7 @@ LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_YEARENDDIALOG_PROCESS) {
             if (YearEndDialog_Process(m_hwnd) == true) {
-                DialogReturnCode = DIALOG_RETURN_OK;
+                dialog_return_code = DIALOG_RETURN_OK;
                 SendMessage(m_hwnd, WM_CLOSE, 0, 0);
             }
         }
@@ -351,7 +351,7 @@ int YearEndDialog_Show()
 
     SetFocus(GetDlgItem(hwnd, IDC_YEARENDDIALOG_TXTDATE));
 
-    DialogReturnCode = DIALOG_RETURN_CANCEL;
+    dialog_return_code = DIALOG_RETURN_CANCEL;
 
     // Call modal message pump and wait for it to end.
     MSG msg{};
@@ -369,6 +369,6 @@ int YearEndDialog_Show()
         DispatchMessage(&msg);
     }
 
-    return DialogReturnCode;
+    return dialog_return_code;
 }
 

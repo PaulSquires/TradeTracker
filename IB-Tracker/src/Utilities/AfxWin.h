@@ -36,7 +36,7 @@ std::wstring AfxExecCmd(std::wstring cmd);
 
 void AfxRedrawWindow(HWND hwnd);
 std::wstring AfxGetWindowText(HWND hwnd);
-bool AfxSetWindowText(HWND hwnd, const std::wstring& wszText);
+bool AfxSetWindowText(HWND hwnd, const std::wstring& text);
 
 float AfxScaleRatioX();
 float AfxScaleRatioY();
@@ -58,8 +58,8 @@ int AfxGetWorkAreaHeight();
 int AfxComCtlVersion();
 int AfxGetFileVersion(const std::wstring& pwszFileName);
 
-HWND AfxAddTooltip(HWND hwnd, const std::wstring& wszText, bool bBalloon = FALSE, bool bCentered = FALSE);
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& wszText);
+HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon = FALSE, bool bCentered = FALSE);
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& text);
 
 std::wstring AfxGetListBoxText(HWND hListBox, int index);
 
@@ -105,7 +105,7 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
 std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter);
 bool AfxFileExists(const std::wstring& wszFileSpec);
 std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to);
-std::wstring AfxRemove(std::wstring wszText, std::wstring repl);
+std::wstring AfxRemove(std::wstring text, std::wstring repl);
 std::wstring& AfxLTrim(std::wstring& s);
 std::wstring& AfxRTrim(std::wstring& s);
 std::wstring& AfxTrim(std::wstring& s);
@@ -114,11 +114,11 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle);
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle);
 bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth);
-bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR pwszText);
+bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR ptext);
 std::wstring Header_GetItemText(HWND hwndHD, int nItem);
 int Header_GetItemAlignment(HWND hwndHD, int nItem);
-bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pwszText, int Alignment = HDF_LEFT);
-std::wstring AfxUpper(const std::wstring& wszText);
-std::wstring AfxLower(const std::wstring& wszText);
+bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR ptext, int Alignment = HDF_LEFT);
+std::wstring AfxUpper(const std::wstring& text);
+std::wstring AfxLower(const std::wstring& text);
 
 

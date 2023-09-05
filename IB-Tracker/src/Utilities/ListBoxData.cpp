@@ -174,7 +174,7 @@ int nTradeTemplatesMinColWidth[MAX_COLUMNS] =
 };
 
 
-bool PrevMarketDataLoaded = false;
+bool previous_market_data_loaded = false;
 
 
 // ========================================================================================
@@ -182,20 +182,20 @@ bool PrevMarketDataLoaded = false;
 // ========================================================================================
 DWORD GetCategoryColor(int category)
 {
-    DWORD catTextColor = COLOR_WHITEDARK;
+    DWORD cattext_color = COLOR_WHITEDARK;
     switch (category)
     {
-    case 0: catTextColor = COLOR_WHITEDARK; break;
-    case 1: catTextColor = COLOR_BLUE; break;
-    case 2: catTextColor = COLOR_PINK; break;
-    case 3: catTextColor = COLOR_GREEN; break;
-    case 4: catTextColor = COLOR_ORANGE; break;
-    case 5: catTextColor = COLOR_RED; break;
-    case 6: catTextColor = COLOR_TEAL; break;
-    case 7: catTextColor = COLOR_KHAKI; break;
-    default: catTextColor = COLOR_WHITEDARK;
+    case 0: cattext_color = COLOR_WHITEDARK; break;
+    case 1: cattext_color = COLOR_BLUE; break;
+    case 2: cattext_color = COLOR_PINK; break;
+    case 3: cattext_color = COLOR_GREEN; break;
+    case 4: cattext_color = COLOR_ORANGE; break;
+    case 5: cattext_color = COLOR_RED; break;
+    case 6: cattext_color = COLOR_TEAL; break;
+    case 7: cattext_color = COLOR_KHAKI; break;
+    default: cattext_color = COLOR_WHITEDARK;
     }
-    return catTextColor;
+    return cattext_color;
 }
 
 
@@ -247,8 +247,8 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int inde
     Graphics graphics(hdc);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-    std::wstring wszFontName = AfxGetDefaultFont();
-    FontFamily fontFamily(wszFontName.c_str());
+    std::wstring font_name = AfxGetDefaultFont();
+    FontFamily fontFamily(font_name.c_str());
     REAL fontSize = 0;
     int fontStyle = FontStyleRegular;
     RectF boundRect;
@@ -280,7 +280,7 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int inde
                 fontStyle = ld->col[i].fontStyle;
                 Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
 
-                graphics.MeasureString(ld->col[i].wszText.c_str(), ld->col[i].wszText.length(),
+                graphics.MeasureString(ld->col[i].text.c_str(), ld->col[i].text.length(),
                     &font, layoutRect, &format, &boundRect);
 
                 int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
@@ -348,12 +348,12 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < item_count; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->lineType == LineType::TickerLine && PrevMarketDataLoaded) {
+            if (ld->lineType == LineType::TickerLine && previous_market_data_loaded) {
                 // Cancelling a market data symbol is not synchronous therefore we need
                 // to use ever increasing tickerid numbers to avoid duplicate ticker id
                 // errors when the listbox is reloaded.
                 tws_CancelMarketData(ld->tickerId);
-                PrevMarketDataLoaded = false;
+                previous_market_data_loaded = false;
             }
             ld = nullptr;
             delete(ld);
@@ -363,7 +363,7 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     // Clear the current trades listbox
     ListBox_ResetContent(hListBox);
     if (hListBox == GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX)) {
-        PrevMarketDataLoaded = false;
+        previous_market_data_loaded = false;
     }
 }
 
@@ -385,7 +385,7 @@ void ListBoxData_RequestMarketData(HWND hListBox)
     }
 
     if (tws_IsConnected()) {
-        PrevMarketDataLoaded = true;
+        previous_market_data_loaded = true;
     }
 
 
@@ -403,9 +403,9 @@ void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& 
 {
     ListBoxData* ld = new ListBoxData;
 
-    std::wstring wszText = AfxUpper(GetCategoryDescription(trade->category));
+    std::wstring text = AfxUpper(GetCategoryDescription(trade->category));
 
-    ld->SetData(0, nullptr, -1, wszText, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(0, nullptr, -1, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleBold);
 
     ld->lineType = LineType::CategoryHeader;
@@ -505,12 +505,12 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(1, trade, tickerId, trade->ticker_symbol, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);
 
-        std::wstring wszText = L"";
+        std::wstring text = L"";
 
         
-        wszText = (trade->itm_text.length()) ? trade->itm_text : L"";
+        text = (trade->itm_text.length()) ? trade->itm_text : L"";
         clr = (trade->itm_color != COLOR_WHITELIGHT) ? trade->itm_color : COLOR_WHITELIGHT;
-        ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // ITM
         ld->SetData(3, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);
@@ -518,18 +518,18 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITELIGHT, font8, FontStyleRegular);
 
 
-        wszText = (trade->ticker_change_text.length()) ? trade->ticker_change_text : L"";
+        text = (trade->ticker_change_text.length()) ? trade->ticker_change_text : L"";
         clr = (trade->ticker_change_color != COLOR_WHITELIGHT) ? trade->ticker_change_color : COLOR_WHITELIGHT;
-        ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // price change
         
-        wszText = (trade->ticker_last_price_text.length()) ? trade->ticker_last_price_text : L"";
-        ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, wszText, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
+        text = (trade->ticker_last_price_text.length()) ? trade->ticker_last_price_text : L"";
+        ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
         
-        wszText = (trade->ticker_percent_change_text.length()) ? trade->ticker_percent_change_text : L"";
+        text = (trade->ticker_percent_change_text.length()) ? trade->ticker_percent_change_text : L"";
         clr = (trade->ticker_percent_change_color != COLOR_WHITELIGHT) ? trade->ticker_percent_change_color : COLOR_WHITELIGHT;
-        ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // price percentage change
 
         ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -537,13 +537,13 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
 
-        wszText = (trade->percentage_text.length()) ? trade->percentage_text : L"";
-        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        text = (trade->percentage_text.length()) ? trade->percentage_text : L"";
+        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
         
-        wszText = (trade->unrealized_pnl_text.length()) ? trade->unrealized_pnl_text : L"";
+        text = (trade->unrealized_pnl_text.length()) ? trade->unrealized_pnl_text : L"";
         clr = (trade->unrealized_pnl_color != COLOR_WHITEDARK) ? trade->unrealized_pnl_color : COLOR_WHITEDARK;
-        ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // unrealized PNL
     }
     ListBox_AddString(hListBox, ld);
@@ -692,26 +692,26 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
             if (!isHistory) {
 
-                std::wstring wszText = L"";
+                std::wstring text = L"";
 
-                wszText = (leg->average_price_text.length()) ? leg->average_price_text : L"";
-                ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                text = (leg->average_price_text.length()) ? leg->average_price_text : L"";
+                ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
                 col++;
                 
-                wszText = (leg->market_price_text.length()) ? leg->market_price_text : L"";
-                ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                text = (leg->market_price_text.length()) ? leg->market_price_text : L"";
+                ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
                 col++;
                 
-                wszText = (leg->percentage_text.length()) ? leg->percentage_text: L"";
-                ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                text = (leg->percentage_text.length()) ? leg->percentage_text: L"";
+                ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Percentage values for the previous two columns data
                 col++;
                 
-                wszText = (leg->unrealized_pnl_text.length()) ? leg->unrealized_pnl_text : L"";
+                text = (leg->unrealized_pnl_text.length()) ? leg->unrealized_pnl_text : L"";
                 clr = (leg->unrealized_pnl_color != COLOR_WHITEDARK) ? leg->unrealized_pnl_color : COLOR_WHITEDARK;
-                ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     clr, font8, FontStyleRegular);   // Unrealized profit or loss
             }
 
@@ -797,8 +797,8 @@ void ListBoxData_HistorySharesLeg(
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
     }
     
-    std::wstring wszText = AfxMoney(trans->price, false, trade->ticker_decimals);
-    ld->SetData(6, trade, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = AfxMoney(trans->price, false, trade->ticker_decimals);
+    ld->SetData(6, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     ld->SetData(7, trade, tickerId, std::to_wstring(leg->open_quantity), StringAlignmentFar, StringAlignmentCenter,
@@ -869,8 +869,8 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 
     DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
     
-    std::wstring wszText = std::to_wstring(year) + L" TOTAL";
-    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = std::to_wstring(year) + L" TOTAL";
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
     ld->SetData(4, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
@@ -879,9 +879,9 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
     // col 5 is a "spacer" column
 
     clr = (YearWin >= YearLoss) ? COLOR_GREEN : COLOR_RED;
-    wszText = std::to_wstring(YearWin) + L"W " + std::to_wstring(YearLoss)
+    text = std::to_wstring(YearWin) + L"W " + std::to_wstring(YearLoss)
         + L"L  " + AfxMoney((double)YearWin / (max(YearWin + YearLoss,1)) * 100, false, 0) + L"%";
-    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_InsertString(hListBox, 0, ld);
@@ -900,8 +900,8 @@ void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int We
 
     DWORD clr = (weeklyTotal >= 0) ? COLOR_GREEN : COLOR_RED;
     
-    std::wstring wszText = L"THIS WEEK";
-    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = L"THIS WEEK";
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
     ld->SetData(4, nullptr, tickerId, AfxMoney(weeklyTotal), StringAlignmentFar, StringAlignmentCenter,
@@ -910,9 +910,9 @@ void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int We
     // col 5 is a "spacer" column
 
     clr = (WeekWin >= WeekLoss) ? COLOR_GREEN : COLOR_RED;
-    wszText = std::to_wstring(WeekWin) + L"W " + std::to_wstring(WeekLoss)
+    text = std::to_wstring(WeekWin) + L"W " + std::to_wstring(WeekLoss)
         + L"L  " + AfxMoney((double)WeekWin / (max(WeekWin + WeekLoss,1)) * 100, false, 0) + L"%";
-    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_InsertString(hListBox, 1, ld);
@@ -931,8 +931,8 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayW
 
     DWORD clr = (dailyTotal >= 0) ? COLOR_GREEN : COLOR_RED;
     
-    std::wstring wszText = L"TODAY";
-    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = L"TODAY";
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
     ld->SetData(4, nullptr, tickerId, AfxMoney(dailyTotal), StringAlignmentFar, StringAlignmentCenter,
@@ -941,9 +941,9 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int DayW
     // col 5 is a "spacer" column
 
     clr = (DayWin >= DayLoss) ? COLOR_GREEN : COLOR_RED;
-    wszText = std::to_wstring(DayWin) + L"W " + std::to_wstring(DayLoss)
+    text = std::to_wstring(DayWin) + L"W " + std::to_wstring(DayLoss)
         + L"L  " + AfxMoney((double)DayWin / (max(DayWin + DayLoss,1)) * 100, false, 0) + L"%";
-    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_InsertString(hListBox, 2, ld);
@@ -967,8 +967,8 @@ void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDat
 
     DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
     
-    std::wstring wszText = AfxUpper(AfxGetLongMonthName(closedDate)) + L" " + std::to_wstring(AfxGetYear(closedDate));
-    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = AfxUpper(AfxGetLongMonthName(closedDate)) + L" " + std::to_wstring(AfxGetYear(closedDate));
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
 
     ld->SetData(4, nullptr, tickerId, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
@@ -977,9 +977,9 @@ void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDat
     // col 5 is a "spacer" column
 
     clr = (MonthWin >= MonthLoss) ? COLOR_GREEN : COLOR_RED;
-    wszText = std::to_wstring(MonthWin) + L"W " + std::to_wstring(MonthLoss)
+    text = std::to_wstring(MonthWin) + L"W " + std::to_wstring(MonthLoss)
         + L"L  " + AfxMoney((double)MonthWin / (max(MonthWin + MonthLoss,1)) * 100, false, 0) + L"%";
-    ld->SetData(6, nullptr, tickerId, wszText, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
@@ -1038,8 +1038,8 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox,
 
     DWORD clr = (runningNetTotal >= 0) ? COLOR_GREEN : COLOR_RED;
 
-    std::wstring wszText = L"TOTAL";
-    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = L"TOTAL";
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(5, nullptr, tickerId, AfxMoney(runningGrossTotal), StringAlignmentFar, StringAlignmentCenter,
@@ -1073,10 +1073,10 @@ void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring transD
     DWORD clr = (subNetAmount >= 0) ? COLOR_GREEN : COLOR_RED;
 
     //  example: MON JUL 5
-    //std::wstring wszText = AfxUpper(AfxGetShortDayName(transDate) + L" " + 
+    //std::wstring text = AfxUpper(AfxGetShortDayName(transDate) + L" " + 
     //    AfxGetShortMonthName(transDate)) + L" " + std::to_wstring(AfxGetDay(transDate));
-    std::wstring wszText = AfxUpper(AfxGetLongDayName(transDate));
-    ld->SetData(3, nullptr, tickerId, wszText, StringAlignmentFar, StringAlignmentCenter,
+    std::wstring text = AfxUpper(AfxGetLongDayName(transDate));
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(5, nullptr, tickerId, AfxMoney(subGrossAmount), StringAlignmentFar, StringAlignmentCenter,
@@ -1180,16 +1180,16 @@ void Header_OnPaint(HWND hWnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     Graphics graphics(hdc);
-    SolidBrush backBrush(COLOR_GRAYMEDIUM);
-    graphics.FillRectangle(&backBrush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    SolidBrush back_brush(COLOR_GRAYMEDIUM);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
 
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-    std::wstring wszFontName = AfxGetDefaultFont();
-    FontFamily fontFamily(wszFontName.c_str());
+    std::wstring font_name = AfxGetDefaultFont();
+    FontFamily fontFamily(font_name.c_str());
     Font       font(&fontFamily, 9, FontStyleRegular, Unit::UnitPoint);
-    SolidBrush textBrush(COLOR_WHITELIGHT);
+    SolidBrush text_brush(COLOR_WHITELIGHT);
 
     StringFormat stringF(StringFormatFlagsNoWrap);
     stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -1226,8 +1226,8 @@ void Header_OnPaint(HWND hWnd)
         // Add left/right padding to our text rectangle
         InflateRect(&rcItem, -AfxScaleX(4), 0);
         RectF rcText((REAL)rcItem.left, (REAL)rcItem.top, (REAL)(rcItem.right - rcItem.left), (REAL)(rcItem.bottom - rcItem.top));
-        std::wstring wszText = Header_GetItemText(hWnd, i);
-        graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+        std::wstring text = Header_GetItemText(hWnd, i);
+        graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
 
     }
 
@@ -1271,14 +1271,14 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
 
         // Set some defaults in case there is no valid ListBox line number
-        std::wstring wszText;
+        std::wstring text;
 
-        DWORD nBackColor = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYDARK;
-        DWORD nBackColorHot = COLOR_SELECTION;
-        DWORD nTextColor = COLOR_WHITELIGHT;
+        DWORD back_color = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYDARK;
+        DWORD back_color_hot = COLOR_SELECTION;
+        DWORD ntext_color = COLOR_WHITELIGHT;
 
-        std::wstring wszFontName = AfxGetDefaultFont();
-        FontFamily   fontFamily(wszFontName.c_str());
+        std::wstring font_name = AfxGetDefaultFont();
+        FontFamily   fontFamily(font_name.c_str());
         REAL fontSize = 10;
         int fontStyle = FontStyleRegular;
 
@@ -1286,8 +1286,8 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         StringAlignment VAlignment = StringAlignmentCenter;
 
         // Paint the full width background using brush 
-        SolidBrush backBrush(nBackColor);
-        graphics.FillRectangle(&backBrush, 0, 0, nWidth, nHeight);
+        SolidBrush back_brush(back_color);
+        graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
 
         // Get the current ListBox line data should a valid line exist
         // Paint the individual columns with the specific data.
@@ -1312,22 +1312,22 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             if (ld->col[i].colWidth == 0) break;
 
             // Prepare and draw the text
-            wszText = ld->col[i].wszText;
+            text = ld->col[i].text;
 
             HAlignment = ld->col[i].HAlignment;
             VAlignment = ld->col[i].VAlignment;
-            nBackColor = (bIsHot) ? nBackColor : ld->col[i].backTheme;
-            nTextColor = ld->col[i].textTheme;
+            back_color = (bIsHot) ? back_color : ld->col[i].backTheme;
+            ntext_color = ld->col[i].textTheme;
             fontSize = ld->col[i].fontSize;
             fontStyle = ld->col[i].fontStyle;
 
             colWidth = (ld->lineType == LineType::CategoryHeader) ? nWidth : AfxScaleX((float)ld->col[i].colWidth);
 
-            backBrush.SetColor(nBackColor);
-            graphics.FillRectangle(&backBrush, nLeft, 0, colWidth, nHeight);
+            back_brush.SetColor(back_color);
+            graphics.FillRectangle(&back_brush, nLeft, 0, colWidth, nHeight);
 
             Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-            SolidBrush   textBrush(nTextColor);
+            SolidBrush   text_brush(ntext_color);
             StringFormat stringF(StringFormatFlagsNoWrap);
             stringF.SetAlignment(HAlignment);
             stringF.SetLineAlignment(VAlignment);
@@ -1338,7 +1338,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             if (HAlignment == StringAlignmentFar) rightPadding = AfxScaleX(2);
 
             RectF rcText((REAL)nLeft, (REAL)0, (REAL)colWidth - rightPadding, (REAL)nHeight);
-            graphics.DrawString(wszText.c_str(), -1, &font, rcText, &stringF, &textBrush);
+            graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
 
             nLeft += colWidth;
         }

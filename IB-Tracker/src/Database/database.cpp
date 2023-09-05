@@ -169,14 +169,14 @@ std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
 
 
 int try_catch_int(std::vector<std::wstring>& st, int idx) {
-    std::wstring wszText = try_catch_wstring(st, idx);
-    return AfxValInteger(wszText);
+    std::wstring text = try_catch_wstring(st, idx);
+    return AfxValInteger(text);
 }
 
 
 double try_catch_double(std::vector<std::wstring>& st, int idx) {
-    std::wstring wszText = try_catch_wstring(st, idx);
-    return AfxValDouble(wszText);
+    std::wstring text = try_catch_wstring(st, idx);
+    return AfxValDouble(text);
 }
 
 
@@ -202,7 +202,7 @@ bool LoadDatabase()
     bool isFirstline = true;
 
     std::wstring line;
-    std::wstring wszText;
+    std::wstring text;
 
     while (!db.eof()) {
         std::getline(db, line);
@@ -246,8 +246,8 @@ bool LoadDatabase()
             trade->future_expiry = AfxInsertDateHyphens(try_catch_wstring(st, 5));
             trade->category = try_catch_int(st, 6);
             trade->trade_bp = try_catch_double(st, 7);
-            wszText = try_catch_wstring(st, 8);
-            trade->notes = AfxReplace(wszText, L"~~", L"\r\n");
+            text = try_catch_wstring(st, 8);
+            trade->notes = AfxReplace(text, L"~~", L"\r\n");
             
 
             trades.push_back(trade);
