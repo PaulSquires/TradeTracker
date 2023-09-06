@@ -82,7 +82,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int nTop = 0;
 
     HWND hCtl = NULL;
-    HWND hCtlput_call = NULL;
+    HWND hCtlPutCall = NULL;
     HWND hCtlLongShort = NULL;
 
     std::wstring font_name = L"Segoe UI";
@@ -103,15 +103,15 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetText(hCtl, text);
         hCtlLongShort = hCtl;
 
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_put_call + i, L"",
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_PutCall + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
             CustomLabelAlignment::MiddleCenter, 51, nTop, 50, nHeight);
-        CustomLabel_SetUserDataInt(hCtl, (int)put_call::Put);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-        text = AfxUpper(StrategyButton_Getput_callEnumText(put_call::Put));
+        text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
         CustomLabel_SetText(hCtl, text);
-        hCtlput_call = hCtl;
+        hCtlPutCall = hCtl;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_STRATEGY + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
@@ -121,10 +121,10 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetTextOffset(hCtl, 5, 0);
         text = AfxUpper(StrategyButton_GetStrategyEnumText((Strategy)i));
         CustomLabel_SetText(hCtl, text);
-        if (!StrategyButton_StrategyAllowput_call(hCtl)) {
-            CustomLabel_SetText(hCtlput_call, L"");
+        if (!StrategyButton_StrategyAllowPutCall(hCtl)) {
+            CustomLabel_SetText(hCtlPutCall, L"");
         }
-        StrategyButton_SetLongShorttext_color(hCtlLongShort);
+        StrategyButton_SetLongShortTextColor(hCtlLongShort);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYPOPUP_GO + i, L"GO",
             COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
@@ -191,12 +191,12 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId >= IDC_STRATEGYPOPUP_LONGSHORT && CtrlId <= IDC_STRATEGYPOPUP_LONGSHORT + 40) {
             StrategyButton_ToggleLongShortText(hCtl);
-            StrategyButton_SetLongShorttext_color(hCtl);
+            StrategyButton_SetLongShortTextColor(hCtl);
         }
-        if (CtrlId >= IDC_STRATEGYPOPUP_put_call && CtrlId <= IDC_STRATEGYPOPUP_put_call + 40) {
-            int offset = CtrlId - IDC_STRATEGYPOPUP_put_call;
+        if (CtrlId >= IDC_STRATEGYPOPUP_PutCall && CtrlId <= IDC_STRATEGYPOPUP_PutCall + 40) {
+            int offset = CtrlId - IDC_STRATEGYPOPUP_PutCall;
             int idStrategy = IDC_STRATEGYPOPUP_STRATEGY + offset;
-            StrategyButton_Toggleput_callText(hCtl, GetDlgItem(HWND_STRATEGYPOPUP, idStrategy));
+            StrategyButton_TogglePutCallText(hCtl, GetDlgItem(HWND_STRATEGYPOPUP, idStrategy));
         }
         if (CtrlId >= IDC_STRATEGYPOPUP_GO && CtrlId <= IDC_STRATEGYPOPUP_GO + 40) {
             int offset = CtrlId - IDC_STRATEGYPOPUP_GO;
@@ -205,23 +205,24 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_LONGSHORT+offset));
             HWND hCtlLongShort = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
             CustomLabel_SetUserDataInt(hCtlLongShort, (int)ls);
-            StrategyButton_SetLongShortback_color(hCtlLongShort);
+            StrategyButton_SetLongShortBackColor(hCtlLongShort);
             text = AfxUpper(StrategyButton_GetLongShortEnumText(ls));
             CustomLabel_SetText(hCtlLongShort, text);
 
-            put_call pc = (put_call)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_put_call+offset));
-            HWND hCtlput_call = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
-            CustomLabel_SetUserDataInt(hCtlput_call, (int)pc);
-            text = AfxUpper(StrategyButton_Getput_callEnumText(pc));
-            CustomLabel_SetText(hCtlput_call, text);
+            PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_PutCall+offset));
+            text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
+            HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+            CustomLabel_SetUserDataInt(hCtlPutCall, (int)pc);
+            text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
+            CustomLabel_SetText(hCtlPutCall, text);
 
             Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_STRATEGY+offset));
             HWND hCtlStrategy = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
             CustomLabel_SetUserDataInt(hCtlStrategy, (int)s);
             text = AfxUpper(StrategyButton_GetStrategyEnumText(s));
             CustomLabel_SetText(hCtlStrategy, text);
-            if (!StrategyButton_StrategyAllowput_call(hCtlStrategy)) {
-                CustomLabel_SetText(hCtlput_call, L"");
+            if (!StrategyButton_StrategyAllowPutCall(hCtlStrategy)) {
+                CustomLabel_SetText(hCtlPutCall, L"");
             }
 
             StrategyButton_InvokeStrategy();
@@ -248,11 +249,11 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     // Get the currently selected Strategy from the StrategyButton and its associated
-    // LongShort and put_call status and use that data to set the associated line
+    // LongShort and PutCall status and use that data to set the associated line
     // in the popup.
     Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_STRATEGY));
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_LONGSHORT));
-    put_call pc = (put_call)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_put_call));
+    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_PutCall));
 
     std::wstring text;
 
@@ -264,15 +265,15 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
             CustomLabel_SetUserDataInt(hCtlLongShort, (int)ls);
             text = AfxUpper(StrategyButton_GetLongShortEnumText(ls));
             CustomLabel_SetText(hCtlLongShort, text);
-            StrategyButton_SetLongShorttext_color(hCtlLongShort);
+            StrategyButton_SetLongShortTextColor(hCtlLongShort);
 
-            HWND hCtlput_call = GetDlgItem(hPopup, IDC_STRATEGYPOPUP_put_call + i);
-            CustomLabel_SetUserDataInt(hCtlput_call, (int)pc);
-            text = AfxUpper(StrategyButton_Getput_callEnumText(pc));
-            if (!StrategyButton_StrategyAllowput_call(hCtlStrategy)) {
+            HWND hCtlPutCall = GetDlgItem(hPopup, IDC_STRATEGYPOPUP_PutCall + i);
+            CustomLabel_SetUserDataInt(hCtlPutCall, (int)pc);
+            text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
+            if (!StrategyButton_StrategyAllowPutCall(hCtlStrategy)) {
                 text = L"";
             }
-            CustomLabel_SetText(hCtlput_call, text);
+            CustomLabel_SetText(hCtlPutCall, text);
 
             break;
         }

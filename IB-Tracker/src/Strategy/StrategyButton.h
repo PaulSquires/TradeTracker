@@ -40,7 +40,7 @@ extern HWND HWND_STRATEGYBUTTON;
 
 
 constexpr int IDC_STRATEGYBUTTON_LONGSHORT = 100;
-constexpr int IDC_STRATEGYBUTTON_put_call   = 101;
+constexpr int IDC_STRATEGYBUTTON_PutCall   = 101;
 constexpr int IDC_STRATEGYBUTTON_STRATEGY  = 102;
 constexpr int IDC_STRATEGYBUTTON_GO        = 103;
 constexpr int IDC_STRATEGYBUTTON_DROPDOWN  = 104;
@@ -52,7 +52,7 @@ enum class LongShort
     Count 
 };
 
-enum class put_call
+enum class PutCall
 {
     Put = 0,
     Call,
@@ -76,14 +76,14 @@ enum class Strategy
 
 
 std::wstring StrategyButton_GetLongShortEnumText(LongShort ls);
-std::wstring StrategyButton_Getput_callEnumText(put_call pc);
+std::wstring StrategyButton_GetPutCallEnumText(PutCall pc);
 std::wstring StrategyButton_GetStrategyEnumText(Strategy s);
 
 void StrategyButton_ToggleLongShortText(HWND hCtl);
-void StrategyButton_Toggleput_callText(HWND hCtlput_call, HWND hCtlStrategy);
-void StrategyButton_SetLongShorttext_color(HWND hCtl);
-void StrategyButton_SetLongShortback_color(HWND hCtl);
-bool StrategyButton_StrategyAllowput_call(HWND hCtl);
+void StrategyButton_TogglePutCallText(HWND hCtlPutCall, HWND hCtlStrategy);
+void StrategyButton_SetLongShortTextColor(HWND hCtl);
+void StrategyButton_SetLongShortBackColor(HWND hCtl);
+bool StrategyButton_StrategyAllowPutCall(HWND hCtl);
 void StrategyButton_InvokeStrategy();
 
 

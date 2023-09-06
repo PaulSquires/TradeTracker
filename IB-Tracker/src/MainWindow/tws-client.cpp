@@ -67,7 +67,7 @@ void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 
 	for (const auto& leg : trade->open_legs) {
 		if (leg->underlying == L"OPTIONS") {
-			if (leg->put_call == L"P") {
+			if (leg->PutCall == L"P") {
 				if (trade->ticker_last_price < AfxValDouble(leg->strike_price)) {
 					if (leg->open_quantity < 0) {
 						is_itm_red = (is_long_spread == true) ? false : true;
@@ -77,7 +77,7 @@ void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 					}
 				}
 			}
-			else if (leg->put_call == L"C") {
+			else if (leg->PutCall == L"C") {
 				if (trade->ticker_last_price > AfxValDouble(leg->strike_price)) {
 					if (leg->open_quantity < 0) {
 						is_itm_red = (is_long_spread == true) ? false : true;

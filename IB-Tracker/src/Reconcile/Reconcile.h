@@ -45,11 +45,11 @@ struct positionStruct {
 	int contract_id = 0;
 	std::vector<std::shared_ptr<Leg>> legs;    // pointer list for all legs that make up the position
 	int open_quantity = 0;
-	std::wstring tickerSymbol;
+	std::wstring ticker_symbol;
 	std::wstring underlying;
 	std::wstring expiry_date;
 	double strike_price = 0;
-	std::wstring put_call;
+	std::wstring PutCall;
 };
 
 

@@ -323,7 +323,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
-        if (pData->bDragActive) {
+        if (pData->drag_active) {
             bshow_scrollbar = true;
         }
         else {

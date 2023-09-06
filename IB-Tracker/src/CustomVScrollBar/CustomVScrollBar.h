@@ -36,19 +36,19 @@ public:
     HWND hParent = NULL;
     HWND hListBox = NULL;
     INT CtrlId = 0;
-    bool bDragActive = false;
+    bool drag_active = false;
 
     POINT prev_pt{};
-    int listBoxHeight = 0;
-    int itemHeight = 0;
+    int listbox_height = 0;
+    int item_height = 0;
     int items_count = 0;
     int items_per_page = 0;
-    int thumbHeight = 0;
+    int thumb_height = 0;
     RECT rc{};
     
-    DWORD ScrollBarLine = COLOR_SCROLLBARDIVIDER;
-    DWORD ScrollBarBack = COLOR_SCROLLBARBACK;
-    DWORD ScrollBarThumb = COLOR_SCROLLBARTHUMB;
+    DWORD scrollbar_line_color = COLOR_SCROLLBARDIVIDER;
+    DWORD scrollbar_back_color = COLOR_SCROLLBARBACK;
+    DWORD scrollbar_thumb_color = COLOR_SCROLLBARTHUMB;
 
     bool calcVThumbRect();
     

@@ -34,13 +34,13 @@ HWND HWND_CALENDAR = NULL;
 
 CCalendar Calendar;
 
-std::wstring wszTheSelectedDate;
+std::wstring the_selected_date;
 
 // Control on parent window that new selected date will be stored in and displayed.
 // That control must be a CustomLabel because we store the full ISO date in that
 // control's UserData string.
 HWND hTheUpdateParentCtl = NULL;
-CalendarPickerReturnType TheUpdateDateReturnType = CalendarPickerReturnType::ISODate;
+CalendarPickerReturnType the_update_date_return_type = CalendarPickerReturnType::ISO_date;
 
 
 
@@ -111,9 +111,9 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         MonthCal_SetColor(hCtl, MCSC_BACKGROUND, Color(COLOR_GRAYMEDIUM).ToCOLORREF());
 
         SYSTEMTIME st{};
-        st.wYear = AfxGetYear(wszTheSelectedDate);
-        st.wMonth = AfxGetMonth(wszTheSelectedDate);
-        st.wDay = AfxGetDay(wszTheSelectedDate);
+        st.wYear = AfxGetYear(the_selected_date);
+        st.wMonth = AfxGetMonth(the_selected_date);
+        st.wDay = AfxGetDay(the_selected_date);
 
         MonthCal_SetCurSel(hCtl, &st);
     }
@@ -147,26 +147,26 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 LPNMSELCHANGE lpNMSelChange = (LPNMSELCHANGE)lParam;
 
-                wszTheSelectedDate = AfxMakeISODate(
+                the_selected_date = AfxMakeISODate(
                     lpNMSelChange->stSelStart.wYear,
                     lpNMSelChange->stSelStart.wMonth,
                     lpNMSelChange->stSelStart.wDay);
 
                 std::wstring text;
-                switch (TheUpdateDateReturnType)
+                switch (the_update_date_return_type)
                 {
-                case CalendarPickerReturnType::ShortDate:
-                    text = AfxShortDate(wszTheSelectedDate);
+                case CalendarPickerReturnType::short_date:
+                    text = AfxShortDate(the_selected_date);
                     break;
-                case CalendarPickerReturnType::LongDate:
-                    text = AfxLongDate(wszTheSelectedDate);
+                case CalendarPickerReturnType::long_date:
+                    text = AfxLongDate(the_selected_date);
                     break;
-                case CalendarPickerReturnType::ISODate:
-                    text = wszTheSelectedDate;
+                case CalendarPickerReturnType::ISO_date:
+                    text = the_selected_date;
                     break;
                 }
 
-                CustomLabel_SetUserData(hTheUpdateParentCtl, wszTheSelectedDate);
+                CustomLabel_SetUserData(hTheUpdateParentCtl, the_selected_date);
                 CustomLabel_SetText(hTheUpdateParentCtl, text);
                 SendMessage(GetParent(hTheUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
                     GetDlgCtrlID(hTheUpdateParentCtl), (LPARAM)hTheUpdateParentCtl);
@@ -217,13 +217,13 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // Create Calendar control and move it into position under the specified incoming control.
 // ========================================================================================
 HWND Calendar_CreateDatePicker(
-    HWND hParent, HWND hParentCtl, std::wstring wszDate, 
+    HWND hParent, HWND hParentCtl, std::wstring date_text, 
     CalendarPickerReturnType DateReturnType, int NumCalendars)
 {
-    if (wszDate.length() == 0)
-        wszDate = AfxCurrentDate();
+    if (date_text.length() == 0)
+        date_text = AfxCurrentDate();
 
-    wszTheSelectedDate = wszDate;
+    the_selected_date = date_text;
 
 
     Calendar.Create(hParent, L"", 0, 0, 0, 0,
@@ -242,7 +242,7 @@ HWND Calendar_CreateDatePicker(
     // Set the module global hUpdateParentCtl after the above Calendar is created in
     // to ensure the variable address is correct.
     hTheUpdateParentCtl = hParentCtl;
-    TheUpdateDateReturnType = DateReturnType;
+    the_update_date_return_type = DateReturnType;
 
     return Calendar.WindowHandle();
 }

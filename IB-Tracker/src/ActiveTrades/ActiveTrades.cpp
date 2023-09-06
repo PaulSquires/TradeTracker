@@ -334,7 +334,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
 
         newleg->expiry_date = leg->expiry_date;
         newleg->strike_price = leg->strike_price;
-        newleg->put_call = leg->put_call;
+        newleg->PutCall = leg->PutCall;
         trans->legs.push_back(newleg);
     }
 
@@ -417,7 +417,7 @@ void ActiveTrades_CalledAwayAssignment(
 
     newleg->expiry_date = leg->expiry_date;
     newleg->strike_price = leg->strike_price;
-    newleg->put_call = leg->put_call;
+    newleg->PutCall = leg->PutCall;
     trans->legs.push_back(newleg);
 
 
@@ -438,7 +438,7 @@ void ActiveTrades_CalledAwayAssignment(
     newleg->underlying = trans->underlying;
     newleg->strike_price = leg->strike_price;
 
-    if (leg->put_call == L"P") {
+    if (leg->PutCall == L"P") {
         newleg->action = L"BTC";
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
@@ -486,7 +486,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     int quantity_assigned = 0;
     double multiplier = 1;
 
-    std::wstring long_short_text = (leg->put_call == L"P") ? L"LONG " : L"SHORT ";
+    std::wstring long_short_text = (leg->PutCall == L"P") ? L"LONG " : L"SHORT ";
     std::wstring msg = L"Continue with OPTION ASSIGNMENT?\n\n";
         
     if (isShares == true) {
@@ -530,7 +530,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     newleg->expiry_date = leg->expiry_date;
     newleg->strike_price = leg->strike_price;
-    newleg->put_call = leg->put_call;
+    newleg->PutCall = leg->PutCall;
     trans->legs.push_back(newleg);
 
 
@@ -551,7 +551,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     newleg->underlying = trans->underlying;
     newleg->strike_price = leg->strike_price;
 
-    if (leg->put_call == L"P") {
+    if (leg->PutCall == L"P") {
         newleg->action = L"BTO";
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
@@ -620,12 +620,12 @@ void ActiveTrades_OptionAssignment(auto trade)
     auto leg = tdd.legs.at(0);
 
     // Are LONG SHARES or LONG FUTURES being called away
-    if ((aggregate_shares > 0 || aggregate_futures > 0) && leg->put_call == L"C") {
+    if ((aggregate_shares > 0 || aggregate_futures > 0) && leg->PutCall == L"C") {
         ActiveTrades_CalledAwayAssignment(trade, leg, aggregate_shares, aggregate_futures);
         return;
     }
     // Are SHORT SHARES or SHORT FUTURES being called away
-    if ((aggregate_shares < 0 || aggregate_futures < 0) && leg->put_call == L"P") {
+    if ((aggregate_shares < 0 || aggregate_futures < 0) && leg->PutCall == L"P") {
         ActiveTrades_CalledAwayAssignment(trade, leg, aggregate_shares, aggregate_futures);
         return;
     }
@@ -1011,7 +1011,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
-        if (pData->bDragActive) {
+        if (pData->drag_active) {
             bshow_scrollbar = true;
         }
         else {

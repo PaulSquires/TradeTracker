@@ -46,20 +46,20 @@ bool CustomVScrollBar::calcVThumbRect()
     
     RECT rcListBox{};
     GetClientRect(hListBox, &rcListBox);
-    listBoxHeight = (rcListBox.bottom - rcListBox.top);
-    itemHeight = ListBox_GetItemHeight(hListBox, 0);
+    listbox_height = (rcListBox.bottom - rcListBox.top);
+    item_height = ListBox_GetItemHeight(hListBox, 0);
     items_count = ListBox_GetCount(hListBox);
 
     // If no items exist then exit to avoid division by zero GPF's.
     if (items_count == 0) return FALSE;
 
-    items_per_page = (int)(std::round(listBoxHeight / (float)itemHeight));
-    thumbHeight = (int)(((float)items_per_page / (float)items_count) * (float)listBoxHeight);
+    items_per_page = (int)(std::round(listbox_height / (float)item_height));
+    thumb_height = (int)(((float)items_per_page / (float)items_count) * (float)listbox_height);
 
     rc.left = rcListBox.left;
-    rc.top = (int)(rcListBox.top + (((float)top_index / (float)items_count) * (float)listBoxHeight));
+    rc.top = (int)(rcListBox.top + (((float)top_index / (float)items_count) * (float)listbox_height));
     rc.right = rcListBox.right;
-    rc.bottom = (rc.top + thumbHeight);
+    rc.bottom = (rc.top + thumb_height);
 
     // If the number of items in the listbox is less than what could display
     // on the screen then there is no need to show the scrollbar.
@@ -91,7 +91,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
             if (PtInRect(&pData->rc, pt)) {
                 pData->prev_pt = pt;
-                pData->bDragActive = true;
+                pData->drag_active = true;
                 SetCapture(hWnd);
             }
             else {
@@ -122,7 +122,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_MOUSEMOVE:
         {
             if (pData == nullptr) break;
-            if (pData->bDragActive) {
+            if (pData->drag_active) {
                 POINT pt;
                 pt.x = GET_X_LPARAM(lParam);
                 pt.y = GET_Y_LPARAM(lParam);
@@ -131,15 +131,15 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
                     RECT rc; GetClientRect(hWnd, &rc);
                     pData->rc.top = max(0, pData->rc.top + delta);
-                    pData->rc.top = min(pData->rc.top, rc.bottom - pData->thumbHeight);
-                    pData->rc.bottom = pData->rc.top + pData->thumbHeight;
+                    pData->rc.top = min(pData->rc.top, rc.bottom - pData->thumb_height);
+                    pData->rc.bottom = pData->rc.top + pData->thumb_height;
 
                     pData->prev_pt = pt;
 
-                    int nPrevTopLine = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
-                    int nTopLine = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
-                    if (nTopLine != nPrevTopLine)
-                        SendMessage(pData->hListBox, LB_SETTOPINDEX, (WPARAM)nTopLine, 0);
+                    int previous_topline = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
+                    int top_line = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
+                    if (top_line != previous_topline)
+                        SendMessage(pData->hListBox, LB_SETTOPINDEX, (WPARAM)top_line, 0);
 
                     AfxRedrawWindow(hWnd);
                 }
@@ -152,7 +152,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_LBUTTONUP:
         {
             if (pData == nullptr) break;
-            pData->bDragActive = false;
+            pData->drag_active = false;
             pData->prev_pt.x = 0;
             pData->prev_pt.y = 0;
             ReleaseCapture();
@@ -181,14 +181,14 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
             int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
 
-            SolidBrush back_brush(pData->ScrollBarBack);
+            SolidBrush back_brush(pData->scrollbar_back_color);
             graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
             if (pData->items_count > pData->items_per_page) {
-                back_brush.SetColor(pData->ScrollBarThumb);
-                graphics.FillRectangle(&back_brush, pData->rc.left, pData->rc.top, nWidth, pData->thumbHeight);
+                back_brush.SetColor(pData->scrollbar_thumb_color);
+                graphics.FillRectangle(&back_brush, pData->rc.left, pData->rc.top, nWidth, pData->thumb_height);
 
-                Pen pen(pData->ScrollBarLine, 1);
+                Pen pen(pData->scrollbar_line_color, 1);
                 graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
             }
 

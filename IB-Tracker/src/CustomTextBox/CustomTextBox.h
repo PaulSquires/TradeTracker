@@ -28,14 +28,14 @@ SOFTWARE.
 
 enum class CustomTextBoxNegative
 {
-	Allow,
-	Disallow
+	allow,
+	disallow
 };
 
 enum class CustomTextBoxFormatting
 {
-	Allow,
-	Disallow
+	allow,
+	disallow
 };
 
 
@@ -50,29 +50,29 @@ public:
 	HWND hParent = NULL;
 	HWND hTextBox = NULL;    // the actual child textbox
 	HINSTANCE hInst = NULL;
-	std::wstring UserData;
+	std::wstring user_data;
 
 	int CtrlId = 0;
 
 	DWORD back_color{};
-	HBRUSH hback_brush = NULL;
+	HBRUSH back_brush = NULL;
 
 	// Text
 	std::wstring text;
 	std::wstring font_name;
 	int font_size = 0;
 	HFONT hFontText = NULL;
-	int HTextMargin = 0;
-	int VTextMargin = 0;
+	int horiz_text_margin = 0;
+	int vert_text_margin = 0;
 	DWORD text_color{};
-	int Alignment = ES_LEFT;
-	bool isMultiLine = false;
+	int alignment = ES_LEFT;
+	bool is_multiline = false;
 
 	// Numeric
-	bool isNumeric = false;
-	int NumDecimals = 0;
-	CustomTextBoxNegative AllowNegative = CustomTextBoxNegative::Disallow;
-	CustomTextBoxFormatting AllowFormatting = CustomTextBoxFormatting::Disallow;
+	bool is_numeric = false;
+	int decimal_count = 0;
+	CustomTextBoxNegative allow_negative = CustomTextBoxNegative::disallow;
+	CustomTextBoxFormatting allow_formatting = CustomTextBoxFormatting::disallow;
 };
 
 
@@ -81,13 +81,13 @@ int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData);
 void CustomTextBox_SetText(HWND hCtrl, std::wstring text);
 void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size);
 void CustomTextBox_SetNumericAttributes(
-	HWND hCtrl, int DecimalPlaces, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting);
+	HWND hCtrl, int decimal_places, CustomTextBoxNegative allow_negative, CustomTextBoxFormatting allow_formatting);
 void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color);
-void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin);
+void CustomTextBox_SetMargins(HWND hCtrl, int horiz_text_margin, int vert_text_margin);
 void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 
 
-HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool isMultiLine,
-	int Alignment, std::wstring text, int nLeft, int nTop, int nWidth, int nHeight);
+HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool is_multiLine,
+	int alignment, std::wstring text, int nLeft, int nTop, int nWidth, int nHeight);
 

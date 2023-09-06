@@ -437,7 +437,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
-        if (pData->bDragActive) {
+        if (pData->drag_active) {
             bshow_scrollbar = true;
         }
         else {
@@ -526,10 +526,10 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->back_color = COLOR_GRAYDARK;
-        pData->LineColor = COLOR_SEPARATOR;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 0;
-        pData->MarginRight = 0;
+        pData->line_color = COLOR_SEPARATOR;
+        pData->line_width = 2;
+        pData->margin_left = 0;
+        pData->margin_right = 0;
         CustomLabel_SetOptions(hCtl, pData);
     }
 

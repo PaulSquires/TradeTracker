@@ -90,10 +90,10 @@ void SideMenu_MakeSeparator(HWND hwnd, int nTop)
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->back_color = COLOR_BLACK;
-        pData->LineColor = COLOR_SEPARATOR;
-        pData->LineWidth = 2;
-        pData->MarginLeft = 10;
-        pData->MarginRight = 10;
+        pData->line_color = COLOR_SEPARATOR;
+        pData->line_width = 2;
+        pData->margin_left = 10;
+        pData->margin_right = 10;
         CustomLabel_SetOptions(hCtl, pData);
     }
 }
@@ -111,20 +111,20 @@ void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring t
         0, nTop, SIDEMENU_WIDTH, 28);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = true;
-        pData->AllowNotch = true;
-        pData->SelectorColor = COLOR_GRAYDARK;   // MenuNotch should be same color as middle panel
+        pData->hot_test_enable = true;
+        pData->allow_select = true;
+        pData->allow_notch = true;
+        pData->selector_color = COLOR_GRAYDARK;   // MenuNotch should be same color as middle panel
         pData->back_color = COLOR_BLACK;
         pData->back_color_hot = COLOR_SELECTION;
         pData->back_color_selected = COLOR_SELECTION;
         pData->back_color_button_down = COLOR_SELECTION;
         pData->text_color = COLOR_WHITELIGHT;
-        pData->text_colorHot = COLOR_WHITELIGHT;
+        pData->text_color_hot = COLOR_WHITELIGHT;
         pData->font_size = 10;
-        pData->font_sizeHot = 10;
+        pData->font_size_hot = 10;
         pData->text = text;
-        pData->textHot = pData->text;
+        pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 }
@@ -154,10 +154,10 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         nLeft, 20, 68, 68);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = false;
+        pData->hot_test_enable = false;
         pData->back_color = COLOR_BLACK;
-        pData->ImageWidth = 68;
-        pData->ImageHeight = 68;
+        pData->image_width = 68;
+        pData->image_height = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
         pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
         CustomLabel_SetOptions(hCtl, pData);
@@ -171,13 +171,13 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, 100, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = false;
+        pData->hot_test_enable = false;
         pData->back_color = COLOR_BLACK;
         pData->text_color = COLOR_WHITELIGHT;
         pData->font_size = 10;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
+        pData->text_alignment = CustomLabelAlignment::MiddleCenter;
         pData->text = L"IB-Tracker";
-        pData->textHot = pData->text;
+        pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -189,13 +189,13 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         0, 118, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = false;
+        pData->hot_test_enable = false;
         pData->back_color = COLOR_BLACK;
         pData->text_color = COLOR_WHITEMEDIUM;
         pData->font_size = 9;
-        pData->TextAlignment = CustomLabelAlignment::MiddleCenter;
+        pData->text_alignment = CustomLabelAlignment::MiddleCenter;
         pData->text = L"v" + version;
-        pData->textHot = pData->text;
+        pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -271,16 +271,16 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         40, nTop, 100, 23);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->HotTestEnable = true;
-        pData->AllowSelect = false;
+        pData->hot_test_enable = true;
+        pData->allow_select = false;
         pData->back_color = COLOR_BLACK;
         pData->back_color_hot = COLOR_SELECTION;
         pData->text_color = COLOR_WHITEMEDIUM;
-        pData->text_colorHot = COLOR_WHITEMEDIUM;
+        pData->text_color_hot = COLOR_WHITEMEDIUM;
         pData->font_size = 8;
-        pData->font_sizeHot = 8;
+        pData->font_size_hot = 8;
         pData->text = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
-        pData->textHot = pData->text;
+        pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -316,7 +316,7 @@ int SideMenu_GetActiveMenuItem(HWND hParent)
         hCtrl = GetDlgItem(hParent, ctrlId);
         CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
         if (pData != nullptr) {
-            if (pData->IsSelected) return ctrlId;
+            if (pData->is_selected) return ctrlId;
         }
     }
     return 0;
@@ -357,7 +357,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
             pData->text = L"TWS Connected";
             pData->text_color = COLOR_GREEN;
-            pData->text_colorHot = COLOR_GREEN;
+            pData->text_color_hot = COLOR_GREEN;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
@@ -373,7 +373,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
             pData->text = L"Reconnect Wait";
             pData->text_color = COLOR_RED;
-            pData->text_colorHot = COLOR_RED;
+            pData->text_color_hot = COLOR_RED;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         return 0;
@@ -401,7 +401,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         if (pData) {
             pData->text = L"Connect to TWS";
             pData->text_color = COLOR_WHITELIGHT;
-            pData->text_colorHot = COLOR_WHITELIGHT;
+            pData->text_color_hot = COLOR_WHITELIGHT;
             AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
         }
         tws_EndMonitorThread();
@@ -424,80 +424,80 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_SIDEMENU_NEWOPTIONSTRADE:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewOptionsTrade) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWSHARESTRADE:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewSharesTrade) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWFUTURESTRADE:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewFuturesTrade) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWIRONCONDOR:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewIronCondor) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWSHORTLT112:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewShortLT112) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWSHORTSTRANGLE:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewShortStrangle) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWSHORTPUT:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewShortPut) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
 
             case IDC_SIDEMENU_NEWSHORTCALL:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::NewShortCall) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
             break;
@@ -509,11 +509,11 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
                 // Prevent multiple clicks of the connect button by waiting until
                 // the first click is finished.
-                static bool bProcessingConnectClick = false;
-                if (bProcessingConnectClick) break;
-                bProcessingConnectClick = true;
+                static bool processing_connect_click = false;
+                if (processing_connect_click) break;
+                processing_connect_click = true;
                 bool res = tws_Connect();
-                bProcessingConnectClick = false;
+                processing_connect_click = false;
                 break;
             }
 
@@ -547,10 +547,10 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             case IDC_SIDEMENU_RECONCILE:
             {
-                int currSelection = SideMenu_GetActiveMenuItem(m_hwnd);
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 tws_PerformReconciliation();
-                SideMenu_SelectMenuItem(m_hwnd, currSelection);
+                SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 break;
             }
 

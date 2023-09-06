@@ -51,7 +51,7 @@ public:
     int          open_quantity = 0;
     std::wstring expiry_date   = L"";
     std::wstring strike_price  = L"";
-    std::wstring put_call      = L"";
+    std::wstring PutCall      = L"";
     std::wstring action       = L"";       // STO,BTO,STC,BTC
     std::wstring underlying   = L"";       // OPTIONS, STOCKS, FUTURES
     bool         isOpen();                 // method to calc if leg quantity is not zero

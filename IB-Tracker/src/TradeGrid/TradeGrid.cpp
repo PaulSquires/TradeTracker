@@ -63,7 +63,7 @@ void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& text
         CustomLabel_SetText(pCol->hCtl, AfxShortDate(text));
         break;
 
-    case GridColType::put_callCombo:
+    case GridColType::PutCallCombo:
         CustomLabel_SetText(pCol->hCtl, text);
         break;
 
@@ -168,7 +168,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         if (pData->bShowOriginalQuantity == true) {
             nWidth = 25;
             hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
-            CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
+            CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::allow, CustomTextBoxFormatting::disallow);
             CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
             CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
             col = new GridColInfo;
@@ -183,7 +183,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // QUANTITY (OPEN)
         nWidth = (pData->bShowOriginalQuantity == true) ? 25 : 50;
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
-        CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Disallow);
+        CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::allow, CustomTextBoxFormatting::disallow);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         col = new GridColInfo;
@@ -226,7 +226,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // STRIKE PRICE
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
-        CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
+        CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::disallow);
         CustomTextBox_SetColors(hCtl, light_text_color, light_back_color);
         CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
         col = new GridColInfo;
@@ -245,7 +245,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
-        col->colType = GridColType::put_callCombo;
+        col->colType = GridColType::PutCallCombo;
         pData->gridCols.push_back(col);
         idCtrl++;
         nLeft = nLeft + (nWidth/2) + hsp;
@@ -270,16 +270,16 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         pLabelData = CustomLabel_GetOptions(hCtl);
         if (pLabelData) {
             pLabelData->text = GLYPH_RESETLINE;
-            pLabelData->textHot = GLYPH_RESETLINE;
-            pLabelData->HotTestEnable = true;
+            pLabelData->text_hot = GLYPH_RESETLINE;
+            pLabelData->hot_test_enable = true;
             pLabelData->back_color = COLOR_GRAYDARK; 
             pLabelData->back_color_hot = COLOR_GRAYMEDIUM;
             pLabelData->back_color_button_down = COLOR_GRAYLIGHT; 
             pLabelData->text_color = COLOR_WHITEDARK;
-            pLabelData->text_colorHot = COLOR_WHITELIGHT;
-            pLabelData->TextAlignment = CustomLabelAlignment::MiddleCenter;
+            pLabelData->text_color_hot = COLOR_WHITELIGHT;
+            pLabelData->text_alignment = CustomLabelAlignment::MiddleCenter;
             pLabelData->tooltip_text = L"Reset line";
-            pLabelData->PointerHot = CustomLabelPointer::Arrow;
+            pLabelData->pointer_hot = CustomLabelPointer::Arrow;
             CustomLabel_SetOptions(hCtl, pLabelData);
         }
         col = new GridColInfo;
@@ -325,21 +325,21 @@ void TradeGrid_SetText(GridColInfo* col, std::wstring text)
 
 
 // ========================================================================================
-// Handle when the put_call button is clicked.
+// Handle when the PutCall button is clicked.
 // ========================================================================================
-void TradeGrid_OnClickput_call(TradeGrid* pData, GridColInfo* col)
+void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
 {
     if (pData == nullptr) return;
     if (col == nullptr) return;
 
-    std::wstring put_call = CustomLabel_GetText(col->hCtl);
-    if (put_call.length() == 0) {
-        put_call = L"P";
+    std::wstring PutCall = CustomLabel_GetText(col->hCtl);
+    if (PutCall.length() == 0) {
+        PutCall = L"P";
     }
     else {
-        put_call = (put_call == L"P") ? L"C" : L"P";
+        PutCall = (PutCall == L"P") ? L"C" : L"P";
     }
-    TradeGrid_SetText(col, put_call);
+    TradeGrid_SetText(col, PutCall);
 }
 
 
@@ -417,8 +417,8 @@ void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
     if (pData == nullptr) return;
     if (col == nullptr) return;
 
-    std::wstring wszDate = CustomLabel_GetUserData(col->hCtl);
-    Calendar_CreateDatePicker(pData->hParent, col->hCtl, wszDate, CalendarPickerReturnType::ShortDate, 2);
+    std::wstring date_text = CustomLabel_GetUserData(col->hCtl);
+    Calendar_CreateDatePicker(pData->hParent, col->hCtl, date_text, CalendarPickerReturnType::short_date, 2);
 }
 
 
@@ -557,8 +557,8 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
                     break;
                 }
 
-                if (col->colType == GridColType::put_callCombo) {
-                    TradeGrid_OnClickput_call(pData, col);
+                if (col->colType == GridColType::PutCallCombo) {
+                    TradeGrid_OnClickPutCall(pData, col);
                     break;
                 }
 

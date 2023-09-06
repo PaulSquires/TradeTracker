@@ -50,13 +50,13 @@ void CustomTextBox_OnSize(HWND hCtrl)
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData) {
         RECT rc; GetClientRect(hCtrl, &rc);
-        if (pData->HTextMargin) {
-            int HMarginWidth = AfxScaleX((float)pData->HTextMargin);
-            InflateRect(&rc, -HMarginWidth, 0);
+        if (pData->horiz_text_margin) {
+            int horiz_margin_width = AfxScaleX((float)pData->horiz_text_margin);
+            InflateRect(&rc, -horiz_margin_width, 0);
         }
-        if (pData->VTextMargin) {
-            int VMarginWidth = AfxScaleY((float)pData->VTextMargin);
-            rc.top += VMarginWidth;
+        if (pData->vert_text_margin) {
+            int vert_margin_width = AfxScaleY((float)pData->vert_text_margin);
+            rc.top += vert_margin_width;
         }
         SetWindowPos(pData->hTextBox, HWND_TOP,
             rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_SHOWWINDOW);
@@ -70,15 +70,15 @@ void CustomTextBox_OnSize(HWND hCtrl)
 void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData)
 {
     if (pData == nullptr) return;
-    if (pData->isNumeric == false) return;
-    if (pData->AllowFormatting == CustomTextBoxFormatting::Disallow) return;
+    if (pData->is_numeric == false) return;
+    if (pData->allow_formatting == CustomTextBoxFormatting::disallow) return;
 
-    if (pData->NumDecimals > 0) {
+    if (pData->decimal_count > 0) {
         static std::wstring DecimalSep = L".";
         static std::wstring ThousandSep = L",";
 
         static NUMBERFMTW num{};
-        num.NumDigits = pData->NumDecimals;
+        num.NumDigits = pData->decimal_count;
         num.LeadingZero = true;
         num.Grouping = 0;
         num.lpDecimalSep = (LPWSTR)DecimalSep.c_str();
@@ -114,13 +114,13 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         // Prevent the TAB character causing a BEEP. We handle TAB key navigation
         // ourselves in WM_KEYDOW. Likewise for ENTER ans ESCAPE key.
         if (wParam == VK_TAB) return 0;
-        if (pData->isNumeric && wParam == VK_RETURN) return 0;
+        if (pData->is_numeric && wParam == VK_RETURN) return 0;
         if (wParam == VK_ESCAPE) return 0;
 
         if (pData == nullptr) break;
 
         // Allow any character for non-numeric these TextBoxes
-        if (!pData->isNumeric) {
+        if (!pData->is_numeric) {
             PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
             break;
         }
@@ -135,19 +135,19 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         if (wParam >= 48 && wParam <= 57 || wParam == 46) {
             // If decimal places are allowed then only allow the digit
             // if room exists after the decimal point.
-            if (pData->NumDecimals == 0) {
+            if (pData->decimal_count == 0) {
                 if (wParam == 46) return 0;
             }
             
             int nPos = SendMessage(hWnd, EM_GETSEL, 0, 0);
-            int nStartPos = LOWORD(nPos);
-            int nEndPos = HIWORD(nPos);
+            int start_position = LOWORD(nPos);
+            int end_position = HIWORD(nPos);
 
             // Allow decimal (but only once), and digit if limit not reached
             std::wstring text = AfxGetWindowText(hWnd);
             // Remove any selected text that will be replaced
-            if (nStartPos != nEndPos) {   // we have selected text
-                text.erase(nStartPos, (nEndPos - nStartPos + 1));
+            if (start_position != end_position) {   // we have selected text
+                text.erase(start_position, (end_position - start_position + 1));
             }
 
             int nFoundAt = text.find(L".");
@@ -158,9 +158,9 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 }
                 else {
                     // Allow the digit is being entered before the decimal point
-                    if (nStartPos <= nFoundAt) break;
+                    if (start_position <= nFoundAt) break;
                     std::wstring wszFractional = text.substr(nFoundAt + 1);
-                    if (wszFractional.length() == pData->NumDecimals)
+                    if (wszFractional.length() == pData->decimal_count)
                         return 0;
                 }
             }
@@ -175,7 +175,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
         // Negative sign 
         if (wParam == 45) {
-            if (pData->AllowNegative == CustomTextBoxNegative::Disallow) return 0;
+            if (pData->allow_negative == CustomTextBoxNegative::disallow) return 0;
 
             // Only allow the negative sign for other textboxes if it is 
             // the first character (position 0)
@@ -299,12 +299,12 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_CTLCOLOREDIT:
     {
         HDC hdc = (HDC)wParam;
-        if (pData->hback_brush) DeleteBrush(pData->hback_brush);
-        pData->hback_brush = CreateSolidBrush(Color(pData->back_color).ToCOLORREF());
+        if (pData->back_brush) DeleteBrush(pData->back_brush);
+        pData->back_brush = CreateSolidBrush(Color(pData->back_color).ToCOLORREF());
         SetTextColor(hdc, Color(pData->text_color).ToCOLORREF());
         SetBkColor(hdc, Color(pData->back_color).ToCOLORREF());
         SetBkMode(hdc, OPAQUE);
-        return (LRESULT)pData->hback_brush;
+        return (LRESULT)pData->back_brush;
     }
     break;
 
@@ -390,7 +390,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
     case WM_NCDESTROY:
         if (pData) {
-            DeleteBrush(pData->hback_brush);
+            DeleteBrush(pData->back_brush);
             delete(pData);
         }
         break;
@@ -447,11 +447,11 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring text)
 // ========================================================================================
 // Set the user defined text data (wstring) for the custom control.
 // ========================================================================================
-void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData)
+void CustomTextBox_SetUserData(HWND hCtrl, std::wstring user_data)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->UserData = UserData;
+        pData->user_data = user_data;
         CustomTextBox_SetOptions(hCtrl, pData);
     }
 }
@@ -464,7 +464,7 @@ std::wstring CustomTextBox_GetUserData(HWND hCtrl)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        return pData->UserData;
+        return pData->user_data;
     }
     return L"";
 }
@@ -473,12 +473,12 @@ std::wstring CustomTextBox_GetUserData(HWND hCtrl)
 // ========================================================================================
 // Set the margins for the custom control (horizontal and vertical).
 // ========================================================================================
-void CustomTextBox_SetMargins(HWND hCtrl, int HTextMargin, int VTextMargin)
+void CustomTextBox_SetMargins(HWND hCtrl, int horiz_text_margin, int vert_text_margin)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->HTextMargin = HTextMargin;
-        pData->VTextMargin = VTextMargin;
+        pData->horiz_text_margin = horiz_text_margin;
+        pData->vert_text_margin = vert_text_margin;
         CustomTextBox_SetOptions(hCtrl, pData);
         CustomTextBox_OnSize(hCtrl);
         AfxRedrawWindow(hCtrl);
@@ -493,8 +493,8 @@ void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        if (pData->hback_brush) DeleteBrush(pData->hback_brush);
-        pData->hback_brush = CreateSolidBrush(back_color);
+        if (pData->back_brush) DeleteBrush(pData->back_brush);
+        pData->back_brush = CreateSolidBrush(back_color);
         pData->back_color = back_color;
         pData->text_color = text_color;
         CustomTextBox_SetOptions(hCtrl, pData);
@@ -525,14 +525,14 @@ void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size)
 // Set the numeric attributes for the custom control.
 // ========================================================================================
 void CustomTextBox_SetNumericAttributes(
-    HWND hCtrl, int NumDecimals, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting)
+    HWND hCtrl, int decimal_count, CustomTextBoxNegative AllowNegative, CustomTextBoxFormatting AllowFormatting)
 {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData != nullptr) {
-        pData->isNumeric = true;
-        pData->NumDecimals = NumDecimals;
-        pData->AllowNegative = AllowNegative;
-        pData->AllowFormatting = AllowFormatting;
+        pData->is_numeric = true;
+        pData->decimal_count = decimal_count;
+        pData->allow_negative = AllowNegative;
+        pData->allow_formatting = AllowFormatting;
         CustomTextBox_FormatDisplayDecimalPlaces(pData);
         CustomTextBox_SetOptions(hCtrl, pData);
     }
@@ -595,12 +595,12 @@ HWND CreateCustomTextBox(
         pData->font_name = L"Segoe UI";
         pData->font_size = 9;
         pData->back_color = COLOR_GRAYDARK;
-        pData->hback_brush = CreateSolidBrush(pData->back_color);
+        pData->back_brush = CreateSolidBrush(pData->back_color);
         pData->text_color = COLOR_WHITELIGHT;
-        pData->HTextMargin = 0;
-        pData->VTextMargin = 0;
-        pData->Alignment = Alignment;
-        pData->isMultiLine = isMultiLine;
+        pData->horiz_text_margin = 0;
+        pData->vert_text_margin = 0;
+        pData->alignment = Alignment;
+        pData->is_multiline = isMultiLine;
 
         // Create the child embedded TextBox control
         pData->hTextBox =

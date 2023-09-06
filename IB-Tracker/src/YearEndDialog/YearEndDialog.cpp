@@ -155,7 +155,7 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomTextBox(hwnd, IDC_YEARENDDIALOG_TXTDATE, false, ES_CENTER, text, 335, 110, 50, 23);
     CustomTextBox_SetMargins(hCtl, 0, 3);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Disallow);
+    CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::disallow);
 
     // PROCESS button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_YEARENDDIALOG_PROCESS, L"PROCESS",

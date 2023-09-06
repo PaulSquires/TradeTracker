@@ -105,7 +105,7 @@ bool SaveDatabase()
     db << idMagic << "|" << version << "\n"
         << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
         << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
-        << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|put_call|action|underlying\n"
+        << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|PutCall|action|underlying\n"
         << "// isOpen:        0:FALSE, 1:TRUE\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
         << "// Category:      0,1,2,3,4 (integer value)\n"
@@ -145,7 +145,7 @@ bool SaveDatabase()
                     << leg->open_quantity << "|"
                     << AfxRemoveDateHyphens(leg->expiry_date) << "|"
                     << leg->strike_price << "|"
-                    << leg->put_call << "|"
+                    << leg->PutCall << "|"
                     << ActionToNumber(leg->action) << "|"
                     << UnderlyingToNumber(leg->underlying)
                     << "\n";
@@ -257,8 +257,8 @@ bool LoadDatabase()
 
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
-            std::wstring wszDate = try_catch_wstring(st, 1);
-            trans->trans_date = AfxInsertDateHyphens(wszDate);
+            std::wstring date_text = try_catch_wstring(st, 1);
+            trans->trans_date = AfxInsertDateHyphens(date_text);
             trans->description = try_catch_wstring(st, 2);
             trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
             trans->quantity = try_catch_int(st, 4);
@@ -268,9 +268,9 @@ bool LoadDatabase()
             trans->total = try_catch_double(st, 8);
             if (trade != nullptr) {
                 // Determine earliest and latest dates for BP ROI calculation.
-                if (AfxValDouble(wszDate) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = wszDate;
-                if (AfxValDouble(wszDate) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszDate;
-                if (AfxValDouble(wszDate) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = wszDate;
+                if (AfxValDouble(date_text) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = date_text;
+                if (AfxValDouble(date_text) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = date_text;
+                if (AfxValDouble(date_text) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = date_text;
                 trade->transactions.push_back(trans);
             }
             continue;
@@ -285,7 +285,7 @@ bool LoadDatabase()
             std::wstring wszexpiry_date = try_catch_wstring(st, 5);
             leg->expiry_date = AfxInsertDateHyphens(wszexpiry_date);
             leg->strike_price = try_catch_wstring(st, 6);
-            leg->put_call = try_catch_wstring(st, 7); 
+            leg->PutCall = try_catch_wstring(st, 7); 
             leg->action = NumberToAction(try_catch_int(st, 8));
             leg->underlying = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr) {

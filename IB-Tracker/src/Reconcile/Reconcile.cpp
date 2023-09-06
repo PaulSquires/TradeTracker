@@ -43,7 +43,7 @@ HWND HWND_RECONCILE = NULL;
 
 CReconcile Reconcile;
 
-std::wstring ResultsText;
+std::wstring results_text;
 
 
 // ========================================================================================
@@ -59,11 +59,11 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	positionStruct p{};
 	p.contract_id   = contract.conId;
 	p.open_quantity = (int)intelDecimalToDouble(position);
-	p.tickerSymbol = ansi2unicode(contract.symbol);
+	p.ticker_symbol = ansi2unicode(contract.symbol);
 	p.underlying   = ansi2unicode(contract.secType);
 	p.expiry_date   = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
 	p.strike_price  = contract.strike;
-	p.put_call      = ansi2unicode(contract.right);
+	p.PutCall      = ansi2unicode(contract.right);
 	IBKRPositions.push_back(p);
 }
 
@@ -79,9 +79,9 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 		ibkr.underlying == L"FOP") {
 		if (ibkr.strike_price == local.strike_price &&
 			ibkr.open_quantity == local.open_quantity &&
-			ibkr.tickerSymbol == local.tickerSymbol &&
+			ibkr.ticker_symbol == local.ticker_symbol &&
 			ibkr.expiry_date == local.expiry_date &&
-			ibkr.put_call == local.put_call &&
+			ibkr.PutCall == local.PutCall &&
 			ibkr.underlying == local.underlying) {
 			equal = true;
 		}
@@ -89,7 +89,7 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 	if (ibkr.underlying == L"STK" ||
 		ibkr.underlying == L"FUT") {
 		if (ibkr.open_quantity == local.open_quantity &&
-			ibkr.tickerSymbol == local.tickerSymbol &&
+			ibkr.ticker_symbol == local.ticker_symbol &&
 			ibkr.underlying == local.underlying) {
 			equal = true;
 		}
@@ -111,7 +111,7 @@ void Reconcile_positionEnd()
 		for (const auto& leg : trade->open_legs) {
 			positionStruct p{};
 			p.open_quantity = leg->open_quantity;
-			p.tickerSymbol = trade->ticker_symbol;
+			p.ticker_symbol = trade->ticker_symbol;
 
 			if (leg->underlying == L"FUTURES") p.underlying = L"FUT";
 			if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
@@ -119,11 +119,11 @@ void Reconcile_positionEnd()
 
 			p.strike_price = AfxValDouble(leg->strike_price);
 			p.expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
-			p.put_call = leg->put_call;
+			p.PutCall = leg->PutCall;
 
 			// Check if the ticker is a future
-			if (IsFuturesTicker(p.tickerSymbol)) {
-				p.tickerSymbol = trade->ticker_symbol.substr(1);
+			if (IsFuturesTicker(p.ticker_symbol)) {
+				p.ticker_symbol = trade->ticker_symbol.substr(1);
 				if (p.underlying == L"OPT") p.underlying = L"FOP";
 			}
 
@@ -136,9 +136,9 @@ void Reconcile_positionEnd()
 				if (p.underlying == L"OPT" ||
 					p.underlying == L"FOP") {
 					if (p.strike_price  == local.strike_price &&
-						p.tickerSymbol == local.tickerSymbol &&
+						p.ticker_symbol == local.ticker_symbol &&
 						p.expiry_date   == local.expiry_date &&
-						p.put_call      == local.put_call) {
+						p.PutCall      == local.PutCall) {
 						found = true;
 						local.open_quantity += p.open_quantity;
 						local.legs.push_back(leg);
@@ -147,7 +147,7 @@ void Reconcile_positionEnd()
 				}
 				if (p.underlying == L"STK" ||
 					p.underlying == L"FUT") {
-					if (p.tickerSymbol == local.tickerSymbol &&
+					if (p.ticker_symbol == local.ticker_symbol &&
 						p.underlying   == local.underlying) {
 						found = true;
 						local.open_quantity += p.open_quantity;
@@ -169,7 +169,7 @@ void Reconcile_positionEnd()
 	std::wstring text = L"";
 
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.
-	ResultsText = L"IBKR that do not exist in Local:\r\n";
+	results_text = L"IBKR that do not exist in Local:\r\n";
 
 	for (const auto& ibkr : IBKRPositions) {
 		if (ibkr.open_quantity == 0) continue;
@@ -187,20 +187,20 @@ void Reconcile_positionEnd()
 		}
 		if (!found) {
 			text += L"   " + std::to_wstring(ibkr.open_quantity) + L" " +
-				ibkr.tickerSymbol + L" " + ibkr.underlying;
+				ibkr.ticker_symbol + L" " + ibkr.underlying;
 			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
-				text += L" " + ibkr.expiry_date + L" " + std::to_wstring(ibkr.strike_price) + L" " + ibkr.put_call;
+				text += L" " + ibkr.expiry_date + L" " + std::to_wstring(ibkr.strike_price) + L" " + ibkr.PutCall;
 			}
 			text += L"\r\n";
 		}
 	}
 	if (text.length() == 0) text = L"** Everything matches correctly **";
-	ResultsText += text;
+	results_text += text;
 
-	ResultsText += L"\r\n\r\n";   // blank lines
+	results_text += L"\r\n\r\n";   // blank lines
 
 	// (2) Determine what Local positions do not exist in the IBKR "real" database.
-	ResultsText += L"Local that do not exist in IBKR:\r\n";
+	results_text += L"Local that do not exist in IBKR:\r\n";
 	text = L"";
 	for (const auto& local : local_positions) {
 		bool found = false;
@@ -211,16 +211,16 @@ void Reconcile_positionEnd()
 		if (!found) {
 			if (local.open_quantity != 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
 				text += L"   " + std::to_wstring(local.open_quantity) + L" " +
-					local.tickerSymbol + L" " + local.underlying;
+					local.ticker_symbol + L" " + local.underlying;
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
-					text += L" " + local.expiry_date + L" " + std::to_wstring(local.strike_price) + L" " + local.put_call;
+					text += L" " + local.expiry_date + L" " + std::to_wstring(local.strike_price) + L" " + local.PutCall;
 				}
 				text += L"\r\n";
 			}
 		}
 	}
 	if (text.length() == 0) text = L"** Everything matches correctly **";
-	ResultsText += text;
+	results_text += text;
 
 	// Clear the vectors in case we run reconcile again
 	local_positions.clear();
@@ -296,7 +296,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case MSG_RECONCILIATION_READY:
 	{
-		AfxSetWindowText(GetDlgItem(m_hwnd, IDC_RECONCILE_TEXTBOX), ResultsText.c_str());
+		AfxSetWindowText(GetDlgItem(m_hwnd, IDC_RECONCILE_TEXTBOX), results_text.c_str());
 		return 0;
 	}
 
@@ -359,7 +359,7 @@ void Reconcile_Show()
 		}
 	}
 
-	ResultsText = L"";
+	results_text = L"";
 
 	DeleteFont(hFont);
 

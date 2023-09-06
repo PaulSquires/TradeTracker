@@ -78,77 +78,77 @@ public:
 	HINSTANCE hInst = NULL;
 	HWND hToolTip = NULL;
 	std::wstring tooltip_text{};
-	std::wstring UserData{};
-	int UserDataInt = 0;
-	bool AllowTabStop = false;
+	std::wstring user_data{};
+	int user_data_int = 0;
+	bool allow_tab_stop = false;
 
 	int CtrlId = 0;
 	CustomLabelType CtrlType = CustomLabelType::TextOnly;
-	bool HotTestEnable = false;
+	bool hot_test_enable = false;
 	DWORD back_color{};
 	DWORD back_color_hot{};
 	DWORD back_color_button_down{};
 	bool LButtonDown = false;
 
 	// Selection
-	bool AllowSelect = false;
-	bool IsSelected = false;
-	bool AllowNotch = false;
-	DWORD SelectorColor{};
+	bool allow_select = false;
+	bool is_selected = false;
+	bool allow_notch = false;
+	DWORD selector_color{};
 	DWORD back_color_selected{};
 
 	// Lines
-	REAL LineWidth = 1;
-	DWORD LineColor{};
-	DWORD LineColorHot{};
+	REAL line_width = 1;
+	DWORD line_color{};
+	DWORD line_color_hot{};
 
 	// Margins
-	int MarginLeft = 0;
-	int MarginTop = 0;
-	int MarginBottom = 0;
-	int MarginRight = 0;
+	int margin_left = 0;
+	int margin_top = 0;
+	int margin_bottom = 0;
+	int margin_right = 0;
 
 	// Border
-	bool BorderVisible = false;
-	REAL BorderWidth = 0;
-	DWORD BorderColor{};
-	DWORD BorderColorHot{};
-	int BorderRoundWidth = 0;
-	int BorderRoundHeight = 0;
+	bool border_visible = false;
+	REAL border_width = 0;
+	DWORD border_color{};
+	DWORD border_color_hot{};
+	int border_round_width = 0;
+	int border_round_height = 0;
 
 	// Images
 	Bitmap* pImage = nullptr;
 	Bitmap* pImageHot = nullptr;
-	int ImageWidth = 0;
-	int ImageHeight = 0;
-	int ImageOffsetLeft = 0;
-	int ImageOffsetTop = 0;
+	int image_width = 0;
+	int image_height = 0;
+	int image_offset_left = 0;
+	int image_offset_top = 0;
 
 	// Text General
-	CustomLabelAlignment TextAlignment = CustomLabelAlignment::MiddleCenter;
-	int TextOffsetLeft = 0;
-	int TextOffsetTop = 0;
-	int TextCharacterExtra = 0;
+	CustomLabelAlignment text_alignment = CustomLabelAlignment::MiddleCenter;
+	int text_offset_left = 0;
+	int text_offset_top = 0;
+	int text_character_extra = 0;
 
 	// Text Normal
 	std::wstring text{};
 	std::wstring font_name{};
 	REAL font_size = 0;
-	bool FontBold = false;
-	bool FontItalic = false;
-	bool FontUnderline = false;
+	bool font_bold = false;
+	bool font_italic = false;
+	bool font_underline = false;
 	DWORD text_color{};
-	CustomLabelPointer Pointer = CustomLabelPointer::Arrow;
+	CustomLabelPointer pointer = CustomLabelPointer::Arrow;
 
 	// Text Hot
-	std::wstring textHot{};
-	std::wstring font_nameHot{};
-	REAL font_sizeHot = 0;
-	bool FontBoldHot = false;
-	bool FontItalicHot = false;
-	bool FontUnderlineHot = false;
-	DWORD text_colorHot{};
-	CustomLabelPointer PointerHot = CustomLabelPointer::Hand;
+	std::wstring text_hot{};
+	std::wstring font_name_hot{};
+	REAL font_size_hot = 0;
+	bool font_bold_hot = false;
+	bool font_italic_hot = false;
+	bool font_underline_hot = false;
+	DWORD text_color_hot{};
+	CustomLabelPointer pointer_hot = CustomLabelPointer::Hand;
 
 	void SetTextAlignment(StringFormat* stringF);
 	void StartDoubleBuffering(HDC hdc);
@@ -195,8 +195,8 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
 
 	
 HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
-	std::wstring wszImage, std::wstring wszImageHot,
-	int ImageWidth, int ImageHeight,
+	std::wstring image, std::wstring image_hot,
+	int image_width, int image_height,
 	int nLeft, int nTop, int nWidth, int nHeight);
 
 HWND CreateCustomLabel(HWND hWndParent, LONG_PTR CtrlId, CustomLabelType nCtrlType,

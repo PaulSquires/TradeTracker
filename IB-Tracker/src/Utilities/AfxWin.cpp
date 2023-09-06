@@ -617,13 +617,13 @@ int AfxDaysInMonth(int nMonth, int nYear)
 // ========================================================================================
 // Return the days in month from an ISO specified date.
 // ========================================================================================
-int AfxDaysInMonthISODate(const std::wstring& wszDate)
+int AfxDaysInMonthISODate(const std::wstring& date_text)
 {
     // YYYY-MM-DD
     // 0123456789
-    if (wszDate.length() != 10) return 0;
-    int nYear = std::stoi(wszDate.substr(0, 4));
-    int nMonth = std::stoi(wszDate.substr(5, 2));
+    if (date_text.length() != 10) return 0;
+    int nYear = std::stoi(date_text.substr(0, 4));
+    int nMonth = std::stoi(date_text.substr(5, 2));
     return AfxDaysInMonth(nMonth, nYear);
 }
 
@@ -631,18 +631,18 @@ int AfxDaysInMonthISODate(const std::wstring& wszDate)
 // ========================================================================================
 // Adds the specified number of days to the incoming date and returns the new date.
 // ========================================================================================
-std::wstring AfxDateAddDays(const std::wstring& wszDate, int numDaysToAdd)
+std::wstring AfxDateAddDays(const std::wstring& date_text, int numDaysToAdd)
 {
     // YYYY-MM-DD
     // 0123456789
-    if (wszDate.length() != 10) return L"";
+    if (date_text.length() != 10) return L"";
 
     SYSTEMTIME st = { 0 };
     FILETIME ft = { 0 };
 
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     SystemTimeToFileTime(&st, &ft);
 
@@ -729,36 +729,36 @@ std::wstring AfxCurrentDate()
 // ========================================================================================
 // Returns the year from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetYear(const std::wstring& wszDate)
+int AfxGetYear(const std::wstring& date_text)
 {
     // YYYY-MM-DD
     // 0123456789
-    if (wszDate.length() != 10) return 0;
-    return std::stoi(wszDate.substr(0, 4));
+    if (date_text.length() != 10) return 0;
+    return std::stoi(date_text.substr(0, 4));
 }
 
 
 // ========================================================================================
 // Returns the month from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetMonth(const std::wstring& wszDate)
+int AfxGetMonth(const std::wstring& date_text)
 {
     // YYYY-MM-DD
     // 0123456789
-    if (wszDate.length() != 10) return 0;
-    return std::stoi(wszDate.substr(5, 2));
+    if (date_text.length() != 10) return 0;
+    return std::stoi(date_text.substr(5, 2));
 }
 
 
 // ========================================================================================
 // Returns the day from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetDay(const std::wstring& wszDate)
+int AfxGetDay(const std::wstring& date_text)
 {
     // YYYY-MM-DD
     // 0123456789
-    if (wszDate.length() != 10) return 0;
-    return std::stoi(wszDate.substr(8, 2));
+    if (date_text.length() != 10) return 0;
+    return std::stoi(date_text.substr(8, 2));
 }
 
 
@@ -810,18 +810,18 @@ int AfxLocalDayOfWeek()
 // ========================================================================================
 // Returns the UNIX (Epoch) time given the incoming ISO date (YYYY-MM-DD).
 // ========================================================================================
-unsigned int AfxUnixTime(const std::wstring& wszDate)
+unsigned int AfxUnixTime(const std::wstring& date_text)
 {
     // YYYY-MM-DD
     // 0123456789
-    if (wszDate.length() != 10) return 0;
+    if (date_text.length() != 10) return 0;
 
     SYSTEMTIME st = { 0 };
     FILETIME ft = { 0 };
 
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     SystemTimeToFileTime(&st, &ft);
 
@@ -836,13 +836,13 @@ unsigned int AfxUnixTime(const std::wstring& wszDate)
 // Returns the Futures Contract date MMMDD from a date in ISO format (YYYY-MM-DD)
 // This is used for display purposes on the Trade Management screen.
 // ========================================================================================
-std::wstring AfxFormatFuturesDate(const std::wstring& wszDate)
+std::wstring AfxFormatFuturesDate(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
     SYSTEMTIME st{};
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
@@ -855,11 +855,11 @@ std::wstring AfxFormatFuturesDate(const std::wstring& wszDate)
 // Returns the Futures Contract date YYYYMM from a date in ISO format (YYYY-MM-DD)
 // This is used for retrieveing market data. (uses ansi strings rather than unicode).
 // ========================================================================================
-std::string AfxFormatFuturesDateMarketData(const std::wstring& wszDate)
+std::string AfxFormatFuturesDateMarketData(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return "";
+    if (date_text.length() == 0) return "";
     // Date enters as YYYY-MM-DD so we simply need to remove the hyphens    
-    std::string newDate = unicode2ansi(wszDate);
+    std::string newDate = unicode2ansi(date_text);
     newDate.erase(remove(newDate.begin(), newDate.end(), '-'), newDate.end());
     return newDate;  //YYYYMMDD
 }
@@ -868,16 +868,16 @@ std::string AfxFormatFuturesDateMarketData(const std::wstring& wszDate)
 // ========================================================================================
 // Returns the short format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetShortDayName(const std::wstring& wszDate)
+std::wstring AfxGetShortDayName(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
 
     SYSTEMTIME st;
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"ddd", (LPWSTR)buffer.c_str(), 260);
@@ -888,16 +888,16 @@ std::wstring AfxGetShortDayName(const std::wstring& wszDate)
 // ========================================================================================
 // Returns the long format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetLongDayName(const std::wstring& wszDate)
+std::wstring AfxGetLongDayName(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
 
     SYSTEMTIME st;
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"dddd", (LPWSTR)buffer.c_str(), 260);
@@ -908,16 +908,16 @@ std::wstring AfxGetLongDayName(const std::wstring& wszDate)
 // ========================================================================================
 // Returns the short format month based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetShortMonthName(const std::wstring& wszDate)
+std::wstring AfxGetShortMonthName(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
 
     SYSTEMTIME st;
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM", (LPWSTR)buffer.c_str(), 260);
@@ -928,16 +928,16 @@ std::wstring AfxGetShortMonthName(const std::wstring& wszDate)
 // ========================================================================================
 // Returns the long format month based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetLongMonthName(const std::wstring& wszDate)
+std::wstring AfxGetLongMonthName(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
 
     SYSTEMTIME st;
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMM", (LPWSTR)buffer.c_str(), 260);
@@ -949,14 +949,14 @@ std::wstring AfxGetLongMonthName(const std::wstring& wszDate)
 // Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
 // We use this when dealing with Option expiration dates to display.
 // ========================================================================================
-std::wstring AfxShortDate(const std::wstring& wszDate)
+std::wstring AfxShortDate(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd", (LPWSTR)buffer.c_str(), 260);
@@ -967,14 +967,14 @@ std::wstring AfxShortDate(const std::wstring& wszDate)
 // ========================================================================================
 // Returns the long date MMM DD, yyyy from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxLongDate(const std::wstring& wszDate)
+std::wstring AfxLongDate(const std::wstring& date_text)
 {
-    if (wszDate.length() == 0) return L"";
+    if (date_text.length() == 0) return L"";
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(wszDate.substr(0, 4));
-    st.wMonth = std::stoi(wszDate.substr(5, 2));
-    st.wDay = std::stoi(wszDate.substr(8, 2));
+    st.wYear = std::stoi(date_text.substr(0, 4));
+    st.wMonth = std::stoi(date_text.substr(5, 2));
+    st.wDay = std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd, yyyy", (LPWSTR)buffer.c_str(), 260);

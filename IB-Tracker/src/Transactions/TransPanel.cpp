@@ -477,7 +477,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
-        if (pData->bDragActive) {
+        if (pData->drag_active) {
             bshow_scrollbar = true;
         }
         else {
@@ -797,16 +797,16 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_TRANS_CMDSTARTDATE || CtrlId == IDC_TRANS_STARTDATE) {
             // Clicked on the Start Date dropdown or label itself
-            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE));
+            std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE));
             Calendar_CreateDatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE), wszDate, CalendarPickerReturnType::LongDate, 1);
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE), date_text, CalendarPickerReturnType::long_date, 1);
         }
 
         if (CtrlId == IDC_TRANS_CMDENDDATE || CtrlId == IDC_TRANS_ENDDATE) {
             // Clicked on the End Date dropdown or label itself
-            std::wstring wszDate = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE));
+            std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE));
             Calendar_CreateDatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE), wszDate, CalendarPickerReturnType::LongDate, 1);
+                m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE), date_text, CalendarPickerReturnType::long_date, 1);
         }
 
         return 0;

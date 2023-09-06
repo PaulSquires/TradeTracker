@@ -210,7 +210,7 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGrid, row, 4, leg->strike_price);
 
         // PUT/CALL
-        TradeGrid_SetColData(hGrid, row, 5, leg->put_call);
+        TradeGrid_SetColData(hGrid, row, 5, leg->PutCall);
 
         // ACTION
         TradeGrid_SetColData(hGrid, row, 6, leg->action);
@@ -307,7 +307,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
         CustomLabel_SetText(hCtl, L"");
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -325,7 +325,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
         CustomLabel_SetText(hCtl, L"");
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -343,7 +343,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
         CustomLabel_SetText(hCtl, L"");
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -362,9 +362,9 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
-        CustomLabel_SetUserDataInt(hCtl, (int)put_call::Put);
-        text = AfxUpper(StrategyButton_Getput_callEnumText(put_call::Put));
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
+        text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
         CustomLabel_SetText(hCtl, text);
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -383,9 +383,9 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_put_call);
-        CustomLabel_SetUserDataInt(hCtl, (int)put_call::Call);
-        text = AfxUpper(StrategyButton_Getput_callEnumText(put_call::Call));
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Call);
+        text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Call));
         CustomLabel_SetText(hCtl, text);
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -429,7 +429,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGridMain, row, 3, leg->strike_price);
 
         // PUT/CALL
-        TradeGrid_SetColData(hGridMain, row, 4, leg->put_call);
+        TradeGrid_SetColData(hGridMain, row, 4, leg->PutCall);
 
         // ACTION
         if (leg->action == L"STO") { text = L"BTC"; }
@@ -471,7 +471,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             TradeGrid_SetColData(hGridRoll, row, 3, leg->strike_price);
 
             // PUT/CALL
-            TradeGrid_SetColData(hGridRoll, row, 4, leg->put_call);
+            TradeGrid_SetColData(hGridRoll, row, 4, leg->PutCall);
 
             // ACTION
             TradeGrid_SetColData(hGridRoll, row, 5, leg->action);
@@ -595,8 +595,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         pData->back_color_button_down = COLOR_GRAYDARK;
         pData->text_color = COLOR_WHITELIGHT;
         pData->font_size = 12;
-        pData->FontBold = true;
-        pData->TextAlignment = CustomLabelAlignment::TopRight;
+        pData->font_bold = true;
+        pData->text_alignment = CustomLabelAlignment::TopRight;
         CustomLabel_SetOptions(hCtl, pData);
     }
 
@@ -635,7 +635,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             pData->back_color_button_down = COLOR_GRAYDARK;
             pData->text_color = COLOR_WHITELIGHT;
             pData->font_size = 12;
-            pData->TextAlignment = CustomLabelAlignment::TopLeft;
+            pData->text_alignment = CustomLabelAlignment::TopLeft;
             pData->text = L"";
             CustomLabel_SetOptions(hCtl, pData);
         }
@@ -649,7 +649,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
             pData->back_color_button_down = COLOR_GRAYDARK;
             pData->text_color = COLOR_WHITEDARK;
             pData->font_size = 10;
-            pData->TextAlignment = CustomLabelAlignment::TopLeft;
+            pData->text_alignment = CustomLabelAlignment::TopLeft;
             pData->text = L"";
             CustomLabel_SetOptions(hCtl, pData);
         }
@@ -702,11 +702,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Date", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::MiddleLeft, 40, 72, 100, 22);
-    std::wstring wszDate = AfxCurrentDate();
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(wszDate), COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
+    std::wstring date_text = AfxCurrentDate();
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE, AfxLongDate(date_text), COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::MiddleLeft, 40, 97, 86, 23);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
-    CustomLabel_SetUserData(hCtl, wszDate);
+    CustomLabel_SetUserData(hCtl, date_text);
 
     CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CMDTRANSDATE, GLYPH_DROPDOWN,
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
@@ -829,7 +829,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"0", 40, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
     if (tdd.tradeAction == TradeAction::ManageShares ||
         tdd.tradeAction == TradeAction::ManageFutures) {
         // If the aggregate shares are negative then toggle the sell to buy in order to close the trade
@@ -844,7 +844,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"0", 130, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
 
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Multiplier", COLOR_WHITEDARK, COLOR_GRAYDARK,
@@ -853,7 +853,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"100.0000", 220, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
     if (tdd.tradeAction == TradeAction::NewSharesTrade ||
         tdd.tradeAction == TradeAction::NewFuturesTrade ||
         tdd.tradeAction == TradeAction::ManageShares ||
@@ -870,7 +870,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"0", 310, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
 
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Total", COLOR_WHITEDARK, COLOR_GRAYDARK,
@@ -879,7 +879,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"0", 400, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Disallow, CustomTextBoxFormatting::Allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
 
 
     std::wstring font_name = L"Segoe UI";
@@ -908,7 +908,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"0", 580, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::Allow, CustomTextBoxFormatting::Allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::allow, CustomTextBoxFormatting::allow);
 
     if (tdd.tradeAction == TradeAction::NewSharesTrade ||
         tdd.tradeAction == TradeAction::ManageShares ||
