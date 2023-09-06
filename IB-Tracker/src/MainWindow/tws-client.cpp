@@ -168,7 +168,7 @@ void UpdateTickersWithScrapedData()
 		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 		if (ld == nullptr) continue;
 
-		if ((ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
+		if ((ld->trade != nullptr) && (ld->line_type == LineType::ticker_line)) {
 
 			if (ld->trade->ticker_last_price == 0 && ld->trade->ticker_close_price == 0) {
 
@@ -224,7 +224,7 @@ void UpdateTickersWithScrapedData()
 
 	// Do calculation to ensure column widths are wide enough to accommodate the new
 	// price data that has just arrived.
-	if (ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1)) {
+	if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1)) {
 		AfxRedrawWindow(hListBox);
 	}
 
@@ -659,9 +659,9 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 			if (ld == nullptr) continue;
 
-			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
+			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->line_type == LineType::ticker_line)) {
 				ld->SetTextData(COLUMN_TICKER_CHANGE, L"HALTED", COLOR_RED);
-				if (ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1)) {
+				if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1)) {
 					AfxRedrawWindow(hListBox);
 				}
 				break;
@@ -708,7 +708,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 			if (ld == (void*)-1) continue;
 			if (ld == nullptr) continue;
 
-			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->lineType == LineType::TickerLine)) {
+			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->line_type == LineType::ticker_line)) {
 
 				if (field == LAST) {
 					ld->trade->ticker_last_price = price;
@@ -778,7 +778,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 		// Do calculation to ensure column widths are wide enough to accommodate the new
 		// price data that has just arrived.
-		if (ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1) == true) {
+		if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1) == true) {
 			AfxRedrawWindow(hListBox);
 		}
 
@@ -814,7 +814,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 		if (ld == (void*)-1) continue;
 		if (ld == nullptr) continue;
 
-		if (ld->lineType == LineType::TickerLine) index_trade = index;
+		if (ld->line_type == LineType::ticker_line) index_trade = index;
 		if (ld->leg == nullptr) continue;
 
 
@@ -884,7 +884,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 		}
 	}
 
-	if (ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1) == true) {
+	if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1) == true) {
 		AfxRedrawWindow(hListBox);
 	}
 

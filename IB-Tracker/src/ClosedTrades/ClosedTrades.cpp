@@ -203,7 +203,7 @@ void ClosedTrades_ShowClosedTrades()
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::ClosedTrades, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::closed_trades, -1);
 
 
     // Set the label text indicated the type of trades being listed

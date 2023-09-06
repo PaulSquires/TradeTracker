@@ -178,7 +178,7 @@ void ActiveTrades_ShowActiveTrades()
         // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
         // This function is also called when receiving new price data from TWS because
         // that data may need the column width to be wider.
-        ListBoxData_ResizeColumnWidths(hListBox, TableType::ActiveTrades, -1);
+        ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1);
 
 
         // Redraw the ListBox to ensure that any recalculated columns are 
@@ -244,11 +244,11 @@ bool ActiveTrades_SelectListBoxItem(HWND hListBox, int idx)
 
     // Check to see if other lines in the listbox are selected. We will deselect those other
     // lines if they do not belong to the current trade being selected.
-    // If the line being clicked on is the main header line for the trade (LineType::TickerLine)
+    // If the line being clicked on is the main header line for the trade (LineType::ticker_line)
     // then we deselected everything else including legs of this same trade. We do this
     // because there are different popup menu actions applicable to the main header line
     // and/or the individual trade legs.
-    LineType current_selected_line_type = ld->lineType;
+    LineType current_selected_line_type = ld->line_type;
 
     int nCount = ListBox_GetSelCount(hListBox);
 
@@ -266,7 +266,7 @@ bool ActiveTrades_SelectListBoxItem(HWND hListBox, int idx)
                 else {
                     // If selecting items within the same Trade then do not allow
                     // mixing selections of the header line and individual legs.
-                    if (current_selected_line_type != ld->lineType) {
+                    if (current_selected_line_type != ld->line_type) {
                         ListBox_SetSel(hListBox, false, selItems[i]);
                     }
                 }
@@ -693,12 +693,12 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
     trade = ld->trade;
     tdd.trade = ld->trade;
     tdd.trans = ld->trans;
-    tdd.shares_aggregate_edit = ld->AggregateShares;
+    tdd.shares_aggregate_edit = ld->aggregate_shares;
 
     if (nCount == 1) {
         // Is this the Trade header line
         if (ld != nullptr) {
-            if (ld->lineType == LineType::TickerLine) {
+            if (ld->line_type == LineType::ticker_line) {
                 IsTickerLine = true;
             }
         }
@@ -708,7 +708,7 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
     }
 
 
-    if (ld->lineType == LineType::OptionsLeg) {
+    if (ld->line_type == LineType::options_leg) {
         text = L"Roll Leg" + plural_text;
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::roll_leg, text.c_str());
 
@@ -726,13 +726,13 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
     }
 
 
-    if (ld->lineType == LineType::Shares) {
+    if (ld->line_type == LineType::shares) {
         text = L"Manage Shares";
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::manage_shares, text.c_str());
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
     }
 
-    if (ld->lineType == LineType::Futures) {
+    if (ld->line_type == LineType::futures) {
         text = L"Manage Futures";
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::manage_futures, text.c_str());
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");

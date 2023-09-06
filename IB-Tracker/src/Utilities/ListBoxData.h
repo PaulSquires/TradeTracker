@@ -51,27 +51,27 @@ public:
     std::wstring        text;
     StringAlignment     HAlignment = StringAlignmentNear;  
     StringAlignment     VAlignment = StringAlignmentCenter;
-    DWORD               backTheme = COLOR_GRAYDARK;
-    DWORD               textTheme = COLOR_WHITELIGHT;;
-    REAL                fontSize = 8;                    // 8, 10
-    int                 fontStyle = FontStyleRegular;    // FontStyleRegular, FontStyleBold
-    int                 colWidth = 0;
+    DWORD               back_theme = COLOR_GRAYDARK;
+    DWORD               text_theme = COLOR_WHITELIGHT;;
+    REAL                font_size = 8;                    // 8, 10
+    int                 font_style = FontStyleRegular;    // FontStyleRegular, FontStyleBold
+    int                 column_width = 0;
 };
 
 enum class LineType {
-    None,
-    TickerLine,
-    OptionsLeg,
-    Shares,
-    Futures,
-    TransactionHeader,
-    CategoryHeader
+    none,
+    ticker_line,
+    options_leg,
+    shares,
+    futures,
+    transaction_header,
+    category_header
 };
 
 class ListBoxData {
 public:
-    LineType        lineType = LineType::None;
-    std::wstring    AggregateShares;
+    LineType        line_type = LineType::none;
+    std::wstring    aggregate_shares;
     TickerId        tickerId = -1;
     std::shared_ptr<Trade> trade = nullptr;
     std::shared_ptr<Transaction> trans = nullptr;
@@ -82,18 +82,18 @@ public:
     void SetData(
         int index, std::shared_ptr<Trade> tradeptr, TickerId tickId,
         std::wstring text, StringAlignment HAlignment, StringAlignment VAlignment, 
-        DWORD backTheme, DWORD textTheme, REAL fontSize, int fontStyle)
+        DWORD back_theme, DWORD text_theme, REAL font_size, int font_style)
     {
-        if (tickId != -1) lineType = LineType::TickerLine;
+        if (tickId != -1) line_type = LineType::ticker_line;
         tickerId = tickId;
         trade = tradeptr;
         col[index].text = text;
         col[index].HAlignment = HAlignment;
         col[index].VAlignment = VAlignment;
-        col[index].backTheme = backTheme;
-        col[index].textTheme = textTheme;
-        col[index].fontSize = fontSize;
-        col[index].fontStyle = fontStyle;
+        col[index].back_theme = back_theme;
+        col[index].text_theme = text_theme;
+        col[index].font_size = font_size;
+        col[index].font_style = font_style;
     }
 
     // Update Text & color only. This is called from tws-client when TWS
@@ -101,7 +101,7 @@ public:
     void SetTextData(int index, std::wstring text, DWORD textTheme)
     {
         col[index].text = text;
-        col[index].textTheme = textTheme;
+        col[index].text_theme = textTheme;
     }
 
 };
@@ -109,19 +109,19 @@ public:
 
 enum class TableType
 {
-    ActiveTrades,
-    ClosedTrades,
-    TradeHistory,
-    TickerTotals,
-    TradeTemplates,
-    TradeManagement,
-    TransPanel
+    active_trades,
+    closed_trades,
+    trade_history,
+    ticker_totals,
+    trade_templates,
+    trade_management,
+    trans_panel
 };
 
 extern bool previous_market_data_loaded;
 
 DWORD GetCategoryColor(int category);
-bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int index);
+bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int index);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
@@ -135,15 +135,15 @@ void ListBoxData_HistorySharesLeg(
 void ListBoxData_AddBlankLine(HWND hListBox);
 void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade);
 void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal, int year_win, int year_loss);
-void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weeklyTotal, int week_win, int week_loss);
-void ListBoxData_OutputClosedDayTotal(HWND hListBox, double dailyTotal, int day_win, int day_loss);
-void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closedDate, double subtotal, int month_win, int month_loss);
-void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closedDate);
+void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int week_win, int week_loss);
+void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day_win, int day_loss);
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closed_date, double subtotal, int month_win, int month_loss);
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closed_date);
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
-void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double runningGrossTotal, 
-    double runningFeesTotal, double runningNetTotal);
-void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring transDate, 
-    double subGrossAmount, double subFeesAmount, double subNetAmount);
+void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double running_gross_total, 
+    double running_fees_total, double running_net_total);
+void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring trans_date, 
+    double sub_gross_amount, double sub_fees_amount, double sub_net_amount);
 void ListBoxData_OutputTransaction(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
 void Header_OnPaint(HWND hWnd);

@@ -221,7 +221,7 @@ void TransPanel_ShowTransactions()
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::TransPanel, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::trans_panel, -1);
 
 
     // Set the ListBox to the topline.
