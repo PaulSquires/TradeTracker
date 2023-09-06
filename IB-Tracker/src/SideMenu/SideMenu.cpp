@@ -85,7 +85,7 @@ void SideMenu_MakeSeparator(HWND hwnd, int nTop)
     CustomLabel* pData = nullptr;
     HWND hCtl = CreateCustomLabel(
         hwnd, -1,
-        CustomLabelType::LineHorizontal,
+        CustomLabelType::line_horizontal,
         0, nTop, SIDEMENU_WIDTH, 10);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -107,7 +107,7 @@ void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring t
     CustomLabel* pData = nullptr;
     HWND hCtl = CreateCustomLabel(
         hwnd, CtrlId,
-        CustomLabelType::TextOnly,
+        CustomLabelType::text_only,
         0, nTop, SIDEMENU_WIDTH, 28);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -150,7 +150,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_LOGO,
-        CustomLabelType::ImageOnly,
+        CustomLabelType::image_only,
         nLeft, 20, 68, 68);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -167,7 +167,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_APPNAME,
-        CustomLabelType::TextOnly,
+        CustomLabelType::text_only,
         0, 100, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -175,7 +175,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->back_color = COLOR_BLACK;
         pData->text_color = COLOR_WHITELIGHT;
         pData->font_size = 10;
-        pData->text_alignment = CustomLabelAlignment::MiddleCenter;
+        pData->text_alignment = CustomLabelAlignment::middle_center;
         pData->text = L"IB-Tracker";
         pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
@@ -185,7 +185,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_APPVERSION,
-        CustomLabelType::TextOnly,
+        CustomLabelType::text_only,
         0, 118, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -193,7 +193,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->back_color = COLOR_BLACK;
         pData->text_color = COLOR_WHITEMEDIUM;
         pData->font_size = 9;
-        pData->text_alignment = CustomLabelAlignment::MiddleCenter;
+        pData->text_alignment = CustomLabelAlignment::middle_center;
         pData->text = L"v" + version;
         pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
@@ -267,7 +267,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_AUTOCONNECT,
-        CustomLabelType::TextOnly,
+        CustomLabelType::text_only,
         40, nTop, 100, 23);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -349,7 +349,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_tws_Connect_SUCCESS:
+    case MSG_TWS_CONNECT_SUCCESS:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
@@ -365,7 +365,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_tws_Connect_WAIT_RECONNECTION:
+    case MSG_TWS_CONNECT_WAIT_RECONNECTION:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
@@ -392,8 +392,8 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
 
-    case MSG_tws_Connect_FAILURE:
-    case MSG_tws_Connect_DISCONNECT:
+    case MSG_TWS_CONNECT_FAILURE:
+    case MSG_TWS_CONNECT_DISCONNECT:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         CustomLabel* pData = nullptr;
@@ -426,7 +426,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewOptionsTrade) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_options_trade) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -436,7 +436,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewSharesTrade) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_shares_trade) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -446,7 +446,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewFuturesTrade) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_futures_trade) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -456,7 +456,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewIronCondor) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_iron_condor) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -466,7 +466,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewShortLT112) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_short_LT112) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -476,7 +476,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewShortStrangle) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_short_strangle) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -486,7 +486,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewShortPut) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_short_put) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }
@@ -496,7 +496,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::NewShortCall) == DIALOG_RETURN_CANCEL) {
+                if (TradeDialog_Show(TradeAction::new_short_call) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }

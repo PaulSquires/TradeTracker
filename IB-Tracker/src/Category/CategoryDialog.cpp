@@ -81,24 +81,24 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     DWORD text_color_dim = COLOR_WHITEDARK;
     DWORD back_color = COLOR_GRAYDARK;
 
-    int HTextMargin = 0;
-    int VTextMargin = 3;
+    int horiz_text_margin = 0;
+    int vert_text_margin = 3;
 
     HWND hCtl = NULL;
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Category", text_color_dim, back_color,
-        CustomLabelAlignment::MiddleLeft, 40, 20, 68, 22);
+        CustomLabelAlignment::middle_left, 40, 20, 68, 22);
     CustomLabel_SimpleLabel(hwnd, -1, L"Description", text_color_dim, back_color,
-        CustomLabelAlignment::MiddleLeft, 108, 20, 115, 22);
+        CustomLabelAlignment::middle_left, 108, 20, 115, 22);
 
     int nTop = 45;
     int ctlID = IDC_CATEGORYCONTROL_FIRST;
 
     for (int i = 0; i < 8; ++i) {
         CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), text_color, back_color,
-            CustomLabelAlignment::MiddleLeft, 60, nTop, 20, 23);
+            CustomLabelAlignment::middle_left, 60, nTop, 20, 23);
         hCtl = CreateCustomTextBox(hwnd, ctlID, false, ES_LEFT, L"", 110, nTop, 300, 23);
-        CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+        CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
         AfxSetWindowText(hCtl, GetCategoryDescription(i));
         nTop += 25;
@@ -112,7 +112,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::MiddleCenter, 330, 265, 80, 23);
+        CustomLabelAlignment::middle_center, 330, 265, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, bold);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 

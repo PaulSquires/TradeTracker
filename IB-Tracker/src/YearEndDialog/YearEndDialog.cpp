@@ -140,16 +140,16 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     text = L"*** IMPORTANT: BACKUP YOUR DATABASE PRIOR TO RUNNING THIS PROCEDURE ***";
     hCtl = CustomLabel_SimpleLabel(hwnd, -1, text, COLOR_RED, COLOR_GRAYDARK,
-        CustomLabelAlignment::MiddleCenter, 0, 40, cx, 23);
+        CustomLabelAlignment::middle_center, 0, 40, cx, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
 
     text = L"All closed trades dated before December 31 of the selected year will be removed from the database.";
     hCtl = CustomLabel_SimpleLabel(hwnd, -1, text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::MiddleCenter, 0, 80, cx, 23);
+        CustomLabelAlignment::middle_center, 0, 80, cx, 23);
 
     text = L"YEAR:";
     hCtl = CustomLabel_SimpleLabel(hwnd, -1, text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::MiddleLeft, 290, 110, 45, 23);
+        CustomLabelAlignment::middle_left, 290, 110, 45, 23);
 
     text = std::to_wstring(AfxGetYear(AfxCurrentDate()) - 1);
     hCtl = CreateCustomTextBox(hwnd, IDC_YEARENDDIALOG_TXTDATE, false, ES_CENTER, text, 335, 110, 50, 23);
@@ -160,7 +160,7 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // PROCESS button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_YEARENDDIALOG_PROCESS, L"PROCESS",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::MiddleCenter, 580, 396, 80, 23);
+        CustomLabelAlignment::middle_center, 580, 396, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 

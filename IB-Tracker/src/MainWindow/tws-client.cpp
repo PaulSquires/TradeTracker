@@ -297,7 +297,7 @@ void MonitoringFunction(std::stop_token st) {
 
 	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
-	PostMessage(HWND_SIDEMENU, MSG_tws_Connect_DISCONNECT, 0, 0);
+	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
 
@@ -357,13 +357,13 @@ bool tws_Connect()
 		if (res) {
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected.
-			SendMessage(HWND_SIDEMENU, MSG_tws_Connect_SUCCESS, 0, 0);
+			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 			tws_StartMonitorThread();
 		}
 
 	}
 	catch (...) {
-		SendMessage(HWND_SIDEMENU, MSG_tws_Connect_FAILURE, 0, 0);
+		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
 		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
@@ -372,7 +372,7 @@ bool tws_Connect()
 
 	
 	if (res == false) {
-        SendMessage(HWND_SIDEMENU, MSG_tws_Connect_FAILURE, 0, 0);
+        SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Could not connect to TWS.\n\n" \
 			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
@@ -922,7 +922,7 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 		// connection between TWS and IBKR, and not TWS and IB-Tracker. The connection
 		// between IB-Tracker and TWS will resume as soon as TWS reconnects back to the
 		// IBKR servers (ie. IB-Trackers sockets remain open).
-		SendMessage(HWND_SIDEMENU, MSG_tws_Connect_WAIT_RECONNECTION, 0, 0);
+		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
 			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nIB-Tracker will resume automatically when TWS reconnects to IBKR.";
 		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
@@ -931,7 +931,7 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 
 	case 1102:   // 'Connectivity between IB and Trader Workstation reestablished.'
 	{
-		SendMessage(HWND_SIDEMENU, MSG_tws_Connect_SUCCESS, 0, 0);
+		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 	}
 	break;
 	

@@ -51,12 +51,12 @@ bool IsNewOptionsTradeAction(TradeAction action)
 {
     switch (action)
     {
-    case TradeAction::NewOptionsTrade:
-    case TradeAction::NewIronCondor:
-    case TradeAction::NewShortLT112:
-    case TradeAction::NewShortStrangle:
-    case TradeAction::NewShortPut:
-    case TradeAction::NewShortCall:
+    case TradeAction::new_options_trade:
+    case TradeAction::new_iron_condor:
+    case TradeAction::new_short_LT112:
+    case TradeAction::new_short_strangle:
+    case TradeAction::new_short_put:
+    case TradeAction::new_short_call:
         return true;
     default:
         return false;
@@ -72,8 +72,8 @@ bool IsNewSharesTradeAction(TradeAction action)
 {
     switch (action)
     {
-    case TradeAction::NewSharesTrade:
-    case TradeAction::NewFuturesTrade:
+    case TradeAction::new_shares_trade:
+    case TradeAction::new_futures_trade:
         return true;
     default:
         return false;
@@ -693,7 +693,7 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
     trade = ld->trade;
     tdd.trade = ld->trade;
     tdd.trans = ld->trans;
-    tdd.sharesAggregateEdit = ld->AggregateShares;
+    tdd.shares_aggregate_edit = ld->AggregateShares;
 
     if (nCount == 1) {
         // Is this the Trade header line
@@ -710,43 +710,43 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
 
     if (ld->lineType == LineType::OptionsLeg) {
         text = L"Roll Leg" + plural_text;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::RollLeg, text.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::roll_leg, text.c_str());
 
         text = L"Close Leg" + plural_text;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::CloseLeg, text.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::close_leg, text.c_str());
 
         text = L"Expire Leg" + plural_text;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ExpireLeg, text.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::expire_leg, text.c_str());
 
         if (nCount == 1) {
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 1, L"");
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::Assignment, L"Option Assignment");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 1, L"");
+            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::assignment, L"Option Assignment");
         }
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
     }
 
 
     if (ld->lineType == LineType::Shares) {
         text = L"Manage Shares";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageShares, text.c_str());
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::manage_shares, text.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
     }
 
     if (ld->lineType == LineType::Futures) {
         text = L"Manage Futures";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::ManageFutures, text.c_str());
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 2, L"");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::manage_futures, text.c_str());
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
     }
 
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddOptionsToTrade, L"Add Options to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddPutToTrade, L"Add Put to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddCallToTrade, L"Add Call to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::NoAction + 3, L"");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_options_to_trade, L"Add Options to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_put_to_trade, L"Add Put to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_call_to_trade, L"Add Call to Trade");
+    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 3, L"");
 
     if (IsFuturesTicker(trade->ticker_symbol)) {
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddFuturesToTrade, L"Add Futures to Trade");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_futures_to_trade, L"Add Futures to Trade");
     } else {
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::AddSharesToTrade, L"Add Shares to Trade");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_shares_to_trade, L"Add Shares to Trade");
     }
 
     POINT pt; GetCursorPos(&pt);
@@ -757,28 +757,28 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
 
     switch (selected)
     {
-    case TradeAction::ManageShares:
-    case TradeAction::ManageFutures:
-    case TradeAction::AddSharesToTrade:
-    case TradeAction::AddFuturesToTrade:
-    case TradeAction::AddOptionsToTrade:
-    case TradeAction::AddPutToTrade:
-    case TradeAction::AddCallToTrade:
+    case TradeAction::manage_shares:
+    case TradeAction::manage_futures:
+    case TradeAction::add_shares_to_trade:
+    case TradeAction::add_futures_to_trade:
+    case TradeAction::add_options_to_trade:
+    case TradeAction::add_put_to_trade:
+    case TradeAction::add_call_to_trade:
         TradeDialog_Show(selected);
         break;
 
-    case TradeAction::RollLeg:
-    case TradeAction::CloseLeg:
+    case TradeAction::roll_leg:
+    case TradeAction::close_leg:
         ActiveTrades_PopulateLegsEditVector(hListBox);
         TradeDialog_Show(selected);
         break;
 
-    case TradeAction::ExpireLeg:
+    case TradeAction::expire_leg:
         ActiveTrades_PopulateLegsEditVector(hListBox);
         ActiveTrades_ExpireSelectedLegs(trade);
         break;
 
-    case TradeAction::Assignment:
+    case TradeAction::assignment:
         ActiveTrades_PopulateLegsEditVector(hListBox);
         ActiveTrades_OptionAssignment(trade);
         break;

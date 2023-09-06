@@ -207,7 +207,7 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
 
         RECT rcItem{};
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
+        int item_height = (rcItem.bottom - rcItem.top);
         int items_count = ListBox_GetCount(hWnd);
         int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
@@ -217,12 +217,12 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         int nHeight = (rc.bottom - rc.top);
 
         if (items_count > 0) {
-            items_per_page = (nHeight) / itemHeight;
+            items_per_page = (nHeight) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
             visible_rows = (bottom_index - top_index) + 1;
-            rc.top = visible_rows * itemHeight;
+            rc.top = visible_rows * item_height;
         }
 
         if (rc.top < rc.bottom) {
@@ -320,17 +320,17 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
-    bool bshow_scrollbar = false;
+    bool show_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
     if (pData != nullptr) {
         if (pData->drag_active) {
-            bshow_scrollbar = true;
+            show_scrollbar = true;
         }
         else {
-            bshow_scrollbar = pData->calcVThumbRect();
+            show_scrollbar = pData->calcVThumbRect();
         }
     }
-    int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
+    int custom_scrollbar_width = show_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     int nTop = margin;
     int nLeft = 0;
@@ -347,7 +347,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nLeft = nLeft + nWidth;   // right edge of ListBox
     nWidth = custom_scrollbar_width;
     hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+        SWP_NOZORDER | (show_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
 }

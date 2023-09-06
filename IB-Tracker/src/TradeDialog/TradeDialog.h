@@ -42,18 +42,18 @@ public:
 class TradeDialogData
 {
 public:
-    TradeAction tradeAction = TradeAction::NoAction;
+    TradeAction trade_action = TradeAction::no_action;
     std::shared_ptr<Trade> trade = nullptr;
     std::shared_ptr<Transaction> trans = nullptr;
     std::vector< std::shared_ptr<Leg> > legs;
-    std::wstring sharesAggregateEdit = L"0";
+    std::wstring shares_aggregate_edit = L"0";
 
     void ResetDefaults() {
-        tradeAction = TradeAction::NoAction;
+        trade_action = TradeAction::no_action;
         trade = nullptr;
         trans = nullptr;
         legs.clear();
-        sharesAggregateEdit = L"0";
+        shares_aggregate_edit = L"0";
     }
 };
 

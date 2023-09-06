@@ -94,28 +94,28 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_LONGSHORT + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::MiddleLeft, 0, nTop, 50, nHeight);
+            CustomLabelAlignment::middle_left, 0, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
-        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
         hCtlLongShort = hCtl;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_PutCall + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::MiddleCenter, 51, nTop, 50, nHeight);
+            CustomLabelAlignment::middle_center, 51, nTop, 50, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
-        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
         CustomLabel_SetText(hCtl, text);
         hCtlPutCall = hCtl;
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_STRATEGY + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::MiddleLeft, 102, nTop, 100, nHeight);
+            CustomLabelAlignment::middle_left, 102, nTop, 100, nHeight);
         CustomLabel_SetUserDataInt(hCtl, (int)i);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
@@ -128,8 +128,8 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYPOPUP_GO + i, L"GO",
             COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
-            CustomLabelAlignment::MiddleCenter, 203, nTop, 30, nHeight);
-        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+            CustomLabelAlignment::middle_center, 203, nTop, 30, nHeight);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         CustomLabel_SetFont(hCtl, font_name, font_size, true);
         CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 

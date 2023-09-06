@@ -34,31 +34,31 @@ SOFTWARE.
 
 enum class CustomLabelType
 {
-	TextOnly,
-	ImageOnly,
-	ImageAndText,
-	LineHorizontal,
-	LineVertical
+	text_only,
+	image_only,
+	image_and_text,
+	line_horizontal,
+	line_vertical
 };
 
 enum class CustomLabelAlignment
 {
 	// Text alignment
-	MiddleCenter,
-	MiddleLeft,
-	MiddleRight,
-	TopCenter,
-	TopLeft,
-	TopRight,
-	BottomCenter,
-	BottomLeft,
-	BottomRight
+	middle_center,
+	middle_left,
+	middle_right,
+	top_center,
+	top_left,
+	top_right,
+	bottom_center,
+	bottom_left,
+	bottom_right
 };
 
 enum class CustomLabelPointer
 {
-	Arrow,
-	Hand
+	arrow,
+	hand
 };
 
 
@@ -70,7 +70,7 @@ private:
 	RECT m_rcClient{};
 	float m_rx = 0;
 	float m_ry = 0;
-	bool m_bIsHot = false;
+	bool m_is_hot = false;
 
 public:
 	HWND hWindow = NULL;
@@ -83,7 +83,7 @@ public:
 	bool allow_tab_stop = false;
 
 	int CtrlId = 0;
-	CustomLabelType CtrlType = CustomLabelType::TextOnly;
+	CustomLabelType CtrlType = CustomLabelType::text_only;
 	bool hot_test_enable = false;
 	DWORD back_color{};
 	DWORD back_color_hot{};
@@ -125,7 +125,7 @@ public:
 	int image_offset_top = 0;
 
 	// Text General
-	CustomLabelAlignment text_alignment = CustomLabelAlignment::MiddleCenter;
+	CustomLabelAlignment text_alignment = CustomLabelAlignment::middle_center;
 	int text_offset_left = 0;
 	int text_offset_top = 0;
 	int text_character_extra = 0;
@@ -138,7 +138,7 @@ public:
 	bool font_italic = false;
 	bool font_underline = false;
 	DWORD text_color{};
-	CustomLabelPointer pointer = CustomLabelPointer::Arrow;
+	CustomLabelPointer pointer = CustomLabelPointer::arrow;
 
 	// Text Hot
 	std::wstring text_hot{};
@@ -148,7 +148,7 @@ public:
 	bool font_italic_hot = false;
 	bool font_underline_hot = false;
 	DWORD text_color_hot{};
-	CustomLabelPointer pointer_hot = CustomLabelPointer::Hand;
+	CustomLabelPointer pointer_hot = CustomLabelPointer::hand;
 
 	void SetTextAlignment(StringFormat* stringF);
 	void StartDoubleBuffering(HDC hdc);
@@ -185,12 +185,12 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
-	DWORD text_color, DWORD back_color, CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
+	DWORD text_color, DWORD back_color, CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
 	DWORD text_color, DWORD back_color, DWORD back_color_hot, DWORD back_color_button_down, DWORD FocusBorderColor,
-	CustomLabelAlignment alignment = CustomLabelAlignment::MiddleLeft,
+	CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
 	

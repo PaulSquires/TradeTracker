@@ -30,27 +30,27 @@ SOFTWARE.
 // Various actions that can be performed on selected Trade or Legs.
 enum class TradeAction
 {
-    NewOptionsTrade,
-    NewSharesTrade,
-    NewFuturesTrade,
-    ManageShares,
-    ManageFutures,
-    RollLeg,
-    CloseLeg,
-    ExpireLeg,
-    Assignment,
-    AddOptionsToTrade,
-    AddSharesToTrade,
-    AddFuturesToTrade,
-    AddPutToTrade,
-    AddCallToTrade,
-    NewIronCondor,
-    NewShortLT112,
-    NewShortStrangle,
-    NewShortPut,
-    NewShortCall,
-    EditTransaction,
-    NoAction
+    new_options_trade,
+    new_shares_trade,
+    new_futures_trade,
+    manage_shares,
+    manage_futures,
+    roll_leg,
+    close_leg,
+    expire_leg,
+    assignment,
+    add_options_to_trade,
+    add_shares_to_trade,
+    add_futures_to_trade,
+    add_put_to_trade,
+    add_call_to_trade,
+    new_iron_condor,
+    new_short_LT112,
+    new_short_strangle,
+    new_short_put,
+    new_short_call,
+    edit_transaction,
+    no_action
 };
 
 
@@ -60,11 +60,11 @@ constexpr int MSG_CUSTOMLABEL_CLICK			= WM_USER + 1000;
 constexpr int MSG_CUSTOMLABEL_MOUSEMOVE		= WM_USER + 1001;
 constexpr int MSG_CUSTOMLABEL_MOUSELEAVE	= WM_USER + 1002;
 constexpr int MSG_TWS_CONNECT_START			= WM_USER + 1003;
-constexpr int MSG_tws_Connect_SUCCESS		= WM_USER + 1004;
-constexpr int MSG_tws_Connect_FAILURE		= WM_USER + 1005;
-constexpr int MSG_tws_Connect_DISCONNECT	= WM_USER + 1006;
+constexpr int MSG_TWS_CONNECT_SUCCESS		= WM_USER + 1004;
+constexpr int MSG_TWS_CONNECT_FAILURE		= WM_USER + 1005;
+constexpr int MSG_TWS_CONNECT_DISCONNECT	= WM_USER + 1006;
 constexpr int MSG_TWS_WARNING_EXCEPTION     = WM_USER + 1007;
-constexpr int MSG_tws_Connect_WAIT_RECONNECTION = WM_USER + 1008;
+constexpr int MSG_TWS_CONNECT_WAIT_RECONNECTION = WM_USER + 1008;
 constexpr int MSG_STARTUP_SHOWTRADES        = WM_USER + 1009;
 constexpr int MSG_DATEPICKER_DATECHANGED    = WM_USER + 1010;
 constexpr int MSG_RECONCILIATION_READY      = WM_USER + 1011;

@@ -142,27 +142,26 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             TradeDialogControls_ShowFuturesContractDate(hwnd);
 
             // Attempt to lookup the specified Ticker and fill in the corresponding Company Name & Multiplier.
-            std::wstring wszCompanyName = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY));
-            std::wstring tickerSymbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
-            std::wstring companyName;
+            std::wstring ticker_symbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+            std::wstring company_name;
 
             auto iter = std::find_if(trades.begin(), trades.end(),
-                [&](const auto t) { return (t->ticker_symbol == tickerSymbol); });
+                [&](const auto t) { return (t->ticker_symbol == ticker_symbol); });
 
             if (iter != trades.end()) {
                 auto index = std::distance(trades.begin(), iter);
-                companyName = trades.at(index)->ticker_name;
+                company_name = trades.at(index)->ticker_name;
             }
 
-            AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), companyName);
+            AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), company_name);
 
-            std::wstring wszMultiplier = GetMultiplier(tickerSymbol);
-            if (tdd.tradeAction == TradeAction::NewSharesTrade ||
-                tdd.tradeAction == TradeAction::ManageShares ||
-                tdd.tradeAction == TradeAction::AddSharesToTrade) {
-                wszMultiplier = L"1";
+            std::wstring multiplier = GetMultiplier(ticker_symbol);
+            if (tdd.trade_action == TradeAction::new_shares_trade ||
+                tdd.trade_action == TradeAction::manage_shares ||
+                tdd.trade_action == TradeAction::add_shares_to_trade) {
+                multiplier = L"1";
             }
-            CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), wszMultiplier);
+            CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), multiplier);
 
         }
         break;
@@ -318,11 +317,11 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (CtrlId == IDC_TRADEDIALOG_SAVE) {
-            if (IsNewSharesTradeAction(tdd.tradeAction) == true ||
-                tdd.tradeAction == TradeAction::AddSharesToTrade||
-                tdd.tradeAction == TradeAction::AddFuturesToTrade||
-                tdd.tradeAction == TradeAction::ManageShares ||
-                tdd.tradeAction == TradeAction::ManageFutures) {
+            if (IsNewSharesTradeAction(tdd.trade_action) == true ||
+                tdd.trade_action == TradeAction::add_shares_to_trade||
+                tdd.trade_action == TradeAction::add_futures_to_trade||
+                tdd.trade_action == TradeAction::manage_shares ||
+                tdd.trade_action == TradeAction::manage_futures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
                     TradeDialog_CreateSharesTradeData(m_hwnd);
                     dialog_return_code = DIALOG_RETURN_OK;
@@ -330,7 +329,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 }
                 SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
             }
-            else if (tdd.tradeAction == TradeAction::EditTransaction) {
+            else if (tdd.trade_action == TradeAction::edit_transaction) {
                 if (TradeDialog_ValidateEditTradeData(m_hwnd) == true) {
                     TradeDialog_CreateEditTradeData(m_hwnd);
                     dialog_return_code = DIALOG_RETURN_OK;
@@ -361,7 +360,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 int TradeDialog_Show(TradeAction inTradeAction)
 {
-    tdd.tradeAction = inTradeAction;
+    tdd.trade_action = inTradeAction;
 
     int nWidth = 715;
     int nHeight = 500;
@@ -409,8 +408,8 @@ int TradeDialog_Show(TradeAction inTradeAction)
 
     SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     
-    if (IsNewOptionsTradeAction(tdd.tradeAction) == true ||
-        IsNewSharesTradeAction(tdd.tradeAction) == true) {
+    if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
+        IsNewSharesTradeAction(tdd.trade_action) == true) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     }
     else {

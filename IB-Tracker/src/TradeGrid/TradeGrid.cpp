@@ -151,8 +151,8 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
     int vsp = 2;
     int hsp = 2;
     
-    int HTextMargin = 0;
-    int VTextMargin = 3;
+    int horiz_text_margin = 0;
+    int vert_text_margin = 3;
     
     int nTotalWidth = 0;
     int nTotalHeight = 0;
@@ -170,7 +170,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
             CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::allow, CustomTextBoxFormatting::disallow);
             CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
-            CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+            CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
             col = new GridColInfo;
             col->hCtl = hCtl;
             col->idCtrl = idCtrl;
@@ -185,7 +185,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
         CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::allow, CustomTextBoxFormatting::disallow);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
-        CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+        CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -199,8 +199,8 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // EXPIRY DATE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
             L"", COLOR_WHITELIGHT, COLOR_GRAYLIGHT,
-            CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+            CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -215,7 +215,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // DTE
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"", COLOR_WHITEDARK, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
+            CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -228,7 +228,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
         CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::disallow);
         CustomTextBox_SetColors(hCtl, light_text_color, light_back_color);
-        CustomTextBox_SetMargins(hCtl, HTextMargin, VTextMargin);
+        CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -240,8 +240,8 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // PUT/CALL
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"", COLOR_WHITEDARK, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::MiddleCenter, nLeft, nTop, (nWidth/2), nHeight);
-        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+            CustomLabelAlignment::middle_center, nLeft, nTop, (nWidth/2), nHeight);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -253,8 +253,8 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // ACTION
         hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
             L"", COLOR_WHITELIGHT, COLOR_GRAYLIGHT,
-            CustomLabelAlignment::MiddleCenter, nLeft, nTop, nWidth, nHeight);
-        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::Hand, CustomLabelPointer::Hand);
+            CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+        CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
         col->idCtrl = idCtrl;
@@ -266,7 +266,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
         // RESET LINE INDICATOR
         hCtl = CreateCustomLabel(pData->hWindow, idCtrl,
-            CustomLabelType::TextOnly, nLeft, nTop, TRADEGRID_LINERESETICONWIDTH, nHeight);
+            CustomLabelType::text_only, nLeft, nTop, TRADEGRID_LINERESETICONWIDTH, nHeight);
         pLabelData = CustomLabel_GetOptions(hCtl);
         if (pLabelData) {
             pLabelData->text = GLYPH_RESETLINE;
@@ -277,9 +277,9 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
             pLabelData->back_color_button_down = COLOR_GRAYLIGHT; 
             pLabelData->text_color = COLOR_WHITEDARK;
             pLabelData->text_color_hot = COLOR_WHITELIGHT;
-            pLabelData->text_alignment = CustomLabelAlignment::MiddleCenter;
+            pLabelData->text_alignment = CustomLabelAlignment::middle_center;
             pLabelData->tooltip_text = L"Reset line";
-            pLabelData->pointer_hot = CustomLabelPointer::Arrow;
+            pLabelData->pointer_hot = CustomLabelPointer::arrow;
             CustomLabel_SetOptions(hCtl, pLabelData);
         }
         col = new GridColInfo;

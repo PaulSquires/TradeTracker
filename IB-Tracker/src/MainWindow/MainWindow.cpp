@@ -322,7 +322,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create a Warning label at bottom of the MainWindow to display warning messages.
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"WARNING !!!", COLOR_YELLOW, COLOR_RED,
-        CustomLabelAlignment::MiddleCenter, 0, 0, 0, 0);
+        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
 
 
     return TRUE;

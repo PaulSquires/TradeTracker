@@ -512,7 +512,7 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_LBLNOTES, L"Notes", COLOR_WHITEDARK, COLOR_GRAYDARK,
-        CustomLabelAlignment::MiddleLeft, 0, 0, 0, 0);
+        CustomLabelAlignment::middle_left, 0, 0, 0, 0);
     hCtl = CreateCustomTextBox(hwnd, IDC_HISTORY_TXTNOTES, true, ES_LEFT,
         L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, 3, 3);
@@ -521,7 +521,7 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel* pData = nullptr;
     hCtl = CreateCustomLabel(
         hwnd, IDC_HISTORY_SEPARATOR,
-        CustomLabelType::LineHorizontal,
+        CustomLabelType::line_horizontal,
         0, 0, 0, 0);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {

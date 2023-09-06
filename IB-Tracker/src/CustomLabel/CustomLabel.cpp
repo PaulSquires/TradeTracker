@@ -43,47 +43,47 @@ void CustomLabel::SetTextAlignment(StringFormat* stringF)
 {
     switch (text_alignment)
     {
-    case CustomLabelAlignment::BottomCenter:
+    case CustomLabelAlignment::bottom_center:
         stringF->SetAlignment(StringAlignmentCenter);
         stringF->SetLineAlignment(StringAlignmentFar);
         break;
 
-    case CustomLabelAlignment::BottomLeft:
+    case CustomLabelAlignment::bottom_left:
         stringF->SetAlignment(StringAlignmentNear);
         stringF->SetLineAlignment(StringAlignmentFar);
         break;
 
-    case CustomLabelAlignment::BottomRight:
+    case CustomLabelAlignment::bottom_right:
         stringF->SetAlignment(StringAlignmentFar);
         stringF->SetLineAlignment(StringAlignmentFar);
         break;
 
-    case CustomLabelAlignment::MiddleCenter:
+    case CustomLabelAlignment::middle_center:
         stringF->SetAlignment(StringAlignmentCenter);
         stringF->SetLineAlignment(StringAlignmentCenter);
         break;
 
-    case CustomLabelAlignment::MiddleLeft:
+    case CustomLabelAlignment::middle_left:
         stringF->SetAlignment(StringAlignmentNear);
         stringF->SetLineAlignment(StringAlignmentCenter);
         break;
 
-    case CustomLabelAlignment::MiddleRight:
+    case CustomLabelAlignment::middle_right:
         stringF->SetAlignment(StringAlignmentFar);
         stringF->SetLineAlignment(StringAlignmentCenter);
         break;
 
-    case CustomLabelAlignment::TopCenter:
+    case CustomLabelAlignment::top_center:
         stringF->SetAlignment(StringAlignmentCenter);
         stringF->SetLineAlignment(StringAlignmentNear);
         break;
 
-    case CustomLabelAlignment::TopLeft:
+    case CustomLabelAlignment::top_left:
         stringF->SetAlignment(StringAlignmentNear);
         stringF->SetLineAlignment(StringAlignmentNear);
         break;
 
-    case CustomLabelAlignment::TopRight:
+    case CustomLabelAlignment::top_right:
         stringF->SetAlignment(StringAlignmentFar);
         stringF->SetLineAlignment(StringAlignmentNear);
         break;
@@ -107,7 +107,7 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     m_ry = AfxScaleRatioY();
 
     // Determine if we are in a Hot mouseover state
-    if (hot_test_enable) m_bIsHot = GetProp(hWindow, L"HOT") ? true : false;
+    if (hot_test_enable) m_is_hot = GetProp(hWindow, L"HOT") ? true : false;
 
     m_memDC = CreateCompatibleDC(hdc);
     m_hbit = CreateCompatibleBitmap(hdc, m_rcClient.right, m_rcClient.bottom);
@@ -116,7 +116,7 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     Graphics graphics(m_memDC);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-    DWORD nback_color = (m_bIsHot ? back_color_hot : back_color);
+    DWORD nback_color = (m_is_hot ? back_color_hot : back_color);
     if (is_selected && allow_select)
         nback_color = back_color_selected;
 
@@ -141,8 +141,8 @@ void CustomLabel::DrawImageInBuffer()
 {
     switch (CtrlType)
     {
-    case CustomLabelType::ImageOnly:
-    case CustomLabelType::ImageAndText:
+    case CustomLabelType::image_only:
+    case CustomLabelType::image_and_text:
         REAL nLeft = (margin_left + image_offset_left) * m_rx;
         REAL nTop = (margin_top + image_offset_top) * m_ry;
         REAL nRight = nLeft + (image_width * m_rx);
@@ -151,7 +151,7 @@ void CustomLabel::DrawImageInBuffer()
 
         Graphics graphics(m_memDC);
         graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-        graphics.DrawImage(m_bIsHot ? pImageHot : pImage, rcImage);
+        graphics.DrawImage(m_is_hot ? pImageHot : pImage, rcImage);
     }
 }
 
@@ -163,8 +163,8 @@ void CustomLabel::DrawTextInBuffer()
 {
     switch (CtrlType)
     {
-    case CustomLabelType::TextOnly:
-    case CustomLabelType::ImageAndText:
+    case CustomLabelType::text_only:
+    case CustomLabelType::image_and_text:
 
         font_name = AfxGetDefaultFont();
         if (text.substr(0, 2) == L"\\u") {
@@ -172,12 +172,12 @@ void CustomLabel::DrawTextInBuffer()
         }
 
         font_name_hot = font_name;
-        FontFamily fontFamily(m_bIsHot ? font_name_hot.c_str() : font_name.c_str());
+        FontFamily fontFamily(m_is_hot ? font_name_hot.c_str() : font_name.c_str());
 
-        REAL fontSize = (m_bIsHot ? font_size_hot : font_size);
+        REAL fontSize = (m_is_hot ? font_size_hot : font_size);
         int fontStyle = FontStyleRegular;
 
-        if (m_bIsHot) {
+        if (m_is_hot) {
             if (font_bold_hot) fontStyle |= FontStyleBold;
             if (font_italic_hot) fontStyle |= FontStyleItalic;
             if (font_underline_hot) fontStyle |= FontStyleUnderline;
@@ -189,7 +189,7 @@ void CustomLabel::DrawTextInBuffer()
         }
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   text_brush(m_bIsHot ? text_color_hot : text_color);
+        SolidBrush   text_brush(m_is_hot ? text_color_hot : text_color);
 
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -220,12 +220,12 @@ void CustomLabel::DrawLabelInBuffer()
 {
     switch (CtrlType)
     {
-    case CustomLabelType::LineHorizontal:
+    case CustomLabelType::line_horizontal:
         REAL nLeft = margin_left * m_rx;
         REAL nTop = (margin_top + text_offset_top) * m_ry;
         REAL nRight = m_rcClient.right - (margin_right * m_rx);
         REAL nBottom = nTop;
-        ARGB clrPen = (m_bIsHot ? line_color_hot : line_color);
+        ARGB clrPen = (m_is_hot ? line_color_hot : line_color);
         Pen pen(clrPen, line_width);
         // Draw the horizontal line centered taking margins into account
         Graphics graphics(m_memDC);
@@ -273,12 +273,12 @@ void CustomLabel::DrawBordersInBuffer()
     // else has been painted.
     switch (CtrlType)
     {
-    case CustomLabelType::ImageOnly:
-    case CustomLabelType::ImageAndText:
-    case CustomLabelType::TextOnly:
+    case CustomLabelType::image_only:
+    case CustomLabelType::image_and_text:
+    case CustomLabelType::text_only:
     {
         //if (BorderVisible == true) {
-        //    ARGB clrPen = (m_bIsHot ? BorderColorHot : BorderColor);
+        //    ARGB clrPen = (m_is_hot ? BorderColorHot : BorderColor);
         //    Pen pen(back_color, BorderWidth);
         //    RectF rectF(0, 0, (REAL)m_rcClient.right - BorderWidth, (REAL)m_rcClient.bottom - BorderWidth);
         //    Graphics graphics(m_memDC);
@@ -416,10 +416,10 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
         if (pData) {
             if (pData->hot_test_enable) {
-                IDCPointer = (pData->pointer_hot == CustomLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
+                IDCPointer = (pData->pointer_hot == CustomLabelPointer::hand) ? IDC_HAND : IDC_ARROW;
             }
             else {
-                IDCPointer = (pData->pointer == CustomLabelPointer::Hand) ? IDC_HAND : IDC_ARROW;
+                IDCPointer = (pData->pointer == CustomLabelPointer::hand) ? IDC_HAND : IDC_ARROW;
             }
         }
         SetCursor(LoadCursor(NULL, (LPCWSTR)IDCPointer));
@@ -856,7 +856,7 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
     CustomLabel* pData = nullptr;
 
     HWND hCtl = CreateCustomLabel(
-        hParent, CtrlId, CustomLabelType::TextOnly,
+        hParent, CtrlId, CustomLabelType::text_only,
         nLeft, nTop, nWidth, nHeight);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -885,7 +885,7 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
     CustomLabel* pData = nullptr;
 
     HWND hCtl = CreateCustomLabel(
-        hParent, CtrlId, CustomLabelType::TextOnly,
+        hParent, CtrlId, CustomLabelType::text_only,
         nLeft, nTop, nWidth, nHeight);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -922,7 +922,7 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     
     HWND hCtl = CreateCustomLabel(
     hParent, CtrlId,
-    CustomLabelType::ImageOnly,
+    CustomLabelType::image_only,
     nLeft, nTop, nWidth, nHeight);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
@@ -999,14 +999,14 @@ HWND CreateCustomLabel(
 
         pData->hToolTip = AfxAddTooltip(hCtl, L"", FALSE, FALSE);
 
-        if (nCtrlType == CustomLabelType::LineHorizontal || 
-            nCtrlType == CustomLabelType::LineVertical) {
+        if (nCtrlType == CustomLabelType::line_horizontal || 
+            nCtrlType == CustomLabelType::line_vertical) {
             pData->hot_test_enable = false;
             pData->border_visible = false;
         }
 
-        pData->pointer = CustomLabelPointer::Arrow;
-        pData->pointer_hot = CustomLabelPointer::Hand;
+        pData->pointer = CustomLabelPointer::arrow;
+        pData->pointer_hot = CustomLabelPointer::hand;
 
         CustomLabel_SetOptions(hCtl, pData);
     }
