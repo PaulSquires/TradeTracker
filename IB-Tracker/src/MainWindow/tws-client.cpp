@@ -154,8 +154,23 @@ double GetScrapedClosingPrice(std::wstring ticker_symbol)
 //
 // Could not connect to TWS so we don't have any market data. Allow user the opportunity to try to get scraped data.
 //
+#include <wininet.h>
+#pragma comment(lib,"Wininet.lib")
 void UpdateTickersWithScrapedData()
 {
+	// Do a simple check to see if connected to internet. If fail then simply
+	// advise the user via a messgebox.
+	std::wstring url = L"https://www.google.com";
+	bool is_internet_available = InternetCheckConnection(url.c_str(), FLAG_ICC_FORCE_CONNECTION, 0);
+	
+	if (!is_internet_available) {
+		MessageBox(HWND_ACTIVETRADES,
+			(LPCWSTR)(L"No Internet connection exists.\n\nCan not retrieve scraped ticker data."),
+			(LPCWSTR)L"Connection", MB_ICONWARNING);
+		return;
+	}
+
+
 	SetCursor(LoadCursor(0, IDC_WAIT));
 
 	std::unordered_map<std::wstring, double> map_prices;
