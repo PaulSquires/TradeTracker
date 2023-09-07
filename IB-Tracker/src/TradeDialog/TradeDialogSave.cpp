@@ -459,7 +459,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         case TradeAction::add_call_to_trade:
             leg->original_quantity = intQuantity;
             leg->open_quantity = intQuantity;
-            leg->average_price_text = L"Wait..";    // visual notice until next price update arrives.
+            if (tws_IsConnected()) {
+                leg->average_price_text = L"Wait..";    // visual notice until next price update arrives.
+            }
             break;
 
         case TradeAction::close_leg:
