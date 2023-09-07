@@ -407,19 +407,19 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trade->ticker_symbol = guiData.ticker_symbol;
     trade->ticker_name   = guiData.ticker_name;
     trade->future_expiry = guiData.future_expiry;
-    trade->category     = guiData.category;
-    trade->acb          = guiData.ACB;
+    trade->category      = guiData.category;
+    trade->acb           = guiData.ACB;
     trade->trade_bp      = guiData.trade_bp;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
     trans->trans_date    = guiData.trans_date;
-    trans->description  = guiData.description;
-    trans->underlying   = guiData.underlying;
-    trans->quantity     = guiData.quantity;
-    trans->price        = guiData.price;
-    trans->multiplier   = guiData.multiplier;
-    trans->fees         = guiData.fees;
-    trans->total        = guiData.total;
+    trans->description   = guiData.description;
+    trans->underlying    = guiData.underlying;
+    trans->quantity      = guiData.quantity;
+    trans->price         = guiData.price;
+    trans->multiplier    = guiData.multiplier;
+    trans->fees          = guiData.fees;
+    trans->total         = guiData.total;
     trade->transactions.push_back(trans);
 
     // Determine earliest and latest dates for BP ROI calculation.
@@ -459,6 +459,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         case TradeAction::add_call_to_trade:
             leg->original_quantity = intQuantity;
             leg->open_quantity = intQuantity;
+            leg->average_price_text = L"Wait..";    // visual notice until next price update arrives.
             break;
 
         case TradeAction::close_leg:
