@@ -87,7 +87,7 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
     { L"/AUD", 5 },
     { L"/ZB", 3 },
     { L"/ZC", 3 },
-    { L"/HE", 3 },
+    { L"/HE", 4 },
     { L"/ZS", 4 }
 };
 
