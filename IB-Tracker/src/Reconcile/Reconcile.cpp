@@ -60,10 +60,15 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	p.contract_id   = contract.conId;
 	p.open_quantity = (int)intelDecimalToDouble(position);
 	p.ticker_symbol = ansi2unicode(contract.symbol);
-	p.underlying   = ansi2unicode(contract.secType);
+	p.underlying    = ansi2unicode(contract.secType);
 	p.expiry_date   = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
 	p.strike_price  = contract.strike;
-	p.PutCall      = ansi2unicode(contract.right);
+	// If this is a Lean Hog Futures contract then we multiply the strike by 100 b/c IBKR
+	// stores it as cents but we placed the trade as "dollars".  eg. .85 vs. 85
+	if (p.ticker_symbol == L"HE" && p.underlying == L"FOP") {
+		p.strike_price *= 100;
+	}
+	p.PutCall       = ansi2unicode(contract.right);
 	IBKRPositions.push_back(p);
 }
 

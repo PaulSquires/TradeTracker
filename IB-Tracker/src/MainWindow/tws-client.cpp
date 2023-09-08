@@ -842,6 +842,12 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 			ld->leg->average_price_text = text;
 			ld->SetTextData(COLUMN_TICKER_AVGPX, text, theme_color);   // Book Value and average Price
 
+			// If this is a Lean Hog Futures contract then we multiply the price by 100 b/c IBKR
+			// stores it as cents but we placed the trade as "dollars".  eg. .85 vs. 85
+			if (ld->trade->ticker_symbol == L"/HE") {
+				market_price *= 100;
+			}
+
 			ld->leg->market_price = market_price;
 			text = AfxMoney(market_price, true, ld->trade->ticker_decimals);
 			ld->leg->market_price_text = text;
