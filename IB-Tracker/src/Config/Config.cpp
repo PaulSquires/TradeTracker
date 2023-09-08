@@ -79,7 +79,7 @@ std::unordered_map<std::wstring, std::wstring> mapMultipliers {
     { L"/ES",  L"50" },
     { L"/MES", L"5" },
     { L"/CL",  L"1000" },
-    { L"/HE",  L"40000" },
+    { L"/HE",  L"400" },
     { L"/ZB",  L"1000" }
 };
 
