@@ -64,6 +64,7 @@ std::unordered_map<std::string, std::string> mapFuturesExchanges {
     { "/AUD", "CME" },
     { "/ES",  "CME" },
     { "/MES", "CME" }, 
+    { "/HE",  "CME" }, 
     { "/GC",  "COMEX" }, 
     { "/NG",  "NYMEX" },
     { "/CL",  "NYMEX" },
@@ -78,6 +79,7 @@ std::unordered_map<std::wstring, std::wstring> mapMultipliers {
     { L"/ES",  L"50" },
     { L"/MES", L"5" },
     { L"/CL",  L"1000" },
+    { L"/HE",  L"40000" },
     { L"/ZB",  L"1000" }
 };
 
@@ -85,6 +87,7 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
     { L"/AUD", 5 },
     { L"/ZB", 3 },
     { L"/ZC", 3 },
+    { L"/HE", 3 },
     { L"/ZS", 4 }
 };
 
