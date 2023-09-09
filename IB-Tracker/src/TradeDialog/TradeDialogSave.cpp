@@ -69,13 +69,12 @@ public:
         TradeDialog_CalculateTradeTotal(hwnd);
 
         ticker_symbol = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER)));
-        ticker_name = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY)));
+        ticker_name   = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY)));
         future_expiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
-        category = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
-
-        trans_date = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-
-        description = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
+        category      = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
+        trans_date    = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
+        description   = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
+        
         if (tdd.trade_action == TradeAction::roll_leg) description = L"Roll";
         if (tdd.trade_action == TradeAction::close_leg) description = L"Close";
         if (tdd.trade_action == TradeAction::new_shares_trade ||
@@ -97,14 +96,14 @@ public:
         if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = L"SHARES";
         if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = L"FUTURES";
 
-        quantity = AfxValInteger(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-        price = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
+        quantity   = AfxValInteger(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+        price      = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
         multiplier = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
-        fees = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-        trade_bp = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP)));
-
-        DRCR = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-        total = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+        fees       = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
+        trade_bp   = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP)));
+        DRCR       = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
+        total      = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+        
         if (DRCR == L"DR") { total = total * -1; }
         ACB = ACB + total;
 
@@ -208,13 +207,13 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
     trans->trans_date    = guiData.trans_date;
-    trans->description  = guiData.description;
-    trans->underlying   = guiData.underlying;
-    trans->quantity     = guiData.quantity; 
-    trans->price        = guiData.price;
-    trans->multiplier   = guiData.multiplier;
-    trans->fees         = guiData.fees;
-    trans->total        = guiData.total;
+    trans->description   = guiData.description;
+    trans->underlying    = guiData.underlying;
+    trans->quantity      = guiData.quantity; 
+    trans->price         = guiData.price;
+    trans->multiplier    = guiData.multiplier;
+    trans->fees          = guiData.fees;
+    trans->total         = guiData.total;
     trade->transactions.push_back(trans);
 
     std::shared_ptr<Leg> leg = std::make_shared<Leg>();
@@ -314,6 +313,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
     if (guiData.ticker_symbol.length() == 0) error_message += L"- Missing Ticker Symbol.\n";
     if (guiData.ticker_name.length() == 0) error_message += L"- Missing Company or Futures Name.\n";
     if (guiData.description.length() == 0) error_message += L"- Missing Description.\n";
+    if (guiData.quantity == 0) error_message += L"- Missing Quantity.\n";
 
     // In adition to validating each leg, we count the number of non blank legs. If all legs
     // are blank then there is nothing to save to add that to the error message.
@@ -554,6 +554,7 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     std::wstring text;
 
     if (guiData.description.length() == 0) error_message += L"- Missing Description.\n";
+    if (guiData.quantity == 0) error_message += L"- Missing Quantity.\n";
 
     // In adition to validating each leg, we count the number of non blank legs. If all legs
     // are blank then there is nothing to save to add that to the error message.
@@ -639,14 +640,14 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trade->future_expiry = guiData.future_expiry;
     tdd.trade->category = guiData.category;
     
-    tdd.trans->trans_date   = guiData.trans_date;
+    tdd.trans->trans_date  = guiData.trans_date;
     tdd.trans->description = guiData.description;
     tdd.trans->underlying  = guiData.underlying;
     tdd.trans->quantity    = guiData.quantity;
     tdd.trans->price       = guiData.price;
     tdd.trans->multiplier  = guiData.multiplier;
     tdd.trans->fees        = guiData.fees;
-    tdd.trade->trade_bp     = guiData.trade_bp;
+    tdd.trade->trade_bp    = guiData.trade_bp;
     tdd.trans->total       = guiData.total;
 
     // Determine earliest and latest dates for BP ROI calculation.
