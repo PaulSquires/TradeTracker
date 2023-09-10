@@ -157,6 +157,7 @@ EClient::EClient( EWrapper *ptr, ETransport *pTransport)
     , m_extraAuth(false)
     , m_serverVersion(0)
     , m_useV100Plus(true)
+    , m_port(0)
 {
 }
 

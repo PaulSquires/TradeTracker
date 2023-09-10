@@ -265,8 +265,6 @@ protected:
 
 public:
 
-	bool isInBufferEmpty() const;
-
 	// override virtual funcs from EClient
 	int serverVersion();
 	std::string TwsConnectionTime();
@@ -411,9 +409,9 @@ protected:
 
 private:
 	std::string m_host;
-	int m_port;
+	int m_port = 0;
 
-	int m_clientId;
+	int m_clientId = 0;
 
 	ConnState m_connState;
 	bool m_extraAuth;

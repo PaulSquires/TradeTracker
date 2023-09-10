@@ -33,7 +33,7 @@ struct Execution
 	int			permId;
 	long		clientId;
 	long		orderId;
-	int			liquidation;
+	int			liquidation = 0;
 	Decimal		cumQty;
 	double		avgPrice;
 	std::string	orderRef;
