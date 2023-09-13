@@ -135,6 +135,7 @@ void ListBoxData_HistorySharesLeg(
 void ListBoxData_AddBlankLine(HWND hListBox);
 void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade);
 void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal, int year_win, int year_loss);
+void ListBoxData_OutputClosedMonthTotal(HWND hListBox, double monthly_total, int month_win, int month_loss);
 void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int week_win, int week_loss);
 void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day_win, int day_loss);
 void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closed_date, double subtotal, int month_win, int month_loss);

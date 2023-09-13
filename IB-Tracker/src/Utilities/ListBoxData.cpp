@@ -889,6 +889,37 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 
 
 // ========================================================================================
+// Create the display data line for total closed monthly total.
+// ========================================================================================
+void ListBoxData_OutputClosedMonthTotal(HWND hListBox, double monthly_total, int month_win, int month_loss)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId tickerId = -1;
+    REAL font8 = 8;
+
+    DWORD clr = (monthly_total >= 0) ? COLOR_GREEN : COLOR_RED;
+    
+    std::wstring text = L"THIS MONTH";
+    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    ld->SetData(4, nullptr, tickerId, AfxMoney(monthly_total), StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+
+    // col 5 is a "spacer" column
+
+    clr = (month_win >= month_loss) ? COLOR_GREEN : COLOR_RED;
+    text = std::to_wstring(month_win) + L"W " + std::to_wstring(month_loss)
+        + L"L  " + AfxMoney((double)month_win / (max(month_win + month_loss,1)) * 100, false, 0) + L"%";
+    ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+
+    ListBox_InsertString(hListBox, 1, ld);
+}
+
+
+// ========================================================================================
 // Create the display data line for total closed weekly total.
 // ========================================================================================
 void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int week_win, int week_loss)
@@ -915,7 +946,7 @@ void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int w
     ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
-    ListBox_InsertString(hListBox, 1, ld);
+    ListBox_InsertString(hListBox, 2, ld);
 }
 
 
@@ -946,12 +977,12 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day
     ld->SetData(6, nullptr, tickerId, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
-    ListBox_InsertString(hListBox, 2, ld);
+    ListBox_InsertString(hListBox, 3, ld);
 
     // *** BLANK SEPARATION LINE AFTER THE DAY TOTAL ***
     ld = new ListBoxData;
     ld->line_type = LineType::none;
-    ListBox_InsertString(hListBox, 3, ld);
+    ListBox_InsertString(hListBox, 4, ld);
 }
 
 

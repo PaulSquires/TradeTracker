@@ -133,6 +133,7 @@ void ClosedTrades_ShowClosedTrades()
     // Output the closed trades and subtotals based on month when the month changes.
     double subtotal_amount = 0;
     double YTD = 0;
+    double monthly_amount = 0;
     double weekly_amount = 0;
     double daily_amount = 0;
     
@@ -140,7 +141,9 @@ void ClosedTrades_ShowClosedTrades()
     
     int current_month = 0;
     int current_year = 0;
-    
+    int current_month_win = 0;
+    int current_month_loss = 0;
+
     int month_win = 0;
     int month_loss = 0;
 
@@ -162,17 +165,23 @@ void ClosedTrades_ShowClosedTrades()
         current_month = AfxGetMonth(ClosedData.closed_date);
         if (current_year == 0) current_year = AfxGetYear(ClosedData.closed_date);
         if (subtotal_month != current_month && subtotal_month != 0) {
-            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, month_win, month_loss);
+            ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, current_month_win, current_month_loss);
             curDate = ClosedData.closed_date;
             subtotal_amount = 0;
-            month_win = 0;
-            month_loss = 0;
+            current_month_win = 0;
+            current_month_loss = 0;
         }
         curDate = ClosedData.closed_date;
         subtotal_month = current_month;
         subtotal_amount += ClosedData.trade->acb;
-        if (ClosedData.trade->acb >= 0) ++month_win;
-        if (ClosedData.trade->acb < 0) ++month_loss;
+        if (ClosedData.trade->acb >= 0) ++current_month_win;
+        if (ClosedData.trade->acb < 0) ++current_month_loss;
+
+        if (current_month == AfxGetMonth(today_date)) {
+            monthly_amount += ClosedData.trade->acb;
+            if (ClosedData.trade->acb >= 0) ++month_win;
+            if (ClosedData.trade->acb < 0) ++month_loss;
+        }
 
         if (curDate >= week_start_date && curDate <= week_end_date) {
             weekly_amount += ClosedData.trade->acb;
@@ -193,8 +202,12 @@ void ClosedTrades_ShowClosedTrades()
         }
         ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closed_date);
     }
-    if (subtotal_amount !=0) ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, month_win, month_loss);
+    if (subtotal_amount != 0) {
+        ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, current_month_win, current_month_loss);
+    }
+
     ListBoxData_OutputClosedYearTotal(hListBox, current_year, YTD, year_win, year_loss);
+    ListBoxData_OutputClosedMonthTotal(hListBox, monthly_amount, month_win, month_loss);
     ListBoxData_OutputClosedWeekTotal(hListBox, weekly_amount, week_win, week_loss);
     ListBoxData_OutputClosedDayTotal(hListBox, daily_amount, day_win, day_loss);
 
@@ -223,7 +236,7 @@ void ClosedTrades_ShowClosedTrades()
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     // Select row past the DAY total line if possible
-    int curSel = min(ListBox_GetCount(hListBox)-1, 4);
+    int curSel = min(ListBox_GetCount(hListBox)-1, 5);
     ClosedTrades_ShowListBoxItem(curSel);  
 
     // Redraw the ListBox to ensure that any recalculated columns are 
