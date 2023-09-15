@@ -129,6 +129,8 @@ void ActiveTrades_ShowActiveTrades()
     // Ensure that the Trades panel is set
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
 
+    // If no trades exist then simply exit
+    if (trades.size() == 0) return;
 
     // Determine if we need to initialize the listbox and request market data
     if (previous_market_data_loaded == false) {

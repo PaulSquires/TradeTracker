@@ -373,6 +373,9 @@ void ListBoxData_DestroyItemData(HWND hListBox)
 // ========================================================================================
 void ListBoxData_RequestMarketData(HWND hListBox)
 {
+    // If no trades exist then simply exit
+    if (trades.size() == 0) return;
+
     // Request market data for each open trade
     int item_count = ListBox_GetCount(hListBox);
     for (int i = 0; i < item_count; i++) {
