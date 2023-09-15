@@ -836,36 +836,40 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 		if (ld->leg->contract_id == contract.conId) {
 			theme_color = COLOR_WHITEDARK;
 
-			double average_price = (average_cost / ld->trade->multiplier);
-			ld->leg->average_price = average_price;
-			text = AfxMoney(average_price, true, ld->trade->ticker_decimals);
-			ld->leg->average_price_text = text;
-			ld->SetTextData(COLUMN_TICKER_AVGPX, text, theme_color);   // Book Value and average Price
+			// POSITION COST BASIS
+			double position_cost = (average_cost * ld->leg->open_quantity);
+			ld->leg->position_cost = position_cost;
+			text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
+			ld->leg->position_cost_text = text;
+			ld->SetTextData(COLUMN_TICKER_COST, text, theme_color);   // Book Value and average Price
 
-			// If this is a Lean Hog Futures contract then we multiply the price by 100 b/c IBKR
-			// stores it as cents but we placed the trade as "dollars".  eg. .85 vs. 85
-			if (ld->trade->ticker_symbol == L"/HE") {
-				market_price *= 100;
-			}
+			// MARKET VALUE
+			ld->leg->market_value = market_value;
+			text = AfxMoney(market_value, true, ld->trade->ticker_decimals);
+			ld->leg->market_value_text = text;
+			ld->SetTextData(COLUMN_TICKER_MARKETVALUE, text, theme_color);
 
-			ld->leg->market_price = market_price;
-			text = AfxMoney(market_price, true, ld->trade->ticker_decimals);
-			ld->leg->market_price_text = text;
-			ld->SetTextData(COLUMN_TICKER_LASTPX, text, theme_color);   // Market Value and Last Price
-
-			double percentage = (average_price - market_price) / average_price * 100;
-			if (ld->leg->open_quantity > 0) percentage = percentage * -1;
-			ld->leg->percentage = percentage;
-			text = AfxMoney(percentage, true, 1) + L"%";
-			ld->leg->percentage_text = text;
-			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values for the previous two columns data
-			
+			// UNREALIZED PNL
 			ld->leg->unrealized_pnl = unrealized_PNL;
 			theme_color = (unrealized_PNL < 0) ? COLOR_RED : COLOR_GREEN;
-			text = AfxMoney(unrealized_PNL, false, 0);
+			text = AfxMoney(unrealized_PNL, false, ld->trade->ticker_decimals);
 			ld->leg->unrealized_pnl_text = text;
 			ld->leg->unrealized_pnl_color = theme_color;
 			ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
+
+			// UNREALIZED PNL PERCENTAGE
+			double percentage = (unrealized_PNL / position_cost) * 100;
+			if (unrealized_PNL >= 0) {
+				percentage = abs(percentage);
+			} else {
+				// percentage must also be negative
+				if (percentage > 0) percentage *= -1;
+			} 
+			theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
+			ld->leg->percentage = percentage;
+			text = AfxMoney(percentage, false, 2) + L"%";
+			ld->leg->percentage_text = text;
+			ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values for the previous two columns data
 
 			RECT rc{};
 			ListBox_GetItemRect(hListBox, index, &rc);
@@ -876,25 +880,37 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 			// Update the Trade's tickerLine with the new totals
 			ld = (ListBoxData*)ListBox_GetItemData(hListBox, index_trade);
 			if (ld != nullptr) {
-				double percentage = 0;
 				double uPNL = 0;
-				int numLegs = 0;
+				double total_cost = 0;
+				double total_marketvalue = 0;
 				for (const auto& leg : ld->trade->open_legs)	{
-					percentage += leg->percentage;
+					total_cost += leg->position_cost;
+					total_marketvalue += leg->market_value;
 					uPNL += leg->unrealized_pnl;
-					++numLegs;
 				}
 
 				theme_color = COLOR_WHITEDARK;
-				text = AfxMoney(percentage / numLegs, true, 1) + L"%";
-				ld->trade->percentage_text = text;
-				ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values
+
+				text = AfxMoney(total_cost, true, ld->trade->ticker_decimals);
+				ld->trade->total_position_cost_text = text;
+				ld->SetTextData(COLUMN_TICKER_COST, text, theme_color);   // Book Value and average Price
+
+				text = AfxMoney(total_marketvalue, true, ld->trade->ticker_decimals);
+				ld->trade->total_market_value_text = text;
+				ld->SetTextData(COLUMN_TICKER_MARKETVALUE, text, theme_color);
 
 				theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
-				text = AfxMoney(uPNL, false, 0);
+				text = AfxMoney(uPNL, false, 2);
 				ld->trade->unrealized_pnl_text = text;
 				ld->trade->unrealized_pnl_color = theme_color;
 				ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
+
+				percentage = (uPNL / total_cost) * 100;
+				percentage = (uPNL >= 0) ? abs(percentage) : percentage * -1;
+				text = AfxMoney(percentage, false, 2) + L"%";
+				theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
+				ld->trade->percentage_text = text;
+				ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values
 
 				RECT rc{};
 				ListBox_GetItemRect(hListBox, index_trade, &rc);

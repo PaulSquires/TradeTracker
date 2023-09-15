@@ -460,7 +460,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->original_quantity = intQuantity;
             leg->open_quantity = intQuantity;
             if (tws_IsConnected()) {
-                leg->average_price_text = L"Wait...";    // visual notice until next price update arrives.
+                leg->position_cost_text = L"Wait...";    // visual notice until next price update arrives.
             }
             break;
 
@@ -474,7 +474,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
                 leg->leg_back_pointer_id = tdd.legs.at(row)->leg_id;
             }
             if (tws_IsConnected()) {
-                leg->average_price_text = L"Wait...";    // visual notice until next price update arrives.
+                leg->position_cost_text = L"Wait...";    // visual notice until next price update arrives.
             }
             break;
         }

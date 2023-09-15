@@ -57,8 +57,8 @@ public:
     bool         isOpen();                 // method to calc if leg quantity is not zero
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
 
-    double average_price = 0;              // real time data receive via updatePortfolio
-    double market_price = 0;               // real time data receive via updatePortfolio
+    double position_cost = 0;              // real time data receive via updatePortfolio
+    double market_value = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                 // real time data receive via updatePortfolio
     double unrealized_pnl = 0;             // real time data receive via updatePortfolio
     
@@ -66,8 +66,8 @@ public:
     // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives
     // therefore the user will always see the most recent data until the new data arrives.
-    std::wstring average_price_text = L"";
-    std::wstring market_price_text = L"";
+    std::wstring position_cost_text = L"";
+    std::wstring market_value_text = L"";
     std::wstring percentage_text = L"";
     std::wstring unrealized_pnl_text = L"";
     DWORD unrealized_pnl_color = COLOR_WHITEDARK;
@@ -117,6 +117,8 @@ public:
     std::wstring ticker_change_text = L"";
     std::wstring ticker_last_price_text = L"0.00";
     std::wstring ticker_percent_change_text = L"";
+    std::wstring total_position_cost_text = L"";
+    std::wstring total_market_value_text = L"";
     std::wstring percentage_text = L"";
     std::wstring unrealized_pnl_text = L"";
     DWORD itm_color = COLOR_WHITELIGHT;

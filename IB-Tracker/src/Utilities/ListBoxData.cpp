@@ -88,9 +88,9 @@ int nTradesMinColWidth[MAX_COLUMNS] =
     60,     /* strike price / current price */
     45,     /* put/call */
     50,     /* AvgPX and Cost Basis*/
-    50,     /* Market Value and Last Price */
+    50,     /* Market Vaue */
+    50,     /* Unrealized PNL */
     50,     /* Percentages */
-    50      /* Unrealized PNL */
 };
 
 int nClosedMinColWidth[MAX_COLUMNS] =
@@ -532,19 +532,23 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // price percentage change
 
-        ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+        text = (trade->total_position_cost_text.length()) ? trade->total_position_cost_text : L"";
+        ld->SetData(COLUMN_TICKER_COST, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
-        ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
 
-        text = (trade->percentage_text.length()) ? trade->percentage_text : L"";
-        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
-        
+        text = (trade->total_market_value_text.length()) ? trade->total_market_value_text : L"";
+        ld->SetData(COLUMN_TICKER_MARKETVALUE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value
+
         text = (trade->unrealized_pnl_text.length()) ? trade->unrealized_pnl_text : L"";
         clr = (trade->unrealized_pnl_color != COLOR_WHITEDARK) ? trade->unrealized_pnl_color : COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // unrealized PNL
+
+        text = (trade->percentage_text.length()) ? trade->percentage_text : L"";
+        ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
+
     }
     ListBox_AddString(hListBox, ld);
 
@@ -694,25 +698,25 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
                 std::wstring text = L"";
 
-                text = (leg->average_price_text.length()) ? leg->average_price_text : L"";
-                ld->SetData(COLUMN_TICKER_AVGPX, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                text = (leg->position_cost_text.length()) ? leg->position_cost_text : L"";
+                ld->SetData(COLUMN_TICKER_COST, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
                 col++;
-                
-                text = (leg->market_price_text.length()) ? leg->market_price_text : L"";
-                ld->SetData(COLUMN_TICKER_LASTPX, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value and Last Price
-                col++;
-                
-                text = (leg->percentage_text.length()) ? leg->percentage_text: L"";
-                ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Percentage values for the previous two columns data
+
+                text = (leg->market_value_text.length()) ? leg->market_value_text : L"";
+                ld->SetData(COLUMN_TICKER_MARKETVALUE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value
                 col++;
                 
                 text = (leg->unrealized_pnl_text.length()) ? leg->unrealized_pnl_text : L"";
                 clr = (leg->unrealized_pnl_color != COLOR_WHITEDARK) ? leg->unrealized_pnl_color : COLOR_WHITEDARK;
                 ld->SetData(COLUMN_TICKER_UPNL, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     clr, font8, FontStyleRegular);   // Unrealized profit or loss
+
+                text = (leg->percentage_text.length()) ? leg->percentage_text : L"";
+                ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Percentage values for the previous two columns data
+                col++;
             }
 
             ListBox_AddString(hListBox, ld);
