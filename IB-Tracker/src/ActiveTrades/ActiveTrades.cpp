@@ -215,6 +215,9 @@ void ActiveTrades_ShowActiveTrades()
         ListBoxData_RequestMarketData(hListBox);
     }
 
+    // Get any new or updated Account liquidity and BP values
+    tws_RequestAccountSummary();
+
     SetFocus(hListBox);
 
 }

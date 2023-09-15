@@ -93,4 +93,5 @@ void tws_PerformReconciliation();
 void tws_PauseTWS();
 void tws_ResumeTWS();
 void tws_RequestPortfolioUpdates();
+void tws_RequestAccountSummary();
 

@@ -345,7 +345,7 @@ void tws_ConnectionSuccessful()
 
 		// Request Account Summary in order to get liquidity amounts
 		ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
-		client.RequestAccountSummary();
+		tws_RequestAccountSummary();
 
 		// Start getting market data and portfolio updates.
 		ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
@@ -451,6 +451,12 @@ void tws_ResumeTWS()
 {
 	if (!tws_IsConnected()) return;
 	is_thread_paused = false;
+}
+
+
+void tws_RequestAccountSummary()
+{
+	client.RequestAccountSummary();
 }
 
 
