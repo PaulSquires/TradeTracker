@@ -388,11 +388,11 @@ void ListBoxData_RequestMarketData(HWND hListBox)
         previous_market_data_loaded = true;
     }
 
-
     // Request portfolio updates. This also loads the IBKR and local vectors that 
     // are used for performing Reconciliations and also displaying position/leg real time data.
     if (tws_IsConnected())
         tws_RequestPortfolioUpdates();
+
 }
 
 
