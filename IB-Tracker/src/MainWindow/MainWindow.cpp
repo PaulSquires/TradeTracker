@@ -146,20 +146,16 @@ void MainWindow_BlurPanels(bool active)
 // ========================================================================================
 void MainWindow_StartupShowTrades()
 {
-    if (trades.size() != 0) {
-        ActiveTrades_ShowActiveTrades();
-
-        if (GetStartupConnect()) {
-            SendMessage(SideMenu.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
-            bool res = tws_Connect();
-            if (tws_IsConnected()) {
-                // Need to re-populate the Trades if successfully connected in order
-                // to send the request market data for each ticker.
-                ListBoxData_DestroyItemData(GetDlgItem(ActiveTrades.WindowHandle(), IDC_TRADES_LISTBOX));
-                ActiveTrades_ShowActiveTrades();
-            }
+    ActiveTrades_ShowActiveTrades();
+    if (GetStartupConnect()) {
+        SendMessage(SideMenu.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
+        bool res = tws_Connect();
+        if (tws_IsConnected()) {
+            // Need to re-populate the Trades if successfully connected in order
+            // to send the request market data for each ticker.
+            ListBoxData_DestroyItemData(GetDlgItem(ActiveTrades.WindowHandle(), IDC_TRADES_LISTBOX));
+            ActiveTrades_ShowActiveTrades();
         }
-
     }
 }
 

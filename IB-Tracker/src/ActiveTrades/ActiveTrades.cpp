@@ -129,11 +129,9 @@ void ActiveTrades_ShowActiveTrades()
     // Ensure that the Trades panel is set
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
 
-    // If no trades exist then simply exit
-    if (trades.size() == 0) return;
 
     // Determine if we need to initialize the listbox and request market data
-    if (previous_market_data_loaded == false) {
+    if (previous_market_data_loaded == false && trades.size() != 0) {
         ListBox_ResetContent(hListBox);
 
         // Prevent ListBox redrawing until all calculations are completed
@@ -154,7 +152,6 @@ void ActiveTrades_ShowActiveTrades()
                     return false;
                 } 
             });
-
 
 
         // Create the new ListBox line data and initiate the new market data.
@@ -191,6 +188,16 @@ void ActiveTrades_ShowActiveTrades()
     }
 
 
+    // If no Trades exist then add simple message to user to add Trade
+    if (trades.size() == 0) {
+        ListBox_ResetContent(hListBox);
+        ListBoxData_NoTradesExistMessage(hListBox);
+        ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1);
+        AfxRedrawWindow(hListBox);
+        TradeHistory_ShowTradesHistoryTable(nullptr);
+    }
+
+
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
     curSel = ListBox_GetCurSel(hListBox);
@@ -203,9 +210,10 @@ void ActiveTrades_ShowActiveTrades()
         curSel = 0;
     }
 
-
-    ListBox_SetSel(hListBox, true, curSel);
-    ActiveTrades_ShowListBoxItem(curSel);
+    if (trades.size() != 0) {
+        ListBox_SetSel(hListBox, true, curSel);
+        ActiveTrades_ShowListBoxItem(curSel);
+    }
 
     RECT rc; GetClientRect(HWND_ACTIVETRADES, &rc);
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);

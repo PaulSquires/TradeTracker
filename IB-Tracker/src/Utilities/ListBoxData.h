@@ -124,6 +124,7 @@ DWORD GetCategoryColor(int category);
 bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int index);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
+void ListBoxData_NoTradesExistMessage(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(

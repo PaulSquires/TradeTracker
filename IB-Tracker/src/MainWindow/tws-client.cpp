@@ -456,6 +456,7 @@ void tws_ResumeTWS()
 
 void tws_RequestAccountSummary()
 {
+	if (!tws_IsConnected()) return;
 	client.RequestAccountSummary();
 }
 

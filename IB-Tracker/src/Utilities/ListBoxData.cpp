@@ -375,7 +375,8 @@ void ListBoxData_RequestMarketData(HWND hListBox)
 {
     // If no trades exist then simply exit
     if (trades.size() == 0) return;
-
+    if (!tws_IsConnected()) return;
+    
     // Request market data for each open trade
     int item_count = ListBox_GetCount(hListBox);
     for (int i = 0; i < item_count; i++) {
@@ -413,6 +414,29 @@ void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& 
 
     ld->line_type = LineType::category_header;
     ListBox_AddString(hListBox, ld);
+}
+
+
+// ========================================================================================
+// Add a simple No Trades Exist message
+// ========================================================================================
+void ListBoxData_NoTradesExistMessage(HWND hListBox)
+{
+    ListBoxData* ld = new ListBoxData;
+    std::wstring text = L"No locally created Trades exist.";
+    ld->line_type = LineType::category_header;
+    ld->SetData(0, nullptr, -1, text, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleRegular);
+    ListBox_AddString(hListBox, ld);
+
+    ld = new ListBoxData;
+    text = L"Create Trades manually and IB-Tracker will retrieve data from IBKR TWS.";
+    ld->line_type = LineType::category_header;
+    ld->SetData(0, nullptr, -1, text, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleRegular);
+    ListBox_AddString(hListBox, ld);
+
+    
 }
 
 
@@ -876,6 +900,8 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 
     DWORD clr = (subtotal >= 0) ? COLOR_GREEN : COLOR_RED;
     
+    if (year == 0) year = AfxGetYear(AfxCurrentDate());
+
     std::wstring text = std::to_wstring(year) + L" TOTAL";
     ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleBold);
