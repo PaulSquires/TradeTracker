@@ -249,8 +249,9 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     // Position the right hand side History Panel
     int right_panel_width = AfxGetWindowWidth(HWND_RIGHTPANEL);
+    int right_panel_left = cx - right_panel_width - INNER_MARGIN;
     hdwp = DeferWindowPos(hdwp, HWND_RIGHTPANEL, 0,
-                cx - right_panel_width - INNER_MARGIN, 0, right_panel_width, cy - MARGIN,
+                right_panel_left, 0, right_panel_width, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
         
@@ -266,7 +267,14 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nTop = AfxScaleY(20);
     int nHeight = AfxScaleY(16);
     int nWidth = middle_panel_width; 
-    DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_HIDEWINDOW);
+    DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
+
+    // Position the Update Available label
+    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
+    nTop = AfxScaleY(20);
+    nHeight = AfxScaleY(16);
+    nWidth = right_panel_width; 
+    DeferWindowPos(hdwp, hCtl, 0, right_panel_left, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
 
 
     EndDeferWindowPos(hdwp);
@@ -317,8 +325,14 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // Create a Warning label at bottom of the MainWindow to display warning messages.
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"WARNING !!!", COLOR_YELLOW, COLOR_RED,
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"", COLOR_YELLOW, COLOR_RED,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
+    ShowWindow(hCtl, SW_HIDE);
+
+    // Create a Update Available label at bottom of the MainWindow.
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE, L"", COLOR_WHITEMEDIUM, COLOR_BLACK,
+        CustomLabelAlignment::middle_right, 0, 0, 0, 0);
+    ShowWindow(hCtl, SW_HIDE);
 
 
     return TRUE;

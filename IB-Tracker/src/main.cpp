@@ -26,12 +26,14 @@ SOFTWARE.
 
 #include "pch.h"
 
+#include "Utilities/AfxWin.h"
 #include "Database/database.h"
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "Transactions/TransDateFilter.h"
 #include "DatePicker/Calendar.h"
 #include "Category/CategoryPopup.h"
+#include "CustomLabel/CustomLabel.h"
 #include "Utilities/UserMessages.h"
 #include <wchar.h>
 
@@ -72,7 +74,6 @@ void BindStdHandlesToConsole()
     std::wcin.clear();
     std::cin.clear();
 }
-
 
 
 // ========================================================================================
@@ -177,7 +178,7 @@ int APIENTRY wWinMain(
     // correctly determine it's thumb size due to zero height ListBox.
     PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
 
-
+    
     // Call the main modal message pump and wait for it to end.
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))

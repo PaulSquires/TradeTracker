@@ -48,6 +48,7 @@ extern HWND HWND_MIDDLEPANEL;
 #define IDI_MAINICON 106
 
 constexpr int IDC_MAINWINDOW_WARNING = 100;
+constexpr int IDC_MAINWINDOW_UPDATEAVAILABLE = 101;
 
 
 void MainWindow_BlurPanels(bool active);
