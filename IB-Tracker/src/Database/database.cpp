@@ -315,10 +315,7 @@ bool LoadDatabase()
             trade->bp_end_date = trade->oldest_trade_trans_date;
         }
 
-        trade->acb = 0;
-        for (const auto trans : trade->transactions) {
-            trade->acb = trade->acb + trans->total;
-        }
+        trade->CalculateAdjustedCostBase();
     }
 
     db.close();

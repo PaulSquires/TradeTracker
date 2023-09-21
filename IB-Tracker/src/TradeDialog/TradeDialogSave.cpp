@@ -275,10 +275,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trade->CreateOpenLegsVector();
 
     // Recalculate the ACB for the trade
-    trade->acb = 0;
-    for (const auto trans : trade->transactions) {
-        trade->acb = trade->acb + trans->total;
-    }
+    trade->CalculateAdjustedCostBase();
 
     // Save the new data
     SaveDatabase();
@@ -516,10 +513,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trade->CreateOpenLegsVector();
 
     // Recalculate the ACB for the trade
-    trade->acb = 0;
-    for (const auto trans : trade->transactions) {
-        trade->acb = trade->acb + trans->total;
-    }
+    trade->CalculateAdjustedCostBase();
 
     // Save the new data
     SaveDatabase();
@@ -728,10 +722,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trade->CreateOpenLegsVector();
 
     // Recalculate the ACB for the trade
-    tdd.trade->acb = 0;
-    for (const auto trans : tdd.trade->transactions) {
-        tdd.trade->acb = tdd.trade->acb + trans->total;
-    }
+    trade->CalculateAdjustedCostBase();
 
     // Save/Load the new data
     SaveDatabase();
