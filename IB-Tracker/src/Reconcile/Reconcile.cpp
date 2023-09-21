@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Reconcile.h"
 
 
-std::vector<positionStruct> IBKRPositions;
-std::vector<positionStruct> local_positions;
+std::vector<positionStruct> IBKRPositions;    // stays persistent
+std::vector<positionStruct> local_positions;  // will get cleared
 
 
 HWND HWND_RECONCILE = NULL;
@@ -54,8 +54,22 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
 	// This will receive every open position as reported by IBKR. We take these positions and
 	// store them in the IBKRPositions vector for later processing.
-	if (position == 0) return;
+	
+	// If position is zero then the contract has been closed so find it in our existing
+	// vector and remove it.
+	if (position == 0) {
+		auto end = std::remove_if(IBKRPositions.begin(),
+			IBKRPositions.end(),
+			[contract](positionStruct const& p) {
+				return (p.contract_id == contract.conId) ? true : false;
+			});
 
+		IBKRPositions.erase(end, IBKRPositions.end());
+		return;
+	}
+
+
+	// This is a new position so add it to the vector
 	positionStruct p{};
 	p.contract_id   = contract.conId;
 	p.open_quantity = (int)intelDecimalToDouble(position);
@@ -106,9 +120,10 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 
 
 // ========================================================================================
-// Information received from TwsClient::positionEnd callback
+// Information received from TwsClient::positionEnd callback and when Reconciliation
+// is requested to be run.
 // ========================================================================================
-void Reconcile_positionEnd()
+void Reconcile_doPositionMatching()
 {
 	// Add all of the current LOCAL "Open" positions to the local_positions vector
 	for (const auto& trade : trades) {
@@ -227,18 +242,10 @@ void Reconcile_positionEnd()
 	if (text.length() == 0) text = L"** Everything matches correctly **";
 	results_text += text;
 
-	// Clear the vectors in case we run reconcile again
+	// Clear the local vector in case we run reconcile again. The IBKR vector will
+	// be dynamically updated as positions change in TWS and it callback to our program.
 	local_positions.clear();
-	IBKRPositions.clear();
 
-	// Send notification to the reconciliation popup dialog that it can now access the
-	// reconciliation string and display it in the textbox.
-	SendMessage(HWND_RECONCILE, MSG_RECONCILIATION_READY, 0, 0);
-
-
-	// Send notification to ActiveTrades window that positions have all been loaded
-	// thereby allowing the loading of portfolio values.
-	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
 }
 
 
@@ -299,12 +306,6 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 		HANDLE_MSG(m_hwnd, WM_CLOSE, Reconcile_OnClose);
         HANDLE_MSG(m_hwnd, WM_SIZE, Reconcile_OnSize);
 
-	case MSG_RECONCILIATION_READY:
-	{
-		AfxSetWindowText(GetDlgItem(m_hwnd, IDC_RECONCILE_TEXTBOX), results_text.c_str());
-		return 0;
-	}
-
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
 }
@@ -325,6 +326,7 @@ void Reconcile_Show()
 	HANDLE hIconSmall = LoadImage(Reconcile.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
 	SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
+
 	AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
 	EnableWindow(HWND_MAINWINDOW, FALSE);
@@ -333,6 +335,11 @@ void Reconcile_Show()
 	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
 	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
+
+	// Do the reconciliation matching
+	Reconcile_doPositionMatching();
+	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), results_text.c_str());
+
 
 	// Fix Windows 10 white flashing
 	BOOL cloak = TRUE;

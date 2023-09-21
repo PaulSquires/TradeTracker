@@ -87,6 +87,8 @@ public:
         if (tickId != -1) line_type = LineType::ticker_line;
         tickerId = tickId;
         trade = tradeptr;
+        if (trade != nullptr) trade->tickerId = tickerId;
+
         col[index].text = text;
         col[index].HAlignment = HAlignment;
         col[index].VAlignment = VAlignment;
@@ -118,7 +120,6 @@ enum class TableType
     trans_panel
 };
 
-extern bool previous_market_data_loaded;
 
 DWORD GetCategoryColor(int category);
 bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int index);

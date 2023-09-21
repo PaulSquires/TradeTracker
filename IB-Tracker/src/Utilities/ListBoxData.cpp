@@ -341,20 +341,12 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int inde
 // ========================================================================================
 void ListBoxData_DestroyItemData(HWND hListBox)
 {
-    // Cancel any previous market data requests and delete any previously
-    // allocated ListBoxData structures.
+    // delete any previously manually allocated ListBoxData structures.
     int item_count = ListBox_GetCount(hListBox);
 
     for (int i = 0; i < item_count; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->line_type == LineType::ticker_line && previous_market_data_loaded) {
-                // Cancelling a market data symbol is not synchronous therefore we need
-                // to use ever increasing tickerid numbers to avoid duplicate ticker id
-                // errors when the listbox is reloaded.
-                tws_CancelMarketData(ld->tickerId);
-                previous_market_data_loaded = false;
-            }
             ld = nullptr;
             delete(ld);
         }
@@ -362,9 +354,6 @@ void ListBoxData_DestroyItemData(HWND hListBox)
 
     // Clear the current trades listbox
     ListBox_ResetContent(hListBox);
-    if (hListBox == GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX)) {
-        previous_market_data_loaded = false;
-    }
 }
 
 
@@ -387,16 +376,6 @@ void ListBoxData_RequestMarketData(HWND hListBox)
             }
         }
     }
-
-    if (tws_IsConnected()) {
-        previous_market_data_loaded = true;
-    }
-
-    // Request portfolio updates. This also loads the IBKR and local vectors that 
-    // are used for performing Reconciliations and also displaying position/leg real time data.
-    if (tws_IsConnected())
-        tws_RequestPortfolioUpdates();
-
 }
 
 

@@ -92,6 +92,9 @@ void tws_RequestMarketData(ListBoxData* ld);
 void tws_PerformReconciliation();
 void tws_PauseTWS();
 void tws_ResumeTWS();
-void tws_RequestPortfolioUpdates();
 void tws_RequestAccountSummary();
+void tws_RequestMarketUpdates();
+void tws_RequestPositions();
+void tws_CancelPositions();
+
 

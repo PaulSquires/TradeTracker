@@ -344,11 +344,18 @@ void tws_ConnectionSuccessful()
 	if (tws_IsConnected()) {
 
 		// Request Account Summary in order to get liquidity amounts
-		ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
 		tws_RequestAccountSummary();
 
-		// Start getting market data and portfolio updates.
-		ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+		// Load the IBKR and Local positions into the vectors and do the matching. This is
+		// important because we need get the contract id's loaded into each option leg
+		// in order for the Portfolio Value updates to match it.
+		// When requestPositions completes, it sends a notification to the Active Trades
+		// window that it is now okay to request the Portfolio Updates. We make those
+		// portfolio update calls there rather than here.
+		tws_RequestPositions();
+
+		// Start getting market data for each active ticker.
+		tws_RequestMarketUpdates();
 
 		// Create and start the ping thread
 		ping_thread = std::jthread(PingFunction);
@@ -432,6 +439,12 @@ void tws_CancelMarketData(TickerId ticker_id)
 }
 
 
+void tws_RequestMarketUpdates()
+{
+	ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+}
+
+
 void tws_RequestMarketData(ListBoxData* ld)
 {
 	if (!tws_IsConnected()) return;
@@ -461,17 +474,15 @@ void tws_RequestAccountSummary()
 }
 
 
-void tws_RequestPortfolioUpdates()
+void tws_CancelPositions()
 {
-	// Load the IBKR and Local positions into the vectors and do the matching. This is
-	// important because we need get the contract id's loaded into each option leg
-	// in irder for the Portfolio Value updates to match it.
 	client.CancelPositions();
-	client.RequestPositions();
+}
 
-	// When requestPositions completes, it sends a notification to the Active Trades
-	// window that it is now okay to request the Portfolio Updates. We make those
-	// portfolio update calls there rather than here.
+
+void tws_RequestPositions()
+{
+	client.RequestPositions();
 }
 
 
@@ -491,13 +502,6 @@ void tws_PerformReconciliation()
 	if (is_running == true) return;
 
 	is_running = true;
-
-	// Load the IBKR and Local positions into the vectors and do the matching
-	// The results will be saved into module global resultsText which will be displayed
-	// when Reconcile_Show() is called and Reconcile_positionEnd() has SendMessage notification
-	// to the dialog to say that text is ready.
-	client.CancelPositions();
-	client.RequestPositions();
 
 	// Show the results
 	Reconcile_Show();
@@ -993,8 +997,13 @@ void TwsClient::positionEnd()
 {
 	// This callback is automatically called the first time all positions have been sent through
 	// the position callback.
-	m_pClient->cancelPositions();
-	Reconcile_positionEnd();
+	Reconcile_doPositionMatching();
+
+
+	// Send notification to ActiveTrades window that positions have all been loaded
+	// thereby allowing the loading of portfolio values.
+	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
+
 
 	// We have finished requesting positions. It is possible that some position closing prices were 
 	// not retrieved because maybe we are connected but it is after hours and we need additional
@@ -1028,6 +1037,8 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 
 	//	std::cout << "reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	
+	ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
+
 	std::wstring account_value = ansi2unicode(value);
 
 	// Get the value and convert it into K amounts

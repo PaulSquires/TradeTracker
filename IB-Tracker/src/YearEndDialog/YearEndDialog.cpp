@@ -90,7 +90,6 @@ bool YearEndDialog_Process(HWND hwnd)
 
 
     SaveDatabase();
-    LoadDatabase();
     
     ClosedTrades_ShowClosedTrades();
 

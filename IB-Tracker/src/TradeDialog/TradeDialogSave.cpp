@@ -282,6 +282,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     // Save the new data
     SaveDatabase();
+    Reconcile_doPositionMatching();
 
 
     // Show our new list of open trades
@@ -525,6 +526,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
     // Save the new data
     SaveDatabase();
+    Reconcile_doPositionMatching();
 
 
     // Show our new list of open trades
@@ -739,11 +741,11 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
 
     // Save/Load the new data
     SaveDatabase();
-    LoadDatabase();
+    Reconcile_doPositionMatching();
+
 
     // Show our new list of open trades
     // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 

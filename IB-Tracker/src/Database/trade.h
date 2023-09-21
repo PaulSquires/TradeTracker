@@ -37,6 +37,8 @@ SOFTWARE.
 
 #include "Utilities/Colors.h"
 
+typedef long TickerId;
+
 
 class Transaction;   // forward declare
 
@@ -104,6 +106,8 @@ public:
     double        trade_bp      = 0;       // Buying Power for the entire trade 
     int           nextleg_id    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
     double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
+
+    TickerId tickerId = -1;
 
     double  ticker_last_price = 0;
     double  ticker_close_price = 0;

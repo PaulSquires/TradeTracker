@@ -130,8 +130,8 @@ void ActiveTrades_ShowActiveTrades()
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
 
 
-    // Determine if we need to initialize the listbox and request market data
-    if (previous_market_data_loaded == false && trades.size() != 0) {
+    // Determine if we need to initialize the listbox
+    if (trades.size() != 0) {
         ListBox_ResetContent(hListBox);
 
         // Prevent ListBox redrawing until all calculations are completed
@@ -166,10 +166,10 @@ void ActiveTrades_ShowActiveTrades()
                     ListBoxData_AddCategoryHeader(hListBox, trade);
                     category_header = trade->category;
                 }
-                ListBoxData_OpenPosition(hListBox, trade, tickerId);
 
-                tickerId++;
-                if (tickerId > 500) tickerId = 100;
+                // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
+                int next_ticker_id = (trade->tickerId > 0) ? trade->tickerId : tickerId++;
+                ListBoxData_OpenPosition(hListBox, trade, next_ticker_id);
             }
         }
 
@@ -221,12 +221,11 @@ void ActiveTrades_ShowActiveTrades()
 
     // Start getting the price data for all of the tickers
     tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
-    if (previous_market_data_loaded == false) {
-        ListBoxData_RequestMarketData(hListBox);
-    }
 
-    // Get any new or updated Account liquidity and BP values
-    tws_RequestAccountSummary();
+
+    // Start getting market price data in case any new tickers were added.
+    tws_RequestMarketUpdates();
+
 
     SetFocus(hListBox);
 
@@ -362,7 +361,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
 
     // Reload the trade list
     // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
+    // This will also clear the LineData pointers
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
@@ -479,7 +478,7 @@ void ActiveTrades_CalledAwayAssignment(
 
     // Reload the trade list
     // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
+    // This will also clear the LineData pointers
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 
@@ -592,7 +591,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     // Reload the trade list
     // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
+    // This will also clear the LineData pointers
     ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
     ActiveTrades_ShowActiveTrades();
 }
@@ -1134,7 +1133,6 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_POSITIONS_READY:
         // Request Positions has completed and has sent this notification so 
         // we can now start requesting the portfolio updates real time data.
-        client.CancelPortfolioUpdates();
         client.RequestPortfolioUpdates();
         return 0;
 
