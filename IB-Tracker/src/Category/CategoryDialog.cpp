@@ -245,7 +245,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SaveConfig();
             dialog_return_code = DIALOG_RETURN_OK;
             if (HWND_MIDDLEPANEL == HWND_ACTIVETRADES) {
-                ActiveTrades_ShowActiveTrades();
+                ActiveTrades_ShowActiveTrades(true);
             }
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }

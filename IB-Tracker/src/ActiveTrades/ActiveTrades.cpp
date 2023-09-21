@@ -110,7 +110,7 @@ void ActiveTrades_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Trades ListBox with the current active/open trades
 // ========================================================================================
-void ActiveTrades_ShowActiveTrades()
+void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 {
     HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
@@ -131,8 +131,10 @@ void ActiveTrades_ShowActiveTrades()
 
 
     // Determine if we need to initialize the listbox
-    if (trades.size() != 0) {
-        ListBox_ResetContent(hListBox);
+    if (bForceReload == true && trades.size() != 0) {
+        // Destroy any existing ListBox line data
+        // This will also clear the LineData pointers and cancel any previous market data
+        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
         // Prevent ListBox redrawing until all calculations are completed
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -360,10 +362,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades(true);
 
 }
 
@@ -477,10 +476,7 @@ void ActiveTrades_CalledAwayAssignment(
     SaveDatabase();
 
     // Reload the trade list
-    // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades(true);
 
 }
 
@@ -590,10 +586,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     SaveDatabase();
 
     // Reload the trade list
-    // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades(true);
 }
 
 

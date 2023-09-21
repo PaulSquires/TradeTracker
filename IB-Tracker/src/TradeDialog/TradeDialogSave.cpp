@@ -286,10 +286,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
 
     // Show our new list of open trades
-    // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades(true);
 
     tdd.trade = nullptr;
 
@@ -530,10 +527,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
 
     // Show our new list of open trades
-    // Destroy any existing ListBox line data
-    // This will also clear the LineData pointers and cancel any previous market data
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades(true);
 
     tdd.trade = nullptr;
 
@@ -745,9 +739,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
 
 
     // Show our new list of open trades
-    // Destroy any existing ListBox line data
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades_ShowActiveTrades(true);
 
     tdd.trade = nullptr;
     

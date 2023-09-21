@@ -520,7 +520,7 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_SIDEMENU_ACTIVETRADES:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                ActiveTrades_ShowActiveTrades();
+                ActiveTrades_ShowActiveTrades(false);
                 break;
             }
 
