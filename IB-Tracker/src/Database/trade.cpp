@@ -72,6 +72,15 @@ void Trade::SetTradeOpenStatus()
 }
 
 
+void Trade::CalculateAdjustedCostBase()
+{
+    this->acb = 0;
+    for (const auto trans : this->transactions) {
+        this->acb += trans->total;
+    }
+}
+
+
 void Trade::CreateOpenLegsVector()
 {
     // Create the openLegs vector. We need this vector because we have to sort the

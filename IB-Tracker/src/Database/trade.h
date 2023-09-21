@@ -141,6 +141,7 @@ public:
     std::vector<std::shared_ptr<Leg>> open_legs;                 // sorted list of open legs for this trade
 
     void SetTradeOpenStatus();
+    void CalculateAdjustedCostBase();
     void CreateOpenLegsVector();
 };
 
