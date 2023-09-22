@@ -54,22 +54,18 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
 	// This will receive every open position as reported by IBKR. We take these positions and
 	// store them in the IBKRPositions vector for later processing.
+	// This function is also called whenever the position data on IBKR server changes. We update
+	// positions here as they are received.
 	
-	// If position is zero then the contract has been closed so find it in our existing
-	// vector and remove it.
-	if (position == 0) {
-		auto end = std::remove_if(IBKRPositions.begin(),
-			IBKRPositions.end(),
-			[contract](positionStruct const& p) {
-				return (p.contract_id == contract.conId) ? true : false;
-			});
+	// Remove any existing version of the contract before adding it again
+	auto end = std::remove_if(IBKRPositions.begin(),
+		IBKRPositions.end(),
+		[contract](positionStruct const& p) {
+			return (p.contract_id == contract.conId) ? true : false;
+		});
+	IBKRPositions.erase(end, IBKRPositions.end());
 
-		IBKRPositions.erase(end, IBKRPositions.end());
-		return;
-	}
-
-
-	// This is a new position so add it to the vector
+	// Add the position the vector
 	positionStruct p{};
 	p.contract_id   = contract.conId;
 	p.open_quantity = (int)intelDecimalToDouble(position);
