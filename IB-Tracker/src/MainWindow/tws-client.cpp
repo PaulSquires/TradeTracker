@@ -551,7 +551,6 @@ bool TwsClient::Connect(const char* host, int port, int clientId)
 void TwsClient::PingTWS() const
 {
 	m_pClient->reqCurrentTime();
-
 	printf("ping\n");
 }
 
@@ -824,6 +823,11 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	//	Utils::doubleMaxString(market_price).c_str(), Utils::doubleMaxString(market_value).c_str(), Utils::doubleMaxString(average_cost).c_str(),
 	//	Utils::doubleMaxString(unrealized_PNL).c_str(), Utils::doubleMaxString(realized_PNL).c_str(), account_name.c_str());
 
+
+	// NOTE: Even though the TWS api docs say that the position values are sent automatically whenever the position changes, it appears
+	// that the values are only updated every 3 minutes as per the docs as well. even unsubscribing and resubscribing does not seem to
+	// get the latest data (same data that displays in the TWS Portfolio window). Seems like we have to 3 minutes between updates.
+
 	// Match the incoming contract_id with the contract_id stored in the Leg.
 
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
@@ -834,7 +838,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 	int index_trade = 0;
 
-	for (int index = 0; index < item_count; index++) {
+	for (int index = 0; index < item_count; ++index) {
 		ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 
 		if (ld == (void*)-1) continue;
@@ -869,7 +873,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 			ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
 
 			// UNREALIZED PNL PERCENTAGE
-			double percentage = (unrealized_PNL / position_cost) * 100;
+			double percentage = ((market_value - position_cost) / position_cost) * 100;
 			if (unrealized_PNL >= 0) {
 				percentage = abs(percentage);
 			} else {
@@ -897,8 +901,9 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 				for (const auto& leg : ld->trade->open_legs)	{
 					total_cost += leg->position_cost;
 					total_marketvalue += leg->market_value;
-					uPNL += leg->unrealized_pnl;
 				}
+
+				uPNL += total_marketvalue - total_cost;
 
 				theme_color = COLOR_WHITEDARK;
 
