@@ -2,7 +2,7 @@
 [![Release](https://img.shields.io/github/v/release/PaulSquires/IB-Tracker?style=flat-square)](https://github.com/PaulSquires/IB-Tracker/releases)
 [![License](https://img.shields.io/github/license/PaulSquires/IB-Tracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/IB-Tracker/total?style=flat-square) -->
-
+   
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
 **Let IB-Tracker free you from the constraints of spreadsheets.**
 
