@@ -87,7 +87,9 @@ public:
         if (tickId != -1) line_type = LineType::ticker_line;
         tickerId = tickId;
         trade = tradeptr;
-        if (trade != nullptr) trade->tickerId = tickerId;
+        if (trade != nullptr && line_type == LineType::ticker_line) {
+            trade->tickerId = tickerId;
+        }
 
         col[index].text = text;
         col[index].HAlignment = HAlignment;
@@ -126,7 +128,7 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int ind
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_NoTradesExistMessage(HWND hListBox);
-void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
+void ListBoxData_OpenPosition(HWND hListBox, std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);

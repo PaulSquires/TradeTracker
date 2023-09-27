@@ -479,7 +479,7 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
 // ========================================================================================
 // Create the display data for an Open Position that displays in Trades & History tables.
 // ========================================================================================
-void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId)
+void ListBoxData_OpenPosition(HWND hListBox, std::shared_ptr<Trade>& trade, TickerId tickerId)
 {
     ListBoxData* ld = new ListBoxData;
     

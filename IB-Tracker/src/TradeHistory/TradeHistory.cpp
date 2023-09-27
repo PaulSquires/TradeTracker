@@ -51,7 +51,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
 // ========================================================================================
-void TradeHistory_ShowTradesHistoryTable(const std::shared_ptr<Trade>& trade)
+void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
 {
     HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);

@@ -171,6 +171,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
                 // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
                 int next_ticker_id = (trade->tickerId > 0) ? trade->tickerId : tickerId++;
+                trade->tickerId = next_ticker_id;
                 ListBoxData_OpenPosition(hListBox, trade, next_ticker_id);
             }
         }
@@ -196,7 +197,8 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         ListBoxData_NoTradesExistMessage(hListBox);
         ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1);
         AfxRedrawWindow(hListBox);
-        TradeHistory_ShowTradesHistoryTable(nullptr);
+        auto t = std::make_shared<Trade>();
+        TradeHistory_ShowTradesHistoryTable(t);
     }
 
 
