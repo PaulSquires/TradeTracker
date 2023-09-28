@@ -26,8 +26,9 @@ SOFTWARE.
 
 #pragma once
 
-const DWORD COLOR_BLACK = Color::Black;  // MakeARGB(255, 0, 0, 0);
-const DWORD COLOR_GRAYDARK = Color::MakeARGB(255, 38, 38, 38);
+const DWORD COLOR_BLACK = Color::Black;
+//const DWORD COLOR_GRAYDARK = Color::MakeARGB(255, 38, 38, 38);
+const DWORD COLOR_GRAYDARK = Color::MakeARGB(255, 22, 26, 27);
 const DWORD COLOR_GRAYMEDIUM = Color::MakeARGB(255, 51, 51, 51);
 const DWORD COLOR_GRAYLIGHT = Color::MakeARGB(255, 68, 68, 68);
 
@@ -47,10 +48,12 @@ const DWORD COLOR_PINK = Color::Pink;
 const DWORD COLOR_TEAL = Color::Teal;
 const DWORD COLOR_KHAKI = Color::DarkKhaki;
 
-const DWORD COLOR_MENUNOTCH = Color::MakeARGB(255, 38, 38, 38);
+//const DWORD COLOR_MENUNOTCH = Color::MakeARGB(255, 38, 38, 38);
+const DWORD COLOR_MENUNOTCH = Color::MakeARGB(255, 22, 26, 27);
 const DWORD COLOR_SEPARATOR = Color::MakeARGB(255, 53, 59, 69);
 const DWORD COLOR_SELECTION = Color::MakeARGB(255, 44, 49, 58);
 
-const DWORD COLOR_SCROLLBARBACK = Color::MakeARGB(255, 38, 38, 38);
+//const DWORD COLOR_SCROLLBARBACK = Color::MakeARGB(255, 38, 38, 38);
+const DWORD COLOR_SCROLLBARBACK = Color::MakeARGB(255, 22, 26, 27);
 const DWORD COLOR_SCROLLBARDIVIDER = Color::MakeARGB(255, 64, 67, 73);
 const DWORD COLOR_SCROLLBARTHUMB = Color::MakeARGB(255, 51, 51, 51);
