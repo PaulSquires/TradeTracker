@@ -198,6 +198,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1);
         AfxRedrawWindow(hListBox);
         auto t = std::make_shared<Trade>();
+        t = nullptr;
         TradeHistory_ShowTradesHistoryTable(t);
     }
 
