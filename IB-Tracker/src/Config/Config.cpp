@@ -57,6 +57,14 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 5, L"Category 5" },
     { 6, L"Category 6" },
     { 7, L"Category 7" },
+    { 8, L"Category 8" },
+    { 9, L"Category 9" },
+    { 10, L"Category 10" },
+    { 11, L"Category 11" },
+    { 12, L"Category 12" },
+    { 13, L"Category 13" },
+    { 14, L"Category 14" },
+    { 15, L"Category 15" },
     {99, L"All Categories" }
 };
 

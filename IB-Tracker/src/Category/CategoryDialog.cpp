@@ -106,13 +106,30 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
+    CustomLabel_SimpleLabel(hwnd, -1, L"Category", text_color_dim, back_color,
+        CustomLabelAlignment::middle_left, 420, 20, 68, 22);
+    CustomLabel_SimpleLabel(hwnd, -1, L"Description", text_color_dim, back_color,
+        CustomLabelAlignment::middle_left, 498, 20, 115, 22);
+
+    nTop = 45;
+    for (int i = 8; i < 16; ++i) {
+        CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), text_color, back_color,
+            CustomLabelAlignment::middle_left, 450, nTop, 20, 23);
+        hCtl = CreateCustomTextBox(hwnd, ctlID, false, ES_LEFT, L"", 500, nTop, 300, 23);
+        CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
+        CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
+        AfxSetWindowText(hCtl, GetCategoryDescription(i));
+        nTop += 25;
+        ctlID++;
+    }
+
     // SAVE button
     std::wstring font_name = L"Segoe UI";
     int font_size = 9;
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 330, 265, 80, 23);
+        CustomLabelAlignment::middle_center, 720, 285, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, bold);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
@@ -264,8 +281,8 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 int CategoryDialog_Show(HWND hWndParent)
 {
-    int nWidth = 460;
-    int nHeight = 345;
+    int nWidth = 840;
+    int nHeight = 400;
 
     HWND hwnd = CategoryDialog.Create(hWndParent, L"Category Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

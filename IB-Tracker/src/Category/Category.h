@@ -52,7 +52,7 @@ public:
 
 
 constexpr int CATEGORY_START = 0;
-constexpr int CATEGORY_END = 7;
+constexpr int CATEGORY_END = 15;
 constexpr int CATEGORY_ALL = 99;
 
 constexpr int IDC_CATEGORYCONTROL_COMBOBOX = 100;
@@ -76,7 +76,14 @@ constexpr int IDC_CATEGORYCONTROL_5      = 145;
 constexpr int IDC_CATEGORYCONTROL_6      = 146;
 constexpr int IDC_CATEGORYCONTROL_7      = 147;
 constexpr int IDC_CATEGORYCONTROL_8      = 148;
-constexpr int IDC_CATEGORYCONTROL_LAST   = 148;
+constexpr int IDC_CATEGORYCONTROL_9      = 149;
+constexpr int IDC_CATEGORYCONTROL_10     = 150;
+constexpr int IDC_CATEGORYCONTROL_11     = 151;
+constexpr int IDC_CATEGORYCONTROL_12     = 152;
+constexpr int IDC_CATEGORYCONTROL_13     = 153;
+constexpr int IDC_CATEGORYCONTROL_14     = 154;
+constexpr int IDC_CATEGORYCONTROL_15     = 155;
+constexpr int IDC_CATEGORYCONTROL_LAST   = 155;
 
 CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
 int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);
