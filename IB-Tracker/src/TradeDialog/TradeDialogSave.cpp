@@ -454,9 +454,6 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         case TradeAction::add_call_to_trade:
             leg->original_quantity = intQuantity;
             leg->open_quantity = intQuantity;
-            if (tws_IsConnected()) {
-                leg->position_cost_text = L"Wait...";    // visual notice until next price update arrives.
-            }
             break;
 
         case TradeAction::close_leg:
@@ -467,9 +464,6 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             if (!tdd.legs.empty()) {
                 tdd.legs.at(row)->open_quantity += guiData.legs.at(row).original_quantity;
                 leg->leg_back_pointer_id = tdd.legs.at(row)->leg_id;
-            }
-            if (tws_IsConnected()) {
-                leg->position_cost_text = L"Wait...";    // visual notice until next price update arrives.
             }
             break;
         }

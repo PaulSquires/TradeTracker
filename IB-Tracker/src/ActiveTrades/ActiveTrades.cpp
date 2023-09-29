@@ -231,7 +231,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     // Start getting market price data in case any new tickers were added.
     tws_RequestMarketUpdates();
 
-
     SetFocus(hListBox);
 
 }
