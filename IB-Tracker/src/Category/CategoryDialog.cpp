@@ -255,7 +255,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (CtrlId == IDC_CATEGORYDIALOG_SAVE) {
             int cID = IDC_CATEGORYCONTROL_FIRST;
-            for (int i = 0; i < 8; ++i) {
+            for (int i = 0; i < 16; ++i) {
                 SetCategoryDescription(i, AfxGetWindowText(GetDlgItem(m_hwnd, cID)));
                 cID++;
             }
