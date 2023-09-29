@@ -46,7 +46,7 @@ int startup_height = 0;
 int startup_right_panel_width = 0;
 
 bool startup_paper_trading = false;
-
+ 
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 0, L"Category 0"},
