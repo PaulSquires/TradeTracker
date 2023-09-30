@@ -7,20 +7,9 @@
 
 #include "platformspecific.h"
 #include "Contract.h"
-#include "HistoricalTick.h"
-#include "HistoricalTickBidAsk.h"
-#include "HistoricalTickLast.h"
 #include "Decimal.h"
-#include "HistoricalSession.h"
 
 
-
-//const int MIN_SERVER_VER_REAL_TIME_BARS       = 34;
-//const int MIN_SERVER_VER_SCALE_ORDERS         = 35;
-//const int MIN_SERVER_VER_SNAPSHOT_MKT_DATA    = 35;
-//const int MIN_SERVER_VER_SSHORT_COMBO_LEGS    = 35;
-//const int MIN_SERVER_VER_WHAT_IF_ORDERS       = 36;
-//const int MIN_SERVER_VER_CONTRACT_CONID       = 37;
 const int MIN_SERVER_VER_PTA_ORDERS                 = 39;
 const int MIN_SERVER_VER_FUNDAMENTAL_DATA           = 40;
 const int MIN_SERVER_VER_DELTA_NEUTRAL              = 40;
@@ -232,32 +221,6 @@ const int MAX_MSG_LEN = 0xFFFFFF; // 16Mb - 1byte
 const char API_SIGN[4] = { 'A', 'P', 'I', '\0' }; // "API"
 
 
-// helper structures
-namespace {
-
-struct BarData {
-   std::string date;
-   double open;
-   double high;
-   double low;
-   double close;
-   int volume;
-   double average;
-   std::string hasGaps;
-   int barCount;
-};
-
-struct ScanData {
-   ContractDetails contract;
-   int rank;
-   std::string distance;
-   std::string benchmark;
-   std::string projection;
-   std::string legsStr;
-};
-
-} // end of anonymous namespace
-
 class EWrapper;
 struct EClientMsgSink;
 
@@ -269,97 +232,19 @@ class TWSAPIDLLEXP EDecoder
 
     const char* processTickPriceMsg(const char* ptr, const char* endPtr);
     const char* processTickSizeMsg(const char* ptr, const char* endPtr);
-    const char* processTickOptionComputationMsg(const char* ptr, const char* endPtr);
     const char* processTickGenericMsg(const char* ptr, const char* endPtr);
     const char* processTickStringMsg(const char* ptr, const char* endPtr);
-    const char* processTickEfpMsg(const char* ptr, const char* endPtr);
-    const char* processOrderStatusMsg(const char* ptr, const char* endPtr);
     const char* processErrMsgMsg(const char* ptr, const char* endPtr);
-    const char* processOpenOrderMsg(const char* ptr, const char* endPtr);
     const char* processAcctValueMsg(const char* ptr, const char* endPtr);
     const char* processPortfolioValueMsg(const char* ptr, const char* endPtr);
-    const char* processAcctUpdateTimeMsg(const char* ptr, const char* endPtr);
     const char* processNextValidIdMsg(const char* ptr, const char* endPtr);
-    const char* processContractDataMsg(const char* ptr, const char* endPtr);
-    const char* processBondContractDataMsg(const char* ptr, const char* endPtr);
-    const char* processExecutionDetailsMsg(const char* ptr, const char* endPtr);
-    const char* processMarketDepthMsg(const char* ptr, const char* endPtr);
-    const char* processMarketDepthL2Msg(const char* ptr, const char* endPtr);
-    const char* processNewsBulletinsMsg(const char* ptr, const char* endPtr);
-    const char* processManagedAcctsMsg(const char* ptr, const char* endPtr);
-    const char* processReceiveFaMsg(const char* ptr, const char* endPtr);
-    const char* processHistoricalDataMsg(const char* ptr, const char* endPtr);
-    const char* processScannerDataMsg(const char* ptr, const char* endPtr);
-    const char* processScannerParametersMsg(const char* ptr, const char* endPtr);
     const char* processCurrentTimeMsg(const char* ptr, const char* endPtr);
-    const char* processRealTimeBarsMsg(const char* ptr, const char* endPtr);
-    const char* processFundamentalDataMsg(const char* ptr, const char* endPtr);
-    const char* processContractDataEndMsg(const char* ptr, const char* endPtr);
-    const char* processOpenOrderEndMsg(const char* ptr, const char* endPtr);
-    const char* processAcctDownloadEndMsg(const char* ptr, const char* endPtr);
-    const char* processExecutionDetailsEndMsg(const char* ptr, const char* endPtr);
-    const char* processDeltaNeutralValidationMsg(const char* ptr, const char* endPtr);
-    const char* processTickSnapshotEndMsg(const char* ptr, const char* endPtr);
-    const char* processMarketDataTypeMsg(const char* ptr, const char* endPtr);
-    const char* processCommissionReportMsg(const char* ptr, const char* endPtr);
     const char* processPositionDataMsg(const char* ptr, const char* endPtr);
     const char* processPositionEndMsg(const char* ptr, const char* endPtr);
     const char* processAccountSummaryMsg(const char* ptr, const char* endPtr);
     const char* processAccountSummaryEndMsg(const char* ptr, const char* endPtr);
-    const char* processVerifyMessageApiMsg(const char* ptr, const char* endPtr);
-    const char* processVerifyCompletedMsg(const char* ptr, const char* endPtr);
-    const char* processDisplayGroupListMsg(const char* ptr, const char* endPtr);
-    const char* processDisplayGroupUpdatedMsg(const char* ptr, const char* endPtr);
-    const char* processVerifyAndAuthMessageApiMsg(const char* ptr, const char* endPtr);
-    const char* processVerifyAndAuthCompletedMsg(const char* ptr, const char* endPtr);
-    const char* processPositionMultiMsg(const char* ptr, const char* endPtr);
-    const char* processPositionMultiEndMsg(const char* ptr, const char* endPtr);
-    const char* processAccountUpdateMultiMsg(const char* ptr, const char* endPtr);
-    const char* processAccountUpdateMultiEndMsg(const char* ptr, const char* endPtr);
-    const char* processSecurityDefinitionOptionalParameterMsg(const char* ptr, const char* endPtr);
-    const char* processSecurityDefinitionOptionalParameterEndMsg(const char* ptr, const char* endPtr);
-    const char* processSoftDollarTiersMsg(const char* ptr, const char* endPtr);
-    const char* processFamilyCodesMsg(const char* ptr, const char* endPtr);
-    const char* processSymbolSamplesMsg(const char* ptr, const char* endPtr);
-    const char* processMktDepthExchangesMsg(const char* ptr, const char* endPtr);
-    const char* processTickNewsMsg(const char* ptr, const char* endPtr);
-    const char* processTickReqParamsMsg(const char* ptr, const char* endPtr);
-    const char* processSmartComponentsMsg(const char* ptr, const char* endPtr);
-    const char* processNewsProvidersMsg(const char* ptr, const char* endPtr);
-    const char* processNewsArticleMsg(const char* ptr, const char* endPtr);
-    const char* processHistoricalNewsMsg(const char* ptr, const char* endPtr);
-    const char* processHistoricalNewsEndMsg(const char* ptr, const char* endPtr);
-    const char* processHeadTimestampMsg(const char* ptr, const char* endPtr);
-    const char* processHistogramDataMsg(const char* ptr, const char* endPtr);
-    const char* processHistoricalDataUpdateMsg(const char* ptr, const char* endPtr);
-	const char* processRerouteMktDataReqMsg(const char* ptr, const char* endPtr);
-	const char* processRerouteMktDepthReqMsg(const char* ptr, const char* endPtr);
-	const char* processMarketRuleMsg(const char* ptr, const char* endPtr);
-    const char* processPnLMsg(const char* ptr, const char* endPtr);
-    const char* processPnLSingleMsg(const char* ptr, const char* endPtr);
-    const char* processHistoricalTicks(const char* ptr, const char* endPtr);
-    const char* processHistoricalTicksBidAsk(const char* ptr, const char* endPtr);
-    const char* processHistoricalTicksLast(const char* ptr, const char* endPtr);
-    const char* processTickByTickDataMsg(const char* ptr, const char* endPtr);
-    const char* processOrderBoundMsg(const char* ptr, const char* endPtr);
-    const char* processCompletedOrderMsg(const char* ptr, const char* endPtr);
-    const char* processCompletedOrdersEndMsg(const char* ptr, const char* endPtr);
-    const char* processReplaceFAEndMsg(const char* ptr, const char* endPtr);
-    const char* processWshMetaData(const char* ptr, const char* endPtr);
-    const char* processWshEventData(const char* ptr, const char* endPtr);
-    const char* processHistoricalSchedule(const char* ptr, const char* endPtr);
-    const char* processUserInfo(const char* ptr, const char* endPtr);
-
 
     int processConnectAck(const char*& beginPtr, const char* endPtr);
-
-    static const char* decodeTick(HistoricalTick& tick, const char* ptr, const char* endPtr);
-    static const char* decodeTick(HistoricalTickBidAsk& tick, const char* ptr, const char* endPtr);
-    static const char* decodeTick(HistoricalTickLast& tick, const char* ptr, const char* endPtr);
-    void callEWrapperCallBack(int reqId, const std::vector<HistoricalTick> &ticks, bool done);
-    void callEWrapperCallBack(int reqId, const std::vector<HistoricalTickBidAsk> &ticks, bool done);
-    void callEWrapperCallBack(int reqId, const std::vector<HistoricalTickLast> &ticks, bool done);
-    template<typename T> const char* processHistoricalTicks(const char* ptr, const char* endPtr);
 
 	const char* decodeLastTradeDate(const char* ptr, const char* endPtr, ContractDetails& contract, bool isBond);
 

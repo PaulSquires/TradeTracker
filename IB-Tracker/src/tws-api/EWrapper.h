@@ -11,19 +11,9 @@
 #include <tuple>
 #include <vector>
 #include "CommonDefs.h"
-#include "SoftDollarTier.h"
-#include "DepthMktDataDescription.h"
-#include "FamilyCode.h"
-#include "NewsProvider.h"
+#include "platformspecific.h"
 #include "TickAttrib.h"
-#include "HistogramEntry.h"
-#include "bar.h"
-#include "PriceIncrement.h"
-#include "HistoricalTick.h"
-#include "HistoricalTickBidAsk.h"
-#include "HistoricalTickLast.h"
 #include "Decimal.h"
-#include "HistoricalSession.h"
 
 enum TickType { BID_SIZE, BID, ASK, ASK_SIZE, LAST, LAST_SIZE,
 				HIGH, LOW, VOLUME, CLOSE,
@@ -122,22 +112,11 @@ enum TickType { BID_SIZE, BID, ASK, ASK_SIZE, LAST, LAST_SIZE,
 				FINAL_IPO_LAST,
 				NOT_SET };
 
-typedef std::map<int, std::tuple<std::string, char>> SmartComponentsMap;
-typedef std::vector<HistogramEntry> HistogramDataVector;
-
-
 inline bool isPrice( TickType tickType) {
 	return tickType == BID || tickType == ASK || tickType == LAST || tickType == DELAYED_BID || tickType == DELAYED_ASK || tickType == DELAYED_LAST;
 }
 
 struct Contract;
-struct ContractDetails;
-struct ContractDescription;
-struct Order;
-struct OrderState;
-struct Execution;
-struct DeltaNeutralContract;
-struct CommissionReport;
 
 class EWrapper
 {

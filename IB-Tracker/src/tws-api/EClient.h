@@ -13,7 +13,6 @@
 #include "CommonDefs.h"
 #include "TagValue.h"
 #include "Contract.h"
-#include "WshEventData.h"
 
 namespace ibapi {
 namespace client_constants {
@@ -200,9 +199,6 @@ const int EXCHANGE_UNAVAIL_MSG  = 3;    // control message specifing that an exc
 } // namespace ibapi
 
 struct Contract;
-struct Order;
-struct ExecutionFilter;
-struct ScannerSubscription;
 struct ETransport;
 
 class EWrapper;
@@ -271,98 +267,16 @@ public:
 	void reqMktData(TickerId id, const Contract& contract,
 		const std::string& genericTicks, bool snapshot, bool regulatorySnaphsot, const TagValueListSPtr& mktDataOptions);
 	void cancelMktData(TickerId id);
-	void placeOrder(OrderId id, const Contract& contract, const Order& order);
-	void cancelOrder(OrderId id, const std::string& manualOrderCancelTime);
-	void reqOpenOrders();
 	void reqAccountUpdates(bool subscribe, const std::string& acctCode);
-	void reqExecutions(int reqId, const ExecutionFilter& filter);
-	void reqIds(int numIds);
-	void reqContractDetails(int reqId, const Contract& contract);
 	void reqMktDepth(TickerId tickerId, const Contract& contract, int numRows, bool isSmartDepth, const TagValueListSPtr& mktDepthOptions);
 	void cancelMktDepth(TickerId tickerId, bool isSmartDepth);
-	void reqNewsBulletins(bool allMsgs);
-	void cancelNewsBulletins();
-	void setServerLogLevel(int level);
-	void reqAutoOpenOrders(bool bAutoBind);
-	void reqAllOpenOrders();
-	void reqManagedAccts();
-	void requestFA(faDataType pFaDataType);
-	void replaceFA(int reqId, faDataType pFaDataType, const std::string& cxml);
-	void reqHistoricalData(TickerId id, const Contract& contract,
-		const std::string& endDateTime, const std::string& durationStr,
-		const std::string&  barSizeSetting, const std::string& whatToShow,
-		int useRTH, int formatDate, bool keepUpToDate, const TagValueListSPtr& chartOptions);
-	void exerciseOptions(TickerId tickerId, const Contract& contract,
-		int exerciseAction, int exerciseQuantity,
-		const std::string& account, int override);
-	void cancelHistoricalData(TickerId tickerId );
-	void reqRealTimeBars(TickerId id, const Contract& contract, int barSize,
-		const std::string& whatToShow, bool useRTH, const TagValueListSPtr& realTimeBarsOptions);
-	void cancelRealTimeBars(TickerId tickerId );
-	void cancelScannerSubscription(int tickerId);
-	void reqScannerParameters();
-	void reqScannerSubscription(int tickerId, const ScannerSubscription& subscription, const TagValueListSPtr& scannerSubscriptionOptions, const TagValueListSPtr& scannerSubscriptionFilterOptions);
 	void reqCurrentTime();
-	void reqFundamentalData(TickerId reqId, const Contract&, const std::string& reportType,
-                                 //reserved for future use, must be blank
-                                 const TagValueListSPtr& fundamentalDataOptions);
-	void cancelFundamentalData(TickerId reqId);
-	void calculateImpliedVolatility(TickerId reqId, const Contract& contract, double optionPrice, double underPrice, 
-        //reserved for future use, must be blank
-        const TagValueListSPtr& miscOptions);
-	void calculateOptionPrice(TickerId reqId, const Contract& contract, double volatility, double underPrice, 
-        //reserved for future use, must be blank
-        const TagValueListSPtr& miscOptions);
-	void cancelCalculateImpliedVolatility(TickerId reqId);
-	void cancelCalculateOptionPrice(TickerId reqId);
-	void reqGlobalCancel();
-	void reqMarketDataType(int marketDataType);
 	void reqPositions();
 	void cancelPositions();
 	void reqAccountSummary(int reqId, const std::string& groupName, const std::string& tags);
 	void cancelAccountSummary(int reqId);
-	void verifyRequest(const std::string& apiName, const std::string& apiVersion);
-	void verifyMessage(const std::string& apiData);
-	void verifyAndAuthRequest(const std::string& apiName, const std::string& apiVersion, const std::string& opaqueIsvKey);
-	void verifyAndAuthMessage(const std::string& apiData, const std::string& xyzResponse);
-	void queryDisplayGroups(int reqId);
-	void subscribeToGroupEvents(int reqId, int groupId);
-	void updateDisplayGroup(int reqId, const std::string& contractInfo);
-	void unsubscribeFromGroupEvents(int reqId);
-	void reqPositionsMulti(int reqId, const std::string& account, const std::string& modelCode);
-	void cancelPositionsMulti(int reqId);
-	void reqAccountUpdatesMulti(int reqId, const std::string& account, const std::string& modelCode, bool ledgerAndNLV);
-	void cancelAccountUpdatesMulti(int reqId);
-	void reqSecDefOptParams(int reqId, const std::string& underlyingSymbol, const std::string& futFopExchange, const std::string& underlyingSecType, int underlyingConId);
-	void reqSoftDollarTiers(int reqId);
-	void reqFamilyCodes();
-	void reqMatchingSymbols(int reqId, const std::string& pattern);
-	void reqMktDepthExchanges();
-	void reqSmartComponents(int reqId, std::string bboExchange);
-	void reqNewsProviders();
-	void reqNewsArticle(int requestId, const std::string& providerCode, const std::string& articleId, const TagValueListSPtr& newsArticleOptions);
-	void reqHistoricalNews(int requestId, int conId, const std::string& providerCodes, const std::string& startDateTime, const std::string& endDateTime, int totalResults, 
-		const TagValueListSPtr& historicalNewsOptions);
-	void reqHeadTimestamp(int tickerId, const Contract &contract, const std::string& whatToShow, int useRTH, int formatDate);
-	void cancelHeadTimestamp(int tickerId);
-	void reqHistogramData(int reqId, const Contract &contract, bool useRTH, const std::string& timePeriod);
-	void cancelHistogramData(int reqId);
-	void reqMarketRule(int marketRuleId);
-
-	void reqPnL(int reqId, const std::string& account, const std::string& modelCode);
-	void cancelPnL(int reqId);
-	void reqPnLSingle(int reqId, const std::string& account, const std::string& modelCode, int conId);
-	void cancelPnLSingle(int reqId);
-    void reqHistoricalTicks(int reqId, const Contract &contract, const std::string& startDateTime,
-            const std::string& endDateTime, int numberOfTicks, const std::string& whatToShow, int useRth, bool ignoreSize, const TagValueListSPtr& miscOptions);
     void reqTickByTickData(int reqId, const Contract &contract, const std::string& tickType, int numberOfTicks, bool ignoreSize);
     void cancelTickByTickData(int reqId);
-    void reqCompletedOrders(bool apiOnly);
-	void reqWshMetaData(int reqId);
-	void reqWshEventData(int reqId, const WshEventData &wshEventData);
-	void cancelWshMetaData(int reqId);
-	void cancelWshEventData(int reqid);
-    void reqUserInfo(int reqId);
 
 private:
 
