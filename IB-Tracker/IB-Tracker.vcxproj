@@ -19,41 +19,40 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Utilities\IntelDecimal.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\ActiveTrades\ActiveTrades.h" />
     <ClInclude Include="src\Category\Category.h" />
     <ClInclude Include="src\Category\CategoryDialog.h" />
     <ClInclude Include="src\Category\CategoryPopup.h" />
     <ClInclude Include="src\ClosedTrades\ClosedTrades.h" />
     <ClInclude Include="src\Config\Config.h" />
-    <ClInclude Include="src\DatePicker\Calendar.h" />
+    <ClInclude Include="src\CustomLabel\CustomLabel.h" />
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
-    <ClInclude Include="src\TradeDialog\TradeDialogSave.h" />
-    <ClInclude Include="src\TradeGrid\TradeGrid.h" />
+    <ClInclude Include="src\CustomVScrollBar\CustomVScrollBar.h" />
+    <ClInclude Include="src\Database\database.h" />
+    <ClInclude Include="src\Database\trade.h" />
+    <ClInclude Include="src\DatePicker\Calendar.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\MainWindow\MainWindow.h" />
+    <ClInclude Include="src\MainWindow\tws-client.h" />
+    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
+    <ClInclude Include="src\SideMenu\SideMenu.h" />
     <ClInclude Include="src\Strategy\StrategyButton.h" />
     <ClInclude Include="src\Strategy\StrategyPopup.h" />
     <ClInclude Include="src\TickerTotals\TickerTotals.h" />
     <ClInclude Include="src\TradeDialog\TradeDialog.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogControls.h" />
-    <ClInclude Include="src\ActiveTrades\ActiveTrades.h" />
+    <ClInclude Include="src\TradeDialog\TradeDialogSave.h" />
+    <ClInclude Include="src\TradeGrid\TradeGrid.h" />
+    <ClInclude Include="src\TradeHistory\TradeHistory.h" />
     <ClInclude Include="src\Transactions\TransDateFilter.h" />
     <ClInclude Include="src\Transactions\TransDetail.h" />
     <ClInclude Include="src\Transactions\TransPanel.h" />
-    <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
-    <ClInclude Include="src\Utilities\Colors.h" />
-    <ClInclude Include="src\Utilities\ListBoxData.h" />
-    <ClInclude Include="src\TradeHistory\TradeHistory.h" />
-    <ClInclude Include="src\main.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="src\MainWindow\tws-client.h" />
-    <ClInclude Include="src\SideMenu\SideMenu.h" />
-    <ClInclude Include="src\tws-api\bar.h" />
-    <ClInclude Include="src\tws-api\CommissionReport.h" />
     <ClInclude Include="src\tws-api\CommonDefs.h" />
     <ClInclude Include="src\tws-api\Contract.h" />
-    <ClInclude Include="src\tws-api\ContractCondition.h" />
     <ClInclude Include="src\tws-api\Decimal.h" />
-    <ClInclude Include="src\tws-api\DepthMktDataDescription.h" />
+    <ClInclude Include="src\tws-api\DefaultEWrapper.h" />
     <ClInclude Include="src\tws-api\EClient.h" />
     <ClInclude Include="src\tws-api\EClientException.h" />
     <ClInclude Include="src\tws-api\EClientMsgSink.h" />
@@ -61,7 +60,6 @@
     <ClInclude Include="src\tws-api\EDecoder.h" />
     <ClInclude Include="src\tws-api\EMessage.h" />
     <ClInclude Include="src\tws-api\EMutex.h" />
-    <ClInclude Include="src\tws-api\EOrderDecoder.h" />
     <ClInclude Include="src\tws-api\EPosixClientSocketPlatform.h" />
     <ClInclude Include="src\tws-api\EReader.h" />
     <ClInclude Include="src\tws-api\EReaderOSSignal.h" />
@@ -70,52 +68,28 @@
     <ClInclude Include="src\tws-api\ETransport.h" />
     <ClInclude Include="src\tws-api\EWrapper.h" />
     <ClInclude Include="src\tws-api\EWrapper_prototypes.h" />
-    <ClInclude Include="src\tws-api\Execution.h" />
-    <ClInclude Include="src\tws-api\executioncondition.h" />
-    <ClInclude Include="src\tws-api\FamilyCode.h" />
-    <ClInclude Include="src\tws-api\HistogramEntry.h" />
-    <ClInclude Include="src\tws-api\HistoricalSession.h" />
-    <ClInclude Include="src\tws-api\HistoricalTick.h" />
-    <ClInclude Include="src\tws-api\HistoricalTickBidAsk.h" />
-    <ClInclude Include="src\tws-api\HistoricalTickLast.h" />
     <ClInclude Include="src\tws-api\IExternalizable.h" />
-    <ClInclude Include="src\tws-api\MarginCondition.h" />
-    <ClInclude Include="src\tws-api\NewsProvider.h" />
-    <ClInclude Include="src\tws-api\OperatorCondition.h" />
-    <ClInclude Include="src\tws-api\Order.h" />
-    <ClInclude Include="src\tws-api\OrderCondition.h" />
-    <ClInclude Include="src\tws-api\OrderState.h" />
-    <ClInclude Include="src\Database\database.h" />
-    <ClInclude Include="src\Database\trade.h" />
-    <ClInclude Include="src\MainWindow\MainWindow.h" />
-    <ClInclude Include="src\tws-api\PercentChangeCondition.h" />
     <ClInclude Include="src\tws-api\platformspecific.h" />
-    <ClInclude Include="src\tws-api\PriceCondition.h" />
-    <ClInclude Include="src\tws-api\PriceIncrement.h" />
-    <ClInclude Include="src\tws-api\ScannerSubscription.h" />
-    <ClInclude Include="src\tws-api\SoftDollarTier.h" />
     <ClInclude Include="src\tws-api\TagValue.h" />
     <ClInclude Include="src\tws-api\targetver.h" />
     <ClInclude Include="src\tws-api\TickAttrib.h" />
     <ClInclude Include="src\tws-api\TickAttribBidAsk.h" />
     <ClInclude Include="src\tws-api\TickAttribLast.h" />
-    <ClInclude Include="src\tws-api\TimeCondition.h" />
     <ClInclude Include="src\tws-api\TwsSocketClientErrors.h" />
     <ClInclude Include="src\tws-api\Utils.h" />
-    <ClInclude Include="src\tws-api\VolumeCondition.h" />
-    <ClInclude Include="src\tws-api\WshEventData.h" />
     <ClInclude Include="src\Utilities\AfxWin.h" />
-    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Utilities\Colors.h" />
     <ClInclude Include="src\Utilities\CWindowBase.h" />
-    <ClInclude Include="src\CustomLabel\CustomLabel.h" />
+    <ClInclude Include="src\Utilities\IntelDecimal.h" />
+    <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
-    <ClInclude Include="src\CustomVScrollBar\CustomVScrollBar.h" />
     <ClInclude Include="src\YearEndDialog\YearEndDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IB-Tracker.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="IB-Tracker.aps" />
     <None Include="rcdata1.bin" />
   </ItemGroup>
   <ItemGroup>
@@ -125,64 +99,53 @@
     <Image Include="src\images\png1.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ActiveTrades\ActiveTrades.cpp" />
     <ClCompile Include="src\Category\Category.cpp" />
     <ClCompile Include="src\Category\CategoryDialog.cpp" />
     <ClCompile Include="src\Category\CategoryPopup.cpp" />
     <ClCompile Include="src\ClosedTrades\ClosedTrades.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
-    <ClCompile Include="src\DatePicker\Calendar.cpp" />
+    <ClCompile Include="src\CustomLabel\CustomLabel.cpp" />
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
-    <ClCompile Include="src\TradeDialog\TradeDialogSave.cpp" />
-    <ClCompile Include="src\TradeGrid\TradeGrid.cpp" />
-    <ClCompile Include="src\TradeHistory\TradeHistory.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\MainWindow\tws-client.cpp" />
-    <ClCompile Include="src\SideMenu\SideMenu.cpp" />
-    <ClCompile Include="src\Reconcile\Reconcile.cpp" />
-    <ClCompile Include="src\Strategy\StrategyButton.cpp" />
-    <ClCompile Include="src\Strategy\StrategyPopup.cpp" />
-    <ClCompile Include="src\TickerTotals\TickerTotals.cpp" />
-    <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
-    <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />
-    <ClCompile Include="src\ActiveTrades\ActiveTrades.cpp" />
-    <ClCompile Include="src\Transactions\TransDateFilter.cpp" />
-    <ClCompile Include="src\Transactions\TransDetail.cpp" />
-    <ClCompile Include="src\Transactions\TransPanel.cpp" />
-    <ClCompile Include="src\tws-api\ContractCondition.cpp" />
-    <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
-    <ClCompile Include="src\tws-api\EClient.cpp" />
-    <ClCompile Include="src\tws-api\EClientSocket.cpp" />
-    <ClCompile Include="src\tws-api\EDecoder.cpp" />
-    <ClCompile Include="src\tws-api\EMessage.cpp" />
-    <ClCompile Include="src\tws-api\EMutex.cpp" />
-    <ClCompile Include="src\tws-api\EOrderDecoder.cpp" />
-    <ClCompile Include="src\tws-api\EReader.cpp" />
-    <ClCompile Include="src\tws-api\EReaderOSSignal.cpp" />
-    <ClCompile Include="src\tws-api\ESocket.cpp" />
-    <ClCompile Include="src\tws-api\executioncondition.cpp" />
-    <ClCompile Include="src\tws-api\MarginCondition.cpp" />
-    <ClCompile Include="src\tws-api\OperatorCondition.cpp" />
-    <ClCompile Include="src\tws-api\OrderCondition.cpp" />
-    <ClCompile Include="src\tws-api\PercentChangeCondition.cpp" />
-    <ClCompile Include="src\tws-api\PriceCondition.cpp" />
-    <ClCompile Include="src\tws-api\SoftDollarTier.cpp" />
-    <ClCompile Include="src\tws-api\TimeCondition.cpp" />
-    <ClCompile Include="src\tws-api\Utils.cpp" />
-    <ClCompile Include="src\tws-api\VolumeCondition.cpp" />
+    <ClCompile Include="src\CustomVScrollBar\CustomVScrollBar.cpp" />
     <ClCompile Include="src\Database\database.cpp" />
     <ClCompile Include="src\Database\trade.cpp" />
+    <ClCompile Include="src\DatePicker\Calendar.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow\MainWindow.cpp" />
-    <ClCompile Include="src\Utilities\AfxWin.cpp" />
+    <ClCompile Include="src\MainWindow\tws-client.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Reconcile\Reconcile.cpp" />
+    <ClCompile Include="src\SideMenu\SideMenu.cpp" />
+    <ClCompile Include="src\Strategy\StrategyButton.cpp" />
+    <ClCompile Include="src\Strategy\StrategyPopup.cpp" />
+    <ClCompile Include="src\TickerTotals\TickerTotals.cpp" />
+    <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
+    <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />
+    <ClCompile Include="src\TradeDialog\TradeDialogSave.cpp" />
+    <ClCompile Include="src\TradeGrid\TradeGrid.cpp" />
+    <ClCompile Include="src\TradeHistory\TradeHistory.cpp" />
+    <ClCompile Include="src\Transactions\TransDateFilter.cpp" />
+    <ClCompile Include="src\Transactions\TransDetail.cpp" />
+    <ClCompile Include="src\Transactions\TransPanel.cpp" />
+    <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />
+    <ClCompile Include="src\tws-api\EClient.cpp" />
+    <ClCompile Include="src\tws-api\EClientSocket.cpp" />
+    <ClCompile Include="src\tws-api\EDecoder.cpp" />
+    <ClCompile Include="src\tws-api\EMessage.cpp" />
+    <ClCompile Include="src\tws-api\EMutex.cpp" />
+    <ClCompile Include="src\tws-api\EReader.cpp" />
+    <ClCompile Include="src\tws-api\EReaderOSSignal.cpp" />
+    <ClCompile Include="src\tws-api\ESocket.cpp" />
+    <ClCompile Include="src\tws-api\Utils.cpp" />
+    <ClCompile Include="src\Utilities\AfxWin.cpp" />
     <ClCompile Include="src\Utilities\IntelDecimal.cpp" />
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
-    <ClCompile Include="src\CustomLabel\CustomLabel.cpp" />
-    <ClCompile Include="src\CustomVScrollBar\CustomVScrollBar.cpp" />
     <ClCompile Include="src\YearEndDialog\YearEndDialog.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
