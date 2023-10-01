@@ -39,8 +39,6 @@ std::string GetFuturesExchange(std::string underlying);
 void SetFuturesExchange(std::string underlying, std::string exchange);
 std::wstring GetCategoryDescription(int category_index);
 void SetCategoryDescription(int category_index, std::wstring wszDescription);
-bool GetStartupConnect();
-void SetStartupConnect(bool bConnect);
 void DisplayPaperTradingWarning();
 int GetStartupPort();
 bool IsFuturesTicker(const std::wstring& wszTicker);

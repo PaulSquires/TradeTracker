@@ -27,30 +27,21 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "Database/database.h"
 
 
-class CMainWindow : public CWindowBase<CMainWindow>
+class CMyNotes : public CWindowBase<CMyNotes>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
-class CMainWindowShadow : public CWindowBase<CMainWindowShadow>
-{
-public:
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
+extern CMyNotes MyNotes;
+extern HWND HWND_MYNOTES;
 
-extern CMainWindow Main;
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_MIDDLEPANEL;
+constexpr int IDC_MYNOTES_LBLNOTES = 100;
+constexpr int IDC_MYNOTES_TXTNOTES = 101;
 
-#define IDI_MAINICON 106
-
-constexpr int IDC_MAINWINDOW_WARNING = 100;
-
-
-void MainWindow_BlurPanels(bool active);
-void MainWindow_SetMiddlePanel(HWND hPanel);
-void MainWindow_SetRightPanel(HWND hPanel);
+constexpr int MYNOTES_MARGIN = 24;
 

@@ -214,9 +214,6 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWOPTIONSTRADE, nTop, L"Options Trade");
-
-    nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHARESTRADE, nTop, L"Shares Trade");
 
     nTop += nItemHeight;
@@ -226,6 +223,9 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWOPTIONSTRADE, nTop, L"Options Trade");
+
+    nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWIRONCONDOR, nTop, L"Iron Condor");
 
     nTop += nItemHeight;
@@ -252,38 +252,14 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_RECONCILE, nTop, L"Reconcile");
 
+    nTop += nItemHeight;
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_MYNOTES, nTop, L"My Notes");
+
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_CONNECTTWS, nTop, L"Connect to TWS");
-
-    nTop += nItemHeight + 6;
-    SideMenu_MakeSeparator(hwnd, nTop);
-
-    // Create a label that will display at the very bottom of the Main window
-    // that allows toggling Autoconnect on/off. 
-    nTop += 10;
-    hCtl = CreateCustomLabel(
-        hwnd,
-        IDC_SIDEMENU_AUTOCONNECT,
-        CustomLabelType::text_only,
-        40, nTop, 100, 23);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->hot_test_enable = true;
-        pData->allow_select = false;
-        pData->back_color = COLOR_BLACK;
-        pData->back_color_hot = COLOR_SELECTION;
-        pData->text_color = COLOR_WHITEMEDIUM;
-        pData->text_color_hot = COLOR_WHITEMEDIUM;
-        pData->font_size = 8;
-        pData->font_size_hot = 8;
-        pData->text = GetStartupConnect() ? L"Autoconnect: ON" : L"Autoconnect: OFF";
-        pData->text_hot = pData->text;
-        CustomLabel_SetOptions(hCtl, pData);
-    }
-
 
     return TRUE;
 }
@@ -551,19 +527,6 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 tws_PerformReconciliation();
                 SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                break;
-            }
-
-            case IDC_SIDEMENU_AUTOCONNECT:
-            {
-                SetStartupConnect(!GetStartupConnect());
-                if (GetStartupConnect()) {
-                    CustomLabel_SetText(hCtl, L"Autoconnect: ON");
-                }
-                else {
-                    CustomLabel_SetText(hCtl, L"Autoconnect: OFF");
-                }
-                SaveConfig();
                 break;
             }
 

@@ -35,6 +35,7 @@
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\MainWindow\MainWindow.h" />
     <ClInclude Include="src\MainWindow\tws-client.h" />
+    <ClInclude Include="src\MyNotes\MyNotes.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Reconcile\Reconcile.h" />
     <ClInclude Include="src\SideMenu\SideMenu.h" />
@@ -114,6 +115,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow\MainWindow.cpp" />
     <ClCompile Include="src\MainWindow\tws-client.cpp" />
+    <ClCompile Include="src\MyNotes\MyNotes.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

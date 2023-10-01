@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Transactions/TransPanel.h"
 #include "Transactions/TransDetail.h"
 #include "TickerTotals/TickerTotals.h"
+#include "MyNotes/MyNotes.h"
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
 #include "CustomLabel/CustomLabel.h"
@@ -138,22 +139,6 @@ void MainWindow_BlurPanels(bool active)
         ShowWindow(Shadow.WindowHandle(), SW_HIDE);
     }
 
-}
-
-
-// ========================================================================================
-// Automatically show any existing trades on program startup & connect to TWS.
-// ========================================================================================
-void MainWindow_StartupShowTrades()
-{
-    ActiveTrades_ShowActiveTrades(true);
-    if (GetStartupConnect()) {
-        SendMessage(SideMenu.WindowHandle(), MSG_TWS_CONNECT_START, 0, 0);
-        bool res = tws_Connect();
-        if (tws_IsConnected()) {
-            ActiveTrades_ShowActiveTrades(false);
-        }
-    }
 }
 
 
@@ -266,14 +251,6 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nWidth = middle_panel_width; 
     DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
 
-    // Position the Update Available label
-    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
-    nTop = AfxScaleY(20);
-    nHeight = AfxScaleY(16);
-    nWidth = right_panel_width; 
-    DeferWindowPos(hdwp, hCtl, 0, right_panel_left, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
-
-
     EndDeferWindowPos(hdwp);
 
     // Calculate the area for the "splitter control"
@@ -320,17 +297,15 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
+    MyNotes.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
 
     // Create a Warning label at bottom of the MainWindow to display warning messages.
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"", COLOR_YELLOW, COLOR_RED,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
     ShowWindow(hCtl, SW_HIDE);
-
-    // Create a Update Available label at bottom of the MainWindow.
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE, L"", COLOR_WHITEMEDIUM, COLOR_BLACK,
-        CustomLabelAlignment::middle_right, 0, 0, 0, 0);
-    ShowWindow(hCtl, SW_HIDE);
-
 
     return TRUE;
 }
@@ -505,13 +480,6 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
     break;
-
-
-    case MSG_STARTUP_SHOWTRADES:
-    {
-        MainWindow_StartupShowTrades();
-        return 0;
-    }
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

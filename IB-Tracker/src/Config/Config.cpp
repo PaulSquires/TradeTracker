@@ -40,7 +40,6 @@ const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 
-bool startup_connect = false;
 int startup_width = 0;
 int startup_height = 0;
 int startup_right_panel_width = 0;
@@ -220,7 +219,6 @@ bool IsFuturesTicker(const std::wstring& ticker)
 }
 
 
-
 // ========================================================================================
 // Get the Ticker Decimals for the incoming underlying.
 // ========================================================================================
@@ -309,24 +307,6 @@ void SetCategoryDescription(int category_index, std::wstring wszDescription)
 
 
 // ========================================================================================
-// Get the true/false to try to automatically connect on program startup.
-// ========================================================================================
-bool GetStartupConnect()
-{
-    return startup_connect;
-}
-
-
-// ========================================================================================
-// Get the true/false to try to automatically connect on program startup.
-// ========================================================================================
-void SetStartupConnect(bool bConnect)
-{
-    startup_connect = bConnect;
-}
-
-
-// ========================================================================================
 // Save the Config values to a simple text file.
 // ========================================================================================
 bool SaveConfig()
@@ -346,8 +326,7 @@ bool SaveConfig()
     }
 
 
-    db << idMagic << "|" << version << "\n"
-        << "STARTUPCONNECT|" << (GetStartupConnect() ? L"true" : L"false") << "\n";
+    db << idMagic << "|" << version << "\n";
 
     db << "ENABLEPAPERTRADING|" << (startup_paper_trading ? L"true" : L"false") << "\n";
 
@@ -434,19 +413,6 @@ bool LoadConfig()
 
 
         std::wstring arg = AfxTrim(st.at(0));
-
-
-        // Check for configuration identifiers
-        if (arg == L"STARTUPCONNECT") {
-            std::wstring connect;
-            
-            try {connect = AfxTrim(st.at(1)); }
-            catch (...) { continue; }
-        
-            bool bConnect = AfxWStringCompareI(connect, L"true");
-            SetStartupConnect(bConnect);
-            continue;
-        }
 
 
         // Check for paper trading

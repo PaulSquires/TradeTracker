@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Database/database.h"
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "Transactions/TransDateFilter.h"
 #include "DatePicker/Calendar.h"
 #include "Category/CategoryPopup.h"
@@ -172,13 +173,10 @@ int APIENTRY wWinMain(
     DisplayPaperTradingWarning();
 
 
-    // Now that the child panels are created we can *post* a message to MainWindow to ask
-    // to show any trades that already exist. We need to postmessage because we need for
-    // the ListBox to be shown and sized, otherwise the CustomVScrollBar calculation will not
-    // correctly determine it's thumb size due to zero height ListBox.
-    PostMessage(hWndMain, MSG_STARTUP_SHOWTRADES, 0, 0);
+    // Show the current list of active trades
+    ActiveTrades_ShowActiveTrades(true);
 
-    
+
     // Call the main modal message pump and wait for it to end.
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
