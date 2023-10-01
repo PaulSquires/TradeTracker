@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "MainWindow/MainWindow.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
 #include "MyNotes.h"
@@ -120,26 +121,18 @@ void MyNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hNotesLabel = GetDlgItem(hwnd, IDC_MYNOTES_LBLNOTES);
     HWND hNotesTextBox = GetDlgItem(hwnd, IDC_MYNOTES_TXTNOTES);
 
-    int margin = AfxScaleY(MYNOTES_MARGIN);
-    
-    HDWP hdwp = BeginDeferWindowPos(10);
+    HDWP hdwp = BeginDeferWindowPos(4);
 
     // Move and size the top label into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_MYNOTES_LBLNOTES), 0,
-        0, 0, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    int height_notes_textbox = AfxScaleY(100);
     int height_notes_label = AfxScaleY(24);
+    int height_notes_textbox = AfxScaleY(cy - (float)height_notes_label);
 
-    int nLeft = 0;
-    int nTop = cy - height_notes_textbox - height_notes_label;
-    int nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, nLeft, nTop, nWidth, height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0,
+        0, 0, cx, height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = 0;
-    nTop = cy - height_notes_textbox;
-    nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, nLeft, nTop, nWidth, height_notes_textbox, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0,
+        0, height_notes_label, cx, cy - height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     EndDeferWindowPos(hdwp);
 }
@@ -158,7 +151,8 @@ BOOL MyNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomTextBox(hwnd, IDC_MYNOTES_TXTNOTES, true, ES_LEFT,
         L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, 3, 3);
-    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
+    CustomTextBox_SetSelectOnFocus(hCtl, false);
 
     return TRUE;
 }
@@ -181,3 +175,13 @@ LRESULT CMyNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     }
 }
 
+
+// ========================================================================================
+// Display the MyNotes side panel.
+// ========================================================================================
+void MyNotes_ShowMyNotes()
+{
+    // Ensure that the MyNotes panel is set
+    MainWindow_SetRightPanel(HWND_MYNOTES);
+    SetFocus(GetDlgItem(HWND_MYNOTES, IDC_MYNOTES_TXTNOTES));
+}

@@ -256,7 +256,6 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         AfxRedrawWindow(pData->hWindow);
 
         SendMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_KILLFOCUS), (LPARAM)pData->hWindow);
-
     }
     break;
 
@@ -264,13 +263,14 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     case WM_SETFOCUS:
     {
         // Highlight the text in the TextBox as it gains focus
-        Edit_SetSel(hWnd, 0, -1);
+        if (pData->allow_select_onfocus) {
+            Edit_SetSel(hWnd, 0, -1);
+        }
     
         // Ensure any border is colored correctly
         AfxRedrawWindow(GetParent(hWnd));
 
         SendMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_SETFOCUS), (LPARAM)pData->hWindow);
-
     }
     break;
 
@@ -514,6 +514,20 @@ void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color)
         pData->back_brush = CreateSolidBrush(back_color);
         pData->back_color = back_color;
         pData->text_color = text_color;
+        CustomTextBox_SetOptions(hCtrl, pData);
+        AfxRedrawWindow(hCtrl);
+    }
+}
+
+
+// ========================================================================================
+// Highlight or deselect all text when textbox gains focus.
+// ========================================================================================
+void CustomTextBox_SetSelectOnFocus(HWND hCtrl, bool allow_select_onfocus)
+{
+    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->allow_select_onfocus = allow_select_onfocus;
         CustomTextBox_SetOptions(hCtrl, pData);
         AfxRedrawWindow(hCtrl);
     }

@@ -516,7 +516,8 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CreateCustomTextBox(hwnd, IDC_HISTORY_TXTNOTES, true, ES_LEFT,
         L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, 3, 3);
-    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
+    CustomTextBox_SetSelectOnFocus(hCtl, false);
 
     CustomLabel* pData = nullptr;
     hCtl = CreateCustomLabel(

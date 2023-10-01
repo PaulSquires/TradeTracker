@@ -35,6 +35,7 @@ SOFTWARE.
 #include "TradeDialog/TradeDialog.h"
 #include "Transactions/TransPanel.h"
 #include "TickerTotals/TickerTotals.h"
+#include "MyNotes/MyNotes.h"
 #include "Utilities/ListBoxData.h"
 #include "SideMenu.h"
 
@@ -527,6 +528,13 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 tws_PerformReconciliation();
                 SideMenu_SelectMenuItem(m_hwnd, current_selection);
+                break;
+            }
+
+            case IDC_SIDEMENU_MYNOTES:
+            {
+                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
+                MyNotes_ShowMyNotes();
                 break;
             }
 

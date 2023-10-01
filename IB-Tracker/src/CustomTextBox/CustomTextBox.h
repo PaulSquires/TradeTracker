@@ -67,6 +67,7 @@ public:
 	DWORD text_color{};
 	int alignment = ES_LEFT;
 	bool is_multiline = false;
+	bool allow_select_onfocus = true;
 
 	// Numeric
 	bool is_numeric = false;
@@ -86,7 +87,7 @@ void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color);
 void CustomTextBox_SetMargins(HWND hCtrl, int horiz_text_margin, int vert_text_margin);
 void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);
-
+void CustomTextBox_SetSelectOnFocus(HWND hCtrl, bool allow_select_onfocus);
 
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool is_multiLine,
 	int alignment, std::wstring text, int nLeft, int nTop, int nWidth, int nHeight);

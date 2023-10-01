@@ -43,5 +43,5 @@ extern HWND HWND_MYNOTES;
 constexpr int IDC_MYNOTES_LBLNOTES = 100;
 constexpr int IDC_MYNOTES_TXTNOTES = 101;
 
-constexpr int MYNOTES_MARGIN = 24;
+void MyNotes_ShowMyNotes();
 
