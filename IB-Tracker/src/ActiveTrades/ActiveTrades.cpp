@@ -169,10 +169,13 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                     category_header = trade->category;
                 }
 
+                // Cancel previous market price request
+                tws_CancelMarketData(trade->tickerId);
+                 
                 // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
                 int next_ticker_id = (trade->tickerId > 0) ? trade->tickerId : tickerId++;
-                trade->tickerId = next_ticker_id;
                 ListBoxData_OpenPosition(hListBox, trade, next_ticker_id);
+                trade->tickerId = next_ticker_id;
             }
         }
 
