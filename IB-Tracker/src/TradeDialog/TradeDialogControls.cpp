@@ -944,16 +944,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     // EDIT TRANSACTION WARNING
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING1, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, 40, 380, 80, 16);
+        CustomLabelAlignment::middle_left, 40, 396, 80, 16);
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING2, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, 120, 380, 500, 16);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_left, 120, 396, 500, 16);
-    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING4, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_left, 120, 412, 500, 16);
 
-    if (tdd.trade_action == TradeAction::new_futures_trade ||
-        tdd.trade_action == TradeAction::add_futures_to_trade) {
+    if (tdd.trade_action != TradeAction::new_shares_trade &&
+        tdd.trade_action != TradeAction::add_shares_to_trade) {
         std::wstring text1 = L"NOTE:";
         std::wstring text2 = L"Future Ticker names must start with a forward slash.";
         std::wstring text3 = L"For example: /ES, /MES, /NQ, etc.";
