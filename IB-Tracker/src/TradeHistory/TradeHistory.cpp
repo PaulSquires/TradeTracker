@@ -452,7 +452,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nLeft = 0;
     int nTop = margin;
     int nWidth = cx - custom_scrollbar_width;
-    int nHeight = cy - nTop - height_notes_textbox - height_notes_label - AfxScaleY(10);
+    int nHeight = cy - nTop - height_notes_textbox - height_notes_label - AfxScaleY(5);
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
 
     nLeft = nLeft + nWidth;   // right edge of ListBox
@@ -467,8 +467,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nLeft = 0;
     nTop = nTop + nHeight;
     nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | int_show_scrollbar);
+    hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
 
     nLeft = 0;
     nTop = cy - height_notes_textbox - height_notes_label;
