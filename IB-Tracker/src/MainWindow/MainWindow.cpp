@@ -39,7 +39,7 @@ SOFTWARE.
 #include "Transactions/TransPanel.h"
 #include "Transactions/TransDetail.h"
 #include "TickerTotals/TickerTotals.h"
-#include "MyNotes/MyNotes.h"
+#include "JournalNotes/JournalNotes.h"
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
 #include "CustomLabel/CustomLabel.h"
@@ -297,7 +297,7 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    MyNotes.Create(hwnd, L"", 0, 0, 0, 0,
+    JournalNotes.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 

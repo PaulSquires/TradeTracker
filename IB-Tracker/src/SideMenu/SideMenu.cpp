@@ -35,7 +35,7 @@ SOFTWARE.
 #include "TradeDialog/TradeDialog.h"
 #include "Transactions/TransPanel.h"
 #include "TickerTotals/TickerTotals.h"
-#include "MyNotes/MyNotes.h"
+#include "JournalNotes/JournalNotes.h"
 #include "Utilities/ListBoxData.h"
 #include "SideMenu.h"
 
@@ -254,7 +254,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_RECONCILE, nTop, L"Reconcile");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_MYNOTES, nTop, L"My Notes");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_JOURNALNOTES, nTop, L"Journal Notes");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
@@ -531,10 +531,10 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            case IDC_SIDEMENU_MYNOTES:
+            case IDC_SIDEMENU_JOURNALNOTES:
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                MyNotes_ShowMyNotes();
+                JournalNotes_ShowJournalNotes();
                 break;
             }
 

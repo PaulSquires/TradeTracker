@@ -30,18 +30,18 @@ SOFTWARE.
 #include "Database/database.h"
 
 
-class CMyNotes : public CWindowBase<CMyNotes>
+class CJournalNotes : public CWindowBase<CJournalNotes>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 };
 
-extern CMyNotes MyNotes;
-extern HWND HWND_MYNOTES;
+extern CJournalNotes JournalNotes;
+extern HWND HWND_JOURNALNOTES;
 
-constexpr int IDC_MYNOTES_LBLNOTES = 100;
-constexpr int IDC_MYNOTES_TXTNOTES = 101;
+constexpr int IDC_JOURNALNOTES_LBLNOTES = 100;
+constexpr int IDC_JOURNALNOTES_TXTNOTES = 101;
 
-void MyNotes_ShowMyNotes();
+void JournalNotes_ShowJournalNotes();
 

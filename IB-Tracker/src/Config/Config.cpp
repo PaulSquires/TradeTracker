@@ -37,8 +37,11 @@ SOFTWARE.
 
 
 const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
+const std::wstring dbJournalNotes = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
+
+std::wstring journal_notes_text = L"";
 
 int startup_width = 0;
 int startup_height = 0;
@@ -303,6 +306,55 @@ std::wstring GetCategoryDescription(int category_index)
 void SetCategoryDescription(int category_index, std::wstring wszDescription)
 {
     mapCategoryDescriptions[category_index] = wszDescription;
+}
+
+
+// ========================================================================================
+// Get the JournalNotes text.
+// ========================================================================================
+std::wstring GetJournalNotesText()
+{
+    static bool is_JournalNotes_loaded = false;
+
+    if (!is_JournalNotes_loaded) {
+        std::wifstream db;
+
+        db.open(dbJournalNotes, std::ios::in);
+
+        if (db.is_open()) {
+            std::wostringstream ss;
+            ss << db.rdbuf();
+            journal_notes_text = ss.str();
+
+            is_JournalNotes_loaded = true;
+        }
+    }
+
+    return journal_notes_text;
+}
+
+
+// ========================================================================================
+// Set and save the JournalNotes text.
+// ========================================================================================
+void SetJournalNotesText(std::wstring wszText)
+{
+    std::wofstream db;
+
+    db.open(dbJournalNotes, std::ios::out | std::ios::trunc);
+
+    if (!db.is_open()) {
+        int msgboxID = MessageBox(
+            NULL,
+            (LPCWSTR)(L"Could not save JournalNotes text to file"),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING
+        );
+        return;
+    }
+
+    db << wszText;
+    db.close();
 }
 
 

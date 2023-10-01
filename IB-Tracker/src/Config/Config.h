@@ -48,3 +48,5 @@ int GetStartupRightPanelWidth();
 void SetStartupWidth(int width);
 void SetStartupHeight(int height);
 void SetStartupRightPanelWidth(int width);
+std::wstring GetJournalNotesText();
+void SetJournalNotesText(std::wstring wszText);

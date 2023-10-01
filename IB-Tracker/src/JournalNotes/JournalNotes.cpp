@@ -28,22 +28,23 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "MainWindow/MainWindow.h"
+#include "Config/Config.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
-#include "MyNotes.h"
+#include "JournalNotes.h"
 
 
-HWND HWND_MYNOTES = NULL;
+HWND HWND_JOURNALNOTES = NULL;
 
-CMyNotes MyNotes;
+CJournalNotes JournalNotes;
 
-void MyNotes_OnSize(HWND hwnd, UINT state, int cx, int cy);
+void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: MyNotes
+// Process WM_ERASEBKGND message for window/dialog: JournalNotes
 // ========================================================================================
-BOOL MyNotes_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -51,9 +52,9 @@ BOOL MyNotes_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: MyNotes
+// Process WM_PAINT message for window/dialog: JournalNotes
 // ========================================================================================
-void MyNotes_OnPaint(HWND hwnd)
+void JournalNotes_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -74,21 +75,21 @@ void MyNotes_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: MyNotes
+// Process WM_COMMAND message for window/dialog: JournalNotes
 // ========================================================================================
-void MyNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     static bool is_notes_dirty = false;
     static std::wstring notes = L"";
 
     switch (id)
     {
-    case (IDC_MYNOTES_TXTNOTES):
+    case (IDC_JOURNALNOTES_TXTNOTES):
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
 
-                // Save the database because the Notes for this Trade has been updated.
-                //SaveDatabase();
+                // Save JournalNotes because the data has changed.
+                SetJournalNotesText(notes);
 
                 is_notes_dirty = false;
                 notes = L"";
@@ -114,12 +115,12 @@ void MyNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: MyNotes
+// Process WM_SIZE message for window/dialog: JournalNotes
 // ========================================================================================
-void MyNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    HWND hNotesLabel = GetDlgItem(hwnd, IDC_MYNOTES_LBLNOTES);
-    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_MYNOTES_TXTNOTES);
+    HWND hNotesLabel = GetDlgItem(hwnd, IDC_JOURNALNOTES_LBLNOTES);
+    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_JOURNALNOTES_TXTNOTES);
 
     HDWP hdwp = BeginDeferWindowPos(4);
 
@@ -139,16 +140,16 @@ void MyNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: MyNotes
+// Process WM_CREATE message for window/dialog: JournalNotes
 // ========================================================================================
-BOOL MyNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_MYNOTES = hwnd;
+    HWND_JOURNALNOTES = hwnd;
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MYNOTES_LBLNOTES, L"My Notes",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_JOURNALNOTES_LBLNOTES, L"Journal Notes",
         COLOR_WHITELIGHT, COLOR_BLACK);
 
-    hCtl = CreateCustomTextBox(hwnd, IDC_MYNOTES_TXTNOTES, true, ES_LEFT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_JOURNALNOTES_TXTNOTES, true, ES_LEFT,
         L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, 3, 3);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
@@ -161,15 +162,15 @@ BOOL MyNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CMyNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, MyNotes_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, MyNotes_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, MyNotes_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, MyNotes_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_SIZE, MyNotes_OnSize);
+        HANDLE_MSG(m_hwnd, WM_CREATE, JournalNotes_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, JournalNotes_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, JournalNotes_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, JournalNotes_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_SIZE, JournalNotes_OnSize);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -177,11 +178,17 @@ LRESULT CMyNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 // ========================================================================================
-// Display the MyNotes side panel.
+// Display the JournalNotes side panel.
 // ========================================================================================
-void MyNotes_ShowMyNotes()
+void JournalNotes_ShowJournalNotes()
 {
-    // Ensure that the MyNotes panel is set
-    MainWindow_SetRightPanel(HWND_MYNOTES);
-    SetFocus(GetDlgItem(HWND_MYNOTES, IDC_MYNOTES_TXTNOTES));
+    HWND hTextBox = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_TXTNOTES);
+
+    // Load the JournalNotes into the textbox
+    std::wstring wszText = GetJournalNotesText();
+    CustomTextBox_SetText(hTextBox, wszText);
+
+    // Ensure that the JournalNotes panel is set
+    MainWindow_SetRightPanel(HWND_JOURNALNOTES);
+    SetFocus(hTextBox);
 }
