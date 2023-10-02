@@ -951,7 +951,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::middle_left, 120, 412, 500, 16);
 
     if (tdd.trade_action != TradeAction::new_shares_trade &&
-        tdd.trade_action != TradeAction::add_shares_to_trade) {
+        tdd.trade_action != TradeAction::add_shares_to_trade &&
+        tdd.trade_action != TradeAction::add_futures_to_trade &&
+        tdd.trade_action != TradeAction::add_call_to_trade && 
+        tdd.trade_action != TradeAction::add_put_to_trade && 
+        tdd.trade_action != TradeAction::add_options_to_trade) {
         std::wstring text1 = L"NOTE:";
         std::wstring text2 = L"Future Ticker names must start with a forward slash.";
         std::wstring text3 = L"For example: /ES, /MES, /NQ, etc.";

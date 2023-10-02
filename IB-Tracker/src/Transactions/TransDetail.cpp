@@ -153,12 +153,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     transEditDelete = nullptr;
 
     // Reset the Active Trades
-    ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-
-    // Show our new list of Transactions.
-    TransPanel_ShowTransactions();
-
-
+    ActiveTrades_ShowActiveTrades(true);
 }
 
 

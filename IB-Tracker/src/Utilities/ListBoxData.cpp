@@ -347,6 +347,9 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < item_count; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
+            if (ld->tickerId) {
+                tws_CancelMarketData(ld->tickerId);
+            }
             ld = nullptr;
             delete(ld);
         }
@@ -479,7 +482,7 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
 // ========================================================================================
 // Create the display data for an Open Position that displays in Trades & History tables.
 // ========================================================================================
-void ListBoxData_OpenPosition(HWND hListBox, std::shared_ptr<Trade>& trade, TickerId tickerId)
+void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId)
 {
     ListBoxData* ld = new ListBoxData;
     
@@ -524,14 +527,16 @@ void ListBoxData_OpenPosition(HWND hListBox, std::shared_ptr<Trade>& trade, Tick
             COLOR_WHITELIGHT, font8, FontStyleRegular);
 
 
+        text = L"";
         clr = COLOR_WHITELIGHT;
         ld->SetData(COLUMN_TICKER_CHANGE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // price change
         
-        text = L"";
+        text = (trade->ticker_last_price_text.length()) ? trade->ticker_last_price_text : L"";
         ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
         
+        text = L"";
         ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // price percentage change
 

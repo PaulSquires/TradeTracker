@@ -80,7 +80,7 @@ public:
 
 
     void SetData(
-        int index, std::shared_ptr<Trade> tradeptr, TickerId tickId,
+        int index, const std::shared_ptr<Trade> tradeptr, TickerId tickId,
         std::wstring text, StringAlignment HAlignment, StringAlignment VAlignment, 
         DWORD back_theme, DWORD text_theme, REAL font_size, int font_style)
     {
@@ -125,7 +125,7 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int ind
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_NoTradesExistMessage(HWND hListBox);
-void ListBoxData_OpenPosition(HWND hListBox, std::shared_ptr<Trade>& trade, TickerId tickerId);
+void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
 void ListBoxData_HistoryHeader(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);

@@ -136,11 +136,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         // Prevent ListBox redrawing until all calculations are completed
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
-        // Destroy any existing ListBox line data
-        // This will also clear the LineData pointers and cancel any previous market data
-        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
-
-
         // In case of newly added/deleted data ensure data is sorted.
         // Sort based on Category and then TickerSymbol
         std::sort(trades.begin(), trades.end(),
@@ -158,6 +153,11 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
             });
 
 
+        // Destroy any existing ListBox line data
+        // This will also clear the LineData pointers and cancel any previous market data
+        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+
+
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
         for (auto trade : trades) {
@@ -171,10 +171,11 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                     category_header = trade->category;
                 }
 
-                // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
+                // Setup the line, assign the tickerId.
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
 
                 tickerId += 1;
+                if (tickerId > 1000) tickerId = 100;
             }
         }
 

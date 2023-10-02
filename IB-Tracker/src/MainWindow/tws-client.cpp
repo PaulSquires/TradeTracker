@@ -220,6 +220,7 @@ void UpdateTickersWithScrapedData()
 				ld->trade->ticker_last_price = ld->trade->ticker_close_price;
 
 				std::wstring text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
+				ld->trade->ticker_last_price_text = text; 
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
 				PerformITMcalculation(ld->trade);
@@ -673,6 +674,7 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 	if (tickType == HALTED && value == 1 || value == 2) {  // 49
 		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 		int item_count = ListBox_GetCount(hListBox);
+		if (item_count == 0) return;
 
 		for (int index = 0; index < item_count; index++) {
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
@@ -720,7 +722,8 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 
 		int item_count = ListBox_GetCount(hListBox);
-		
+		if (item_count == 0) return;
+
 		for (int index = 0; index < item_count; index++) {
 			
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
@@ -821,6 +824,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 	int item_count = ListBox_GetCount(hListBox);
+	if (item_count == 0) return;
 
 	std::wstring text = L"";
 	DWORD theme_color = COLOR_WHITEDARK;
@@ -1059,7 +1063,7 @@ void TwsClient::winError(const std::string& str, int lastError) {}
 
 void TwsClient::nextValidId(OrderId orderId) {
 	// We have made a successful connection to start our threads and load market data.
-	std::cout << "orderId: " << orderId << std::endl;
+	//std::cout << "orderId: " << orderId << std::endl;
 	tws_ConnectionSuccessful();
 }
 

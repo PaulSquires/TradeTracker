@@ -101,13 +101,12 @@ public:
     double  ticker_close_price = 0;
     int     ticker_decimals = 2;           // upated via data from Config. 
 
-    // The following are string representations of the marketdata and updatePortfolio values. We save them here
-    // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
-    // There is a delay from the time portfolio values are cancelled and when the new request data arrives
-    // therefore the user will always see the most recent data until the new data arrives.
+    // The following are string representations of the marketdata. We save them here because needed when
+    // scraped data is retrieved and Active Trades list gets recreated later then we simply display the
+    // saved price data.
     std::wstring itm_text = L"";
     DWORD itm_color = COLOR_WHITELIGHT;
-
+    std::wstring ticker_last_price_text = L"0.00";
 
     // Dates used to calculate ROI on TradeBP.
     std::wstring  bp_start_date = L"99999999";            // YYYYMMDD  First transaction date
