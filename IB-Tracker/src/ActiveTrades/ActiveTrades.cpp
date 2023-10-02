@@ -132,9 +132,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
     // Determine if we need to initialize the listbox
     if (bForceReload == true && trades.size() != 0) {
-        // Destroy any existing ListBox line data
-        // This will also clear the LineData pointers and cancel any previous market data
-        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
         // Prevent ListBox redrawing until all calculations are completed
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -156,6 +153,10 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
             });
 
 
+        // Destroy any existing ListBox line data
+        // This will also clear the LineData pointers and cancel any previous market data
+        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
         for (auto trade : trades) {
@@ -169,19 +170,28 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                     category_header = trade->category;
                 }
 
-                // Cancel previous market price request
-                tws_CancelMarketData(trade->tickerId);
-                 
                 // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
-                trade->tickerId = tickerId;
 
-                // Ensure that the IBKR vector is updated with latest TWS positions.
-                tws_CancelPositions();
-                tws_RequestPositions();
                 tickerId += 1;
             }
         }
+
+
+        // Load the IBKR and Local positions into the vectors and do the matching. This is
+        // important because we need get the contract id's loaded into each option leg
+        // in order for the Portfolio Value updates to match it.
+        // When requestPositions completes, it sends a notification to the Active Trades
+        // window that it is now okay to request the Portfolio Updates. We make those
+        // portfolio update calls there rather than here.
+        Reconcile_ResetIBKRVector();
+        tws_CancelPositions();
+        tws_RequestPositions();
+
+
+        // Start getting market data for each active ticker.
+        tws_RequestMarketUpdates();
+
 
         // Calculate the actual column widths based on the size of the strings in
         // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
@@ -233,10 +243,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
     // Start getting the price data for all of the tickers
     tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
-
-
-    // Start getting market price data in case any new tickers were added.
-    tws_RequestMarketUpdates();
 
     SetFocus(hListBox);
 

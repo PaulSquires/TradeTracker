@@ -47,6 +47,15 @@ std::wstring results_text;
 
 
 // ========================================================================================
+// Clear the IBKR vector so new TWS data can be added.
+// ========================================================================================
+void Reconcile_ResetIBKRVector()
+{
+	IBKRPositions.clear();
+}
+	
+
+// ========================================================================================
 // Information received from TwsClient::position callback
 // ========================================================================================
 void Reconcile_position(const Contract& contract, Decimal position)

@@ -347,6 +347,7 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < item_count; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
+            tws_CancelMarketData(ld->trade->tickerId);
             ld = nullptr;
             delete(ld);
         }

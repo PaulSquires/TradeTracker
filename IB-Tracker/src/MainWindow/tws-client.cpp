@@ -346,16 +346,7 @@ void tws_ConnectionSuccessful()
 		// Request Account Summary in order to get liquidity amounts
 		tws_RequestAccountSummary();
 
-		// Load the IBKR and Local positions into the vectors and do the matching. This is
-		// important because we need get the contract id's loaded into each option leg
-		// in order for the Portfolio Value updates to match it.
-		// When requestPositions completes, it sends a notification to the Active Trades
-		// window that it is now okay to request the Portfolio Updates. We make those
-		// portfolio update calls there rather than here.
-		tws_RequestPositions();
-
-		// Start getting market data for each active ticker.
-		tws_RequestMarketUpdates();
+		ActiveTrades_ShowActiveTrades(true);
 
 		// Create and start the ping thread
 		ping_thread = std::jthread(PingFunction);
@@ -1084,7 +1075,7 @@ void TwsClient::winError(const std::string& str, int lastError) {}
 
 void TwsClient::nextValidId(OrderId orderId) {
 	// We have made a successful connection to start our threads and load market data.
-	std::cout << "orderId: " << orderId << std::endl;
+	//std::cout << "orderId: " << orderId << std::endl;
 	tws_ConnectionSuccessful();
 }
 
