@@ -133,13 +133,13 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     // Determine if we need to initialize the listbox
     if (bForceReload == true && trades.size() != 0) {
 
+        // Prevent ListBox redrawing until all calculations are completed
+        SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
+
         // Destroy any existing ListBox line data
         // This will also clear the LineData pointers and cancel any previous market data
         ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
-
-        // Prevent ListBox redrawing until all calculations are completed
-        SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
         // In case of newly added/deleted data ensure data is sorted.
         // Sort based on Category and then TickerSymbol
@@ -173,7 +173,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
                 // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
-                trade->tickerId = tickerId;
 
                 tickerId += 1;
             }

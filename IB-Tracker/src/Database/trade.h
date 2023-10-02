@@ -63,16 +63,6 @@ public:
     double market_value = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                 // real time data receive via updatePortfolio
     double unrealized_pnl = 0;             // real time data receive via updatePortfolio
-    
-    // The following are string representations of the updatePortfolio values. We save them here
-    // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
-    // There is a delay from the time portfolio values are cancelled and when the new request data arrives
-    // therefore the user will always see the most recent data until the new data arrives.
-    std::wstring position_cost_text = L"";
-    std::wstring market_value_text = L"";
-    std::wstring percentage_text = L"";
-    std::wstring unrealized_pnl_text = L"";
-    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
 };
 
 
@@ -107,8 +97,6 @@ public:
     int           nextleg_id    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
     double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
 
-    TickerId tickerId = -1;
-
     double  ticker_last_price = 0;
     double  ticker_close_price = 0;
     int     ticker_decimals = 2;           // upated via data from Config. 
@@ -118,17 +106,7 @@ public:
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives
     // therefore the user will always see the most recent data until the new data arrives.
     std::wstring itm_text = L"";
-    std::wstring ticker_change_text = L"";
-    std::wstring ticker_last_price_text = L"0.00";
-    std::wstring ticker_percent_change_text = L"";
-    std::wstring total_position_cost_text = L"";
-    std::wstring total_market_value_text = L"";
-    std::wstring percentage_text = L"";
-    std::wstring unrealized_pnl_text = L"";
     DWORD itm_color = COLOR_WHITELIGHT;
-    DWORD ticker_change_color = COLOR_WHITELIGHT;
-    DWORD ticker_percent_change_color = COLOR_WHITELIGHT;
-    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
 
 
     // Dates used to calculate ROI on TradeBP.

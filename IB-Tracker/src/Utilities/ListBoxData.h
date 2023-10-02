@@ -87,9 +87,6 @@ public:
         if (tickId != -1) line_type = LineType::ticker_line;
         tickerId = tickId;
         trade = tradeptr;
-        if (trade != nullptr && line_type == LineType::ticker_line) {
-            trade->tickerId = tickerId;
-        }
 
         col[index].text = text;
         col[index].HAlignment = HAlignment;
