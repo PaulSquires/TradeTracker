@@ -133,6 +133,11 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     // Determine if we need to initialize the listbox
     if (bForceReload == true && trades.size() != 0) {
 
+        // Destroy any existing ListBox line data
+        // This will also clear the LineData pointers and cancel any previous market data
+        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+
+
         // Prevent ListBox redrawing until all calculations are completed
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
@@ -152,10 +157,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                 } 
             });
 
-
-        // Destroy any existing ListBox line data
-        // This will also clear the LineData pointers and cancel any previous market data
-        ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
