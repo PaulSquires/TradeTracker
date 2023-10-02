@@ -116,7 +116,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
-    static int tickerId = 100;
+    int tickerId = 100;
     int curSel = 0;
 
     tws_PauseTWS();
@@ -158,7 +158,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
-        for (auto& trade : trades) {
+        for (auto trade : trades) {
             // We are displaying only open trades 
             if (trade->is_open) {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
@@ -173,9 +173,13 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                 tws_CancelMarketData(trade->tickerId);
                  
                 // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
-                int next_ticker_id = (trade->tickerId > 0) ? trade->tickerId : tickerId++;
-                ListBoxData_OpenPosition(hListBox, trade, next_ticker_id);
-                trade->tickerId = next_ticker_id;
+                ListBoxData_OpenPosition(hListBox, trade, tickerId);
+                trade->tickerId = tickerId;
+
+                // Ensure that the IBKR vector is updated with latest TWS positions.
+                tws_CancelPositions();
+                tws_RequestPositions();
+                tickerId += 1;
             }
         }
 

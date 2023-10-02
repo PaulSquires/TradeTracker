@@ -503,6 +503,10 @@ void tws_PerformReconciliation()
 
 	is_running = true;
 
+	// Ensure that the IBKR vector is updated with latest TWS positions.
+	tws_CancelPositions();
+	tws_RequestPositions();
+
 	// Show the results
 	Reconcile_Show();
 
