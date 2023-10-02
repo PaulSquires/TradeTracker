@@ -174,14 +174,14 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                  
                 // If tickerId already exists for our trade then use that one otherwise assign new tickerId.
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
-                trade->tickerId = tickerId;
 
-                // Ensure that the IBKR vector is updated with latest TWS positions.
-                tws_CancelPositions();
-                tws_RequestPositions();
                 tickerId += 1;
             }
         }
+
+        // Ensure that the IBKR vector is updated with latest TWS positions.
+        tws_CancelPositions();
+        tws_RequestPositions();
 
         // Calculate the actual column widths based on the size of the strings in
         // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
