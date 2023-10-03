@@ -955,7 +955,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action != TradeAction::add_futures_to_trade &&
         tdd.trade_action != TradeAction::add_call_to_trade && 
         tdd.trade_action != TradeAction::add_put_to_trade && 
-        tdd.trade_action != TradeAction::add_options_to_trade) {
+        tdd.trade_action != TradeAction::add_options_to_trade &&
+        tdd.trade_action != TradeAction::roll_leg) {
         std::wstring text1 = L"NOTE:";
         std::wstring text2 = L"Future Ticker names must start with a forward slash.";
         std::wstring text3 = L"For example: /ES, /MES, /NQ, etc.";

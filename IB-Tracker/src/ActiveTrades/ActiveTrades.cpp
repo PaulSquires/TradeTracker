@@ -119,7 +119,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     int tickerId = 100;
     int curSel = 0;
 
-    tws_PauseTWS();
+    //tws_PauseTWS();
 
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
@@ -180,14 +180,9 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         }
 
 
-        // Load the IBKR and Local positions into the vectors and do the matching. This is
-        // important because we need get the contract id's loaded into each option leg
-        // in order for the Portfolio Value updates to match it.
         // When requestPositions completes, it sends a notification to the Active Trades
         // window that it is now okay to request the Portfolio Updates. We make those
         // portfolio update calls there rather than here.
-        Reconcile_ResetIBKRVector();
-        tws_CancelPositions();
         tws_RequestPositions();
 
 
@@ -244,7 +239,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
 
     // Start getting the price data for all of the tickers
-    tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
+    //tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
 
     SetFocus(hListBox);
 

@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Reconcile.h"
 
 
-std::vector<positionStruct> IBKRPositions;    // stays persistent
-std::vector<positionStruct> local_positions;  // will get cleared
+std::vector<positionStruct> IBKRPositions;    // persistent 
+std::vector<positionStruct> local_positions;  // gets reset 
 
 
 HWND HWND_RECONCILE = NULL;
@@ -44,16 +44,6 @@ HWND HWND_RECONCILE = NULL;
 CReconcile Reconcile;
 
 std::wstring results_text;
-
-
-
-// ========================================================================================
-// Clear/reset the IBKR TWS positions
-// ========================================================================================
-void Reconcile_ResetIBKRVector()
-{
-	IBKRPositions.clear();
-}
 
 
 
