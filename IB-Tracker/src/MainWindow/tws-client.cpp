@@ -757,7 +757,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				}
 
 
-				std::wstring text;
+				std::wstring text = L"";
 				DWORD theme_color = COLOR_WHITELIGHT;
 
 				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
