@@ -146,6 +146,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 
     // Save the modified data
     SaveDatabase();
+    LoadDatabase();
 
     tws_ResumeTWS();
 
