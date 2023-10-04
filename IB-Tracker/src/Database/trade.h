@@ -63,6 +63,16 @@ public:
     double market_value = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                 // real time data receive via updatePortfolio
     double unrealized_pnl = 0;             // real time data receive via updatePortfolio
+
+    // The following are string representations of the updatePortfolio values. We save them here
+    // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
+    // There is a delay from the time portfolio values are cancelled and when the new request data arrives
+    // therefore the user will always see the most recent data until the new data arrives.
+    std::wstring position_cost_text = L"";
+    std::wstring market_value_text = L"";
+    std::wstring percentage_text = L"";
+    std::wstring unrealized_pnl_text = L"";
+    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
 };
 
 
@@ -101,12 +111,23 @@ public:
     double  ticker_close_price = 0;
     int     ticker_decimals = 2;           // upated via data from Config. 
 
-    // The following are string representations of the marketdata. We save them here because needed when
-    // scraped data is retrieved and Active Trades list gets recreated later then we simply display the
-    // saved price data.
+    // The following are string representations of the marketdata and updatePortfolio values. We save them here
+    // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
+    // There is a delay from the time portfolio values are cancelled and when the new request data arrives
+    // therefore the user will always see the most recent data until the new data arrives.
     std::wstring itm_text = L"";
-    DWORD itm_color = COLOR_WHITELIGHT;
+    std::wstring ticker_change_text = L"";
     std::wstring ticker_last_price_text = L"0.00";
+    std::wstring ticker_percent_change_text = L"";
+    std::wstring total_position_cost_text = L"";
+    std::wstring total_market_value_text = L"";
+    std::wstring percentage_text = L"";
+    std::wstring unrealized_pnl_text = L"";
+    DWORD itm_color = COLOR_WHITELIGHT;
+    DWORD ticker_change_color = COLOR_WHITELIGHT;
+    DWORD ticker_percent_change_color = COLOR_WHITELIGHT;
+    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
+
 
     // Dates used to calculate ROI on TradeBP.
     std::wstring  bp_start_date = L"99999999";            // YYYYMMDD  First transaction date

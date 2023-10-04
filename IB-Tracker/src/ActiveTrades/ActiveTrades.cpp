@@ -119,7 +119,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     int tickerId = 100;
     int curSel = 0;
 
-    //tws_PauseTWS();
+    tws_PauseTWS();
 
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
@@ -239,7 +239,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
 
     // Start getting the price data for all of the tickers
-    //tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
+    tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
 
     SetFocus(hListBox);
 
