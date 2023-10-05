@@ -464,8 +464,10 @@ int EDecoder::parseAndProcessMsg(const char*& beginPtr, const char* endPtr) {
 
 		default:
 			{
-				m_pEWrapper->error( msgId, UNKNOWN_ID.code(), UNKNOWN_ID.msg(), "");
-				m_pEWrapper->connectionClosed();
+			// I have removed most messages other than the ones above so don't throw
+			// error on any message not listed above.
+			//	m_pEWrapper->error( msgId, UNKNOWN_ID.code(), UNKNOWN_ID.msg(), "");
+			//	m_pEWrapper->connectionClosed();
 				break;
 			}
 		}
