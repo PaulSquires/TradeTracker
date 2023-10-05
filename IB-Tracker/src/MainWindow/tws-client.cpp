@@ -467,12 +467,14 @@ void tws_RequestAccountSummary()
 
 void tws_CancelPositions()
 {
+	if (!tws_IsConnected()) return;
 	client.CancelPositions();
 }
 
 
 void tws_RequestPositions()
 {
+	if (!tws_IsConnected()) return;
 	client.RequestPositions();
 }
 
@@ -493,10 +495,6 @@ void tws_PerformReconciliation()
 	if (is_running == true) return;
 
 	is_running = true;
-
-	// Ensure that the IBKR vector is updated with latest TWS positions.
-	tws_CancelPositions();
-	tws_RequestPositions();
 
 	// Show the results
 	Reconcile_Show();
@@ -722,14 +720,18 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 
 		int item_count = ListBox_GetCount(hListBox);
+		if (item_count == 0) return;
 
 		for (int index = 0; index < item_count; index++) {
 
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 			if (ld == (void*)-1) continue;
 			if (ld == nullptr) continue;
+			if (ld->tickerId == -1) continue;
 
-			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->line_type == LineType::ticker_line)) {
+			if ((ld->tickerId == tickerId) && 
+				(ld->trade != nullptr) && 
+				(ld->line_type == LineType::ticker_line)) {
 
 				if (field == LAST) {
 					ld->trade->ticker_last_price = price;
@@ -821,13 +823,14 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 
 	// NOTE: Even though the TWS api docs say that the position values are sent automatically whenever the position changes, it appears
-	// that the values are only updated every 3 minutes as per the docs as well. even unsubscribing and resubscribing does not seem to
-	// get the latest data (same data that displays in the TWS Portfolio window). Seems like we have to 3 minutes between updates.
+	// that the values are only updated every 3 minutes as per the docs as well. Even unsubscribing and resubscribing does not seem to
+	// get the latest data (same data that displays in the TWS Portfolio window). Seems like we have to wait 3 minutes between updates.
 
 	// Match the incoming contract_id with the contract_id stored in the Leg.
 
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 	int item_count = ListBox_GetCount(hListBox);
+	if (item_count == 0) return;
 
 	std::wstring text = L"";
 	DWORD theme_color = COLOR_WHITEDARK;
@@ -992,17 +995,13 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 
 void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avg_cost)
 {
-	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
+	// This callback is initiated by the reqPositions().
 	Reconcile_position(contract, position);
+	Reconcile_doPositionMatching();
 }
 
 void TwsClient::positionEnd()
 {
-	// This callback is automatically called the first time all positions have been sent through
-	// the position callback.
-	Reconcile_doPositionMatching();
-
-
 	// Send notification to ActiveTrades window that positions have all been loaded
 	// thereby allowing the loading of portfolio values.
 	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);

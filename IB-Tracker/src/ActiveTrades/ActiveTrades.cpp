@@ -116,7 +116,8 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
     HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
-    int tickerId = 100;
+    static bool positions_requested = false;
+    static int tickerId = 100;
     int curSel = 0;
 
     tws_PauseTWS();
@@ -174,7 +175,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                 // Setup the line, assign the tickerId.
                 ListBoxData_OpenPosition(hListBox, trade, tickerId);
 
-                tickerId += 1;
+                tickerId++;
                 if (tickerId > 1000) tickerId = 100;
             }
         }
@@ -183,7 +184,10 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         // When requestPositions completes, it sends a notification to the Active Trades
         // window that it is now okay to request the Portfolio Updates. We make those
         // portfolio update calls there rather than here.
-        tws_RequestPositions();
+        if (tws_IsConnected() == true && positions_requested == false) {
+            tws_RequestPositions();
+            positions_requested = true;
+        }
 
 
         // Start getting market data for each active ticker.

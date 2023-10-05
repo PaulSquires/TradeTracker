@@ -84,8 +84,10 @@ public:
         std::wstring text, StringAlignment HAlignment, StringAlignment VAlignment, 
         DWORD back_theme, DWORD text_theme, REAL font_size, int font_style)
     {
-        if (tickId != -1) line_type = LineType::ticker_line;
-        tickerId = tickId;
+        if (tickId != -1) {
+            line_type = LineType::ticker_line;
+            tickerId = tickId;
+        }
         trade = tradeptr;
 
         col[index].text = text;

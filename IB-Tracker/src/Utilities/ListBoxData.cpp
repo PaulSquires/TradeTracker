@@ -344,10 +344,10 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     // delete any previously manually allocated ListBoxData structures.
     int item_count = ListBox_GetCount(hListBox);
 
-    for (int i = 0; i < item_count; i++) {
+    for (int i = 0; i < item_count; ++i) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->tickerId) {
+            if (ld->tickerId != -1) {
                 tws_CancelMarketData(ld->tickerId);
             }
             ld = nullptr;
@@ -485,6 +485,8 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId)
 {
     ListBoxData* ld = new ListBoxData;
+
+    if (!tws_IsConnected()) tickerId = -1;
 
     bool is_history = GetDlgCtrlID(hListBox) == IDC_HISTORY_LISTBOX ? true : false;
     REAL font8 = 8;
