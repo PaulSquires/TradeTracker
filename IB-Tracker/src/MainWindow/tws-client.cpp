@@ -691,6 +691,12 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 
 
 
+void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, double price, Decimal size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) {
+	if (is_thread_paused) return;
+	//printf("Tick-By-Tick. ReqId: %d, TickType: %s, Time: %s, Price: %s, Size: %s, PastLimit: %d, Unreported: %d, Exchange: %s, SpecialConditions:%s\n",
+	//	reqId, (tickType == 1 ? "Last" : "AllLast"), ctime(&time), Utils::doubleMaxString(price).c_str(), decimalStringToDisplay(size).c_str(), tickAttribLast.pastLimit, tickAttribLast.unreported, exchange.c_str(), specialConditions.c_str());
+}
+
 
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 

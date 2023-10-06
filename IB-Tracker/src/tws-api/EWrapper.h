@@ -13,6 +13,7 @@
 #include "CommonDefs.h"
 #include "platformspecific.h"
 #include "TickAttrib.h"
+#include "TickAttribLast.h"
 #include "Decimal.h"
 
 enum TickType { BID_SIZE, BID, ASK, ASK_SIZE, LAST, LAST_SIZE,

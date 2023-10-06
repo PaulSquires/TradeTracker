@@ -15,6 +15,7 @@ void DefaultEWrapper::connectAck() { }
 void DefaultEWrapper::tickSize( TickerId tickerId, TickType field, Decimal size) { }
 void DefaultEWrapper::tickGeneric(TickerId tickerId, TickType tickType, double value) { }
 void DefaultEWrapper::tickString(TickerId tickerId, TickType tickType, const std::string& value) { }
+void DefaultEWrapper::tickByTickAllLast(int reqId, int tickType, time_t time, double price, Decimal size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) { }
 void DefaultEWrapper::winError( const std::string& str, int lastError) { }
 void DefaultEWrapper::updateAccountValue(const std::string& key, const std::string& val,
    const std::string& currency, const std::string& accountName) { }

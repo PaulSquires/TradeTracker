@@ -27,6 +27,68 @@ EDecoder::EDecoder(int serverVersion, EWrapper *callback, EClientMsgSink *client
 	m_pClientMsgSink = clientMsgSink;
 }
 
+
+const char* EDecoder::processTickByTickDataMsg(const char* ptr, const char* endPtr) {
+	int reqId;
+	int tickType = 0;
+	time_t time;
+
+	DECODE_FIELD(reqId);
+	DECODE_FIELD(tickType);
+	DECODE_FIELD(time);
+
+	if (tickType == 1 || tickType == 2) { // Last/AllLast
+		double price;
+		Decimal size;
+		int attrMask;
+		TickAttribLast tickAttribLast = {};
+		std::string exchange;
+		std::string specialConditions;
+
+		DECODE_FIELD(price);
+		DECODE_FIELD(size);
+		DECODE_FIELD(attrMask);
+
+		std::bitset<32> mask(attrMask);
+		tickAttribLast.pastLimit = mask[0];
+		tickAttribLast.unreported = mask[1];
+
+		DECODE_FIELD(exchange);
+		DECODE_FIELD(specialConditions);
+
+		m_pEWrapper->tickByTickAllLast(reqId, tickType, time, price, size, tickAttribLast, exchange, specialConditions);
+
+	}
+	//else if (tickType == 3) { // BidAsk
+	//	double bidPrice;
+	//	double askPrice;
+	//	Decimal bidSize;
+	//	Decimal askSize;
+	//	int attrMask;
+	//	DECODE_FIELD(bidPrice);
+	//	DECODE_FIELD(askPrice);
+	//	DECODE_FIELD(bidSize);
+	//	DECODE_FIELD(askSize);
+	//	DECODE_FIELD(attrMask);
+
+	//	TickAttribBidAsk tickAttribBidAsk = {};
+	//	std::bitset<32> mask(attrMask);
+	//	tickAttribBidAsk.bidPastLow = mask[0];
+	//	tickAttribBidAsk.askPastHigh = mask[1];
+
+	//	m_pEWrapper->tickByTickBidAsk(reqId, time, bidPrice, askPrice, bidSize, askSize, tickAttribBidAsk);
+	//}
+	//else if (tickType == 4) { // MidPoint
+	//	double midPoint;
+	//	DECODE_FIELD(midPoint);
+
+	//	m_pEWrapper->tickByTickMidPoint(reqId, time, midPoint);
+	//}
+
+	return ptr;
+}
+
+
 const char* EDecoder::processTickPriceMsg(const char* ptr, const char* endPtr) {
 	int version;
 	int tickerId;
@@ -424,6 +486,10 @@ int EDecoder::parseAndProcessMsg(const char*& beginPtr, const char* endPtr) {
 
 		case TICK_STRING:
 			ptr = processTickStringMsg(ptr, endPtr);
+			break;
+
+		case TICK_BY_TICK:
+			ptr = processTickByTickDataMsg(ptr, endPtr);
 			break;
 
 		case ERR_MSG:

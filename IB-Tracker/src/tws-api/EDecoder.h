@@ -7,6 +7,7 @@
 
 #include "platformspecific.h"
 #include "Contract.h"
+#include "TickAttribLast.h"
 #include "Decimal.h"
 
 
@@ -243,6 +244,7 @@ class TWSAPIDLLEXP EDecoder
     const char* processPositionEndMsg(const char* ptr, const char* endPtr);
     const char* processAccountSummaryMsg(const char* ptr, const char* endPtr);
     const char* processAccountSummaryEndMsg(const char* ptr, const char* endPtr);
+    const char* processTickByTickDataMsg(const char* ptr, const char* endPtr);
 
     int processConnectAck(const char*& beginPtr, const char* endPtr);
 

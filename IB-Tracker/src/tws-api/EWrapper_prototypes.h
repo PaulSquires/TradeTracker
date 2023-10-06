@@ -7,6 +7,7 @@
 # define EWRAPPER_VIRTUAL_IMPL
 #endif
 
+
 virtual void tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib) EWRAPPER_VIRTUAL_IMPL;
 virtual void connectionClosed() EWRAPPER_VIRTUAL_IMPL;
 virtual void connectAck() EWRAPPER_VIRTUAL_IMPL;
@@ -18,6 +19,7 @@ virtual void positionEnd() EWRAPPER_VIRTUAL_IMPL;
 virtual void tickSize(TickerId tickerId, TickType field, Decimal size) EWRAPPER_VIRTUAL_IMPL;
 virtual void tickGeneric(TickerId tickerId, TickType tickType, double value) EWRAPPER_VIRTUAL_IMPL;
 virtual void tickString(TickerId tickerId, TickType tickType, const std::string& value) EWRAPPER_VIRTUAL_IMPL;
+virtual void tickByTickAllLast(int reqId, int tickType, time_t time, double price, Decimal size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) EWRAPPER_VIRTUAL_IMPL;
 virtual void winError( const std::string& str, int lastError) EWRAPPER_VIRTUAL_IMPL;
 virtual void updateAccountValue(const std::string& key, const std::string& val,
 const std::string& currency, const std::string& accountName) EWRAPPER_VIRTUAL_IMPL;
