@@ -355,6 +355,8 @@ void SetJournalNotesText(std::wstring wszText)
 
     db << wszText;
     db.close();
+
+    journal_notes_text = wszText;
 }
 
 

@@ -88,6 +88,8 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
 
+                std::cout << "save" << std::endl;
+
                 // Save JournalNotes because the data has changed.
                 SetJournalNotesText(notes);
 
@@ -98,6 +100,9 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         }
 
         if (codeNotify == EN_CHANGE) {
+
+            std::cout << "change" << std::endl;
+
             notes = AfxGetWindowText(hwndCtl);
             is_notes_dirty = true;
             break;
