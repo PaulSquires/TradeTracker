@@ -347,9 +347,6 @@ void ListBoxData_DestroyItemData(HWND hListBox)
     for (int i = 0; i < item_count; ++i) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {
-            if (ld->tickerId != -1) {
-                tws_CancelMarketData(ld->tickerId);
-            }
             ld = nullptr;
             delete(ld);
         }
@@ -371,6 +368,7 @@ void ListBoxData_RequestMarketData(HWND hListBox)
     
     // Request market data for each open trade
     int item_count = ListBox_GetCount(hListBox);
+    if (item_count == 0) return;
     for (int i = 0; i < item_count; i++) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, i);
         if (ld != nullptr) {

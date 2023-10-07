@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Utilities/IntelDecimal.h"
 #include "SideMenu/SideMenu.h"
 #include "CustomLabel/CustomLabel.h"
+#include "Database/trade.h"
 
 #include "tws-api/EClientSocket.h"
 #include "tws-api/EPosixClientSocketPlatform.h"
@@ -595,6 +596,10 @@ void TwsClient::CancelMarketData(TickerId tickerId)
 
 void TwsClient::RequestMarketData(ListBoxData* ld)
 {
+	// If the tickerId has already been previously requested then mapTickerData will
+	// already contain the data so no need to requets it again.
+	if (mapTickerData.contains(ld->tickerId)) return;
+
 	// Convert the unicode symbol to regular string type
 	std::string symbol = unicode2ansi(ld->trade->ticker_symbol);
 
@@ -631,6 +636,10 @@ void TwsClient::RequestMarketData(ListBoxData* ld)
 		}
 
 	}
+
+	// std::cout << "tickerId added " << ld->tickerId << std::endl;
+
+	mapTickerData[ld->tickerId] = true;
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 }
 	
@@ -701,6 +710,7 @@ void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, double p
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 
 	if (is_thread_paused) return;
+	if (price == -1) return;   // no data currently available
 
 	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed 
 	// by a tickSize. A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
@@ -717,6 +727,12 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	// enum TickType { LAST, CLOSE, OPEN }
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
+
+		if (!mapTickerData.contains(tickerId)) return;
+	
+		
+		// std::cout << "tickPrice " << tickerId << std::endl;
+
 
 		// These columns in the table are updated in real time when connected
 		// to TWS. The LineData pointer is updated via a call to SetColumnData
@@ -745,18 +761,13 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 
 				if (field == CLOSE) {
 					ld->trade->ticker_close_price = price;
-					if (ld->trade->ticker_last_price == 0)
-						ld->trade->ticker_last_price = price;
+					if (ld->trade->ticker_last_price == 0) ld->trade->ticker_last_price = price;
 				}
 
 				if (field == OPEN) {
-					if (ld->trade->ticker_last_price == 0)
-						ld->trade->ticker_last_price = price;
-					if (ld->trade->ticker_close_price == 0)
-						ld->trade->ticker_close_price = price;
+					if (ld->trade->ticker_last_price == 0) ld->trade->ticker_last_price = price;
+					if (ld->trade->ticker_close_price == 0) ld->trade->ticker_close_price = price;
 				}
-
-
 
 				// Calculate the price change
 				double delta = 0;

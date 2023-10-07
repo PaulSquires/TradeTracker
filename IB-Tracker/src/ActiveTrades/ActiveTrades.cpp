@@ -120,7 +120,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     static int tickerId = 100;
     int curSel = 0;
 
-    tws_PauseTWS();
+    // tws_PauseTWS();
 
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
@@ -154,14 +154,13 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
             });
 
 
-        // Destroy any existing ListBox line data
-        // This will also clear the LineData pointers and cancel any previous market data
+        // Destroy any existing ListBox line data (clear the LineData pointers)
         ListBoxData_DestroyItemData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 
 
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
-        for (auto trade : trades) {
+        for (auto& trade : trades) {
             // We are displaying only open trades 
             if (trade->is_open) {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
@@ -173,10 +172,9 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                 }
 
                 // Setup the line, assign the tickerId.
-                ListBoxData_OpenPosition(hListBox, trade, tickerId);
-
-                tickerId++;
-                if (tickerId > 1000) tickerId = 100;
+                TickerId id = (trade->tickerId == -1) ? tickerId++ : trade->tickerId;
+                ListBoxData_OpenPosition(hListBox, trade, id);
+                trade->tickerId = id;
             }
         }
 
@@ -190,7 +188,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         }
 
 
-        // Start getting market data for each active ticker.
+        // Start getting market data (ticker price data) for each active ticker.
         tws_RequestMarketUpdates();
 
 
@@ -243,7 +241,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
 
     // Start getting the price data for all of the tickers
-    tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
+    // tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
 
     SetFocus(hListBox);
 

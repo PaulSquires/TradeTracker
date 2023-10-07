@@ -29,6 +29,8 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 #include "Utilities/UserMessages.h"
 
+typedef long TickerId;
+
 
 class CActiveTrades : public CWindowBase<CActiveTrades>
 {
@@ -36,6 +38,7 @@ public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 };
+
 
 extern CActiveTrades ActiveTrades;
 extern HWND HWND_ACTIVETRADES;

@@ -40,6 +40,9 @@ SOFTWARE.
 typedef long TickerId;
 
 
+extern std::unordered_map<TickerId, bool> mapTickerData;
+
+
 class Transaction;   // forward declare
 
 
@@ -95,7 +98,7 @@ public:
 class Trade
 {
 public:
-
+    TickerId      tickerId      = -1;
     bool          is_open       = true;    // False if all legs are closed
     std::wstring  ticker_symbol = L"";
     std::wstring  ticker_name   = L"";
