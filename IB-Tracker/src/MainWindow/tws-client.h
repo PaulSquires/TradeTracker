@@ -90,8 +90,6 @@ bool tws_IsConnected();
 void tws_CancelMarketData(TickerId tickerId);
 void tws_RequestMarketData(ListBoxData* ld);
 void tws_PerformReconciliation();
-void tws_PauseTWS();
-void tws_ResumeTWS();
 void tws_RequestAccountSummary();
 void tws_RequestMarketUpdates();
 void tws_RequestPositions();

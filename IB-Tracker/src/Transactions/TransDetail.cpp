@@ -141,14 +141,8 @@ void TransDetail_DeleteTransaction(HWND hwnd)
         tradeEditDelete->SetTradeOpenStatus();
     }
 
-
-    tws_PauseTWS();
-
     // Save the modified data
     SaveDatabase();
-    LoadDatabase();
-
-    tws_ResumeTWS();
 
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;

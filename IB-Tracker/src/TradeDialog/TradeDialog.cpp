@@ -29,6 +29,7 @@ SOFTWARE.
 #include "TradeDialog.h"
 #include "TradeDialogControls.h"
 #include "Database/trade.h"
+#include "Database/database.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "CustomLabel/CustomLabel.h"
@@ -37,6 +38,7 @@ SOFTWARE.
 #include "Category/CategoryPopup.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
+#include "Reconcile/Reconcile.h"
 #include "TradeGrid/TradeGrid.h"
 
 
@@ -54,9 +56,30 @@ int dialog_return_code = DIALOG_RETURN_CANCEL;
 // ========================================================================================
 void TradeDialog_OnClose(HWND hwnd)
 {
+    if (dialog_return_code == DIALOG_RETURN_OK) {
+
+        // Set the open status of the entire trade based on the new modified legs
+        tdd.trade->SetTradeOpenStatus();
+
+        // Rebuild the openLegs position vector
+        tdd.trade->CreateOpenLegsVector();
+
+        // Recalculate the ACB for the trade
+        tdd.trade->CalculateAdjustedCostBase();
+
+        // Save the new data
+        SaveDatabase();
+        Reconcile_doPositionMatching();
+
+        // Show our new list of open trades
+        ActiveTrades_ShowActiveTrades(true);
+    }
+
     MainWindow_BlurPanels(false);
     EnableWindow(HWND_MAINWINDOW, TRUE);
     DestroyWindow(hwnd);
+
+    tdd.trade = nullptr;
 }
 
 

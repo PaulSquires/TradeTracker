@@ -47,7 +47,6 @@ SOFTWARE.
 #include "tws-client.h"
 
 
-std::atomic<bool> is_thread_paused = false;
 std::atomic<bool> is_monitor_thread_active = false;
 
 bool market_data_subscription_error = false;
@@ -320,7 +319,6 @@ void MonitoringFunction(std::stop_token st) {
 void tws_StartMonitorThread()
 {
 	if (is_monitor_thread_active) return;
-	is_thread_paused = false;   // allow processing TickData
 	monitoring_thread = std::jthread(MonitoringFunction);
 }
 
@@ -328,7 +326,6 @@ void tws_StartMonitorThread()
 void tws_EndMonitorThread()
 {
 	if (is_monitor_thread_active) {
-		is_thread_paused = true;   // prevent processing TickData, etc while thread is shutting down
 		std::cout << "Threads will be stopped soon...." << std::endl;
 		monitoring_thread.request_stop();
 	}
@@ -404,7 +401,6 @@ bool tws_Connect()
 bool tws_Disconnect()
 {
     if (tws_IsConnected() == false) return true;
-	is_thread_paused = true;
 
     client.Disconnect();
     tws_EndMonitorThread();
@@ -442,20 +438,6 @@ void tws_RequestMarketData(ListBoxData* ld)
 	if (!tws_IsConnected()) return;
 	if (ld->trade == nullptr) return;
 	client.RequestMarketData(ld);
-}
-
-
-void tws_PauseTWS()
-{
-	if (!tws_IsConnected()) return;
-	is_thread_paused = true;
-}
-
-
-void tws_ResumeTWS()
-{
-	if (!tws_IsConnected()) return;
-	is_thread_paused = false;
 }
 
 
@@ -545,7 +527,7 @@ bool TwsClient::Connect(const char* host, int port, int clientId)
 void TwsClient::PingTWS() const
 {
 	m_pClient->reqCurrentTime();
-	printf("ping\n");
+	// printf("ping\n");
 }
 
 void TwsClient::Disconnect() const
@@ -637,8 +619,6 @@ void TwsClient::RequestMarketData(ListBoxData* ld)
 
 	}
 
-	// std::cout << "tickerId added " << ld->tickerId << std::endl;
-
 	ld->trade->ticker_data_requested = true;
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 }
@@ -669,7 +649,6 @@ void TwsClient::connectAck() {
 
 
 void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) {
-	if (is_thread_paused) return;
 
 	// Handle any HALTED tickers (Halted notifications only arrive via tickGeneric).
 	//Value	Description
@@ -701,7 +680,6 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 
 
 void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, double price, Decimal size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) {
-	if (is_thread_paused) return;
 	//printf("Tick-By-Tick. ReqId: %d, TickType: %s, Time: %s, Price: %s, Size: %s, PastLimit: %d, Unreported: %d, Exchange: %s, SpecialConditions:%s\n",
 	//	reqId, (tickType == 1 ? "Last" : "AllLast"), ctime(&time), Utils::doubleMaxString(price).c_str(), decimalStringToDisplay(size).c_str(), tickAttribLast.pastLimit, tickAttribLast.unreported, exchange.c_str(), specialConditions.c_str());
 }
@@ -709,7 +687,6 @@ void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, double p
 
 void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
 
-	if (is_thread_paused) return;
 	if (price == -1) return;   // no data currently available
 
 	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed 
@@ -728,7 +705,9 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
 
-		// std::cout << "tickPrice " << tickerId << std::endl;
+		//if (field == LAST) std::cout << "tickPrice LAST " << tickerId << " " << price << std::endl;
+		//if (field == OPEN) std::cout << "tickPrice OPEN " << tickerId << " " << price << std::endl;
+		//if (field == CLOSE) std::cout << "tickPrice CLOSE " << tickerId << " " << price << std::endl;
 
 
 		// These columns in the table are updated in real time when connected
@@ -752,19 +731,14 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				(ld->trade != nullptr) && 
 				(ld->line_type == LineType::ticker_line)) {
 
-				if (field == LAST) {
-					ld->trade->ticker_last_price = price;
-				}
-
-				if (field == CLOSE) {
-					ld->trade->ticker_close_price = price;
-					if (ld->trade->ticker_last_price == 0) ld->trade->ticker_last_price = price;
-				}
+				if (field == LAST) 	ld->trade->ticker_last_price = price;
+				if (field == CLOSE) ld->trade->ticker_close_price = price;
 
 				if (field == OPEN) {
-					if (ld->trade->ticker_last_price == 0) ld->trade->ticker_last_price = price;
 					if (ld->trade->ticker_close_price == 0) ld->trade->ticker_close_price = price;
 				}
+
+				if (ld->trade->ticker_last_price == 0) ld->trade->ticker_last_price = price;
 
 				// Calculate the price change
 				double delta = 0;
@@ -827,8 +801,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	double market_price, double market_value, double average_cost,
 	double unrealized_PNL, double realized_PNL, const std::string& account_name) {
-
-	if (is_thread_paused) return;
 
 	//printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
 	//	(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
@@ -1078,13 +1050,11 @@ void TwsClient::accountSummaryEnd(int reqId) {
 }
 
 void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
-	if (is_thread_paused) return;
 	//std::cout << "tickSize  id: " << tickerId << "  size: " << (int)intelDecimalToDouble(size) << std::endl;
 }
 
 void TwsClient::tickString(TickerId tickerId, TickType tickType, const std::string& value) {
 	// printf("Tick String. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, value.c_str());
-	if (is_thread_paused) return;
 }
 
 void TwsClient::winError(const std::string& str, int lastError) {}
@@ -1096,6 +1066,7 @@ void TwsClient::nextValidId(OrderId orderId) {
 }
 
 void TwsClient::currentTime(long time) {
-	std::cout << "current time " << time << std::endl;
+	// called from ping
+	// std::cout << "current time " << time << std::endl;
 }
 

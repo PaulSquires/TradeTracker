@@ -120,8 +120,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     static int tickerId = 100;
     int curSel = 0;
 
-    // tws_PauseTWS();
-
     // Select the correct menu panel item
     SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
 
@@ -173,10 +171,17 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
                 // Setup the line, assign the tickerId.
                 TickerId id = (trade->tickerId == -1) ? tickerId++ : trade->tickerId;
+
                 ListBoxData_OpenPosition(hListBox, trade, id);
                 trade->tickerId = id;
             }
         }
+
+
+        // Start getting market data (ticker price data) for each active ticker.
+        // If the ticker has already requested market data then it will skip requesting
+        // it again for a duplicate time.
+        tws_RequestMarketUpdates();
 
 
         // When requestPositions completes, it sends a notification to the Active Trades
@@ -186,12 +191,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
             tws_RequestPositions();
             positions_requested = true;
         }
-
-
-        // Start getting market data (ticker price data) for each active ticker.
-        // If the ticker has already requested market data then it will skip requesting
-        // it again for a duplicate time.
-        tws_RequestMarketUpdates();
 
 
         // Calculate the actual column widths based on the size of the strings in
@@ -241,12 +240,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     RECT rc; GetClientRect(HWND_ACTIVETRADES, &rc);
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);
 
-
-    // Start getting the price data for all of the tickers
-    // tws_ResumeTWS();  // allow ticks to flow prior to asking for data so we don't miss any ticks
-
     SetFocus(hListBox);
-
 }
 
 

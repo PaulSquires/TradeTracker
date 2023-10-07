@@ -33,7 +33,6 @@ SOFTWARE.
 #include "TradeGrid/TradeGrid.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/tws-client.h"
-#include "Database/database.h"
 #include "Category/Category.h"
 #include "Strategy/StrategyButton.h"
 
@@ -183,7 +182,6 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
 void TradeDialog_CreateSharesTradeData(HWND hwnd)
 {
     // PROCEED TO SAVE THE TRADE DATA
-    tws_PauseTWS();
 
     // Collect the GUI data as it currently exists
     CGuiData guiData;
@@ -267,28 +265,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     trans->legs.push_back(leg);
 
-
-    // Set the open status of the entire trade based on the new modified legs
-    trade->SetTradeOpenStatus();
-
-    // Rebuild the openLegs position vector
-    trade->CreateOpenLegsVector();
-
-    // Recalculate the ACB for the trade
-    trade->CalculateAdjustedCostBase();
-
-    // Save the new data
-    SaveDatabase();
-    Reconcile_doPositionMatching();
-
-
-    // Show our new list of open trades
-    ActiveTrades_ShowActiveTrades(true);
-
-    tdd.trade = nullptr;
-
-    tws_ResumeTWS();
-
+    tdd.trade = trade;
 }
 
 
@@ -384,7 +361,6 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
 void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 {
     // PROCEED TO SAVE THE TRADE DATA
-    tws_PauseTWS();
 
     // Collect the GUI data as it currently exists
     CGuiData guiData;
@@ -500,27 +476,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
     }
 
-    // Set the open status of the entire trade based on the new modified legs
-    trade->SetTradeOpenStatus();
-
-    // Rebuild the openLegs position vector
-    trade->CreateOpenLegsVector();
-
-    // Recalculate the ACB for the trade
-    trade->CalculateAdjustedCostBase();
-
-    // Save the new data
-    SaveDatabase();
-    Reconcile_doPositionMatching();
-
-
-    // Show our new list of open trades
-    ActiveTrades_ShowActiveTrades(true);
-
-    tdd.trade = nullptr;
-
-    tws_ResumeTWS();
-
+    tdd.trade = trade;
 }
 
 
@@ -615,7 +571,6 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
 void TradeDialog_CreateEditTradeData(HWND hwnd)
 {
     // PROCEED TO SAVE THE TRADE DATA
-    tws_PauseTWS();
 
     // Collect the GUI data as it currently exists
     CGuiData guiData;
@@ -708,27 +663,5 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     for (auto idx : legsToDelete) {
         tdd.trans->legs.erase(tdd.trans->legs.begin() + idx);
     }
-
-    // Set the open status of the entire trade based on the new modified legs
-    tdd.trade->SetTradeOpenStatus();
-
-    // Rebuild the openLegs position vector
-    tdd.trade->CreateOpenLegsVector();
-
-    // Recalculate the ACB for the trade
-    tdd.trade->CalculateAdjustedCostBase();
-
-    // Save/Load the new data
-    SaveDatabase();
-    Reconcile_doPositionMatching();
-
-
-    // Show our new list of open trades
-    ActiveTrades_ShowActiveTrades(true);
-
-    tdd.trade = nullptr;
-    
-    tws_ResumeTWS();
-
 }
 

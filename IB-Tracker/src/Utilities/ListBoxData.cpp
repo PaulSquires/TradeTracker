@@ -366,6 +366,9 @@ void ListBoxData_RequestMarketData(HWND hListBox)
     if (trades.size() == 0) return;
     if (!tws_IsConnected()) return;
     
+    // TWS API has a pacing limitation of 50 messages per second. As such, a total of 
+    // 50 messages may be sent AND received within each one second span.
+    
     // Request market data for each open trade
     int item_count = ListBox_GetCount(hListBox);
     if (item_count == 0) return;
@@ -374,6 +377,10 @@ void ListBoxData_RequestMarketData(HWND hListBox)
         if (ld != nullptr) {
             if (ld->line_type == LineType::ticker_line) {
                 tws_RequestMarketData(ld);
+
+                // Sleep for 10 milliseconds (to not exceed messages per second)
+                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
             }
         }
     }
