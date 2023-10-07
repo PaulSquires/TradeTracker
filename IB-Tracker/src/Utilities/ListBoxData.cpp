@@ -491,8 +491,6 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 {
     ListBoxData* ld = new ListBoxData;
 
-    if (!tws_IsConnected()) tickerId = -1;
-
     bool is_history = GetDlgCtrlID(hListBox) == IDC_HISTORY_LISTBOX ? true : false;
     REAL font8 = 8;
     REAL font9 = 9;
