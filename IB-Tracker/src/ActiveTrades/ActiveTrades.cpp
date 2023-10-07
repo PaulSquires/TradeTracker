@@ -189,6 +189,8 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
 
         // Start getting market data (ticker price data) for each active ticker.
+        // If the ticker has already requested market data then it will skip requesting
+        // it again for a duplicate time.
         tws_RequestMarketUpdates();
 
 

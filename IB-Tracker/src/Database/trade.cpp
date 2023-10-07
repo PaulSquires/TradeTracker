@@ -28,10 +28,6 @@ SOFTWARE.
 #include "trade.h"
 
 
-std::unordered_map<TickerId, bool> mapTickerData;
-
-
-
 bool Leg::isOpen()
 {
     return  (open_quantity == 0 ? false : true);

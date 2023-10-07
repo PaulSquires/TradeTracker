@@ -598,7 +598,7 @@ void TwsClient::RequestMarketData(ListBoxData* ld)
 {
 	// If the tickerId has already been previously requested then mapTickerData will
 	// already contain the data so no need to requets it again.
-	if (mapTickerData.contains(ld->tickerId)) return;
+	if (ld->trade->ticker_data_requested) return;
 
 	// Convert the unicode symbol to regular string type
 	std::string symbol = unicode2ansi(ld->trade->ticker_symbol);
@@ -639,7 +639,7 @@ void TwsClient::RequestMarketData(ListBoxData* ld)
 
 	// std::cout << "tickerId added " << ld->tickerId << std::endl;
 
-	mapTickerData[ld->tickerId] = true;
+	ld->trade->ticker_data_requested = true;
 	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
 }
 	
@@ -728,9 +728,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
 
-		if (!mapTickerData.contains(tickerId)) return;
-	
-		
 		// std::cout << "tickPrice " << tickerId << std::endl;
 
 
