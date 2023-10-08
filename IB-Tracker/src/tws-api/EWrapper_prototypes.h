@@ -23,6 +23,7 @@ virtual void tickByTickAllLast(int reqId, int tickType, time_t time, double pric
 virtual void winError( const std::string& str, int lastError) EWRAPPER_VIRTUAL_IMPL;
 virtual void updateAccountValue(const std::string& key, const std::string& val,
 const std::string& currency, const std::string& accountName) EWRAPPER_VIRTUAL_IMPL;
+virtual void updateAccountTime(const std::string& timeStamp) EWRAPPER_VIRTUAL_IMPL;
 virtual void updatePortfolio( const Contract& contract, Decimal position,
 	double marketPrice, double marketValue, double averageCost,
 	double unrealizedPNL, double realizedPNL, const std::string& accountName) EWRAPPER_VIRTUAL_IMPL;

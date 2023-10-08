@@ -51,6 +51,8 @@ int dialog_return_code = DIALOG_RETURN_CANCEL;
 
 
 
+#include "MainWindow/tws-client.h"
+
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: TradeDialog
 // ========================================================================================
@@ -73,6 +75,9 @@ void TradeDialog_OnClose(HWND hwnd)
 
         // Show our new list of open trades
         ActiveTrades_ShowActiveTrades(true);
+
+        client.CancelPortfolioUpdates();
+        client.RequestPortfolioUpdates();
     }
 
     MainWindow_BlurPanels(false);

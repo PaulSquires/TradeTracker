@@ -19,6 +19,8 @@ void DefaultEWrapper::tickByTickAllLast(int reqId, int tickType, time_t time, do
 void DefaultEWrapper::winError( const std::string& str, int lastError) { }
 void DefaultEWrapper::updateAccountValue(const std::string& key, const std::string& val,
    const std::string& currency, const std::string& accountName) { }
+void DefaultEWrapper::updateAccountTime(const std::string& timeStamp) { }
+
 void DefaultEWrapper::updatePortfolio(const Contract& contract, Decimal position,
 	double marketPrice, double marketValue, double averageCost,
 	double unrealizedPNL, double realizedPNL, const std::string& accountName) { }

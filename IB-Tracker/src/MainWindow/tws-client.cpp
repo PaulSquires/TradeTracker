@@ -578,8 +578,7 @@ void TwsClient::CancelMarketData(TickerId tickerId)
 
 void TwsClient::RequestMarketData(ListBoxData* ld)
 {
-	// If the tickerId has already been previously requested then mapTickerData will
-	// already contain the data so no need to requets it again.
+	// If the tickerId has already been previously requested then no need to request it again.
 	if (ld->trade->ticker_data_requested) return;
 
 	// Convert the unicode symbol to regular string type
@@ -814,12 +813,14 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 	// Match the incoming contract_id with the contract_id stored in the Leg.
 
+
 	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
 	int item_count = ListBox_GetCount(hListBox);
 	if (item_count == 0) return;
 
 	std::wstring text = L"";
 	DWORD theme_color = COLOR_WHITEDARK;
+
 
 	int index_trade = 0;
 
@@ -832,9 +833,11 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 		if (ld->line_type == LineType::ticker_line) index_trade = index;
 		if (ld->leg == nullptr) continue;
 
-
 		if (ld->leg->contract_id == contract.conId) {
 			theme_color = COLOR_WHITEDARK;
+
+		static int p = 0; p++;
+		std::cout << p << "  ** updatePortfolio ** " << contract.symbol << std::endl;
 
 			// POSITION COST BASIS
 			double position_cost = (average_cost * ld->leg->open_quantity);
@@ -919,7 +922,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 				InvalidateRect(hListBox, &rc, TRUE);
 				UpdateWindow(hListBox);
 			}
-
+			break;
 		}
 	}
 
@@ -992,7 +995,6 @@ void TwsClient::positionEnd()
 	// thereby allowing the loading of portfolio values.
 	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
 
-
 	// We have finished requesting positions. It is possible that some position closing prices were 
 	// not retrieved because maybe we are connected but it is after hours and we need additional
 	// subscriptions to access the data.
@@ -1008,7 +1010,19 @@ void TwsClient::updateAccountValue(const std::string& key, const std::string& va
 	const std::string& currency, const std::string& accountName) {
 	// This callback will fire when PortfolioValue updates are initiated. We look for the
 	// string "AccountReady". 
-	//std::cout << "updateAccountValue: " << key << std::endl;
+	// Note: An important key passed back in IBApi.EWrapper.updateAccountValue after a call 
+	// to IBApi.EClient.reqAccountUpdates is a boolean value 'AccountReady'. If an AccountReady 
+	// value of false is returned that means that the IB server is in the process of resetting 
+	// at that moment, i.e. the account is 'not ready'. When this occurs subsequent key values 
+	// returned to IBApi::EWrapper::updateAccountValue in the current update can be out of date or incorrect.
+	//if (key == "AccountReady" && val == "true") {
+	//	std::cout << p << "  updateAccountValue.  key: " << key << "  value: " << val << std::endl;
+	//}
+}
+
+
+void TwsClient::updateAccountTime(const std::string& timeStamp) {
+	// printf("****** UpdateAccountTime. Time: %s\n", timeStamp.c_str());
 }
 
 
@@ -1016,7 +1030,7 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 {
 	// Values will return immediately when first requested and then everytime they change or 3 minutes.
 
-	//	std::cout << "reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
+	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	
 	ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
 
@@ -1032,7 +1046,6 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 		account_value = AfxMoney(amount, false);
 	}
 
-
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
 		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), account_value);
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
@@ -1042,7 +1055,6 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), account_value);
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
-
 }
 
 void TwsClient::accountSummaryEnd(int reqId) {
