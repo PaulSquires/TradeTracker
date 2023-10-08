@@ -31,5 +31,7 @@ virtual void nextValidId( OrderId orderId) EWRAPPER_VIRTUAL_IMPL;
 virtual void currentTime(long time) EWRAPPER_VIRTUAL_IMPL;
 virtual void accountSummary( int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& curency) EWRAPPER_VIRTUAL_IMPL;
 virtual void accountSummaryEnd( int reqId) EWRAPPER_VIRTUAL_IMPL;
+virtual void wshMetaData(int reqId, const std::string& dataJson) EWRAPPER_VIRTUAL_IMPL;
+virtual void wshEventData(int reqId, const std::string& dataJson) EWRAPPER_VIRTUAL_IMPL;
 
 #undef EWRAPPER_VIRTUAL_IMPL

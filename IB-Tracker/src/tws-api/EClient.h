@@ -13,6 +13,7 @@
 #include "CommonDefs.h"
 #include "TagValue.h"
 #include "Contract.h"
+#include "WshEventData.h"
 
 namespace ibapi {
 namespace client_constants {
@@ -277,6 +278,10 @@ public:
 	void cancelAccountSummary(int reqId);
     void reqTickByTickData(int reqId, const Contract &contract, const std::string& tickType, int numberOfTicks, bool ignoreSize);
     void cancelTickByTickData(int reqId);
+	void reqWshMetaData(int reqId);
+	void reqWshEventData(int reqId, const WshEventData& wshEventData);
+	void cancelWshMetaData(int reqId);
+	void cancelWshEventData(int reqid);
 
 private:
 

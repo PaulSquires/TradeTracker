@@ -28,3 +28,5 @@ void DefaultEWrapper::nextValidId( OrderId orderId) { }
 void DefaultEWrapper::currentTime(long time) { }
 void DefaultEWrapper::accountSummary( int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& curency) { }
 void DefaultEWrapper::accountSummaryEnd( int reqId) { }
+void DefaultEWrapper::wshMetaData(int reqId, const std::string& dataJson) { }
+void DefaultEWrapper::wshEventData(int reqId, const std::string& dataJson) { }

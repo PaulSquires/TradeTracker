@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Database/trade.h"
 #include "Database/database.h"
 #include "MainWindow/MainWindow.h"
+#include "MainWindow/tws-client.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "CustomLabel/CustomLabel.h"
 #include "DatePicker/Calendar.h"
@@ -51,7 +52,6 @@ int dialog_return_code = DIALOG_RETURN_CANCEL;
 
 
 
-#include "MainWindow/tws-client.h"
 
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: TradeDialog
@@ -171,7 +171,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
             // Attempt to lookup the specified Ticker and fill in the corresponding Company Name & Multiplier.
             std::wstring ticker_symbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
-            std::wstring company_name;
+            std::wstring company_name = L"";
 
             auto iter = std::find_if(trades.begin(), trades.end(),
                 [&](const auto t) { return (t->ticker_symbol == ticker_symbol); });
@@ -190,6 +190,18 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
                 multiplier = L"1";
             }
             CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), multiplier);
+
+            // If this is a Stock then try to get the Earnings Date and (if applicable) Dividend Date.
+            if (!IsFuturesTicker(ticker_symbol)) {
+                tws_RequestWshMetaData(30001);
+                //	m_pClient->cancelWshMetaData(30001);
+                tws_RequestWshEventData(30003, WshEventData(100, false, false, false, "20231008", "", 5));
+
+                //	m_pClient->reqWshEventData(30002, WshEventData(8314, false, false, false, "20220511", "", 5));
+                //	m_pClient->reqWshEventData();
+                //	m_pClient->cancelWshEventData(30002);
+                //	m_pClient->cancelWshEventData(30003);
+            }
 
         }
         break;

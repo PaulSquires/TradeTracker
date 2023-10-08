@@ -778,6 +778,117 @@ void EClient::cancelTickByTickData(int reqId) {
     closeAndSend(msg.str());    
 }
 
+void EClient::reqWshMetaData(int reqId) {
+    if (!isConnected()) {
+        m_pEWrapper->error(NO_VALID_ID, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        return;
+    }
+
+    if (m_serverVersion < MIN_SERVER_VER_WSHE_CALENDAR) {
+        m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            "  It does not support WSHE Calendar API.", "");
+        return;
+    }
+
+    std::stringstream msg;
+    prepareBuffer(msg);
+
+    ENCODE_FIELD(REQ_WSH_META_DATA)
+        ENCODE_FIELD(reqId)
+
+        closeAndSend(msg.str());
+}
+
+void EClient::reqWshEventData(int reqId, const WshEventData& wshEventData) {
+    if (!isConnected()) {
+        m_pEWrapper->error(NO_VALID_ID, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        return;
+    }
+
+    if (m_serverVersion < MIN_SERVER_VER_WSHE_CALENDAR) {
+        m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            "  It does not support WSHE Calendar API.", "");
+        return;
+    }
+
+    if (m_serverVersion < MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS) {
+        if (!wshEventData.filter.empty() || wshEventData.fillWatchlist || wshEventData.fillPortfolio || wshEventData.fillCompetitors) {
+            m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() + "  It does not support WSH event data filters.", "");
+            return;
+        }
+    }
+
+    if (m_serverVersion < MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS_DATE) {
+        if (!wshEventData.startDate.empty() || !wshEventData.endDate.empty() || wshEventData.totalLimit != INT_MAX) {
+            m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() + "  It does not support WSH event data date filters.", "");
+            return;
+        }
+    }
+
+    std::stringstream msg;
+    prepareBuffer(msg);
+
+    ENCODE_FIELD(REQ_WSH_EVENT_DATA)
+        ENCODE_FIELD(reqId)
+        ENCODE_FIELD(wshEventData.conId)
+
+        if (m_serverVersion >= MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS) {
+            ENCODE_FIELD(wshEventData.filter);
+            ENCODE_FIELD(wshEventData.fillWatchlist);
+            ENCODE_FIELD(wshEventData.fillPortfolio);
+            ENCODE_FIELD(wshEventData.fillCompetitors);
+        }
+
+    if (m_serverVersion >= MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS_DATE) {
+        ENCODE_FIELD(wshEventData.startDate);
+        ENCODE_FIELD(wshEventData.endDate);
+        ENCODE_FIELD(wshEventData.totalLimit);
+    }
+
+    closeAndSend(msg.str());
+}
+
+void EClient::cancelWshMetaData(int reqId) {
+    if (!isConnected()) {
+        m_pEWrapper->error(NO_VALID_ID, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        return;
+    }
+
+    if (m_serverVersion < MIN_SERVER_VER_WSHE_CALENDAR) {
+        m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            "  It does not support WSHE Calendar API.", "");
+        return;
+    }
+
+    std::stringstream msg;
+    prepareBuffer(msg);
+
+    ENCODE_FIELD(CANCEL_WSH_META_DATA)
+        ENCODE_FIELD(reqId)
+
+        closeAndSend(msg.str());
+}
+
+void EClient::cancelWshEventData(int reqId) {
+    if (!isConnected()) {
+        m_pEWrapper->error(NO_VALID_ID, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        return;
+    }
+
+    if (m_serverVersion < MIN_SERVER_VER_WSHE_CALENDAR) {
+        m_pEWrapper->error(NO_VALID_ID, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            "  It does not support WSHE Calendar API.", "");
+        return;
+    }
+
+    std::stringstream msg;
+    prepareBuffer(msg);
+
+    ENCODE_FIELD(CANCEL_WSH_EVENT_DATA)
+        ENCODE_FIELD(reqId)
+
+        closeAndSend(msg.str());
+}
 
 bool EClient::extraAuth() {
     return m_extraAuth;

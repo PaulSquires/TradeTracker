@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\TWS API\source\CppClient\client\TickAttribLast.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\ActiveTrades\ActiveTrades.h" />
     <ClInclude Include="src\Category\Category.h" />
@@ -79,6 +78,7 @@
     <ClInclude Include="src\tws-api\TickAttribLast.h" />
     <ClInclude Include="src\tws-api\TwsSocketClientErrors.h" />
     <ClInclude Include="src\tws-api\Utils.h" />
+    <ClInclude Include="src\tws-api\WshEventData.h" />
     <ClInclude Include="src\Utilities\AfxWin.h" />
     <ClInclude Include="src\Utilities\Colors.h" />
     <ClInclude Include="src\Utilities\CWindowBase.h" />

@@ -46,7 +46,6 @@ SOFTWARE.
 
 #include "tws-client.h"
 
-
 std::atomic<bool> is_monitor_thread_active = false;
 
 bool market_data_subscription_error = false;
@@ -461,6 +460,18 @@ void tws_RequestPositions()
 	client.RequestPositions();
 }
 
+void tws_RequestWshMetaData(int reqId)
+{
+	if (!tws_IsConnected()) return;
+	client.RequestWshMetaData(reqId);
+}
+
+void tws_RequestWshEventData(int reqId, const WshEventData& wshEventData)
+{
+	if (!tws_IsConnected()) return;
+	client.RequestWshEventData(reqId, wshEventData);
+}
+
 
 void tws_PerformReconciliation()
 {
@@ -630,6 +641,17 @@ void TwsClient::CancelPositions()
 void TwsClient::RequestPositions()
 {
 	m_pClient->reqPositions();
+}
+
+
+void TwsClient::RequestWshMetaData(int reqId)
+{
+	m_pClient->reqWshMetaData(reqId);
+}
+
+void TwsClient::RequestWshEventData(int reqId, const WshEventData& wshEventData)
+{
+	m_pClient->reqWshEventData(reqId, wshEventData);
 }
 
 void TwsClient::RequestAccountSummary()
@@ -1056,6 +1078,16 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 }
+
+
+void TwsClient::wshMetaData(int reqId, const std::string& dataJson) {
+	printf("WSH Meta Data. ReqId: %d, dataJson: %s\n", reqId, dataJson.c_str());
+}
+
+void TwsClient::wshEventData(int reqId, const std::string& dataJson) {
+	printf("WSH Event Data. ReqId: %d, dataJson: %s\n", reqId, dataJson.c_str());
+}
+
 
 void TwsClient::accountSummaryEnd(int reqId) {
 	// std::cout << "account summary end" << std::endl;

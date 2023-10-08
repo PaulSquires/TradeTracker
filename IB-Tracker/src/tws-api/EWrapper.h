@@ -15,6 +15,8 @@
 #include "TickAttrib.h"
 #include "TickAttribLast.h"
 #include "Decimal.h"
+#include "WshEventData.h"
+
 
 enum TickType { BID_SIZE, BID, ASK, ASK_SIZE, LAST, LAST_SIZE,
 				HIGH, LOW, VOLUME, CLOSE,

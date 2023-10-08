@@ -59,6 +59,8 @@ public:
 	void CancelPortfolioUpdates();
 	void RequestPortfolioUpdates();
 	void RequestAccountSummary();
+	void RequestWshMetaData(int reqId);
+	void RequestWshEventData(int reqId, const WshEventData & wshEventData);
 	void PingTWS() const;
 
 public:
@@ -94,5 +96,8 @@ void tws_RequestAccountSummary();
 void tws_RequestMarketUpdates();
 void tws_RequestPositions();
 void tws_CancelPositions();
+void tws_RequestWshMetaData(int reqId);
+void tws_RequestWshEventData(int reqId, const WshEventData& wshEventData);
+
 
 
