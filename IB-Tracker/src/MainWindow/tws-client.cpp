@@ -828,11 +828,6 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	//	Utils::doubleMaxString(market_price).c_str(), Utils::doubleMaxString(market_value).c_str(), Utils::doubleMaxString(average_cost).c_str(),
 	//	Utils::doubleMaxString(unrealized_PNL).c_str(), Utils::doubleMaxString(realized_PNL).c_str(), account_name.c_str());
 
-
-	// NOTE: Even though the TWS api docs say that the position values are sent automatically whenever the position changes, it appears
-	// that the values are only updated every 3 minutes as per the docs as well. Even unsubscribing and resubscribing does not seem to
-	// get the latest data (same data that displays in the TWS Portfolio window). Seems like we have to wait 3 minutes between updates.
-
 	// Match the incoming contract_id with the contract_id stored in the Leg.
 
 
@@ -857,9 +852,6 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 		if (ld->leg->contract_id == contract.conId) {
 			theme_color = COLOR_WHITEDARK;
-
-		static int p = 0; p++;
-		std::cout << p << "  ** updatePortfolio ** " << contract.symbol << std::endl;
 
 			// POSITION COST BASIS
 			double position_cost = (average_cost * ld->leg->open_quantity);
