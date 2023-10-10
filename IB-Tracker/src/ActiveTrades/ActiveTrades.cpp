@@ -1122,6 +1122,8 @@ void ActiveTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    static bool portfolio_requested = false;
+    
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, ActiveTrades_OnCreate);
@@ -1136,7 +1138,10 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_POSITIONS_READY:
         // Request Positions has completed and has sent this notification so 
         // we can now start requesting the portfolio updates real time data.
-        client.RequestPortfolioUpdates();
+        if (!portfolio_requested) {
+            client.RequestPortfolioUpdates();
+            portfolio_requested = true;
+        }
         return 0;
 
 
