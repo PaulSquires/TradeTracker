@@ -193,14 +193,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
             // If this is a Stock then try to get the Earnings Date and (if applicable) Dividend Date.
             if (!IsFuturesTicker(ticker_symbol)) {
-                tws_RequestWshMetaData(30001);
-                //	m_pClient->cancelWshMetaData(30001);
-                tws_RequestWshEventData(30003, WshEventData(100, false, false, false, "20231008", "", 5));
-
-                //	m_pClient->reqWshEventData(30002, WshEventData(8314, false, false, false, "20220511", "", 5));
-                //	m_pClient->reqWshEventData();
-                //	m_pClient->cancelWshEventData(30002);
-                //	m_pClient->cancelWshEventData(30003);
+                // TODO: Scrape web data to get Earnings Date
             }
 
         }
