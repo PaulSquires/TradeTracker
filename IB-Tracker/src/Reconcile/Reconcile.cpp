@@ -194,7 +194,7 @@ void Reconcile_doPositionMatching()
 		for (auto& local : local_positions) {
 			found = Reconcile_ArePositionsEqual(ibkr, local);
 			// If found, then update the Local vector to point to the contract_id of the 
-			// actual IBKR psoition. We use this when dealing with UpdatePortfolio() callbacks.
+			// actual IBKR position. We use this when dealing with UpdatePortfolio() callbacks.
 			if (found == true) {
 				for (auto& leg : local.legs) {
 					leg->contract_id = ibkr.contract_id;
