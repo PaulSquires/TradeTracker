@@ -57,5 +57,7 @@ constexpr int IDC_RECONCILE_TEXTBOX = 100;
 
 void Reconcile_position(const Contract& contract, Decimal position);
 void Reconcile_doPositionMatching();
+void Reconcile_doReconciliation();
+void Reconcile_LoadAllLocalPositions();
 void Reconcile_Show();
 

@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Reconcile.h"
 
 
-std::vector<positionStruct> IBKRPositions;    // persistent 
-std::vector<positionStruct> local_positions;  // gets reset 
+std::vector<positionStruct> ibkr_positions;    // persistent 
+std::vector<positionStruct> local_positions;  // persistent 
 
 
 HWND HWND_RECONCILE = NULL;
@@ -45,6 +45,83 @@ CReconcile Reconcile;
 
 std::wstring results_text;
 
+
+
+// ========================================================================================
+// Load one open trades into the local_positions vector
+// ========================================================================================
+void Reconcile_LoadOneLocalPosition(const auto& trade)
+{
+	for (const auto& leg : trade->open_legs) {
+
+		positionStruct p{};
+		p.open_quantity = leg->open_quantity;
+		p.ticker_symbol = trade->ticker_symbol;
+
+		if (leg->underlying == L"FUTURES") p.underlying = L"FUT";
+		if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
+		if (leg->underlying == L"SHARES") p.underlying = L"STK";
+
+		p.strike_price = AfxValDouble(leg->strike_price);
+		p.expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
+		p.PutCall = leg->PutCall;
+
+		// Check if the ticker is a future
+		if (IsFuturesTicker(p.ticker_symbol)) {
+			p.ticker_symbol = trade->ticker_symbol.substr(1);
+			if (p.underlying == L"OPT") p.underlying = L"FOP";
+		}
+
+
+		// Check to see if the LOCAL position already exists in the vector. If it
+		// does then simply update the Local quantity. We need to do this because IBKR
+		// aggregates all similar positions.
+		bool found = false;
+		for (auto& local : local_positions) {
+			if (p.underlying == L"OPT" ||
+				p.underlying == L"FOP") {
+				if (p.strike_price == local.strike_price &&
+					p.ticker_symbol == local.ticker_symbol &&
+					p.expiry_date == local.expiry_date &&
+					p.PutCall == local.PutCall) {
+					found = true;
+					local.open_quantity += p.open_quantity;
+					local.legs.push_back(leg);
+					break;
+				}
+			}
+			if (p.underlying == L"STK" ||
+				p.underlying == L"FUT") {
+				if (p.ticker_symbol == local.ticker_symbol &&
+					p.underlying == local.underlying) {
+					found = true;
+					local.open_quantity += p.open_quantity;
+					local.legs.push_back(leg);
+					break;
+				}
+			}
+		}
+
+		if (found == false) {
+			p.legs.push_back(leg);
+			local_positions.push_back(p);
+		}
+
+	}
+}
+
+
+// ========================================================================================
+// Load all open trades into the local_positions vector
+// ========================================================================================
+void Reconcile_LoadAllLocalPositions()
+{
+	// Add all of the current LOCAL "Open" positions to the local_positions vector
+	for (const auto& trade : trades) {
+		if (!trade->is_open) continue;
+		Reconcile_LoadOneLocalPosition(trade);
+	}
+}
 
 
 // ========================================================================================
@@ -59,12 +136,12 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	// positions here as they are received.
 	
 	// Remove any existing version of the contract before adding it again
-	auto end = std::remove_if(IBKRPositions.begin(),
-		IBKRPositions.end(),
+	auto end = std::remove_if(ibkr_positions.begin(),
+		ibkr_positions.end(),
 		[contract](positionStruct const& p) {
 			return (p.contract_id == contract.conId) ? true : false;
 		});
-	IBKRPositions.erase(end, IBKRPositions.end());
+	ibkr_positions.erase(end, ibkr_positions.end());
 
 	// Add the position the vector
 	positionStruct p{};
@@ -74,13 +151,13 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	p.underlying    = ansi2unicode(contract.secType);
 	p.expiry_date   = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
 	p.strike_price  = contract.strike;
+	p.PutCall       = ansi2unicode(contract.right);
 	// If this is a Lean Hog Futures contract then we multiply the strike by 100 b/c IBKR
 	// stores it as cents but we placed the trade as "dollars".  eg. .85 vs. 85
 	if (p.ticker_symbol == L"HE" && p.underlying == L"FOP") {
 		p.strike_price *= 100;
 	}
-	p.PutCall       = ansi2unicode(contract.right);
-	IBKRPositions.push_back(p);
+	ibkr_positions.push_back(p);
 }
 
 
@@ -89,8 +166,6 @@ void Reconcile_position(const Contract& contract, Decimal position)
 // ========================================================================================
 bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 {
-	bool equal = false;
-
 	if (ibkr.underlying == L"OPT" ||
 		ibkr.underlying == L"FOP") {
 		if (ibkr.strike_price == local.strike_price &&
@@ -99,7 +174,7 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 			ibkr.expiry_date == local.expiry_date &&
 			ibkr.PutCall == local.PutCall &&
 			ibkr.underlying == local.underlying) {
-			equal = true;
+			return true;
 		}
 	}
 	if (ibkr.underlying == L"STK" ||
@@ -107,11 +182,11 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 		if (ibkr.open_quantity == local.open_quantity &&
 			ibkr.ticker_symbol == local.ticker_symbol &&
 			ibkr.underlying == local.underlying) {
-			equal = true;
+			return true;
 		}
 	}
 
-	return equal;
+	return false;
 }
 
 
@@ -122,85 +197,43 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 // ========================================================================================
 void Reconcile_doPositionMatching()
 {
-	// Add all of the current LOCAL "Open" positions to the local_positions vector
-	for (const auto& trade : trades) {
-		if (!trade->is_open) continue;
-		for (const auto& leg : trade->open_legs) {
-			positionStruct p{};
-			p.open_quantity = leg->open_quantity;
-			p.ticker_symbol = trade->ticker_symbol;
-
-			if (leg->underlying == L"FUTURES") p.underlying = L"FUT";
-			if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
-			if (leg->underlying == L"SHARES") p.underlying = L"STK";
-
-			p.strike_price = AfxValDouble(leg->strike_price);
-			p.expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
-			p.PutCall = leg->PutCall;
-
-			// Check if the ticker is a future
-			if (IsFuturesTicker(p.ticker_symbol)) {
-				p.ticker_symbol = trade->ticker_symbol.substr(1);
-				if (p.underlying == L"OPT") p.underlying = L"FOP";
-			}
-
-
-			// Check to see if the LOCAL position already exists in the vector. If it
-			// does then simply update the Local quantity. We need to do this because IBKR
-			// aggregates all similar positions.
-			bool found = false;
-			for (auto& local : local_positions) {
-				if (p.underlying == L"OPT" ||
-					p.underlying == L"FOP") {
-					if (p.strike_price  == local.strike_price &&
-						p.ticker_symbol == local.ticker_symbol &&
-						p.expiry_date   == local.expiry_date &&
-						p.PutCall      == local.PutCall) {
-						found = true;
-						local.open_quantity += p.open_quantity;
-						local.legs.push_back(leg);
-						break;
-					}
-				}
-				if (p.underlying == L"STK" ||
-					p.underlying == L"FUT") {
-					if (p.ticker_symbol == local.ticker_symbol &&
-						p.underlying   == local.underlying) {
-						found = true;
-						local.open_quantity += p.open_quantity;
-						local.legs.push_back(leg);
-						break;
-					}
-				}
-			}
-
-			if (found == false) {
-				p.legs.push_back(leg);
-				local_positions.push_back(p);
-			}
-
-		}
-	}
-
-
-	std::wstring text = L"";
-
-	// (1) Determine what IBKR "real" positions do not exist in the Local database.
-	results_text = L"IBKR that do not exist in Local:\r\n";
-
-	for (const auto& ibkr : IBKRPositions) {
+	for (const auto& ibkr : ibkr_positions) {
 		if (ibkr.open_quantity == 0) continue;
 		bool found = false;
 		for (auto& local : local_positions) {
+			// Check if the contract has previously already been assigned.
+			if (local.contract_id == ibkr.contract_id) break;
 			found = Reconcile_ArePositionsEqual(ibkr, local);
 			// If found, then update the Local vector to point to the contract_id of the 
 			// actual IBKR position. We use this when dealing with UpdatePortfolio() callbacks.
-			if (found == true) {
+			if (found) {
+				local.contract_id = ibkr.contract_id;
 				for (auto& leg : local.legs) {
 					leg->contract_id = ibkr.contract_id;
 				}
 				break;
 			}
+		}
+	}
+}
+
+
+// ========================================================================================
+// Perform a reconciliation between IBKR positions and local positions.
+// ========================================================================================
+void Reconcile_doReconciliation()
+{
+	std::wstring text = L"";
+
+	// (1) Determine what IBKR "real" positions do not exist in the Local database.
+	results_text = L"IBKR that do not exist in Local:\r\n";
+
+	for (const auto& ibkr : ibkr_positions) {
+		if (ibkr.open_quantity == 0) continue;
+		bool found = false;
+		for (auto& local : local_positions) {
+			found = Reconcile_ArePositionsEqual(ibkr, local);
+			if (found) break;
 		}
 		if (!found) {
 			text += L"   " + std::to_wstring(ibkr.open_quantity) + L" " +
@@ -221,7 +254,7 @@ void Reconcile_doPositionMatching()
 	text = L"";
 	for (const auto& local : local_positions) {
 		bool found = false;
-		for (const auto& ibkr : IBKRPositions) {
+		for (const auto& ibkr : ibkr_positions) {
 			found = Reconcile_ArePositionsEqual(ibkr, local);
 			if (found == true) break;
 		}
@@ -238,10 +271,6 @@ void Reconcile_doPositionMatching()
 	}
 	if (text.length() == 0) text = L"** Everything matches correctly **";
 	results_text += text;
-
-	// Clear the local vector in case we run reconcile again. The IBKR vector will
-	// be dynamically updated as positions change in TWS and it callback to our program.
-	local_positions.clear();
 
 }
 
@@ -333,8 +362,8 @@ void Reconcile_Show()
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
 	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
 
-	// Do the reconciliation matching
-	Reconcile_doPositionMatching();
+	// Do the reconciliation
+	Reconcile_doReconciliation();
 	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), results_text.c_str());
 
 

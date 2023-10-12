@@ -339,6 +339,8 @@ void tws_ConnectionSuccessful()
 	// This function is called from nextValidId();
 
 	if (tws_IsConnected()) {
+		// Load all local positions in vector
+		Reconcile_LoadAllLocalPositions();
 
 		// Request Account Summary in order to get liquidity amounts
 		tws_RequestAccountSummary();
