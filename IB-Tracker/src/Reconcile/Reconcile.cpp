@@ -36,7 +36,7 @@ SOFTWARE.
 
 
 std::vector<positionStruct> ibkr_positions;    // persistent 
-std::vector<positionStruct> local_positions;  // persistent 
+std::vector<positionStruct> local_positions;   // persistent 
 
 
 HWND HWND_RECONCILE = NULL;
