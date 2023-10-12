@@ -804,8 +804,6 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 				InvalidateRect(hListBox, &rc, TRUE);
 				UpdateWindow(hListBox);
 
-				break;
-
 			}  // if
 		}  // for
 
