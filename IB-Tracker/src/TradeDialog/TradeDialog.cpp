@@ -71,13 +71,12 @@ void TradeDialog_OnClose(HWND hwnd)
 
         // Save the new data
         SaveDatabase();
+
+        Reconcile_LoadAllLocalPositions();
         Reconcile_doPositionMatching();
 
         // Show our new list of open trades
         ActiveTrades_ShowActiveTrades(true);
-
-        client.CancelPortfolioUpdates();
-        client.RequestPortfolioUpdates();
     }
 
     MainWindow_BlurPanels(false);

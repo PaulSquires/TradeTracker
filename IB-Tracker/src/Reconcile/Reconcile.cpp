@@ -117,6 +117,7 @@ void Reconcile_LoadOneLocalPosition(const auto& trade)
 void Reconcile_LoadAllLocalPositions()
 {
 	// Add all of the current LOCAL "Open" positions to the local_positions vector
+	local_positions.clear();
 	for (const auto& trade : trades) {
 		if (!trade->is_open) continue;
 		Reconcile_LoadOneLocalPosition(trade);
