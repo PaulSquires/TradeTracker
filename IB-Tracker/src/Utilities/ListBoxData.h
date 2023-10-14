@@ -122,7 +122,6 @@ enum class TableType
 };
 
 
-DWORD GetCategoryColor(int category);
 bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int index);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);

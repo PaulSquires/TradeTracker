@@ -178,28 +178,6 @@ bool previous_market_data_loaded = false;
 
 
 // ========================================================================================
-// Helper function to get the Color for the specified Category
-// ========================================================================================
-DWORD GetCategoryColor(int category)
-{
-    DWORD cattext_color = COLOR_WHITEDARK;
-    switch (category)
-    {
-    case 0: cattext_color = COLOR_WHITEDARK; break;
-    case 1: cattext_color = COLOR_BLUE; break;
-    case 2: cattext_color = COLOR_PINK; break;
-    case 3: cattext_color = COLOR_GREEN; break;
-    case 4: cattext_color = COLOR_ORANGE; break;
-    case 5: cattext_color = COLOR_RED; break;
-    case 6: cattext_color = COLOR_TEAL; break;
-    case 7: cattext_color = COLOR_KHAKI; break;
-    default: cattext_color = COLOR_WHITEDARK;
-    }
-    return cattext_color;
-}
-
-
-// ========================================================================================
 // Calculate the actual column widths based on the size of the strings in
 // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
 // This function is also called when receiving new price data from TWS because
@@ -377,10 +355,8 @@ void ListBoxData_RequestMarketData(HWND hListBox)
         if (ld != nullptr) {
             if (ld->line_type == LineType::ticker_line) {
                 tws_RequestMarketData(ld);
-
                 // Sleep for 10 milliseconds (to not exceed messages per second)
                 // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
             }
         }
     }
@@ -561,7 +537,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
         text = (trade->percentage_text.length()) ? trade->percentage_text : L"";
         ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // unrealized PNL
+            clr, font8, FontStyleRegular);   // unrealized PNL
 
     }
     ListBox_AddString(hListBox, ld);
@@ -1359,7 +1335,7 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         }
 
         // Draw each of the columns
-        for (int i = column_start; i < column_end; i++) {
+        for (int i = column_start; i < column_end; ++i) {
             if (ld == nullptr) break;
             if (ld->col[i].column_width == 0) break;
 
