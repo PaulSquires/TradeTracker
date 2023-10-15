@@ -88,7 +88,7 @@ void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData)
         std::wstring money = AfxGetWindowText(pData->hTextBox);
 
         std::wstring buffer(256, 0);
-        int j = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, money.c_str(), &num, (LPWSTR)buffer.c_str(), 256);
+        size_t j = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, money.c_str(), &num, (LPWSTR)buffer.c_str(), 256);
 
         money = buffer.substr(0, j - 1);
         AfxSetWindowText(pData->hTextBox, money.c_str());
@@ -140,8 +140,8 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             }
             
             int nPos = (int)SendMessage(hWnd, EM_GETSEL, 0, 0);
-            int start_position = LOWORD(nPos);
-            int end_position = HIWORD(nPos);
+            size_t start_position = LOWORD(nPos);
+            size_t end_position = HIWORD(nPos);
 
             // Allow decimal (but only once), and digit if limit not reached
             std::wstring text = AfxGetWindowText(hWnd);

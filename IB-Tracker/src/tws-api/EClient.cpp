@@ -107,7 +107,7 @@ void EClient::EncodeTagValueList(std::ostream& os, const TagValueListSPtr &tagVa
     const size_t tagValueListCount = tagValueList.get() ? tagValueList->size() : 0;
 
     if (tagValueListCount > 0) {
-        for (int i = 0; i < tagValueListCount; ++i) {
+        for (size_t i = 0; i < tagValueListCount; ++i) {
             const TagValue* tagValue = ((*tagValueList)[i]).get();
 
             tagValueListStr += tagValue->tag;
@@ -317,7 +317,7 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
             const size_t comboLegsCount = comboLegs ? comboLegs->size() : 0;
             ENCODE_FIELD( comboLegsCount);
             if( comboLegsCount > 0) {
-                for( int i = 0; i < comboLegsCount; ++i) {
+                for( size_t i = 0; i < comboLegsCount; ++i) {
                     const ComboLeg* comboLeg = ((*comboLegs)[i]).get();
                     assert( comboLeg);
                     ENCODE_FIELD( comboLeg->conId);
