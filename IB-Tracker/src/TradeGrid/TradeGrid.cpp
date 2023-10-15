@@ -767,7 +767,7 @@ HWND CreateTradeGrid(
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
         pData->hInst = hInst;
-        pData->CtrlId = CtrlId;
+        pData->CtrlId = (int)CtrlId;
         pData->back_color = COLOR_BLACK;
         pData->hback_brush = CreateSolidBrush(pData->back_color);
         pData->bShowOriginalQuantity = bShowOriginalQuantity;

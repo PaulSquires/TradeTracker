@@ -258,7 +258,7 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int inde
                 fontStyle = ld->col[i].font_style;
                 Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
 
-                graphics.MeasureString(ld->col[i].text.c_str(), ld->col[i].text.length(),
+                graphics.MeasureString(ld->col[i].text.c_str(), (int)ld->col[i].text.length(),
                     &font, layoutRect, &format, &boundRect);
 
                 int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding

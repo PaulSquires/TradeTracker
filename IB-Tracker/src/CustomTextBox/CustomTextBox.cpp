@@ -139,7 +139,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 if (wParam == 46) return 0;
             }
             
-            int nPos = SendMessage(hWnd, EM_GETSEL, 0, 0);
+            int nPos = (int)SendMessage(hWnd, EM_GETSEL, 0, 0);
             int start_position = LOWORD(nPos);
             int end_position = HIWORD(nPos);
 
@@ -150,7 +150,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 text.erase(start_position, (end_position - start_position + 1));
             }
 
-            int nFoundAt = text.find(L".");
+            size_t nFoundAt = text.find(L".");
             if (nFoundAt != std::wstring::npos) {
                 // Period already exists then don't allow another one.
                 if (wParam == 46) {
@@ -622,7 +622,7 @@ HWND CreateCustomTextBox(
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
         pData->hInst = hInst;
-        pData->CtrlId = CtrlId;
+        pData->CtrlId = (int)CtrlId;
         pData->font_name = L"Segoe UI";
         pData->font_size = 9;
         pData->back_color = COLOR_GRAYDARK;

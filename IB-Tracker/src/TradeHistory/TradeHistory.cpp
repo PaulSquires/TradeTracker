@@ -101,7 +101,7 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
 
 
     // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
-    for (int i = trade->transactions.size() - 1; i >= 0; --i) {
+    for (int i = (int)trade->transactions.size() - 1; i >= 0; --i) {
         auto trans = trade->transactions.at(i);
 
         ListBoxData_HistoryHeader(hListBox, trade, trans);
@@ -165,7 +165,7 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         accumDelta += zDelta;
         if (accumDelta >= 120) {     // scroll up 3 lines
             top_index -= 3;
@@ -272,7 +272,7 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int item_height = (rcItem.bottom - rcItem.top);
         int items_count = ListBox_GetCount(hWnd);
-        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;

@@ -1084,7 +1084,7 @@ std::wstring AfxMoney(double value, bool UseMinusSign, int NumDecimalPlaces)
 // ========================================================================================
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y)
 {
-    return SendMessage(hListBox, LB_ITEMFROMPOINT, 0, (LPARAM)MAKELONG(x, y));
+    return (int)SendMessage(hListBox, LB_ITEMFROMPOINT, 0, (LPARAM)MAKELONG(x, y));
 }
 
 
@@ -1119,17 +1119,17 @@ std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter)
 {
     std::vector<std::wstring> v;
     if (!str.empty()) {
-        int start = 0;
+        size_t start = 0;
         do {
             // Find the index of occurrence
-            int idx = str.find(delimiter, start);
+            size_t idx = str.find(delimiter, start);
             if (idx == std::wstring::npos) {
                 break;
             }
 
             // If found add the substring till that
             // occurrence in the vector
-            int length = idx - start;
+            size_t length = idx - start;
             v.push_back(str.substr(start, length));
             start += (length + delimiter.size());
         } while (true);
@@ -1257,7 +1257,7 @@ std::wstring& AfxTrim(std::wstring& s) {
 // ========================================================================================
 DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
 {
-    DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+    DWORD dwOldStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
     DWORD dwNewStyle = dwOldStyle & ~(dwStyle);
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
     SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
@@ -1275,7 +1275,7 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
 // ========================================================================================
 DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle)
 {
-    DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+    DWORD dwOldStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
     DWORD dwNewStyle = dwOldStyle | (dwStyle);
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
     SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
@@ -1293,7 +1293,7 @@ DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle)
 // ========================================================================================
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
 {
-    DWORD dwOldExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    DWORD dwOldExStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_EXSTYLE);
     DWORD dwNewExStyle = dwOldExStyle & ~(dwExStyle);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewExStyle);
     return dwOldExStyle;
@@ -1309,7 +1309,7 @@ DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
 // ========================================================================================
 DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle)
 {
-    DWORD dwOldStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    DWORD dwOldStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_EXSTYLE);
     DWORD dwNewStyle = dwOldStyle | (dwExStyle);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewStyle);
     return dwOldStyle;

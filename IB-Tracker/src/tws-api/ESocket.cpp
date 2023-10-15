@@ -64,7 +64,7 @@ int ESocket::send(const char* buf, size_t sz)
 	if( sz <= 0)
 		return 0;
 
-	int nResult = ::send( m_fd, buf, sz, 0);
+	int nResult = ::send( m_fd, buf, (int)sz, 0);
 
 	if( nResult == -1) {
 		return -1;

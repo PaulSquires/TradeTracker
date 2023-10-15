@@ -467,9 +467,9 @@ int EDecoder::processConnectAck(const char*& beginPtr, const char* endPtr)
 			m_pEWrapper->connectAck();
 		}
 
-		int processed = ptr - beginPtr;
+		size_t processed = ptr - beginPtr;
 		beginPtr = ptr;
-		return processed;
+		return (int)processed;
 	}
 	catch(const std::exception& e) {
 		m_pEWrapper->error( NO_VALID_ID, SOCKET_EXCEPTION.code(), SOCKET_EXCEPTION.msg() + e.what(), "");
@@ -573,9 +573,9 @@ int EDecoder::parseAndProcessMsg(const char*& beginPtr, const char* endPtr) {
 		if (!ptr)
 			return 0;
 
-		int processed = ptr - beginPtr;
+		size_t processed = ptr - beginPtr;
 		beginPtr = ptr;
-		return processed;
+		return (int)processed;
 	}
 	catch(const std::exception& e) {
 		m_pEWrapper->error( NO_VALID_ID, SOCKET_EXCEPTION.code(), SOCKET_EXCEPTION.msg() + e.what(), "");

@@ -141,7 +141,7 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
         SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int itemHeight = (rcItem.bottom - rcItem.top);
         int items_count = ListBox_GetCount(hWnd);
-        int top_index = SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;

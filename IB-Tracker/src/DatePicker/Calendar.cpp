@@ -102,7 +102,7 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         0, 0, 0, 0, // resize it later
         Calendar.WindowHandle(),
-        (HMENU)IDC_CALENDAR_CALENDAR,
+        (HMENU)(UINT_PTR)IDC_CALENDAR_CALENDAR,
         Calendar.hInst(),
         NULL);
 

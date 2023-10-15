@@ -285,7 +285,7 @@ HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             (int)(nLeft * rx), (int)(nTop * ry), 
             (int)(nWidth * rx), (int)(nHeight * ry),   
-            hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
+            hWndParent, (HMENU)(UINT_PTR)CtrlId, hInst, (LPVOID)NULL);
 
     if (hCtl) {
         CategoryControl* pData = new CategoryControl;

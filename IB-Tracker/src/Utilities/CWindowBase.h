@@ -185,7 +185,7 @@ public:
         memset(&tlfw, 0x00, sizeof(LOGFONT));
 
         // lfFaceName must be at most 32 characters maximum
-        int numChars = wszFaceName.length();
+        size_t numChars = wszFaceName.length();
         if (numChars > 32) numChars = 32;
         wmemcpy(&tlfw.lfFaceName[0], wszFaceName.c_str(), numChars);
 

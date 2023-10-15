@@ -104,7 +104,7 @@ bool EClientSocket::eConnectImpl(int clientId, bool extraAuth, ConnState* stateO
 	}
 
 	// create socket
-	m_fd = socket(AF_INET, SOCK_STREAM, 0);
+	m_fd = (int)socket(AF_INET, SOCK_STREAM, 0);
 
 	// cannot create socket
 	if( m_fd < 0) {
@@ -185,13 +185,13 @@ void EClientSocket::encodeMsgLen(std::string& msg, unsigned offset) const
 
 	assert( sizeof(unsigned) == HEADER_LEN);
 	assert( msg.size() > offset + HEADER_LEN);
-	unsigned len = msg.size() - HEADER_LEN - offset;
+	size_t len = msg.size() - HEADER_LEN - offset;
 	if( len > MAX_MSG_LEN) {
 		m_pEWrapper->error( NO_VALID_ID, BAD_LENGTH.code(), BAD_LENGTH.msg(), "");
 		return;
 	}
 
-	unsigned netlen = htonl( len);
+	size_t netlen = htonl( (u_long)len);
 	memcpy( &msg[offset], &netlen, HEADER_LEN);
 }
 
@@ -252,7 +252,7 @@ int EClientSocket::receive(char* buf, size_t sz)
 	if( sz <= 0)
 		return 0;
 
-	int nResult = ::recv( m_fd, buf, sz, 0);
+	int nResult = ::recv( m_fd, buf, (int)sz, 0);
 
 	if( nResult == -1 && !handleSocketError()) {
 		return -1;

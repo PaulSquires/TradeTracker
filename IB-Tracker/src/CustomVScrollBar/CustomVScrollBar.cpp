@@ -42,7 +42,7 @@ bool CustomVScrollBar::calcVThumbRect()
 {
     // calculate the vertical scrollbar in client coordinates
     SetRectEmpty(&rc);
-    int top_index = SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
+    int top_index = (int)SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
     
     RECT rcListBox{};
     GetClientRect(hListBox, &rcListBox);
@@ -96,7 +96,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             }
             else {
                 // we have clicked on a PageUp or PageDn
-                int top_index = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
+                int top_index = (int)SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
                 if (pt.y < pData->rc.top) {
                     top_index = max(top_index - pData->items_per_page, 0);
                     SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
@@ -136,7 +136,7 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
                     pData->prev_pt = pt;
 
-                    int previous_topline = SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
+                    int previous_topline = (int)SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
                     int top_line = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
                     if (top_line != previous_topline)
                         SendMessage(pData->hListBox, LB_SETTOPINDEX, (WPARAM)top_line, 0);
@@ -287,7 +287,7 @@ HWND CreateCustomVScrollBar(
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
         pData->hListBox = hListBox;
-        pData->CtrlId = CtrlId;
+        pData->CtrlId = (int)CtrlId;
         pData->calcVThumbRect();
 
         SetWindowLongPtr(hCtl, 0, (LONG_PTR)pData);

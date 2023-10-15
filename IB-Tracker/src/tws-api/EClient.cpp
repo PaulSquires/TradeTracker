@@ -104,7 +104,7 @@ void EClient::EncodeContract(std::ostream& os, const Contract &contract)
 void EClient::EncodeTagValueList(std::ostream& os, const TagValueListSPtr &tagValueList) 
 {
     std::string tagValueListStr("");
-    const int tagValueListCount = tagValueList.get() ? tagValueList->size() : 0;
+    const size_t tagValueListCount = tagValueList.get() ? tagValueList->size() : 0;
 
     if (tagValueListCount > 0) {
         for (int i = 0; i < tagValueListCount; ++i) {
@@ -314,7 +314,7 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
         if( contract.secType == "BAG")
         {
             const Contract::ComboLegList* const comboLegs = contract.comboLegs.get();
-            const int comboLegsCount = comboLegs ? comboLegs->size() : 0;
+            const size_t comboLegsCount = comboLegs ? comboLegs->size() : 0;
             ENCODE_FIELD( comboLegsCount);
             if( comboLegsCount > 0) {
                 for( int i = 0; i < comboLegsCount; ++i) {

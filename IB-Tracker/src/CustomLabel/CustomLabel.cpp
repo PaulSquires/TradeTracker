@@ -989,7 +989,7 @@ HWND CreateCustomLabel(
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
         pData->hInst = hInst;
-        pData->CtrlId = CtrlId;
+        pData->CtrlId = (int)CtrlId;
         pData->CtrlType = nCtrlType;
 
         pData->font_name = L"Segoe UI";
