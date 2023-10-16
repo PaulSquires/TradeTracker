@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Utilities/CWindowBase.h"
 #include "Utilities/UserMessages.h"
+#include "Database/trade.h"
 
 typedef long TickerId;
 
@@ -82,4 +83,5 @@ bool IsNewSharesTradeAction(TradeAction action);
 void ActiveTrades_ShowActiveTrades(const bool bForceReload);
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
 void ActiveTrades_ShowHideLiquidityLabels(HWND hwnd);
-
+void ActiveTrades_UpdateTickerPrices();
+void PerformITMcalculation(std::shared_ptr<Trade>& trade);

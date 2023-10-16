@@ -87,7 +87,7 @@
     <ClInclude Include="src\Utilities\AfxWin.h" />
     <ClInclude Include="src\Utilities\Colors.h" />
     <ClInclude Include="src\Utilities\CWindowBase.h" />
-    <ClInclude Include="src\Utilities\IntelDecimal.h" />
+    <ClInclude Include="src\tws-api\IntelDecimal\IntelDecimal.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
     <ClInclude Include="src\YearEndDialog\YearEndDialog.h" />
@@ -170,9 +170,12 @@
     </ClCompile>
     <ClCompile Include="src\tws-api\Utils.cpp" />
     <ClCompile Include="src\Utilities\AfxWin.cpp" />
-    <ClCompile Include="src\Utilities\IntelDecimal.cpp" />
+    <ClCompile Include="src\tws-api\IntelDecimal\IntelDecimal.cpp" />
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
     <ClCompile Include="src\YearEndDialog\YearEndDialog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="manifest.xml" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

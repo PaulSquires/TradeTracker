@@ -29,7 +29,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Database/trade.h"
 #include "ActiveTrades/ActiveTrades.h"
-#include "Utilities/IntelDecimal.h"
+#include "tws-api/IntelDecimal/IntelDecimal.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 #include "Reconcile.h"
@@ -225,9 +225,10 @@ void Reconcile_doPositionMatching()
 void Reconcile_doReconciliation()
 {
 	std::wstring text = L"";
+	std::wstring sp = L"  ";
 
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.
-	results_text = L"IBKR that do not exist in Local:\r\n";
+	results_text = sp + L"IBKR that do not exist in Local:\r\n";
 
 	for (const auto& ibkr : ibkr_positions) {
 		if (ibkr.open_quantity == 0) continue;
@@ -237,21 +238,21 @@ void Reconcile_doReconciliation()
 			if (found) break;
 		}
 		if (!found) {
-			text += L"   " + std::to_wstring(ibkr.open_quantity) + L" " +
-				ibkr.ticker_symbol + L" " + ibkr.underlying;
+			text += sp + L"   " + std::to_wstring(ibkr.open_quantity) + L"\t" +
+				ibkr.ticker_symbol + L"\t" + ibkr.underlying;
 			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
-				text += L" " + ibkr.expiry_date + L" " + std::to_wstring(ibkr.strike_price) + L" " + ibkr.PutCall;
+				text += sp + L"\t" + AfxInsertDateHyphens(ibkr.expiry_date) + L"\t" + std::to_wstring(ibkr.strike_price) + L"\t" + ibkr.PutCall;
 			}
 			text += L"\r\n";
 		}
 	}
-	if (text.length() == 0) text = L"** Everything matches correctly **";
+	if (text.length() == 0) text = sp + L"** Everything matches correctly **";
 	results_text += text;
 
 	results_text += L"\r\n\r\n";   // blank lines
 
 	// (2) Determine what Local positions do not exist in the IBKR "real" database.
-	results_text += L"Local that do not exist in IBKR:\r\n";
+	results_text += sp + L"Local that do not exist in IBKR:\r\n";
 	text = L"";
 	for (const auto& local : local_positions) {
 		bool found = false;
@@ -261,18 +262,18 @@ void Reconcile_doReconciliation()
 		}
 		if (!found) {
 			if (local.open_quantity != 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
-				text += L"   " + std::to_wstring(local.open_quantity) + L" " +
-					local.ticker_symbol + L" " + local.underlying;
+				text += sp + L"   " + std::to_wstring(local.open_quantity) + L"\t" +
+					local.ticker_symbol + L"\t" + local.underlying;
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
-					text += L" " + local.expiry_date + L" " + std::to_wstring(local.strike_price) + L" " + local.PutCall;
+					text += sp + L"\t" + AfxInsertDateHyphens(local.expiry_date) + L"\t" + std::to_wstring(local.strike_price) + L"\t" + local.PutCall;
 				}
 				text += L"\r\n";
 			}
 		}
 	}
-	if (text.length() == 0) text = L"** Everything matches correctly **";
+	if (text.length() == 0) text = sp + L"** Everything matches correctly **";
 	results_text += text;
-
+	results_text = L"\r\n" + results_text;
 }
 
 
@@ -293,6 +294,7 @@ void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 void Reconcile_OnClose(HWND hwnd)
 {
+	MainWindow_BlurPanels(false);
 	EnableWindow(HWND_MAINWINDOW, TRUE);
 	DestroyWindow(hwnd);
 }
@@ -315,8 +317,10 @@ BOOL Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_RECONCILE = hwnd;
 
     HWND hCtl =
-        Reconcile.AddControl(Controls::MultilineTextBox, hwnd, IDC_RECONCILE_TEXTBOX);
-
+        Reconcile.AddControl(Controls::MultilineTextBox, hwnd, IDC_RECONCILE_TEXTBOX, 
+			L"", 0, 0 ,0 ,0,
+			WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN, 
+			0);
     return TRUE;
 }
 
@@ -326,12 +330,54 @@ BOOL Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static HBRUSH hBackBrush = CreateSolidBrush(Color(COLOR_GRAYDARK).ToCOLORREF());
+
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, Reconcile_OnCreate);
 		HANDLE_MSG(m_hwnd, WM_DESTROY, Reconcile_OnDestroy);
 		HANDLE_MSG(m_hwnd, WM_CLOSE, Reconcile_OnClose);
         HANDLE_MSG(m_hwnd, WM_SIZE, Reconcile_OnSize);
+
+
+	case WM_CTLCOLOREDIT:
+	{
+		HDC hdc = (HDC)wParam;
+		SetTextColor(hdc, Color(COLOR_WHITELIGHT).ToCOLORREF());
+		SetBkColor(hdc, Color(COLOR_GRAYDARK).ToCOLORREF());
+		SetBkMode(hdc, OPAQUE);
+		return (LRESULT)hBackBrush;
+	}
+	break;
+
+
+	case WM_SHOWWINDOW:
+	{
+		// Workaround for the Windows 11 (The cloaking solution seems to work only
+		// on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work
+		// on Windows 11).
+		// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+
+		SetWindowLongPtr(m_hwnd,
+			GWL_EXSTYLE,
+			GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+		if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
+		{
+			SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
+			DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)GetDC(m_hwnd), lParam);
+			SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
+			AnimateWindow(m_hwnd, 1, AW_ACTIVATE | AW_BLEND);
+			return 0;
+		}
+		SetWindowLongPtr(m_hwnd,
+			GWL_EXSTYLE,
+			GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
+
+		return DefWindowProc(m_hwnd, msg, wParam, lParam);
+	}
+	return 0;
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -347,16 +393,22 @@ void Reconcile_Show()
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
+	// Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
+	BOOL value = true;
+	::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
 	HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
 	SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
 
 	HANDLE hIconSmall = LoadImage(Reconcile.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
 	SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
+	MainWindow_BlurPanels(true);
 
 	AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
 	EnableWindow(HWND_MAINWINDOW, FALSE);
+
 
 	// Apply fixed width font for better readability
 	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
@@ -364,9 +416,14 @@ void Reconcile_Show()
 	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
 
 	// Do the reconciliation
+	HWND hTextBox = GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX);
 	Reconcile_doReconciliation();
-	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), results_text.c_str());
-
+	AfxSetWindowText(hTextBox, results_text.c_str());
+	
+	// Hide the vertical scrollbar if < 25 lines
+	if (Edit_GetLineCount(hTextBox) <= 25) {
+		ShowScrollBar(hTextBox, SB_VERT, false);
+	}
 
 	// Fix Windows 10 white flashing
 	BOOL cloak = TRUE;

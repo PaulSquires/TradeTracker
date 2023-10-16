@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 
 #include <chrono>
+#include <unordered_map>
 
 #include "Utilities/UserMessages.h"
 #include "Utilities/ListBoxData.h"
@@ -34,7 +35,7 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "Reconcile/Reconcile.h"
-#include "Utilities/IntelDecimal.h"
+#include "tws-api/IntelDecimal/IntelDecimal.h"
 #include "SideMenu/SideMenu.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Database/trade.h"
@@ -47,64 +48,18 @@ SOFTWARE.
 #include "tws-client.h"
 
 std::atomic<bool> is_monitor_thread_active = false;
+std::atomic<bool> is_ping_thread_active = false;
+std::atomic<bool> is_ticker_update_thread_active = false;
 
 bool market_data_subscription_error = false;
 
+std::jthread monitoring_thread;
+std::jthread ticker_update_thread;
+std::jthread ping_thread;
+
+std::unordered_map<TickerId, TickerData> mapTickerData;
+
 TwsClient client;
-
-
-
-//
-// Perform the ITM calculation and update the Trade pointer with the values.
-//
-void PerformITMcalculation(std::shared_ptr<Trade>& trade)
-{
-
-	bool is_itm_red = false;
-	bool is_itm_green = false;
-	bool is_long_spread = false;
-
-	for (const auto& leg : trade->open_legs) {
-		if (leg->underlying == L"OPTIONS") {
-			if (leg->PutCall == L"P") {
-				if (trade->ticker_last_price < AfxValDouble(leg->strike_price)) {
-					if (leg->open_quantity < 0) {
-						is_itm_red = (is_long_spread == true) ? false : true;
-					}
-					if (leg->open_quantity > 0) {
-						is_itm_green = true; is_itm_red = false; is_long_spread = true;
-					}
-				}
-			}
-			else if (leg->PutCall == L"C") {
-				if (trade->ticker_last_price > AfxValDouble(leg->strike_price)) {
-					if (leg->open_quantity < 0) {
-						is_itm_red = (is_long_spread == true) ? false : true;
-					}
-					if (leg->open_quantity > 0) {
-						is_itm_green = true; is_itm_red = false; is_long_spread = true;
-					}
-				}
-			}
-		}
-	}
-
-	std::wstring text = L"";
-
-	DWORD theme_color = COLOR_WHITELIGHT;
-	if (is_itm_red) {
-		text = L"ITM";
-		theme_color = COLOR_RED;
-	}
-	if (is_itm_green) {
-		text = L"ITM";
-		theme_color = COLOR_GREEN;
-	}
-
-	trade->itm_text = text;
-	trade->itm_color = theme_color;
-
-}
 
 
 
@@ -248,19 +203,18 @@ void UpdateTickersWithScrapedData()
 
 
 //
-// Thread function
+// Thread functions
 //
-std::jthread monitoring_thread;
-std::jthread ping_thread;
-
 
 void PingFunction(std::stop_token st) {
 	std::cout << "Starting the ping thread" << std::endl;
 
+	is_ping_thread_active = true;
+
 	while (!st.stop_requested()) {
 
-		// Sleep for 10 seconds
-		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+		// Sleep for 5 seconds
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
 		try {
 			if (is_monitor_thread_active == true) {
@@ -277,6 +231,33 @@ void PingFunction(std::stop_token st) {
 	}
 
 	std::cout << "Ping Thread Terminated" << std::endl;
+}
+
+
+void TickerUpdateFunction(std::stop_token st) {
+	std::cout << "Starting the TickerUpdate thread" << std::endl;
+
+	is_ticker_update_thread_active = true;
+
+	while (!st.stop_requested()) {
+
+		// Sleep for 1 second
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+		try {
+			if (is_monitor_thread_active == true) {
+				ActiveTrades_UpdateTickerPrices();
+			}
+			else {
+				break;
+			}
+		}
+		catch (...) {
+			break;
+		}
+	}
+
+	std::cout << "TickerUpdate Thread Terminated" << std::endl;
 }
 
 
@@ -305,10 +286,14 @@ void MonitoringFunction(std::stop_token st) {
 
 	is_monitor_thread_active = false;
 
+	// Request to shut down the TickerUpdate thread
+	ticker_update_thread.request_stop();
+
 	// Request to shut down the Ping thread also
 	ping_thread.request_stop();
 
 
+	std::cout << "Requesting TickerUpdate Thread to Terminate" << std::endl;
 	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
 	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
@@ -325,10 +310,32 @@ void tws_StartMonitorThread()
 void tws_EndMonitorThread()
 {
 	if (is_monitor_thread_active) {
-		std::cout << "Threads will be stopped soon...." << std::endl;
+		std::cout << "Monitoring thread will be stopped soon...." << std::endl;
 		monitoring_thread.request_stop();
 	}
 }
+
+void tws_StartTickerUpdateThread()
+{
+	if (is_monitor_thread_active) return;
+	ticker_update_thread = std::jthread(TickerUpdateFunction);
+}
+
+
+void tws_EndTickerUpdateThread()
+{
+	if (is_ticker_update_thread_active) {
+		std::cout << "TickerUpdate thread will be stopped soon...." << std::endl;
+		ticker_update_thread.request_stop();
+	}
+}
+
+void tws_StartPingThread()
+{
+	if (is_ping_thread_active) return;
+	ping_thread = std::jthread(PingFunction);
+}
+
 
 
 void tws_ConnectionSuccessful()
@@ -346,9 +353,6 @@ void tws_ConnectionSuccessful()
 		tws_RequestAccountSummary();
 
 		ActiveTrades_ShowActiveTrades(true);
-
-		// Create and start the ping thread
-		ping_thread = std::jthread(PingFunction);
 	}
 }
 
@@ -368,9 +372,12 @@ bool tws_Connect()
 		res = client.Connect(host, port, 0);
 		if (res) {
 			// Start thread that will start messaging polling
-			// and poll if TWS remains connected.
+			// and poll if TWS remains connected. Also start thread
+			// that updates the ActiveTrades list every defined interval.
 			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 			tws_StartMonitorThread();
+			tws_StartTickerUpdateThread();
+			tws_StartPingThread();
 		}
 
 	}
@@ -732,89 +739,21 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		//if (field == OPEN) std::cout << "tickPrice OPEN " << tickerId << " " << price << std::endl;
 		//if (field == CLOSE) std::cout << "tickPrice CLOSE " << tickerId << " " << price << std::endl;
 
+		TickerData td{};
 
-		// These columns in the table are updated in real time when connected
-		// to TWS. The LineData pointer is updated via a call to SetColumnData
-		// and the correct ListBox line is invalidated/redrawn in order to force
-		// display of the new price data. 
-
-		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
-
-		int item_count = ListBox_GetCount(hListBox);
-		if (item_count == 0) return;
-
-		for (int index = 0; index < item_count; index++) {
-
-			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
-			if (ld == (void*)-1) continue;
-			if (ld == nullptr) continue;
-			if (ld->tickerId == -1) continue;
-
-			if ((ld->tickerId == tickerId) && 
-				(ld->trade != nullptr) && 
-				(ld->line_type == LineType::ticker_line)) {
-
-				if (field == LAST) 	ld->trade->ticker_last_price = price;
-				if (field == CLOSE) ld->trade->ticker_close_price = price;
-
-				if (field == OPEN) {
-					if (ld->trade->ticker_close_price == 0) ld->trade->ticker_close_price = price;
-				}
-
-				if (ld->trade->ticker_last_price == 0) ld->trade->ticker_last_price = price;
-
-				// Calculate the price change
-				double delta = 0;
-				if (ld->trade->ticker_close_price != 0) {
-					delta = (ld->trade->ticker_last_price - ld->trade->ticker_close_price);
-				}
-
-
-				std::wstring text = L"";
-				DWORD theme_color = COLOR_WHITELIGHT;
-
-				// Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
-				// We use a separate function call because scrapped data will need acces to the 
-				// ITM calculation also.
-				PerformITMcalculation(ld->trade);
-
-
-				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
-
-
-				text = AfxMoney(delta, true, ld->trade->ticker_decimals);
-				ld->trade->ticker_change_text = text;
-				theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-				ld->trade->ticker_change_color = theme_color;
-				ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
-
-				text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
-				ld->trade->ticker_last_price_text = text;
-				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
-
-				text = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
-				ld->trade->ticker_percent_change_text = text;
-				theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-				ld->trade->ticker_percent_change_color = theme_color;
-				ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, text, theme_color);  // price percentage change
-
-
-				RECT rc{};
-				ListBox_GetItemRect(hListBox, index, &rc);
-				InvalidateRect(hListBox, &rc, TRUE);
-				UpdateWindow(hListBox);
-
-			}  // if
-		}  // for
-
-
-		// Do calculation to ensure column widths are wide enough to accommodate the new
-		// price data that has just arrived.
-		if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1) == true) {
-			AfxRedrawWindow(hListBox);
+		if (mapTickerData.count(tickerId)) {
+			td = mapTickerData.at(tickerId);
 		}
 
-	}  // if
+		if (field == OPEN) {
+			td.open_price = price;
+			if (td.close_price == 0) td.close_price = price;
+		}
+		if (field == CLOSE) td.close_price = price;
+		if (field == LAST) td.last_price = price;
+
+		mapTickerData[tickerId] = td;
+	}  
 }
 
 

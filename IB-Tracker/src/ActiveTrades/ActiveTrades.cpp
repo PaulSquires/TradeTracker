@@ -44,6 +44,149 @@ HWND HWND_ACTIVETRADES = NULL;
 CActiveTrades ActiveTrades;
 
 
+//
+// Perform the ITM calculation and update the Trade pointer with the values.
+//
+void PerformITMcalculation(std::shared_ptr<Trade>& trade)
+{
+
+    bool is_itm_red = false;
+    bool is_itm_green = false;
+    bool is_long_spread = false;
+
+    for (const auto& leg : trade->open_legs) {
+        if (leg->underlying == L"OPTIONS") {
+            if (leg->PutCall == L"P") {
+                if (trade->ticker_last_price < AfxValDouble(leg->strike_price)) {
+                    if (leg->open_quantity < 0) {
+                        is_itm_red = (is_long_spread == true) ? false : true;
+                    }
+                    if (leg->open_quantity > 0) {
+                        is_itm_green = true; is_itm_red = false; is_long_spread = true;
+                    }
+                }
+            }
+            else if (leg->PutCall == L"C") {
+                if (trade->ticker_last_price > AfxValDouble(leg->strike_price)) {
+                    if (leg->open_quantity < 0) {
+                        is_itm_red = (is_long_spread == true) ? false : true;
+                    }
+                    if (leg->open_quantity > 0) {
+                        is_itm_green = true; is_itm_red = false; is_long_spread = true;
+                    }
+                }
+            }
+        }
+    }
+
+    std::wstring text = L"";
+
+    DWORD theme_color = COLOR_WHITELIGHT;
+    if (is_itm_red) {
+        text = L"ITM";
+        theme_color = COLOR_RED;
+    }
+    if (is_itm_green) {
+        text = L"ITM";
+        theme_color = COLOR_GREEN;
+    }
+
+    trade->itm_text = text;
+    trade->itm_color = theme_color;
+
+}
+
+
+//
+// Update the ActiveTrades list with the most up to dat Market Price Data.
+// This function is called from the TickerUpdateFunction() thread.
+//
+void ActiveTrades_UpdateTickerPrices()
+{
+    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+
+    if (!IsWindow(hListBox)) return;
+
+    int item_count = ListBox_GetCount(hListBox);
+    if (item_count == 0) return;
+
+    // These columns in the table are updated in real time when connected
+    // to TWS. The LineData pointer is updated via a call to SetColumnData
+    // and the correct ListBox line is invalidated/redrawn in order to force
+    // display of the new price data. 
+
+    for (int index = 0; index < item_count; index++) {
+
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
+        if (ld == (void*)-1) continue;
+        if (ld == nullptr) continue;
+        if (ld->tickerId == -1) continue;
+        if (ld->line_type != LineType::ticker_line) continue;
+
+        // Lookup the most recent Market Price data
+        TickerData td{};
+        if (mapTickerData.count(ld->tickerId)) {
+            td = mapTickerData.at(ld->tickerId);
+        }
+
+        // If the price has not changed since last update then skip
+        if (ld->trade->ticker_last_price == td.last_price &&
+            ld->trade->ticker_close_price == td.close_price) {
+            continue;
+        }
+
+        ld->trade->ticker_last_price = td.last_price;
+        ld->trade->ticker_close_price = td.close_price;
+
+        // Calculate the price change
+        double delta = 0;
+        if (ld->trade->ticker_close_price != 0) {
+            delta = (ld->trade->ticker_last_price - ld->trade->ticker_close_price);
+        }
+
+        std::wstring text = L"";
+        DWORD theme_color = COLOR_WHITELIGHT;
+
+        // Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
+        // We use a separate function call because scrapped data will need acces to the 
+        // ITM calculation also.
+        PerformITMcalculation(ld->trade);
+
+        ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
+
+
+        text = AfxMoney(delta, true, ld->trade->ticker_decimals);
+        ld->trade->ticker_change_text = text;
+        theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+        ld->trade->ticker_change_color = theme_color;
+        ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
+
+        text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
+        ld->trade->ticker_last_price_text = text;
+        ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
+
+        text = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
+        ld->trade->ticker_percent_change_text = text;
+        theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+        ld->trade->ticker_percent_change_color = theme_color;
+        ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, text, theme_color);  // price percentage change
+
+
+        RECT rc{};
+        ListBox_GetItemRect(hListBox, index, &rc);
+        InvalidateRect(hListBox, &rc, TRUE);
+        UpdateWindow(hListBox);
+
+    }  // for
+
+    // Do calculation to ensure column widths are wide enough to accommodate the new
+    // price data that has just arrived.
+    if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1) == true) {
+        AfxRedrawWindow(hListBox);
+    }
+}
+
+
 // ========================================================================================
 // Returns True/False if incoming Trade action is consider a "New" Options type of action.
 // ========================================================================================

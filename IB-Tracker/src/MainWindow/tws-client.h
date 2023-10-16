@@ -80,12 +80,21 @@ private:
 
 };
 
-extern std::vector<positionStruct> local_positions;
+
+struct TickerData {
+	double last_price = 0;
+	double open_price = 0;
+	double close_price = 0;
+};
+
+extern std::unordered_map<TickerId, TickerData> mapTickerData;
 extern TwsClient client;
 
 
 void tws_StartMonitorThread();
 void tws_EndMonitorThread();
+void tws_StartTickerUpdateThread();
+void tws_EndTickerUpdateThread();
 bool tws_Connect();
 bool tws_Disconnect();
 bool tws_IsConnected();
