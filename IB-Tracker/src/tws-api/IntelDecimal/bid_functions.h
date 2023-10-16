@@ -2993,6 +2993,7 @@ BID_EXTERN_C _IDEC_round _IDEC_glbround; // initialized to BID_ROUNDING_TO_NEARE
 
 #else
 
+#if 0
      BID_EXTERN_C BID_UINT32 bid_to_dpd32 (BID_UINT32 px);
      BID_EXTERN_C BID_UINT64 bid_to_dpd64 (BID_UINT64 px);
      BID_EXTERN_C BID_UINT128 bid_to_dpd128 (BID_UINT128 px);
@@ -5200,6 +5201,8 @@ BID_EXTERN_C void bid_fegetexceptflag( fexcept_t *flagp, int excepts _EXC_FLAGS_
 BID_EXTERN_C void bid_feraiseexcept( int excepts _EXC_FLAGS_PARAM );
 BID_EXTERN_C void bid_fesetexceptflag( const fexcept_t *flagp, int excepts _EXC_FLAGS_PARAM );
 BID_EXTERN_C int bid_fetestexcept( int excepts _EXC_FLAGS_PARAM );
+#endif
+
 
 // Internal Functions
 
