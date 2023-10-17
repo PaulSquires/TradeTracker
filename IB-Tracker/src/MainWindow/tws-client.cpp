@@ -844,14 +844,14 @@ void TwsClient::position(const std::string& account, const Contract& contract, D
 
 void TwsClient::positionEnd()
 {
-	// Send notification to ActiveTrades window that positions have all been loaded
-	// thereby allowing the loading of portfolio values.
-	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
-
 	if (!positionEnd_fired) {
 		Reconcile_doPositionMatching();
 		positionEnd_fired = true;
 	}
+
+	// Send notification to ActiveTrades window that positions have all been loaded
+	// thereby allowing the loading of portfolio values.
+	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
 
 	// We have finished requesting positions. It is possible that some position closing prices were 
 	// not retrieved because maybe we are connected but it is after hours and we need additional
