@@ -705,7 +705,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
                 text = (leg->percentage_text.length()) ? leg->percentage_text : L"";
                 ld->SetData(COLUMN_TICKER_PERCENTCOMPLETE, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Percentage values for the previous two columns data
+                    clr, font8, FontStyleRegular);   // Percentage values for the previous two columns data
                 col++;
             }
 
