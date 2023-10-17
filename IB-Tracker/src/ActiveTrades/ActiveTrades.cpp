@@ -119,6 +119,9 @@ void ActiveTrades_UpdateTickerLine(int index, ListBoxData* ld)
 
     ld->trade->ticker_last_price = td.last_price;
     ld->trade->ticker_close_price = td.close_price;
+    if (ld->trade->ticker_last_price == 0) {
+        if (td.close_price != 0) ld->trade->ticker_last_price = td.close_price;
+    }
 
     // Calculate the price change
     double delta = 0;
