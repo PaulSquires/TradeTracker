@@ -86,8 +86,17 @@ struct TickerData {
 	double open_price = 0;
 	double close_price = 0;
 };
-
 extern std::unordered_map<TickerId, TickerData> mapTickerData;
+
+
+struct PortfolioData {
+	double market_value = 0;
+	double average_cost = 0;
+	double unrealized_PNL = 0;
+};
+extern std::unordered_map<int, PortfolioData> mapPortfolioData;
+
+
 extern TwsClient client;
 
 

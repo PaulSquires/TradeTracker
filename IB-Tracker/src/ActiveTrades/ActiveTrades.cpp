@@ -97,93 +97,230 @@ void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 }
 
 
+
+//
+// Called from ActiveTrades_UpdateTickerPrices()
+//
+void ActiveTrades_UpdateTickerLine(int index, ListBoxData* ld)
+{
+    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+
+    // Lookup the most recent Market Price data
+    TickerData td{};
+    if (mapTickerData.count(ld->tickerId)) {
+        td = mapTickerData.at(ld->tickerId);
+    }
+
+    // If the price has not changed since last update then skip
+    if (ld->trade->ticker_last_price == td.last_price &&
+        ld->trade->ticker_close_price == td.close_price) {
+        return;
+    }
+
+    ld->trade->ticker_last_price = td.last_price;
+    ld->trade->ticker_close_price = td.close_price;
+
+    // Calculate the price change
+    double delta = 0;
+    if (ld->trade->ticker_close_price != 0) {
+        delta = (ld->trade->ticker_last_price - ld->trade->ticker_close_price);
+    }
+
+    std::wstring text = L"";
+    DWORD theme_color = COLOR_WHITELIGHT;
+
+    // Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
+    // We use a separate function call because scrapped data will need acces to the 
+    // ITM calculation also.
+    PerformITMcalculation(ld->trade);
+
+    ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
+
+
+    text = AfxMoney(delta, true, ld->trade->ticker_decimals);
+    ld->trade->ticker_change_text = text;
+    theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+    ld->trade->ticker_change_color = theme_color;
+    ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
+
+    text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
+    ld->trade->ticker_last_price_text = text;
+    ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
+
+    text = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
+    ld->trade->ticker_percent_change_text = text;
+    theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+    ld->trade->ticker_percent_change_color = theme_color;
+    ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, text, theme_color);  // price percentage change
+
+    RECT rc{};
+    ListBox_GetItemRect(hListBox, index, &rc);
+    InvalidateRect(hListBox, &rc, TRUE);
+    UpdateWindow(hListBox);
+}
+
+
+//
+// Called from ActiveTrades_UpdateTickerPrices()
+//
+void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* ld)
+{
+    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+
+    DWORD theme_color = COLOR_WHITEDARK;
+
+    // Lookup the most recent Portfolio position data
+    PortfolioData pd{};
+    if (mapPortfolioData.count(ld->leg->contract_id)) {
+        pd = mapPortfolioData.at(ld->leg->contract_id);
+    }
+
+    double position_cost = (pd.average_cost * ld->leg->open_quantity);
+
+    // If the Portfolio values has not changed since last update then skip
+    if (ld->leg->position_cost == position_cost &&
+        ld->leg->market_value == pd.market_value &&
+        ld->leg->unrealized_pnl == pd.unrealized_PNL) {
+        return;
+    }
+
+    std::wstring text = L"";
+
+    // POSITION COST BASIS
+    ld->leg->position_cost = position_cost;
+    text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
+    ld->leg->position_cost_text = text;
+    ld->SetTextData(COLUMN_TICKER_COST, text, theme_color);   // Book Value and average Price
+
+    // MARKET VALUE
+    ld->leg->market_value = pd.market_value;
+    text = AfxMoney(pd.market_value, true, ld->trade->ticker_decimals);
+    ld->leg->market_value_text = text;
+    ld->SetTextData(COLUMN_TICKER_MARKETVALUE, text, theme_color);
+
+    // UNREALIZED PNL
+    ld->leg->unrealized_pnl = pd.unrealized_PNL;
+    theme_color = (pd.unrealized_PNL < 0) ? COLOR_RED : COLOR_GREEN;
+    text = AfxMoney(pd.unrealized_PNL, false, ld->trade->ticker_decimals);
+    ld->leg->unrealized_pnl_text = text;
+    ld->leg->unrealized_pnl_color = theme_color;
+    ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
+
+    // UNREALIZED PNL PERCENTAGE
+    double percentage = ((pd.market_value - position_cost) / position_cost) * 100;
+    if (pd.unrealized_PNL >= 0) {
+        percentage = abs(percentage);
+    }
+    else {
+        // percentage must also be negative
+        if (percentage > 0) percentage *= -1;
+    }
+    theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
+    ld->leg->percentage = percentage;
+    text = AfxMoney(percentage, false, 2) + L"%";
+    ld->leg->percentage_text = text;
+    ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values for the previous two columns data
+
+    RECT rc{};
+    ListBox_GetItemRect(hListBox, index, &rc);
+    InvalidateRect(hListBox, &rc, TRUE);
+    UpdateWindow(hListBox);
+
+
+    // Update the Trade's tickerLine with the new totals
+    ld = (ListBoxData*)ListBox_GetItemData(hListBox, index_trade);
+    if (ld != nullptr) {
+        double uPNL = 0;
+        double total_cost = 0;
+        double total_marketvalue = 0;
+        for (const auto& leg : ld->trade->open_legs) {
+            total_cost += leg->position_cost;
+            total_marketvalue += leg->market_value;
+        }
+
+        uPNL += total_marketvalue - total_cost;
+
+        theme_color = COLOR_WHITEDARK;
+
+        text = AfxMoney(total_cost, true, ld->trade->ticker_decimals);
+        ld->trade->total_position_cost_text = text;
+        ld->SetTextData(COLUMN_TICKER_COST, text, theme_color);   // Book Value and average Price
+
+        text = AfxMoney(total_marketvalue, true, ld->trade->ticker_decimals);
+        ld->trade->total_market_value_text = text;
+        ld->SetTextData(COLUMN_TICKER_MARKETVALUE, text, theme_color);
+
+        theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
+        text = AfxMoney(uPNL, false, 2);
+        ld->trade->unrealized_pnl_text = text;
+        ld->trade->unrealized_pnl_color = theme_color;
+        ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
+
+        percentage = (uPNL / total_cost) * 100;
+        percentage = (uPNL >= 0) ? abs(percentage) : percentage * -1;
+        text = AfxMoney(percentage, false, 2) + L"%";
+        theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
+        ld->trade->percentage_text = text;
+        ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values
+
+        RECT rc{};
+        ListBox_GetItemRect(hListBox, index_trade, &rc);
+        InvalidateRect(hListBox, &rc, TRUE);
+        UpdateWindow(hListBox);
+    }
+
+}
+
+
 //
 // Update the ActiveTrades list with the most up to dat Market Price Data.
+// Also updates leg Portfolio position data.
 // This function is called from the TickerUpdateFunction() thread.
 //
 void ActiveTrades_UpdateTickerPrices()
 {
-    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+    // Guard to prevent re-entry of update should the thread fire the update
+    // prior to this function finishing.
+    static std::atomic<bool> is_processing = false;
 
+    if (is_processing) return;
+
+    is_processing = true;
+
+    HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     if (!IsWindow(hListBox)) return;
 
     int item_count = ListBox_GetCount(hListBox);
     if (item_count == 0) return;
 
-    // These columns in the table are updated in real time when connected
-    // to TWS. The LineData pointer is updated via a call to SetColumnData
-    // and the correct ListBox line is invalidated/redrawn in order to force
-    // display of the new price data. 
+    int index_trade = 0;
 
-    for (int index = 0; index < item_count; index++) {
+    for (int index = 0; index < item_count; ++index) {
 
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
         if (ld == (void*)-1) continue;
         if (ld == nullptr) continue;
-        if (ld->tickerId == -1) continue;
-        if (ld->line_type != LineType::ticker_line) continue;
 
-        // Lookup the most recent Market Price data
-        TickerData td{};
-        if (mapTickerData.count(ld->tickerId)) {
-            td = mapTickerData.at(ld->tickerId);
-        }
-
-        // If the price has not changed since last update then skip
-        if (ld->trade->ticker_last_price == td.last_price &&
-            ld->trade->ticker_close_price == td.close_price) {
+        if (ld->line_type == LineType::ticker_line) {
+            index_trade = index;
+            ActiveTrades_UpdateTickerLine(index, ld);
             continue;
         }
 
-        ld->trade->ticker_last_price = td.last_price;
-        ld->trade->ticker_close_price = td.close_price;
-
-        // Calculate the price change
-        double delta = 0;
-        if (ld->trade->ticker_close_price != 0) {
-            delta = (ld->trade->ticker_last_price - ld->trade->ticker_close_price);
+        if (ld->line_type == LineType::options_leg &&
+            ld->leg != nullptr) {
+            ActiveTrades_UpdatePortfolioLine(index, index_trade, ld);
+            continue;
         }
-
-        std::wstring text = L"";
-        DWORD theme_color = COLOR_WHITELIGHT;
-
-        // Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
-        // We use a separate function call because scrapped data will need acces to the 
-        // ITM calculation also.
-        PerformITMcalculation(ld->trade);
-
-        ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
-
-
-        text = AfxMoney(delta, true, ld->trade->ticker_decimals);
-        ld->trade->ticker_change_text = text;
-        theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-        ld->trade->ticker_change_color = theme_color;
-        ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
-
-        text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
-        ld->trade->ticker_last_price_text = text;
-        ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
-
-        text = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
-        ld->trade->ticker_percent_change_text = text;
-        theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
-        ld->trade->ticker_percent_change_color = theme_color;
-        ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, text, theme_color);  // price percentage change
-
-
-        RECT rc{};
-        ListBox_GetItemRect(hListBox, index, &rc);
-        InvalidateRect(hListBox, &rc, TRUE);
-        UpdateWindow(hListBox);
-
-    }  // for
+    }
 
     // Do calculation to ensure column widths are wide enough to accommodate the new
     // price data that has just arrived.
     if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1) == true) {
         AfxRedrawWindow(hListBox);
     }
+
+    is_processing = false;
 }
 
 
