@@ -64,7 +64,6 @@ public:
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
 
             pThis->m_hwnd = hwnd;
-
         }
         else
         {
