@@ -98,8 +98,11 @@ public:
         m_hAccel = NULL;
 
         // Create a default font
-        if (m_hFont == NULL)
+        if (m_hFont == NULL) {
             m_hFont = this->CreateFont(m_wszDefaultFontName, m_Defaultfont_size, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
+        }
+
+
 
         // Generate class name based on unique memory address of class
         m_class_name_text = L"CWindowClass:" + std::to_wstring((unsigned long long)this);
@@ -119,7 +122,9 @@ public:
 
     ~CWindowBase()
     {
-        if (m_hFont) DeleteObject(m_hFont);
+        if (m_hFont) {
+            DeleteObject(m_hFont);
+        }
         if (m_class_name_text.length()) UnregisterClass(m_class_name_text.c_str(), m_hInstance);
     }
 
