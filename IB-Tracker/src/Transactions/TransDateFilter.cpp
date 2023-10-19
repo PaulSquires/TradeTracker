@@ -92,7 +92,7 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
     {
         // Tracks the mouse movement and stores the hot state
         if (GetProp(hWnd, L"HOT") == 0) {
-            TRACKMOUSEEVENT trackMouse;
+            TRACKMOUSEEVENT trackMouse{};
             trackMouse.cbSize = sizeof(trackMouse);
             trackMouse.dwFlags = TME_LEAVE;
             trackMouse.hwndTrack = hWnd;

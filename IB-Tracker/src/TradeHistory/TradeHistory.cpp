@@ -210,7 +210,7 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
     {
         // Track that we are over the control in order to catch the 
         // eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
-        TRACKMOUSEEVENT tme;
+        TRACKMOUSEEVENT tme{};
         tme.cbSize = sizeof(TRACKMOUSEEVENT);
         tme.dwFlags = TME_LEAVE;
         tme.hwndTrack = hWnd;

@@ -352,6 +352,8 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
     case WM_SETFONT:
     {
+        HFONT hFont = (HFONT)SendMessage(pData->hTextBox, WM_GETFONT, 0, 0);
+        DeleteFont(hFont);
         if (pData->hFontText) DeleteFont(pData->hFontText);
         pData->hFontText = (HFONT)wParam;
         SendMessage(pData->hTextBox, WM_SETFONT, (WPARAM)pData->hFontText, false);
@@ -405,12 +407,25 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     break;
 
 
-    case WM_NCDESTROY:
+    case WM_DESTROY:
+    {
         if (pData) {
-            DeleteBrush(pData->back_brush);
+            HFONT hFont = (HFONT)SendMessage(pData->hTextBox, WM_GETFONT, 0, 0);
+            DeleteFont(hFont);
+            pData->hFontText = nullptr;
+        }
+    }
+    break;
+
+
+    case WM_NCDESTROY:
+    {
+        if (pData) {
+            if (pData->back_brush) DeleteBrush(pData->back_brush);
             delete(pData);
         }
-        break;
+    }
+    break;
 
 
     default:

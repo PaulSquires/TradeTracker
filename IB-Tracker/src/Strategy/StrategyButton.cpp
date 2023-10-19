@@ -329,12 +329,12 @@ void StrategyButton_InvokeStrategy()
     TradeGrid* pData = TradeGrid_GetOptions(hTradeGrid);
     if (pData == nullptr) return;
 
-    int colStart = 0;
+    size_t colStart = 0;
     int row = 0;
     int col = 0;
 
     // Clear/Reset the Trade grid (4 rows)
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 4; ++i) {
         colStart = i * 7;
         CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");       // Quantity
         CustomLabel_SetUserData(pData->gridCols.at(colStart + 1)->hCtl, L""); // Expiry Date

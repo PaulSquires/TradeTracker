@@ -467,10 +467,12 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
         {
+            HDC hdc = GetDC(m_hwnd);
             SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
-            DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)GetDC(m_hwnd), lParam);
+            DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
             SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
             AnimateWindow(m_hwnd, 1, AW_ACTIVATE | AW_BLEND);
+            ReleaseDC(m_hwnd, hdc);
             return 0;
         }
         SetWindowLongPtr(m_hwnd,

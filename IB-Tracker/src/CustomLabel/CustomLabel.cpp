@@ -208,6 +208,7 @@ void CustomLabel::DrawTextInBuffer()
         Graphics graphics(m_memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
         graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+
     }
 
 }
@@ -383,7 +384,7 @@ Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const
 LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static CustomLabel* pDataSelected = nullptr;
-    CustomLabel* pData = nullptr;
+    static CustomLabel* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
         pData = (CustomLabel*)GetWindowLongPtr(hWnd, 0);
@@ -434,7 +435,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
         SendMessage(pData->hParent, MSG_CUSTOMLABEL_MOUSEMOVE, (WPARAM)pData->CtrlId, (LPARAM)hWnd);
 
         // Tracks the mouse movement and stores the hot state
-        TRACKMOUSEEVENT trackMouse;
+        TRACKMOUSEEVENT trackMouse{};
 
         if (pData->hot_test_enable) {
             if (GetProp(hWnd, L"HOT") == 0) {

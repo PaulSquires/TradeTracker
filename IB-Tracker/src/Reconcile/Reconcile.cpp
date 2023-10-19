@@ -305,6 +305,8 @@ void Reconcile_OnClose(HWND hwnd)
 // ========================================================================================
 void Reconcile_OnDestroy(HWND hwnd)
 {
+	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);
+	DeleteFont(hFont);
 	PostQuitMessage(0);
 }
 
@@ -364,10 +366,12 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 		if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
 		{
+			HDC hdc = GetDC(m_hwnd);
 			SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
-			DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)GetDC(m_hwnd), lParam);
+			DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
 			SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
 			AnimateWindow(m_hwnd, 1, AW_ACTIVATE | AW_BLEND);
+			ReleaseDC(m_hwnd, hdc);
 			return 0;
 		}
 		SetWindowLongPtr(m_hwnd,
@@ -411,7 +415,9 @@ void Reconcile_Show()
 
 
 	// Apply fixed width font for better readability
-	HFONT hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
+	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);
+	DeleteFont(hFont);
+	hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
 	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
 

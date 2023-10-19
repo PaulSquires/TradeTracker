@@ -426,8 +426,10 @@ bool LoadConfig()
 
     db.open(dbConfig, std::ios::in);
 
-    if (!db.is_open())
+    if (!db.is_open()) {
+        db.close();
         return false;
+    }
 
     std::wstring config_version;
 

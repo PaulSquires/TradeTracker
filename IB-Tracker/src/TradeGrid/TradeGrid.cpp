@@ -677,12 +677,25 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     break;
 
 
+    case WM_DESTROY:
+    {
+        if (pData) {
+            for (auto& col : pData->gridCols) {
+                delete(col);
+            }
+        }
+    }
+    break;
+
+
     case WM_NCDESTROY:
+    {
         if (pData) {
             DeleteBrush(pData->hback_brush);
             delete(pData);
         }
-        break;
+    }
+    break;
 
 
     default:
