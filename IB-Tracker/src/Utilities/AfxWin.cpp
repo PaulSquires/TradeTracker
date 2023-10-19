@@ -211,7 +211,7 @@ bool AfxSetWindowText(HWND hwnd, const std::wstring& text)
 // ========================================================================================
 int AfxGetClientWidth(HWND hwnd)
 {
-    RECT rc;
+    RECT rc{};
     GetClientRect(hwnd, &rc);
     return rc.right;
 }
@@ -222,7 +222,7 @@ int AfxGetClientWidth(HWND hwnd)
 // ========================================================================================
 int AfxGetClientHeight(HWND hwnd)
 {
-    RECT rc;
+    RECT rc{};
     GetClientRect(hwnd, &rc);
     return rc.bottom;
 }
@@ -233,7 +233,7 @@ int AfxGetClientHeight(HWND hwnd)
 // ========================================================================================
 int AfxGetWindowWidth(HWND hwnd)
 {
-    RECT rc;
+    RECT rc{};
     GetWindowRect(hwnd, &rc);
     return rc.right - rc.left;
 }
@@ -244,7 +244,7 @@ int AfxGetWindowWidth(HWND hwnd)
 // ========================================================================================
 int AfxGetWindowHeight(HWND hwnd)
 {
-    RECT rc;
+    RECT rc{};
     GetWindowRect(hwnd, &rc);
     return rc.bottom - rc.top;
 }
@@ -259,10 +259,10 @@ int AfxGetWindowHeight(HWND hwnd)
 // ========================================================================================
 void AfxCenterWindow(HWND hwnd, HWND hwndParent)
 {
-    RECT rc;            // Window coordinates
-    RECT rcParent;      // Parent window coordinates
-    RECT rcWorkArea;    // Work area coordinates
-    POINT pt;           // x and y coordinates of centered window
+    RECT rc{};            // Window coordinates
+    RECT rcParent{};      // Parent window coordinates
+    RECT rcWorkArea{};    // Work area coordinates
+    POINT pt{};           // x and y coordinates of centered window
 
     // Get the coordinates of the window
     GetWindowRect(hwnd, &rc);
@@ -349,7 +349,7 @@ int AfxGetWorkAreaHeight()
 int AfxGetFileVersion(const std::wstring& wszFileName)
 {
     VS_FIXEDFILEINFO* pvsffi = nullptr;
-    DWORD dwHandle;
+    DWORD dwHandle = 0;
     int res = 0;
 
     DWORD cbLen = GetFileVersionInfoSize(wszFileName.c_str(), &dwHandle);
@@ -767,7 +767,7 @@ int AfxGetDay(const std::wstring& date_text)
 // ========================================================================================
 int AfxLocalYear()
 {
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wYear;
 }
@@ -778,7 +778,7 @@ int AfxLocalYear()
 // ========================================================================================
 int AfxLocalMonth()
 {
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wMonth;
 }
@@ -789,7 +789,7 @@ int AfxLocalMonth()
 // ========================================================================================
 int AfxLocalDay()
 {
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wDay;
 }
@@ -801,7 +801,7 @@ int AfxLocalDay()
 // ========================================================================================
 int AfxLocalDayOfWeek()
 {
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wDayOfWeek;
 }
@@ -874,7 +874,7 @@ std::wstring AfxGetShortDayName(const std::wstring& date_text)
     // YYYY-MM-DD
     // 0123456789
 
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     st.wYear = std::stoi(date_text.substr(0, 4));
     st.wMonth = std::stoi(date_text.substr(5, 2));
     st.wDay = std::stoi(date_text.substr(8, 2));
@@ -894,7 +894,7 @@ std::wstring AfxGetLongDayName(const std::wstring& date_text)
     // YYYY-MM-DD
     // 0123456789
 
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     st.wYear = std::stoi(date_text.substr(0, 4));
     st.wMonth = std::stoi(date_text.substr(5, 2));
     st.wDay = std::stoi(date_text.substr(8, 2));
@@ -914,7 +914,7 @@ std::wstring AfxGetShortMonthName(const std::wstring& date_text)
     // YYYY-MM-DD
     // 0123456789
 
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     st.wYear = std::stoi(date_text.substr(0, 4));
     st.wMonth = std::stoi(date_text.substr(5, 2));
     st.wDay = std::stoi(date_text.substr(8, 2));
@@ -934,7 +934,7 @@ std::wstring AfxGetLongMonthName(const std::wstring& date_text)
     // YYYY-MM-DD
     // 0123456789
 
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     st.wYear = std::stoi(date_text.substr(0, 4));
     st.wMonth = std::stoi(date_text.substr(5, 2));
     st.wDay = std::stoi(date_text.substr(8, 2));
@@ -987,7 +987,7 @@ std::wstring AfxLongDate(const std::wstring& date_text)
 // ========================================================================================
 std::wstring AfxMakeISODate(int year, int month, int day)
 {
-    SYSTEMTIME st;
+    SYSTEMTIME st{};
     st.wYear = year;
     st.wMonth = month;
     st.wDay = day;
@@ -1170,7 +1170,7 @@ std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter)
 // ========================================================================================
 bool AfxFileExists(const std::wstring& wszFileSpec)
 {
-    WIN32_FIND_DATAW fd;
+    WIN32_FIND_DATAW fd{};
     if (wszFileSpec.c_str() == NULL) return false;
 
     HANDLE hFind = FindFirstFile(wszFileSpec.c_str(), &fd);
