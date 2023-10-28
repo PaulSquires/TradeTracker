@@ -423,6 +423,7 @@ void Reconcile_Show()
 
 	// Do the reconciliation
 	HWND hTextBox = GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX);
+	Reconcile_LoadAllLocalPositions();   // in case some have been closed/expired/rolled since last time
 	Reconcile_doReconciliation();
 	AfxSetWindowText(hTextBox, results_text.c_str());
 	
