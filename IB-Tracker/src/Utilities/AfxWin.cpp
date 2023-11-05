@@ -1195,6 +1195,32 @@ std::wstring& AfxLTrim(std::wstring& s)
 
 
 // ========================================================================================
+// Right align string in of string of size width
+// ========================================================================================
+std::wstring AfxRSet(const std::wstring& text, int nWidth)
+{
+    if (text.length() > nWidth) return text;
+    size_t num_chars = nWidth - text.length();
+    if (num_chars <= 0) return text;
+    std::wstring spaces_string(num_chars, L' ');
+    return spaces_string + text;
+}
+
+
+// ========================================================================================
+// Left align string in of string of size width
+// ========================================================================================
+std::wstring AfxLSet(const std::wstring& text, int nWidth)
+{
+    if (text.length() > nWidth) return text;
+    size_t num_chars = nWidth - text.length();
+    if (num_chars <= 0) return text;
+    std::wstring spaces_string(num_chars, L' ');
+    return text + spaces_string;
+}
+
+
+// ========================================================================================
 // Replace one char/string another char/string. Return a copy.
 // ========================================================================================
 std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to)

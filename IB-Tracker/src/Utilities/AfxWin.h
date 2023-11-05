@@ -120,5 +120,7 @@ int Header_GetItemAlignment(HWND hwndHD, int nItem);
 bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR ptext, int Alignment = HDF_LEFT);
 std::wstring AfxUpper(const std::wstring& text);
 std::wstring AfxLower(const std::wstring& text);
+std::wstring AfxRSet(const std::wstring& text, int nWidth);
+std::wstring AfxLSet(const std::wstring& text, int nWidth);
 
 

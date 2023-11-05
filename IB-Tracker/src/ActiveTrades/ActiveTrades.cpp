@@ -174,8 +174,10 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
 
     // Lookup the most recent Portfolio position data
     PortfolioData pd{};
+    bool found = false;
     if (mapPortfolioData.count(ld->leg->contract_id)) {
         pd = mapPortfolioData.at(ld->leg->contract_id);
+        found = true;
     }
 
     double position_cost = (pd.average_cost * ld->leg->open_quantity);
@@ -193,12 +195,14 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
     ld->leg->position_cost = position_cost;
     text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
     ld->leg->position_cost_text = text;
+    if (!found) text = L"";
     ld->SetTextData(COLUMN_TICKER_COST, text, theme_color);   // Book Value and average Price
 
     // MARKET VALUE
     ld->leg->market_value = pd.market_value;
     text = AfxMoney(pd.market_value, true, ld->trade->ticker_decimals);
     ld->leg->market_value_text = text;
+    if (!found) text = L"";
     ld->SetTextData(COLUMN_TICKER_MARKETVALUE, text, theme_color);
 
     // UNREALIZED PNL
@@ -207,6 +211,7 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
     text = AfxMoney(pd.unrealized_PNL, false, ld->trade->ticker_decimals);
     ld->leg->unrealized_pnl_text = text;
     ld->leg->unrealized_pnl_color = theme_color;
+    if (!found) text = L"";
     ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
 
     // UNREALIZED PNL PERCENTAGE
@@ -222,6 +227,7 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
     ld->leg->percentage = percentage;
     text = AfxMoney(percentage, false, 2) + L"%";
     ld->leg->percentage_text = text;
+    if (!found) text = L"";
     ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values for the previous two columns data
 
     RECT rc{};
@@ -247,16 +253,19 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
 
         text = AfxMoney(total_cost, true, ld->trade->ticker_decimals);
         ld->trade->total_position_cost_text = text;
+        if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_COST, text, theme_color);   // Book Value and average Price
 
         text = AfxMoney(total_marketvalue, true, ld->trade->ticker_decimals);
         ld->trade->total_market_value_text = text;
+        if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_MARKETVALUE, text, theme_color);
 
         theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
         text = AfxMoney(uPNL, false, 2);
         ld->trade->unrealized_pnl_text = text;
         ld->trade->unrealized_pnl_color = theme_color;
+        if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_UPNL, text, theme_color);    // Unrealized profit or loss
 
         percentage = (uPNL / total_cost) * 100;
@@ -264,6 +273,7 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
         text = AfxMoney(percentage, false, 2) + L"%";
         theme_color = (uPNL < 0) ? COLOR_RED : COLOR_GREEN;
         ld->trade->percentage_text = text;
+        if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values
 
         RECT rc{};

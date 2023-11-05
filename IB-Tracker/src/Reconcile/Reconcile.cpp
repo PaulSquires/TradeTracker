@@ -238,10 +238,16 @@ void Reconcile_doReconciliation()
 			if (found) break;
 		}
 		if (!found) {
-			text += sp + L"   " + std::to_wstring(ibkr.open_quantity) + L"\t" +
-				ibkr.ticker_symbol + L"\t" + ibkr.underlying;
+			text += sp + 
+				AfxRSet(std::to_wstring(ibkr.open_quantity), 8) +
+				L"  " +
+				AfxLSet(ibkr.ticker_symbol, 8) + 
+				AfxLSet(ibkr.underlying, 5);
 			if (ibkr.underlying == L"OPT" || ibkr.underlying == L"FOP") {
-				text += sp + L"\t" + AfxInsertDateHyphens(ibkr.expiry_date) + L"\t" + std::to_wstring(ibkr.strike_price) + L"\t" + ibkr.PutCall;
+				text += sp + 
+					AfxLSet(AfxInsertDateHyphens(ibkr.expiry_date), 12) + 
+					AfxRSet(std::to_wstring(ibkr.strike_price), 16) +
+					AfxRSet(ibkr.PutCall, 3);
 			}
 			text += L"\r\n";
 		}
@@ -262,10 +268,16 @@ void Reconcile_doReconciliation()
 		}
 		if (!found) {
 			if (local.open_quantity != 0) {   // test b/c local may aggregate to zero and may already disappeard from IB
-				text += sp + L"   " + std::to_wstring(local.open_quantity) + L"\t" +
-					local.ticker_symbol + L"\t" + local.underlying;
+				text += sp +
+					AfxRSet(std::to_wstring(local.open_quantity), 8) +
+					L"  " +
+					AfxLSet(local.ticker_symbol, 8) +
+					AfxLSet(local.underlying, 5);
 				if (local.underlying == L"OPT" || local.underlying == L"FOP") {
-					text += sp + L"\t" + AfxInsertDateHyphens(local.expiry_date) + L"\t" + std::to_wstring(local.strike_price) + L"\t" + local.PutCall;
+					text += sp +
+						AfxLSet(AfxInsertDateHyphens(local.expiry_date), 12) +
+						AfxRSet(std::to_wstring(local.strike_price), 16) +
+						AfxRSet(local.PutCall, 3);
 				}
 				text += L"\r\n";
 			}
