@@ -41,6 +41,7 @@ enum class TradeAction
     assignment,
     add_options_to_trade,
     add_shares_to_trade,
+    add_dividend_to_trade,
     add_futures_to_trade,
     add_put_to_trade,
     add_call_to_trade,

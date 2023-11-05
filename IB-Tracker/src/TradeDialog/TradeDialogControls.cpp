@@ -288,6 +288,9 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             tdd.trade_action == TradeAction::add_options_to_trade) {
             if (IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
+        else {
+            multiplier = 1;
+        }
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(multiplier));
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), std::to_wstring(tdd.trade->trade_bp));
     }
@@ -558,6 +561,9 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
         description = L"Add Shares";
         grid_main = L"New Transaction";
         break;
+    case TradeAction::add_dividend_to_trade:
+        description = L"Add Dividend";
+        break;
     case TradeAction::add_futures_to_trade:
         description = L"Add Futures";
         grid_main = L"New Transaction";
@@ -779,6 +785,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetFont(hCtl, font_name, font_size, true);
         CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
+    } else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
+
     } else if (tdd.trade_action == TradeAction::manage_shares || tdd.trade_action == TradeAction::manage_futures) {
         std::wstring font_name = L"Segoe UI";
         std::wstring text;
@@ -834,6 +842,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
     }
+    if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
+        CustomTextBox_SetText(hCtl, L"1"); 
+    }
 
     
     CustomLabel_SimpleLabel(hwnd, -1, L"Price", COLOR_WHITEDARK, COLOR_GRAYDARK,
@@ -857,6 +868,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::manage_shares ||
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
+        tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         CustomTextBox_SetText(hCtl, L"1");
     }
@@ -911,6 +923,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (tdd.trade_action == TradeAction::new_shares_trade ||
         tdd.trade_action == TradeAction::manage_shares ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
+        tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::new_futures_trade ||
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
@@ -952,6 +965,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     if (tdd.trade_action != TradeAction::new_shares_trade &&
         tdd.trade_action != TradeAction::add_shares_to_trade &&
+        tdd.trade_action != TradeAction::add_dividend_to_trade &&
         tdd.trade_action != TradeAction::add_futures_to_trade &&
         tdd.trade_action != TradeAction::add_call_to_trade && 
         tdd.trade_action != TradeAction::add_put_to_trade && 

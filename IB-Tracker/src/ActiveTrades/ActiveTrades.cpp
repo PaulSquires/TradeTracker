@@ -1056,6 +1056,7 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_futures_to_trade, L"Add Futures to Trade");
     } else {
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_shares_to_trade, L"Add Shares to Trade");
+        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_dividend_to_trade, L"Add Dividend to Trade");
     }
 
     POINT pt; GetCursorPos(&pt);
@@ -1069,6 +1070,7 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
     case TradeAction::manage_shares:
     case TradeAction::manage_futures:
     case TradeAction::add_shares_to_trade:
+    case TradeAction::add_dividend_to_trade:
     case TradeAction::add_futures_to_trade:
     case TradeAction::add_options_to_trade:
     case TradeAction::add_put_to_trade:
