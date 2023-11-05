@@ -150,7 +150,8 @@ void ActiveTrades_UpdateTickerLine(int index, ListBoxData* ld)
     ld->trade->ticker_last_price_text = text;
     ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
-    text = (delta >= 0 ? L"+" : L"") + AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
+    text = AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
+    if (delta > 0) text = L"+" + text;
     ld->trade->ticker_percent_change_text = text;
     theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
     ld->trade->ticker_percent_change_color = theme_color;
