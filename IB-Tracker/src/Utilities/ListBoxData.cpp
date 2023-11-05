@@ -446,6 +446,7 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     
     // ROI% per 30 days  
     text = AfxMoney(0, true, 1) + L"%";
+    if (days_total == 0) days_total = 1;
     if (trade->trade_bp != 0 && days_total != 0) {
         text = AfxMoney((trade->acb / trade->trade_bp * 100 / days_total * 30), true, 1) + L"%";
     }
