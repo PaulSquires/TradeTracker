@@ -89,7 +89,7 @@ public:
         if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
             description = L"Dividend";
         }
-
+         
         underlying = L"OPTIONS";
         if (tdd.trade_action == TradeAction::new_shares_trade) underlying = L"SHARES";
         if (tdd.trade_action == TradeAction::new_futures_trade) underlying = L"FUTURES";
