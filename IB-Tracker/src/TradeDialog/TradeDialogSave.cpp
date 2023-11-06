@@ -86,6 +86,9 @@ public:
             tdd.trade_action == TradeAction::add_futures_to_trade) {
             description = L"Futures";
         }
+        if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
+            description = L"Dividend";
+        }
 
         underlying = L"OPTIONS";
         if (tdd.trade_action == TradeAction::new_shares_trade) underlying = L"SHARES";
@@ -94,6 +97,10 @@ public:
         if (tdd.trade_action == TradeAction::manage_futures) underlying = L"FUTURES";
         if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = L"SHARES";
         if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = L"FUTURES";
+        if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = L"DIVIDEND";
+        if (tdd.trans != nullptr) {
+            underlying = tdd.trans->underlying;
+        }
 
         quantity   = AfxValInteger(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
         price      = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
@@ -267,6 +274,90 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     tdd.trade = trade;
 }
+
+
+
+// ========================================================================================
+// Perform error checks on the Dividend trade data prior to allowing the save 
+// to the database.
+// ========================================================================================
+bool TradeDialog_ValidateDividendTradeData(HWND hwnd)
+{
+    // Collect the GUI data as it currently exists
+    CGuiData guiData;
+
+    // Do an error check to ensure that the data about to be saved does not contain
+    // any missing data, etc.
+    std::wstring error_message;
+    std::wstring text;
+
+    if (guiData.ticker_symbol.length() == 0) error_message += L"- Missing Ticker Symbol.\n";
+    if (guiData.ticker_name.length() == 0) error_message += L"- Missing Company Name.\n";
+    if (guiData.description.length() == 0) error_message += L"- Missing Description.\n";
+    if (guiData.quantity == 0) error_message += L"- Missing Quantity.\n";
+    if (guiData.price == 0) error_message += L"- Dividend Amount is Zero.\n";
+
+    if (error_message.length()) {
+        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        return false;
+    }
+
+    return true;   // data is good, allow the save to continue
+}
+
+
+// ========================================================================================
+// Create the Dividend trade transaction data and save it to the database
+// ========================================================================================
+void TradeDialog_CreateDividendTradeData(HWND hwnd)
+{
+    // PROCEED TO SAVE THE TRADE DATA
+
+    // Collect the GUI data as it currently exists
+    CGuiData guiData;
+
+    std::shared_ptr<Trade> trade;
+
+    trade = tdd.trade;
+    if (trade == nullptr) return;
+
+    trade->ticker_symbol = guiData.ticker_symbol;
+    trade->ticker_name = guiData.ticker_name;
+    trade->future_expiry = guiData.future_expiry;
+    trade->category = guiData.category;
+    trade->trade_bp = guiData.trade_bp;
+    trade->acb = guiData.ACB;
+
+    std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
+    trans->trans_date = guiData.trans_date;
+    trans->description = guiData.description;
+    trans->underlying = guiData.underlying;
+    trans->quantity = guiData.quantity;
+    trans->price = guiData.price;
+    trans->multiplier = guiData.multiplier;
+    trans->fees = guiData.fees;
+    trans->total = guiData.total;
+    trade->transactions.push_back(trans);
+
+    std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+    leg->underlying = trans->underlying;
+
+    // Determine earliest and latest dates for BP ROI calculation.
+    std::wstring date_text = AfxRemoveDateHyphens(trans->trans_date);
+    if (AfxValDouble(date_text) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = date_text;
+    if (AfxValDouble(date_text) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = date_text;
+    if (AfxValDouble(date_text) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = date_text;
+
+    leg->original_quantity = trans->quantity;
+    leg->open_quantity = 0;
+    leg->strike_price = std::to_wstring(trans->total);
+    leg->action = L"BTO";
+
+    trans->legs.push_back(leg);
+
+    tdd.trade = trade;
+}
+
 
 
 // ========================================================================================
@@ -515,11 +606,13 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool incomplete = false;
 
-        if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
-        if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
-        if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
-        if (guiData.legs.at(row).PutCall.length() == 0) incomplete = true;
-        if (guiData.legs.at(row).action.length() == 0) incomplete = true;
+        if (guiData.underlying == L"OPTIONS") {
+            if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
+            if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
+            if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
+            if (guiData.legs.at(row).PutCall.length() == 0) incomplete = true;
+            if (guiData.legs.at(row).action.length() == 0) incomplete = true;
+        }
 
         if (incomplete == true) {
             error_message += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
@@ -545,11 +638,13 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool incomplete = false;
 
-        if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
-        if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
-        if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
-        if (guiData.legsRoll.at(row).PutCall.length() == 0) incomplete = true;
-        if (guiData.legsRoll.at(row).action.length() == 0) incomplete = true;
+        if (guiData.underlying == L"OPTIONS") {
+            if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
+            if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
+            if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
+            if (guiData.legsRoll.at(row).PutCall.length() == 0) incomplete = true;
+            if (guiData.legsRoll.at(row).action.length() == 0) incomplete = true;
+        }
 
         if (incomplete == true) {
             error_message += L"- Leg #" + std::to_wstring(row + 5) + L" has incomplete or missing data.\n";

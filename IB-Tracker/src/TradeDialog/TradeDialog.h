@@ -119,4 +119,6 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd);
 void TradeDialogControls_ShowFuturesContractDate(HWND hwnd);
 bool TradeDialog_ValidateEditTradeData(HWND hwnd);
 void TradeDialog_CreateEditTradeData(HWND hwnd);
+bool TradeDialog_ValidateDividendTradeData(HWND hwnd);
+void TradeDialog_CreateDividendTradeData(HWND hwnd);
 

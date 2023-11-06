@@ -366,6 +366,14 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 }
                 SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
             }
+            else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
+                if (TradeDialog_ValidateDividendTradeData(m_hwnd) == true) {
+                    TradeDialog_CreateDividendTradeData(m_hwnd);
+                    dialog_return_code = DIALOG_RETURN_OK;
+                    SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+                }
+                SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
+            }
             else if (tdd.trade_action == TradeAction::edit_transaction) {
                 if (TradeDialog_ValidateEditTradeData(m_hwnd) == true) {
                     TradeDialog_CreateEditTradeData(m_hwnd);

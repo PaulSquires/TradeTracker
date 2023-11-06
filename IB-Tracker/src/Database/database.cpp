@@ -49,8 +49,7 @@ int UnderlyingToNumber(const std::wstring& underlying)
     if (underlying == L"OPTIONS") return 0;
     if (underlying == L"SHARES") return 1;
     if (underlying == L"FUTURES") return 2;
-    if (underlying == L"CURRENCY") return 3;
-    if (underlying == L"COMMODITIES") return 4;
+    if (underlying == L"DIVIDEND") return 3;
     return 0;
 }
 
@@ -70,8 +69,7 @@ std::wstring NumberToUnderlying(int number)
     if (number == 0) return L"OPTIONS";
     if (number == 1) return L"SHARES";
     if (number == 2) return L"FUTURES";
-    if (number == 3) return L"CURRENCY";
-    if (number == 4) return L"COMMODITIES";
+    if (number == 3) return L"DIVIDEND";
     return L"OPTIONS";
 }
 
@@ -108,8 +106,8 @@ bool SaveDatabase()
         << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|PutCall|action|underlying\n"
         << "// isOpen:        0:FALSE, 1:TRUE\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
-        << "// Category:      0,1,2,3,4 (integer value)\n"
-        << "// underlying:    0:OPTIONS, 1:SHARES, 2:FUTURES, 3:CURRENCY, 4:COMMODITIES\n"
+        << "// Category:      0,1,2,3,4, etc (integer value)\n"
+        << "// underlying:    0:OPTIONS, 1:SHARES, 2:FUTURES, 3:DIVIDEND\n"
         << "// action:        0:STO, 1:BTO, 2:STC, 3:BTC\n"
         << "// Dates are all in YYYYMMDD format with no embedded separators.\n";
 

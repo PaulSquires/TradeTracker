@@ -207,10 +207,17 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
 
     // Show the detail leg information for this transaction.
     for (const auto& leg : trans->legs) {
-        if (leg->underlying == L"OPTIONS") { ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); }
-        else if (leg->underlying == L"SHARES") { ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg); }
+        if (leg->underlying == L"OPTIONS") { 
+            ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); 
+        }
+        else if (leg->underlying == L"SHARES") { 
+            ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg); 
+        }
         else if (leg->underlying == L"FUTURES") {
             ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
+        }
+        else if (leg->underlying == L"DIVIDEND") {
+            ListBoxData_HistoryDividendLeg(hListBox, trade, trans, leg);
         }
     }
 
