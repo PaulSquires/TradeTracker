@@ -288,7 +288,9 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             tdd.trade_action == TradeAction::add_options_to_trade) {
             if (IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
-        else {
+        if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
+            tdd.trade_action == TradeAction::add_futures_to_trade ||
+            tdd.trade_action == TradeAction::add_shares_to_trade) {
             multiplier = 1;
         }
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(multiplier));
