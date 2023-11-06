@@ -98,7 +98,14 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
     // Output the BP, Days, ROI
     ListBoxData_TradeROI(hListBox, trade, -1);
 
-
+    // Sort transactions based on date
+    std::sort(trade->transactions.begin(), trade->transactions.end(),
+        [](const auto trans1, const auto trans2) {
+            {
+                if (trans1->trans_date < trans2->trans_date) return true;
+                return false;
+            }
+        });
 
     // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
     for (int i = (int)trade->transactions.size() - 1; i >= 0; --i) {
