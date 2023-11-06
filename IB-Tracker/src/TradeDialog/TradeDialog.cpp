@@ -187,6 +187,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
                 tdd.trade_action == TradeAction::manage_shares ||
                 tdd.trade_action == TradeAction::manage_futures ||
                 tdd.trade_action == TradeAction::add_dividend_to_trade ||
+                tdd.trade_action == TradeAction::other_income_expense ||
                 tdd.trade_action == TradeAction::add_shares_to_trade ||
                 tdd.trade_action == TradeAction::add_futures_to_trade) {
                 multiplier = L"1";
@@ -369,6 +370,14 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
                 if (TradeDialog_ValidateDividendTradeData(m_hwnd) == true) {
                     TradeDialog_CreateDividendTradeData(m_hwnd);
+                    dialog_return_code = DIALOG_RETURN_OK;
+                    SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+                }
+                SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
+            }
+            else if (tdd.trade_action == TradeAction::other_income_expense) {
+                if (TradeDialog_ValidateOtherIncomeData(m_hwnd) == true) {
+                    TradeDialog_CreateOtherIncomeData(m_hwnd);
                     dialog_return_code = DIALOG_RETURN_OK;
                     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
                 }

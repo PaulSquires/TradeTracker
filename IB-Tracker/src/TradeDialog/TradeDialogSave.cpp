@@ -97,6 +97,7 @@ public:
         if (tdd.trade_action == TradeAction::manage_futures) underlying = L"FUTURES";
         if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = L"SHARES";
         if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = L"FUTURES";
+        if (tdd.trade_action == TradeAction::other_income_expense) underlying = L"OTHER";
         if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = L"DIVIDEND";
         if (tdd.trans != nullptr) {
             underlying = tdd.trans->underlying;
@@ -278,6 +279,81 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
 
 // ========================================================================================
+// Perform error checks on the Other Income/Expense data prior to allowing the save 
+// to the database.
+// ========================================================================================
+bool TradeDialog_ValidateOtherIncomeData(HWND hwnd)
+{
+    // Collect the GUI data as it currently exists
+    CGuiData guiData;
+
+    // Do an error check to ensure that the data about to be saved does not contain
+    // any missing data, etc.
+    std::wstring error_message;
+    std::wstring text;
+
+    if (guiData.description.length() == 0) error_message += L"- Missing Description.\n";
+    if (guiData.quantity == 0) error_message += L"- Missing Quantity.\n";
+    if (guiData.price == 0) error_message += L"- Amount can not be Zero.\n";
+
+    if (error_message.length()) {
+        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        return false;
+    }
+
+    return true;   // data is good, allow the save to continue
+}
+
+
+// ========================================================================================
+// Create the Other Income/Expense transaction data and save it to the database
+// ========================================================================================
+void TradeDialog_CreateOtherIncomeData(HWND hwnd)
+{
+    // PROCEED TO SAVE THE OTHER INCOME/EXPENSE DATA
+
+    // Collect the GUI data as it currently exists
+    CGuiData guiData;
+
+    std::shared_ptr<Trade> trade;
+
+    trade = std::make_shared<Trade>();
+    trades.push_back(trade);
+
+    trade->ticker_symbol = L"OTHER";
+    trade->ticker_name = L"Other Income/Expense";
+    trade->future_expiry = guiData.future_expiry;
+    trade->category = guiData.category;
+    trade->trade_bp = guiData.trade_bp;
+    trade->acb = guiData.ACB;
+
+    std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
+    trans->trans_date = guiData.trans_date;
+    trans->description = guiData.description;
+    trans->underlying = guiData.underlying;
+    trans->quantity = guiData.quantity;
+    trans->price = guiData.price;
+    trans->multiplier = guiData.multiplier;
+    trans->fees = guiData.fees;
+    trans->total = guiData.total;
+    trade->transactions.push_back(trans);
+
+    std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+    leg->underlying = trans->underlying;
+
+    leg->original_quantity = trans->quantity;
+    leg->open_quantity = 0;
+    leg->strike_price = std::to_wstring(trans->total);
+    leg->action = L"BTO";
+
+    trans->legs.push_back(leg);
+
+    tdd.trade = trade;
+}
+
+
+
+// ========================================================================================
 // Perform error checks on the Dividend trade data prior to allowing the save 
 // to the database.
 // ========================================================================================
@@ -357,7 +433,6 @@ void TradeDialog_CreateDividendTradeData(HWND hwnd)
 
     tdd.trade = trade;
 }
-
 
 
 // ========================================================================================

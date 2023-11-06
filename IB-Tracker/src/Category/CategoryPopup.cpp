@@ -397,7 +397,9 @@ HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 
     if (CategoryControl_Getallow_all_categories(hParent)) {
         HWND hListBox = GetDlgItem(hPopup, IDC_CATEGORYPOPUP_LISTBOX);
-        int idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_ALL).c_str());
+        int idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_OTHER).c_str());
+        ListBox_SetItemData(hListBox, idx, CATEGORY_OTHER);
+        idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_ALL).c_str());
         ListBox_SetItemData(hListBox, idx, CATEGORY_ALL);
     }
 

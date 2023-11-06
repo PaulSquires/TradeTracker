@@ -50,16 +50,7 @@ int UnderlyingToNumber(const std::wstring& underlying)
     if (underlying == L"SHARES") return 1;
     if (underlying == L"FUTURES") return 2;
     if (underlying == L"DIVIDEND") return 3;
-    return 0;
-}
-
-
-int ActionToNumber(const std::wstring& action)
-{
-    if (action == L"STO") return 0;
-    if (action == L"BTO") return 1;
-    if (action == L"STC") return 2;
-    if (action == L"BTC") return 3;
+    if (underlying == L"OTHER") return 4;
     return 0;
 }
 
@@ -70,7 +61,18 @@ std::wstring NumberToUnderlying(int number)
     if (number == 1) return L"SHARES";
     if (number == 2) return L"FUTURES";
     if (number == 3) return L"DIVIDEND";
+    if (number == 4) return L"OTHER";
     return L"OPTIONS";
+}
+
+
+int ActionToNumber(const std::wstring& action)
+{
+    if (action == L"STO") return 0;
+    if (action == L"BTO") return 1;
+    if (action == L"STC") return 2;
+    if (action == L"BTC") return 3;
+    return 0;
 }
 
 

@@ -50,6 +50,7 @@ enum class TradeAction
     new_short_strangle,
     new_short_put,
     new_short_call,
+    other_income_expense,
     edit_transaction,
     no_action
 };

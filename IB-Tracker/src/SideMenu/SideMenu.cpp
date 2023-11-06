@@ -245,6 +245,9 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_OTHERINCOME, nTop, L"Other Income");
+
+    nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TICKERTOTALS, nTop, L"Ticker Totals");
 
     nTop += nItemHeight;
@@ -474,6 +477,16 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 if (TradeDialog_Show(TradeAction::new_short_call) == DIALOG_RETURN_CANCEL) {
+                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
+                }
+            }
+            break;
+
+            case IDC_SIDEMENU_OTHERINCOME:
+            {
+                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
+                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
+                if (TradeDialog_Show(TradeAction::other_income_expense) == DIALOG_RETURN_CANCEL) {
                     SideMenu_SelectMenuItem(m_hwnd, current_selection);
                 }
             }

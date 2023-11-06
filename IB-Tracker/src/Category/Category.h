@@ -47,13 +47,14 @@ public:
     DWORD text_color{};
     int font_size = 9;
     std::wstring text;
-    bool allow_all_categories = false;
+    bool allow_all_categories = false;  // Also includes OTHER category
 };
 
 
 constexpr int CATEGORY_START = 0;
 constexpr int CATEGORY_END = 15;
 constexpr int CATEGORY_ALL = 99;
+constexpr int CATEGORY_OTHER = 100;
 
 constexpr int IDC_CATEGORYCONTROL_COMBOBOX = 100;
 constexpr int IDC_CATEGORYCONTROL_COMMAND  = 101;

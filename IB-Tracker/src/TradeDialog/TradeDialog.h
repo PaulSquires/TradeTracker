@@ -121,4 +121,6 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd);
 void TradeDialog_CreateEditTradeData(HWND hwnd);
 bool TradeDialog_ValidateDividendTradeData(HWND hwnd);
 void TradeDialog_CreateDividendTradeData(HWND hwnd);
+bool TradeDialog_ValidateOtherIncomeData(HWND hwnd);
+void TradeDialog_CreateOtherIncomeData(HWND hwnd);
 

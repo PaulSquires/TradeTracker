@@ -67,7 +67,8 @@ std::unordered_map<int, std::wstring> mapCategoryDescriptions {
     { 13, L"Category 13" },
     { 14, L"Category 14" },
     { 15, L"Category 15" },
-    {99, L"All Categories" }
+    { 99, L"All Categories" },
+    {100, L"Other Income/Expense" }
 };
 
 std::unordered_map<std::string, std::string> mapFuturesExchanges {

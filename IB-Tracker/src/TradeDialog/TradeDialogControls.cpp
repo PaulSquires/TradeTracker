@@ -290,7 +290,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         }
         if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
             tdd.trade_action == TradeAction::add_futures_to_trade ||
-            tdd.trade_action == TradeAction::add_shares_to_trade) {
+            tdd.trade_action == TradeAction::add_shares_to_trade ||
+            tdd.trade_action == TradeAction::other_income_expense) {
             multiplier = 1;
         }
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(multiplier));
@@ -718,7 +719,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 126, 97, 23, 23);
 
-    // We always want the Description textbox to exists because even for rolled and closed transaction
+    // We always want the Description textbox to exist because even for rolled and closed transaction
     // we need to set the description (even though the user will never see the actual textbox in those
     // types of actions).
 
@@ -734,7 +735,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_HIDE);
     }
 
-    if (tdd.trade_action == TradeAction::edit_transaction) {
+    if (tdd.trade_action == TradeAction::edit_transaction ||
+        tdd.trade_action == TradeAction::other_income_expense) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_SHOW);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_SHOW);
     }
@@ -788,6 +790,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     } else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
+
+    } else if (tdd.trade_action == TradeAction::other_income_expense) {
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), L"Other Income/Expense");
 
     } else if (tdd.trade_action == TradeAction::manage_shares || tdd.trade_action == TradeAction::manage_futures) {
         std::wstring font_name = L"Segoe UI";
@@ -844,7 +849,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
     }
-    if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
+    if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
+        tdd.trade_action == TradeAction::other_income_expense) {
         CustomTextBox_SetText(hCtl, L"1"); 
     }
 
@@ -870,6 +876,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::manage_shares ||
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
+        tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         CustomTextBox_SetText(hCtl, L"1");
@@ -928,6 +935,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::new_futures_trade ||
         tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRADEBP), SW_HIDE);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), SW_HIDE);
@@ -972,6 +980,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action != TradeAction::add_call_to_trade && 
         tdd.trade_action != TradeAction::add_put_to_trade && 
         tdd.trade_action != TradeAction::add_options_to_trade &&
+        tdd.trade_action != TradeAction::other_income_expense &&
         tdd.trade_action != TradeAction::close_leg &&
         tdd.trade_action != TradeAction::manage_shares &&
         tdd.trade_action != TradeAction::manage_futures &&
