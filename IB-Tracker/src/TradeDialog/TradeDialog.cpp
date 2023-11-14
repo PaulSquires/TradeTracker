@@ -409,6 +409,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
+
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
@@ -460,7 +461,7 @@ int TradeDialog_Show(TradeAction inTradeAction)
     cloak = FALSE;
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
-    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     
     if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
         IsNewSharesTradeAction(tdd.trade_action) == true) {

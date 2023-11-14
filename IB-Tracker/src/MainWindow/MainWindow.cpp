@@ -103,6 +103,18 @@ void MainWindow_SetMiddlePanel(HWND hPanel)
 }
 
 
+//' ========================================================================================
+//  Determine if program is running under Wine in Linux
+//' ========================================================================================
+bool isWineActive()
+{
+    HMODULE hntdll = GetModuleHandle(L"ntdll.dll");
+    if (!hntdll) return false;
+    FARPROC pwine_get_version = GetProcAddress(hntdll, "wine_get_version");
+    return pwine_get_version ? true : false;
+}
+
+
 // ========================================================================================
 // Blur the MainWindow panels. This function is called prior and after
 // a popup dialog is shown in order to reduce the underlying "visual noise" for that 
@@ -112,6 +124,8 @@ void MainWindow_SetMiddlePanel(HWND hPanel)
 // ========================================================================================
 void MainWindow_BlurPanels(bool active)
 {
+    if (isWineActive()) return;
+
     if (active) {
         RECT rc;       GetWindowRect(HWND_MAINWINDOW, &rc);
         RECT rcClient; GetClientRect(HWND_MAINWINDOW, &rcClient);
