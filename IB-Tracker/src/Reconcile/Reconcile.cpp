@@ -158,6 +158,9 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	if (p.ticker_symbol == L"HE" && p.underlying == L"FOP") {
 		p.strike_price *= 100;
 	}
+	if (p.ticker_symbol == L"LE" && p.underlying == L"FOP") {
+		p.strike_price *= 100;
+	}
 	ibkr_positions.push_back(p);
 }
 
