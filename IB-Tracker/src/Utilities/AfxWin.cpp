@@ -1006,9 +1006,10 @@ std::wstring AfxGetDefaultFont()
     std::wstring wszFont = L"Tahoma";
 
     // Use macro from versionhelpers.h
-    if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   // Segoe has been default Windows font since Vista
-
-    if (isWineActive()) wszFont = L"Noto Sans";
+    if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   
+    
+    // Segoe has been default Windows font since Vista
+    // User should install Segoe UI font under Linux Wine if used on that platform.
 
     return wszFont;
 }
