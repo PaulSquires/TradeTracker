@@ -122,5 +122,6 @@ std::wstring AfxUpper(const std::wstring& text);
 std::wstring AfxLower(const std::wstring& text);
 std::wstring AfxRSet(const std::wstring& text, int nWidth);
 std::wstring AfxLSet(const std::wstring& text, int nWidth);
+bool isWineActive();
 
 

@@ -1008,6 +1008,8 @@ std::wstring AfxGetDefaultFont()
     // Use macro from versionhelpers.h
     if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   // Segoe has been default Windows font since Vista
 
+    if (isWineActive()) wszFont = L"Verdana";
+
     return wszFont;
 }
 
@@ -1442,4 +1444,17 @@ std::wstring AfxLower(const std::wstring& text)
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
     return s;
 }
+
+
+//' ========================================================================================
+//  Determine if program is running under Wine in Linux
+//' ========================================================================================
+bool isWineActive()
+{
+    HMODULE hntdll = GetModuleHandle(L"ntdll.dll");
+    if (!hntdll) return false;
+    FARPROC pwine_get_version = GetProcAddress(hntdll, "wine_get_version");
+    return pwine_get_version ? true : false;
+}
+
 
