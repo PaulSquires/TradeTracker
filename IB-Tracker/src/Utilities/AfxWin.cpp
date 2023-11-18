@@ -1008,7 +1008,7 @@ std::wstring AfxGetDefaultFont()
     // Use macro from versionhelpers.h
     if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   // Segoe has been default Windows font since Vista
 
-    if (isWineActive()) wszFont = L"Verdana";
+    if (isWineActive()) wszFont = L"Noto Sans";
 
     return wszFont;
 }
