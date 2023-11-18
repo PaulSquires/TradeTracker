@@ -124,7 +124,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
     // SAVE button
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
     bool bold = true;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",

@@ -583,7 +583,7 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     DWORD light_text_color = COLOR_WHITEDARK;
     DWORD dark_back_color = COLOR_GRAYMEDIUM;
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
 
 

@@ -150,7 +150,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int nHeight = 23;
 
     HWND hCtl = NULL;
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     std::wstring text;
     int font_size = 8;
     bool bold = true;

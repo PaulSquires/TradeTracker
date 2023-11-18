@@ -454,7 +454,7 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TRANSDETAIL = hwnd;
 
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LABEL1, L"Transaction Details",

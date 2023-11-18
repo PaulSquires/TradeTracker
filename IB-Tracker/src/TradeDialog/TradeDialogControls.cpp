@@ -764,7 +764,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (IsNewSharesTradeAction(tdd.trade_action) == true ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
-        std::wstring font_name = L"Segoe UI";
+        std::wstring font_name = AfxGetDefaultFont();
         std::wstring text;
         int font_size = 8;
 
@@ -795,7 +795,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), L"Other Income/Expense");
 
     } else if (tdd.trade_action == TradeAction::manage_shares || tdd.trade_action == TradeAction::manage_futures) {
-        std::wstring font_name = L"Segoe UI";
+        std::wstring font_name = AfxGetDefaultFont();
         std::wstring text;
         int font_size = 8;
 
@@ -901,7 +901,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
 
 
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
     bool bold = false;
 

@@ -993,7 +993,7 @@ HWND CreateCustomLabel(
         pData->CtrlId = (int)CtrlId;
         pData->CtrlType = nCtrlType;
 
-        pData->font_name = L"Segoe UI";
+        pData->font_name = AfxGetDefaultFont();
         pData->font_size = 9;
         pData->font_name_hot = pData->font_name;
         pData->font_size_hot = pData->font_size;

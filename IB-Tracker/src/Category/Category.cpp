@@ -68,7 +68,7 @@ void CategoryControl_OnCreate(HWND hwnd)
 
     int nLeft = 0;
 
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
 
     int category = CategoryControl_Getallow_all_categories(hwnd) ? CATEGORY_ALL : CATEGORY_START;

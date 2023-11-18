@@ -638,7 +638,7 @@ HWND CreateCustomTextBox(
         pData->hParent = hWndParent;
         pData->hInst = hInst;
         pData->CtrlId = (int)CtrlId;
-        pData->font_name = L"Segoe UI";
+        pData->font_name = AfxGetDefaultFont();
         pData->font_size = 9;
         pData->back_color = COLOR_GRAYDARK;
         pData->back_brush = CreateSolidBrush(pData->back_color);

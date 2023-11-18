@@ -85,7 +85,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtlPutCall = NULL;
     HWND hCtlLongShort = NULL;
 
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     std::wstring text;
     int font_size = 8;
     bool bold = true;

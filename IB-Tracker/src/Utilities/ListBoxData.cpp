@@ -355,8 +355,6 @@ void ListBoxData_RequestMarketData(HWND hListBox)
         if (ld != nullptr) {
             if (ld->line_type == LineType::ticker_line) {
                 tws_RequestMarketData(ld);
-                // Sleep for 10 milliseconds (to not exceed messages per second)
-                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     }

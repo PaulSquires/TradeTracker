@@ -78,7 +78,7 @@ public:
 class Transaction
 {
 public:
-    std::wstring  underlying  = L"";      // OPTIONS,STOCKS,FUTURES,CURRENCY,COMMODITIES
+    std::wstring  underlying  = L"";      // OPTIONS,STOCKS,FUTURES
     std::wstring  description = L"";      // Iron Condor, Strangle, Roll, Expired, Closed, Exercised, etc
     std::wstring  trans_date  = L"";      // YYYY-MM-DD
     int           quantity    = 0;
@@ -95,21 +95,21 @@ class Trade
 {
 public:
     TickerId      tickerId      = -1;
-    bool          ticker_data_requested = false;
+    bool          ticker_data_requested = false;   // ticker data already requested
     bool          is_open       = true;    // False if all legs are closed
     std::wstring  ticker_symbol = L"";
     std::wstring  ticker_name   = L"";
     std::wstring  future_expiry = L"";     // YYYYMM of Futures contract expiry
     std::wstring  notes         = L"";     
-    int           category      = 0;       // blue, purple, etc (0 to 4)
+    int           category      = 0;       // Category number
     double        acb           = 0;       // adjusted cost base
     double        trade_bp      = 0;       // Buying Power for the entire trade 
     int           nextleg_id    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
     double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
 
-    double  ticker_last_price = 0;
-    double  ticker_close_price = 0;
-    int     ticker_decimals = 2;           // upated via data from Config. 
+    double        ticker_last_price  = 0;
+    double        ticker_close_price = 0;
+    int           ticker_decimals    = 2;  // upated via data from Config. 
 
     // The following are string representations of the marketdata and updatePortfolio values. We save them here
     // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.

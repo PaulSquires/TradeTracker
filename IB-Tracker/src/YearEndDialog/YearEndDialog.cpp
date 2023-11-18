@@ -130,7 +130,7 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     HWND hCtl = NULL;
     
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
     std::wstring text;

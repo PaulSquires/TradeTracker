@@ -556,7 +556,7 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     
     // YEAR END CLOSE
-    std::wstring font_name = L"Segoe UI";
+    std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSED_CMDYEAREND, L"Year End",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
