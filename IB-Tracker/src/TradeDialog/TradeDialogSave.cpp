@@ -749,10 +749,8 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     
     // If this is a Futures trade and the contract date has been changed then we need to
     // ensure that the ticker data is requested again.
-    if (tdd.trans->underlying == L"FUTURES") {
-        if (tdd.trade->future_expiry != guiData.future_expiry) {
-            tdd.trade->ticker_data_requested = false;
-        }
+    if (tdd.trade->future_expiry != guiData.future_expiry) {
+        tdd.trade->ticker_data_requested = false;
     }
 
     tdd.trade->future_expiry = guiData.future_expiry;
