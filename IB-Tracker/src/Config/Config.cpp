@@ -50,6 +50,7 @@ int startup_height = 0;
 int startup_right_panel_width = 0;
 
 bool startup_paper_trading = false;
+bool show_portfolio_value = true;
  
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
@@ -126,6 +127,15 @@ void DisplayPaperTradingWarning()
     CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
         L"*** USING PAPER TRADING ACCOUNT ***");
     ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+}
+
+
+// ========================================================================================
+// Determine if show/hide the Portfolio dollar value on the main screen.
+// ========================================================================================
+bool GetShowPortfolioValue()
+{
+    return show_portfolio_value;
 }
 
 
@@ -440,6 +450,8 @@ bool SaveConfig()
     db << idMagic << "|" << version << "\n";
 
     db << "ENABLEPAPERTRADING|" << (startup_paper_trading ? L"true" : L"false") << "\n";
+    
+    db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
 
     db << "STARTUPWIDTH" << "|" << startup_width << "\n";
 
@@ -536,6 +548,18 @@ bool LoadConfig()
             catch (...) { continue; }
         
             startup_paper_trading = AfxWStringCompareI(paper, L"true");
+            continue;
+        }
+
+
+        // Check if should show/hide Total Portfolio dollar amount on main screen
+        if (arg == L"SHOWPORTFOLIOVALUE") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+        
+            show_portfolio_value = AfxWStringCompareI(value, L"true");
             continue;
         }
 

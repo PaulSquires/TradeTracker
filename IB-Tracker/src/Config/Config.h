@@ -31,6 +31,7 @@ constexpr std::wstring version = L"3.6.0";
 bool SaveConfig();
 bool LoadConfig();
 
+bool GetShowPortfolioValue();
 int GetTickerDecimals(std::wstring wunderlying);
 void SetTickerDecimals(std::wstring wunderlying, int numDecimals);
 std::wstring GetMultiplier(std::wstring wunderlying);
