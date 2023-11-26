@@ -31,20 +31,20 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
-#include "JournalNotes.h"
+#include "TradePlan.h"
 
 
-HWND HWND_JOURNALNOTES = NULL;
+HWND HWND_TRADEPLAN = NULL;
 
-CJournalNotes JournalNotes;
+CTradePlan TradePlan;
 
-void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy);
+void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy);
 
 
 // ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: JournalNotes
+// Process WM_ERASEBKGND message for window/dialog: TradePlan
 // ========================================================================================
-BOOL JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL TradePlan_OnEraseBkgnd(HWND hwnd, HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -52,9 +52,9 @@ BOOL JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc)
 
 
 // ========================================================================================
-// Process WM_PAINT message for window/dialog: JournalNotes
+// Process WM_PAINT message for window/dialog: TradePlan
 // ========================================================================================
-void JournalNotes_OnPaint(HWND hwnd)
+void TradePlan_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
 
@@ -75,21 +75,21 @@ void JournalNotes_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_COMMAND message for window/dialog: JournalNotes
+// Process WM_COMMAND message for window/dialog: TradePlan
 // ========================================================================================
-void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     static bool is_notes_dirty = false;
     static std::wstring notes = L"";
 
     switch (id)
     {
-    case (IDC_JOURNALNOTES_TXTNOTES):
+    case (IDC_TRADEPLAN_TXTNOTES):
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
 
-                // Save JournalNotes because the data has changed.
-                SetJournalNotesText(notes);
+                // Save TradePlan because the data has changed.
+                SetTradePlanText(notes);
 
                 is_notes_dirty = false;
                 notes = L"";
@@ -115,12 +115,12 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: JournalNotes
+// Process WM_SIZE message for window/dialog: TradePlan
 // ========================================================================================
-void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
-    HWND hNotesLabel = GetDlgItem(hwnd, IDC_JOURNALNOTES_LBLNOTES);
-    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_JOURNALNOTES_TXTNOTES);
+    HWND hNotesLabel = GetDlgItem(hwnd, IDC_TRADEPLAN_LBLNOTES);
+    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_TRADEPLAN_TXTNOTES);
 
     HDWP hdwp = BeginDeferWindowPos(4);
 
@@ -140,16 +140,16 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
 // ========================================================================================
-// Process WM_CREATE message for window/dialog: JournalNotes
+// Process WM_CREATE message for window/dialog: TradePlan
 // ========================================================================================
-BOOL JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL TradePlan_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    HWND_JOURNALNOTES = hwnd;
+    HWND_TRADEPLAN = hwnd;
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_JOURNALNOTES_LBLNOTES, L"Journal Notes",
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEPLAN_LBLNOTES, L"Trade Plan",
         COLOR_WHITELIGHT, COLOR_BLACK);
 
-    hCtl = CreateCustomTextBox(hwnd, IDC_JOURNALNOTES_TXTNOTES, true, ES_LEFT,
+    hCtl = CreateCustomTextBox(hwnd, IDC_TRADEPLAN_TXTNOTES, true, ES_LEFT,
         L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, 3, 3);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
@@ -162,15 +162,15 @@ BOOL JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CTradePlan::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-        HANDLE_MSG(m_hwnd, WM_CREATE, JournalNotes_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, JournalNotes_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, JournalNotes_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, JournalNotes_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_SIZE, JournalNotes_OnSize);
+        HANDLE_MSG(m_hwnd, WM_CREATE, TradePlan_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradePlan_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, TradePlan_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, TradePlan_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_SIZE, TradePlan_OnSize);
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -178,17 +178,17 @@ LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 // ========================================================================================
-// Display the JournalNotes side panel.
+// Display the TradePlan side panel.
 // ========================================================================================
-void JournalNotes_ShowJournalNotes()
+void TradePlan_ShowTradePlan()
 {
-    HWND hTextBox = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_TXTNOTES);
+    HWND hTextBox = GetDlgItem(HWND_TRADEPLAN, IDC_TRADEPLAN_TXTNOTES);
 
-    // Load the JournalNotes into the textbox
-    std::wstring wszText = GetJournalNotesText();
+    // Load the TradePlan into the textbox
+    std::wstring wszText = GetTradePlanText();
     CustomTextBox_SetText(hTextBox, wszText);
 
-    // Ensure that the JournalNotes panel is set
-    MainWindow_SetRightPanel(HWND_JOURNALNOTES);
+    // Ensure that the TradePlan panel is set
+    MainWindow_SetRightPanel(HWND_TRADEPLAN);
     SetFocus(hTextBox);
 }

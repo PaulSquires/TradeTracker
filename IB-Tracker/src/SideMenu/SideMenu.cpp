@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Transactions/TransPanel.h"
 #include "TickerTotals/TickerTotals.h"
 #include "JournalNotes/JournalNotes.h"
+#include "TradePlan/TradePlan.h"
 #include "Utilities/ListBoxData.h"
 #include "SideMenu.h"
 
@@ -164,12 +165,13 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetOptions(hCtl, pData);
     }
 
+    nTop = 100;
 
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_APPNAME,
         CustomLabelType::text_only,
-        0, 100, SIDEMENU_WIDTH, 18);
+        0, nTop, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->hot_test_enable = false;
@@ -183,11 +185,12 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     }
 
 
+    nTop += 18;
     hCtl = CreateCustomLabel(
         hwnd,
         IDC_SIDEMENU_APPVERSION,
         CustomLabelType::text_only,
-        0, 118, SIDEMENU_WIDTH, 18);
+        0, nTop, SIDEMENU_WIDTH, 18);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
         pData->hot_test_enable = false;
@@ -202,7 +205,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     // SEPARATOR & MENU ITEMS
-    nTop = 150;
+    nTop += 32;
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
@@ -254,10 +257,13 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TRANSACTIONS, nTop, L"Transactions");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_RECONCILE, nTop, L"Reconcile");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_JOURNALNOTES, nTop, L"Journal Notes");
 
     nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_JOURNALNOTES, nTop, L"Journal Notes");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TRADEPLAN, nTop, L"Trade Plan");
+
+    nTop += nItemHeight;
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_RECONCILE, nTop, L"Reconcile");
 
     nTop += nItemHeight + 6;
     SideMenu_MakeSeparator(hwnd, nTop);
@@ -548,6 +554,13 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 SideMenu_SelectMenuItem(m_hwnd, CtrlId);
                 JournalNotes_ShowJournalNotes();
+                break;
+            }
+
+            case IDC_SIDEMENU_TRADEPLAN:
+            {
+                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
+                TradePlan_ShowTradePlan();
                 break;
             }
 

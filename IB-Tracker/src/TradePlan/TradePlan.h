@@ -26,29 +26,22 @@ SOFTWARE.
 
 #pragma once
 
-constexpr std::wstring version = L"3.6.0";
+#include "Utilities/CWindowBase.h"
+#include "Database/database.h"
 
-bool SaveConfig();
-bool LoadConfig();
 
-int GetTickerDecimals(std::wstring wunderlying);
-void SetTickerDecimals(std::wstring wunderlying, int numDecimals);
-std::wstring GetMultiplier(std::wstring wunderlying);
-void SetMultiplier(std::wstring wunderlying, std::wstring wszMultiplier);
-std::string GetFuturesExchange(std::string underlying);
-void SetFuturesExchange(std::string underlying, std::string exchange);
-std::wstring GetCategoryDescription(int category_index);
-void SetCategoryDescription(int category_index, std::wstring wszDescription);
-void DisplayPaperTradingWarning();
-int GetStartupPort();
-bool IsFuturesTicker(const std::wstring& wszTicker);
-int GetStartupWidth();
-int GetStartupHeight();
-int GetStartupRightPanelWidth();
-void SetStartupWidth(int width);
-void SetStartupHeight(int height);
-void SetStartupRightPanelWidth(int width);
-std::wstring GetJournalNotesText();
-void SetJournalNotesText(std::wstring wszText);
-std::wstring GetTradePlanText();
-void SetTradePlanText(std::wstring wszText);
+class CTradePlan : public CWindowBase<CTradePlan>
+{
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+};
+
+extern CTradePlan TradePlan;
+extern HWND HWND_TRADEPLAN;
+
+constexpr int IDC_TRADEPLAN_LBLNOTES = 100;
+constexpr int IDC_TRADEPLAN_TXTNOTES = 101;
+
+void TradePlan_ShowTradePlan();
+

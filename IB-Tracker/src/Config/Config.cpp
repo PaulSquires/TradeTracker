@@ -38,10 +38,12 @@ SOFTWARE.
 
 const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 const std::wstring dbJournalNotes = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
+const std::wstring dbTradePlan = AfxGetExePath() + L"\\IB-Tracker-tradeplan.txt";
 
 const std::wstring idMagic = L"IB-TRACKER-CONFIG";
 
 std::wstring journal_notes_text = L"";
+std::wstring trade_plan_text = L"";
 
 int startup_width = 0;
 int startup_height = 0;
@@ -361,6 +363,57 @@ void SetJournalNotesText(std::wstring wszText)
     db.close();
 
     journal_notes_text = wszText;
+}
+
+
+// ========================================================================================
+// Get the TradePlan text.
+// ========================================================================================
+std::wstring GetTradePlanText()
+{
+    static bool is_TradePlan_loaded = false;
+
+    if (!is_TradePlan_loaded) {
+        std::wifstream db;
+
+        db.open(dbTradePlan, std::ios::in);
+
+        if (db.is_open()) {
+            std::wostringstream ss;
+            ss << db.rdbuf();
+            trade_plan_text = ss.str();
+
+            is_TradePlan_loaded = true;
+        }
+    }
+
+    return trade_plan_text;
+}
+
+
+// ========================================================================================
+// Set and save the TradePlan text.
+// ========================================================================================
+void SetTradePlanText(std::wstring wszText)
+{
+    std::wofstream db;
+
+    db.open(dbTradePlan, std::ios::out | std::ios::trunc);
+
+    if (!db.is_open()) {
+        int msgboxID = MessageBox(
+            NULL,
+            (LPCWSTR)(L"Could not save TradePlan text to file"),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING
+        );
+        return;
+    }
+
+    db << wszText;
+    db.close();
+
+    trade_plan_text = wszText;
 }
 
 
