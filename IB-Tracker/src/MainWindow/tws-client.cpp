@@ -890,9 +890,8 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 
 	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	
-	if (GetShowPortfolioValue() == false) return;
 
-	ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES);
+	if (ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES) == SW_HIDE) return;
 
 	std::wstring account_value = ansi2unicode(value);
 

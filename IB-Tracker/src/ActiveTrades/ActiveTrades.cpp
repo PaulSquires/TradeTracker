@@ -1282,14 +1282,17 @@ void ActiveTrades_OnPaint(HWND hwnd)
 // ========================================================================================
 // Show/Hide the Net and Excess liquidity labels and values.
 // ========================================================================================
-void ActiveTrades_ShowHideLiquidityLabels(HWND hwnd)
+int ActiveTrades_ShowHideLiquidityLabels(HWND hwnd)
 {
-    int nShow = (tws_IsConnected()) ? SW_SHOW : SW_HIDE;
+    int nShow = (GetShowPortfolioValue()) ? SW_SHOW : SW_HIDE;
+    if (!tws_IsConnected()) nShow = SW_HIDE;
 
     ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION), nShow);
     ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE), nShow);
     ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY), nShow);
     ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), nShow);
+
+    return nShow;
 }
     
     
