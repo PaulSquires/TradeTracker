@@ -414,6 +414,10 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     std::wstring start_date = AfxInsertDateHyphens(trade->bp_start_date);
     std::wstring end_date = AfxInsertDateHyphens(trade->bp_end_date);
 
+    text = AfxMoney(trade->acb);
+    std::wcout << text << std::endl;
+
+
     // Buying Power
     text = AfxMoney(trade->trade_bp, true, 0);
     ld->SetData(2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -430,7 +434,9 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     text = L"DIT";
     ld->SetData(5, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITEDARK, font8, FontStyleRegular);
+
     ListBox_AddString(hListBox, ld);
+
 
     // Totals Days for Trade
     ld = new ListBoxData;
@@ -453,6 +459,7 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     text = L"30d";
     ld->SetData(5, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITEDARK, font8, FontStyleRegular);
+
     ListBox_AddString(hListBox, ld);
 
     ListBoxData_AddBlankLine(hListBox);
