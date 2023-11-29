@@ -227,7 +227,7 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SideMenu_MakeSeparator(hwnd, nTop);
 
     nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWOPTIONSTRADE, nTop, L"Options Trade");
+    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWOPTIONSTRADE, nTop, L"Custom Options");
 
     nTop += nItemHeight;
     SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWIRONCONDOR, nTop, L"Iron Condor");
