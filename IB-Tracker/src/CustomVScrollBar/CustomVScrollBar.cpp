@@ -47,8 +47,12 @@ bool CustomVScrollBar::calcVThumbRect()
     RECT rcListBox{};
     GetClientRect(hListBox, &rcListBox);
     listbox_height = (rcListBox.bottom - rcListBox.top);
-    item_height = ListBox_GetItemHeight(hListBox, 0);
     items_count = ListBox_GetCount(hListBox);
+
+    // The SideMenu uses a variable item height so we don't want to use the value of the
+    // height of a separator but rather the height of a regular menu item.
+    int index = (items_count > 0) ? 1 : 0;
+    item_height = ListBox_GetItemHeight(hListBox, index);
 
     // If no items exist then exit to avoid division by zero GPF's.
     if (items_count == 0) return FALSE;

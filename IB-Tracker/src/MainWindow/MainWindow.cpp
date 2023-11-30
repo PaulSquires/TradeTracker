@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
 
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -255,6 +256,15 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
 
     EndDeferWindowPos(hdwp);
+
+    // Repaint SideMenu ownerdraw listbox because on restore the redraw does not 
+    // seem to fire consistently.
+    if (state == SIZE_RESTORED) {
+        AfxRedrawWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_LISTBOX));
+        HWND hCustomVScrollBar = GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_CUSTOMVSCROLLBAR);
+        CustomVScrollBar_Recalculate(hCustomVScrollBar);
+    }
+
 
     // Calculate the area for the "splitter control"
     rcSplitter.left = left_panel_width + middle_panel_width;

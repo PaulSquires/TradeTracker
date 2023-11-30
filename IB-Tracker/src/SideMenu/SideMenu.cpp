@@ -108,12 +108,6 @@ void SideMenu_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
     HWND hListBox = GetDlgItem(hwnd, IDC_SIDEMENU_LISTBOX);
     lpMeasureItem->itemHeight = ListBox_GetItemHeight(hListBox, lpMeasureItem->itemID);
-    
-
-    //if (lpMeasureItem->itemData == IDC_SIDEMENU_SEPARATOR) {
-    //    std::cout << hListBox << "  " << lpMeasureItem->itemID << "  " << itemData << std::endl;
-   // }
-
 }
 
 
@@ -284,6 +278,7 @@ LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
 
         int itemData = (int)ListBox_GetItemData(hWnd, idx);
 
+        // We don't want to "select" connect listbox row or any of the separators.
         if (itemData == IDC_SIDEMENU_CONNECTTWS && tws_IsConnected()) return true;
         if (itemData == IDC_SIDEMENU_SEPARATOR) return true;
     }
