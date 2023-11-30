@@ -422,6 +422,10 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     // Ensure that the Trades panel is set
     MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
 
+    // Resize the SideMenu to show/hide the scrollbar
+    RECT rc; GetClientRect(HWND_SIDEMENU, &rc);
+    SideMenu_OnSize(HWND_SIDEMENU, 0, rc.right, rc.bottom);
+
 
     // Determine if we need to initialize the listbox
     if (bForceReload == true && trades.size() != 0) {
@@ -531,13 +535,8 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         ActiveTrades_ShowListBoxItem(curSel);
     }
 
-    RECT rc; GetClientRect(HWND_ACTIVETRADES, &rc);
+    GetClientRect(HWND_ACTIVETRADES, &rc);
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);
-
-    // Resize the SideMenu to show/hide the scrollbar
-    GetClientRect(HWND_SIDEMENU, &rc);
-    SideMenu_OnSize(HWND_SIDEMENU, 0, rc.right, rc.bottom);
-
 
     SetFocus(hListBox);
 }

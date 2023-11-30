@@ -136,6 +136,11 @@ void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
+        RECT rc{};
+        bool is_hot = false;
+        POINT pt{}; GetCursorPos(&pt);
+        MapWindowPoints(HWND_DESKTOP, lpDrawItem->hwndItem, (LPPOINT)&pt, 1);
+        if (PtInRect(&lpDrawItem->rcItem, pt)) is_hot = true;
 
         std::wstring font_name = AfxGetDefaultFont();
         FontFamily   fontFamily(font_name.c_str());
@@ -179,6 +184,11 @@ void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
             if (lpDrawItem->itemData == IDC_SIDEMENU_CONNECTTWS) {
                 back_color = COLOR_BLACK;
                 if (tws_IsConnected()) text_color = COLOR_GREEN;
+            }
+
+            if (is_hot) {
+                back_color = COLOR_SELECTION;
+                text_color = COLOR_WHITELIGHT;
             }
 
             Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
@@ -238,6 +248,10 @@ LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
     // a series of middle mouse wheel scrolls.
     static int accumDelta = 0;
 
+    // Keep track of last index we were over so that we only issue a 
+    // repaint if the cursor has moved off of the line
+    static long nLastIdx = -1;
+
     switch (uMsg)
     {
 
@@ -266,6 +280,42 @@ LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
         return 0;
         break;
     }
+
+    case WM_MOUSEMOVE:
+    {
+        // Track that we are over the control in order to catch the 
+        // eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
+        TRACKMOUSEEVENT tme{};
+        tme.cbSize = sizeof(TRACKMOUSEEVENT);
+        tme.dwFlags = TME_HOVER or TME_LEAVE;
+        tme.hwndTrack = hWnd;
+        TrackMouseEvent(&tme);
+
+        // Get the item rect that the mouse is over and only invalidate
+        // that instead of the entire listbox
+        RECT rc{};
+        long idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
+        if (idx != nLastIdx) {
+            ListBox_GetItemRect(hWnd, idx, &rc);
+            InvalidateRect(hWnd, &rc, true);
+            ListBox_GetItemRect(hWnd, nLastIdx, &rc);
+            InvalidateRect(hWnd, &rc, true);
+            nLastIdx = idx;
+        }
+    }
+    break;
+
+
+    case WM_MOUSELEAVE:
+    {
+        nLastIdx = -1;
+        AfxRedrawWindow(hWnd);
+    }
+    break;
 
 
     case WM_LBUTTONDOWN:
