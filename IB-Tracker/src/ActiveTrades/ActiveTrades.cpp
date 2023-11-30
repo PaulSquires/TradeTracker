@@ -534,6 +534,11 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     RECT rc; GetClientRect(HWND_ACTIVETRADES, &rc);
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);
 
+    // Resize the SideMenu to show/hide the scrollbar
+    GetClientRect(HWND_SIDEMENU, &rc);
+    SideMenu_OnSize(HWND_SIDEMENU, 0, rc.right, rc.bottom);
+
+
     SetFocus(hListBox);
 }
 

@@ -226,7 +226,7 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     HDWP hdwp = BeginDeferWindowPos(6);
 
-    // Position the left hand side Navigation Panel
+    // Position the left hand side SideMenu Panel
     int left_panel_width = AfxGetWindowWidth(HWND_LEFTPANEL);
     hdwp = DeferWindowPos(hdwp, HWND_LEFTPANEL, 0,
                 0, 0, left_panel_width, cy, SWP_NOZORDER | SWP_SHOWWINDOW);

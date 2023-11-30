@@ -64,7 +64,14 @@ const int IDC_SIDEMENU_NEWSHORTCALL    = 120;
 
 const int IDC_SIDEMENU_LASTITEM = IDC_SIDEMENU_NEWSHORTCALL;
 
-const int SIDEMENU_WIDTH = 180;
+const int IDC_SIDEMENU_SEPARATOR        = 150;
+const int IDC_SIDEMENU_LISTBOX          = 151;
+const int IDC_SIDEMENU_CUSTOMVSCROLLBAR = 152;
 
-void SideMenu_SelectMenuItem(HWND hParent, int CtrlId);
-int SideMenu_GetActiveMenuItem(HWND hParent);
+const int SIDEMENU_WIDTH = 180;
+constexpr int SIDEMENU_LISTBOX_ROWHEIGHT = 24;
+
+void SideMenu_SelectMenuItem(HWND hListBox, int CtrlId);
+void SideMenu_ExecuteMenuItem(const int itemData);
+void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy);
+

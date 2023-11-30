@@ -28,6 +28,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/tws-client.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
@@ -43,6 +44,27 @@ SOFTWARE.
 CSideMenu SideMenu;
 
 HWND HWND_SIDEMENU = NULL;
+
+
+// ========================================================================================
+// Select the SideMenu listbox row based on itemData (CtrlID)
+// ========================================================================================
+void SideMenu_SelectMenuItem(HWND hwnd, int CtrlId)
+{
+    HWND hListBox = GetDlgItem(hwnd, IDC_SIDEMENU_LISTBOX);
+
+    int nCurSel = -1;
+    int item_count = ListBox_GetCount(hListBox);
+    
+    for (int i = 0; i < item_count; i++) {
+        if (ListBox_GetItemData(hListBox, i) == CtrlId) {
+            nCurSel = i; break;
+        }
+    }
+
+    ListBox_SetCurSel(hListBox, nCurSel);
+    AfxRedrawWindow(hListBox);
+}
 
 
 // ========================================================================================
@@ -80,55 +102,274 @@ void SideMenu_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Generic helper function to create a menu separator.
+// Process WM_MEASUREITEM message for window/dialog: SideMenu
 // ========================================================================================
-void SideMenu_MakeSeparator(HWND hwnd, int nTop)
+void SideMenu_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
-    CustomLabel* pData = nullptr;
-    HWND hCtl = CreateCustomLabel(
-        hwnd, -1,
-        CustomLabelType::line_horizontal,
-        0, nTop, SIDEMENU_WIDTH, 10);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->back_color = COLOR_BLACK;
-        pData->line_color = COLOR_SEPARATOR;
-        pData->line_width = 2;
-        pData->margin_left = 10;
-        pData->margin_right = 10;
-        CustomLabel_SetOptions(hCtl, pData);
+    HWND hListBox = GetDlgItem(hwnd, IDC_SIDEMENU_LISTBOX);
+    lpMeasureItem->itemHeight = ListBox_GetItemHeight(hListBox, lpMeasureItem->itemID);
+    
+
+    //if (lpMeasureItem->itemData == IDC_SIDEMENU_SEPARATOR) {
+    //    std::cout << hListBox << "  " << lpMeasureItem->itemID << "  " << itemData << std::endl;
+   // }
+
+}
+
+
+// ========================================================================================
+// Process WM_DRAWITEM message for window/dialog: SideMenu
+// ========================================================================================
+void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
+{
+    if (lpDrawItem->itemID == -1) return;
+
+    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
+        lpDrawItem->itemAction == ODA_SELECT) {
+
+        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
+        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
+
+        SaveDC(lpDrawItem->hDC);
+
+        HDC memDC = NULL;         // Double buffering
+        HBITMAP hbit = NULL;      // Double buffering
+
+        memDC = CreateCompatibleDC(lpDrawItem->hDC);
+        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
+        if (hbit) SelectObject(memDC, hbit);
+
+        Graphics graphics(memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+
+        std::wstring font_name = AfxGetDefaultFont();
+        FontFamily   fontFamily(font_name.c_str());
+        REAL fontSize = 10;
+        int fontStyle = FontStyleRegular;
+
+        StringAlignment HAlignment = StringAlignmentCenter;
+        StringAlignment VAlignment = StringAlignmentCenter;
+
+        // Draw text string or separator
+
+        if (lpDrawItem->itemData == IDC_SIDEMENU_SEPARATOR) {
+            int nLeft = AfxScaleX(10);
+            int nTop = (int)(nHeight * 0.5f);
+            int nRight = lpDrawItem->rcItem.right - AfxScaleX(10);
+            int nBottom = nTop ;
+
+            ARGB clrPen = COLOR_SEPARATOR;
+            Pen pen(clrPen, 2);
+            
+            // Paint the full width background using brush 
+            SolidBrush back_brush(COLOR_BLACK);
+            graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
+            
+            // Draw the horizontal line centered taking margins into account
+            graphics.DrawLine(&pen, (REAL)nLeft, (REAL)nTop, (REAL)nRight, (REAL)nBottom);
+        }
+        else {
+            // Set some defaults in case there is no valid ListBox line number
+            std::wstring text = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
+
+            DWORD back_color = COLOR_BLACK;
+            DWORD text_color = COLOR_WHITELIGHT;
+            if ((lpDrawItem->itemAction | ODA_SELECT) &&
+                (lpDrawItem->itemState & ODS_SELECTED)) {
+                back_color = COLOR_SELECTION;
+            }
+
+            Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+            SolidBrush   text_brush(text_color);
+            StringFormat stringF(StringFormatFlagsNoWrap);
+            stringF.SetAlignment(HAlignment);
+            stringF.SetLineAlignment(VAlignment);
+
+            // Paint the full width background using brush 
+            SolidBrush back_brush(back_color);
+            graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
+
+            RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
+            graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+        }
+
+
+        // If selection mode is enabled then draw the little right hand side notch
+        //if (is_selected && allow_notch) {
+        //    // Create the background brush
+        //    SolidBrush back_brush(selector_color);
+        //    // Need to center the notch vertically
+        //    REAL notch_half_height = (16 * m_ry) / 2;
+        //    REAL nTop = (m_rcClient.bottom / 2) - notch_half_height;
+        //    PointF point1((REAL)m_rcClient.right, nTop);
+        //    PointF point2((REAL)m_rcClient.right - (8 * m_rx), nTop + notch_half_height);
+        //    PointF point3((REAL)m_rcClient.right, nTop + (notch_half_height * 2));
+        //    PointF points[3] = { point1, point2, point3 };
+        //    PointF* pPoints = points;
+        //    Graphics graphics(m_memDC);
+        //    graphics.FillPolygon(&back_brush, pPoints, 3);
+        //}
+
+
+        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
+            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
+
+
+        // Cleanup
+        RestoreDC(lpDrawItem->hDC, -1);
+        if (hbit) DeleteObject(hbit);
+        if (memDC) DeleteDC(memDC);
     }
 }
 
 
 // ========================================================================================
-// Generic helper function to create a menu item.
+// Listbox subclass Window procedure
 // ========================================================================================
-void SideMenu_MakeMenuItem(HWND hwnd, int CtrlId, int nTop, const std::wstring text)
+LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
+    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    CustomLabel* pData = nullptr;
-    HWND hCtl = CreateCustomLabel(
-        hwnd, CtrlId,
-        CustomLabelType::text_only,
-        0, nTop, SIDEMENU_WIDTH, 28);
-    pData = CustomLabel_GetOptions(hCtl);
-    if (pData) {
-        pData->hot_test_enable = true;
-        pData->allow_select = true;
-        pData->allow_notch = true;
-        pData->selector_color = COLOR_GRAYDARK;   // MenuNotch should be same color as middle panel
-        pData->back_color = COLOR_BLACK;
-        pData->back_color_hot = COLOR_SELECTION;
-        pData->back_color_selected = COLOR_SELECTION;
-        pData->back_color_button_down = COLOR_SELECTION;
-        pData->text_color = COLOR_WHITELIGHT;
-        pData->text_color_hot = COLOR_WHITELIGHT;
-        pData->font_size = 10;
-        pData->font_size_hot = 10;
-        pData->text = text;
-        pData->text_hot = pData->text;
-        CustomLabel_SetOptions(hCtl, pData);
+    // Create static accumulation variable to collect the data from
+    // a series of middle mouse wheel scrolls.
+    static int accumDelta = 0;
+
+    switch (uMsg)
+    {
+
+    case WM_MOUSEWHEEL:
+    {
+        // Accumulate delta until scroll one line (up +120, down -120). 
+        // 120 is the Microsoft default delta
+        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        accumDelta += zDelta;
+        if (accumDelta >= 120) {     // scroll up 3 lines
+            top_index -= 3;
+            top_index = max(0, top_index);
+            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
+            accumDelta = 0;
+        }
+        else {
+            if (accumDelta <= -120) {     // scroll down 3 lines
+                top_index += +3;
+                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
+                accumDelta = 0;
+            }
+        }
+        HWND hCustomVScrollBar = GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_CUSTOMVSCROLLBAR);
+        CustomVScrollBar_Recalculate(hCustomVScrollBar);
+        return 0;
+        break;
     }
+
+
+    case WM_LBUTTONDOWN:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
+        int itemData = (int)ListBox_GetItemData(hWnd, idx);
+    }
+    break;
+
+
+    case WM_ERASEBKGND:
+    {
+        // If the number of lines in the listbox maybe less than the number per page then 
+        // calculate from last item to bottom of listbox, otherwise calculate based on
+        // the mod of the lineheight to listbox height so we can color the partial line
+        // that won't be displayed at the bottom of the list.
+        RECT rc; GetClientRect(hWnd, &rc);
+
+        RECT rcItem{};
+        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hWnd);
+        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int visible_rows = 0;
+        int items_per_page = 0;
+        int bottom_index = 0;
+        int nWidth = (rc.right - rc.left);
+        int nHeight = (rc.bottom - rc.top);
+
+        if (items_count > 0) {
+            items_per_page = (nHeight) / item_height;
+            bottom_index = (top_index + items_per_page);
+            if (bottom_index >= items_count)
+                bottom_index = items_count - 1;
+            visible_rows = (bottom_index - top_index) + 1;
+            rc.top = visible_rows * item_height;
+        }
+
+        if (rc.top < rc.bottom) {
+            nHeight = (rc.bottom - rc.top);
+            HDC hDC = (HDC)wParam;
+            Graphics graphics(hDC);
+            Color back_color(COLOR_BLACK);
+            SolidBrush back_brush(back_color);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
+        }
+
+        ValidateRect(hWnd, &rc);
+        return TRUE;
+        break;
+
+    }
+
+
+    case WM_DESTROY:
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hWnd, SideMenu_ListBox_SubclassProc, uIdSubclass);
+        break;
+
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+}
+
+
+// ========================================================================================
+// Process WM_SIZE message for window/dialog: SideMenu
+// ========================================================================================
+void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy)
+{
+    HWND hListBox = GetDlgItem(hwnd, IDC_SIDEMENU_LISTBOX);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_SIDEMENU_CUSTOMVSCROLLBAR);
+
+    // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
+    // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
+    // calculation then the scrollbar will appear "jumpy" under the user's mouse cursor.
+    bool bshow_scrollbar = false;
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    if (pData != nullptr) {
+        if (pData->drag_active) {
+            bshow_scrollbar = true;
+        }
+        else {
+            bshow_scrollbar = pData->calcVThumbRect();
+        }
+    }
+    int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
+
+    int nLeft = 0;
+    int nTop = AfxScaleY(150);
+    int nHeight = cy - nTop;
+    int nWidth = cx - custom_scrollbar_width;
+    SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nLeft = nLeft + nWidth;   // right edge of ListBox
+    nWidth = custom_scrollbar_width;
+    int show_scrollbar = (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
+    SetWindowPos(hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_scrollbar);
+
+    AfxRedrawWindow(hListBox);
 }
 
 
@@ -203,109 +444,207 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetOptions(hCtl, pData);
     }
 
+    // Create an Ownerdraw variable row sized listbox that we will use to custom
+    // paint our various side menu options.
+    hCtl =
+        SideMenu.AddControl(Controls::ListBox, hwnd, IDC_SIDEMENU_LISTBOX, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+            LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS |
+            LBS_OWNERDRAWVARIABLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)SideMenu_ListBox_SubclassProc,
+            IDC_SIDEMENU_LISTBOX, NULL);
 
-    // SEPARATOR & MENU ITEMS
-    nTop += 32;
-    SideMenu_MakeSeparator(hwnd, nTop);
+    // Create our custom vertical scrollbar and attach the ListBox to it.
+    CreateCustomVScrollBar(hwnd, IDC_SIDEMENU_CUSTOMVSCROLLBAR, hCtl);
 
-    nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_ACTIVETRADES, nTop, L"Active Trades");
+    int row_height = AfxScaleY(SIDEMENU_LISTBOX_ROWHEIGHT);
+    int row_height_half = (int)(row_height * 0.67f);
 
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_CLOSEDTRADES, nTop, L"Closed Trades");
-
-    nTop += nItemHeight + 6;
-    SideMenu_MakeSeparator(hwnd, nTop);
-
-    nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHARESTRADE, nTop, L"Shares Trade");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWFUTURESTRADE, nTop, L"Futures Trade");
-
-    nTop += nItemHeight + 6;
-    SideMenu_MakeSeparator(hwnd, nTop);
-
-    nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWOPTIONSTRADE, nTop, L"Custom Options");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWIRONCONDOR, nTop, L"Iron Condor");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTSTRANGLE, nTop, L"Short Strangle");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTPUT, nTop, L"Short Put");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTCALL, nTop, L"Short Call");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_NEWSHORTLT112, nTop, L"Short LT112");
-
-    nTop += nItemHeight + 6;
-    SideMenu_MakeSeparator(hwnd, nTop);
-
-    nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_OTHERINCOME, nTop, L"Other Income");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TICKERTOTALS, nTop, L"Ticker Totals");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TRANSACTIONS, nTop, L"Transactions");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_JOURNALNOTES, nTop, L"Journal Notes");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_TRADEPLAN, nTop, L"Trade Plan");
-
-    nTop += nItemHeight;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_RECONCILE, nTop, L"Reconcile");
-
-    nTop += nItemHeight + 6;
-    SideMenu_MakeSeparator(hwnd, nTop);
-
-    nTop += 10;
-    SideMenu_MakeMenuItem(hwnd, IDC_SIDEMENU_CONNECTTWS, nTop, L"Connect to TWS");
+    AfxAddListBoxData(hCtl, L"-", IDC_SIDEMENU_SEPARATOR, row_height_half);
+    AfxAddListBoxData(hCtl, L"Active Trades", IDC_SIDEMENU_ACTIVETRADES, row_height);
+    AfxAddListBoxData(hCtl, L"Closed Trades", IDC_SIDEMENU_CLOSEDTRADES, row_height);
+    AfxAddListBoxData(hCtl, L"-", IDC_SIDEMENU_SEPARATOR, row_height_half);
+    AfxAddListBoxData(hCtl, L"Shares Trade", IDC_SIDEMENU_NEWSHARESTRADE, row_height);
+    AfxAddListBoxData(hCtl, L"Futures Trade", IDC_SIDEMENU_NEWFUTURESTRADE, row_height);
+    AfxAddListBoxData(hCtl, L"-", IDC_SIDEMENU_SEPARATOR, row_height_half);
+    AfxAddListBoxData(hCtl, L"Custom Options", IDC_SIDEMENU_NEWOPTIONSTRADE, row_height);
+    AfxAddListBoxData(hCtl, L"Iron Condor", IDC_SIDEMENU_NEWIRONCONDOR, row_height);
+    AfxAddListBoxData(hCtl, L"Short Strangle", IDC_SIDEMENU_NEWSHORTSTRANGLE, row_height);
+    AfxAddListBoxData(hCtl, L"Short Put", IDC_SIDEMENU_NEWSHORTPUT, row_height);
+    AfxAddListBoxData(hCtl, L"Short Call", IDC_SIDEMENU_NEWSHORTCALL, row_height);
+    AfxAddListBoxData(hCtl, L"Short LT112", IDC_SIDEMENU_NEWSHORTLT112, row_height);
+    AfxAddListBoxData(hCtl, L"-", IDC_SIDEMENU_SEPARATOR, row_height_half);
+    AfxAddListBoxData(hCtl, L"Other Income", IDC_SIDEMENU_OTHERINCOME, row_height);
+    AfxAddListBoxData(hCtl, L"Ticker Totals", IDC_SIDEMENU_TICKERTOTALS, row_height);
+    AfxAddListBoxData(hCtl, L"Transactions", IDC_SIDEMENU_TRANSACTIONS, row_height);
+    AfxAddListBoxData(hCtl, L"Journal Notes", IDC_SIDEMENU_JOURNALNOTES, row_height);
+    AfxAddListBoxData(hCtl, L"Trade Plan", IDC_SIDEMENU_TRADEPLAN, row_height);
+    AfxAddListBoxData(hCtl, L"-", IDC_SIDEMENU_SEPARATOR, row_height_half);
+    AfxAddListBoxData(hCtl, L"Reconcile", IDC_SIDEMENU_RECONCILE, row_height);
+    AfxAddListBoxData(hCtl, L"-", IDC_SIDEMENU_SEPARATOR, row_height_half);
+    AfxAddListBoxData(hCtl, L"Connect to TWS", IDC_SIDEMENU_CONNECTTWS, row_height);
 
     return TRUE;
 }
 
 
 // ========================================================================================
-// Select the specified menu item (and deselect any other menu items)
+// Select the specified selected menu item 
 // ========================================================================================
-void SideMenu_SelectMenuItem(HWND hParent, int CtrlId)
+void SideMenu_ExecuteMenuItem(const int itemData)
 {
-    HWND hCtrlSelected = GetDlgItem(hParent, CtrlId);
-    HWND hCtrl = NULL;
-    for (int i = IDC_SIDEMENU_FIRSTITEM; i <= IDC_SIDEMENU_LASTITEM; i++) {
-        hCtrl = GetDlgItem(hParent, i);
-        if (hCtrl == hCtrlSelected) continue;
-        CustomLabel_Select(hCtrl, false);
+    HWND hListBox = GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_LISTBOX);
+    int current_selection = 0;
+
+    if (HWND_MIDDLEPANEL == HWND_ACTIVETRADES) current_selection = IDC_SIDEMENU_ACTIVETRADES;
+    if (HWND_MIDDLEPANEL == HWND_CLOSEDTRADES) current_selection = IDC_SIDEMENU_CLOSEDTRADES;
+    if (HWND_MIDDLEPANEL == HWND_TRANSPANEL) current_selection = IDC_SIDEMENU_TRANSACTIONS;
+    
+    switch (itemData) {
+
+    case IDC_SIDEMENU_NEWOPTIONSTRADE:
+    {
+        TradeDialog_Show(TradeAction::new_options_trade);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
     }
-    CustomLabel_Select(hCtrlSelected, true);
+    break;
+
+    case IDC_SIDEMENU_NEWSHARESTRADE:
+    {
+        TradeDialog_Show(TradeAction::new_shares_trade);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_NEWFUTURESTRADE:
+    {
+        TradeDialog_Show(TradeAction::new_futures_trade);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_NEWIRONCONDOR:
+    {
+        TradeDialog_Show(TradeAction::new_iron_condor);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_NEWSHORTLT112:
+    {
+        TradeDialog_Show(TradeAction::new_short_LT112);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_NEWSHORTSTRANGLE:
+    {
+        TradeDialog_Show(TradeAction::new_short_strangle);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_NEWSHORTPUT:
+    {
+        TradeDialog_Show(TradeAction::new_short_put);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_NEWSHORTCALL:
+    {
+        TradeDialog_Show(TradeAction::new_short_call);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_OTHERINCOME:
+    {
+        TradeDialog_Show(TradeAction::other_income_expense);
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+    }
+    break;
+
+    case IDC_SIDEMENU_CONNECTTWS:
+    {
+        // If already connected then don't try to connect again
+        if (tws_IsConnected()) break;
+
+        // Prevent multiple clicks of the connect button by waiting until
+        // the first click is finished.
+        static bool processing_connect_click = false;
+        if (processing_connect_click) break;
+        processing_connect_click = true;
+        bool res = tws_Connect();
+        processing_connect_click = false;
+        break;
+    }
+
+    case IDC_SIDEMENU_ACTIVETRADES:
+    {
+        ActiveTrades_ShowActiveTrades(false);
+        break;
+    }
+
+    case IDC_SIDEMENU_CLOSEDTRADES:
+    {
+        ClosedTrades_ShowClosedTrades();
+        break;
+    }
+
+    case IDC_SIDEMENU_TICKERTOTALS:
+    {
+        TickerPanel_ShowTickerTotals();
+        break;
+    }
+
+    case IDC_SIDEMENU_TRANSACTIONS:
+    {
+        TransPanel_ShowTransactions();
+        break;
+    }
+
+    case IDC_SIDEMENU_RECONCILE:
+    {
+        tws_PerformReconciliation();
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+        break;
+    }
+
+    case IDC_SIDEMENU_JOURNALNOTES:
+    {
+        JournalNotes_ShowJournalNotes();
+        break;
+    }
+
+    case IDC_SIDEMENU_TRADEPLAN:
+    {
+        TradePlan_ShowTradePlan();
+        break;
+    }
+
+    }  // switch itemData
+
 }
 
 
 // ========================================================================================
-// Gets the ID of the currently active menu item.
+// Process WM_COMMAND message for window/dialog: SideMenu
 // ========================================================================================
-int SideMenu_GetActiveMenuItem(HWND hParent)
+void SideMenu_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    HWND hCtrl = NULL;
-    for (int ctrlId = IDC_SIDEMENU_FIRSTITEM; ctrlId <= IDC_SIDEMENU_LASTITEM; ctrlId++)
+    switch (codeNotify)
     {
-        hCtrl = GetDlgItem(hParent, ctrlId);
-        CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
-        if (pData != nullptr) {
-            if (pData->is_selected) return ctrlId;
+        case LBN_SELCHANGE:
+        {
+            int nCurSel = ListBox_GetCurSel(hwndCtl);
+            int itemData = (int)ListBox_GetItemData(hwndCtl, nCurSel);
+            SideMenu_ExecuteMenuItem(itemData);
         }
     }
-    return 0;
+
 }
 
 
@@ -317,262 +656,90 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, SideMenu_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, SideMenu_OnCommand);
+        HANDLE_MSG(m_hwnd, WM_SIZE, SideMenu_OnSize);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, SideMenu_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, SideMenu_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, SideMenu_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, SideMenu_OnDrawItem);
 
 
-    case MSG_TWS_CONNECT_START:
-    {
-        SetCursor(LoadCursor(0, IDC_WAIT));
-        CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        if (pData) {
-            pData->text = L"Connecting to TWS";
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        }
-        return 0;
-        break;
-    }
-
-
-    case MSG_TWS_CONNECT_SUCCESS:
-    {
-        SetCursor(LoadCursor(0, IDC_ARROW));
-        CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        if (pData) {
-            pData->text = L"TWS Connected";
-            pData->text_color = COLOR_GREEN;
-            pData->text_color_hot = COLOR_GREEN;
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        }
-        return 0;
-        break;
-    }
-
-
-    case MSG_TWS_CONNECT_WAIT_RECONNECTION:
-    {
-        SetCursor(LoadCursor(0, IDC_ARROW));
-        CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        if (pData) {
-            pData->text = L"Reconnect Wait";
-            pData->text_color = COLOR_RED;
-            pData->text_color_hot = COLOR_RED;
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        }
-        return 0;
-        break;
-    }
-
-
-    case MSG_TWS_WARNING_EXCEPTION:
-    {
-        SetCursor(LoadCursor(0, IDC_ARROW));
-        CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
-            L"Monitoring thread exception! Please restart application.");
-        ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
-        return 0;
-        break;
-    }
-
-
-    case MSG_TWS_CONNECT_FAILURE:
-    case MSG_TWS_CONNECT_DISCONNECT:
-    {
-        SetCursor(LoadCursor(0, IDC_ARROW));
-        CustomLabel* pData = nullptr;
-        pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        if (pData) {
-            pData->text = L"Connect to TWS";
-            pData->text_color = COLOR_WHITELIGHT;
-            pData->text_color_hot = COLOR_WHITELIGHT;
-            AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
-        }
-        tws_EndMonitorThread();
-        return 0;
-        break;
-    }
-
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
-        HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
-
-        if (hCtl == NULL) return 0;
-        CustomLabel* pData = (CustomLabel*)GetWindowLongPtr(hCtl, 0);
-
-        if (pData) {
-
-            switch (CtrlId) {
-
-            case IDC_SIDEMENU_NEWOPTIONSTRADE:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_options_trade) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
+        case MSG_TWS_CONNECT_START:
+        {
+            SetCursor(LoadCursor(0, IDC_WAIT));
+            CustomLabel* pData = nullptr;
+            pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            if (pData) {
+                pData->text = L"Connecting to TWS";
+                AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
             }
-            break;
-
-            case IDC_SIDEMENU_NEWSHARESTRADE:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_shares_trade) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_NEWFUTURESTRADE:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_futures_trade) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_NEWIRONCONDOR:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_iron_condor) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_NEWSHORTLT112:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_short_LT112) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_NEWSHORTSTRANGLE:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_short_strangle) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_NEWSHORTPUT:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_short_put) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_NEWSHORTCALL:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::new_short_call) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_OTHERINCOME:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                if (TradeDialog_Show(TradeAction::other_income_expense) == DIALOG_RETURN_CANCEL) {
-                    SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                }
-            }
-            break;
-
-            case IDC_SIDEMENU_CONNECTTWS:
-            {
-                // If already connected then don't try to connect again
-                if (tws_IsConnected()) break;
-
-                // Prevent multiple clicks of the connect button by waiting until
-                // the first click is finished.
-                static bool processing_connect_click = false;
-                if (processing_connect_click) break;
-                processing_connect_click = true;
-                bool res = tws_Connect();
-                processing_connect_click = false;
-                break;
-            }
-
-            case IDC_SIDEMENU_ACTIVETRADES:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                ActiveTrades_ShowActiveTrades(false);
-                break;
-            }
-
-            case IDC_SIDEMENU_CLOSEDTRADES:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                ClosedTrades_ShowClosedTrades();
-                break;
-            }
-
-            case IDC_SIDEMENU_TICKERTOTALS:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                TickerPanel_ShowTickerTotals();
-                break;
-            }
-
-            case IDC_SIDEMENU_TRANSACTIONS:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                TransPanel_ShowTransactions();
-                break;
-            }
-
-            case IDC_SIDEMENU_RECONCILE:
-            {
-                int current_selection = SideMenu_GetActiveMenuItem(m_hwnd);
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                tws_PerformReconciliation();
-                SideMenu_SelectMenuItem(m_hwnd, current_selection);
-                break;
-            }
-
-            case IDC_SIDEMENU_JOURNALNOTES:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                JournalNotes_ShowJournalNotes();
-                break;
-            }
-
-            case IDC_SIDEMENU_TRADEPLAN:
-            {
-                SideMenu_SelectMenuItem(m_hwnd, CtrlId);
-                TradePlan_ShowTradePlan();
-                break;
-            }
-
-            }  // switch
-
             return 0;
-        }   // if
-    }  // case
-    break;
+            break;
+        }
 
 
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
+        case MSG_TWS_CONNECT_SUCCESS:
+        {
+            SetCursor(LoadCursor(0, IDC_ARROW));
+            CustomLabel* pData = nullptr;
+            pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            if (pData) {
+                pData->text = L"TWS Connected";
+                pData->text_color = COLOR_GREEN;
+                pData->text_color_hot = COLOR_GREEN;
+                AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            }
+            return 0;
+            break;
+        }
+
+
+        case MSG_TWS_CONNECT_WAIT_RECONNECTION:
+        {
+            SetCursor(LoadCursor(0, IDC_ARROW));
+            CustomLabel* pData = nullptr;
+            pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            if (pData) {
+                pData->text = L"Reconnect Wait";
+                pData->text_color = COLOR_RED;
+                pData->text_color_hot = COLOR_RED;
+                AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            }
+            return 0;
+            break;
+        }
+
+
+        case MSG_TWS_WARNING_EXCEPTION:
+        {
+            SetCursor(LoadCursor(0, IDC_ARROW));
+            CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
+                L"Monitoring thread exception! Please restart application.");
+            ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+            return 0;
+            break;
+        }
+
+
+        case MSG_TWS_CONNECT_FAILURE:
+        case MSG_TWS_CONNECT_DISCONNECT:
+        {
+            SetCursor(LoadCursor(0, IDC_ARROW));
+            CustomLabel* pData = nullptr;
+            pData = CustomLabel_GetOptions(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            if (pData) {
+                pData->text = L"Connect to TWS";
+                pData->text_color = COLOR_WHITELIGHT;
+                pData->text_color_hot = COLOR_WHITELIGHT;
+                AfxRedrawWindow(GetDlgItem(m_hwnd, IDC_SIDEMENU_CONNECTTWS));
+            }
+            tws_EndMonitorThread();
+            return 0;
+            break;
+        }
+
+
+        default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
 
     }   // end of switch statement
 
