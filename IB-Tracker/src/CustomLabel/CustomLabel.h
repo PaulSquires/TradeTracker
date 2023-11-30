@@ -90,13 +90,6 @@ public:
 	DWORD back_color_button_down{};
 	bool LButtonDown = false;
 
-	// Selection
-	bool allow_select = false;
-	bool is_selected = false;
-	bool allow_notch = false;
-	DWORD selector_color{};
-	DWORD back_color_selected{};
-
 	// Lines
 	REAL line_width = 1;
 	DWORD line_color{};
@@ -155,7 +148,6 @@ public:
 	void DrawImageInBuffer();
 	void DrawTextInBuffer();
 	void DrawLabelInBuffer();
-	void DrawNotchInBuffer();
 	void DrawBordersInBuffer();
 	void EndDoubleBuffering(HDC hdc);
 

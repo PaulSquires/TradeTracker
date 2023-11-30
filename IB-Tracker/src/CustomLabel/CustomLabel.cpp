@@ -117,8 +117,6 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
     DWORD nback_color = (m_is_hot ? back_color_hot : back_color);
-    if (is_selected && allow_select)
-        nback_color = back_color_selected;
 
     if (LButtonDown == true) {
         nback_color = back_color_button_down;
@@ -237,30 +235,6 @@ void CustomLabel::DrawLabelInBuffer()
         //	Pen pen(clrPen, pData->line_width);
             // Draw the vertical line centered taking margins into account
             //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
-    }
-}
-
-
-// ========================================================================================
-// Draw the little "notch" selection indicator that appears in the main menu
-// for selected menu items.
-// ========================================================================================
-void CustomLabel::DrawNotchInBuffer()
-{
-    // If selection mode is enabled then draw the little right hand side notch
-    if (is_selected && allow_notch) {
-        // Create the background brush
-        SolidBrush back_brush(selector_color);
-        // Need to center the notch vertically
-        REAL notch_half_height = (16 * m_ry) / 2;
-        REAL nTop = (m_rcClient.bottom / 2) - notch_half_height;
-        PointF point1((REAL)m_rcClient.right, nTop);
-        PointF point2((REAL)m_rcClient.right - (8 * m_rx), nTop + notch_half_height);
-        PointF point3((REAL)m_rcClient.right, nTop + (notch_half_height * 2));
-        PointF points[3] = { point1, point2, point3 };
-        PointF* pPoints = points;
-        Graphics graphics(m_memDC);
-        graphics.FillPolygon(&back_brush, pPoints, 3);
     }
 }
 
@@ -520,7 +494,6 @@ LRESULT CALLBACK CustomLabelProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
             pData->DrawImageInBuffer();
             pData->DrawTextInBuffer();
             pData->DrawLabelInBuffer();
-            pData->DrawNotchInBuffer();
             pData->DrawBordersInBuffer();
             pData->EndDoubleBuffering(hdc);
         }
@@ -827,21 +800,6 @@ void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool
         pData->font_bold = font_bold;
         pData->font_bold_hot = pData->font_bold;
         CustomLabel_SetOptions(hCtrl, pData);
-    }
-}
-
-
-// ========================================================================================
-// Set the selected status for the custom control. Useful for toggling menu items.
-// ========================================================================================
-void CustomLabel_Select(HWND hCtrl, bool is_selected)
-{
-    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
-    if (pData != nullptr) {
-        bool redraw = (pData->is_selected != is_selected) ? true : false;
-        pData->is_selected = is_selected;
-        CustomLabel_SetOptions(hCtrl, pData);
-        if (redraw) AfxRedrawWindow(hCtrl);
     }
 }
 

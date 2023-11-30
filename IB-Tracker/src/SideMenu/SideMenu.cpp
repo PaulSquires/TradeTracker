@@ -312,8 +312,13 @@ LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
 
     case WM_MOUSELEAVE:
     {
+        if (nLastIdx != -1) {
+            RECT rc{};  
+            ListBox_GetItemRect(hWnd, nLastIdx, &rc);
+            InvalidateRect(hWnd, &rc, true);
+
+        }
         nLastIdx = -1;
-        AfxRedrawWindow(hWnd);
     }
     break;
 
