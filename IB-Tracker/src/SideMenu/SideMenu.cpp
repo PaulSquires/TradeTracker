@@ -175,9 +175,17 @@ void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
             DWORD back_color = COLOR_BLACK;
             DWORD text_color = COLOR_WHITELIGHT;
+            bool is_selected = false;
             if ((lpDrawItem->itemAction | ODA_SELECT) &&
                 (lpDrawItem->itemState & ODS_SELECTED)) {
                 back_color = COLOR_SELECTION;
+                is_selected = true;
+            }
+
+            if (tws_IsConnected() &&
+                (lpDrawItem->itemData == IDC_SIDEMENU_CONNECTTWS)) {
+                DWORD back_color = COLOR_GREEN;
+                DWORD text_color = COLOR_WHITELIGHT;
             }
 
             Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
@@ -192,25 +200,27 @@ void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 
             RectF rcText((REAL)0, (REAL)0, (REAL)nWidth, (REAL)nHeight);
             graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+
+
+            if ((lpDrawItem->itemData == IDC_SIDEMENU_ACTIVETRADES ||
+                lpDrawItem->itemData == IDC_SIDEMENU_CLOSEDTRADES ||
+                lpDrawItem->itemData == IDC_SIDEMENU_TRANSACTIONS) &&
+                is_selected == true) {
+
+                // Create the background brush
+                SolidBrush back_brush(COLOR_MENUNOTCH);
+                // Need to center the notch vertically
+                REAL notch_half_height = AfxScaleY(16) * 0.5f;
+                REAL nTop = (nHeight * 0.5f) - notch_half_height;
+                PointF point1((REAL)lpDrawItem->rcItem.right, nTop);
+                PointF point2((REAL)lpDrawItem->rcItem.right - AfxScaleX(8), nTop + notch_half_height);
+                PointF point3((REAL)lpDrawItem->rcItem.right, nTop + (notch_half_height * 2));
+                PointF points[3] = { point1, point2, point3 };
+                PointF* pPoints = points;
+                graphics.FillPolygon(&back_brush, pPoints, 3);
+            }
+
         }
-
-
-        // If selection mode is enabled then draw the little right hand side notch
-        //if (is_selected && allow_notch) {
-        //    // Create the background brush
-        //    SolidBrush back_brush(selector_color);
-        //    // Need to center the notch vertically
-        //    REAL notch_half_height = (16 * m_ry) / 2;
-        //    REAL nTop = (m_rcClient.bottom / 2) - notch_half_height;
-        //    PointF point1((REAL)m_rcClient.right, nTop);
-        //    PointF point2((REAL)m_rcClient.right - (8 * m_rx), nTop + notch_half_height);
-        //    PointF point3((REAL)m_rcClient.right, nTop + (notch_half_height * 2));
-        //    PointF points[3] = { point1, point2, point3 };
-        //    PointF* pPoints = points;
-        //    Graphics graphics(m_memDC);
-        //    graphics.FillPolygon(&back_brush, pPoints, 3);
-        //}
-
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
             lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
@@ -570,15 +580,17 @@ void SideMenu_ExecuteMenuItem(const int itemData)
     case IDC_SIDEMENU_CONNECTTWS:
     {
         // If already connected then don't try to connect again
-        if (tws_IsConnected()) break;
+        if (!tws_IsConnected()) {
+            // Prevent multiple clicks of the connect button by waiting until
+            // the first click is finished.
+            static bool processing_connect_click = false;
+            if (processing_connect_click) break;
+            processing_connect_click = true;
+            bool res = tws_Connect();
+            processing_connect_click = false;
+            SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
+        }
 
-        // Prevent multiple clicks of the connect button by waiting until
-        // the first click is finished.
-        static bool processing_connect_click = false;
-        if (processing_connect_click) break;
-        processing_connect_click = true;
-        bool res = tws_Connect();
-        processing_connect_click = false;
         break;
     }
 
