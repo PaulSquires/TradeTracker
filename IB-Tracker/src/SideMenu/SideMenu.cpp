@@ -182,10 +182,9 @@ void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
                 is_selected = true;
             }
 
-            if (tws_IsConnected() &&
-                (lpDrawItem->itemData == IDC_SIDEMENU_CONNECTTWS)) {
-                DWORD back_color = COLOR_GREEN;
-                DWORD text_color = COLOR_WHITELIGHT;
+            if (lpDrawItem->itemData == IDC_SIDEMENU_CONNECTTWS) {
+                back_color = COLOR_BLACK;
+                if (tws_IsConnected()) text_color = COLOR_GREEN;
             }
 
             Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
@@ -282,7 +281,11 @@ LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == 1) break;
+
         int itemData = (int)ListBox_GetItemData(hWnd, idx);
+
+        if (itemData == IDC_SIDEMENU_CONNECTTWS && tws_IsConnected()) return true;
+        if (itemData == IDC_SIDEMENU_SEPARATOR) return true;
     }
     break;
 
@@ -588,8 +591,8 @@ void SideMenu_ExecuteMenuItem(const int itemData)
             processing_connect_click = true;
             bool res = tws_Connect();
             processing_connect_click = false;
-            SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
         }
+        SideMenu_SelectMenuItem(HWND_SIDEMENU, current_selection);
 
         break;
     }
