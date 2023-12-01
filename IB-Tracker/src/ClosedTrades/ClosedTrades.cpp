@@ -163,7 +163,7 @@ void ClosedTrades_ShowClosedTrades()
 
     for (const auto& ClosedData : vectorClosed) {
         current_month = AfxGetMonth(ClosedData.closed_date);
-        if (current_year == 0) current_year = AfxGetYear(ClosedData.closed_date);
+        current_year = AfxGetYear(ClosedData.closed_date);
         if (subtotal_month != current_month && subtotal_month != 0) {
             ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, current_month_win, current_month_loss);
             curDate = ClosedData.closed_date;
@@ -177,7 +177,8 @@ void ClosedTrades_ShowClosedTrades()
         if (ClosedData.trade->acb >= 0) ++current_month_win;
         if (ClosedData.trade->acb < 0) ++current_month_loss;
 
-        if (current_month == AfxGetMonth(today_date)) {
+        if (current_month == AfxGetMonth(today_date) &&
+            current_year == AfxGetYear(today_date)) {
             monthly_amount += ClosedData.trade->acb;
             if (ClosedData.trade->acb >= 0) ++month_win;
             if (ClosedData.trade->acb < 0) ++month_loss;
