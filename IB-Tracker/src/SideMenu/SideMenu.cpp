@@ -181,15 +181,17 @@ void SideMenu_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
                 is_selected = true;
             }
 
-            if (lpDrawItem->itemData == IDC_SIDEMENU_CONNECTTWS) {
-                back_color = COLOR_BLACK;
-                if (tws_IsConnected()) text_color = COLOR_GREEN;
-            }
-
             if (is_hot) {
                 back_color = COLOR_SELECTION;
                 text_color = COLOR_WHITELIGHT;
             }
+
+            if (lpDrawItem->itemData == IDC_SIDEMENU_CONNECTTWS) {
+                back_color = (is_hot) ? COLOR_SELECTION : COLOR_BLACK;
+                text_color = COLOR_WHITELIGHT;
+                if (tws_IsConnected()) text_color = COLOR_GREEN;
+            }
+
 
             Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
             SolidBrush   text_brush(text_color);
