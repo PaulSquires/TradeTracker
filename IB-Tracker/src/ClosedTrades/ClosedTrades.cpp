@@ -157,6 +157,7 @@ void ClosedTrades_ShowClosedTrades()
     int year_loss = 0;
 
     std::wstring today_date = AfxCurrentDate();
+    int today_year = AfxGetYear(today_date);
     std::wstring week_start_date = AfxDateAddDays(today_date, -AfxLocalDayOfWeek());
     std::wstring week_end_date = AfxDateAddDays(week_start_date, 6);
     std::wstring curDate = L"";
@@ -196,7 +197,7 @@ void ClosedTrades_ShowClosedTrades()
             if (ClosedData.trade->acb < 0) ++day_loss;
         }
 
-        if (current_year == AfxGetYear(curDate)) {
+        if (today_year == AfxGetYear(curDate)) {
             if (ClosedData.trade->acb >= 0) ++year_win;
             if (ClosedData.trade->acb < 0) ++year_loss;
             YTD += ClosedData.trade->acb;
@@ -207,7 +208,7 @@ void ClosedTrades_ShowClosedTrades()
         ListBoxData_OutputClosedMonthSubtotal(hListBox, curDate, subtotal_amount, current_month_win, current_month_loss);
     }
 
-    ListBoxData_OutputClosedYearTotal(hListBox, current_year, YTD, year_win, year_loss);
+    ListBoxData_OutputClosedYearTotal(hListBox, today_year, YTD, year_win, year_loss);
     ListBoxData_OutputClosedMonthTotal(hListBox, monthly_amount, month_win, month_loss);
     ListBoxData_OutputClosedWeekTotal(hListBox, weekly_amount, week_win, week_loss);
     ListBoxData_OutputClosedDayTotal(hListBox, daily_amount, day_win, day_loss);
