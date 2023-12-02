@@ -44,6 +44,24 @@ std::jthread updatecheck_thread;
 
 #include <wininet.h>
 #pragma comment(lib,"Wininet.lib")
+#include <shellapi.h>
+#pragma comment(lib, "shell32.lib")
+
+void ShowReleasesWebPage()
+{
+	// URL of the webpage you want to open
+	const wchar_t* url = L"https://github.com/PaulSquires/IB-Tracker/releases";
+
+	// Open the webpage
+	HINSTANCE result = ShellExecute(nullptr, L"open", url, nullptr, nullptr, SW_SHOWNORMAL);
+
+	// Check the result
+	if ((intptr_t)result <= 32) {
+		// An error occurred
+		std::cout << "Failed to open releases web page" << std::endl;
+	}
+}
+
 
 void UpdateCheckFunction(std::stop_token st) {
 	std::cout << "Starting the update check thread" << std::endl;

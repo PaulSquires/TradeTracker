@@ -28,4 +28,5 @@ SOFTWARE.
 
 
 void DisplayUpdateAvailableMessage();
+void ShowReleasesWebPage();
 

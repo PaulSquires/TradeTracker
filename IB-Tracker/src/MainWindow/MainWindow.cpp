@@ -45,6 +45,7 @@ SOFTWARE.
 #include "Category/CategoryDialog.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "Utilities/UpdateCheck.h"
 
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -332,8 +333,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     ShowWindow(hCtl, SW_HIDE);
 
     // Create an Update Available label at bottom of the MainWindow to display new version available message.
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE, L"", COLOR_YELLOW, COLOR_BLACK,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE, L"",
+        COLOR_YELLOW, COLOR_BLACK, COLOR_BLACK, COLOR_BLACK, COLOR_YELLOW,
         CustomLabelAlignment::middle_right, 0, 0, 0, 0);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
     ShowWindow(hCtl, SW_HIDE);
 
     return TRUE;
@@ -511,6 +514,22 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
     break;
+
+
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_MAINWINDOW_UPDATEAVAILABLE) {
+            ShowReleasesWebPage();
+        }
+        return 0;
+    }
+    break;
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
