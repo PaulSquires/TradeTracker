@@ -66,7 +66,8 @@ void UpdateCheckFunction(std::stop_token st) {
 	}
 	else {
 		std::wstring local_file = AfxGetExePath() + L"\\IB-Tracker-versioncheck.txt";
-		std::wstring cmd = L"C:/Windows/System32/curl.exe -o " + local_file + L" \"https://www.planetsquires.com/ibtracker_version.txt\"";
+		std::wstring cmd = L"C:/Windows/System32/curl.exe -o " + 
+			local_file + L" \"https://www.planetsquires.com/ibtracker_version.txt\"";
 		std::wstring text = AfxExecCmd(cmd);
 
 		std::wstring version_available = L"";
@@ -101,7 +102,7 @@ void UpdateCheckFunction(std::stop_token st) {
 
 		if (AfxWStringCompareI(version, version_available) == false) {
 			CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE),
-				L"** IB-Tracker v" + version_available + L" available **");
+				L"** v" + version_available + L" available **");
 			ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE), SW_SHOWNORMAL);
 		}
 
@@ -114,6 +115,11 @@ void UpdateCheckFunction(std::stop_token st) {
 
 void DisplayUpdateAvailableMessage()
 {
+	if (!GetAllowUpdateCheck()) {
+		std::cout << "Update Check Disabled in Configuration" << std::endl;
+		return;
+	}
+
 	if (is_updatecheck_thread_active) return;
 	updatecheck_thread = std::jthread(UpdateCheckFunction);
 }

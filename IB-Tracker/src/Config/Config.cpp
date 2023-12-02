@@ -51,6 +51,7 @@ int startup_right_panel_width = 0;
 
 bool startup_paper_trading = false;
 bool show_portfolio_value = true;
+bool allow_update_check = true;
  
 
 std::unordered_map<int, std::wstring> mapCategoryDescriptions {
@@ -136,6 +137,15 @@ void DisplayPaperTradingWarning()
 bool GetShowPortfolioValue()
 {
     return show_portfolio_value;
+}
+
+
+// ========================================================================================
+// Determine if allow to check for available program update.
+// ========================================================================================
+bool GetAllowUpdateCheck()
+{
+    return allow_update_check;
 }
 
 
@@ -452,6 +462,8 @@ bool SaveConfig()
     db << "ENABLEPAPERTRADING|" << (startup_paper_trading ? L"true" : L"false") << "\n";
     
     db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
+    
+    db << "ALLOWUPDATECHECK|" << (allow_update_check ? L"true" : L"false") << "\n";
 
     db << "STARTUPWIDTH" << "|" << startup_width << "\n";
 
@@ -560,6 +572,18 @@ bool LoadConfig()
             catch (...) { continue; }
         
             show_portfolio_value = AfxWStringCompareI(value, L"true");
+            continue;
+        }
+
+
+        // Check if should allow checking for available program update
+        if (arg == L"ALLOWUPDATECHECK") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+        
+            allow_update_check = AfxWStringCompareI(value, L"true");
             continue;
         }
 

@@ -32,6 +32,7 @@ bool SaveConfig();
 bool LoadConfig();
 
 bool GetShowPortfolioValue();
+bool GetAllowUpdateCheck();
 int GetTickerDecimals(std::wstring wunderlying);
 void SetTickerDecimals(std::wstring wunderlying, int numDecimals);
 std::wstring GetMultiplier(std::wstring wunderlying);
