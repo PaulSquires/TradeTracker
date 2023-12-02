@@ -90,6 +90,7 @@
     <ClInclude Include="src\Utilities\CWindowBase.h" />
     <ClInclude Include="src\tws-api\IntelDecimal\IntelDecimal.h" />
     <ClInclude Include="src\Utilities\ListBoxData.h" />
+    <ClInclude Include="src\Utilities\UpdateCheck.h" />
     <ClInclude Include="src\Utilities\UserMessages.h" />
     <ClInclude Include="src\YearEndDialog\YearEndDialog.h" />
   </ItemGroup>
@@ -174,6 +175,7 @@
     <ClCompile Include="src\Utilities\AfxWin.cpp" />
     <ClCompile Include="src\tws-api\IntelDecimal\IntelDecimal.cpp" />
     <ClCompile Include="src\Utilities\ListBoxData.cpp" />
+    <ClCompile Include="src\Utilities\UpdateCheck.cpp" />
     <ClCompile Include="src\YearEndDialog\YearEndDialog.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Category/CategoryPopup.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/UserMessages.h"
+#include "Utilities/UpdateCheck.h"
 #include <wchar.h>
 
 
@@ -162,6 +163,11 @@ int APIENTRY wWinMain(
     
     // Display message if Paper Trading is enabled.
     DisplayPaperTradingWarning();
+
+
+    // Start thread to check for internet connection and determine if an updated
+    // version of the program is available.
+    DisplayUpdateAvailableMessage();
 
 
     // Show the current list of active trades
