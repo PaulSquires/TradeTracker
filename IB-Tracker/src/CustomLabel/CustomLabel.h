@@ -93,21 +93,12 @@ public:
 	// Lines
 	REAL line_width = 1;
 	DWORD line_color{};
-	DWORD line_color_hot{};
-
-	// Margins
-	int margin_left = 0;
-	int margin_top = 0;
-	int margin_bottom = 0;
-	int margin_right = 0;
 
 	// Border
 	bool border_visible = false;
 	REAL border_width = 0;
 	DWORD border_color{};
 	DWORD border_color_hot{};
-	int border_round_width = 0;
-	int border_round_height = 0;
 
 	// Images
 	Bitmap* pImage = nullptr;
@@ -121,7 +112,6 @@ public:
 	CustomLabelAlignment text_alignment = CustomLabelAlignment::middle_center;
 	int text_offset_left = 0;
 	int text_offset_top = 0;
-	int text_character_extra = 0;
 
 	// Text Normal
 	std::wstring text{};
@@ -166,7 +156,6 @@ void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD back_color_hot);
 void CustomLabel_SetBorderColor(HWND hCtrl, DWORD BorderColor);
 void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD BorderColorHot);
 DWORD CustomLabel_GetBackColor(HWND hCtrl);
-void CustomLabel_Select(HWND hCtrl, bool IsSelected);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool FontBold);
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring text);
 std::wstring CustomLabel_GetUserData(HWND hCtrl);

@@ -542,8 +542,6 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->back_color = COLOR_GRAYDARK;
         pData->line_color = COLOR_SEPARATOR;
         pData->line_width = 2;
-        pData->margin_left = 0;
-        pData->margin_right = 0;
         CustomLabel_SetOptions(hCtl, pData);
     }
 

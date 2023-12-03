@@ -141,8 +141,8 @@ void CustomLabel::DrawImageInBuffer()
     {
     case CustomLabelType::image_only:
     case CustomLabelType::image_and_text:
-        REAL nLeft = (margin_left + image_offset_left) * m_rx;
-        REAL nTop = (margin_top + image_offset_top) * m_ry;
+        REAL nLeft = (image_offset_left * m_rx);
+        REAL nTop = (image_offset_top * m_ry);
         REAL nRight = nLeft + (image_width * m_rx);
         REAL nBottom = nTop + (image_height * m_ry);
         RectF rcImage(nLeft, nTop, nRight - nLeft, nBottom - nTop);
@@ -193,13 +193,10 @@ void CustomLabel::DrawTextInBuffer()
         stringF.SetTrimming(StringTrimmingEllipsisWord);
         SetTextAlignment(&stringF);
 
-        if (text_character_extra)
-            SetTextCharacterExtra(m_memDC, text_character_extra);
-
-        REAL nLeft = (margin_left + image_width + image_offset_left + text_offset_left) * m_rx;
-        REAL nTop = (margin_top + text_offset_top) * m_ry;
-        REAL nRight = m_rcClient.right - (margin_right * m_rx);
-        REAL nBottom = m_rcClient.bottom - (margin_bottom * m_ry);
+        REAL nLeft = (image_width + image_offset_left + text_offset_left) * m_rx;
+        REAL nTop = (text_offset_top * m_ry);
+        REAL nRight = (REAL)m_rcClient.right;
+        REAL nBottom = (REAL)m_rcClient.bottom;
 
         RectF rcText(nLeft, nTop, nRight - nLeft, nBottom - nTop);
 
@@ -220,11 +217,11 @@ void CustomLabel::DrawLabelInBuffer()
     switch (CtrlType)
     {
     case CustomLabelType::line_horizontal:
-        REAL nLeft = margin_left * m_rx;
-        REAL nTop = (margin_top + text_offset_top) * m_ry;
-        REAL nRight = m_rcClient.right - (margin_right * m_rx);
+        REAL nLeft = 0;
+        REAL nTop = (text_offset_top * m_ry);
+        REAL nRight = (REAL)m_rcClient.right;
         REAL nBottom = nTop;
-        ARGB clrPen = (m_is_hot ? line_color_hot : line_color);
+        ARGB clrPen = line_color;
         Pen pen(clrPen, line_width);
         // Draw the horizontal line centered taking margins into account
         Graphics graphics(m_memDC);
