@@ -223,7 +223,7 @@ void CustomLabel::DrawLabelInBuffer()
         REAL nBottom = nTop;
         ARGB clrPen = line_color;
         Pen pen(clrPen, line_width);
-        // Draw the horizontal line centered taking margins into account
+        // Draw the horizontal line
         Graphics graphics(m_memDC);
         graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
 
@@ -889,6 +889,33 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
         pData->image_height = 68;
         pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
         pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+    return hCtl;
+}
+
+
+// ========================================================================================
+// Creates a simple horizontal line label.
+// ========================================================================================
+HWND CustomLabel_HorizontalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
+    int nLeft, int nTop, int nWidth, int nHeight)
+{
+    // Creates a simple "dumb" label that basically just makes it easier to deal
+    // with coloring. No hot tracking or click notifications.
+    CustomLabel* pData = nullptr;
+
+    HWND hCtl = CreateCustomLabel(
+        hParent, CtrlId,
+        CustomLabelType::line_horizontal,
+        nLeft, nTop, nWidth, nHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->hot_test_enable = false;
+        pData->back_color = back_color;
+        pData->line_color = line_color;
+        pData->back_color_button_down = back_color;
+        pData->allow_tab_stop = false;
         CustomLabel_SetOptions(hCtl, pData);
     }
     return hCtl;

@@ -169,6 +169,9 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
 	DWORD text_color, DWORD back_color, CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
+HWND CustomLabel_HorizontalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
+	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
 	DWORD text_color, DWORD back_color, DWORD back_color_hot, DWORD back_color_button_down, DWORD FocusBorderColor,
 	CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,

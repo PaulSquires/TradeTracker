@@ -424,13 +424,15 @@ void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HWND hExcessLiq = GetDlgItem(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY);
     HWND hExcessLiqValue = GetDlgItem(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_SIDEMENU_CUSTOMVSCROLLBAR);
+    HWND hSwitcher = GetDlgItem(hwnd, IDC_SIDEMENU_SWITCHER);
+    HWND hSeparator1 = GetDlgItem(hwnd, IDC_SIDEMENU_SEPARATOR1);
 
     int label_width = AfxScaleX(85);
     int label_left1 = 0;
     int label_left2 = label_left1 + label_width;
     int label_top = 0;  
-    int label_height = AfxScaleY(16);
-    
+    int label_height = 0;
+    int label_margin = AfxScaleX(10);
     
     ShowWindow(hImage, (show_summary) ? SW_HIDE : SW_SHOW);
     ShowWindow(hAppName, (show_summary) ? SW_HIDE : SW_SHOW);
@@ -438,10 +440,15 @@ void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy)
     
     int show_flag = (show_summary) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
     
-    SetWindowPos(hSummary, 0, label_left1, label_top, cx, AfxScaleY(24), SWP_NOZORDER | show_flag);
-        
-    label_top += AfxScaleY(12);
+    label_height = AfxScaleY(24);
+    //SetWindowPos(hSummary, 0, label_left1, label_top, cx, label_height, SWP_NOZORDER | show_flag);
+    
     label_top += label_height;
+    label_height = AfxScaleY(12);
+    SetWindowPos(hSeparator1, 0, label_margin, label_top, cx - label_margin * 2, label_height, SWP_NOZORDER | show_flag);
+        
+    label_top += label_height;
+    label_height = AfxScaleY(16);
     SetWindowPos(hYTD, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
     SetWindowPos(hMTD, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
 
@@ -462,6 +469,12 @@ void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy)
     SetWindowPos(hNetLiqValue, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
     SetWindowPos(hExcessLiqValue, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
 
+    label_top = AfxScaleY(145);
+    label_width = AfxScaleX(30);
+    label_left1 = (cx - label_width) / 2;
+    std::wstring switcher_text = (show_summary) ? L"logo" : L"stats";
+    CustomLabel_SetText(hSwitcher, switcher_text);
+    SetWindowPos(hSwitcher, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -479,7 +492,7 @@ void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     int nLeft = 0;
-    int nTop = AfxScaleY(150);
+    int nTop = AfxScaleY(162);
     int nHeight = cy - nTop;
     int nWidth = cx - custom_scrollbar_width;
     SetWindowPos(hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -570,6 +583,8 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_SUMMARY, L"SUMMARY",
         COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
 
+    hCtl = CustomLabel_HorizontalLine(hwnd, IDC_SIDEMENU_SEPARATOR1, COLOR_WHITEDARK, COLOR_BLACK);
+
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_YTD, L"THIS YEAR",
         COLOR_WHITEDARK, COLOR_BLACK, CustomLabelAlignment::middle_center);
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_YTD_VALUE, L"$50K",
@@ -596,6 +611,11 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE, L"N/A",
         COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
 
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SIDEMENU_SWITCHER, L"stats",
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center);
+    CustomLabel_SetFont(hCtl, font_name, 8, false);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
@@ -894,6 +914,19 @@ LRESULT CSideMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
+        case MSG_CUSTOMLABEL_CLICK:
+        {
+            HWND hCtl = (HWND)lParam;
+            int CtrlId = (int)wParam;
+
+            if (hCtl == NULL) return 0;
+
+            if (CtrlId == IDC_SIDEMENU_SWITCHER) {
+                show_summary = !show_summary;
+                RECT rc; GetClientRect(HWND_SIDEMENU, &rc);
+                SideMenu_OnSize(HWND_SIDEMENU, 0, rc.right, rc.bottom);
+            }
+        }
 
         default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
 
