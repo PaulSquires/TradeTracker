@@ -81,6 +81,7 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+    std::wstring wszCaption = L"IB-Tracker: " + version;
 
     // Ensure only one running instance based on the EXE folder. We use the EXE folder
     // because we want to allow multiple instances of the program IF they are run from
@@ -93,7 +94,7 @@ int APIENTRY wWinMain(
     if (hMutexHandle != nullptr && GetLastError() == ERROR_ALREADY_EXISTS)
     {
         // Try to bring the existing instance to the foreground
-        HWND existingApp = FindWindow(0, L"IB-Tracker");
+        HWND existingApp = FindWindow(0, wszCaption.c_str());
         if (existingApp) {
             if (IsMinimized(existingApp)) ShowWindow(existingApp, SW_SHOWNORMAL);
             SetForegroundWindow(existingApp);
@@ -129,7 +130,7 @@ int APIENTRY wWinMain(
 
     HWND hWndMain = Main.Create(
                         HWND_DESKTOP,
-                        L"IB-Tracker",
+                        wszCaption,
                         CW_USEDEFAULT, CW_USEDEFAULT,
                         GetStartupWidth(),
                         GetStartupHeight());

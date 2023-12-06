@@ -891,8 +891,6 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	
 
-	if (ActiveTrades_ShowHideLiquidityLabels(HWND_ACTIVETRADES) == SW_HIDE) return;
-
 	std::wstring account_value = ansi2unicode(value);
 
 	// Get the value and convert it into K amounts
@@ -906,13 +904,13 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 	}
 
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
-		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), account_value);
-		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_NETLIQUIDATION_VALUE), account_value);
+		ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
-		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), account_value);
-		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), account_value);
+		ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 }
 

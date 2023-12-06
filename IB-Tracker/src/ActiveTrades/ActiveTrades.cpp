@@ -434,20 +434,59 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
         // In case of newly added/deleted data ensure data is sorted.
-        // Sort based on Category and then TickerSymbol
-        std::sort(trades.begin(), trades.end(),
-            [](const auto trade1, const auto trade2) {
-                {
-                    if (trade1->category < trade2->category) return true;
-                    if (trade2->category < trade1->category) return false;
+         
+        if (ActiveTrades.sort_order == SortOrder::Category) {
+            // Sort based on Category and then TickerSymbol
+            std::sort(trades.begin(), trades.end(),
+                [](const auto trade1, const auto trade2) {
+                    {
+                        if (trade1->category < trade2->category) return true;
+                        if (trade2->category < trade1->category) return false;
 
-                    // a=b for primary condition, go to secondary
-                    if (trade1->ticker_symbol < trade2->ticker_symbol) return true;
-                    if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
+                        // a=b for primary condition, go to secondary
+                        if (trade1->ticker_symbol < trade2->ticker_symbol) return true;
+                        if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
 
-                    return false;
-                } 
-            });
+                        return false;
+                    } 
+                });
+        }
+
+        if (ActiveTrades.sort_order == SortOrder::Ticker) {
+            // Sort based on TickerSymbol and Expiration
+            std::sort(trades.begin(), trades.end(),
+                [](const auto trade1, const auto trade2) {
+                    {
+                        if (trade1->ticker_symbol < trade2->ticker_symbol) return true;
+                        if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
+
+                        // a=b for primary condition, go to secondary
+                        if (trade1->earliest_legs_DTE < trade2->earliest_legs_DTE) return true;
+                        if (trade2->earliest_legs_DTE < trade1->earliest_legs_DTE) return false;
+
+                        return false;
+                    } 
+                });
+        }
+
+
+        if (ActiveTrades.sort_order == SortOrder::Expiration) {
+            // Sort based on Expiration and TickerSymbol
+            std::sort(trades.begin(), trades.end(),
+                [](const auto trade1, const auto trade2) {
+                    {
+                        if (trade1->earliest_legs_DTE < trade2->earliest_legs_DTE) return true;
+                        if (trade2->earliest_legs_DTE < trade1->earliest_legs_DTE) return false;
+
+                        // a=b for primary condition, go to secondary
+                        if (trade1->ticker_symbol < trade2->ticker_symbol) return true;
+                        if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
+
+                        return false;
+                    } 
+                });
+        }
+
 
 
         // Destroy any existing ListBox line data (clear the LineData pointers)
@@ -462,9 +501,11 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
                 trade->ticker_decimals = GetTickerDecimals(trade->ticker_symbol);
 
-                if (trade->category != category_header) {
-                    ListBoxData_AddCategoryHeader(hListBox, trade);
-                    category_header = trade->category;
+                if (ActiveTrades.sort_order == SortOrder::Category) {
+                    if (trade->category != category_header) {
+                        ListBoxData_AddCategoryHeader(hListBox, trade);
+                        category_header = trade->category;
+                    }
                 }
 
                 // Setup the line, assign the tickerId.
@@ -1283,22 +1324,6 @@ void ActiveTrades_OnPaint(HWND hwnd)
 }
 
 
-// ========================================================================================
-// Show/Hide the Net and Excess liquidity labels and values.
-// ========================================================================================
-int ActiveTrades_ShowHideLiquidityLabels(HWND hwnd)
-{
-    int nShow = (GetShowPortfolioValue()) ? SW_SHOW : SW_HIDE;
-    if (!tws_IsConnected()) nShow = SW_HIDE;
-
-    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION), nShow);
-    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE), nShow);
-    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY), nShow);
-    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), nShow);
-
-    return nShow;
-}
-    
     
  // ========================================================================================
 // Process WM_SIZE message for window/dialog: ActiveTrades
@@ -1314,14 +1339,10 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // If no entries exist for the ListBox then don't show any child controls
     int show_flag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
 
-    HDWP hdwp = BeginDeferWindowPos(10);
+    HDWP hdwp = BeginDeferWindowPos(6);
 
     // Move and size the top labels into place
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, AfxScaleX(200), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION),        0, AfxScaleX(380), 0, AfxScaleX(60), margin, SWP_NOZORDER);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE),  0, AfxScaleX(440), 0, AfxScaleX(50), margin, SWP_NOZORDER);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY),       0, AfxScaleX(490), 0, AfxScaleX(65), margin, SWP_NOZORDER);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), 0, AfxScaleX(555), 0, AfxScaleX(50), margin, SWP_NOZORDER);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -1353,9 +1374,6 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
         SWP_NOZORDER | show_flag);
 
     EndDeferWindowPos(hdwp);
-
-    ActiveTrades_ShowHideLiquidityLabels(hwnd);
-
 }
 
 
@@ -1367,18 +1385,6 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND_ACTIVETRADES = hwnd;
         
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
-        COLOR_WHITELIGHT, COLOR_BLACK);
-
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_NETLIQUIDATION, L"Net Liq:",
-        COLOR_WHITEDARK, COLOR_BLACK);
-
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE, L"",
-        COLOR_WHITELIGHT, COLOR_BLACK);
-
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_EXCESSLIQUIDITY, L"Excess Liq:",
-        COLOR_WHITEDARK, COLOR_BLACK);
-
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE, L"",
         COLOR_WHITELIGHT, COLOR_BLACK);
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom

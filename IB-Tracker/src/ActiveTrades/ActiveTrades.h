@@ -32,13 +32,20 @@ SOFTWARE.
 
 typedef long TickerId;
 
+enum class SortOrder {
+    Category,
+    Ticker,
+    Expiration
+};
+
 
 class CActiveTrades : public CWindowBase<CActiveTrades>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
+    SortOrder sort_order = SortOrder::Category;
 };
+
 
 
 extern CActiveTrades ActiveTrades;
@@ -48,10 +55,6 @@ constexpr int IDC_TRADES_LISTBOX = 100;
 constexpr int IDC_TRADES_LABEL = 101;
 constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_TRADES_HEADER = 103;
-constexpr int IDC_TRADES_NETLIQUIDATION = 104;
-constexpr int IDC_TRADES_NETLIQUIDATION_VALUE = 105;
-constexpr int IDC_TRADES_EXCESSLIQUIDITY = 106;
-constexpr int IDC_TRADES_EXCESSLIQUIDITY_VALUE = 107;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 24;

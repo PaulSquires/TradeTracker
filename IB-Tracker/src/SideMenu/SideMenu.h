@@ -39,8 +39,7 @@ extern CSideMenu SideMenu;
 extern HWND HWND_SIDEMENU;
 
 
-const int IDC_SIDEMENU_FIRSTITEM       = 100;
-const int IDC_SIDEMENU_LOGO            = IDC_SIDEMENU_FIRSTITEM;
+const int IDC_SIDEMENU_LOGO            = 101;
 const int IDC_SIDEMENU_APPNAME         = 102;
 const int IDC_SIDEMENU_APPVERSION      = 103;
 const int IDC_SIDEMENU_ACTIVETRADES    = 104;
@@ -62,7 +61,18 @@ const int IDC_SIDEMENU_NEWSHORTSTRANGLE= 118;
 const int IDC_SIDEMENU_NEWSHORTPUT     = 119;
 const int IDC_SIDEMENU_NEWSHORTCALL    = 120;
 
-const int IDC_SIDEMENU_LASTITEM = IDC_SIDEMENU_NEWSHORTCALL;
+const int IDC_SIDEMENU_SUMMARY               = 121;
+const int IDC_SIDEMENU_YTD                   = 122;
+const int IDC_SIDEMENU_YTD_VALUE             = 123;
+const int IDC_SIDEMENU_YTD_WINS              = 124;
+const int IDC_SIDEMENU_MTD                   = 125;
+const int IDC_SIDEMENU_MTD_VALUE             = 126;
+const int IDC_SIDEMENU_MTD_WINS              = 127;
+const int IDC_SIDEMENU_NETLIQUIDATION        = 128;
+const int IDC_SIDEMENU_NETLIQUIDATION_VALUE  = 129;
+const int IDC_SIDEMENU_EXCESSLIQUIDITY       = 130;
+const int IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE = 131;
+
 
 const int IDC_SIDEMENU_SEPARATOR        = 150;
 const int IDC_SIDEMENU_LISTBOX          = 151;

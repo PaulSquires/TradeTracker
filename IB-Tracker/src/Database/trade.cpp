@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "pch.h"
 #include "trade.h"
+#include "Utilities/AfxWin.h"
 
 
 bool Leg::isOpen()
@@ -67,7 +68,7 @@ void Trade::SetTradeOpenStatus()
         return;
     }
 
-    // If the Trade is closed then set the latest Buying Power date tot he close date
+    // If the Trade is closed then set the latest Buying Power date to the close date
     this->bp_end_date = this->oldest_trade_trans_date;
 }
 
@@ -85,10 +86,12 @@ void Trade::CreateOpenLegsVector()
 {
     // Create the openLegs vector. We need this vector because we have to sort the
     // collection of open legs in order to have Puts before Calls. There could be
-    // multiple TransDetail in this trade and therefore Puts and Calls would not
+    // multiple Transactions in this trade and therefore Puts and Calls would not
     // already be a suitable display order.
 
     open_legs.clear();
+
+    std::wstring current_date = AfxCurrentDate();
 
     for (const auto &trans : transactions) {
         if (trans->multiplier > 0) this->multiplier = trans->multiplier;
@@ -96,6 +99,15 @@ void Trade::CreateOpenLegsVector()
             if (leg->isOpen()) {
                 leg->trans = trans;
                 open_legs.push_back(leg);
+
+                // Do check to calculate the DTE  and compare to the earliest already calculated DTE
+                // for the Trade. We store the earliest DTE value because ActiveTrades uses it when
+                // sorted by Expiration.
+                if (leg->underlying == L"OPTIONS") {
+                    int dte = AfxDaysBetween(current_date, leg->expiry_date);
+                    if (dte < this->earliest_legs_DTE) this->earliest_legs_DTE = dte;
+                }
+
             }
         }
     }

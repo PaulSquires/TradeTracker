@@ -111,6 +111,10 @@ public:
     double        ticker_close_price = 0;
     int           ticker_decimals    = 2;  // upated via data from Config. 
 
+    // The earliest DTE from the Legs of the Trade are calculated in the SetTradeOpenStatus() function
+    // and is used when displaying ActiveTrades with the ExpiryDate filter set.
+    int earliest_legs_DTE = 9999999;
+
     // The following are string representations of the marketdata and updatePortfolio values. We save them here
     // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives

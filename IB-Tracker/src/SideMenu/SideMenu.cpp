@@ -45,6 +45,9 @@ CSideMenu SideMenu;
 
 HWND HWND_SIDEMENU = NULL;
 
+bool show_summary = false;
+
+
 
 // ========================================================================================
 // Select the SideMenu listbox row based on itemData (CtrlID)
@@ -405,8 +408,60 @@ LRESULT CALLBACK SideMenu_ListBox_SubclassProc(
 // ========================================================================================
 void SideMenu_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
+    HWND hImage = GetDlgItem(hwnd, IDC_SIDEMENU_LOGO);
+    HWND hAppName = GetDlgItem(hwnd, IDC_SIDEMENU_APPNAME);
+    HWND hAppVersion = GetDlgItem(hwnd, IDC_SIDEMENU_APPVERSION);
     HWND hListBox = GetDlgItem(hwnd, IDC_SIDEMENU_LISTBOX);
+    HWND hSummary = GetDlgItem(hwnd, IDC_SIDEMENU_SUMMARY);
+    HWND hYTD = GetDlgItem(hwnd, IDC_SIDEMENU_YTD);
+    HWND hYTDValue = GetDlgItem(hwnd, IDC_SIDEMENU_YTD_VALUE);
+    HWND hYTDWins = GetDlgItem(hwnd, IDC_SIDEMENU_YTD_WINS);
+    HWND hMTD = GetDlgItem(hwnd, IDC_SIDEMENU_MTD);
+    HWND hMTDValue = GetDlgItem(hwnd, IDC_SIDEMENU_MTD_VALUE);
+    HWND hMTDWins = GetDlgItem(hwnd, IDC_SIDEMENU_MTD_WINS);
+    HWND hNetLiq = GetDlgItem(hwnd, IDC_SIDEMENU_NETLIQUIDATION);
+    HWND hNetLiqValue = GetDlgItem(hwnd, IDC_SIDEMENU_NETLIQUIDATION_VALUE);
+    HWND hExcessLiq = GetDlgItem(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY);
+    HWND hExcessLiqValue = GetDlgItem(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_SIDEMENU_CUSTOMVSCROLLBAR);
+
+    int label_width = AfxScaleX(85);
+    int label_left1 = 0;
+    int label_left2 = label_left1 + label_width;
+    int label_top = 0;  
+    int label_height = AfxScaleY(16);
+    
+    
+    ShowWindow(hImage, (show_summary) ? SW_HIDE : SW_SHOW);
+    ShowWindow(hAppName, (show_summary) ? SW_HIDE : SW_SHOW);
+    ShowWindow(hAppVersion, (show_summary) ? SW_HIDE : SW_SHOW);
+    
+    int show_flag = (show_summary) ? SWP_SHOWWINDOW : SWP_HIDEWINDOW;
+    
+    SetWindowPos(hSummary, 0, label_left1, label_top, cx, AfxScaleY(24), SWP_NOZORDER | show_flag);
+        
+    label_top += AfxScaleY(12);
+    label_top += label_height;
+    SetWindowPos(hYTD, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+    SetWindowPos(hMTD, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+
+    label_top += label_height;
+    SetWindowPos(hYTDValue, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+    SetWindowPos(hMTDValue, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+
+    label_top += label_height;
+    SetWindowPos(hYTDWins, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+    SetWindowPos(hMTDWins, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+
+    label_top += AfxScaleY(12);
+    label_top += label_height;
+    SetWindowPos(hNetLiq, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+    SetWindowPos(hExcessLiq, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+
+    label_top += label_height;
+    SetWindowPos(hNetLiqValue, 0, label_left1, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+    SetWindowPos(hExcessLiqValue, 0, label_left2, label_top, label_width, label_height, SWP_NOZORDER | show_flag);
+
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -508,6 +563,40 @@ BOOL SideMenu_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         pData->text_hot = pData->text;
         CustomLabel_SetOptions(hCtl, pData);
     }
+
+
+    std::wstring font_name = AfxGetDefaultFont();
+        
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_SUMMARY, L"SUMMARY",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_YTD, L"THIS YEAR",
+        COLOR_WHITEDARK, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_YTD_VALUE, L"$50K",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_YTD_WINS, L"90% wins",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    CustomLabel_SetFont(hCtl, font_name, 8, false);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_MTD, L"THIS MONTH",
+        COLOR_WHITEDARK, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_MTD_VALUE, L"$1,250",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_MTD_WINS, L"100% wins",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    CustomLabel_SetFont(hCtl, font_name, 8, false);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_NETLIQUIDATION, L"NET LIQ",
+        COLOR_WHITEDARK, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_NETLIQUIDATION_VALUE, L"N/A",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY, L"EXCESS LIQ",
+        COLOR_WHITEDARK, COLOR_BLACK, CustomLabelAlignment::middle_center);
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE, L"N/A",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_center);
+
+
 
     // Create an Ownerdraw variable row sized listbox that we will use to custom
     // paint our various side menu options.
