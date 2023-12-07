@@ -490,20 +490,6 @@ std::wstring AfxGetListBoxText(HWND hListBox, int index)
 
 
 // ========================================================================================
-// Sets the list box string and item all in one function call.
-// - hListBox: A handle to the list box.
-// - itemData: 32-bit data.
-// ========================================================================================
-int AfxAddListBoxData(HWND hListBox, const std::wstring& wszText, const int itemData, const int height)
-{
-    int index = ListBox_AddString(hListBox, wszText.c_str());
-    ListBox_SetItemData(hListBox, index, itemData);
-    ListBox_SetItemHeight(hListBox, index, height);
-    return index;
-}
-
-
-// ========================================================================================
 // Returns the path of the program which is currently executing.
 // The path name will not contain a trailing backslash.
 // ========================================================================================
@@ -517,7 +503,6 @@ std::wstring AfxGetExePath()
     std::size_t found = buffer.find_last_of(L"/\\");
     return buffer.substr(0, found);
 }
-
 
 
 // ========================================================================================

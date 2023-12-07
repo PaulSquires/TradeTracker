@@ -27,12 +27,12 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/ListBoxData.h"
-#include "SideMenu/SideMenu.h"
 #include "MainWindow/MainWindow.h"
 #include "Category/Category.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "TabPanel/TabPanel.h"
 #include "YearEndDialog/YearEndDialog.h"
 #include "Database/trade.h"
 #include "ClosedTrades.h"
@@ -55,7 +55,7 @@ void ClosedTrades_ShowListBoxItem(int index)
     ListBox_SetCurSel(hListBox, index);
 
     // Ensure that the ActiveTrades menu item is selected
-    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_CLOSEDTRADES);
+    //SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_CLOSEDTRADES);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -82,6 +82,9 @@ void ClosedTrades_ShowClosedTrades()
     HWND hLabel = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LABEL);
     HWND hCategory = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CATEGORY);
 
+
+    // Select the correct menu panel item
+    TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_CLOSEDTRADES);
 
     // Prevent ListBox redrawing until all calculations are completed.
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -232,8 +235,7 @@ void ClosedTrades_ShowClosedTrades()
 
 
     // Ensure that the Closed panel is set
-    MainWindow_SetMiddlePanel(HWND_CLOSEDTRADES);
-
+    MainWindow_SetLeftPanel(HWND_CLOSEDTRADES);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -433,7 +435,7 @@ void ClosedTrades_OnPaint(HWND hwnd)
 
     Graphics graphics(hdc);
 
-    DWORD back_color = COLOR_BLACK;
+    Color back_color = COLOR_BLACK;
 
     // Create the background brush
     SolidBrush back_brush(back_color);
@@ -441,6 +443,18 @@ void ClosedTrades_OnPaint(HWND hwnd)
     // Paint the background using brush.
     int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
+    // Paint the area to the left of the ListBox in order to give the illusion
+    // of a margin before the ListBox data is displyed.
+    ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
+    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+
+    // Set the background brush
+    back_color.SetValue(COLOR_GRAYDARK);
+    back_brush.SetColor(back_color);
+    nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
     EndPaint(hwnd, &ps);
@@ -505,15 +519,15 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hYearEnd, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     
-    nLeft = 0;
+    nLeft = AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
     nTop = margin;
-    nWidth = cx;
+    nWidth = cx - nLeft;
     nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
 
 
-    nWidth = cx - custom_scrollbar_width;
+    nWidth = cx - nLeft - custom_scrollbar_width;
     nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 

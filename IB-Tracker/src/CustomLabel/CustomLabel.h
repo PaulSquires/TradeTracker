@@ -82,6 +82,12 @@ public:
 	int user_data_int = 0;
 	bool allow_tab_stop = false;
 
+	bool is_selected = false;
+	DWORD back_color_selected{};
+	bool is_selected_underline = false;
+	DWORD selected_underline_color{};
+	int selected_underline_width = 1;
+
 	int CtrlId = 0;
 	CustomLabelType CtrlType = CustomLabelType::text_only;
 	bool hot_test_enable = false;
@@ -131,7 +137,7 @@ public:
 	bool font_italic_hot = false;
 	bool font_underline_hot = false;
 	DWORD text_color_hot{};
-	CustomLabelPointer pointer_hot = CustomLabelPointer::hand;
+	CustomLabelPointer pointer_hot = CustomLabelPointer::arrow;
 
 	void SetTextAlignment(StringFormat* stringF);
 	void StartDoubleBuffering(HDC hdc);
@@ -148,15 +154,20 @@ CustomLabel* CustomLabel_GetOptions(HWND hCtrl);
 int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData);
 void CustomLabel_SetText(HWND hCtrl, std::wstring text);
 std::wstring CustomLabel_GetText(HWND hCtrl);
+void CustomLabel_SetHotTesting(HWND hCtrl, bool enable_hot_testing);
+void CustomLabel_SetSelected(HWND hCtrl, bool is_selected);
+void CustomLabel_SetSelectedUnderline(HWND hCtrl, bool enable_underline, DWORD underline_color, int line_width);
 void CustomLabel_SetToolTip(HWND hCtrl, std::wstring text);
 void CustomLabel_SetTextColor(HWND hCtrl, DWORD text_color);
 void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD text_colorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, DWORD back_color);
 void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD back_color_hot);
+void CustomLabel_SetBackColorSelected(HWND hCtrl, DWORD back_color_selected);
 void CustomLabel_SetBorderColor(HWND hCtrl, DWORD BorderColor);
 void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD BorderColorHot);
 DWORD CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool FontBold);
+void CustomLabel_SetFontHot(HWND hCtrl, std::wstring font_name, int font_size, bool FontBold);
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring text);
 std::wstring CustomLabel_GetUserData(HWND hCtrl);
 void CustomLabel_SetUserDataInt(HWND hCtrl, int value);
@@ -170,6 +181,9 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
 HWND CustomLabel_HorizontalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
+	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+
+HWND CustomLabel_VerticalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
 	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
 
 HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,

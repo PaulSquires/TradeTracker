@@ -30,7 +30,6 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
-#include "SideMenu/SideMenu.h"
 #include "Transactions/TransDetail.h"
 #include "Database/trade.h"
 #include "Utilities/AfxWin.h"

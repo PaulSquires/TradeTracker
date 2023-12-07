@@ -117,10 +117,8 @@ void CustomLabel::StartDoubleBuffering(HDC hdc)
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
     DWORD nback_color = (m_is_hot ? back_color_hot : back_color);
-
-    if (LButtonDown == true) {
-        nback_color = back_color_button_down;
-    }
+    if (LButtonDown) nback_color = back_color_button_down;
+    if (is_selected) nback_color = back_color_selected;
 
     // Create the background brush
     SolidBrush back_brush(nback_color);
@@ -172,22 +170,24 @@ void CustomLabel::DrawTextInBuffer()
         font_name_hot = font_name;
         FontFamily fontFamily(m_is_hot ? font_name_hot.c_str() : font_name.c_str());
 
-        REAL fontSize = (m_is_hot ? font_size_hot : font_size);
+        REAL fontSize = 0;
         int fontStyle = FontStyleRegular;
 
-        if (m_is_hot) {
+        if (m_is_hot || is_selected) {
             if (font_bold_hot) fontStyle |= FontStyleBold;
             if (font_italic_hot) fontStyle |= FontStyleItalic;
             if (font_underline_hot) fontStyle |= FontStyleUnderline;
+            fontSize = font_size_hot;
         }
         else {
-            if (font_bold_hot) fontStyle |= FontStyleBold;
+            if (font_bold) fontStyle |= FontStyleBold;
             if (font_italic) fontStyle |= FontStyleItalic;
             if (font_underline) fontStyle |= FontStyleUnderline;
+            fontSize = font_size;
         }
 
         Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   text_brush(m_is_hot ? text_color_hot : text_color);
+        SolidBrush   text_brush((m_is_hot || is_selected) ? text_color_hot : text_color);
 
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -204,6 +204,24 @@ void CustomLabel::DrawTextInBuffer()
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
         graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
 
+        if (is_selected && is_selected_underline) {
+            RectF boundRect;
+            RectF layoutRect(0.0f, 0.0f, 1000.0f, 50.0f);
+            graphics.MeasureString(text.c_str(), (int)text.length(),
+                &font, layoutRect, &stringF, &boundRect);
+            //int textLength = AfxUnScaleX(boundRect.Width);
+            REAL textLength = boundRect.Width;
+
+            nLeft = (nRight - nLeft - textLength) / 2;
+            nRight = nLeft + textLength;
+            nBottom = nBottom - (6 * m_ry);
+            nTop = (REAL)(nBottom - line_width);
+            
+            ARGB clrPen = selected_underline_color;
+            Pen pen(clrPen, (REAL)selected_underline_width);
+            // Draw the horizontal line
+            graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
+        }
     }
 
 }
@@ -217,6 +235,8 @@ void CustomLabel::DrawLabelInBuffer()
     switch (CtrlType)
     {
     case CustomLabelType::line_horizontal:
+    {
+
         REAL nLeft = 0;
         REAL nTop = (text_offset_top * m_ry);
         REAL nRight = (REAL)m_rcClient.right;
@@ -226,12 +246,23 @@ void CustomLabel::DrawLabelInBuffer()
         // Draw the horizontal line
         Graphics graphics(m_memDC);
         graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
+    }
+    break;
 
-        //case CustomLabelType::LineVertical:
-        //	ARGB clrPen = (bIsHot ? pData->line_colorHot : pData->line_color);
-        //	Pen pen(clrPen, pData->line_width);
-            // Draw the vertical line centered taking margins into account
-            //graphics.DrawLine(&pen, rcDraw.GetLeft(), rcDraw.GetTop(), rcDraw.GetRight(), rcDraw.GetBottom());
+    case CustomLabelType::line_vertical:
+    {
+        REAL nLeft = (REAL)m_rcClient.right / 2;
+        REAL nTop = (text_offset_top * m_ry);
+        REAL nRight = nLeft;
+        REAL nBottom = (REAL)m_rcClient.bottom;
+        ARGB clrPen = line_color;
+        Pen pen(clrPen, line_width);
+        // Draw the vertical line
+        Graphics graphics(m_memDC);
+        graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
+    }
+    break;
+
     }
 }
 
@@ -555,6 +586,54 @@ int CustomLabel_SetOptions(HWND hCtrl, CustomLabel* pData)
 
 
 // ========================================================================================
+// Set enable/disable hot testing for the custom control.
+// ========================================================================================
+void CustomLabel_SetHotTesting(HWND hCtrl, bool enable_hot_testing)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->hot_test_enable = enable_hot_testing;
+        pData->font_name_hot = pData->font_name;
+        pData->font_size_hot = pData->font_size;
+        pData->font_bold_hot = pData->font_bold;
+        pData->back_color_hot = pData->back_color;
+        pData->text_color_hot = pData->text_color;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Set enable/disable Selected status for the custom control.
+// ========================================================================================
+void CustomLabel_SetSelected(HWND hCtrl, bool is_selected)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->is_selected = is_selected;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Set enable/disable Selected Underline and Color status for the custom control.
+// ========================================================================================
+void CustomLabel_SetSelectedUnderline(HWND hCtrl, bool enable_underline, DWORD underline_color, int line_width)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->is_selected_underline = enable_underline;
+        pData->selected_underline_color = underline_color;
+        pData->selected_underline_width = line_width;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+
+
+// ========================================================================================
 // Set the text for the custom control.
 // ========================================================================================
 void CustomLabel_SetText(HWND hCtrl, std::wstring text)
@@ -615,6 +694,19 @@ void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD back_color_hot)
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData != nullptr) {
         pData->back_color_hot = back_color_hot;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Set the text background Selected color for the custom control.
+// ========================================================================================
+void CustomLabel_SetBackColorSelected(HWND hCtrl, DWORD back_color_selected)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->back_color_selected = back_color_selected;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -796,6 +888,24 @@ void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool
         pData->font_size_hot = (REAL)font_size;
         pData->font_bold = font_bold;
         pData->font_bold_hot = pData->font_bold;
+        pData->pointer_hot = CustomLabelPointer::arrow;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+// ========================================================================================
+// Set the hot font for the custom control.
+// ========================================================================================
+void CustomLabel_SetFontHot(HWND hCtrl, std::wstring font_name, int font_size, bool font_bold)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->font_name_hot = font_name;
+        pData->font_size_hot = (REAL)font_size;
+        pData->font_bold_hot = pData->font_bold;
+        pData->hot_test_enable = true;
+        pData->back_color_hot = pData->back_color;
+        pData->text_color_hot = pData->text_color;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -803,7 +913,7 @@ void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool
 
 // ========================================================================================
 // Creates a simple "dumb" label that basically just makes it easier to deal
-// with coloring. No hot tracking or click notifications.
+// with coloring. 
 // ========================================================================================
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
     DWORD text_color, DWORD back_color, CustomLabelAlignment alignment, 
@@ -921,6 +1031,32 @@ HWND CustomLabel_HorizontalLine(HWND hParent, int CtrlId, DWORD line_color, DWOR
     return hCtl;
 }
 
+// ========================================================================================
+// Creates a simple vertical line label.
+// ========================================================================================
+HWND CustomLabel_VerticalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
+    int nLeft, int nTop, int nWidth, int nHeight)
+{
+    // Creates a simple "dumb" label that basically just makes it easier to deal
+    // with coloring. No hot tracking or click notifications.
+    CustomLabel* pData = nullptr;
+
+    HWND hCtl = CreateCustomLabel(
+        hParent, CtrlId,
+        CustomLabelType::line_vertical,
+        nLeft, nTop, nWidth, nHeight);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->hot_test_enable = false;
+        pData->back_color = back_color;
+        pData->line_color = line_color;
+        pData->back_color_button_down = back_color;
+        pData->allow_tab_stop = false;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+    return hCtl;
+}
+
 
 // ========================================================================================
 // Create the custom label control.
@@ -989,7 +1125,7 @@ HWND CreateCustomLabel(
         }
 
         pData->pointer = CustomLabelPointer::arrow;
-        pData->pointer_hot = CustomLabelPointer::hand;
+        pData->pointer_hot = CustomLabelPointer::arrow;
 
         CustomLabel_SetOptions(hCtl, pData);
     }

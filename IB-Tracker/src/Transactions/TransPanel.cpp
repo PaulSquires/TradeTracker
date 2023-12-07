@@ -32,7 +32,8 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "Transactions/TransDateFilter.h"
 #include "Transactions/TransDetail.h"
-#include "SideMenu/SideMenu.h"
+#include "ActiveTrades/ActiveTrades.h"
+#include "TabPanel/TabPanel.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
 #include "TransPanel.h"
@@ -98,7 +99,7 @@ void TransPanel_ShowListBoxItem(int index)
     ListBox_SetCurSel(hListBox, index);
 
     // Ensure that the Transactions menu item is selected
-    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_TRANSACTIONS);
+    //SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_TRANSACTIONS);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -123,6 +124,8 @@ void TransPanel_ShowTransactions()
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
+    // Select the correct menu panel item
+    TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_TRANSACTIONS);
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -234,7 +237,7 @@ void TransPanel_ShowTransactions()
     }
 
     // Ensure that the TransDetail panel and Detail Panel are set
-    MainWindow_SetMiddlePanel(HWND_TRANSPANEL);
+    MainWindow_SetLeftPanel(HWND_TRANSPANEL);
     MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -458,6 +461,18 @@ void TransPanel_OnPaint(HWND hwnd)
     int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
     graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
+    // Paint the area to the left of the ListBox in order to give the illusion
+    // of a margin before the ListBox data is displyed.
+    ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
+    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+
+    // Set the background brush
+    back_color.SetValue(COLOR_GRAYDARK);
+    back_brush.SetColor(back_color);
+    nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
     EndPaint(hwnd, &ps);
 }
 
@@ -550,7 +565,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDENDDATE), 0,
         nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = 0;
+    nLeft = AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
     nTop = margin;
     nWidth = cx;
     nHeight = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
@@ -558,7 +573,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
     nTop = nTop + nHeight + AfxScaleY(1);
 
-    nWidth = cx - custom_scrollbar_width;
+    nWidth = cx - nLeft - custom_scrollbar_width;
     nHeight = cy - nTop;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 

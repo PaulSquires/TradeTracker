@@ -29,29 +29,25 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CMainWindow : public CWindowBase<CMainWindow>
+class CTabPanel : public CWindowBase<CTabPanel>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
-class CMainWindowShadow : public CWindowBase<CMainWindowShadow>
-{
-public:
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
-
-extern CMainWindow Main;
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_LEFTPANEL;
-
-#define IDI_MAINICON 106
-
-constexpr int IDC_MAINWINDOW_WARNING = 100;
-constexpr int IDC_MAINWINDOW_UPDATEAVAILABLE = 101;
+extern CTabPanel TabPanel;
+extern HWND HWND_TABPANEL;
 
 
-void MainWindow_BlurPanels(bool active);
-void MainWindow_SetLeftPanel(HWND hPanel);
-void MainWindow_SetRightPanel(HWND hPanel);
+constexpr int TABPANEL_HEIGHT = 36;
 
+constexpr int IDC_TABPANEL_SEPARATOR    = 100;
+constexpr int IDC_TABPANEL_ACTIVETRADES = 101;
+constexpr int IDC_TABPANEL_CLOSEDTRADES = 102;
+constexpr int IDC_TABPANEL_TRANSACTIONS = 103;
+constexpr int IDC_TABPANEL_TICKERTOTALS = 104;
+constexpr int IDC_TABPANEL_JOURNALNOTES = 105;
+constexpr int IDC_TABPANEL_TRADEPLAN    = 106;
+
+
+void TabPanel_SelectPanelItem(HWND hwnd, int CtrlId);

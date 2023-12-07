@@ -81,7 +81,7 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    std::wstring wszCaption = L"IB-Tracker";
+    std::wstring wszCaption = L"IB-Tracker: " + version;
 
     // Ensure only one running instance based on the EXE folder. We use the EXE folder
     // because we want to allow multiple instances of the program IF they are run from

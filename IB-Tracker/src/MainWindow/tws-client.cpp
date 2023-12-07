@@ -36,7 +36,6 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "Reconcile/Reconcile.h"
 #include "tws-api/IntelDecimal/IntelDecimal.h"
-#include "SideMenu/SideMenu.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Database/trade.h"
 
@@ -279,7 +278,7 @@ void MonitoringFunction(std::stop_token st) {
 			}
 		}
 		catch (...) {
-			PostMessage(HWND_SIDEMENU, MSG_TWS_WARNING_EXCEPTION, 0, 0);
+			//PostMessage(HWND_SIDEMENU, MSG_TWS_WARNING_EXCEPTION, 0, 0);
 			break;
 		}
 
@@ -297,7 +296,7 @@ void MonitoringFunction(std::stop_token st) {
 	std::cout << "Requesting TickerUpdate Thread to Terminate" << std::endl;
 	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
-	PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
+	//PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
 
@@ -365,7 +364,7 @@ bool tws_Connect()
     const char* host = "";
 	int port = GetStartupPort();  // 7496;   // 7497 is paper trading account
 	
-	SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_START, 0, 0);
+	//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_START, 0, 0);
 
 	bool res = false;
 
@@ -375,7 +374,7 @@ bool tws_Connect()
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected. Also start thread
 			// that updates the ActiveTrades list every defined interval.
-			SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+			//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 			tws_StartMonitorThread();
 			tws_StartTickerUpdateThread();
 			tws_StartPingThread();
@@ -383,7 +382,7 @@ bool tws_Connect()
 
 	}
 	catch (...) {
-		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
+		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
 		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
@@ -392,7 +391,7 @@ bool tws_Connect()
 
 	
 	if (res == false) {
-        SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
+        //SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Could not connect to TWS.\n\n" \
 			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
@@ -487,7 +486,7 @@ void tws_PerformReconciliation()
 {
 	if (!tws_IsConnected()) {
 		MessageBox(
-			HWND_SIDEMENU,
+			HWND_ACTIVETRADES,
 			(LPCWSTR)L"Must be connected to TWS to perform a reconciliation.",
 			(LPCWSTR)L"Error",
 			MB_ICONINFORMATION);
@@ -814,16 +813,16 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 		// connection between TWS and IBKR, and not TWS and IB-Tracker. The connection
 		// between IB-Tracker and TWS will resume as soon as TWS reconnects back to the
 		// IBKR servers (ie. IB-Trackers sockets remain open).
-		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
+		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
 			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nIB-Tracker will resume automatically when TWS reconnects to IBKR.";
-		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		//MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;
 
 	case 1102:   // 'Connectivity between IB and Trader Workstation reestablished.'
 	{
-		SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 	}
 	break;
 	
@@ -904,13 +903,13 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 	}
 
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
-		CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_NETLIQUIDATION_VALUE), account_value);
-		ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		//CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_NETLIQUIDATION_VALUE), account_value);
+		//ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
-		CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), account_value);
-		ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		//CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), account_value);
+		//ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 }
 

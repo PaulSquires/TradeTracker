@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by IB-Tracker.rc
 //
-#define IDB_LOGO                        105
 #define IDI_MAINICON                    106
 
 // Next default values for new objects

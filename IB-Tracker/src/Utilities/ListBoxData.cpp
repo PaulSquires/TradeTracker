@@ -34,7 +34,6 @@ SOFTWARE.
 #include "TradeDialog/TradeDialog.h"
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
-#include "SideMenu/SideMenu.h"
 #include "Config/Config.h"
 #include "Utilities/Colors.h"
 
@@ -52,6 +51,7 @@ int nHistoryMinColWidth[MAX_COLUMNS] =
     30,     /* put/call */
     40,     /* ACB, BTC/STO, etc */
     15,     /* view transaction icon */
+    0,
     0,
     0,
     0
@@ -74,6 +74,7 @@ int nHistoryMaxColWidth[MAX_COLUMNS] =
     15,      /* view transaction icon */
     0,
     0,
+    0,
     0
 };
 
@@ -91,6 +92,7 @@ int nTradesMinColWidth[MAX_COLUMNS] =
     50,     /* Market Vaue */
     50,     /* Unrealized PNL */
     50,     /* Percentages */
+    0
 };
 
 int nClosedMinColWidth[MAX_COLUMNS] =
@@ -105,6 +107,7 @@ int nClosedMinColWidth[MAX_COLUMNS] =
     0,     
     0,     
     0,     
+    0,
     0,
     0
 };
@@ -122,6 +125,7 @@ int nTransMinColWidth[MAX_COLUMNS] =
     0,
     0,
     0,
+    0,
     0
 };
 
@@ -131,6 +135,7 @@ int nTickerTotalsMinColWidth[MAX_COLUMNS] =
     50,    /* Ticker Symbol */
     140,   /* Ticker Name */
     60,    /* Amount */
+    0,
     0,
     0,
     0,
@@ -154,6 +159,7 @@ int nTickerTotalsMaxColWidth[MAX_COLUMNS] =
     0,
     0,
     0,
+    0,
     0
 };
 
@@ -164,6 +170,7 @@ int nTradeTemplatesMinColWidth[MAX_COLUMNS] =
     0,     
     0,     
     0,     
+    0,
     0,
     0,
     0,

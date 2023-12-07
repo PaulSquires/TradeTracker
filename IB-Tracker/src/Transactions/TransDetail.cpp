@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Database/database.h"
 #include "Database/trade.h"
 #include "TradeDialog/TradeDialog.h"
-#include "SideMenu/SideMenu.h"
 #include "Utilities/ListBoxData.h"
 #include "Config/Config.h"
 #include "TransDetail.h"

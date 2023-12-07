@@ -62,7 +62,6 @@ HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon = FALSE, b
 void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& text);
 
 std::wstring AfxGetListBoxText(HWND hListBox, int index);
-int AfxAddListBoxData(HWND hListBox, const std::wstring& wszText, const int itemData, const int height);
 
 std::wstring AfxGetExePath();
 std::wstring AfxCurrentDate();

@@ -29,7 +29,6 @@ SOFTWARE.
 #include <unordered_map>
 #include "Utilities/AfxWin.h"
 
-#include "SideMenu/SideMenu.h"
 #include "CustomLabel/CustomLabel.h"
 #include "MainWindow/MainWindow.h"
 

@@ -49,8 +49,6 @@ bool CustomVScrollBar::calcVThumbRect()
     listbox_height = (rcListBox.bottom - rcListBox.top);
     items_count = ListBox_GetCount(hListBox);
 
-    // The SideMenu uses a variable item height so we don't want to use the value of the
-    // height of a separator but rather the height of a regular menu item.
     int index = (items_count > 0) ? 1 : 0;
     item_height = ListBox_GetItemHeight(hListBox, index);
 

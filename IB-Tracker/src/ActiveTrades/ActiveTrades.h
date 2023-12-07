@@ -55,6 +55,10 @@ constexpr int IDC_TRADES_LISTBOX = 100;
 constexpr int IDC_TRADES_LABEL = 101;
 constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_TRADES_HEADER = 103;
+constexpr int IDC_TRADES_SORTBY = 104;
+constexpr int IDC_TRADES_SORT_CATEGORY = 105;
+constexpr int IDC_TRADES_SORT_EXPIRATION = 106;
+constexpr int IDC_TRADES_SORT_TICKER = 107;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 24;
@@ -85,6 +89,6 @@ bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);
 void ActiveTrades_ShowActiveTrades(const bool bForceReload);
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
-int ActiveTrades_ShowHideLiquidityLabels(HWND hwnd);
 void ActiveTrades_UpdateTickerPrices();
 void PerformITMcalculation(std::shared_ptr<Trade>& trade);
+void ActiveTrades_ShowSortByButtons(HWND hwnd);

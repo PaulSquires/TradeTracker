@@ -32,7 +32,6 @@ SOFTWARE.
 
 #include "MainWindow.h"
 #include "tws-client.h"
-#include "SideMenu/SideMenu.h"
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "ClosedTrades/ClosedTrades.h"
@@ -43,6 +42,7 @@ SOFTWARE.
 #include "TradePlan/TradePlan.h"
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
+#include "TabPanel/TabPanel.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/UpdateCheck.h"
@@ -53,7 +53,6 @@ SOFTWARE.
 
 HWND HWND_MAINWINDOW = NULL;
 HWND HWND_LEFTPANEL = NULL;
-HWND HWND_MIDDLEPANEL = NULL;
 HWND HWND_RIGHTPANEL = NULL;
 
 CMainWindowShadow Shadow;
@@ -86,22 +85,22 @@ void MainWindow_SetRightPanel(HWND hPanel)
 
 
 // ========================================================================================
-// Set the HWND for the panel that will display in the middle of the MainWindow.
-// Also place it into position and hide previous HWND of middle panel.
+// Set the HWND for the panel that will display in the left of the MainWindow.
+// Also place it into position and hide previous HWND of left panel.
 // ========================================================================================
-void MainWindow_SetMiddlePanel(HWND hPanel)
+void MainWindow_SetLeftPanel(HWND hPanel)
 {
     // If the incoming panel is already set as the middle panel then simply exit.
-    if (hPanel == HWND_MIDDLEPANEL) return;
+    if (hPanel == HWND_LEFTPANEL) return;
 
-    // Get the current position size of the current right panel.
-    RECT rc; GetWindowRect(HWND_MIDDLEPANEL, &rc);
+    // Get the current position size of the current left panel.
+    RECT rc; GetWindowRect(HWND_LEFTPANEL, &rc);
     MapWindowPoints(HWND_DESKTOP, HWND_MAINWINDOW, (LPPOINT)&rc, 2);
 
-    ShowWindow(HWND_MIDDLEPANEL, SW_HIDE);
+    ShowWindow(HWND_LEFTPANEL, SW_HIDE);
 
-    HWND_MIDDLEPANEL = hPanel;
-    SetWindowPos(HWND_MIDDLEPANEL, 0, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+    HWND_LEFTPANEL = hPanel;
+    SetWindowPos(HWND_LEFTPANEL, 0, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
         SWP_NOZORDER | SWP_SHOWWINDOW);
 }
 
@@ -222,19 +221,13 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
     
-    int MARGIN = AfxScaleY(23);
+    int MARGIN = AfxScaleY(TABPANEL_HEIGHT);
     int INNER_MARGIN = AfxScaleY(6);
     int SPLITTER_WIDTH = AfxScaleX(6);
 
     HDWP hdwp = BeginDeferWindowPos(6);
 
-    // Position the left hand side SideMenu Panel
-    int left_panel_width = AfxGetWindowWidth(HWND_LEFTPANEL);
-    hdwp = DeferWindowPos(hdwp, HWND_LEFTPANEL, 0,
-                0, 0, left_panel_width, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-
-    // Position the right hand side History Panel
+    // Position the right hand side Panel
     int right_panel_width = AfxGetWindowWidth(HWND_RIGHTPANEL);
     int right_panel_left = cx - right_panel_width - INNER_MARGIN;
     hdwp = DeferWindowPos(hdwp, HWND_RIGHTPANEL, 0,
@@ -242,22 +235,28 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
         
-    // Position the middle Trades Panel
-    int middle_panel_width = (cx - right_panel_width - left_panel_width - SPLITTER_WIDTH - INNER_MARGIN);
-    hdwp = DeferWindowPos(hdwp, HWND_MIDDLEPANEL, 0,
-                left_panel_width, 0, middle_panel_width, cy - MARGIN,
+    // Position the left hand side Panel
+    int left_panel_width = (cx - right_panel_width - SPLITTER_WIDTH - INNER_MARGIN);
+    hdwp = DeferWindowPos(hdwp, HWND_LEFTPANEL, 0,
+                0, 0, left_panel_width, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Position the Warning label
-    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
-    int nTop = AfxScaleY(20);
-    int nHeight = AfxScaleY(16);
-    int nWidth = middle_panel_width; 
-    DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
+    //HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
+    //int nTop = AfxScaleY(20);
+    //int nHeight = AfxScaleY(16);
+    //int nWidth = middle_panel_width; 
+    //DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
+
+    // Move the bottom TabPanel into place
+    int nHeight = AfxScaleY(TABPANEL_HEIGHT);
+    int nTop = nHeight;
+    int nWidth = left_panel_width; 
+    DeferWindowPos(hdwp, HWND_TABPANEL, 0, 0, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Position the Update Available label
-    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
+    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
     nTop = AfxScaleY(20);
     nHeight = AfxScaleY(16);
     nWidth = right_panel_width; 
@@ -265,17 +264,8 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     EndDeferWindowPos(hdwp);
 
-    // Repaint SideMenu ownerdraw listbox because on restore the redraw does not 
-    // seem to fire consistently.
-    if (state == SIZE_RESTORED) {
-        AfxRedrawWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_LISTBOX));
-        HWND hCustomVScrollBar = GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_CUSTOMVSCROLLBAR);
-        CustomVScrollBar_Recalculate(hCustomVScrollBar);
-    }
-
-
     // Calculate the area for the "splitter control"
-    rcSplitter.left = left_panel_width + middle_panel_width;
+    rcSplitter.left = left_panel_width;
     rcSplitter.top = 0;
     rcSplitter.right = rcSplitter.left + SPLITTER_WIDTH;
     rcSplitter.bottom = cy;
@@ -290,18 +280,14 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_MAINWINDOW = hwnd;
 
-    HWND_LEFTPANEL = SideMenu.Create( hwnd, L"", 0, 0, SIDEMENU_WIDTH, 0,
-        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
     HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, GetStartupRightPanelWidth(), 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    HWND_MIDDLEPANEL = ActiveTrades.Create(hwnd, L"", 0, 0, 0, 0,
+    HWND_LEFTPANEL = ActiveTrades.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-    
+
     ClosedTrades.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
@@ -323,6 +309,10 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     TradePlan.Create(hwnd, L"", 0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+
+    TabPanel.Create(hwnd, L"", 0, 0, 0, 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -384,7 +374,7 @@ void UpdateSplitterChildren(HWND hwnd, int xDelta)
 
     RECT rc; GetClientRect(hwnd, &rc);
     MainWindow_OnSize(hwnd, SIZE_RESTORED, rc.right, rc.bottom);
-    AfxRedrawWindow(HWND_MIDDLEPANEL);
+    AfxRedrawWindow(HWND_LEFTPANEL);
     AfxRedrawWindow(HWND_RIGHTPANEL);
     AfxRedrawWindow(hwnd);
 }

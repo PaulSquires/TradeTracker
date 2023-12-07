@@ -28,11 +28,11 @@ SOFTWARE.
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/ListBoxData.h"
-#include "SideMenu/SideMenu.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeDialog/TradeDialog.h"
 #include "TradeHistory/TradeHistory.h"
+#include "TabPanel/TabPanel.h"
 #include "Database/trade.h"
 #include "Category/Category.h"
 #include "Config/Config.h"
@@ -42,6 +42,85 @@ SOFTWARE.
 HWND HWND_ACTIVETRADES = NULL;
 
 CActiveTrades ActiveTrades;
+
+
+//
+// Select a SortBy button changing back/for colors of unselected buttons.
+//
+void ActiveTrades_SelectSortByButton(HWND hwnd)
+{
+    HWND hSortCategory = GetDlgItem(hwnd, IDC_TRADES_SORT_CATEGORY);
+    HWND hSortExpiration = GetDlgItem(hwnd, IDC_TRADES_SORT_EXPIRATION);
+    HWND hSortTicker = GetDlgItem(hwnd, IDC_TRADES_SORT_TICKER);
+
+    switch (ActiveTrades.sort_order)
+    {
+    case SortOrder::Category:
+        CustomLabel_SetBackColor(hSortCategory, COLOR_BLUE);
+        CustomLabel_SetBackColor(hSortExpiration, COLOR_BLACK);
+        CustomLabel_SetBackColor(hSortTicker, COLOR_BLACK);
+        break;
+
+    case SortOrder::Expiration:
+        CustomLabel_SetBackColor(hSortExpiration, COLOR_BLUE);
+        CustomLabel_SetBackColor(hSortCategory, COLOR_BLACK);
+        CustomLabel_SetBackColor(hSortTicker, COLOR_BLACK);
+        break;
+
+    case SortOrder::Ticker:
+        CustomLabel_SetBackColor(hSortTicker, COLOR_BLUE);
+        CustomLabel_SetBackColor(hSortCategory, COLOR_BLACK);
+        CustomLabel_SetBackColor(hSortExpiration, COLOR_BLACK);
+        break;
+    }
+
+}
+
+
+//
+// Create and show the SortBy buttons at the top of the ActiveTrades panel.
+//
+void ActiveTrades_ShowSortByButtons(HWND hwnd)
+{
+    std::wstring font_name = AfxGetDefaultFont();
+
+    int nLeft = 126;
+    int nTop = 0;
+    int nWidth = 52;
+    int nHeight = 24;
+    int spacer = 4;
+
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_SORTBY, L"Sort by:",
+        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+
+    nLeft += nWidth;
+    nTop = 4;
+    nWidth = 60;
+    nHeight = 16;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADES_SORT_CATEGORY, L"Category",
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+    CustomLabel_SetFont(hCtl, font_name, 8, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
+
+    nLeft += nWidth + spacer;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADES_SORT_EXPIRATION, L"Expiration",
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+    CustomLabel_SetFont(hCtl, font_name, 8, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
+
+    nLeft += nWidth + spacer;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADES_SORT_EXPIRATION, L"Ticker",
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+    CustomLabel_SetFont(hCtl, font_name, 8, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
+
+}
 
 
 //
@@ -384,7 +463,7 @@ void ActiveTrades_ShowListBoxItem(int index)
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
 
     // Ensure that the ActiveTrades menu item is selected
-    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
+    //SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
@@ -415,17 +494,12 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     int curSel = 0;
 
     // Select the correct menu panel item
-    SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
+    TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_ACTIVETRADES);
 
     CustomLabel_SetText(hLabel, L"Active Trades");
 
     // Ensure that the Trades panel is set
-    MainWindow_SetMiddlePanel(HWND_ACTIVETRADES);
-
-    // Resize the SideMenu to show/hide the scrollbar
-    RECT rc; GetClientRect(HWND_SIDEMENU, &rc);
-    SideMenu_OnSize(HWND_SIDEMENU, 0, rc.right, rc.bottom);
-
+    MainWindow_SetLeftPanel(HWND_ACTIVETRADES);
 
     // Determine if we need to initialize the listbox
     if (bForceReload == true && trades.size() != 0) {
@@ -576,6 +650,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         ActiveTrades_ShowListBoxItem(curSel);
     }
 
+    RECT rc{};
     GetClientRect(HWND_ACTIVETRADES, &rc);
     ActiveTrades_OnSize(HWND_ACTIVETRADES, 0, rc.right, rc.bottom);
 
@@ -655,7 +730,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     // be that the user select SHARES or other non-options underlyings only.
     if (tdd.legs.size() == 0) {
         MessageBox(
-            HWND_SIDEMENU,
+            HWND_ACTIVETRADES,
             (LPCWSTR)(L"No valid option legs have been selected for expiration."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -663,7 +738,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     }
         
     int res = MessageBox(
-        HWND_SIDEMENU,
+        HWND_ACTIVETRADES,
         (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
         (LPCWSTR)L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -748,7 +823,7 @@ void ActiveTrades_CalledAwayAssignment(
     leg_quantity = (leg->open_quantity < 0) ? leg_quantity * -1 : leg_quantity;
 
     int res = MessageBox(
-        HWND_SIDEMENU,
+        HWND_ACTIVETRADES,
         (LPCWSTR)(msg.c_str()),
         (LPCWSTR)L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -858,7 +933,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     }
 
     int res = MessageBox(
-        HWND_SIDEMENU,
+        HWND_ACTIVETRADES,
         (LPCWSTR)(msg.c_str()),
         (LPCWSTR)L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -947,7 +1022,7 @@ void ActiveTrades_OptionAssignment(auto trade)
     // Do a check to ensure that there is actually a leg selected for assignment. 
     if (tdd.legs.size() == 0) {
         MessageBox(
-            HWND_SIDEMENU,
+            HWND_ACTIVETRADES,
             (LPCWSTR)(L"No valid option leg has been selected for assignment."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -1320,6 +1395,18 @@ void ActiveTrades_OnPaint(HWND hwnd)
     
     graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
 
+    // Paint the area to the left of the ListBox in order to give the illusion
+    // of a margin before the ListBox data is displyed.
+    ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
+    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+
+    // Set the background brush
+    back_color.SetValue(COLOR_GRAYDARK);
+    back_brush.SetColor(back_color);
+    nWidth = (ps.rcPaint.right - ps.rcPaint.left);
+    nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+
     EndPaint(hwnd, &ps);
 }
 
@@ -1342,7 +1429,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HDWP hdwp = BeginDeferWindowPos(6);
 
     // Move and size the top labels into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, AfxScaleX(200), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, AfxScaleX(90), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -1360,10 +1447,10 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
 
-    int nLeft = 0;
+    int nLeft = AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
     int nTop = margin;
     int nHeight = cy - nTop;
-    int nWidth = cx - custom_scrollbar_width;
+    int nWidth = cx - nLeft - custom_scrollbar_width;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
     
     nLeft = nLeft + nWidth;   // right edge of ListBox
@@ -1402,6 +1489,8 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl);
+
+    ActiveTrades_ShowSortByButtons(hwnd);
 
     return TRUE;
 }
@@ -1453,6 +1542,32 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
 
+
+    case MSG_CUSTOMLABEL_CLICK:
+    {
+        HWND hCtl = (HWND)lParam;
+        int CtrlId = (int)wParam;
+
+        if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_TRADES_SORT_CATEGORY) {
+            if (ActiveTrades.sort_order == SortOrder::Category) return 0;
+            ActiveTrades.sort_order = SortOrder::Category;
+        }
+        if (CtrlId == IDC_TRADES_SORT_EXPIRATION) {
+            if (ActiveTrades.sort_order == SortOrder::Expiration) return 0;
+            ActiveTrades.sort_order = SortOrder::Expiration;
+        }
+        if (CtrlId == IDC_TRADES_SORT_TICKER) {
+            if (ActiveTrades.sort_order == SortOrder::Ticker) return 0;
+            ActiveTrades.sort_order = SortOrder::Ticker;
+        }
+
+        ActiveTrades_SelectSortByButton(m_hwnd);
+        ActiveTrades_ShowActiveTrades(true);
+        return 0;
+    }
+    break;
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

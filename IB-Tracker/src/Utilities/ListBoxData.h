@@ -42,7 +42,7 @@ constexpr std::wstring GLYPH_SETUP = L"\uE292";
 // ListBox data structure that will be directly accessed for each row 
 // during the WM_DRAWITEM notification. 
 
-constexpr int MAX_COLUMNS = 12;
+constexpr int MAX_COLUMNS = 13;
 
 typedef long TickerId;
 
