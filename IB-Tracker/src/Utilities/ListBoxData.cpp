@@ -509,7 +509,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
         text = (trade->itm_text.length()) ? trade->itm_text : L"";
         clr = (trade->itm_color != COLOR_WHITELIGHT) ? trade->itm_color : COLOR_WHITELIGHT;
-        ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
+        ld->SetData(COLUMN_TICKER_ITM, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // ITM
         ld->SetData(3, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);

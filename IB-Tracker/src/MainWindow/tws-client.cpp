@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Utilities/AfxWin.h"
 #include "Config/Config.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "TabPanel/TabPanel.h"
 #include "Reconcile/Reconcile.h"
 #include "tws-api/IntelDecimal/IntelDecimal.h"
 #include "CustomLabel/CustomLabel.h"
@@ -278,7 +279,7 @@ void MonitoringFunction(std::stop_token st) {
 			}
 		}
 		catch (...) {
-			//PostMessage(HWND_SIDEMENU, MSG_TWS_WARNING_EXCEPTION, 0, 0);
+			PostMessage(HWND_TABPANEL, MSG_TWS_WARNING_EXCEPTION, 0, 0);
 			break;
 		}
 
@@ -296,7 +297,7 @@ void MonitoringFunction(std::stop_token st) {
 	std::cout << "Requesting TickerUpdate Thread to Terminate" << std::endl;
 	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
-	//PostMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
+	PostMessage(HWND_TABPANEL, MSG_TWS_CONNECT_DISCONNECT, 0, 0);
 }
 
 
@@ -364,7 +365,7 @@ bool tws_Connect()
     const char* host = "";
 	int port = GetStartupPort();  // 7496;   // 7497 is paper trading account
 	
-	//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_START, 0, 0);
+	SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_START, 0, 0);
 
 	bool res = false;
 
@@ -374,7 +375,7 @@ bool tws_Connect()
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected. Also start thread
 			// that updates the ActiveTrades list every defined interval.
-			//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+			SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 			tws_StartMonitorThread();
 			tws_StartTickerUpdateThread();
 			tws_StartPingThread();
@@ -382,7 +383,7 @@ bool tws_Connect()
 
 	}
 	catch (...) {
-		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
+		SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
 		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);

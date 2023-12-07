@@ -209,18 +209,16 @@ void CustomLabel::DrawTextInBuffer()
             RectF layoutRect(0.0f, 0.0f, 1000.0f, 50.0f);
             graphics.MeasureString(text.c_str(), (int)text.length(),
                 &font, layoutRect, &stringF, &boundRect);
-            //int textLength = AfxUnScaleX(boundRect.Width);
             REAL textLength = boundRect.Width;
 
-            nLeft = (nRight - nLeft - textLength) / 2;
+            nLeft = (nRight - nLeft - textLength) * 0.5f;
             nRight = nLeft + textLength;
-            nBottom = nBottom - (6 * m_ry);
-            nTop = (REAL)(nBottom - line_width);
+            nTop = nBottom - (6 * m_ry);
             
             ARGB clrPen = selected_underline_color;
             Pen pen(clrPen, (REAL)selected_underline_width);
             // Draw the horizontal line
-            graphics.DrawLine(&pen, nLeft, nTop, nRight, nBottom);
+            graphics.DrawLine(&pen, nLeft, nTop, nRight, nTop);
         }
     }
 
@@ -617,6 +615,19 @@ void CustomLabel_SetSelected(HWND hCtrl, bool is_selected)
 
 
 // ========================================================================================
+// Get the Selected status for the custom control.
+// ========================================================================================
+bool CustomLabel_GetSelected(HWND hCtrl)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        return pData->is_selected;
+    }
+    return false;
+}
+
+
+// ========================================================================================
 // Set enable/disable Selected Underline and Color status for the custom control.
 // ========================================================================================
 void CustomLabel_SetSelectedUnderline(HWND hCtrl, bool enable_underline, DWORD underline_color, int line_width)
@@ -912,6 +923,20 @@ void CustomLabel_SetFontHot(HWND hCtrl, std::wstring font_name, int font_size, b
 
 
 // ========================================================================================
+// Set the normal and hot image for an Image label.
+// ========================================================================================
+void CustomLabel_SetImages(HWND hCtrl, int image_id, int image_hot_id)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(image_id), L"PNG");
+        pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(image_hot_id), L"PNG");
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
 // Creates a simple "dumb" label that basically just makes it easier to deal
 // with coloring. 
 // ========================================================================================
@@ -978,7 +1003,7 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
 // Creates a simple label that only displays an image.
 // ========================================================================================
 HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
-    std::wstring image, std::wstring image_hot, 
+    int image_id, int image_hot_id, 
     int image_width, int image_height,
     int nLeft, int nTop, int nWidth, int nHeight)
 {
@@ -995,10 +1020,10 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
         pData->hot_test_enable = false;
         pData->back_color = COLOR_BLACK;
         pData->back_color_button_down = pData->back_color;
-        pData->image_width = 68;
-        pData->image_height = 68;
-        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
-        pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(IDB_LOGO), L"PNG");
+        pData->image_width = image_width;
+        pData->image_height = image_height;
+        pData->pImage = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(image_id), L"PNG");
+        pData->pImageHot = LoadImageFromResource(pData->hInst, MAKEINTRESOURCE(image_hot_id), L"PNG");
         CustomLabel_SetOptions(hCtl, pData);
     }
     return hCtl;

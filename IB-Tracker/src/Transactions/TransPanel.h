@@ -41,7 +41,6 @@ extern HWND HWND_TRANSPANEL;
 
 
 constexpr int IDC_TRANS_LISTBOX = 100;
-constexpr int IDC_TRANS_LABEL = 101;
 constexpr int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_TRANS_HEADER = 103;
 

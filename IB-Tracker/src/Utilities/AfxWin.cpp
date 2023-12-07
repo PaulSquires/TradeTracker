@@ -429,7 +429,7 @@ HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon, bool bCen
     if (bCentered)
         tti.uFlags = tti.uFlags | TTF_CENTERTIP;
     tti.hinst = GetModuleHandle(NULL);
-    tti.lpszText = (LPWSTR)&text;
+    tti.lpszText = (LPWSTR)text.c_str();
     SendMessage(hTooltip, TTM_ADDTOOL, 0, (LPARAM)&tti);
 
     return hTooltip;
@@ -468,7 +468,7 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& text)
     // Retrieve the tooltip information
     SendMessage(hTooltip, TTM_GETTOOLINFO, 0, (LPARAM)&tti);
     // Set the new tooltip text
-    tti.lpszText = &text[0];
+    tti.lpszText = (LPWSTR)text.c_str();
     SendMessage(hTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&tti);
 }
 

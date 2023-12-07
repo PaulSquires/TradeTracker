@@ -31,6 +31,8 @@ SOFTWARE.
 
 
 #define IDB_LOGO 105
+#define IDB_CONNECT 110
+#define IDB_DISCONNECT 111
 
 enum class CustomLabelType
 {
@@ -156,6 +158,7 @@ void CustomLabel_SetText(HWND hCtrl, std::wstring text);
 std::wstring CustomLabel_GetText(HWND hCtrl);
 void CustomLabel_SetHotTesting(HWND hCtrl, bool enable_hot_testing);
 void CustomLabel_SetSelected(HWND hCtrl, bool is_selected);
+bool CustomLabel_GetSelected(HWND hCtrl);
 void CustomLabel_SetSelectedUnderline(HWND hCtrl, bool enable_underline, DWORD underline_color, int line_width);
 void CustomLabel_SetToolTip(HWND hCtrl, std::wstring text);
 void CustomLabel_SetTextColor(HWND hCtrl, DWORD text_color);
@@ -175,6 +178,7 @@ int CustomLabel_GetUserDataInt(HWND hCtrl);
 void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, DWORD BorderColor, DWORD BorderColorHot);
 void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer);
+void CustomLabel_SetImages(HWND hCtrl, int image_id, int image_hot_id);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
 	DWORD text_color, DWORD back_color, CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
@@ -193,7 +197,7 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
 
 	
 HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
-	std::wstring image, std::wstring image_hot,
+	int image_id, int image_hot_id,
 	int image_width, int image_height,
 	int nLeft, int nTop, int nWidth, int nHeight);
 

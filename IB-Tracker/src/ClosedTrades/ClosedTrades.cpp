@@ -79,7 +79,6 @@ void ClosedTrades_ShowClosedTrades()
 {
     HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
-    HWND hLabel = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LABEL);
     HWND hCategory = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CATEGORY);
 
 
@@ -222,10 +221,6 @@ void ClosedTrades_ShowClosedTrades()
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, TableType::closed_trades, -1);
-
-
-    // Set the label text indicated the type of trades being listed
-    CustomLabel_SetText(hLabel, L"Closed Trades");
 
 
     // If no closed trades exist then add at least one line
@@ -447,8 +442,8 @@ void ClosedTrades_OnPaint(HWND hwnd)
 
     // Paint the area to the left of the ListBox in order to give the illusion
     // of a margin before the ListBox data is displyed.
-    ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
-    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+    ps.rcPaint.top += AfxScaleY(CLOSEDTRADES_MARGIN); 
+    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(APP_LEFTMARGIN_WIDTH);
 
     // Set the background brush
     back_color.SetValue(COLOR_GRAYDARK);
@@ -493,18 +488,13 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
 
-    int nLeft = 0;
+    int nLeft = AfxScaleY(APP_LEFTMARGIN_WIDTH);
     int nTop = 0;
-    int nWidth = 0;
+    int nWidth = cx;
     int nHeight = AfxScaleY(23);
 
-    // Move and size the top label into place
-    nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LABEL), 0,
-        0, 0, cx, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
     nTop = nTop + nHeight;
-
-
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LBLCATEGORYFILTER), 0,
         nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -519,7 +509,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, hYearEnd, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     
-    nLeft = AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+    nLeft = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     nTop = margin;
     nWidth = cx - nLeft;
     nHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
@@ -547,10 +537,7 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_CLOSEDTRADES = hwnd;
 
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LABEL, L"Closed Trades",
-        COLOR_WHITELIGHT, COLOR_BLACK);
-
-    hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSED_HEADER, L"",
+    HWND hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSED_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ClosedTrades_Header_SubclassProc,
         IDC_CLOSED_HEADER, NULL);
     int nWidth = AfxScaleX(50);

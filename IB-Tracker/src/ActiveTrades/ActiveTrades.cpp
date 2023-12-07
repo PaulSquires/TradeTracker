@@ -487,7 +487,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 {
     HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
-    HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
+    //HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
     static bool positions_requested = false;
     static int tickerId = 100;
@@ -495,8 +495,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
     // Select the correct menu panel item
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_ACTIVETRADES);
-
-    CustomLabel_SetText(hLabel, L"Active Trades");
 
     // Ensure that the Trades panel is set
     MainWindow_SetLeftPanel(HWND_ACTIVETRADES);
@@ -631,7 +629,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         t = nullptr;
         TradeHistory_ShowTradesHistoryTable(t);
     }
-
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -1398,7 +1395,7 @@ void ActiveTrades_OnPaint(HWND hwnd)
     // Paint the area to the left of the ListBox in order to give the illusion
     // of a margin before the ListBox data is displyed.
     ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
-    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(APP_LEFTMARGIN_WIDTH);
 
     // Set the background brush
     back_color.SetValue(COLOR_GRAYDARK);
@@ -1428,9 +1425,6 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     HDWP hdwp = BeginDeferWindowPos(6);
 
-    // Move and size the top labels into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LABEL), 0, 0, 0, AfxScaleX(90), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
-
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calculation then the scrollbar will appear "jumpy" under the user's mouse cursor.
@@ -1447,7 +1441,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
 
-    int nLeft = AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+    int nLeft = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     int nTop = margin;
     int nHeight = cy - nTop;
     int nWidth = cx - nLeft - custom_scrollbar_width;
@@ -1470,13 +1464,10 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_ACTIVETRADES = hwnd;
-        
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LABEL, L"Active Trades", 
-        COLOR_WHITELIGHT, COLOR_BLACK);
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
-    hCtl =
+    HWND hCtl =
         ActiveTrades.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |

@@ -50,6 +50,9 @@ extern HWND HWND_LEFTPANEL;
 constexpr int IDC_MAINWINDOW_WARNING = 100;
 constexpr int IDC_MAINWINDOW_UPDATEAVAILABLE = 101;
 
+//constexpr int APP_LEFTMARGIN_WIDTH = 14;
+constexpr int APP_LEFTMARGIN_WIDTH = 24;
+
 
 void MainWindow_BlurPanels(bool active);
 void MainWindow_SetLeftPanel(HWND hPanel);

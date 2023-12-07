@@ -32,6 +32,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "TradePlan/TradePlan.h"
 #include "JournalNotes/JournalNotes.h"
+#include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
 
 #include "TabPanel.h"
@@ -66,6 +67,31 @@ void TabPanel_SelectPanelItem(HWND hwnd, int CtrlId)
         }
     }
 }
+
+
+// ========================================================================================
+// Return the Control ID of the selected TabPanel panel.
+// ========================================================================================
+int TabPanel_GetSelectedPanel(HWND hwnd)
+{
+    static std::vector<int> panels;
+    panels.push_back(IDC_TABPANEL_ACTIVETRADES);
+    panels.push_back(IDC_TABPANEL_CLOSEDTRADES);
+    panels.push_back(IDC_TABPANEL_TRANSACTIONS);
+    panels.push_back(IDC_TABPANEL_TICKERTOTALS);
+    panels.push_back(IDC_TABPANEL_JOURNALNOTES);
+    panels.push_back(IDC_TABPANEL_TRADEPLAN);
+
+    for (auto& panel : panels) {
+        HWND hPanel = GetDlgItem(hwnd, panel);
+        if (CustomLabel_GetSelected(hPanel)) {
+            return panel;
+        }
+    }
+    return -1;
+}
+
+
 
 
 // ========================================================================================
@@ -117,8 +143,10 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TABPANEL = hwnd;
 
+    int image_size = 18;
+
     int item_top = 0;
-    int item_left = 30;
+    int item_left = 40;
     int item_height = TABPANEL_HEIGHT - 2;
     int item_width = 0;
 
@@ -130,9 +158,18 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
+    CustomLabel* pData = nullptr;
+
+    HWND hCtl = CustomLabel_SimpleImageLabel(
+        hwnd, IDC_TABPANEL_CONNECT, 
+        IDB_DISCONNECT, IDB_DISCONNECT,
+        image_size, image_size,
+        12, 10, image_size, image_size);
+    std::wstring tooltip_text = L"Click to connect";
+    CustomLabel_SetToolTip(hCtl, tooltip_text);
 
     item_width = 90;
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_ACTIVETRADES, L"Active Trades",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_ACTIVETRADES, L"Active Trades",
         COLOR_WHITEMEDIUM, COLOR_BLACK, CustomLabelAlignment::middle_center,
         item_left, item_top, item_width, item_height);
     CustomLabel_SetFontHot(hCtl, font_name, font_size, true);
@@ -233,12 +270,87 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_PAINT, TabPanel_OnPaint);
 
 
+    case MSG_TWS_CONNECT_START:
+    {
+        SetCursor(LoadCursor(0, IDC_WAIT));
+        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"Connecting to TWS", IDC_SIDEMENU_CONNECTTWS);
+        return 0;
+    }
+    break;
+
+
+    case MSG_TWS_CONNECT_SUCCESS:
+    {
+        SetCursor(LoadCursor(0, IDC_ARROW));
+        HWND hCtl = GetDlgItem(HWND_TABPANEL, IDC_TABPANEL_CONNECT);
+        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"TWS Connected", IDC_SIDEMENU_CONNECTTWS);
+        CustomLabel_SetImages(hCtl, IDB_CONNECT, IDB_CONNECT);
+        CustomLabel_SetToolTip(hCtl, L"Connected");
+        return 0;
+    }
+    break;
+
+
+    case MSG_TWS_CONNECT_WAIT_RECONNECTION:
+    {
+        SetCursor(LoadCursor(0, IDC_ARROW));
+        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"Reconnect Wait", IDC_SIDEMENU_CONNECTTWS);
+        return 0;
+    }
+    break;
+
+
+    case MSG_TWS_WARNING_EXCEPTION:
+    {
+        SetCursor(LoadCursor(0, IDC_ARROW));
+        //CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
+        //    L"Monitoring thread exception! Please restart application.");
+        //ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+        return 0;
+    }
+    break;
+
+
+    case MSG_TWS_CONNECT_FAILURE:
+    case MSG_TWS_CONNECT_DISCONNECT:
+    {
+        SetCursor(LoadCursor(0, IDC_ARROW));
+        HWND hCtl = GetDlgItem(HWND_TABPANEL, IDC_TABPANEL_CONNECT);
+        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"TWS Connected", IDC_SIDEMENU_CONNECTTWS);
+        CustomLabel_SetImages(hCtl, IDB_DISCONNECT, IDB_DISCONNECT);
+        CustomLabel_SetToolTip(hCtl, L"Click to connect");
+        tws_EndMonitorThread();
+        return 0;
+    }
+    break;
+
+
     case MSG_CUSTOMLABEL_CLICK:
     {
         HWND hCtl = (HWND)lParam;
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_TABPANEL_CONNECT) {
+            // If already connected then don't try to connect again
+            if (!tws_IsConnected()) {
+                // Prevent multiple clicks of the connect button by waiting until
+                // the first click is finished.
+                static bool processing_connect_click = false;
+                if (processing_connect_click) break;
+                processing_connect_click = true;
+                bool res = tws_Connect();
+                processing_connect_click = false;
+            }
+            break;
+        }
+
+        // Do not refresh if the panel is already active
+        if (CtrlId == TabPanel_GetSelectedPanel(m_hwnd)) {
+            break;
+        }
+
 
         TabPanel_SelectPanelItem(m_hwnd, CtrlId);
 

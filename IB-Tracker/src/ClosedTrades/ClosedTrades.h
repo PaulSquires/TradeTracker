@@ -40,7 +40,6 @@ extern CClosedTrades ClosedTrades;
 extern HWND HWND_CLOSEDTRADES;
 
 constexpr int IDC_CLOSED_LISTBOX = 100;
-constexpr int IDC_CLOSED_LABEL = 101;
 constexpr int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_CLOSED_HEADER = 103;
 constexpr int IDC_CLOSED_LBLCATEGORYFILTER = 104;

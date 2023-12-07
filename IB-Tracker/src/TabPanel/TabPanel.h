@@ -41,13 +41,14 @@ extern HWND HWND_TABPANEL;
 
 constexpr int TABPANEL_HEIGHT = 36;
 
-constexpr int IDC_TABPANEL_SEPARATOR    = 100;
-constexpr int IDC_TABPANEL_ACTIVETRADES = 101;
-constexpr int IDC_TABPANEL_CLOSEDTRADES = 102;
-constexpr int IDC_TABPANEL_TRANSACTIONS = 103;
-constexpr int IDC_TABPANEL_TICKERTOTALS = 104;
-constexpr int IDC_TABPANEL_JOURNALNOTES = 105;
-constexpr int IDC_TABPANEL_TRADEPLAN    = 106;
+constexpr int IDC_TABPANEL_CONNECT      = 100;
+constexpr int IDC_TABPANEL_SEPARATOR    = 101;
+constexpr int IDC_TABPANEL_ACTIVETRADES = 102;
+constexpr int IDC_TABPANEL_CLOSEDTRADES = 103;
+constexpr int IDC_TABPANEL_TRANSACTIONS = 104;
+constexpr int IDC_TABPANEL_TICKERTOTALS = 105;
+constexpr int IDC_TABPANEL_JOURNALNOTES = 106;
+constexpr int IDC_TABPANEL_TRADEPLAN    = 107;
 
 
 void TabPanel_SelectPanelItem(HWND hwnd, int CtrlId);

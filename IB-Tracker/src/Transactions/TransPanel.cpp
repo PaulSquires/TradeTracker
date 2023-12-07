@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "Transactions/TransDateFilter.h"
 #include "Transactions/TransDetail.h"
-#include "ActiveTrades/ActiveTrades.h"
 #include "TabPanel/TabPanel.h"
 #include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
@@ -463,8 +462,8 @@ void TransPanel_OnPaint(HWND hwnd)
 
     // Paint the area to the left of the ListBox in order to give the illusion
     // of a margin before the ListBox data is displyed.
-    ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
-    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+    ps.rcPaint.top += AfxScaleY(TRANSPANEL_MARGIN);
+    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(APP_LEFTMARGIN_WIDTH);
 
     // Set the background brush
     back_color.SetValue(COLOR_GRAYDARK);
@@ -505,16 +504,11 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     HDWP hdwp = BeginDeferWindowPos(15);
 
     int margin = AfxScaleY(TRANSPANEL_MARGIN);
-    int nLeft = 0;
+    int nLeft = AfxScaleY(APP_LEFTMARGIN_WIDTH);
     int nTop = 0;
     int nWidth = 0;
     int nHeight = AfxScaleY(23);
     int nStartTop = nTop;
-
-    // Move and size the top labels into place
-    nWidth = AfxScaleX(100);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LABEL), 0,
-        nLeft, 0, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     nStartTop = nHeight;
 
@@ -565,7 +559,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDENDDATE), 0,
         nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = AfxScaleX(CUSTOMVSCROLLBAR_WIDTH);
+    nLeft = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     nTop = margin;
     nWidth = cx;
     nHeight = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
@@ -601,13 +595,9 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
 
-
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LABEL, L"Transactions",
-        COLOR_WHITELIGHT, COLOR_BLACK);
-
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+    HWND hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTICKERGO, L"GO",

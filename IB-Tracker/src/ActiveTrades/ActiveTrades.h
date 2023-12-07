@@ -52,7 +52,6 @@ extern CActiveTrades ActiveTrades;
 extern HWND HWND_ACTIVETRADES;
 
 constexpr int IDC_TRADES_LISTBOX = 100;
-constexpr int IDC_TRADES_LABEL = 101;
 constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_TRADES_HEADER = 103;
 constexpr int IDC_TRADES_SORTBY = 104;
@@ -61,7 +60,7 @@ constexpr int IDC_TRADES_SORT_EXPIRATION = 106;
 constexpr int IDC_TRADES_SORT_TICKER = 107;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
-constexpr int ACTIVETRADES_MARGIN = 24;
+constexpr int ACTIVETRADES_MARGIN = 80;
 
 
 // These columns in the table are updated in real time when connected
