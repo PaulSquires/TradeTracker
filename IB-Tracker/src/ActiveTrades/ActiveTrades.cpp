@@ -349,10 +349,12 @@ bool IsNewOptionsTradeAction(TradeAction action)
     {
     case TradeAction::new_options_trade:
     case TradeAction::new_iron_condor:
-    case TradeAction::new_short_LT112:
+    case TradeAction::new_short_put_LT112:
     case TradeAction::new_short_strangle:
     case TradeAction::new_short_put:
+    case TradeAction::new_short_put_vertical:
     case TradeAction::new_short_call:
+    case TradeAction::new_short_call_vertical:
         return true;
     default:
         return false;
@@ -1463,12 +1465,14 @@ std::wstring GetNewTradeDescription(const int index)
 {
     switch (index)
     {
-    case IDC_NEWTRADE_CUSTOMOPTIONS: return L"Custom Options";
+    case IDC_NEWTRADE_CUSTOMOPTIONS: return L"Custom Options Trade";
     case IDC_NEWTRADE_IRONCONDOR: return L"Iron Condor";
     case IDC_NEWTRADE_SHORTSTRANGLE: return L"Short Strangle";
     case IDC_NEWTRADE_SHORTPUT: return L"Short Put";
+    case IDC_NEWTRADE_SHORTPUTVERTICAL: return L"Short Put Vertical";
     case IDC_NEWTRADE_SHORTCALL: return L"Short Call";
-    case IDC_NEWTRADE_SHORTLT112: return L"Short LT112";
+    case IDC_NEWTRADE_SHORTCALLVERTICAL: return L"Short Call Vertical";
+    case IDC_NEWTRADE_SHORTPUTLT112: return L"Short Put LT112";
     case IDC_NEWTRADE_SHARESTRADE: return L"Shares Trade";
     case IDC_NEWTRADE_FUTURESTRADE: return L"Futures Trade";
     case IDC_NEWTRADE_OTHERINCOME: return L"Other Income/Expense";
@@ -1641,8 +1645,14 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         case IDC_NEWTRADE_SHORTCALL:
             TradeDialog_Show(TradeAction::new_short_call);
             break;
-        case IDC_NEWTRADE_SHORTLT112:
-            TradeDialog_Show(TradeAction::new_short_LT112);
+        case IDC_NEWTRADE_SHORTPUTVERTICAL:
+            TradeDialog_Show(TradeAction::new_short_put_vertical);
+            break;
+        case IDC_NEWTRADE_SHORTCALLVERTICAL:
+            TradeDialog_Show(TradeAction::new_short_call_vertical);
+            break;
+        case IDC_NEWTRADE_SHORTPUTLT112:
+            TradeDialog_Show(TradeAction::new_short_put_LT112);
             break;
         case IDC_NEWTRADE_SHARESTRADE:
             TradeDialog_Show(TradeAction::new_shares_trade);

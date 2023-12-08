@@ -294,6 +294,11 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             tdd.trade_action == TradeAction::other_income_expense) {
             multiplier = 1;
         }
+        if (tdd.trade_action == TradeAction::roll_leg ||
+            tdd.trade_action == TradeAction::close_leg) {
+            if (IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
+        }
+            
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(multiplier));
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), std::to_wstring(tdd.trade->trade_bp));
     }
@@ -313,7 +318,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
         CustomLabel_SetText(hCtl, L"");
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -325,14 +330,16 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
-    if (tdd.trade_action == TradeAction::new_short_LT112) {
+    if (tdd.trade_action == TradeAction::new_short_put_LT112) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
-        CustomLabel_SetText(hCtl, L"");
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
+        text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
+        CustomLabel_SetText(hCtl, text);
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
         CustomLabel_SetUserDataInt(hCtl,(int)Strategy::LT112);
@@ -349,7 +356,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
         CustomLabel_SetText(hCtl, L"");
 
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
@@ -368,7 +375,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
         text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
         CustomLabel_SetText(hCtl, text);
@@ -389,7 +396,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
         CustomLabel_SetText(hCtl, text);
 
-        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Call);
         text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Call));
         CustomLabel_SetText(hCtl, text);
@@ -403,6 +410,47 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
+
+    if (tdd.trade_action == TradeAction::new_short_put_vertical) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, text);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
+        text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Put));
+        CustomLabel_SetText(hCtl, text);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Vertical);
+        text = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Vertical));
+        CustomLabel_SetText(hCtl, text);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
+
+
+    if (tdd.trade_action == TradeAction::new_short_call_vertical) {
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
+        CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
+        text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+        CustomLabel_SetText(hCtl, text);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
+        CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Call);
+        text = AfxUpper(StrategyButton_GetPutCallEnumText(PutCall::Call));
+        CustomLabel_SetText(hCtl, text);
+
+        hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY);
+        CustomLabel_SetUserDataInt(hCtl, (int)Strategy::Vertical);
+        text = AfxUpper(StrategyButton_GetStrategyEnumText(Strategy::Vertical));
+        CustomLabel_SetText(hCtl, text);
+
+        StrategyButton_InvokeStrategy();
+        return;
+    }
 
     if (tdd.legs.size() == 0) return;
 
@@ -517,9 +565,11 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
     case TradeAction::new_options_trade:
     case TradeAction::new_short_strangle:
     case TradeAction::new_short_call:
+    case TradeAction::new_short_call_vertical:
     case TradeAction::new_iron_condor:
-    case TradeAction::new_short_LT112:
+    case TradeAction::new_short_put_LT112:
     case TradeAction::new_short_put:
+    case TradeAction::new_short_put_vertical:
         description = L"Options";
         grid_main = L"New Transaction";
         break;

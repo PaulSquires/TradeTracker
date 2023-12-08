@@ -211,7 +211,7 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_PutCall+offset));
             text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
-            HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+            HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
             CustomLabel_SetUserDataInt(hCtlPutCall, (int)pc);
             text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
             CustomLabel_SetText(hCtlPutCall, text);
@@ -253,7 +253,7 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
     // in the popup.
     Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_STRATEGY));
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_LONGSHORT));
-    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_PutCall));
+    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(hParentCtl, IDC_STRATEGYBUTTON_PUTCALL));
 
     std::wstring text;
 

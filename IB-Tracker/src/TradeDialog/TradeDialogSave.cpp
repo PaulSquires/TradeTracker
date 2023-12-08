@@ -587,7 +587,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
         case TradeAction::new_options_trade:
         case TradeAction::new_iron_condor:
-        case TradeAction::new_short_LT112:
+        case TradeAction::new_short_put_LT112:
         case TradeAction::new_short_strangle:
         case TradeAction::new_short_put:
         case TradeAction::new_short_call:

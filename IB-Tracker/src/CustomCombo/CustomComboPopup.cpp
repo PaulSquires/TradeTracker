@@ -383,7 +383,7 @@ HWND CustomComboPopup_CreatePopup(HWND hParent, HWND hParentCtl, int NumItems)
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(hPopup, HWND_TOP,
-        rc.left - margin, rc.bottom,
+        rc.left - margin, rc.bottom + margin,
         AfxScaleX(CUSTOMCOMBOPOPUP_WIDTH),
         AfxScaleY(CUSTOMCOMBOPOPUP_LISTBOX_ROWHEIGHT * (float)combo_count) + AfxScaleY(3),
         SWP_SHOWWINDOW);

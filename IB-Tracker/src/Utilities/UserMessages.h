@@ -46,10 +46,12 @@ enum class TradeAction
     add_put_to_trade,
     add_call_to_trade,
     new_iron_condor,
-    new_short_LT112,
+    new_short_put_LT112,
     new_short_strangle,
     new_short_put,
     new_short_call,
+    new_short_put_vertical,
+    new_short_call_vertical,
     other_income_expense,
     edit_transaction,
     no_action

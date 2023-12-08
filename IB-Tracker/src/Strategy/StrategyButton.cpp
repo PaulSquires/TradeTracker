@@ -166,7 +166,7 @@ BOOL StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
     CustomLabel_SetText(hCtl, text);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PutCall, L"",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"",
         COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::middle_center, 51, 0, 50, nHeight);
     CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
@@ -306,7 +306,7 @@ void StrategyButton_ToggleStrategyText(HWND hCtl)
     CustomLabel_SetText(hCtl, text);
 
     text = L"";
-    HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall);
+    HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
     if (StrategyButton_StrategyAllowPutCall(hCtl)) {
         sel = CustomLabel_GetUserDataInt(hCtlPutCall);
         text = AfxUpper(StrategyButton_GetPutCallEnumText((PutCall)sel));
@@ -322,7 +322,7 @@ void StrategyButton_InvokeStrategy()
 {
     Strategy s = (Strategy)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
     LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT));
-    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PutCall));
+    PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL));
 
     HWND hTradeGrid = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
 
@@ -682,7 +682,7 @@ LRESULT CStrategyButton::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             StrategyButton_ToggleLongShortText(hCtl);
             StrategyButton_SetLongShortBackColor(hCtl);
         }
-        if (CtrlId == IDC_STRATEGYBUTTON_PutCall) {
+        if (CtrlId == IDC_STRATEGYBUTTON_PUTCALL) {
             StrategyButton_TogglePutCallText(hCtl, GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_STRATEGY));
         }
         if (CtrlId == IDC_STRATEGYBUTTON_STRATEGY) {

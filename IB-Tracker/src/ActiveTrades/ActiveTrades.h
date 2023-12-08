@@ -76,12 +76,14 @@ constexpr int IDC_NEWTRADE_CUSTOMOPTIONS = 150;
 constexpr int IDC_NEWTRADE_IRONCONDOR = 151;
 constexpr int IDC_NEWTRADE_SHORTSTRANGLE = 152;
 constexpr int IDC_NEWTRADE_SHORTPUT = 153;
-constexpr int IDC_NEWTRADE_SHORTCALL = 154;
-constexpr int IDC_NEWTRADE_SHORTLT112 = 155;
-constexpr int IDC_NEWTRADE_SHARESTRADE = 156;
-constexpr int IDC_NEWTRADE_FUTURESTRADE = 157;
-constexpr int IDC_NEWTRADE_OTHERINCOME = 158;
-constexpr int IDC_NEWTRADE_LAST = 158;
+constexpr int IDC_NEWTRADE_SHORTPUTVERTICAL = 154;
+constexpr int IDC_NEWTRADE_SHORTCALL = 155;
+constexpr int IDC_NEWTRADE_SHORTCALLVERTICAL = 156;
+constexpr int IDC_NEWTRADE_SHORTPUTLT112 = 157;
+constexpr int IDC_NEWTRADE_SHARESTRADE = 158;
+constexpr int IDC_NEWTRADE_FUTURESTRADE = 159;
+constexpr int IDC_NEWTRADE_OTHERINCOME = 160;
+constexpr int IDC_NEWTRADE_LAST = 160;
 
 
 // These columns in the table are updated in real time when connected

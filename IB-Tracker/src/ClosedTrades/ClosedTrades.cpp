@@ -443,7 +443,6 @@ void ClosedTrades_OnPaint(HWND hwnd)
     // Paint the area to the left of the ListBox in order to give the illusion
     // of a margin before the ListBox data is displyed.
     ps.rcPaint.top += AfxScaleY(CLOSEDTRADES_MARGIN); 
-    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(APP_LEFTMARGIN_WIDTH);
 
     // Set the background brush
     back_color.SetValue(COLOR_GRAYDARK);
