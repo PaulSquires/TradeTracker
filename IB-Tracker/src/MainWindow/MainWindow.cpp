@@ -257,8 +257,6 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     // Position the Update Available label
     HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
-    nTop = AfxScaleY(20);
-    nHeight = AfxScaleY(16);
     nWidth = right_panel_width; 
     DeferWindowPos(hdwp, hCtl, 0, cx - right_panel_width, cy - nTop, nWidth - SPLITTER_WIDTH, nHeight, SWP_NOZORDER);
 

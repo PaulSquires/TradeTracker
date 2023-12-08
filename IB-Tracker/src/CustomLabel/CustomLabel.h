@@ -173,6 +173,7 @@ void CustomLabel_SetUserDataInt(HWND hCtrl, int value);
 int CustomLabel_GetUserDataInt(HWND hCtrl);
 void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, DWORD BorderColor, DWORD BorderColorHot);
 void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
+void CustomLabel_SetImageOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer);
 void CustomLabel_SetImages(HWND hCtrl, int image_id, int image_hot_id);
 

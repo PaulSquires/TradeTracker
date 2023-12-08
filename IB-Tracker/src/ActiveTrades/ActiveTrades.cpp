@@ -1551,7 +1551,7 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             (SUBCLASSPROC)ActiveTrades_ListBox_SubclassProc,
             IDC_TRADES_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
-
+        
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl);
 

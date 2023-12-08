@@ -136,8 +136,6 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_TABPANEL = hwnd;
 
-    int image_size = 18;
-
     int item_top = 0;
     int item_left = 0;
     int item_height = TABPANEL_HEIGHT - 2;
@@ -154,28 +152,34 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel* pData = nullptr;
 
     item_left = 12;
-    item_top = 10;
+    item_top = 5;
+    item_width = 26;
+    item_height = 26;
+
     HWND hCtl = CustomLabel_SimpleImageLabel(
         hwnd, IDC_TABPANEL_CONNECT, 
         IDB_DISCONNECT, IDB_DISCONNECT,
-        image_size, image_size,
-        item_left, item_top, image_size, image_size);
+        20, 20, item_left, item_top, item_width, item_height);
     std::wstring tooltip_text = L"Click to connect";
+    CustomLabel_SetImageOffset(hCtl, 3, 3);
     CustomLabel_SetToolTip(hCtl, tooltip_text);
+    CustomLabel_SetBackColorHot(hCtl, COLOR_SELECTION);
 
-    item_left += image_size + 12;
+    item_left += item_width + 3;
     hCtl = CustomLabel_SimpleImageLabel(
         hwnd, IDC_TABPANEL_RECONCILE, 
         IDB_RECONCILE, IDB_RECONCILE,
-        image_size, image_size,
-        item_left, item_top, image_size, image_size);
+        22, 22, item_left, item_top, item_width, item_height);
     tooltip_text = L"Reconcile";
+    CustomLabel_SetImageOffset(hCtl, 2, 2);
     CustomLabel_SetToolTip(hCtl, tooltip_text);
-
+    CustomLabel_SetBackColorHot(hCtl, COLOR_SELECTION);
+    
     
     item_left = 74;
     item_top = 0;
     item_width = 90;
+    item_height = TABPANEL_HEIGHT - 2;
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_ACTIVETRADES, L"Active Trades",
         COLOR_WHITEMEDIUM, COLOR_BLACK, CustomLabelAlignment::middle_center,
         item_left, item_top, item_width, item_height);

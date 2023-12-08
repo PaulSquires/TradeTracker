@@ -835,6 +835,20 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int offset_left, int offset_top)
 
 
 // ========================================================================================
+// Set the image offset for the custom control (useful for centering image).
+// ========================================================================================
+void CustomLabel_SetImageOffset(HWND hCtrl, int offset_left, int offset_top)
+{
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->image_offset_left = offset_left;
+        pData->image_offset_top = offset_top;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
 // Set the user defined text data (wstring) for the custom control.
 // ========================================================================================
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring text)
@@ -1017,8 +1031,9 @@ HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
     nLeft, nTop, nWidth, nHeight);
     pData = CustomLabel_GetOptions(hCtl);
     if (pData) {
-        pData->hot_test_enable = false;
+        pData->hot_test_enable = true;
         pData->back_color = COLOR_BLACK;
+        pData->back_color_hot = pData->back_color;
         pData->back_color_button_down = pData->back_color;
         pData->image_width = image_width;
         pData->image_height = image_height;
