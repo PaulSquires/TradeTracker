@@ -34,8 +34,8 @@ typedef long TickerId;
 
 enum class SortOrder {
     Category,
-    Ticker,
-    Expiration
+    Expiration,
+    TickerSymbol
 };
 
 
@@ -47,20 +47,41 @@ public:
 };
 
 
-
 extern CActiveTrades ActiveTrades;
 extern HWND HWND_ACTIVETRADES;
 
 constexpr int IDC_TRADES_LISTBOX = 100;
 constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_TRADES_HEADER = 103;
-constexpr int IDC_TRADES_SORTBY = 104;
-constexpr int IDC_TRADES_SORT_CATEGORY = 105;
-constexpr int IDC_TRADES_SORT_EXPIRATION = 106;
-constexpr int IDC_TRADES_SORT_TICKER = 107;
+constexpr int IDC_TRADES_LBLSORTFILTER = 104;
+constexpr int IDC_TRADES_SORTFILTER = 105;
+constexpr int IDC_TRADES_LBLNEWTRADE = 106;
+constexpr int IDC_TRADES_NEWTRADE = 107;
+constexpr int IDC_TRADES_NETLIQUIDATION = 108;
+constexpr int IDC_TRADES_NETLIQUIDATION_VALUE = 109;
+constexpr int IDC_TRADES_EXCESSLIQUIDITY = 110;
+constexpr int IDC_TRADES_EXCESSLIQUIDITY_VALUE = 111;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 80;
+
+constexpr int IDC_SORTFILTER_FIRST = 140;
+constexpr int IDC_SORTFILTER_CATEGORY = 140;
+constexpr int IDC_SORTFILTER_EXPIRATION = 141;
+constexpr int IDC_SORTFILTER_TICKERSYMBOL = 142;
+constexpr int IDC_SORTFILTER_LAST = 142;
+
+constexpr int IDC_NEWTRADE_FIRST = 150;
+constexpr int IDC_NEWTRADE_CUSTOMOPTIONS = 150;
+constexpr int IDC_NEWTRADE_IRONCONDOR = 151;
+constexpr int IDC_NEWTRADE_SHORTSTRANGLE = 152;
+constexpr int IDC_NEWTRADE_SHORTPUT = 153;
+constexpr int IDC_NEWTRADE_SHORTCALL = 154;
+constexpr int IDC_NEWTRADE_SHORTLT112 = 155;
+constexpr int IDC_NEWTRADE_SHARESTRADE = 156;
+constexpr int IDC_NEWTRADE_FUTURESTRADE = 157;
+constexpr int IDC_NEWTRADE_OTHERINCOME = 158;
+constexpr int IDC_NEWTRADE_LAST = 158;
 
 
 // These columns in the table are updated in real time when connected
@@ -90,4 +111,5 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload);
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
 void ActiveTrades_UpdateTickerPrices();
 void PerformITMcalculation(std::shared_ptr<Trade>& trade);
-void ActiveTrades_ShowSortByButtons(HWND hwnd);
+std::wstring GetSortFilterDescription(const int index);
+std::wstring GetNewTradeDescription(const int index);

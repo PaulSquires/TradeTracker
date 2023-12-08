@@ -36,91 +36,14 @@ SOFTWARE.
 #include "Database/trade.h"
 #include "Category/Category.h"
 #include "Config/Config.h"
+
+#include "CustomCombo/CustomCombo.h"
 #include "ActiveTrades.h"
 
 
 HWND HWND_ACTIVETRADES = NULL;
 
 CActiveTrades ActiveTrades;
-
-
-//
-// Select a SortBy button changing back/for colors of unselected buttons.
-//
-void ActiveTrades_SelectSortByButton(HWND hwnd)
-{
-    HWND hSortCategory = GetDlgItem(hwnd, IDC_TRADES_SORT_CATEGORY);
-    HWND hSortExpiration = GetDlgItem(hwnd, IDC_TRADES_SORT_EXPIRATION);
-    HWND hSortTicker = GetDlgItem(hwnd, IDC_TRADES_SORT_TICKER);
-
-    switch (ActiveTrades.sort_order)
-    {
-    case SortOrder::Category:
-        CustomLabel_SetBackColor(hSortCategory, COLOR_BLUE);
-        CustomLabel_SetBackColor(hSortExpiration, COLOR_BLACK);
-        CustomLabel_SetBackColor(hSortTicker, COLOR_BLACK);
-        break;
-
-    case SortOrder::Expiration:
-        CustomLabel_SetBackColor(hSortExpiration, COLOR_BLUE);
-        CustomLabel_SetBackColor(hSortCategory, COLOR_BLACK);
-        CustomLabel_SetBackColor(hSortTicker, COLOR_BLACK);
-        break;
-
-    case SortOrder::Ticker:
-        CustomLabel_SetBackColor(hSortTicker, COLOR_BLUE);
-        CustomLabel_SetBackColor(hSortCategory, COLOR_BLACK);
-        CustomLabel_SetBackColor(hSortExpiration, COLOR_BLACK);
-        break;
-    }
-
-}
-
-
-//
-// Create and show the SortBy buttons at the top of the ActiveTrades panel.
-//
-void ActiveTrades_ShowSortByButtons(HWND hwnd)
-{
-    std::wstring font_name = AfxGetDefaultFont();
-
-    int nLeft = 126;
-    int nTop = 0;
-    int nWidth = 52;
-    int nHeight = 24;
-    int spacer = 4;
-
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_SORTBY, L"Sort by:",
-        COLOR_WHITELIGHT, COLOR_BLACK, CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
-
-    nLeft += nWidth;
-    nTop = 4;
-    nWidth = 60;
-    nHeight = 16;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADES_SORT_CATEGORY, L"Category",
-        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
-    CustomLabel_SetFont(hCtl, font_name, 8, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-
-    nLeft += nWidth + spacer;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADES_SORT_EXPIRATION, L"Expiration",
-        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
-    CustomLabel_SetFont(hCtl, font_name, 8, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-
-    nLeft += nWidth + spacer;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADES_SORT_EXPIRATION, L"Ticker",
-        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
-    CustomLabel_SetFont(hCtl, font_name, 8, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-
-}
 
 
 //
@@ -524,7 +447,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                 });
         }
 
-        if (ActiveTrades.sort_order == SortOrder::Ticker) {
+        if (ActiveTrades.sort_order == SortOrder::TickerSymbol) {
             // Sort based on TickerSymbol and Expiration
             std::sort(trades.begin(), trades.end(),
                 [](const auto trade1, const auto trade2) {
@@ -1408,6 +1331,22 @@ void ActiveTrades_OnPaint(HWND hwnd)
 }
 
 
+// ========================================================================================
+// Show/Hide the Net and Excess liquidity labels and values.
+// ========================================================================================
+int ActiveTrades_ShowHideLiquidityLabels(HWND hwnd)
+{
+    int nShow = (GetShowPortfolioValue()) ? SW_SHOW : SW_HIDE;
+    if (!tws_IsConnected()) nShow = SW_HIDE;
+
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION), nShow);
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE), nShow);
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY), nShow);
+    ShowWindow(GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), nShow);
+
+    return nShow;
+}
+
     
  // ========================================================================================
 // Process WM_SIZE message for window/dialog: ActiveTrades
@@ -1416,6 +1355,8 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hHeader = GetDlgItem(hwnd, IDC_TRADES_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
+    HWND hSortFilter = GetDlgItem(hwnd, IDC_TRADES_SORTFILTER);
+    HWND hNewTrade = GetDlgItem(hwnd, IDC_TRADES_NEWTRADE);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR);
         
     int margin = AfxScaleY(ACTIVETRADES_MARGIN);
@@ -1423,7 +1364,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // If no entries exist for the ListBox then don't show any child controls
     int show_flag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
 
-    HDWP hdwp = BeginDeferWindowPos(6);
+    HDWP hdwp = BeginDeferWindowPos(12);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
@@ -1440,11 +1381,53 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
+    int nLeft = AfxScaleY(APP_LEFTMARGIN_WIDTH);
+    int nTop = 0;
+    int nWidth = AfxScaleX(120);
+    int nHeight = AfxScaleY(23);
 
-    int nLeft = AfxScaleX(APP_LEFTMARGIN_WIDTH);
-    int nTop = margin;
-    int nHeight = cy - nTop;
-    int nWidth = cx - nLeft - custom_scrollbar_width;
+    nTop = nHeight;
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LBLSORTFILTER), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeight;
+    hdwp = DeferWindowPos(hdwp, hSortFilter, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+    nTop = nHeight + AfxScaleY(17);
+    nHeight = AfxScaleY(16);
+    nLeft = AfxScaleX(280);
+    nWidth = AfxScaleX(60);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION), 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER);
+    
+    nLeft = AfxScaleX(350);
+    nWidth = AfxScaleX(60);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE), 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER);
+    
+    nTop = nTop + nHeight;
+    nLeft = AfxScaleX(280);
+    nWidth = AfxScaleX(65);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY), 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER);
+
+    nLeft = AfxScaleX(350);
+    nWidth = AfxScaleX(60);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE), 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER);
+
+
+    nHeight = AfxScaleY(23);
+    nTop = nHeight;
+    nLeft = AfxScaleY(470);
+    nWidth = AfxScaleX(120);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRADES_LBLNEWTRADE), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    nTop = nTop + nHeight;
+    hdwp = DeferWindowPos(hdwp, hNewTrade, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+    
+    nTop = margin;
+    nLeft = AfxScaleY(APP_LEFTMARGIN_WIDTH);
+    nHeight = cy - nTop;
+    nWidth = cx - nLeft - custom_scrollbar_width;
     hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
     
     nLeft = nLeft + nWidth;   // right edge of ListBox
@@ -1455,6 +1438,44 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
         SWP_NOZORDER | show_flag);
 
     EndDeferWindowPos(hdwp);
+
+    ActiveTrades_ShowHideLiquidityLabels(hwnd);
+}
+
+
+// ========================================================================================
+// Get the text for the specified SortFilter index.
+// ========================================================================================
+std::wstring GetSortFilterDescription(const int index)
+{
+    switch (index)
+    {
+    case IDC_SORTFILTER_CATEGORY: return L"By Category";
+    case IDC_SORTFILTER_EXPIRATION: return L"By Days to Expiration (DTE)";
+    case IDC_SORTFILTER_TICKERSYMBOL: return L"By Ticker Symbol and DTE";
+    default: return L"";
+    }
+}
+
+
+// ========================================================================================
+// Get the text for the specified NewTrade index.
+// ========================================================================================
+std::wstring GetNewTradeDescription(const int index)
+{
+    switch (index)
+    {
+    case IDC_NEWTRADE_CUSTOMOPTIONS: return L"Custom Options";
+    case IDC_NEWTRADE_IRONCONDOR: return L"Iron Condor";
+    case IDC_NEWTRADE_SHORTSTRANGLE: return L"Short Strangle";
+    case IDC_NEWTRADE_SHORTPUT: return L"Short Put";
+    case IDC_NEWTRADE_SHORTCALL: return L"Short Call";
+    case IDC_NEWTRADE_SHORTLT112: return L"Short LT112";
+    case IDC_NEWTRADE_SHARESTRADE: return L"Shares Trade";
+    case IDC_NEWTRADE_FUTURESTRADE: return L"Futures Trade";
+    case IDC_NEWTRADE_OTHERINCOME: return L"Other Income/Expense";
+    default: return L"";
+    }
 }
 
 
@@ -1465,9 +1486,62 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_ACTIVETRADES = hwnd;
 
+    // SORTFILTER SELECTOR
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LBLSORTFILTER, L"Sort Filter",
+        COLOR_WHITEDARK, COLOR_BLACK);
+    int num_items = (IDC_SORTFILTER_LAST - IDC_SORTFILTER_FIRST + 1);
+    HWND hCtl = CreateCustomComboControl(hwnd, IDC_TRADES_SORTFILTER, 0, 0, 3);
+    
+    CustomComboControl* pData = CustomComboControl_GetOptions(hCtl);
+    if (pData != nullptr) {
+        CustomComboItemData data{};
+        for (int i = IDC_SORTFILTER_FIRST; i <= IDC_SORTFILTER_LAST; ++i) {
+            data.item_text = GetSortFilterDescription(i);
+            data.item_data = i;
+            pData->items.push_back(data);
+        }
+        CustomComboControl_SetSelectedIndex(hCtl, IDC_SORTFILTER_FIRST);
+        CustomLabel_SetText(GetDlgItem(hCtl, IDC_CUSTOMCOMBOCONTROL_COMBOBOX), 
+            GetSortFilterDescription(IDC_SORTFILTER_FIRST));
+    }
+
+    
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_NETLIQUIDATION, L"Net Liq:",
+        COLOR_WHITEDARK, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_NETLIQUIDATION_VALUE, L"",
+        COLOR_WHITELIGHT, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_EXCESSLIQUIDITY, L"Excess Liq:",
+        COLOR_WHITEDARK, COLOR_BLACK);
+
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADES_EXCESSLIQUIDITY_VALUE, L"",
+        COLOR_WHITELIGHT, COLOR_BLACK);
+
+
+    // NEW TRADE SELECTOR
+    CustomLabel_SimpleLabel(hwnd, IDC_TRADES_LBLNEWTRADE, L"New Trade",
+        COLOR_WHITEDARK, COLOR_BLACK);
+    num_items = (IDC_NEWTRADE_LAST - IDC_NEWTRADE_FIRST + 1);
+    hCtl = CreateCustomComboControl(hwnd, IDC_TRADES_NEWTRADE, 0, 0, num_items);
+
+    pData = CustomComboControl_GetOptions(hCtl);
+    if (pData != nullptr) {
+        CustomComboItemData data{};
+        for (int i = IDC_NEWTRADE_FIRST; i <= IDC_NEWTRADE_LAST; ++i) {
+            data.item_text = GetNewTradeDescription(i);
+            data.item_data = i;
+            pData->items.push_back(data);
+        }
+        CustomComboControl_SetSelectedIndex(hCtl, IDC_NEWTRADE_FIRST);
+        CustomLabel_SetText(GetDlgItem(hCtl, IDC_CUSTOMCOMBOCONTROL_COMBOBOX), 
+            GetNewTradeDescription(IDC_NEWTRADE_FIRST));
+    }
+
+
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
-    HWND hCtl =
+    hCtl =
         ActiveTrades.AddControl(Controls::ListBox, hwnd, IDC_TRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
@@ -1480,8 +1554,6 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl);
-
-    ActiveTrades_ShowSortByButtons(hwnd);
 
     return TRUE;
 }
@@ -1525,6 +1597,8 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     
     case MSG_POSITIONS_READY:
+    {
+
         // Request Positions has completed and has sent this notification so 
         // we can now start requesting the portfolio updates real time data.
         if (!portfolio_requested) {
@@ -1532,30 +1606,61 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             portfolio_requested = true;
         }
         return 0;
+    }
+    break;
 
 
-    case MSG_CUSTOMLABEL_CLICK:
+    case MSG_CUSTOMCOMBO_ITEMCHANGED:
     {
-        HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        // The SortFilter or NewTrade popup has been clicked.
+        int item_data = (int)wParam;
 
-        if (hCtl == NULL) return 0;
-
-        if (CtrlId == IDC_TRADES_SORT_CATEGORY) {
-            if (ActiveTrades.sort_order == SortOrder::Category) return 0;
+        switch (item_data)
+        {
+        case IDC_SORTFILTER_CATEGORY:
             ActiveTrades.sort_order = SortOrder::Category;
-        }
-        if (CtrlId == IDC_TRADES_SORT_EXPIRATION) {
-            if (ActiveTrades.sort_order == SortOrder::Expiration) return 0;
+            ActiveTrades_ShowActiveTrades(true);
+            break;
+        case IDC_SORTFILTER_EXPIRATION:
             ActiveTrades.sort_order = SortOrder::Expiration;
-        }
-        if (CtrlId == IDC_TRADES_SORT_TICKER) {
-            if (ActiveTrades.sort_order == SortOrder::Ticker) return 0;
-            ActiveTrades.sort_order = SortOrder::Ticker;
+            ActiveTrades_ShowActiveTrades(true);
+            break;
+        case IDC_SORTFILTER_TICKERSYMBOL:
+            ActiveTrades.sort_order = SortOrder::TickerSymbol;
+            ActiveTrades_ShowActiveTrades(true);
+            break;
+        case IDC_NEWTRADE_CUSTOMOPTIONS: 
+            TradeDialog_Show(TradeAction::new_options_trade);
+            break;
+        case IDC_NEWTRADE_IRONCONDOR:
+            TradeDialog_Show(TradeAction::new_iron_condor);
+            break;
+        case IDC_NEWTRADE_SHORTSTRANGLE:
+            TradeDialog_Show(TradeAction::new_short_strangle);
+            break;
+        case IDC_NEWTRADE_SHORTPUT: 
+            TradeDialog_Show(TradeAction::new_short_put);
+            break;
+        case IDC_NEWTRADE_SHORTCALL:
+            TradeDialog_Show(TradeAction::new_short_call);
+            break;
+        case IDC_NEWTRADE_SHORTLT112:
+            TradeDialog_Show(TradeAction::new_short_LT112);
+            break;
+        case IDC_NEWTRADE_SHARESTRADE:
+            TradeDialog_Show(TradeAction::new_shares_trade);
+            break;
+        case IDC_NEWTRADE_FUTURESTRADE:
+            TradeDialog_Show(TradeAction::new_futures_trade);
+            break;
+        case IDC_NEWTRADE_OTHERINCOME:
+            TradeDialog_Show(TradeAction::other_income_expense);
+            break;
+        default:
+            ActiveTrades.sort_order = SortOrder::Category;
+            break;
         }
 
-        ActiveTrades_SelectSortByButton(m_hwnd);
-        ActiveTrades_ShowActiveTrades(true);
         return 0;
     }
     break;

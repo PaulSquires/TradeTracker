@@ -27,29 +27,22 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "CustomCombo.h"
 
 
-class CTabPanel : public CWindowBase<CTabPanel>
+class CCustomComboPopup : public CWindowBase<CCustomComboPopup>
 {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
-extern CTabPanel TabPanel;
-extern HWND HWND_TABPANEL;
+extern HWND HWND_CUSTOMCOMBOPOPUP;
 
+constexpr int IDC_CUSTOMCOMBOPOPUP_LISTBOX = 100;
 
-constexpr int TABPANEL_HEIGHT = 36;
+constexpr int CUSTOMCOMBOPOPUP_LISTBOX_ROWHEIGHT = 24;
+constexpr int CUSTOMCOMBOPOPUP_WIDTH = CUSTOMCOMBOCONTROL_COMBOBOX_WIDTH + CUSTOMCOMBOCONTROL_COMMAND_WIDTH + 50;
 
-constexpr int IDC_TABPANEL_CONNECT      = 100;
-constexpr int IDC_TABPANEL_RECONCILE    = 101;
-constexpr int IDC_TABPANEL_SEPARATOR    = 102;
-constexpr int IDC_TABPANEL_ACTIVETRADES = 103;
-constexpr int IDC_TABPANEL_CLOSEDTRADES = 104;
-constexpr int IDC_TABPANEL_TRANSACTIONS = 105;
-constexpr int IDC_TABPANEL_TICKERTOTALS = 106;
-constexpr int IDC_TABPANEL_JOURNALNOTES = 107;
-constexpr int IDC_TABPANEL_TRADEPLAN    = 108;
+HWND CustomComboPopup_CreatePopup(HWND hParent, HWND hParentCtl, int NumItems);
 
-
-void TabPanel_SelectPanelItem(HWND hwnd, int CtrlId);

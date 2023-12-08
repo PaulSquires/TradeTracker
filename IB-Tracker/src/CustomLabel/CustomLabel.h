@@ -30,10 +30,6 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 
 
-#define IDB_LOGO 105
-#define IDB_CONNECT 110
-#define IDB_DISCONNECT 111
-
 enum class CustomLabelType
 {
 	text_only,

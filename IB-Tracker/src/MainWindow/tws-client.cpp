@@ -904,13 +904,13 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 	}
 
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
-		//CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_NETLIQUIDATION_VALUE), account_value);
-		//ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), account_value);
+		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
-		//CustomLabel_SetText(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), account_value);
-		//ShowWindow(GetDlgItem(HWND_SIDEMENU, IDC_SIDEMENU_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), account_value);
+		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 }
 

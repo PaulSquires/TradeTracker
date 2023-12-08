@@ -32,6 +32,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "TradePlan/TradePlan.h"
 #include "JournalNotes/JournalNotes.h"
+#include "MainWindow/MainWindow.h"
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
 
@@ -129,14 +130,6 @@ void TabPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: TabPanel
-// ========================================================================================
-void TabPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
-}
-
-
-// ========================================================================================
 // Process WM_CREATE message for window/dialog: TabPanel
 // ========================================================================================
 BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
@@ -146,7 +139,7 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     int image_size = 18;
 
     int item_top = 0;
-    int item_left = 40;
+    int item_left = 0;
     int item_height = TABPANEL_HEIGHT - 2;
     int item_width = 0;
 
@@ -160,14 +153,28 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     CustomLabel* pData = nullptr;
 
+    item_left = 12;
+    item_top = 10;
     HWND hCtl = CustomLabel_SimpleImageLabel(
         hwnd, IDC_TABPANEL_CONNECT, 
         IDB_DISCONNECT, IDB_DISCONNECT,
         image_size, image_size,
-        12, 10, image_size, image_size);
+        item_left, item_top, image_size, image_size);
     std::wstring tooltip_text = L"Click to connect";
     CustomLabel_SetToolTip(hCtl, tooltip_text);
 
+    item_left += image_size + 12;
+    hCtl = CustomLabel_SimpleImageLabel(
+        hwnd, IDC_TABPANEL_RECONCILE, 
+        IDB_RECONCILE, IDB_RECONCILE,
+        image_size, image_size,
+        item_left, item_top, image_size, image_size);
+    tooltip_text = L"Reconcile";
+    CustomLabel_SetToolTip(hCtl, tooltip_text);
+
+    
+    item_left = 74;
+    item_top = 0;
     item_width = 90;
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_ACTIVETRADES, L"Active Trades",
         COLOR_WHITEMEDIUM, COLOR_BLACK, CustomLabelAlignment::middle_center,
@@ -196,7 +203,7 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     
     item_left = separator_left + separator_width;
-    item_width = 90;
+    item_width = 84;
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_TRANSACTIONS, L"Transactions",
         COLOR_WHITEMEDIUM, COLOR_BLACK, CustomLabelAlignment::middle_center,
         item_left, item_top, item_width, item_height);
@@ -210,7 +217,7 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     
     item_left = separator_left + separator_width;
-    item_width = 90;
+    item_width = 84;
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_TICKERTOTALS, L"Ticker Totals",
         COLOR_WHITEMEDIUM, COLOR_BLACK, CustomLabelAlignment::middle_center,
         item_left, item_top, item_width, item_height);
@@ -238,7 +245,7 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
     item_left = separator_left + separator_width;
-    item_width = 90;
+    item_width = 76;
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TABPANEL_TRADEPLAN, L"Trade Plan",
         COLOR_WHITEMEDIUM, COLOR_BLACK, CustomLabelAlignment::middle_center,
         item_left, item_top, item_width, item_height);
@@ -265,7 +272,6 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, TabPanel_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TabPanel_OnSize);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TabPanel_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TabPanel_OnPaint);
 
@@ -273,7 +279,6 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_START:
     {
         SetCursor(LoadCursor(0, IDC_WAIT));
-        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"Connecting to TWS", IDC_SIDEMENU_CONNECTTWS);
         return 0;
     }
     break;
@@ -283,7 +288,6 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         HWND hCtl = GetDlgItem(HWND_TABPANEL, IDC_TABPANEL_CONNECT);
-        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"TWS Connected", IDC_SIDEMENU_CONNECTTWS);
         CustomLabel_SetImages(hCtl, IDB_CONNECT, IDB_CONNECT);
         CustomLabel_SetToolTip(hCtl, L"Connected");
         return 0;
@@ -294,7 +298,6 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     case MSG_TWS_CONNECT_WAIT_RECONNECTION:
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
-        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"Reconnect Wait", IDC_SIDEMENU_CONNECTTWS);
         return 0;
     }
     break;
@@ -316,7 +319,6 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         SetCursor(LoadCursor(0, IDC_ARROW));
         HWND hCtl = GetDlgItem(HWND_TABPANEL, IDC_TABPANEL_CONNECT);
-        //int index = AfxReplaceListBoxData(hListBox, listbox_index_connecttws, L"TWS Connected", IDC_SIDEMENU_CONNECTTWS);
         CustomLabel_SetImages(hCtl, IDB_DISCONNECT, IDB_DISCONNECT);
         CustomLabel_SetToolTip(hCtl, L"Click to connect");
         tws_EndMonitorThread();
@@ -343,6 +345,11 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 bool res = tws_Connect();
                 processing_connect_click = false;
             }
+            break;
+        }
+
+        if (CtrlId == IDC_TABPANEL_RECONCILE) {
+            tws_PerformReconciliation();
             break;
         }
 
