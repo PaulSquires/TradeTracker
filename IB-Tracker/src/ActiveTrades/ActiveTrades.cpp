@@ -1318,7 +1318,6 @@ void ActiveTrades_OnPaint(HWND hwnd)
     // Paint the area to the left of the ListBox in order to give the illusion
     // of a margin before the ListBox data is displyed.
     ps.rcPaint.top += AfxScaleY(ACTIVETRADES_MARGIN);
-    ps.rcPaint.right = ps.rcPaint.left + AfxScaleX(APP_LEFTMARGIN_WIDTH);
 
     // Set the background brush
     back_color.SetValue(COLOR_GRAYDARK);
@@ -1434,8 +1433,7 @@ void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     nWidth = custom_scrollbar_width;
     int show_scrollbar = (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
     if (show_flag == SWP_HIDEWINDOW) show_scrollbar = SWP_HIDEWINDOW;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
-        SWP_NOZORDER | show_flag);
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
 
     EndDeferWindowPos(hdwp);
 
@@ -1598,7 +1596,6 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     
     case MSG_POSITIONS_READY:
     {
-
         // Request Positions has completed and has sent this notification so 
         // we can now start requesting the portfolio updates real time data.
         if (!portfolio_requested) {
