@@ -461,8 +461,6 @@ int TradeDialog_Show(TradeAction inTradeAction)
     cloak = FALSE;
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
-    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-    
     if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
         IsNewSharesTradeAction(tdd.trade_action) == true) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
