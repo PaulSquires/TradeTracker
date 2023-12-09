@@ -60,4 +60,5 @@ constexpr int APP_LEFTMARGIN_WIDTH = 24;
 void MainWindow_BlurPanels(bool active);
 void MainWindow_SetLeftPanel(HWND hPanel);
 void MainWindow_SetRightPanel(HWND hPanel);
+void MainWindow_CloseComboPopups();
 

@@ -31,10 +31,6 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
-#include "Transactions/TransDateFilter.h"
-#include "DatePicker/Calendar.h"
-#include "Category/CategoryPopup.h"
-#include "CustomCombo/CustomComboPopup.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/UserMessages.h"
 #include "Utilities/UpdateCheck.h"
@@ -179,20 +175,9 @@ int APIENTRY wWinMain(
     // Call the main modal message pump and wait for it to end.
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
-    {
+    {            
         if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
-            if (IsWindowVisible(HWND_TRANSDATEFILTER)) {
-                DestroyWindow(HWND_TRANSDATEFILTER);
-            }
-            else if (IsWindowVisible(HWND_CALENDAR)) {
-                DestroyWindow(HWND_CALENDAR);
-            }
-            else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {
-                DestroyWindow(HWND_CATEGORYPOPUP);
-            }
-            else if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
-                DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
-            }
+            MainWindow_CloseComboPopups();
         }
 
         // Processes accelerator keys for menu commands

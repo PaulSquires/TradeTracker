@@ -42,10 +42,15 @@ SOFTWARE.
 #include "TradePlan/TradePlan.h"
 #include "Category/Category.h"
 #include "Category/CategoryDialog.h"
+#include "Category/CategoryPopup.h"
 #include "TabPanel/TabPanel.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/UpdateCheck.h"
+#include "DatePicker/Calendar.h"
+#include "CustomCombo/CustomComboPopup.h"
+#include "Transactions/TransDateFilter.h"
+
 
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -458,6 +463,26 @@ BOOL MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT m
 
 
 // ========================================================================================
+// Close combobox popup menus when ESCAPE is pressed or application loses focus.
+// ========================================================================================
+void MainWindow_CloseComboPopups()
+{
+    if (IsWindowVisible(HWND_TRANSDATEFILTER)) {
+        DestroyWindow(HWND_TRANSDATEFILTER);
+    }
+    else if (IsWindowVisible(HWND_CALENDAR)) {
+        DestroyWindow(HWND_CALENDAR);
+    }
+    else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {
+        DestroyWindow(HWND_CATEGORYPOPUP);
+    }
+    else if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
+        DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
+    }
+}
+
+
+// ========================================================================================
 // Windows callback function (MainWindow).
 // ========================================================================================
 LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -474,6 +499,19 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_LBUTTONDOWN, MainWindow_OnLButtonDown);
         HANDLE_MSG(m_hwnd, WM_LBUTTONUP, MainWindow_OnLButtonUp);
         HANDLE_MSG(m_hwnd, WM_SETCURSOR, MainWindow_OnSetCursor);
+
+
+    case WM_ACTIVATEAPP:
+    {
+        // Application is losing focus so destroy any visible popup
+        // combobox popups.
+        if (wParam == false) {
+            PostMessage(m_hwnd, WM_USER, NULL, NULL);
+            MainWindow_CloseComboPopups();
+        }
+        return 0;
+    }
+    break;
 
 
     case WM_SHOWWINDOW:
