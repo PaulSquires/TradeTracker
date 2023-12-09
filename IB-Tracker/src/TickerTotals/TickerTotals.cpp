@@ -26,10 +26,13 @@ SOFTWARE.
 
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
-#include "Database/trade.h"
 #include "MainWindow/MainWindow.h"
+#include "Transactions/TransPanel.h"
+#include "Transactions/TransDateFilter.h"
+
 #include "TickerTotals.h"
 
 
@@ -157,6 +160,33 @@ LRESULT CALLBACK TickerPanel_Header_SubclassProc(
 
 
 // ========================================================================================
+// Show the transactions for the selected Ticker line
+// ========================================================================================
+bool TickerTotals_ShowTickerTransactions(HWND hListBox, int idx)
+{
+    // Get the listbox pointer for the selected line.
+    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
+    if (ld == nullptr) return false;
+
+    // Get the Ticker symbol
+    std::wstring ticker_symbol = ld->col[1].text;
+
+    // Show the trade history for the selected trade
+    if (ticker_symbol.length()) {
+        HWND hTransDateCtl = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TRANSDATE);
+        CustomTextBox_SetText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER), ticker_symbol);
+        CustomLabel_SetUserDataInt(hTransDateCtl, (int)TransDateFilterType::YearToDate);
+        CustomLabel_SetText(hTransDateCtl, TransDateFilter_GetString((int)TransDateFilterType::YearToDate).c_str());
+        TransPanel_SetShowTransactionDetail(false);
+        SendMessage(HWND_TRANSPANEL, MSG_DATEPICKER_DATECHANGED, GetDlgCtrlID(hTransDateCtl), (LPARAM)hTransDateCtl);
+    }
+
+    return true;
+}
+
+
+
+// ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
@@ -195,6 +225,31 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         return 0;
         break;
     }
+
+    
+    case WM_LBUTTONDBLCLK:
+    {
+        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
+
+        // Invoke the Transactions Panel and show the selected Ticker transactions for the entire year-to-date.
+        TickerTotals_ShowTickerTransactions(hWnd, idx);
+    }
+    break;
+
+
+    case WM_KEYDOWN:
+    {
+        if (wParam == VK_RETURN) {
+            // Invoke the Transactions Panel and show the selected Ticker transactions for the entire year-to-date.
+            int idx = ListBox_GetCurSel(hWnd);
+            TickerTotals_ShowTickerTransactions(hWnd, idx);
+        }
+    }
+    break;
 
 
     case WM_ERASEBKGND:

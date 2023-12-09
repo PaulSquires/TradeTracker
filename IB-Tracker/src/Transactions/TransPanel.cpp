@@ -42,6 +42,19 @@ HWND HWND_TRANSPANEL = NULL;
 
 CTransPanel TransPanel;
 
+bool ShowTransactionDetail = true;
+
+
+// ========================================================================================
+// Set flag to enable/disable showing the Transaction Detail when line in the listbox
+// is clicked on. This is useful when TickerTotals is shown and we do want the 
+// TickerTotals list to remain shown.
+// ========================================================================================
+void TransPanel_SetShowTransactionDetail(bool enable)
+{
+    ShowTransactionDetail = enable;
+}
+
 
 // ========================================================================================
 // Set the StartDate and EndDate based on the current value of the Date Filter.
@@ -92,6 +105,8 @@ void TransPanel_SetStartEndDates(HWND hwnd)
 // ========================================================================================
 void TransPanel_ShowListBoxItem(int index)
 {
+    if (!ShowTransactionDetail) return;
+
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
@@ -207,7 +222,9 @@ void TransPanel_ShowTransactions()
 
     // Ensure that the TransDetail panel and Detail Panel are set
     MainWindow_SetLeftPanel(HWND_TRANSPANEL);
-    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
+    if (ShowTransactionDetail) {
+        MainWindow_SetRightPanel(HWND_TRANSDETAIL);
+    }
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -324,6 +341,7 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
         if (HIWORD(idx) == 1) break;
 
         // Show the Transaction detail for the selected line.
+        TransPanel_SetShowTransactionDetail(true);
         TransPanel_ShowListBoxItem(idx);
         return 0;
     }
@@ -676,6 +694,7 @@ void TransPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
         if (ld != nullptr) {
             // Show the transaction detail for the selected transaction
+            TransPanel_SetShowTransactionDetail(true);
             TransPanel_ShowListBoxItem(nCurSel);
         }
         break;
