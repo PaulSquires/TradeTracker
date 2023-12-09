@@ -97,9 +97,6 @@ void TransPanel_ShowListBoxItem(int index)
 
     ListBox_SetCurSel(hListBox, index);
 
-    // Ensure that the Transactions menu item is selected
-    //SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_TRANSACTIONS);
-
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -179,44 +176,17 @@ void TransPanel_ShowTransactions()
     // Clear the current table
     ListBoxData_DestroyItemData(hListBox);
 
-
     // Create the new Listbox data that will display for the Transactions
-    double subGrossAmount = 0;
-    double subFeesAmount = 0;
-    double subNetAmount = 0;
-
     double runningGrossTotal = 0;
     double runningFeesTotal = 0;
     double runningNetTotal = 0;
 
-    int subTotalDay = 0;
-    int curDay = 0;
-    int current_year = 0;
-    std::wstring curDate = L"";
-
     for (const auto& td : tdata) {
-        curDay = AfxGetDay(td.trans->trans_date);
-        if (subTotalDay != curDay && subTotalDay != 0 && wszTicker.length() == 0) {
-            ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
-            curDate = td.trans->trans_date;
-            subGrossAmount = 0;
-            subFeesAmount = 0;
-            subNetAmount = 0;
-        }
-        curDate = td.trans->trans_date;
-        subTotalDay = curDay;
-            
-        subNetAmount += td.trans->total;
-        subFeesAmount += td.trans->fees;
-        subGrossAmount += (td.trans->total + td.trans->fees);
         ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
 
         runningNetTotal += td.trans->total;
         runningFeesTotal += td.trans->fees;
         runningGrossTotal += (td.trans->total + td.trans->fees);
-    }
-    if (subNetAmount != 0 && wszTicker.length() == 0) {
-        ListBoxData_OutputTransactionDaySubtotal(hListBox, curDate, subGrossAmount, subFeesAmount, subNetAmount);
     }
     ListBoxData_OutputTransactionRunningTotal(hListBox, runningGrossTotal, runningFeesTotal, runningNetTotal);
 

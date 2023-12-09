@@ -147,8 +147,6 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
 void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
 void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double running_gross_total, 
     double running_fees_total, double running_net_total);
-void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring trans_date, 
-    double sub_gross_amount, double sub_fees_amount, double sub_net_amount);
 void ListBoxData_OutputTransaction(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
 void Header_OnPaint(HWND hWnd);

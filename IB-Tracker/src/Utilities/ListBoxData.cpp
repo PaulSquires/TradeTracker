@@ -1124,40 +1124,6 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox,
 
 
 // ========================================================================================
-// Create the display data line for a transaction day subtotal.
-// ========================================================================================
-void ListBoxData_OutputTransactionDaySubtotal(HWND hListBox, std::wstring trans_date, 
-        double sub_gross_amount, double sub_fees_amount, double sub_net_amount)
-{
-    ListBoxData* ld = new ListBoxData;
-
-    TickerId tickerId = -1;
-    REAL font8 = 8;
-
-    DWORD clr = (sub_net_amount >= 0) ? COLOR_GREEN : COLOR_RED;
-
-    //  example: MON JUL 5
-    //std::wstring text = AfxUpper(AfxGetShortDayName(transDate) + L" " + 
-    //    AfxGetShortMonthName(transDate)) + L" " + std::to_wstring(AfxGetDay(transDate));
-    std::wstring text = AfxUpper(AfxGetLongDayName(trans_date));
-    ld->SetData(3, nullptr, tickerId, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
-
-    ld->SetData(5, nullptr, tickerId, AfxMoney(sub_gross_amount), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
-
-    ld->SetData(6, nullptr, tickerId, AfxMoney(sub_fees_amount), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
-
-    ld->SetData(7, nullptr, tickerId, AfxMoney(sub_net_amount), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
-
-    ListBox_AddString(hListBox, ld);
-    ListBoxData_AddBlankLine(hListBox);
-}
-
-
-// ========================================================================================
 // Create the display data line for a Transaction.
 // ========================================================================================
 void ListBoxData_OutputTransaction(
