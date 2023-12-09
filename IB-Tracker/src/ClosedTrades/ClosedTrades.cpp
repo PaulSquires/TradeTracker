@@ -100,6 +100,10 @@ void ClosedTrades_ShowClosedTrades()
     // Select the correct menu panel item
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_CLOSEDTRADES);
 
+    // Ensure that the Closed panel is set
+    MainWindow_SetLeftPanel(HWND_CLOSEDTRADES);
+
+
     // Prevent ListBox redrawing until all calculations are completed.
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
@@ -250,9 +254,6 @@ void ClosedTrades_ShowClosedTrades()
         ListBoxData_AddBlankLine(hListBox);
     }
 
-
-    // Ensure that the Closed panel is set
-    MainWindow_SetLeftPanel(HWND_CLOSEDTRADES);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
