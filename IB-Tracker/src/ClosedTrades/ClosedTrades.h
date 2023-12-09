@@ -45,6 +45,9 @@ constexpr int IDC_CLOSED_HEADER = 103;
 constexpr int IDC_CLOSED_LBLCATEGORYFILTER = 104;
 constexpr int IDC_CLOSED_CATEGORY = 105;
 constexpr int IDC_CLOSED_CMDYEAREND = 106;
+constexpr int IDC_CLOSED_LBLTICKERFILTER = 107;
+constexpr int IDC_CLOSED_TXTTICKER = 108;
+constexpr int IDC_CLOSED_CMDTICKERGO = 109;
 
 constexpr int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
 constexpr int CLOSEDTRADES_MARGIN = 80;
@@ -52,4 +55,5 @@ constexpr int CLOSEDTRADES_MARGIN = 80;
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);
 void ClosedTrades_ShowClosedTrades();
+void ClosedTrades_SetShowTradeDetail(bool enable);
 

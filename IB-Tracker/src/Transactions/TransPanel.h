@@ -65,5 +65,3 @@ constexpr int TRANSPANEL_LISTBOX_ROWHEIGHT = 18;
 constexpr int TRANSPANEL_MARGIN = 80;
 
 void TransPanel_ShowTransactions();
-void TransPanel_SetShowTransactionDetail(bool enable);
-

@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
 #include "Category/Category.h"
@@ -42,6 +43,18 @@ HWND HWND_CLOSEDTRADES = NULL;
 
 CClosedTrades ClosedTrades;
 
+bool ShowTradeDetail = true;
+
+
+// ========================================================================================
+// Set flag to enable/disable showing the Trade Detail when line in the listbox
+// is clicked on. This is useful when TickerTotals is shown and we do want the 
+// TickerTotals list to remain shown.
+// ========================================================================================
+void ClosedTrades_SetShowTradeDetail(bool enable)
+{
+    ShowTradeDetail = enable;
+}
 
 
 // ========================================================================================
@@ -49,6 +62,8 @@ CClosedTrades ClosedTrades;
 // ========================================================================================
 void ClosedTrades_ShowListBoxItem(int index)
 {
+    if (!ShowTradeDetail) return;
+
     HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
 
@@ -100,8 +115,15 @@ void ClosedTrades_ShowClosedTrades()
     
     int selected_category = CategoryControl_GetSelectedIndex(hCategory);
 
+    std::wstring wszTicker = AfxGetWindowText(GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_TXTTICKER));
+    wszTicker = AfxTrim(wszTicker);
+
     for (auto& trade : trades) {
         if (!trade->is_open) {
+
+            if (wszTicker.length() > 0) {
+                if (wszTicker != trade->ticker_symbol) continue;
+            }
 
             if (selected_category != CATEGORY_ALL) {
                 if (trade->category != selected_category) continue;
@@ -333,6 +355,7 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
+        ClosedTrades_SetShowTradeDetail(true);
         ClosedTrades_ShowListBoxItem(idx);
     }
     break;
@@ -468,7 +491,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
     int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
 
-    HDWP hdwp = BeginDeferWindowPos(5);
+    HDWP hdwp = BeginDeferWindowPos(10);
 
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
@@ -492,11 +515,25 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int nWidth = cx;
     int nHeight = AfxScaleY(23);
 
+    int nStartTop = nHeight;
 
-    nTop = nTop + nHeight;
+    nTop = nStartTop;
+    nWidth = AfxScaleX(75);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LBLTICKERFILTER), 0,
+        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_TXTTICKER), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    nLeft += nWidth;
+    nWidth = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_CMDTICKERGO), 0,
+        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+
+    nTop = nStartTop;
+    nLeft += nWidth + AfxScaleX(18);
+    nWidth = AfxScaleX(100);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LBLCATEGORYFILTER), 0,
         nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-
 
     nTop = nTop + nHeight;
     hdwp = DeferWindowPos(hdwp, hCategory, 0, nLeft, nTop, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
@@ -549,6 +586,27 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     SetWindowTheme(hCtl, L"", L"");
 
 
+    int horiz_text_margin = 0;
+    int vert_text_margin = 3;
+
+    DWORD light_text_color = COLOR_WHITEDARK;
+    DWORD dark_back_color = COLOR_GRAYMEDIUM;
+    std::wstring font_name = AfxGetDefaultFont();
+    int font_size = 8;
+
+    CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LBLTICKERFILTER, L"Ticker Filter",
+        COLOR_WHITEDARK, COLOR_BLACK);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CLOSED_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+    CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
+    CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSED_CMDTICKERGO, L"GO",
+        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+
     CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LBLCATEGORYFILTER, L"Category Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
 
@@ -558,8 +616,7 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     
     // YEAR END CLOSE
-    std::wstring font_name = AfxGetDefaultFont();
-    int font_size = 9;
+    font_size = 9;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSED_CMDYEAREND, L"Year End",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
@@ -601,6 +658,7 @@ void ClosedTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, selected);
         if (ld != nullptr) {
             // Show the trade history for the selected trade
+            ClosedTrades_SetShowTradeDetail(true);
             ClosedTrades_ShowListBoxItem(selected);
         }
         break;
@@ -625,9 +683,45 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
 
+    case WM_KEYDOWN:
+    {
+        // We are handling the TAB naviagation ourselves.
+        if (wParam == VK_TAB) {
+            HWND hFocus = GetFocus();
+            HWND hNextCtrl = NULL;
+            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+            }
+            else {
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+            }
+            SetFocus(hNextCtrl);
+            return TRUE;
+        }
+        return 0;
+    }
+    break;
+
+
+    case WM_KEYUP:
+    {
+        // Handle ENTER key if pressed in the Ticker textbox.
+        HWND hTicker = GetDlgItem(m_hwnd, IDC_CLOSED_TXTTICKER);
+        if (GetFocus() == GetDlgItem(hTicker, 100)) {
+            if (wParam == 13) {
+                ClosedTrades_ShowClosedTrades();
+                return true;
+            }
+        }
+        return 0;
+    }
+    break;
+
+
     case MSG_CATEGORY_CATEGORYCHANGED:
     {
         // Categories have change so update the Closed Trades list.
+        ClosedTrades_SetShowTradeDetail(true);
         ClosedTrades_ShowClosedTrades();
 
         // Also need to update Active Trades list because Category headers have changed.
@@ -642,6 +736,10 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         int CtrlId = (int)wParam;
 
         if (hCtl == NULL) return 0;
+
+        if (CtrlId == IDC_CLOSED_CMDTICKERGO) {
+            ClosedTrades_ShowClosedTrades();
+        }
 
         if (CtrlId == IDC_CLOSED_CMDYEAREND) {
             YearEndDialog_Show();

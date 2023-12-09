@@ -30,8 +30,7 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
-#include "Transactions/TransPanel.h"
-#include "Transactions/TransDateFilter.h"
+#include "ClosedTrades/ClosedTrades.h"
 
 #include "TickerTotals.h"
 
@@ -160,9 +159,9 @@ LRESULT CALLBACK TickerPanel_Header_SubclassProc(
 
 
 // ========================================================================================
-// Show the transactions for the selected Ticker line
+// Show the Closed Trades for the selected Ticker line
 // ========================================================================================
-bool TickerTotals_ShowTickerTransactions(HWND hListBox, int idx)
+bool TickerTotals_ShowTickerClosedTrades(HWND hListBox, int idx)
 {
     // Get the listbox pointer for the selected line.
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
@@ -173,12 +172,9 @@ bool TickerTotals_ShowTickerTransactions(HWND hListBox, int idx)
 
     // Show the trade history for the selected trade
     if (ticker_symbol.length()) {
-        HWND hTransDateCtl = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TRANSDATE);
-        CustomTextBox_SetText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER), ticker_symbol);
-        CustomLabel_SetUserDataInt(hTransDateCtl, (int)TransDateFilterType::YearToDate);
-        CustomLabel_SetText(hTransDateCtl, TransDateFilter_GetString((int)TransDateFilterType::YearToDate).c_str());
-        TransPanel_SetShowTransactionDetail(false);
-        SendMessage(HWND_TRANSPANEL, MSG_DATEPICKER_DATECHANGED, GetDlgCtrlID(hTransDateCtl), (LPARAM)hTransDateCtl);
+        CustomTextBox_SetText(GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_TXTTICKER), ticker_symbol);
+        ClosedTrades_SetShowTradeDetail(false);
+        ClosedTrades_ShowClosedTrades();
     }
 
     return true;
@@ -227,7 +223,7 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
     }
 
     
-    case WM_LBUTTONDBLCLK:
+    case WM_LBUTTONDOWN:
     {
         int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
@@ -235,19 +231,8 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        // Invoke the Transactions Panel and show the selected Ticker transactions for the entire year-to-date.
-        TickerTotals_ShowTickerTransactions(hWnd, idx);
-    }
-    break;
-
-
-    case WM_KEYDOWN:
-    {
-        if (wParam == VK_RETURN) {
-            // Invoke the Transactions Panel and show the selected Ticker transactions for the entire year-to-date.
-            int idx = ListBox_GetCurSel(hWnd);
-            TickerTotals_ShowTickerTransactions(hWnd, idx);
-        }
+        // Invoke the Closed Trades and show the selected Ticker transactions for the entire year-to-date.
+        TickerTotals_ShowTickerClosedTrades(hWnd, idx);
     }
     break;
 
@@ -356,6 +341,27 @@ void TickerPanel_OnPaint(HWND hwnd)
 
 
 // ========================================================================================
+// Process WM_COMMAND message for window/dialog: TickerPanel
+// ========================================================================================
+void TickerPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+    switch (codeNotify)
+    {
+
+    case (LBN_SELCHANGE):
+    {
+        int nCurSel = ListBox_GetCurSel(hwndCtl);
+        if (nCurSel == -1) break;
+        // Invoke the Closed Trades and show the selected Ticker transactions for the entire year-to-date.
+        TickerTotals_ShowTickerClosedTrades(hwndCtl, nCurSel);
+        break;
+    }
+
+    }
+}
+
+
+// ========================================================================================
 // Process WM_SIZE message for window/dialog: TickerPanel
 // ========================================================================================
 void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
@@ -455,6 +461,7 @@ LRESULT CTickerPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, TickerPanel_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, TickerPanel_OnCommand);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TickerPanel_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TickerPanel_OnPaint);
         HANDLE_MSG(m_hwnd, WM_SIZE, TickerPanel_OnSize);
