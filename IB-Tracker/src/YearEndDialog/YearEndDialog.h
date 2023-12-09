@@ -45,6 +45,7 @@ extern int dialog_return_code;
 
 constexpr int IDC_YEARENDDIALOG_TXTDATE = 100;
 constexpr int IDC_YEARENDDIALOG_PROCESS = 101;
+constexpr int IDC_YEARENDDIALOG_CANCEL = 102;
 
 
 int YearEndDialog_Show();

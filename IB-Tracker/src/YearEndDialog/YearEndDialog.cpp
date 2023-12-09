@@ -159,7 +159,14 @@ BOOL YearEndDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // PROCESS button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_YEARENDDIALOG_PROCESS, L"PROCESS",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 580, 396, 80, 23);
+        CustomLabelAlignment::middle_center, 580, 390, 80, 23);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    // CANCEL button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_YEARENDDIALOG_CANCEL, L"Cancel",
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 580, 423, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
@@ -277,12 +284,6 @@ LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 
 
-    case MSG_DATEPICKER_DATECHANGED:
-    {
-    }
-    return 0;
-
-
     case MSG_CUSTOMLABEL_CLICK:
     {
         HWND hCtl = (HWND)lParam;
@@ -295,6 +296,11 @@ LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 dialog_return_code = DIALOG_RETURN_OK;
                 SendMessage(m_hwnd, WM_CLOSE, 0, 0);
             }
+        }
+
+        if (CtrlId == IDC_YEARENDDIALOG_CANCEL) {
+            dialog_return_code = DIALOG_RETURN_CANCEL;
+            SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
 
         return 0;
