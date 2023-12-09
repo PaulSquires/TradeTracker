@@ -107,7 +107,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     CustomTextBox* pData = CustomTextBox_GetOptions(GetParent(hWnd));
 
     switch (uMsg)
-    {
+    { 
 
     case WM_CHAR:
     {
