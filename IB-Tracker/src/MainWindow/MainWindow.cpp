@@ -50,6 +50,7 @@ SOFTWARE.
 #include "DatePicker/Calendar.h"
 #include "CustomCombo/CustomComboPopup.h"
 #include "Transactions/TransDateFilter.h"
+#include "Strategy/StrategyPopup.h"
 
 
 #include "Utilities/UserMessages.h"
@@ -478,6 +479,9 @@ void MainWindow_CloseComboPopups()
     }
     else if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
         DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
+    }
+    else if (IsWindowVisible(HWND_STRATEGYPOPUP)) {
+        DestroyWindow(HWND_STRATEGYPOPUP);
     }
 }
 
