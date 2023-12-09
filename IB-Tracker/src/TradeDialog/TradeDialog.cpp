@@ -401,7 +401,12 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-    return 0;
+        if (CtrlId == IDC_TRADEDIALOG_CANCEL) {
+            dialog_return_code = DIALOG_RETURN_CANCEL;
+            SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+        }
+
+        return 0;
     }
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

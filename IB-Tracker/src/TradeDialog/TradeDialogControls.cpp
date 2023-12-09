@@ -994,7 +994,14 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 580, 396, 80, 23);
+        CustomLabelAlignment::middle_center, 580, 390, 80, 23);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    // CANCEL button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_CANCEL, L"Cancel",
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 580, 423, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
