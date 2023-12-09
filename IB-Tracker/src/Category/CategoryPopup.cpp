@@ -39,6 +39,7 @@ CCategoryPopup CategoryPopup;
 // Control on parent window that new selected category will be stored in and displayed.
 HWND hCategoryUpdateParentCtl = NULL;
 int selected_category = 0;
+HHOOK hCategoryPopupMouseHook = nullptr;
 
 
 
@@ -325,13 +326,37 @@ BOOL CategoryPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
+// Global mouse hook.
+// ========================================================================================
+LRESULT CALLBACK CategoryPopupHook(int Code, WPARAM wParam, LPARAM lParam)
+{
+    // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
+    // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
+    // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
+    // at the point this hook is called).
+    if (wParam == WM_LBUTTONDOWN)
+    {
+        if (HWND_CATEGORYPOPUP)
+        {
+            POINT pt;       GetCursorPos(&pt);
+            RECT rcWindow;  GetWindowRect(HWND_CATEGORYPOPUP, &rcWindow);
+
+            // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
+            if (!PtInRect(&rcWindow, pt)) {
+                DestroyWindow(HWND_CATEGORYPOPUP);
+            }
+        }
+    }
+
+    return CallNextHookEx(NULL, Code, wParam, lParam);
+}
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CCategoryPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
-    static bool destroyed = false;
-
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, CategoryPopup_OnCreate);
@@ -344,26 +369,20 @@ LRESULT CCategoryPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
+        // unhook and remove our global mouse hook
+        UnhookWindowsHookEx(hCategoryPopupMouseHook);
+        hCategoryPopupMouseHook = nullptr;
+
         // Reset our destroyed variable for future use of the popup
-        destroyed = false;
         HWND_CATEGORYPOPUP = NULL;
         return 0;
     }
     break;
 
 
-    case WM_NCACTIVATE:
+    case WM_MOUSEACTIVATE:
     {
-        // Detect that we have clicked outside the popup CategoryPopup and will now close it.
-        if (wParam == false) {
-            // Set our static flag to prevent recursion
-            if (destroyed == false) {
-                destroyed = true;
-                DestroyWindow(m_hwnd);
-            }
-            return TRUE;
-        }
-        return 0;
+        return MA_NOACTIVATE;
     }
     break;
 
@@ -381,19 +400,19 @@ HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 {
     HWND hPopup = CategoryPopup.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
+        WS_EX_NOACTIVATE);
+    
     int categories_count = CATEGORY_END + 1;
     if (CategoryControl_Getallow_all_categories(hParent)) ++categories_count;
     
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(hPopup, HWND_TOP,
+    SetWindowPos(hPopup, 0,
         rc.left - margin, rc.bottom,
         AfxScaleX(CATEGORYPOPUP_WIDTH),
         AfxScaleY(CATEGORYPOPUP_LISTBOX_ROWHEIGHT * (float)categories_count),
-        SWP_SHOWWINDOW);
-
+        SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
 
     if (CategoryControl_Getallow_all_categories(hParent)) {
         HWND hListBox = GetDlgItem(hPopup, IDC_CATEGORYPOPUP_LISTBOX);
@@ -410,6 +429,10 @@ HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl)
     // Set the module global hUpdateParentCtl after the above is created in order
     // to ensure the variable address is correct.
     hCategoryUpdateParentCtl = hParentCtl;
+
+
+    // Set our hook and store the handle in the global variable
+    hCategoryPopupMouseHook = SetWindowsHookEx(WH_MOUSE, CategoryPopupHook, 0, GetCurrentThreadId());
 
     return hPopup;
 }

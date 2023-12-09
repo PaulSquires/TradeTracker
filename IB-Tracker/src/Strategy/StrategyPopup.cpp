@@ -36,6 +36,8 @@ HWND HWND_STRATEGYPOPUP = NULL;
 
 CStrategyPopup StrategyPopup;
 
+HHOOK hStrategyPopupMouseHook = nullptr;
+
 
 
 // ========================================================================================
@@ -142,13 +144,37 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
+// Global mouse hook.
+// ========================================================================================
+LRESULT CALLBACK StrategyPopupHook(int Code, WPARAM wParam, LPARAM lParam)
+{
+    // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
+    // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
+    // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
+    // at the point this hook is called).
+    if (wParam == WM_LBUTTONDOWN)
+    {
+        if (HWND_STRATEGYPOPUP)
+        {
+            POINT pt;       GetCursorPos(&pt);
+            RECT rcWindow;  GetWindowRect(HWND_STRATEGYPOPUP, &rcWindow);
+
+            // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
+            if (!PtInRect(&rcWindow, pt)) {
+                DestroyWindow(HWND_STRATEGYPOPUP);
+            }
+        }
+    }
+
+    return CallNextHookEx(NULL, Code, wParam, lParam);
+}
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
-    static bool destroyed = false;
-
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, StrategyPopup_OnCreate);
@@ -158,26 +184,19 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
-        // Reset our destroyed variable for future use of the popup
-        destroyed = false;
+        // unhook and remove our global mouse hook
+        UnhookWindowsHookEx(hStrategyPopupMouseHook);
+        hStrategyPopupMouseHook = nullptr;
+
         HWND_STRATEGYPOPUP = NULL;
         return 0;
     }
     break;
 
 
-    case WM_NCACTIVATE:
+    case WM_MOUSEACTIVATE:
     {
-        // Detect that we have clicked outside the popup StrategyPopup and will now close it.
-        if (wParam == false) {
-            // Set our static flag to prevent recursion
-            if (destroyed == false) {
-                destroyed = true;
-                DestroyWindow(m_hwnd);
-            }
-            return TRUE;
-        }
-        return 0;
+        return MA_NOACTIVATE;
     }
     break;
 
@@ -246,7 +265,8 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 
     HWND hPopup = StrategyPopup.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
+        WS_EX_NOACTIVATE);
 
     // Get the currently selected Strategy from the StrategyButton and its associated
     // LongShort and PutCall status and use that data to set the associated line
@@ -281,11 +301,14 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 
     // Position the popup over the StrategyButton
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(hPopup, HWND_TOP,
+    SetWindowPos(hPopup, 0,
         rc.left, rc.top,
         AfxScaleX(233),
         AfxScaleY(24) * (int)Strategy::Count,    // 24 b/c 23 line height + 1 spacer
-        SWP_SHOWWINDOW);
+        SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+
+    // Set our hook and store the handle in the global variable
+    hStrategyPopupMouseHook = SetWindowsHookEx(WH_MOUSE, StrategyPopupHook, 0, GetCurrentThreadId());
 
     return hPopup;
 }

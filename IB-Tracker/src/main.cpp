@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Transactions/TransDateFilter.h"
 #include "DatePicker/Calendar.h"
 #include "Category/CategoryPopup.h"
+#include "CustomCombo/CustomComboPopup.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/UserMessages.h"
 #include "Utilities/UpdateCheck.h"
@@ -189,7 +190,9 @@ int APIENTRY wWinMain(
             else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {
                 DestroyWindow(HWND_CATEGORYPOPUP);
             }
-
+            else if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
+                DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
+            }
         }
 
         // Processes accelerator keys for menu commands

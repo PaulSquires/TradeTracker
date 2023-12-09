@@ -41,6 +41,7 @@ CTransDateFilter TransDateFilter;
 HWND hDateUpdateParentCtl = NULL;
 TransDateFilterType SelectedFilterType = TransDateFilterType::Today;
 
+HHOOK hTransDatePopupMouseHook = nullptr;
 
 
 // ========================================================================================
@@ -345,13 +346,37 @@ BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
+// Global mouse hook.
+// ========================================================================================
+LRESULT CALLBACK TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam)
+{
+    // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
+    // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
+    // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
+    // at the point this hook is called).
+    if (wParam == WM_LBUTTONDOWN)
+    {
+        if (HWND_TRANSDATEFILTER)
+        {
+            POINT pt;       GetCursorPos(&pt);
+            RECT rcWindow;  GetWindowRect(HWND_TRANSDATEFILTER, &rcWindow);
+
+            // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
+            if (!PtInRect(&rcWindow, pt)) {
+                DestroyWindow(HWND_TRANSDATEFILTER);
+            }
+        }
+    }
+
+    return CallNextHookEx(NULL, Code, wParam, lParam);
+}
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
-    static bool destroyed = false;
-
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, TransDateFilter_OnCreate);
@@ -364,25 +389,20 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
-        // Reset our destroyed variable for future use of the DatePicker
-        destroyed = false;
+        // unhook and remove our global mouse hook
+        UnhookWindowsHookEx(hTransDatePopupMouseHook);
+        hTransDatePopupMouseHook = nullptr;
+
+        // Reset our destroyed variable for future use of the popup
+        HWND_TRANSDATEFILTER = NULL;
         return 0;
     }
     break;
 
 
-    case WM_NCACTIVATE:
+    case WM_MOUSEACTIVATE:
     {
-        // Detect that we have clicked outside the popup TransDateFilter picker and will now close it.
-        if (wParam == false) {
-            // Set our static flag to prevent recursion
-            if (destroyed == false) {
-                destroyed = true;
-                DestroyWindow(m_hwnd);
-            }
-            return TRUE;
-        }
-        return 0;
+        return MA_NOACTIVATE;
     }
     break;
 
@@ -400,15 +420,16 @@ HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
 {
     TransDateFilter.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
+        WS_EX_NOACTIVATE);
 
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(TransDateFilter.WindowHandle(), HWND_TOP,
+    SetWindowPos(TransDateFilter.WindowHandle(), 0,
         rc.left-margin, rc.bottom,
         AfxScaleX(TRANSDATEFILTER_WIDTH) + (margin * 2),
         AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT * 9),
-        SWP_SHOWWINDOW);
+        SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
 
     // Get the current selected filter and apply it to the popup
     SelectedFilterType = (TransDateFilterType)CustomLabel_GetUserDataInt(hParentCtl);
@@ -417,6 +438,9 @@ HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
     // Set the module global hUpdateParentCtl after the above is created in
     // to ensure the variable address is correct.
     hDateUpdateParentCtl = hParentCtl;
+
+    // Set our hook and store the handle in the global variable
+    hTransDatePopupMouseHook = SetWindowsHookEx(WH_MOUSE, TransDatePopupHook, 0, GetCurrentThreadId());
 
     return TransDateFilter.WindowHandle();
 }

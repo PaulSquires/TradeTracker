@@ -42,6 +42,7 @@ std::wstring the_selected_date;
 HWND hTheUpdateParentCtl = NULL;
 CalendarPickerReturnType the_update_date_return_type = CalendarPickerReturnType::ISO_date;
 
+HHOOK hCalanderPopupMouseHook = nullptr;
 
 
 // ========================================================================================
@@ -123,13 +124,37 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
+// Global mouse hook.
+// ========================================================================================
+LRESULT CALLBACK CalanderPopupHook(int Code, WPARAM wParam, LPARAM lParam)
+{
+    // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
+    // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
+    // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
+    // at the point this hook is called).
+    if (wParam == WM_LBUTTONDOWN)
+    {
+        if (HWND_CALENDAR)
+        {
+            POINT pt;       GetCursorPos(&pt);
+            RECT rcWindow;  GetWindowRect(HWND_CALENDAR, &rcWindow);
+
+            // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
+            if (!PtInRect(&rcWindow, pt)) {
+                DestroyWindow(HWND_CALENDAR);
+            }
+        }
+    }
+
+    return CallNextHookEx(NULL, Code, wParam, lParam);
+}
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
-    static bool destroyed = false;
-
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, Calendar_OnCreate);
@@ -184,26 +209,20 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
-        // Reset our destroyed variable for future use of the DatePicker
-        destroyed = false;
+        // unhook and remove our global mouse hook
+        UnhookWindowsHookEx(hCalanderPopupMouseHook);
+        hCalanderPopupMouseHook = nullptr;
+
+        // Reset our destroyed variable for future use of the popup
         HWND_CALENDAR = NULL;
         return 0;
     }
     break;
 
 
-    case WM_NCACTIVATE:
+    case WM_MOUSEACTIVATE:
     {
-        // Detect that we have clicked outside the popup DatePicker and will now close it.
-        if (wParam == false) {
-            // Set our static flag to prevent recursion
-            if (destroyed == false) {
-                destroyed = true;
-                DestroyWindow(m_hwnd);
-            }
-            return TRUE;
-        }
-        return 0;
+        return MA_NOACTIVATE;
     }
     break;
 
@@ -228,21 +247,25 @@ HWND Calendar_CreateDatePicker(
 
     Calendar.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
+        WS_EX_NOACTIVATE);
 
 
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(Calendar.WindowHandle(), HWND_TOP,
+    SetWindowPos(Calendar.WindowHandle(), 0,
         rc.left, rc.bottom,
         AfxScaleX(CALENDAR_WIDTH),
         AfxScaleY(CALENDAR_HEIGHT * (float)NumCalendars),
-        SWP_SHOWWINDOW);
+        SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
 
 
     // Set the module global hUpdateParentCtl after the above Calendar is created in
     // to ensure the variable address is correct.
     hTheUpdateParentCtl = hParentCtl;
     the_update_date_return_type = DateReturnType;
+
+    // Set our hook and store the handle in the global variable
+    hCalanderPopupMouseHook = SetWindowsHookEx(WH_MOUSE, CalanderPopupHook, 0, GetCurrentThreadId());
 
     return Calendar.WindowHandle();
 }

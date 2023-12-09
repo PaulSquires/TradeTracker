@@ -40,6 +40,7 @@ CCustomComboPopup CustomComboPopup;
 // Control on parent window that new selected category will be stored in and displayed.
 HWND hSortFilterUpdateParentCtl = NULL;
 int selected_filter = 0;
+HHOOK hCustomComboPopupMouseHook = nullptr;
 
 
 
@@ -53,7 +54,7 @@ void CustomComboPopup_DoSelected(HWND hListBox, int idx)
     int item_data = (int)ListBox_GetItemData(hListBox, idx);
     CustomLabel_SetUserDataInt(hSortFilterUpdateParentCtl, item_data);
     CustomLabel_SetText(hSortFilterUpdateParentCtl, item_text);
-    SendMessage(GetParent(GetParent(hSortFilterUpdateParentCtl)), 
+    PostMessage(GetParent(GetParent(hSortFilterUpdateParentCtl)), 
         MSG_CUSTOMCOMBO_ITEMCHANGED, item_data, 0);
     DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
 }
@@ -321,13 +322,37 @@ BOOL CustomComboPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 // ========================================================================================
+// Global mouse hook.
+// ========================================================================================
+LRESULT CALLBACK CustomComboPopupHook(int Code, WPARAM wParam, LPARAM lParam)
+{
+    // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
+    // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
+    // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
+    // at the point this hook is called).
+    if (wParam == WM_LBUTTONDOWN)
+    {
+        if (HWND_CUSTOMCOMBOPOPUP)
+        {
+            POINT pt;       GetCursorPos(&pt);
+            RECT rcWindow;  GetWindowRect(HWND_CUSTOMCOMBOPOPUP, &rcWindow);
+
+            // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
+            if (!PtInRect(&rcWindow, pt)) {
+                DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
+            }
+        }
+    }
+
+    return CallNextHookEx(NULL, Code, wParam, lParam);
+}
+
+
+// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CCustomComboPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    // Prevent a recursive calling of the WM_NCACTIVATE message as DestroyWindow deactivates the window.
-    static bool destroyed = false;
-
     switch (msg)
     {
         HANDLE_MSG(m_hwnd, WM_CREATE, CustomComboPopup_OnCreate);
@@ -340,28 +365,22 @@ LRESULT CCustomComboPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
     {
-        // Reset our destroyed variable for future use of the popup
-        destroyed = false;
+        // unhook and remove our global mouse hook
+        UnhookWindowsHookEx(hCustomComboPopupMouseHook);
+        hCustomComboPopupMouseHook = nullptr;
+
         HWND_CUSTOMCOMBOPOPUP = NULL;
         return 0;
     }
     break;
 
 
-    case WM_NCACTIVATE:
+    case WM_MOUSEACTIVATE:
     {
-        // Detect that we have clicked outside the popup CategoryPopup and will now close it.
-        if (wParam == false) {
-            // Set our static flag to prevent recursion
-            if (destroyed == false) {
-                destroyed = true;
-                DestroyWindow(m_hwnd);
-            }
-            return TRUE;
-        }
-        return 0;
+        return MA_NOACTIVATE;
     }
     break;
+
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -376,17 +395,18 @@ HWND CustomComboPopup_CreatePopup(HWND hParent, HWND hParentCtl, int NumItems)
 {
     HWND hPopup = CustomComboPopup.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
+        WS_EX_NOACTIVATE);
 
     int combo_count = NumItems;
 
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(hPopup, HWND_TOP,
+    SetWindowPos(hPopup, 0,
         rc.left - margin, rc.bottom + margin,
         AfxScaleX(CUSTOMCOMBOPOPUP_WIDTH),
         AfxScaleY(CUSTOMCOMBOPOPUP_LISTBOX_ROWHEIGHT * (float)combo_count) + AfxScaleY(3),
-        SWP_SHOWWINDOW);
+        SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
 
     // Get the current selected category and apply it to the popup
     selected_filter = CustomLabel_GetUserDataInt(hParentCtl);
@@ -394,6 +414,9 @@ HWND CustomComboPopup_CreatePopup(HWND hParent, HWND hParentCtl, int NumItems)
     // Set the module global hUpdateParentCtl after the above is created in order
     // to ensure the variable address is correct.
     hSortFilterUpdateParentCtl = hParentCtl;
+
+    // Set our hook and store the handle in the global variable
+    hCustomComboPopupMouseHook = SetWindowsHookEx(WH_MOUSE, CustomComboPopupHook, 0, GetCurrentThreadId());
 
     return hPopup;
 }
