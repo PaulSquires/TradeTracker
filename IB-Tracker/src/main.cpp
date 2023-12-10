@@ -37,6 +37,7 @@ SOFTWARE.
 #include <wchar.h>
 
 
+
 void BindStdHandlesToConsole()
 {
     // Redirect the CRT standard input, output, and error handles to the console

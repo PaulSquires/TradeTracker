@@ -323,7 +323,7 @@ void TradeDialog_CreateOtherIncomeData(HWND hwnd)
     trade->ticker_symbol = L"OTHER";
     trade->ticker_name = L"Other Income/Expense";
     trade->future_expiry = guiData.future_expiry;
-    trade->category = guiData.category;
+    trade->category = CATEGORY_OTHER;
     trade->trade_bp = guiData.trade_bp;
     trade->acb = guiData.ACB;
 

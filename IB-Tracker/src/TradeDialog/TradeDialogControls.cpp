@@ -558,8 +558,10 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
     {
     case TradeAction::edit_transaction:
         description = L"Edit";
-        grid_main = L"Transaction Data";
-        grid_roll = L"Transaction Data";
+        if (tdd.trade->category != CATEGORY_OTHER) {
+            grid_main = L"Transaction Data";
+            grid_roll = L"Transaction Data";
+        }
         break;
 
     case TradeAction::new_options_trade:
@@ -756,7 +758,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     ShowWindow(hCtl, SW_HIDE);
     if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
         IsNewSharesTradeAction(tdd.trade_action) == true ||
-        tdd.trade_action == TradeAction::edit_transaction) {
+        (tdd.trade_action == TradeAction::edit_transaction &&
+        tdd.trade->category != CATEGORY_OTHER)) {
         ShowWindow(hCtl, SW_SHOW);
     }
 
@@ -880,15 +883,17 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     {
         bool show_original_quantity = (tdd.trade_action == TradeAction::edit_transaction) ? true : false;
 
-        // Create the main trade options leg grid
-        HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, show_original_quantity);
+        if (tdd.trade->category != CATEGORY_OTHER) {
+            // Create the main trade options leg grid
+            HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, show_original_quantity);
 
-        // If we are rolling or editing then create the second trade grid.
-        if (tdd.trade_action == TradeAction::roll_leg || tdd.trade_action == TradeAction::edit_transaction) {
-            int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
-            CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
-                CustomLabelAlignment::middle_left, nWidth, 155, 300, 22);
-            HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, show_original_quantity);
+            // If we are rolling or editing then create the second trade grid.
+            if (tdd.trade_action == TradeAction::roll_leg || tdd.trade_action == TradeAction::edit_transaction) {
+                int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
+                CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
+                    CustomLabelAlignment::middle_left, nWidth, 155, 300, 22);
+                HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, show_original_quantity);
+            }
         }
     }
 
@@ -993,7 +998,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::new_futures_trade ||
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::other_income_expense ||
-        tdd.trade_action == TradeAction::add_futures_to_trade) {
+        tdd.trade_action == TradeAction::add_futures_to_trade ||
+        tdd.trade->category == CATEGORY_OTHER) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRADEBP), SW_HIDE);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), SW_HIDE);
     }

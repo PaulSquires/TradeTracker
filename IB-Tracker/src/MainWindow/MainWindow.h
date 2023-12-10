@@ -62,3 +62,4 @@ void MainWindow_SetLeftPanel(HWND hPanel);
 void MainWindow_SetRightPanel(HWND hPanel);
 void MainWindow_CloseComboPopups();
 
+

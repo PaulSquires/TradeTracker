@@ -158,7 +158,7 @@ bool SaveDatabase()
 }
 
 
-std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
+inline std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
     try {
         return st.at(idx);
     }
@@ -168,13 +168,13 @@ std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
 }
 
 
-int try_catch_int(std::vector<std::wstring>& st, int idx) {
+inline int try_catch_int(std::vector<std::wstring>& st, int idx) {
     std::wstring text = try_catch_wstring(st, idx);
     return AfxValInteger(text);
 }
 
 
-double try_catch_double(std::vector<std::wstring>& st, int idx) {
+inline double try_catch_double(std::vector<std::wstring>& st, int idx) {
     std::wstring text = try_catch_wstring(st, idx);
     return AfxValDouble(text);
 }
@@ -185,7 +185,7 @@ bool LoadDatabase()
     trades.clear();
     trades.reserve(5000);         // reserve space for 5000 trades
 
-    std::wifstream db; 
+    std::wifstream db;
 
     db.open(dbFilename, std::ios::in);
 
@@ -301,6 +301,8 @@ bool LoadDatabase()
 
     }
 
+    db.close();
+
     // Now that the trades have been constructed, create the open position vector based
     // on a sorted list of open legs. We also calculate the ACB for the entire Trade
     // rather than physically storing that value in the database. This allows us to
@@ -318,7 +320,6 @@ bool LoadDatabase()
         trade->CalculateAdjustedCostBase();
     }
 
-    db.close();
 
     return true;
 }

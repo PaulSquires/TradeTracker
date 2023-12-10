@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\ActiveTrades\ActiveTrades.h" />
+    <ClInclude Include="src\codetimer.h" />
     <ClInclude Include="src\CustomCombo\CustomCombo.h" />
     <ClInclude Include="src\CustomCombo\CustomComboPopup.h" />
     <ClInclude Include="src\Category\Category.h" />
