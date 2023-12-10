@@ -883,17 +883,24 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     {
         bool show_original_quantity = (tdd.trade_action == TradeAction::edit_transaction) ? true : false;
 
-        if (tdd.trade && tdd.trade->category != CATEGORY_OTHER) {
-            // Create the main trade options leg grid
-            HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, show_original_quantity);
+        HWND hGridMain = NULL;
+        HWND hGridRoll = NULL;
 
-            // If we are rolling or editing then create the second trade grid.
-            if (tdd.trade_action == TradeAction::roll_leg || tdd.trade_action == TradeAction::edit_transaction) {
-                int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
-                CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
-                    CustomLabelAlignment::middle_left, nWidth, 155, 300, 22);
-                HWND hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, show_original_quantity);
-            }
+        // Create the main trade options leg grid
+        hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, show_original_quantity);
+
+        // If we are rolling or editing then create the second trade grid.
+        if (tdd.trade_action == TradeAction::roll_leg || tdd.trade_action == TradeAction::edit_transaction) {
+            int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
+            CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
+                CustomLabelAlignment::middle_left, nWidth, 155, 300, 22);
+            hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, show_original_quantity);
+        }
+        if (tdd.trade && tdd.trade->category == CATEGORY_OTHER) {
+            ShowWindow(hGridMain, SW_HIDE);
+            ShowWindow(hGridRoll, SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL), SW_HIDE);
         }
     }
 

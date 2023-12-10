@@ -121,6 +121,129 @@ enum class TableType
     trans_panel
 };
 
+const int nHistoryMinColWidth[MAX_COLUMNS] =
+{
+    15,     /* dropdown arrow */
+    60,     /* Description */
+    50,     /* position quantity */
+    50,     /* expiry date */
+    40,     /* DTE */
+    45,     /* strike price */
+    30,     /* put/call */
+    40,     /* ACB, BTC/STO, etc */
+    15,     /* view transaction icon */
+    0,
+    0,
+    0,
+    0
+};
+
+// We need a maximum column size for the History table because the
+// user may end a very long description and we don't want the column
+// to expand to fit this whole trade description. We will still
+// display the description but it will wrap in the display rectangle.
+const int nHistoryMaxColWidth[MAX_COLUMNS] =
+{
+    15,      /* dropdown arrow */
+    100,     /* Description */
+    100,     /* position quantity */
+    100,     /* expiry date */
+    100,     /* DTE */
+    100,     /* strike price */
+    100,     /* put/call */
+    100,     /* ACB, BTC/STO, etc */
+    15,      /* view transaction icon */
+    0,
+    0,
+    0,
+    0
+};
+
+const int nTradesMinColWidth[MAX_COLUMNS] =
+{
+    25,     /* dropdown arrow */
+    50,     /* ticker symbol */
+    50,     /* ITM */
+    50,     /* position quantity */
+    50,     /* expiry date */
+    50,     /* DTE */
+    60,     /* strike price / current price */
+    45,     /* put/call */
+    50,     /* AvgPX and Cost Basis*/
+    50,     /* Market Vaue */
+    50,     /* Unrealized PNL */
+    50,     /* Percentages */
+    0
+};
+
+const int nClosedMinColWidth[MAX_COLUMNS] =
+{
+    15,     /* empty */
+    65,     /* Close Date */
+    55,     /* Ticker Symbol */
+    200,    /* Ticker Name */
+    100,    /* Amount */
+    5,      /* spacer */
+    150,    /* Category Description */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
+const int nTransMinColWidth[MAX_COLUMNS] =
+{
+    15,     /* empty */
+    65,     /* Transaction Date */
+    55,     /* Ticker Symbol */
+    200,    /* Transaction Description */
+    60,     /* Quantity */
+    60,     /* Price */
+    60,     /* Fees */
+    70,     /* Total */
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
+const int nTickerTotalsMinColWidth[MAX_COLUMNS] =
+{
+    5,     /* empty */
+    50,    /* Ticker Symbol */
+    140,   /* Ticker Name */
+    60,    /* Amount */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
+const int nTickerTotalsMaxColWidth[MAX_COLUMNS] =
+{
+    5,        /* empty */
+    50,       /* Ticker Symbol */
+    250,      /* Ticker Name */
+    120,      /* Amount */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
 
 bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type);
 void ListBoxData_DestroyItemData(HWND hListBox);

@@ -38,149 +38,6 @@ SOFTWARE.
 #include "Utilities/Colors.h"
 
 
-
-
-int nHistoryMinColWidth[MAX_COLUMNS] =
-{
-    15,     /* dropdown arrow */
-    60,     /* Description */
-    50,     /* position quantity */
-    50,     /* expiry date */
-    40,     /* DTE */
-    45,     /* strike price */
-    30,     /* put/call */
-    40,     /* ACB, BTC/STO, etc */
-    15,     /* view transaction icon */
-    0,
-    0,
-    0,
-    0
-};
-
-// We need a maximum column size for the History table because the
-// user may end a very long description and we don't want the column
-// to expand to fit this whole trade description. We will still
-// display the description but it will wrap in the display rectangle.
-int nHistoryMaxColWidth[MAX_COLUMNS] =
-{
-    15,      /* dropdown arrow */
-    100,     /* Description */
-    100,     /* position quantity */
-    100,     /* expiry date */
-    100,     /* DTE */
-    100,     /* strike price */
-    100,     /* put/call */
-    100,     /* ACB, BTC/STO, etc */
-    15,      /* view transaction icon */
-    0,
-    0,
-    0,
-    0
-};
-
-int nTradesMinColWidth[MAX_COLUMNS] =
-{
-    25,     /* dropdown arrow */
-    50,     /* ticker symbol */
-    50,     /* ITM */
-    50,     /* position quantity */  
-    50,     /* expiry date */
-    50,     /* DTE */
-    60,     /* strike price / current price */
-    45,     /* put/call */
-    50,     /* AvgPX and Cost Basis*/
-    50,     /* Market Vaue */
-    50,     /* Unrealized PNL */
-    50,     /* Percentages */
-    0
-};
-
-int nClosedMinColWidth[MAX_COLUMNS] =
-{
-    15,     /* empty */
-    65,     /* Close Date */
-    55,     /* Ticker Symbol */
-    200,    /* Ticker Name */
-    100,    /* Amount */
-    5,      /* spacer */
-    150,    /* Category Description */
-    0,     
-    0,     
-    0,     
-    0,
-    0,
-    0
-};
-
-int nTransMinColWidth[MAX_COLUMNS] =
-{
-    15,     /* empty */
-    65,     /* Transaction Date */
-    55,     /* Ticker Symbol */
-    200,    /* Transaction Description */
-    60,     /* Quantity */
-    60,     /* Price */
-    60,     /* Fees */
-    70,     /* Total */
-    0,
-    0,
-    0,
-    0,
-    0
-};
-
-int nTickerTotalsMinColWidth[MAX_COLUMNS] =
-{
-    5,     /* empty */
-    50,    /* Ticker Symbol */
-    140,   /* Ticker Name */
-    60,    /* Amount */
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-};
-
-int nTickerTotalsMaxColWidth[MAX_COLUMNS] =
-{
-    5,        /* empty */
-    50,       /* Ticker Symbol */
-    250,      /* Ticker Name */
-    120,      /* Amount */
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-};
-
-int nTradeTemplatesMinColWidth[MAX_COLUMNS] =
-{
-    5,     /* spacer */
-    80,    /* Description */
-    0,     
-    0,     
-    0,     
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-};
-
-
 bool previous_market_data_loaded = false;
 
 
@@ -217,10 +74,6 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype)
 
         case TableType::ticker_totals:
             nColWidth[i] = nTickerTotalsMinColWidth[i];
-            break;
-
-        case TableType::trade_templates:
-            nColWidth[i] = nTradeTemplatesMinColWidth[i];
             break;
 
         case TableType::trans_panel:
@@ -318,8 +171,13 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype)
     if (tabletype == TableType::trans_panel) hHeader = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_HEADER);
     
     if (hHeader) {
+        int item_width = 0;
         for (int i = 0; i < MAX_COLUMNS; i++) {
-            Header_SetItemWidth(hHeader, i, AfxScaleX((float)nColWidth[i]));
+            // Do a width change check in order to prevent redrawing the header and causing flash.
+            item_width = AfxScaleX(nColWidth[i]);
+            if (item_width != Header_GetItemWidth(hHeader, i)) {
+                Header_SetItemWidth(hHeader, i, item_width);
+            }
         }
     }
 

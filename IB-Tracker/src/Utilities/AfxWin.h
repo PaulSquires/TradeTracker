@@ -119,6 +119,7 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle);
 DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle);
 bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth);
+int Header_GetItemWidth(HWND hwndHD, int nItem);
 bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR ptext);
 std::wstring Header_GetItemText(HWND hwndHD, int nItem);
 int Header_GetItemAlignment(HWND hwndHD, int nItem);

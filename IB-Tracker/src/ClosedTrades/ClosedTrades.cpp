@@ -577,12 +577,11 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSED_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ClosedTrades_Header_SubclassProc,
         IDC_CLOSED_HEADER, NULL);
-    int nWidth = AfxScaleX(50);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Description", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 0, AfxScaleX(nClosedMinColWidth[0]), L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(nClosedMinColWidth[1]), L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(nClosedMinColWidth[2]), L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(nClosedMinColWidth[3]), L"Description", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(nClosedMinColWidth[4]), L"Amount", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 

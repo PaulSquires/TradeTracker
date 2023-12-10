@@ -630,15 +630,14 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TransPanel_Header_SubclassProc,
         IDC_TRANS_HEADER, NULL);
-    int nWidth = AfxScaleX(50);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Description", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, nWidth, L"Quantity", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 5, nWidth, L"Price", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 6, nWidth, L"Fees", HDF_RIGHT);
-    Header_InsertNewItem(hCtl, 7, nWidth, L"Total", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 0, AfxScaleX(nTransMinColWidth[0]), L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(nTransMinColWidth[1]), L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(nTransMinColWidth[2]), L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(nTransMinColWidth[3]), L"Description", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(nTransMinColWidth[4]), L"Quantity", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 5, AfxScaleX(nTransMinColWidth[5]), L"Price", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 6, AfxScaleX(nTransMinColWidth[6]), L"Fees", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 7, AfxScaleX(nTransMinColWidth[7]), L"Total", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 

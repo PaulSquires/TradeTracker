@@ -443,11 +443,10 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hCtl = TickerPanel.AddControl(Controls::Header, hwnd, IDC_TICKER_HEADER_TOTALS,
         L"", 0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TickerPanel_Header_SubclassProc,
         IDC_TICKER_HEADER_TOTALS, NULL);
-    int nWidth = AfxScaleX(50);
-    Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 1, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 2, nWidth, L"Company Name", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Amount", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 0, AfxScaleX(nTickerTotalsMinColWidth[0]), L"", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(nTickerTotalsMinColWidth[1]), L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(nTickerTotalsMinColWidth[2]), L"Company Name", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(nTickerTotalsMinColWidth[3]), L"Amount", HDF_RIGHT);
 
     return TRUE;
 }

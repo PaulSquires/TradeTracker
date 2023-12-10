@@ -1376,6 +1376,19 @@ bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth)
 
 
 // ========================================================================================
+// Gets the width of the specified item of a header control.
+// Returns nonzero upon success, or zero otherwise.
+// ========================================================================================
+int Header_GetItemWidth(HWND hwndHD, int nItem)
+{
+    HDITEM hdi{};
+    hdi.mask = HDI_WIDTH;
+    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    return hdi.cxy;
+}
+
+
+// ========================================================================================
 // Sets the Header text of the specified item. Returns TRUE or FALSE.
 // ========================================================================================
 bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR ptext)

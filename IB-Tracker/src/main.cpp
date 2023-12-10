@@ -31,8 +31,6 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
-#include "CustomLabel/CustomLabel.h"
-#include "Utilities/UserMessages.h"
 #include "Utilities/UpdateCheck.h"
 #include <wchar.h>
 
@@ -148,11 +146,15 @@ int APIENTRY wWinMain(
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
 
+    if (hWndMain == NULL) return 0;
+
+
+    // Show the current list of active trades
+    ActiveTrades_ShowActiveTrades();
+
+
     // Center the main window within the desktop taking into account the actual work area.
     AfxCenterWindow(hWndMain, HWND_DESKTOP);
-
-
-    if (hWndMain == NULL) return 0;
 
 
     // Show the window and update its client area
@@ -168,9 +170,6 @@ int APIENTRY wWinMain(
     // version of the program is available.
     DisplayUpdateAvailableMessage();
 
-
-    // Show the current list of active trades
-    ActiveTrades_ShowActiveTrades();
 
 
     // Call the main modal message pump and wait for it to end.
