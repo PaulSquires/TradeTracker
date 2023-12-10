@@ -43,29 +43,50 @@ CTabPanel TabPanel;
 
 HWND HWND_TABPANEL = NULL;
 
+const int panel_count = 6;
+static int panel_ids[panel_count] =
+{ IDC_TABPANEL_ACTIVETRADES,
+    IDC_TABPANEL_CLOSEDTRADES,
+    IDC_TABPANEL_TRANSACTIONS,
+    IDC_TABPANEL_TICKERTOTALS,
+    IDC_TABPANEL_JOURNALNOTES,
+    IDC_TABPANEL_TRADEPLAN
+};
+
 
 // ========================================================================================
 // Select the incoming CtrlId in the TabPanel and deselect the others
 // ========================================================================================
 void TabPanel_SelectPanelItem(HWND hwnd, int CtrlId)
 {
-    static std::vector<int> panels;
-    panels.push_back(IDC_TABPANEL_ACTIVETRADES);
-    panels.push_back(IDC_TABPANEL_CLOSEDTRADES);
-    panels.push_back(IDC_TABPANEL_TRANSACTIONS);
-    panels.push_back(IDC_TABPANEL_TICKERTOTALS);
-    panels.push_back(IDC_TABPANEL_JOURNALNOTES);
-    panels.push_back(IDC_TABPANEL_TRADEPLAN);
+    // Use pData pointers directly with setting the label data instead of calling
+    // the wrappers in order to prevent redrawing on every SetSelected and CustomLabel_SetSelectedUnderline.
+    CustomLabel* pData = nullptr;
+    
+    int previous_selected_id = -1;  // Save previously selected so it can be redrawn afterwards.
 
-    for (auto& panel : panels) {
-        HWND hPanel = GetDlgItem(hwnd, panel);
-        if (panel == CtrlId) {
-            CustomLabel_SetSelected(hPanel, true);
-            CustomLabel_SetSelectedUnderline(hPanel, true, COLOR_GREEN, 3);
+    for (int i = 0; i < panel_count; ++i) {
+        HWND hCtl = GetDlgItem(hwnd, panel_ids[i]);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (!pData) continue;
+
+        if (pData->is_selected) previous_selected_id = panel_ids[i];
+
+        if (panel_ids[i] == CtrlId) {
+            pData->is_selected = true;
+            pData->is_selected_underline = true;
+            pData->selected_underline_color = COLOR_GREEN;
+            pData->selected_underline_width = 3;
         }
         else {
-            CustomLabel_SetSelected(hPanel, false);
+            pData->is_selected = false;
         }
+        SetWindowLongPtr(hCtl, 0, (LONG_PTR)pData);
+    }
+
+    if (previous_selected_id != CtrlId) {
+        AfxRedrawWindow(GetDlgItem(hwnd, previous_selected_id));
+        AfxRedrawWindow(GetDlgItem(hwnd, CtrlId));
     }
 }
 
@@ -75,19 +96,13 @@ void TabPanel_SelectPanelItem(HWND hwnd, int CtrlId)
 // ========================================================================================
 int TabPanel_GetSelectedPanel(HWND hwnd)
 {
-    static std::vector<int> panels;
-    panels.push_back(IDC_TABPANEL_ACTIVETRADES);
-    panels.push_back(IDC_TABPANEL_CLOSEDTRADES);
-    panels.push_back(IDC_TABPANEL_TRANSACTIONS);
-    panels.push_back(IDC_TABPANEL_TICKERTOTALS);
-    panels.push_back(IDC_TABPANEL_JOURNALNOTES);
-    panels.push_back(IDC_TABPANEL_TRADEPLAN);
-
-    for (auto& panel : panels) {
-        HWND hPanel = GetDlgItem(hwnd, panel);
-        if (CustomLabel_GetSelected(hPanel)) {
-            return panel;
-        }
+    CustomLabel* pData = nullptr;
+    
+    for (int i = 0; i < panel_count; ++i) {
+        HWND hCtl = GetDlgItem(hwnd, panel_ids[i]);
+        pData = CustomLabel_GetOptions(hCtl);
+        if (!pData) continue;
+        if (pData->is_selected) return panel_ids[i];
     }
     return -1;
 }

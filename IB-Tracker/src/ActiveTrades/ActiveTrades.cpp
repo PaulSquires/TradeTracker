@@ -332,7 +332,7 @@ void ActiveTrades_UpdateTickerPrices()
 
     // Do calculation to ensure column widths are wide enough to accommodate the new
     // price data that has just arrived.
-    if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1) == true) {
+    if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades) == true) {
         AfxRedrawWindow(hListBox);
     }
 
@@ -387,9 +387,6 @@ void ActiveTrades_ShowListBoxItem(int index)
     HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
 
-    // Ensure that the ActiveTrades menu item is selected
-    //SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_ACTIVETRADES);
-
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -412,17 +409,26 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 {
     HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
-    //HWND hLabel = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LABEL);
 
     static bool positions_requested = false;
     static int tickerId = 100;
     int curSel = 0;
+
+    
+    // Start the clock
+    //auto start = std::chrono::high_resolution_clock::now();
 
     // Select the correct menu panel item
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_ACTIVETRADES);
 
     // Ensure that the Trades panel is set
     MainWindow_SetLeftPanel(HWND_ACTIVETRADES);
+
+    // Stop the clock
+    //auto stop = std::chrono::high_resolution_clock::now();
+    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    //std::cout << "Time taken by code section: " << duration.count() << " milliseconds" << std::endl;
+
 
     // Determine if we need to initialize the listbox
     if (bForceReload == true && trades.size() != 0) {
@@ -431,7 +437,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
         // In case of newly added/deleted data ensure data is sorted.
-         
+
         if (ActiveTrades.sort_order == SortOrder::Category) {
             // Sort based on Category and then TickerSymbol
             std::sort(trades.begin(), trades.end(),
@@ -448,6 +454,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                     } 
                 });
         }
+
 
         if (ActiveTrades.sort_order == SortOrder::TickerSymbol) {
             // Sort based on TickerSymbol and Expiration
@@ -483,7 +490,6 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
                     } 
                 });
         }
-
 
 
         // Destroy any existing ListBox line data (clear the LineData pointers)
@@ -533,7 +539,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
         // This function is also called when receiving new price data from TWS because
         // that data may need the column width to be wider.
-        ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1);
+        ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades);
 
 
         // Redraw the ListBox to ensure that any recalculated columns are 
@@ -548,7 +554,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     if (trades.size() == 0) {
         ListBox_ResetContent(hListBox);
         ListBoxData_NoTradesExistMessage(hListBox);
-        ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades, -1);
+        ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades);
         AfxRedrawWindow(hListBox);
         auto t = std::make_shared<Trade>();
         t = nullptr;

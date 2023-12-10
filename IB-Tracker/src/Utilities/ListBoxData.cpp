@@ -191,9 +191,11 @@ bool previous_market_data_loaded = false;
 // that data may need the column width to be wider.
 // Returns bool to indicate whether ListBox should be redrawn.
 // ========================================================================================
-bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int index)
+bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype)
 {
-    HDC hdc = GetDC(hListBox);
+    int listbox_end = (int)ListBox_GetCount(hListBox);
+    if (listbox_end == 0) return false;
+    int listbox_start = 0;
 
     int nColWidth[MAX_COLUMNS] = { 0,0,0,0,0,0,0,0,0,0,0 };
 
@@ -229,6 +231,8 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int inde
     }
 
 
+    HDC hdc = GetDC(hListBox);
+
     Graphics graphics(hdc);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
@@ -243,57 +247,61 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype, int inde
 
     bool bRedrawListBox = false;
 
-    int nEnd = (int)ListBox_GetCount(hListBox);
-    if (nEnd == 0) return false;
-    int nStart = 0;
+    int nColMaxTextLength[MAX_COLUMNS] = { 0,0,0,0,0,0,0,0,0,0,0 };
 
-    // If a specific line number was passed into this function then we only
-    // test for that line rather than all lines (like when the arrays are first loaded).
-    // A value of -1 will iterate all strings the columns.
-    if (index != -1) {
-        nStart = index; nEnd = index;
-    }
-
-    for (int ii = nStart; ii < nEnd; ++ii) {
+    for (int ii = listbox_start; ii < listbox_end; ++ii) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
         if (ld == (void*)-1) continue;
-        if (ld->line_type != LineType::category_header) {
-            for (int i = 0; i < MAX_COLUMNS; i++) {
-                if (nColWidth[i] == 0) continue;
-                fontSize = ld->col[i].font_size;
-                fontStyle = ld->col[i].font_style;
-                Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+        if (ld->line_type == LineType::category_header) continue;
 
-                graphics.MeasureString(ld->col[i].text.c_str(), (int)ld->col[i].text.length(),
-                    &font, layoutRect, &format, &boundRect);
+        for (int i = 0; i < MAX_COLUMNS; i++) {
+            if (nColWidth[i] == 0) continue;
 
-                int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
+            // The MeasureString is an expensive call that we need to try to minimize
+            // it in this loop and because this function gets called often. We check the 
+            // textlength of the current line/col and compare it to the current maximum
+            // value of that column and only perform the calculations if the current 
+            // length is greater than the stored value.
+            // This optimization cuts the execution time from 50ms to 2ms.
+            if (ld->col[i].text.length() <= nColMaxTextLength[i]) {
+                continue;
+            }
+            nColMaxTextLength[i] = (int)ld->col[i].text.length();
+
+
+            // If we get this far then the text length of the 
+            fontSize = ld->col[i].font_size;
+            fontStyle = ld->col[i].font_style;
+            Font font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
+
+            graphics.MeasureString(ld->col[i].text.c_str(), (int)ld->col[i].text.length(),
+                &font, layoutRect, &format, &boundRect);
+
+            int textLength = AfxUnScaleX(boundRect.Width) + 5;  // add a bit for padding
 
                 
-                if (textLength > nColWidth[i]) {
+            if (textLength > nColWidth[i]) {
                 
-                    nColWidth[i] = textLength;
+                nColWidth[i] = textLength;
 
-                    if (tabletype == TableType::trade_history) {
-                        nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
-                    }
-
-                    if (tabletype == TableType::ticker_totals) {
-                        nColWidth[i] = min(nColWidth[i], nTickerTotalsMaxColWidth[i]);
-                    }
-
-                    bRedrawListBox = true;
+                if (tabletype == TableType::trade_history) {
+                    nColWidth[i] = min(nColWidth[i], nHistoryMaxColWidth[i]);
                 }
+
+                if (tabletype == TableType::ticker_totals) {
+                    nColWidth[i] = min(nColWidth[i], nTickerTotalsMaxColWidth[i]);
+                }
+
+                bRedrawListBox = true;
             }
         }
             
-        if (index != -1) break;
     }
 
 
     // Update the newly calculated column widths into each of the ld structures
-    for (int ii = nStart; ii < nEnd; ++ii) {
+    for (int ii = listbox_start; ii < listbox_end; ++ii) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, ii);
         if (ld == nullptr) continue;
         if (ld == (void*)-1) continue;

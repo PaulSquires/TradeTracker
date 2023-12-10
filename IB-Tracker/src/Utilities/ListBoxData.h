@@ -122,7 +122,7 @@ enum class TableType
 };
 
 
-bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type, int index);
+bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_NoTradesExistMessage(HWND hListBox);

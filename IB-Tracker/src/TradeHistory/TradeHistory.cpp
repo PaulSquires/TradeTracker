@@ -135,7 +135,7 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::trade_history, -1);
+    ListBoxData_ResizeColumnWidths(hListBox, TableType::trade_history);
 
 
     // Set the ListBox to the topline.
