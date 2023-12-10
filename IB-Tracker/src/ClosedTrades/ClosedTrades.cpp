@@ -581,7 +581,7 @@ BOOL ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Header_InsertNewItem(hCtl, 0, nWidth, L"", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, nWidth, L"Date", HDF_LEFT);
     Header_InsertNewItem(hCtl, 2, nWidth, L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, nWidth, L"Company Name", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, nWidth, L"Description", HDF_LEFT);
     Header_InsertNewItem(hCtl, 4, nWidth, L"Amount", HDF_RIGHT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");

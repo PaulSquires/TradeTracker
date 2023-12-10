@@ -99,7 +99,7 @@ int nClosedMinColWidth[MAX_COLUMNS] =
 {
     15,     /* empty */
     65,     /* Close Date */
-    50,     /* Ticker Symbol */
+    55,     /* Ticker Symbol */
     200,    /* Ticker Name */
     100,    /* Amount */
     5,      /* spacer */
@@ -116,8 +116,8 @@ int nTransMinColWidth[MAX_COLUMNS] =
 {
     15,     /* empty */
     65,     /* Transaction Date */
-    45,     /* Ticker Symbol */
-    90,     /* Transaction Description */
+    55,     /* Ticker Symbol */
+    200,    /* Transaction Description */
     60,     /* Quantity */
     60,     /* Price */
     60,     /* Fees */
