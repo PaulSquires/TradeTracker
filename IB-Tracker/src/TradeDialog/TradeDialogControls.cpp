@@ -621,6 +621,10 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
         description = L"Add Futures";
         grid_main = L"New Transaction";
         break;
+    case TradeAction::other_income_expense:
+        description = L"Other Income/Expense";
+        break;
+
     }
 
     CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION), AfxUpper(description));
@@ -842,7 +846,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     } else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
 
     } else if (tdd.trade_action == TradeAction::other_income_expense) {
-        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), L"Other Income/Expense");
+        // Increase the size of the label because the description is quite long
+        hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION);
+        SetWindowPos(hCtl, 0, AfxScaleX(300), AfxScaleY(10),
+            AfxScaleX(362), AfxScaleY(20), SWP_NOZORDER | SWP_SHOWWINDOW);
 
     } else if (tdd.trade_action == TradeAction::manage_shares || tdd.trade_action == TradeAction::manage_futures) {
         std::wstring font_name = AfxGetDefaultFont();

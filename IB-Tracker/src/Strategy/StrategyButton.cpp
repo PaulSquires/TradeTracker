@@ -99,7 +99,7 @@ std::wstring StrategyButton_GetStrategyEnumText(Strategy s)
     case Strategy::RatioSpread:
         return L"Ratio Spread";
     case Strategy::LT112:
-        return L"LT112";
+        return L"112";
     default:
         return L"";
     }
@@ -537,7 +537,8 @@ void StrategyButton_InvokeStrategy()
             TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
         }
         TradeGrid_CalculateDTE(pData->hWindow);
-        AfxSetWindowText(hCtlDescription, StrategyButton_GetStrategyEnumText(s));
+        wszPutCall = (pc == PutCall::Put) ? L"Put " : L"Call ";
+        AfxSetWindowText(hCtlDescription, wszPutCall + StrategyButton_GetStrategyEnumText(s));
         CustomTextBox_SetText(hCtlQuantity, L"1");
     }
     break;

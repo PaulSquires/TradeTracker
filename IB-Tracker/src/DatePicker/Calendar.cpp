@@ -46,16 +46,6 @@ HHOOK hCalanderPopupMouseHook = nullptr;
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: Calendar
-// ========================================================================================
-void Calendar_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
-    SetWindowPos(GetDlgItem(hwnd, IDC_CALENDAR_CALENDAR), 0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
-    return;
-}
-
-
-// ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: Calendar
 // ========================================================================================
 BOOL Calendar_OnEraseBkgnd(HWND hwnd, HDC hdc)
@@ -160,8 +150,6 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_CREATE, Calendar_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, Calendar_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, Calendar_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, Calendar_OnSize);
-
 
     case WM_NOTIFY:
     {
@@ -250,13 +238,23 @@ HWND Calendar_CreateDatePicker(
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
         WS_EX_NOACTIVATE);
 
+    int calendar_width = AfxScaleX(200);
+    int calendar_height = AfxScaleY(164);
 
+    if (NumCalendars == 2) {
+        calendar_height = AfxScaleY(300);
+    }
+
+    int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
     SetWindowPos(Calendar.WindowHandle(), 0,
-        rc.left, rc.bottom,
-        AfxScaleX(CALENDAR_WIDTH),
-        AfxScaleY(CALENDAR_HEIGHT * (float)NumCalendars),
+        rc.left, rc.bottom + margin,
+        calendar_width, calendar_height,
         SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+
+    HWND hCtl = GetDlgItem(Calendar.WindowHandle(), IDC_CALENDAR_CALENDAR);
+    GetClientRect(Calendar.WindowHandle(), &rc);
+    SetWindowPos(hCtl, 0, 0, 0, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 
     // Set the module global hUpdateParentCtl after the above Calendar is created in

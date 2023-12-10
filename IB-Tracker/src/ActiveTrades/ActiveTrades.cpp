@@ -1472,7 +1472,7 @@ std::wstring GetNewTradeDescription(const int index)
     case IDC_NEWTRADE_SHORTPUTVERTICAL: return L"Short Put Vertical";
     case IDC_NEWTRADE_SHORTCALL: return L"Short Call";
     case IDC_NEWTRADE_SHORTCALLVERTICAL: return L"Short Call Vertical";
-    case IDC_NEWTRADE_SHORTPUTLT112: return L"Short Put LT112";
+    case IDC_NEWTRADE_SHORTPUTLT112: return L"Short Put 112";
     case IDC_NEWTRADE_SHARESTRADE: return L"Shares Trade";
     case IDC_NEWTRADE_FUTURESTRADE: return L"Futures Trade";
     case IDC_NEWTRADE_OTHERINCOME: return L"Other Income/Expense";

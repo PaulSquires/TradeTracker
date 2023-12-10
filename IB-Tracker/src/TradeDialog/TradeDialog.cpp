@@ -343,7 +343,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
             Calendar_CreateDatePicker(
                 m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), date_text, 
-                CalendarPickerReturnType::long_date, 2);
+                CalendarPickerReturnType::long_date, 1);
         }
 
         if (CtrlId == IDC_TRADEDIALOG_CMDCONTRACTDATE || CtrlId == IDC_TRADEDIALOG_LBLCONTRACTDATE) {
@@ -470,7 +470,9 @@ int TradeDialog_Show(TradeAction inTradeAction)
         IsNewSharesTradeAction(tdd.trade_action) == true) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     }
-    else {
+    else if (tdd.trade_action == TradeAction::other_income_expense) {
+        SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE));
+    } else {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));
     }
      

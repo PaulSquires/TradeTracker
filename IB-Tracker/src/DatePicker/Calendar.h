@@ -49,9 +49,6 @@ enum class CalendarPickerReturnType
 
 constexpr int IDC_CALENDAR_CALENDAR = 100;
 
-constexpr int CALENDAR_WIDTH = 210;
-constexpr int CALENDAR_HEIGHT = 160;
-
 HWND Calendar_CreateDatePicker(
     HWND hParent, HWND hParentCtl, std::wstring date, 
     CalendarPickerReturnType date_return_type, int calendar_count);

@@ -125,6 +125,10 @@ void TransPanel_ShowTransactions()
     // Select the correct menu panel item
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_TRANSACTIONS);
 
+    // Ensure that the TransDetail panel and Detail Panel are set
+    MainWindow_SetLeftPanel(HWND_TRANSPANEL);
+    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
+
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
 
@@ -206,10 +210,6 @@ void TransPanel_ShowTransactions()
     if (ListBox_GetCount(hListBox)) {
         ListBoxData_AddBlankLine(hListBox);
     }
-
-    // Ensure that the TransDetail panel and Detail Panel are set
-    MainWindow_SetLeftPanel(HWND_TRANSPANEL);
-    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
