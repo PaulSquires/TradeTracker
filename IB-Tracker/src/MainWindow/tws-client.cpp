@@ -95,9 +95,9 @@ double GetScrapedClosingPrice(std::wstring ticker_symbol)
 
 	// Get the last line and parse for the closing price
 	if (text.size()) {
-		std::vector<std::wstring> lines = AfxSplit(text, L"\n");
+		std::vector<std::wstring> lines = AfxSplit(text, L'\n');
 		std::wstring last_line = lines.at(lines.size() - 1);
-		std::vector<std::wstring> prices = AfxSplit(last_line, L",");
+		std::vector<std::wstring> prices = AfxSplit(last_line, L',');
 		try { closing_price = prices.at(4); }
 		catch (...) {}
 	}
@@ -353,7 +353,7 @@ void tws_ConnectionSuccessful()
 		// Request Account Summary in order to get liquidity amounts
 		tws_RequestAccountSummary();
 
-		ActiveTrades_ShowActiveTrades(true);
+		ActiveTrades_ShowActiveTrades();
 	}
 }
 

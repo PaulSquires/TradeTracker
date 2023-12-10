@@ -381,7 +381,7 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         TabPanel_SelectPanelItem(m_hwnd, CtrlId);
 
         if (CtrlId == IDC_TABPANEL_ACTIVETRADES) {
-            ActiveTrades_ShowActiveTrades(true);
+            ActiveTrades_ShowActiveTrades();
         }
         if (CtrlId == IDC_TABPANEL_CLOSEDTRADES) {
             ClosedTrades_ShowClosedTrades();

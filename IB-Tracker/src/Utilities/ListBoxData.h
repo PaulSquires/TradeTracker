@@ -80,8 +80,8 @@ public:
 
 
     void SetData(
-        int index, const std::shared_ptr<Trade> tradeptr, TickerId tickId,
-        std::wstring text, StringAlignment HAlignment, StringAlignment VAlignment, 
+        int index, const std::shared_ptr<Trade>& tradeptr, TickerId tickId,
+        const std::wstring& text, StringAlignment HAlignment, StringAlignment VAlignment, 
         DWORD back_theme, DWORD text_theme, REAL font_size, int font_style)
     {
         if (tickId != -1) {
@@ -101,7 +101,7 @@ public:
 
     // Update Text & color only. This is called from tws-client when TWS
     // sends new price data that needs to be updated.
-    void SetTextData(int index, std::wstring text, DWORD textTheme)
+    void SetTextData(int index, const std::wstring& text, DWORD textTheme)
     {
         col[index].text = text;
         col[index].text_theme = textTheme;
@@ -142,9 +142,9 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 void ListBoxData_OutputClosedMonthTotal(HWND hListBox, double monthly_total, int month_win, int month_loss);
 void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int week_win, int week_loss);
 void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day_win, int day_loss);
-void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closed_date, double subtotal, int month_win, int month_loss);
-void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closed_date);
-void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount);
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, const std::wstring& closed_date, double subtotal, int month_win, int month_loss);
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::wstring& closed_date);
+void ListBoxData_OutputTickerTotals(HWND hListBox, const std::wstring& ticker, double amount);
 void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double running_gross_total, 
     double running_fees_total, double running_net_total);
 void ListBoxData_OutputTransaction(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);

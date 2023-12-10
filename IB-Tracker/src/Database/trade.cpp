@@ -44,8 +44,8 @@ void Trade::SetTradeOpenStatus()
     int aggregate = 0;
     bool do_quantity_check = false;
 
-    for (const auto &trans : transactions) {
-        for (const auto &leg : trans->legs) {
+    for (const auto& trans : transactions) {
+        for (const auto& leg : trans->legs) {
             if (leg->underlying == L"OPTIONS") {
                 if (leg->isOpen()) {
                     // A leg is open so therefore the Trade must stay open
@@ -53,10 +53,10 @@ void Trade::SetTradeOpenStatus()
                     return;
                 }
             } else if (leg->underlying == L"SHARES") {
-               aggregate = aggregate + leg->open_quantity;
+               aggregate += leg->open_quantity;
                do_quantity_check = true;
             } else if (leg->underlying == L"FUTURES") {
-                aggregate = aggregate + leg->open_quantity;
+                aggregate += leg->open_quantity;
                 do_quantity_check = true;
             }
         }
@@ -76,7 +76,7 @@ void Trade::SetTradeOpenStatus()
 void Trade::CalculateAdjustedCostBase()
 {
     this->acb = 0;
-    for (const auto trans : this->transactions) {
+    for (const auto& trans : this->transactions) {
         this->acb += trans->total;
     }
 }

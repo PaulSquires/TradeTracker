@@ -205,7 +205,7 @@ int GetStartupHeight()
 // ========================================================================================
 void SetStartupHeight(int height)
 {
-    startup_height = AfxUnScaleY((float)height);
+    startup_height = AfxUnScaleY(height);
 }
 
 
@@ -214,7 +214,7 @@ void SetStartupHeight(int height)
 // ========================================================================================
 void SetStartupWidth(int width)
 {
-    startup_width = AfxUnScaleX((float)width);
+    startup_width = AfxUnScaleX(width);
 }
 
 
@@ -234,7 +234,7 @@ int GetStartupRightPanelWidth()
 // ========================================================================================
 void SetStartupRightPanelWidth(int width)
 {
-    startup_right_panel_width = AfxUnScaleX((float)width);
+    startup_right_panel_width = AfxUnScaleX(width);
 }
 
 
@@ -250,7 +250,7 @@ bool IsFuturesTicker(const std::wstring& ticker)
 // ========================================================================================
 // Get the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-int GetTickerDecimals(std::wstring underlying)
+int GetTickerDecimals(const std::wstring& underlying)
 {
     if (mapTickerDecimals.count(underlying)) {
         return mapTickerDecimals.at(underlying);
@@ -264,7 +264,7 @@ int GetTickerDecimals(std::wstring underlying)
 // ========================================================================================
 // Set the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-void SetTickerDecimals(std::wstring underlying, int decimals)
+void SetTickerDecimals(const std::wstring& underlying, int decimals)
 {
     mapTickerDecimals[underlying] = decimals;
 }
@@ -273,7 +273,7 @@ void SetTickerDecimals(std::wstring underlying, int decimals)
 // ========================================================================================
 // Get the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-std::wstring GetMultiplier(std::wstring underlying)
+std::wstring GetMultiplier(const std::wstring& underlying)
 {
     if (mapMultipliers.count(underlying)) {
         return mapMultipliers.at(underlying);
@@ -287,7 +287,7 @@ std::wstring GetMultiplier(std::wstring underlying)
 // ========================================================================================
 // Set the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-void SetMultiplier(std::wstring underlying, std::wstring multiplier)
+void SetMultiplier(const std::wstring& underlying, const std::wstring& multiplier)
 {
     mapMultipliers[underlying] = multiplier;
 }
@@ -296,7 +296,7 @@ void SetMultiplier(std::wstring underlying, std::wstring multiplier)
 // ========================================================================================
 // Get the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-std::string GetFuturesExchange(std::string underlying)
+std::string GetFuturesExchange(const std::string& underlying)
 {
     if (mapFuturesExchanges.count(underlying)) {
         return mapFuturesExchanges.at(underlying);
@@ -310,7 +310,7 @@ std::string GetFuturesExchange(std::string underlying)
 // ========================================================================================
 // Set the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-void SetFuturesExchange(std::string underlying, std::string exchange)
+void SetFuturesExchange(const std::string& underlying, const std::string& exchange)
 {
     mapFuturesExchanges[underlying] = exchange;
 }
@@ -328,7 +328,7 @@ std::wstring GetCategoryDescription(int category_index)
 // ========================================================================================
 // Set the Category Description for the incoming category number.
 // ========================================================================================
-void SetCategoryDescription(int category_index, std::wstring wszDescription)
+void SetCategoryDescription(int category_index, const std::wstring& wszDescription)
 {
     mapCategoryDescriptions[category_index] = wszDescription;
 }
@@ -362,7 +362,7 @@ std::wstring GetJournalNotesText()
 // ========================================================================================
 // Set and save the JournalNotes text.
 // ========================================================================================
-void SetJournalNotesText(std::wstring wszText)
+void SetJournalNotesText(const std::wstring& wszText)
 {
     std::wofstream db;
 
@@ -413,7 +413,7 @@ std::wstring GetTradePlanText()
 // ========================================================================================
 // Set and save the TradePlan text.
 // ========================================================================================
-void SetTradePlanText(std::wstring wszText)
+void SetTradePlanText(const std::wstring& wszText)
 {
     std::wofstream db;
 
@@ -526,7 +526,7 @@ bool LoadConfig()
         if (line.compare(1, 3, L"// ") == 0) continue;
 
         // Tokenize the line into a vector based on the pipe delimiter
-        std::vector<std::wstring> st = AfxSplit(line, L"|");
+        std::vector<std::wstring> st = AfxSplit(line, L'|');
 
         if (st.empty()) continue;
 

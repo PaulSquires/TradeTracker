@@ -46,43 +46,53 @@ std::vector<std::shared_ptr<Trade>> trades;
 
 int UnderlyingToNumber(const std::wstring& underlying)
 {
-    if (underlying == L"OPTIONS") return 0;
-    if (underlying == L"SHARES") return 1;
-    if (underlying == L"FUTURES") return 2;
-    if (underlying == L"DIVIDEND") return 3;
-    if (underlying == L"OTHER") return 4;
-    return 0;
+    static const std::unordered_map<std::wstring, int> map = {
+         {L"OPTIONS", 0}, {L"SHARES", 1}, {L"FUTURES", 2},
+         {L"DIVIDEND", 3}, {L"OTHER", 4}
+    };
+
+    // Search for an element in the map
+    auto it = map.find(underlying);
+    return (it != map.end()) ? it->second : 0;
 }
 
 
-std::wstring NumberToUnderlying(int number)
+std::wstring NumberToUnderlying(const int number)
 {
-    if (number == 0) return L"OPTIONS";
-    if (number == 1) return L"SHARES";
-    if (number == 2) return L"FUTURES";
-    if (number == 3) return L"DIVIDEND";
-    if (number == 4) return L"OTHER";
-    return L"OPTIONS";
+    switch (number) 
+    {
+    case 0: return L"OPTIONS";
+    case 1: return L"SHARES";
+    case 2: return L"FUTURES";
+    case 3: return L"DIVIDEND";
+    case 4: return L"OTHER";
+    default: return L"OPTIONS";
+    }
 }
 
 
 int ActionToNumber(const std::wstring& action)
 {
-    if (action == L"STO") return 0;
-    if (action == L"BTO") return 1;
-    if (action == L"STC") return 2;
-    if (action == L"BTC") return 3;
-    return 0;
+    static const std::unordered_map<std::wstring, int> map = {
+     {L"STO", 0}, {L"BTO", 1}, {L"STC", 2}, {L"BTC", 3}
+    };
+
+    // Search for an element in the map
+    auto it = map.find(action);
+    return (it != map.end()) ? it->second : 0;
 }
 
 
-std::wstring NumberToAction(int number)
+std::wstring NumberToAction(const int number)
 {
-    if (number == 0) return L"STO";
-    if (number == 1) return L"BTO";
-    if (number == 2) return L"STC";
-    if (number == 3) return L"BTC";
-    return L"STO";
+    switch (number)
+    {
+    case 0: return L"STO";
+    case 1: return L"BTO";
+    case 2: return L"STC";
+    case 3: return L"BTC";
+    default: return L"STO";
+    } 
 }
 
 
@@ -158,23 +168,19 @@ bool SaveDatabase()
 }
 
 
-inline std::wstring try_catch_wstring(std::vector<std::wstring>& st, int idx) {
-    try {
-        return st.at(idx);
-    }
-    catch (...) {
-        return L"";
-    }
+inline static std::wstring try_catch_wstring(const std::vector<std::wstring>& st, const int idx) {
+    if (idx >= st.size() || idx < 0) return L"";
+    return st.at(idx);
 }
 
 
-inline int try_catch_int(std::vector<std::wstring>& st, int idx) {
+inline static int try_catch_int(const std::vector<std::wstring>& st, const int idx) {
     std::wstring text = try_catch_wstring(st, idx);
     return AfxValInteger(text);
 }
 
 
-inline double try_catch_double(std::vector<std::wstring>& st, int idx) {
+inline static double try_catch_double(const std::vector<std::wstring>& st, const int idx) {
     std::wstring text = try_catch_wstring(st, idx);
     return AfxValDouble(text);
 }
@@ -203,6 +209,8 @@ bool LoadDatabase()
 
     std::wstring line;
     std::wstring text;
+    std::wstring date_text;
+    std::wstring wszexpiry_date;
 
     while (!db.eof()) {
         std::getline(db, line);
@@ -213,7 +221,7 @@ bool LoadDatabase()
         if (line.compare(1, 3, L"// ") == 0) continue;
 
         // Tokenize the line into a vector based on the pipe delimiter
-        std::vector<std::wstring> st = AfxSplit(line, L"|");
+        std::vector<std::wstring> st = AfxSplit(line, L'|');
 
         if (st.empty()) continue;
 
@@ -239,62 +247,62 @@ bool LoadDatabase()
 
         if (try_catch_wstring(st, 0) == L"T") {
             trade = std::make_shared<Trade>();
-            trade->is_open = (try_catch_wstring(st, 1) == L"0" ? false : true);
-            trade->nextleg_id = try_catch_int(st, 2);
+            trade->is_open       = (try_catch_wstring(st, 1) == L"0") ? false : true;
+            trade->nextleg_id    = try_catch_int(st, 2);
             trade->ticker_symbol = try_catch_wstring(st, 3);
-            trade->ticker_name = try_catch_wstring(st, 4);
-            trade->future_expiry = AfxInsertDateHyphens(try_catch_wstring(st, 5));
-            trade->category = try_catch_int(st, 6);
-            trade->trade_bp = try_catch_double(st, 7);
-            text = try_catch_wstring(st, 8);
-            trade->notes = AfxReplace(text, L"~~", L"\r\n");
+            trade->ticker_name   = try_catch_wstring(st, 4);
+            date_text            = try_catch_wstring(st, 5);
+            trade->future_expiry = AfxInsertDateHyphens(date_text);
+            trade->category      = try_catch_int(st, 6);
+            trade->trade_bp      = try_catch_double(st, 7);
+            text                 = try_catch_wstring(st, 8);
+            trade->notes         = AfxReplace(text, L"~~", L"\r\n");
             
-
-            trades.push_back(trade);
+            trades.emplace_back(trade);
             continue;
         }
 
 
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
-            std::wstring date_text = try_catch_wstring(st, 1);
-            trans->trans_date = AfxInsertDateHyphens(date_text);
+            date_text          = try_catch_wstring(st, 1);
+            trans->trans_date  = AfxInsertDateHyphens(date_text);
             trans->description = try_catch_wstring(st, 2);
-            trans->underlying = NumberToUnderlying(try_catch_int(st, 3));
-            trans->quantity = try_catch_int(st, 4);
-            trans->price = try_catch_double(st, 5);
-            trans->multiplier = try_catch_double(st, 6);
-            trans->fees = try_catch_double(st, 7);
-            trans->total = try_catch_double(st, 8);
+            trans->underlying  = NumberToUnderlying(try_catch_int(st, 3));
+            trans->quantity    = try_catch_int(st, 4);
+            trans->price       = try_catch_double(st, 5);
+            trans->multiplier  = try_catch_double(st, 6);
+            trans->fees        = try_catch_double(st, 7);
+            trans->total       = try_catch_double(st, 8);
             if (trade != nullptr) {
                 // Determine earliest and latest dates for BP ROI calculation.
                 if (AfxValDouble(date_text) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = date_text;
                 if (AfxValDouble(date_text) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = date_text;
                 if (AfxValDouble(date_text) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = date_text;
-                trade->transactions.push_back(trans);
+                trade->transactions.emplace_back(trans);
             }
             continue;
         }
 
         if (try_catch_wstring(st, 0) == L"L") {
             leg = std::make_shared<Leg>();
-            leg->leg_id = try_catch_int(st, 1);
+            leg->leg_id              = try_catch_int(st, 1);
             leg->leg_back_pointer_id = try_catch_int(st, 2);
-            leg->original_quantity = try_catch_int(st, 3);
-            leg->open_quantity = try_catch_int(st, 4);
-            std::wstring wszexpiry_date = try_catch_wstring(st, 5);
-            leg->expiry_date = AfxInsertDateHyphens(wszexpiry_date);
-            leg->strike_price = try_catch_wstring(st, 6);
-            leg->PutCall = try_catch_wstring(st, 7); 
-            leg->action = NumberToAction(try_catch_int(st, 8));
-            leg->underlying = NumberToUnderlying(try_catch_int(st, 9));
+            leg->original_quantity   = try_catch_int(st, 3);
+            leg->open_quantity       = try_catch_int(st, 4);
+            wszexpiry_date           = try_catch_wstring(st, 5);
+            leg->expiry_date         = AfxInsertDateHyphens(wszexpiry_date);
+            leg->strike_price        = try_catch_wstring(st, 6);
+            leg->PutCall             = try_catch_wstring(st, 7); 
+            leg->action              = NumberToAction(try_catch_int(st, 8));
+            leg->underlying          = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr) {
                 leg->trans = trans;
                 if (trade != nullptr) {
                     // Determine latest date for BP ROI calculation.
                     if (AfxValDouble(wszexpiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszexpiry_date;
                 }
-                trans->legs.push_back(leg);
+                trans->legs.emplace_back(leg);
             }
             continue;
         }
@@ -308,7 +316,7 @@ bool LoadDatabase()
     // rather than physically storing that value in the database. This allows us to
     // manually edit individual Transactions externally and not have to go through
     // an error prone process of recalculating the ACB with the new change.
-    for (auto trade : trades) {
+    for (const auto& trade : trades) {
         if (trade->is_open) {
             trade->CreateOpenLegsVector();
         }

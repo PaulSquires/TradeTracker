@@ -76,7 +76,7 @@ void TradeDialog_OnClose(HWND hwnd)
         Reconcile_doPositionMatching();
 
         // Show our new list of open trades
-        ActiveTrades_ShowActiveTrades(true);
+        ActiveTrades_ShowActiveTrades();
     }
 
     MainWindow_BlurPanels(false);

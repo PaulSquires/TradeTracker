@@ -30,9 +30,10 @@ SOFTWARE.
 #include <versionhelpers.h>
 #include <string>
 #include <winver.h>
+#include <cwctype>
 
 
-std::wstring AfxExecCmd(std::wstring cmd);
+std::wstring AfxExecCmd(const std::wstring& cmd);
 
 void AfxRedrawWindow(HWND hwnd);
 std::wstring AfxGetWindowText(HWND hwnd);
@@ -41,9 +42,13 @@ bool AfxSetWindowText(HWND hwnd, const std::wstring& text);
 float AfxScaleRatioX();
 float AfxScaleRatioY();
 int AfxScaleX(float cx);
+int AfxScaleX(int cx);
 int AfxScaleY(float cy);
+int AfxScaleY(int cy);
 int AfxUnScaleX(float cx);
+int AfxUnScaleX(int cx);
 int AfxUnScaleY(float cy);
+int AfxUnScaleY(int cy);
 
 int AfxGetClientWidth(HWND hwnd);
 int AfxGetClientHeight(HWND hwnd);
@@ -59,15 +64,15 @@ int AfxComCtlVersion();
 int AfxGetFileVersion(const std::wstring& pwszFileName);
 
 HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon = FALSE, bool bCentered = FALSE);
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& text);
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text);
 
 std::wstring AfxGetListBoxText(HWND hListBox, int index);
 
 std::wstring AfxGetExePath();
 std::wstring AfxCurrentDate();
 
-int AfxValInteger(std::wstring st);
-double AfxValDouble(std::wstring st);
+int AfxValInteger(const std::wstring& st);
+double AfxValDouble(const std::wstring& st);
 
 std::wstring AfxInsertDateHyphens(const std::wstring& dateString);
 std::wstring AfxRemoveDateHyphens(const std::wstring& dateString);
@@ -102,13 +107,13 @@ std::wstring AfxMoney(double value, bool UseMinusSign = false, int NumDecimalPla
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y);
 bool AfxStringCompareI(const std::string& s1, const std::string& s2);
 bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
-std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter);
+std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter);
 bool AfxFileExists(const std::wstring& wszFileSpec);
-std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to);
-std::wstring AfxRemove(std::wstring text, std::wstring repl);
-std::wstring& AfxLTrim(std::wstring& s);
-std::wstring& AfxRTrim(std::wstring& s);
-std::wstring& AfxTrim(std::wstring& s);
+std::wstring AfxReplace(const std::wstring& str, const std::wstring& from, const std::wstring& to);
+std::wstring AfxRemove(const std::wstring& text, const std::wstring& repl);
+std::wstring AfxLTrim(const std::wstring& s);
+std::wstring AfxRTrim(const std::wstring& s);
+std::wstring AfxTrim(const std::wstring& s);
 DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle);
 DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle);

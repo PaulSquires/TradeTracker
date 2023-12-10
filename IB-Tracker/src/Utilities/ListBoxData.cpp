@@ -1030,7 +1030,7 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day
 // ========================================================================================
 // Create the display data line for a closed position month subtotal.
 // ========================================================================================
-void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closed_date, double subtotal, int month_win, int month_loss)
+void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, const std::wstring& closed_date, double subtotal, int month_win, int month_loss)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -1063,7 +1063,7 @@ void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, std::wstring closed_da
 // ========================================================================================
 // Create the display data line for a closed position.
 // ========================================================================================
-void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, std::wstring closed_date)
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::wstring& closed_date)
 {
     ListBoxData* ld = new ListBoxData;
 
@@ -1176,7 +1176,7 @@ void ListBoxData_OutputTransaction(
 // ========================================================================================
 // Create the display data line for a Ticker total.
 // ========================================================================================
-void ListBoxData_OutputTickerTotals(HWND hListBox, std::wstring ticker, double amount)
+void ListBoxData_OutputTickerTotals(HWND hListBox, const std::wstring& ticker, double amount)
 {
     ListBoxData* ld = new ListBoxData;
 

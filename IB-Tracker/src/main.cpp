@@ -170,7 +170,7 @@ int APIENTRY wWinMain(
 
 
     // Show the current list of active trades
-    ActiveTrades_ShowActiveTrades(true);
+    ActiveTrades_ShowActiveTrades();
 
 
     // Call the main modal message pump and wait for it to end.

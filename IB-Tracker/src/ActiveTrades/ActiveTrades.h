@@ -109,7 +109,7 @@ constexpr int COLUMN_TICKER_PERCENTCOMPLETE = 11;   // Percentage values for the
 
 bool IsNewOptionsTradeAction(TradeAction action);
 bool IsNewSharesTradeAction(TradeAction action);
-void ActiveTrades_ShowActiveTrades(const bool bForceReload);
+void ActiveTrades_ShowActiveTrades();
 void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
 void ActiveTrades_UpdateTickerPrices();
 void PerformITMcalculation(std::shared_ptr<Trade>& trade);

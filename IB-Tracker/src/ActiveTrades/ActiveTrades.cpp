@@ -405,7 +405,7 @@ void ActiveTrades_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Trades ListBox with the current active/open trades
 // ========================================================================================
-void ActiveTrades_ShowActiveTrades(const bool bForceReload)
+void ActiveTrades_ShowActiveTrades()
 {
     HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
@@ -414,24 +414,15 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
     static int tickerId = 100;
     int curSel = 0;
 
-    
-    // Start the clock
-    //auto start = std::chrono::high_resolution_clock::now();
-
     // Select the correct menu panel item
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_ACTIVETRADES);
 
     // Ensure that the Trades panel is set
     MainWindow_SetLeftPanel(HWND_ACTIVETRADES);
 
-    // Stop the clock
-    //auto stop = std::chrono::high_resolution_clock::now();
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    //std::cout << "Time taken by code section: " << duration.count() << " milliseconds" << std::endl;
-
 
     // Determine if we need to initialize the listbox
-    if (bForceReload == true && trades.size() != 0) {
+    if (trades.size()) {
 
         // Prevent ListBox redrawing until all calculations are completed
         SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
@@ -441,7 +432,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         if (ActiveTrades.sort_order == SortOrder::Category) {
             // Sort based on Category and then TickerSymbol
             std::sort(trades.begin(), trades.end(),
-                [](const auto trade1, const auto trade2) {
+                [](const auto& trade1, const auto& trade2) {
                     {
                         if (trade1->category < trade2->category) return true;
                         if (trade2->category < trade1->category) return false;
@@ -459,7 +450,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         if (ActiveTrades.sort_order == SortOrder::TickerSymbol) {
             // Sort based on TickerSymbol and Expiration
             std::sort(trades.begin(), trades.end(),
-                [](const auto trade1, const auto trade2) {
+                [](const auto& trade1, const auto& trade2) {
                     {
                         if (trade1->ticker_symbol < trade2->ticker_symbol) return true;
                         if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
@@ -477,7 +468,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         if (ActiveTrades.sort_order == SortOrder::Expiration) {
             // Sort based on Expiration and TickerSymbol
             std::sort(trades.begin(), trades.end(),
-                [](const auto trade1, const auto trade2) {
+                [](const auto& trade1, const auto& trade2) {
                     {
                         if (trade1->earliest_legs_DTE < trade2->earliest_legs_DTE) return true;
                         if (trade2->earliest_legs_DTE < trade1->earliest_legs_DTE) return false;
@@ -498,7 +489,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
 
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
-        for (auto& trade : trades) {
+        for (const auto& trade : trades) {
             // We are displaying only open trades 
             if (trade->is_open) {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
@@ -529,7 +520,7 @@ void ActiveTrades_ShowActiveTrades(const bool bForceReload)
         // When requestPositions completes, it sends a notification to the Active Trades
         // window that it is now okay to request the Portfolio Updates. We make those
         // portfolio update calls there rather than here.
-        if (tws_IsConnected() == true && positions_requested == false) {
+        if (tws_IsConnected() && !positions_requested) {
             tws_RequestPositions();
             positions_requested = true;
         }
@@ -714,7 +705,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     SaveDatabase();
 
     // Reload the trade list
-    ActiveTrades_ShowActiveTrades(true);
+    ActiveTrades_ShowActiveTrades();
 
 }
 
@@ -828,7 +819,7 @@ void ActiveTrades_CalledAwayAssignment(
     SaveDatabase();
 
     // Reload the trade list
-    ActiveTrades_ShowActiveTrades(true);
+    ActiveTrades_ShowActiveTrades();
 
 }
 
@@ -938,7 +929,7 @@ void ActiveTrades_Assignment(auto trade, auto leg)
     SaveDatabase();
 
     // Reload the trade list
-    ActiveTrades_ShowActiveTrades(true);
+    ActiveTrades_ShowActiveTrades();
 }
 
 
@@ -1626,15 +1617,15 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         {
         case IDC_SORTFILTER_CATEGORY:
             ActiveTrades.sort_order = SortOrder::Category;
-            ActiveTrades_ShowActiveTrades(true);
+            ActiveTrades_ShowActiveTrades();
             break;
         case IDC_SORTFILTER_EXPIRATION:
             ActiveTrades.sort_order = SortOrder::Expiration;
-            ActiveTrades_ShowActiveTrades(true);
+            ActiveTrades_ShowActiveTrades();
             break;
         case IDC_SORTFILTER_TICKERSYMBOL:
             ActiveTrades.sort_order = SortOrder::TickerSymbol;
-            ActiveTrades_ShowActiveTrades(true);
+            ActiveTrades_ShowActiveTrades();
             break;
         case IDC_NEWTRADE_CUSTOMOPTIONS: 
             TradeDialog_Show(TradeAction::new_options_trade);

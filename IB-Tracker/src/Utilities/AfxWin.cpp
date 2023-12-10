@@ -32,7 +32,7 @@ SOFTWARE.
 //
 // Execute a command and get the results. (Only standard output)
 //
-std::wstring AfxExecCmd(std::wstring cmd) // [in] command to execute
+std::wstring AfxExecCmd(const std::wstring& cmd) // [in] command to execute
 {
     std::wstring strResult;
     HANDLE hPipeRead, hPipeWrite;
@@ -172,12 +172,20 @@ int AfxUnScaleX(float cx)
 {
     return (int)round((cx / AfxScaleRatioX()));
 }
+int AfxUnScaleX(int cx)
+{
+    return (int)round((cx / AfxScaleRatioX()));
+}
 
 
 // ========================================================================================
 // Unscales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
 // ========================================================================================
 int AfxUnScaleY(float cy)
+{
+    return (int)round((cy / AfxScaleRatioY()));
+}
+int AfxUnScaleY(int cy)
 {
     return (int)round((cy / AfxScaleRatioY()));
 }
@@ -443,7 +451,7 @@ HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon, bool bCen
 // - hwnd     = Handle of the window or control
 // - text  = Tooltip text
 // ========================================================================================
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, std::wstring& text)
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text)
 {
     if ((hTooltip == NULL) || (hwnd == NULL)) return;
     // 32-bit: The size of the TOOLINFOW structure is 48 bytes in
@@ -508,7 +516,8 @@ std::wstring AfxGetExePath()
 // ========================================================================================
 // Convert wstring to integer catching any exceptions
 // ========================================================================================
-int AfxValInteger(std::wstring st) {
+int AfxValInteger(const std::wstring& st) 
+{
     if (st.length() == 0) return 0;
     try {
         return stoi(st);
@@ -522,8 +531,9 @@ int AfxValInteger(std::wstring st) {
 // ========================================================================================
 // Convert wstring to double catching any exceptions
 // ========================================================================================
-double AfxValDouble(std::wstring st) {
-    if (st.length() == 0) return 0;
+double AfxValDouble(const std::wstring& st) 
+{
+    if (st.length() == 0) return 0.0f;
     try {
         return stod(st);
     }
@@ -1114,31 +1124,19 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2)
 
 
 // ========================================================================================
-// Function to split the string to words in a vector
-// separated by the delimiter
+// Function to split the string to words in a vector separated by the delimiter
 // ========================================================================================
-std::vector<std::wstring> AfxSplit(std::wstring str, std::wstring delimiter)
+std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) 
 {
-    std::vector<std::wstring> v;
-    if (!str.empty()) {
-        size_t start = 0;
-        do {
-            // Find the index of occurrence
-            size_t idx = str.find(delimiter, start);
-            if (idx == std::wstring::npos) {
-                break;
-            }
+    std::wistringstream stream(input);
+    std::wstring token;
+    std::vector<std::wstring> result;
 
-            // If found add the substring till that
-            // occurrence in the vector
-            size_t length = idx - start;
-            v.push_back(str.substr(start, length));
-            start += (length + delimiter.size());
-        } while (true);
-        v.push_back(str.substr(start));
+    while (std::getline(stream, token, delimiter)) {
+        result.push_back(token);
     }
 
-    return v;
+    return result;
 }
 
 
@@ -1185,14 +1183,56 @@ bool AfxFileExists(const std::wstring& wszFileSpec)
 // ========================================================================================
 // Remove all leading whitespace characters from a string
 // ========================================================================================
-std::wstring& AfxLTrim(std::wstring& s)
+std::wstring AfxLTrim(const std::wstring& input)
 {
-    auto it = std::find_if(s.begin(), s.end(),
-        [](wchar_t c) {
-            return !std::isspace<wchar_t>(c, std::locale::classic());
-        });
-    s.erase(s.begin(), it);
-    return s;
+    // Find the position of the first non-whitespace character
+    auto firstNonWhitespace = std::find_if_not(input.begin(), input.end(), std::iswspace);
+
+    // Create a new string starting from the first non-whitespace character
+    return std::wstring(firstNonWhitespace, input.end());
+}
+
+
+// ========================================================================================
+// Remove all trailing whitespace characters from a string
+// ========================================================================================
+std::wstring AfxRTrim(const std::wstring& input) 
+{
+    if (input.empty()) {
+        return input;  // Nothing to remove if the string is empty
+    }
+
+    // Find the position of the last non-whitespace character
+    auto lastNonWhitespace = input.find_last_not_of(L" \t\r\n");
+
+    if (lastNonWhitespace == std::wstring::npos) {
+        // The string contains only whitespaces; return an empty string
+        return L"";
+    }
+
+    // Extract the substring without trailing whitespaces
+    return input.substr(0, lastNonWhitespace + 1);
+}
+
+
+// ========================================================================================
+// Remove all leading and trailing whitespace characters from a string
+// ========================================================================================
+std::wstring AfxTrim(const std::wstring& input) 
+{
+    // Find the first non-whitespace character
+    size_t startPos = input.find_first_not_of(L" \t\n\r");
+
+    // If the string is all whitespace, return an empty string
+    if (startPos == std::wstring::npos) {
+        return L"";
+    }
+
+    // Find the last non-whitespace character
+    size_t endPos = input.find_last_not_of(L" \t\n\r");
+
+    // Extract the substring without leading and trailing whitespaces
+    return input.substr(startPos, endPos - startPos + 1);
 }
 
 
@@ -1225,7 +1265,7 @@ std::wstring AfxLSet(const std::wstring& text, int nWidth)
 // ========================================================================================
 // Replace one char/string another char/string. Return a copy.
 // ========================================================================================
-std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::wstring& to)
+std::wstring AfxReplace(const std::wstring& str, const std::wstring& from, const std::wstring& to)
 {
     std::wstring wszString = str;
     if (str.empty()) return wszString;
@@ -1242,7 +1282,7 @@ std::wstring AfxReplace(std::wstring& str, const std::wstring& from, const std::
 // ========================================================================================
 // Remove char/string from string. Return a copy.
 // ========================================================================================
-std::wstring AfxRemove(std::wstring text, std::wstring repl)
+std::wstring AfxRemove(const std::wstring& text, const std::wstring& repl)
 {
     std::wstring wszString = text;
     std::string::size_type i = wszString.find(repl);
@@ -1251,28 +1291,6 @@ std::wstring AfxRemove(std::wstring text, std::wstring repl)
         i = wszString.find(repl, i);
     }
     return wszString;
-}
-
-
-// ========================================================================================
-// Remove all trailing whitespace characters from a string
-// ========================================================================================
-std::wstring& AfxRTrim(std::wstring& s)
-{
-    auto it = std::find_if(s.rbegin(), s.rend(),
-        [](wchar_t c) {
-            return !std::isspace<wchar_t>(c, std::locale::classic());
-        });
-    s.erase(it.base(), s.end());
-    return s;
-}
-
-
-// ========================================================================================
-// Remove all leading and trailing whitespace characters from a string
-// ========================================================================================
-std::wstring& AfxTrim(std::wstring& s) {
-    return AfxLTrim(AfxRTrim(s));
 }
 
 

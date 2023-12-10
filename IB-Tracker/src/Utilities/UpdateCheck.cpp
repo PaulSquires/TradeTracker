@@ -102,7 +102,7 @@ void UpdateCheckFunction(std::stop_token st) {
 					if (line.length() == 0) continue;
 					
 					// Tokenize the line into a vector based on the equals delimiter
-					std::vector<std::wstring> st = AfxSplit(line, L"=");
+					std::vector<std::wstring> st = AfxSplit(line, L'=');
 
 					if (st.empty()) break;
 
