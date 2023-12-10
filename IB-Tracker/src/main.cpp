@@ -148,11 +148,6 @@ int APIENTRY wWinMain(
 
     if (hWndMain == NULL) return 0;
 
-
-    // Show the current list of active trades
-    ActiveTrades_ShowActiveTrades();
-
-
     // Center the main window within the desktop taking into account the actual work area.
     AfxCenterWindow(hWndMain, HWND_DESKTOP);
 
@@ -161,7 +156,11 @@ int APIENTRY wWinMain(
     ShowWindow(hWndMain, (nCmdShow == 0) ? SW_SHOW : nCmdShow);
     UpdateWindow(hWndMain);
 
-    
+
+    // Show the current list of active trades
+    ActiveTrades_ShowActiveTrades();
+
+
     // Display message if Paper Trading is enabled.
     DisplayPaperTradingWarning();
 

@@ -565,6 +565,7 @@ void ActiveTrades_ShowActiveTrades()
     }
 
     if (trades.size() != 0) {
+        ListBox_SetTopIndex(hListBox, 0);
         ListBox_SetSel(hListBox, true, curSel);
         ActiveTrades_ShowListBoxItem(curSel);
     }
