@@ -883,7 +883,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     {
         bool show_original_quantity = (tdd.trade_action == TradeAction::edit_transaction) ? true : false;
 
-        if (tdd.trade->category != CATEGORY_OTHER) {
+        if (tdd.trade && tdd.trade->category != CATEGORY_OTHER) {
             // Create the main trade options leg grid
             HWND hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, show_original_quantity);
 
@@ -999,7 +999,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_futures_to_trade ||
-        tdd.trade->category == CATEGORY_OTHER) {
+        (tdd.trade && tdd.trade->category == CATEGORY_OTHER)) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRADEBP), SW_HIDE);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), SW_HIDE);
     }
