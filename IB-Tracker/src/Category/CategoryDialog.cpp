@@ -126,11 +126,19 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // SAVE button
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
-    bool bold = true;
+
+    // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 720, 285, 80, 23);
-    CustomLabel_SetFont(hCtl, font_name, font_size, bold);
+        CustomLabelAlignment::middle_center, 720, 390, 80, 23);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    // CANCEL button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYDIALOG_CANCEL, L"Cancel",
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 720, 423, 80, 23);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     return TRUE;
@@ -255,6 +263,11 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (hCtl == NULL) return 0;
 
+        if (CtrlId == IDC_CATEGORYDIALOG_CANCEL) {
+            dialog_return_code = DIALOG_RETURN_CANCEL;
+            SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+        }
+
         if (CtrlId == IDC_CATEGORYDIALOG_SAVE) {
             int cID = IDC_CATEGORYCONTROL_FIRST;
             for (int i = 0; i < 16; ++i) {
@@ -284,7 +297,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 int CategoryDialog_Show(HWND hWndParent)
 {
     int nWidth = 840;
-    int nHeight = 400;
+    int nHeight = 500;
 
     HWND hwnd = CategoryDialog.Create(hWndParent, L"Category Management", 0, 0, nWidth, nHeight,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

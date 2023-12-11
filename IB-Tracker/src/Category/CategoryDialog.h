@@ -40,5 +40,6 @@ public:
 
 
 constexpr int IDC_CATEGORYDIALOG_SAVE = 100;
+constexpr int IDC_CATEGORYDIALOG_CANCEL = 101;
 
 int CategoryDialog_Show(HWND hWndParent);
