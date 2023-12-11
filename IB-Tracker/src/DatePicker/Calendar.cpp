@@ -242,7 +242,7 @@ HWND Calendar_CreateDatePicker(
     int calendar_height = AfxScaleY(164);
 
     if (NumCalendars == 2) {
-        calendar_height = AfxScaleY(300);
+        calendar_height = AfxScaleY(310);
     }
 
     int margin = AfxScaleX(1);
