@@ -370,7 +370,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(1, trade, tickerId, trade->ticker_symbol, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);
 
-        std::wstring text = L"";
+        text = L"";
 
 
         text = (trade->itm_text.length()) ? trade->itm_text : L"";
@@ -561,7 +561,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
             if (!is_history) {
 
-                std::wstring text = L"";
+                text = L"";
 
                 text = (leg->position_cost_text.length()) ? leg->position_cost_text : L"";
                 ld->SetData(COLUMN_TICKER_COST, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -1040,7 +1040,6 @@ void ListBoxData_OutputTickerTotals(HWND hListBox, const std::wstring& ticker, d
 
     TickerId tickerId = -1;
     REAL font8 = 8;
-    REAL font9 = 9;
 
     ld->SetData(1, nullptr, tickerId, ticker, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_ORANGE, font8, FontStyleRegular);
@@ -1170,7 +1169,6 @@ void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         std::wstring text;
 
         DWORD back_color = (is_hot) ? COLOR_SELECTION : COLOR_GRAYDARK;
-        DWORD back_color_hot = COLOR_SELECTION;
         DWORD text_color = COLOR_WHITELIGHT;
 
         std::wstring font_name = AfxGetDefaultFont();

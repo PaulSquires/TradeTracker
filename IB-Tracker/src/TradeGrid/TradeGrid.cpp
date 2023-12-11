@@ -139,9 +139,7 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
 
     DWORD light_back_color = COLOR_GRAYLIGHT;
     DWORD light_text_color = COLOR_WHITELIGHT;
-
     DWORD dark_back_color = COLOR_GRAYMEDIUM;
-    DWORD dark_text_color = COLOR_WHITEDARK;
 
     int nTop = 0;
     int nLeft = 0;

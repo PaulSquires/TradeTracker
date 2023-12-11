@@ -127,7 +127,6 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Move and size the top label into place
 
     int height_notes_label = AfxScaleY(24);
-    int height_notes_textbox = AfxScaleY(cy - (float)height_notes_label);
 
     hdwp = DeferWindowPos(hdwp, hNotesLabel, 0,
         0, 0, cx, height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);

@@ -369,7 +369,7 @@ void SetJournalNotesText(const std::wstring& wszText)
     db.open(dbJournalNotes, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        int msgboxID = MessageBox(
+        MessageBox(
             NULL,
             (LPCWSTR)(L"Could not save JournalNotes text to file"),
             (LPCWSTR)L"Warning",
@@ -420,7 +420,7 @@ void SetTradePlanText(const std::wstring& wszText)
     db.open(dbTradePlan, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        int msgboxID = MessageBox(
+        MessageBox(
             NULL,
             (LPCWSTR)(L"Could not save TradePlan text to file"),
             (LPCWSTR)L"Warning",
@@ -446,7 +446,7 @@ bool SaveConfig()
     db.open(dbConfig, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        int msgboxID = MessageBox(
+        MessageBox(
             NULL,
             (LPCWSTR)(L"Could not save configuration file"),
             (LPCWSTR)L"Warning",
@@ -533,7 +533,7 @@ bool LoadConfig()
         // First line must be the database identifier and version
         if (isFirstline) {
             if (st.at(0) != idMagic) {
-                int msgboxID = MessageBox(
+                MessageBox(
                     NULL,
                     (LPCWSTR)(L"Invalid configuration file"),
                     (LPCWSTR)L"Warning",

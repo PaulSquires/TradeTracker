@@ -649,9 +649,9 @@ std::wstring AfxDateAddDays(const std::wstring& date_text, int numDaysToAdd)
     SYSTEMTIME st = { 0 };
     FILETIME ft = { 0 };
 
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     SystemTimeToFileTime(&st, &ft);
 
@@ -687,9 +687,9 @@ int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
 
     SYSTEMTIME st1 = { 0 };
     FILETIME ft1 = { 0 };
-    st1.wYear = std::stoi(date1.substr(0, 4));
-    st1.wMonth = std::stoi(date1.substr(5, 2));
-    st1.wDay = std::stoi(date1.substr(8, 2));
+    st1.wYear = (WORD)std::stoi(date1.substr(0, 4));
+    st1.wMonth = (WORD)std::stoi(date1.substr(5, 2));
+    st1.wDay = (WORD)std::stoi(date1.substr(8, 2));
 
     SystemTimeToFileTime(&st1, &ft1);
 
@@ -700,9 +700,9 @@ int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
 
     SYSTEMTIME st2 = { 0 };
     FILETIME ft2 = { 0 };
-    st2.wYear = std::stoi(date2.substr(0, 4));
-    st2.wMonth = std::stoi(date2.substr(5, 2));
-    st2.wDay = std::stoi(date2.substr(8, 2));
+    st2.wYear = (WORD)std::stoi(date2.substr(0, 4));
+    st2.wMonth = (WORD)std::stoi(date2.substr(5, 2));
+    st2.wDay = (WORD)std::stoi(date2.substr(8, 2));
 
     SystemTimeToFileTime(&st2, &ft2);
 
@@ -828,9 +828,9 @@ unsigned int AfxUnixTime(const std::wstring& date_text)
     SYSTEMTIME st = { 0 };
     FILETIME ft = { 0 };
 
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     SystemTimeToFileTime(&st, &ft);
 
@@ -849,9 +849,9 @@ std::wstring AfxFormatFuturesDate(const std::wstring& date_text)
 {
     if (date_text.length() == 0) return L"";
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
@@ -884,9 +884,9 @@ std::wstring AfxGetShortDayName(const std::wstring& date_text)
     // 0123456789
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"ddd", (LPWSTR)buffer.c_str(), 260);
@@ -904,9 +904,9 @@ std::wstring AfxGetLongDayName(const std::wstring& date_text)
     // 0123456789
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"dddd", (LPWSTR)buffer.c_str(), 260);
@@ -924,9 +924,9 @@ std::wstring AfxGetShortMonthName(const std::wstring& date_text)
     // 0123456789
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM", (LPWSTR)buffer.c_str(), 260);
@@ -944,9 +944,9 @@ std::wstring AfxGetLongMonthName(const std::wstring& date_text)
     // 0123456789
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMM", (LPWSTR)buffer.c_str(), 260);
@@ -963,9 +963,9 @@ std::wstring AfxShortDate(const std::wstring& date_text)
     if (date_text.length() == 0) return L"";
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd", (LPWSTR)buffer.c_str(), 260);
@@ -981,9 +981,9 @@ std::wstring AfxLongDate(const std::wstring& date_text)
     if (date_text.length() == 0) return L"";
 
     SYSTEMTIME st{};
-    st.wYear = std::stoi(date_text.substr(0, 4));
-    st.wMonth = std::stoi(date_text.substr(5, 2));
-    st.wDay = std::stoi(date_text.substr(8, 2));
+    st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
+    st.wMonth = (WORD)std::stoi(date_text.substr(5, 2));
+    st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd, yyyy", (LPWSTR)buffer.c_str(), 260);
@@ -997,9 +997,9 @@ std::wstring AfxLongDate(const std::wstring& date_text)
 std::wstring AfxMakeISODate(int year, int month, int day)
 {
     SYSTEMTIME st{};
-    st.wYear = year;
-    st.wMonth = month;
-    st.wDay = day;
+    st.wYear = (WORD)year;
+    st.wMonth = (WORD)month;
+    st.wDay = (WORD)day;
     std::wstring buffer(260, NULL);
     int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
     return buffer.substr(0, bytesWritten - 1); // remove terminating null

@@ -71,9 +71,7 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_CATEGORYDIALOG = hwnd;
 
-    DWORD light_back_color = COLOR_GRAYLIGHT;
     DWORD light_text_color = COLOR_WHITELIGHT;
-
     DWORD dark_back_color = COLOR_GRAYMEDIUM;
     DWORD dark_text_color = COLOR_WHITEDARK;
 

@@ -103,7 +103,7 @@ bool SaveDatabase()
     db.open(dbFilename, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        int msgboxID = MessageBox(
+        MessageBox(
             NULL,
             (LPCWSTR)(L"Could not save trades database"),
             (LPCWSTR)L"Warning",
@@ -228,7 +228,7 @@ bool LoadDatabase()
         // First line must be the database identifier and version
         if (isFirstline) {
             if (try_catch_wstring(st, 0) != idMagic) {
-                int msgboxID = MessageBox(
+                MessageBox(
                     NULL,
                     (LPCWSTR)(L"Invalid trades database"),
                     (LPCWSTR)L"Warning",

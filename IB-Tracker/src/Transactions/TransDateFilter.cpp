@@ -270,7 +270,6 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
         DWORD back_color = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
-        DWORD back_color_hot = COLOR_SELECTION;
         DWORD ntext_color = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
 
         std::wstring font_name = AfxGetDefaultFont();

@@ -502,10 +502,10 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     // Add some default information for the new Roll transaction
     if (tdd.trade_action == TradeAction::roll_leg) {
         HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
-        TradeGrid* pData = TradeGrid_GetOptions(hGridRoll);
+        pData = TradeGrid_GetOptions(hGridRoll);
         if (pData == nullptr) return;
 
-        int row = 0;
+        row = 0;
         for (const auto& leg : tdd.legs) {
 
             // Only load a maximum of 4 legs even if the user had selected more than 4.
@@ -972,7 +972,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
-    bool bold = false;
 
     // DR / CR toggle label
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_COMBODRCR, L"CR",

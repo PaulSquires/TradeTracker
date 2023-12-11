@@ -164,8 +164,6 @@ BOOL TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
-    CustomLabel* pData = nullptr;
-
     item_left = 12;
     item_top = 5;
     item_width = 26;
@@ -361,7 +359,7 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 static bool processing_connect_click = false;
                 if (processing_connect_click) break;
                 processing_connect_click = true;
-                bool res = tws_Connect();
+                tws_Connect();
                 processing_connect_click = false;
             }
             break;

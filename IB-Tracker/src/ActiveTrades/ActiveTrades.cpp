@@ -279,7 +279,6 @@ void ActiveTrades_UpdatePortfolioLine(int index, int index_trade, ListBoxData* l
         if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_PERCENTCOMPLETE, text, theme_color);  // Percentage values
 
-        RECT rc{};
         ListBox_GetItemRect(hListBox, index_trade, &rc);
         InvalidateRect(hListBox, &rc, TRUE);
         UpdateWindow(hListBox);
@@ -1035,8 +1034,7 @@ void ActiveTrades_RightClickMenu(HWND hListBox, int idx)
     // Clear the tdd module global trade variable
     tdd.ResetDefaults();
 
-    int nCurSel = ListBox_GetCurSel(hListBox);
-    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, nCurSel);
+    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
     if (ld->trade == nullptr) return;
 
     trade = ld->trade;
@@ -1278,7 +1276,7 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: ActiveTrades
 // ========================================================================================
-void ActiveTrades_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+void ActiveTrades_OnMeasureItem( HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 {
     lpMeasureItem->itemHeight = AfxScaleY(ACTIVETRADES_LISTBOX_ROWHEIGHT);
 }
@@ -1287,7 +1285,7 @@ void ActiveTrades_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: ActiveTrades
 // ========================================================================================
-BOOL ActiveTrades_OnEraseBkgnd(HWND hwnd, HDC hdc)
+BOOL ActiveTrades_OnEraseBkgnd( HWND hwnd,  HDC hdc)
 {
     // Handle all of the painting in WM_PAINT
     return TRUE;
@@ -1350,9 +1348,8 @@ int ActiveTrades_ShowHideLiquidityLabels(HWND hwnd)
  // ========================================================================================
 // Process WM_SIZE message for window/dialog: ActiveTrades
 // ========================================================================================
-void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy)
+void ActiveTrades_OnSize(HWND hwnd,  UINT state, int cx, int cy)
 {
-    HWND hHeader = GetDlgItem(hwnd, IDC_TRADES_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRADES_LISTBOX);
     HWND hSortFilter = GetDlgItem(hwnd, IDC_TRADES_SORTFILTER);
     HWND hNewTrade = GetDlgItem(hwnd, IDC_TRADES_NEWTRADE);
@@ -1482,7 +1479,7 @@ std::wstring GetNewTradeDescription(const int index)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: ActiveTrades
 // ========================================================================================
-BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL ActiveTrades_OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct)
 {
     HWND_ACTIVETRADES = hwnd;
 
@@ -1562,15 +1559,17 @@ BOOL ActiveTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: ActiveTrades
 // ========================================================================================
-void ActiveTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void ActiveTrades_OnCommand( HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     switch (codeNotify)
     {
 
     case LBN_SELCHANGE:
     {
-        int nCurSel = ListBox_GetCurSel(hwndCtl);
-        ActiveTrades_SelectListBoxItem(hwndCtl, nCurSel);
+        if (id == IDC_TRADES_LISTBOX) {
+            int nCurSel = ListBox_GetCurSel(hwndCtl);
+            ActiveTrades_SelectListBoxItem(hwndCtl, nCurSel);
+        }
         break;
     }
 

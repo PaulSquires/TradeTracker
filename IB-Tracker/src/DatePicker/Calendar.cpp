@@ -102,9 +102,9 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         MonthCal_SetColor(hCtl, MCSC_BACKGROUND, Color(COLOR_GRAYMEDIUM).ToCOLORREF());
 
         SYSTEMTIME st{};
-        st.wYear = AfxGetYear(the_selected_date);
-        st.wMonth = AfxGetMonth(the_selected_date);
-        st.wDay = AfxGetDay(the_selected_date);
+        st.wYear = (WORD)AfxGetYear(the_selected_date);
+        st.wMonth = (WORD)AfxGetMonth(the_selected_date);
+        st.wDay = (WORD)AfxGetDay(the_selected_date);
 
         MonthCal_SetCurSel(hCtl, &st);
     }

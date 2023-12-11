@@ -333,12 +333,12 @@ BOOL Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_RECONCILE = hwnd;
 
-    HWND hCtl =
-        Reconcile.AddControl(Controls::MultilineTextBox, hwnd, IDC_RECONCILE_TEXTBOX, 
-			L"", 0, 0 ,0 ,0,
-			WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN, 
-			0);
-    return TRUE;
+    Reconcile.AddControl(Controls::MultilineTextBox, hwnd, IDC_RECONCILE_TEXTBOX, 
+		L"", 0, 0 ,0 ,0,
+		WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN, 
+		0);
+
+	return TRUE;
 }
 
 
@@ -395,7 +395,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 		return DefWindowProc(m_hwnd, msg, wParam, lParam);
 	}
-	return 0;
+	break;
 
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);

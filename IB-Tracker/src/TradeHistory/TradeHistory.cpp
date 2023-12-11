@@ -54,10 +54,8 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
 {
     HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
-    HWND hSeparator = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SEPARATOR);
     HWND hSymbol = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL);
     HWND hNotesText = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES);
-    HWND hNotesLabel = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LBLNOTES);
 
 
     // Ensure that the Trade History panel is set

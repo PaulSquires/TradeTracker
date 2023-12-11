@@ -262,7 +262,7 @@ LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
-    return 0;
+    break;
 
 
     case WM_KEYDOWN:

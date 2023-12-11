@@ -102,12 +102,12 @@ void UpdateCheckFunction(std::stop_token st) {
 					if (line.length() == 0) continue;
 					
 					// Tokenize the line into a vector based on the equals delimiter
-					std::vector<std::wstring> st = AfxSplit(line, L'=');
+					std::vector<std::wstring> stvec = AfxSplit(line, L'=');
 
-					if (st.empty()) break;
+					if (stvec.empty()) break;
 
-					if (st.at(0) == L"latest_version") {
-						version_available = st.at(1);
+					if (stvec.at(0) == L"latest_version") {
+						version_available = stvec.at(1);
 						break;
 					}
 				}

@@ -251,7 +251,6 @@ void CustomComboPopup_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
         DWORD back_color = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
-        DWORD back_color_hot = COLOR_SELECTION;
         DWORD ntext_color = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
 
         std::wstring font_name = AfxGetDefaultFont();
@@ -308,14 +307,13 @@ BOOL CustomComboPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_CUSTOMCOMBOPOPUP = hwnd;
 
-    HWND hCtl =
-        CustomComboPopup.AddControl(Controls::ListBox, hwnd, IDC_CUSTOMCOMBOPOPUP_LISTBOX, L"",
-            0, 0, 0, 0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
-            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)CustomComboPopup_ListBox_SubclassProc,
-            IDC_CUSTOMCOMBOPOPUP_LISTBOX, NULL);
+    CustomComboPopup.AddControl(Controls::ListBox, hwnd, IDC_CUSTOMCOMBOPOPUP_LISTBOX, L"",
+        0, 0, 0, 0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+        LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
+        WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+        (SUBCLASSPROC)CustomComboPopup_ListBox_SubclassProc,
+        IDC_CUSTOMCOMBOPOPUP_LISTBOX, NULL);
 
     return TRUE;
 }

@@ -140,7 +140,6 @@ void TransPanel_ShowTransactions()
     std::vector<TransData> tdata;
     tdata.reserve(2000);    // reserve space for 2000 Transactions
 
-    bool processTrade = false;
     std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
     std::wstring wszEndDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
 
