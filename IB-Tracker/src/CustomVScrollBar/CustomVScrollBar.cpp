@@ -76,12 +76,43 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 {
     CustomVScrollBar* pData = nullptr;
 
+    // Create static accumulation variable to collect the data from
+    // a series of middle mouse wheel scrolls.
+    static int accumDelta = 0;
+
+
     if (uMsg != WM_CREATE) {
         pData = (CustomVScrollBar*)GetWindowLongPtr(hWnd, 0);
     }
 
     switch (uMsg)
     {
+
+    case WM_MOUSEWHEEL:
+    {
+        // Accumulate delta until scroll one line (up +120, down -120). 
+        // 120 is the Microsoft default delta
+        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
+        accumDelta += zDelta;
+        if (accumDelta >= 120) {     // scroll up 3 lines
+            top_index -= 3;
+            top_index = max(0, top_index);
+            SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
+            accumDelta = 0;
+        }
+        else {
+            if (accumDelta <= -120) {     // scroll down 3 lines
+                top_index += +3;
+                SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
+                accumDelta = 0;
+            }
+        }
+        CustomVScrollBar_Recalculate(hWnd);
+        return 0;
+        break;
+    }
+
 
     case WM_LBUTTONDOWN:
         {
