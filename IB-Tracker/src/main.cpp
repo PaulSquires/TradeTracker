@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Utilities/UpdateCheck.h"
 #include <wchar.h>
 
+#include "codetimer.h"
 
 
 void BindStdHandlesToConsole()
@@ -120,8 +121,12 @@ int APIENTRY wWinMain(
     LoadConfig();
 
 
+    TIMER_START();
+
     // Load all transactions. 
     LoadDatabase();
+
+    TIMER_END();
 
 
     HWND hWndMain = Main.Create(

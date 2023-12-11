@@ -211,6 +211,8 @@ bool LoadDatabase()
     std::wstring text;
     std::wstring date_text;
     std::wstring wszexpiry_date;
+    
+    std::vector<std::wstring> st;
 
     while (!db.eof()) {
         std::getline(db, line);
@@ -221,7 +223,7 @@ bool LoadDatabase()
         if (line.compare(1, 3, L"// ") == 0) continue;
 
         // Tokenize the line into a vector based on the pipe delimiter
-        std::vector<std::wstring> st = AfxSplit(line, L'|');
+        st = AfxSplit(line, L'|');
 
         if (st.empty()) continue;
 
@@ -243,7 +245,7 @@ bool LoadDatabase()
         }
 
 
-        // Check for Trades, TransDetail, and Legs
+        // Check for Trades, Trans, and Legs
 
         if (try_catch_wstring(st, 0) == L"T") {
             trade = std::make_shared<Trade>();

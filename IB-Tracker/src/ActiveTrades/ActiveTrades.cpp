@@ -51,7 +51,6 @@ CActiveTrades ActiveTrades;
 //
 void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 {
-
     bool is_itm_red = false;
     bool is_itm_green = false;
     bool is_long_spread = false;
@@ -95,7 +94,6 @@ void PerformITMcalculation(std::shared_ptr<Trade>& trade)
 
     trade->itm_text = text;
     trade->itm_color = theme_color;
-
 }
 
 
@@ -670,7 +668,7 @@ void ActiveTrades_ExpireSelectedLegs(auto trade)
     trans->underlying = L"OPTIONS";
     trade->transactions.push_back(trans);
 
-    for (auto leg : tdd.legs) {
+    for (const auto& leg : tdd.legs) {
 
         // Save this transaction's leg quantities
         std::shared_ptr<Leg> newleg = std::make_shared<Leg>();

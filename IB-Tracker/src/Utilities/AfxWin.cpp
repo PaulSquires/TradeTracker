@@ -518,9 +518,12 @@ std::wstring AfxGetExePath()
 // ========================================================================================
 int AfxValInteger(const std::wstring& st) 
 {
-    if (st.length() == 0) return 0;
     try {
-        return stoi(st);
+        size_t pos;
+        int result = std::stoi(st, &pos);
+
+        // Check if the entire string was used for conversion
+        return (pos == st.length()) ? result : 0;
     }
     catch (...) {
         return 0;
@@ -533,12 +536,15 @@ int AfxValInteger(const std::wstring& st)
 // ========================================================================================
 double AfxValDouble(const std::wstring& st) 
 {
-    if (st.length() == 0) return 0.0f;
     try {
-        return stod(st);
+        size_t pos;
+        double result = std::stod(st, &pos);
+
+        // Check if the entire string was used for conversion
+        return (pos == st.length()) ? result : 0.0f;
     }
     catch (...) {
-        return 0;
+        return 0.0f;
     }
 }
 
@@ -1126,14 +1132,29 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2)
 // ========================================================================================
 // Function to split the string to words in a vector separated by the delimiter
 // ========================================================================================
-std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) 
+//std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) 
+//{
+//    std::wistringstream stream(input);
+//    std::wstring token;
+//    std::vector<std::wstring> result;
+//
+//    while (std::getline(stream, token, delimiter)) {
+//        result.push_back(token);
+//    }
+//
+//    return result;
+//}
+
+std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter)
 {
     std::wistringstream stream(input);
-    std::wstring token;
     std::vector<std::wstring> result;
 
-    while (std::getline(stream, token, delimiter)) {
-        result.push_back(token);
+    // Reserve space to avoid unnecessary reallocations
+    result.reserve(std::count(input.begin(), input.end(), delimiter) + 1);
+
+    for (std::wstring token; std::getline(stream, token, delimiter); ) {
+        result.push_back(std::move(token));
     }
 
     return result;
@@ -1271,9 +1292,10 @@ std::wstring AfxReplace(const std::wstring& str, const std::wstring& from, const
     if (str.empty()) return wszString;
     if (from.empty()) return wszString;
     size_t start_pos = 0;
+    const size_t toLength = to.length();
     while ((start_pos = wszString.find(from, start_pos)) != std::wstring::npos) {
         wszString.replace(start_pos, from.length(), to);
-        start_pos += to.length();     // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        start_pos += toLength;     // In case 'to' contains 'from', like replacing 'x' with 'yx'
     }
     return wszString;
 }

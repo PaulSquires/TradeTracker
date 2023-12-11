@@ -93,14 +93,14 @@ void Trade::CreateOpenLegsVector()
 
     std::wstring current_date = AfxCurrentDate();
 
-    for (const auto &trans : transactions) {
+    for (const auto& trans : transactions) {
         if (trans->multiplier > 0) this->multiplier = trans->multiplier;
-        for (auto &leg : trans->legs) {
+        for (auto& leg : trans->legs) {
             if (leg->isOpen()) {
                 leg->trans = trans;
                 open_legs.push_back(leg);
 
-                // Do check to calculate the DTE  and compare to the earliest already calculated DTE
+                // Do check to calculate the DTE and compare to the earliest already calculated DTE
                 // for the Trade. We store the earliest DTE value because ActiveTrades uses it when
                 // sorted by Expiration.
                 if (leg->underlying == L"OPTIONS") {
@@ -114,7 +114,7 @@ void Trade::CreateOpenLegsVector()
 
     // Finally, sort the vector based on Puts first with lowest Strike Price.
     std::sort(open_legs.begin(), open_legs.end(),
-        [](const auto leg1, const auto leg2) {
+        [](const auto& leg1, const auto& leg2) {
             if (leg1->PutCall == L"P" && leg2->PutCall == L"C") {return true;}
             if (leg1->PutCall == L"P" && leg2->PutCall == L"P") {
                 if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
