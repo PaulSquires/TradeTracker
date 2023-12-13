@@ -123,14 +123,14 @@ public:
     std::wstring ticker_change_text = L"";
     std::wstring ticker_last_price_text = L"0.00";
     std::wstring ticker_percent_change_text = L"";
-    std::wstring total_position_cost_text = L"";
-    std::wstring total_market_value_text = L"";
-    std::wstring percentage_text = L"";
-    std::wstring unrealized_pnl_text = L"";
+    std::wstring column_ticker_portfolio_1 = L"";
+    std::wstring column_ticker_portfolio_2 = L"";
+    std::wstring column_ticker_portfolio_3 = L"";
+    std::wstring column_ticker_portfolio_4 = L"";
     DWORD itm_color = COLOR_WHITELIGHT;
     DWORD ticker_change_color = COLOR_WHITELIGHT;
     DWORD ticker_percent_change_color = COLOR_WHITELIGHT;
-    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
+    DWORD column_ticker_portfolio_3_color = COLOR_WHITEDARK;
 
 
     // Dates used to calculate ROI on TradeBP.

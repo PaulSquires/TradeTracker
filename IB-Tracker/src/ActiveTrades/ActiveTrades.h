@@ -100,10 +100,10 @@ constexpr int COLUMN_TICKER_PERCENTCHANGE   = 7;    // price percentage change
 // and the correct ListBox line is invalidated/redrawn in order to force
 // display of the new price data. Refer to TwsClient::updatePortfolio in the
 // tws-client.cpp file to see this in action.
-constexpr int COLUMN_TICKER_COST            = 8;    // Book Value and average Price
-constexpr int COLUMN_TICKER_MARKETVALUE     = 9;    // Market Value
-constexpr int COLUMN_TICKER_UPNL            = 10;   // Unrealized profit or loss
-constexpr int COLUMN_TICKER_PERCENTCOMPLETE = 11;   // Percentage values for the previous two columns data
+constexpr int COLUMN_TICKER_PORTFOLIO_1 = 8;    // Total market value of shares/futures
+constexpr int COLUMN_TICKER_PORTFOLIO_2 = 9;    // Total cost of shares and buyback of leg options
+constexpr int COLUMN_TICKER_PORTFOLIO_3 = 10;   // Unrealized profit or loss
+constexpr int COLUMN_TICKER_PORTFOLIO_4 = 11;   // Percentage values for the previous two columns data
 
 
 bool IsNewOptionsTradeAction(TradeAction action);
