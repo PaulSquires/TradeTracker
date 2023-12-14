@@ -209,7 +209,12 @@ void ActiveTrades_UpdateTickerPortfolioLine(int index, int index_trade, ListBoxD
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
 
         double percentage = difference / trade_acb * 100;
-        percentage = (difference >= 0) ? abs(percentage) : percentage * -1;
+        if (difference < 0) {
+            if (percentage >= 0) percentage *= -1;
+        }
+        else {
+            if (percentage <= 0) percentage *= -1;
+        } 
         text = AfxMoney(percentage, false, 2) + L"%";
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
         ld->trade->column_ticker_portfolio_4 = text;
