@@ -179,10 +179,13 @@ void ActiveTrades_UpdateTickerPortfolioLine(int index, int index_trade, ListBoxD
     ld = (ListBoxData*)ListBox_GetItemData(hListBox, index_trade);
     if (ld != nullptr && ld->trade != nullptr) {
 
+        double value_aggregate = 0;
+        if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
+        if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
+
         double trade_acb = ld->trade->acb;
-        double aggregate_shares = AfxValDouble(ld->aggregate_shares);
-        double shares_market_value = aggregate_shares * ld->trade->ticker_last_price;
-        double total_cost = (aggregate_shares) ? trade_acb : 0;
+        double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
+        double total_cost = shares_market_value;
 
         for (const auto& leg : ld->trade->open_legs) {
             total_cost += leg->market_value;
@@ -190,26 +193,25 @@ void ActiveTrades_UpdateTickerPortfolioLine(int index, int index_trade, ListBoxD
 
         theme_color = COLOR_WHITEDARK;
 
-        if (aggregate_shares) {
-            text = AfxMoney(shares_market_value, true, ld->trade->ticker_decimals);
-            ld->trade->column_ticker_portfolio_1 = text;
-            ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color); 
-        }
-
         text = AfxMoney(total_cost, true, ld->trade->ticker_decimals);
+        ld->trade->column_ticker_portfolio_1 = text;
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
+
+        text = AfxMoney(trade_acb, true, ld->trade->ticker_decimals);
         ld->trade->column_ticker_portfolio_2 = text;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
 
-        theme_color = (trade_acb < 0) ? COLOR_RED : COLOR_GREEN;
-        text = AfxMoney(trade_acb, false, 2);
+        double difference = trade_acb + total_cost;
+        theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
+        text = AfxMoney(difference, false, 2);
         ld->trade->column_ticker_portfolio_3 = text;
         ld->trade->column_ticker_portfolio_3_color = theme_color;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
 
-        double percentage = (total_cost - trade_acb) / trade_acb * 100;
-        //percentage = (uPNL >= 0) ? abs(percentage) : percentage * -1;
+        double percentage = difference / trade_acb * 100;
+        percentage = (difference >= 0) ? abs(percentage) : percentage * -1;
         text = AfxMoney(percentage, false, 2) + L"%";
-        theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
+        theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
         ld->trade->column_ticker_portfolio_4 = text;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  
 
@@ -233,13 +235,19 @@ void ActiveTrades_UpdateLegPortfolioLine(int index, ListBoxData* ld)
     std::wstring text = L"";
 
     if (ld->line_type == LineType::shares ||
-        ld->line_type == LineType::futures) {
+        ld->line_type == LineType::futures &&
+        ld->trade != nullptr) {
 
-        // SHARES/FUTURES ACB
-        if (AfxValDouble(ld->aggregate_shares)) {
-            text = AfxMoney(ld->trade->acb, true, ld->trade->ticker_decimals);
-            ld->trade->column_ticker_portfolio_2 = text;
-            ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
+        // SHARES/FUTURES MARKET VALUE
+        if (ld->trade->aggregate_shares || ld->trade->aggregate_futures) {
+            double value_aggregate = 0;
+            if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
+            if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
+
+            double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
+            text = AfxMoney(shares_market_value, true, ld->trade->ticker_decimals);
+            ld->trade->column_ticker_portfolio_1 = text;
+            ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
         }
     }
 
@@ -259,7 +267,7 @@ void ActiveTrades_UpdateLegPortfolioLine(int index, ListBoxData* ld)
         text = AfxMoney(pd.market_value, true, ld->trade->ticker_decimals);
         ld->leg->market_value_text = text;
         if (!found) text = L"";
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
     }
 
 

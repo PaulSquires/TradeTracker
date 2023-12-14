@@ -67,11 +67,7 @@ public:
     // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives
     // therefore the user will always see the most recent data until the new data arrives.
-    std::wstring position_cost_text = L"";
     std::wstring market_value_text = L"";
-    std::wstring percentage_text = L"";
-    std::wstring unrealized_pnl_text = L"";
-    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
 };
 
 
@@ -106,6 +102,8 @@ public:
     double        trade_bp      = 0;       // Buying Power for the entire trade 
     int           nextleg_id    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
     double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
+    int           aggregate_shares = 0;    // Calculated from all transactions roll-up
+    int           aggregate_futures = 0;   // Calculated from all transactions roll-up
 
     double        ticker_last_price  = 0;
     double        ticker_close_price = 0;

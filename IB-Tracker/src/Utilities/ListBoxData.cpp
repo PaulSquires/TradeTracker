@@ -399,21 +399,20 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
         text = (trade->column_ticker_portfolio_1.length()) ? trade->column_ticker_portfolio_1 : L"";
         ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
+            COLOR_WHITEDARK, font8, FontStyleRegular);   
 
         text = (trade->column_ticker_portfolio_2.length()) ? trade->column_ticker_portfolio_2 : L"";
         ld->SetData(COLUMN_TICKER_PORTFOLIO_2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value
+            COLOR_WHITEDARK, font8, FontStyleRegular);   
 
         text = (trade->column_ticker_portfolio_3.length()) ? trade->column_ticker_portfolio_3 : L"";
         clr = (trade->column_ticker_portfolio_3_color != COLOR_WHITEDARK) ? trade->column_ticker_portfolio_3_color : COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_PORTFOLIO_3, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            clr, font8, FontStyleRegular);   // unrealized PNL
+            COLOR_WHITEDARK, font8, FontStyleRegular);   
 
         text = (trade->column_ticker_portfolio_4.length()) ? trade->column_ticker_portfolio_4 : L"";
         ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            clr, font8, FontStyleRegular);   // unrealized PNL
-
+            clr, font8, FontStyleRegular);   
     }
     ListBox_AddString(hListBox, ld);
 
@@ -430,22 +429,27 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
 
     // *** SHARES/FUTURES ***
-    // Roll up all of the SHARES or FUTURES Transactions and display the aggregate rather than the individual legs.
-    std::wstring text_shares;
-    int aggregate = 0;
-    for (const auto& leg : trade->open_legs) {
-        if (leg->underlying == L"SHARES") {
-            text_shares = L"SHARES";
-            aggregate = aggregate + leg->open_quantity;
-        }
-        else if (leg->underlying == L"FUTURES") {
-            text_shares = L"FUTURES";
-            aggregate = aggregate + leg->open_quantity;
-        }
-    }
+    if (trade->aggregate_shares || trade->aggregate_futures) {
 
-    if (aggregate) {
         ld = new ListBoxData;
+
+        std::wstring text_shares;
+        std::wstring text_aggregate;
+        double value_aggregate = 0;
+
+        if (trade->aggregate_futures) {
+            ld->line_type = LineType::futures;
+            text_shares = L"FUTURES: " + AfxFormatFuturesDate(trade->future_expiry);
+            text_aggregate = std::to_wstring(trade->aggregate_futures);
+            value_aggregate = trade->aggregate_futures;
+        }
+
+        if (trade->aggregate_shares) {
+            ld->line_type = LineType::shares;
+            text_shares = L"SHARES";
+            text_aggregate = std::to_wstring(trade->aggregate_shares);
+            value_aggregate = trade->aggregate_shares;
+        }
 
         ld->SetData(0, trade, tickerId, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);
@@ -458,11 +462,6 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         }
         col++;
 
-        if (text_shares == L"SHARES") ld->line_type = LineType::shares;
-        if (text_shares == L"FUTURES") {
-            ld->line_type = LineType::futures;
-            text_shares = text_shares + L": " + AfxFormatFuturesDate(trade->future_expiry);
-        }
 
         ld->SetData(col, trade, tickerId, text_shares, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
@@ -482,12 +481,12 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             col++;
         }
 
-        text = AfxMoney(std::abs(trade->acb / aggregate));
+        text = AfxMoney(std::abs(trade->acb / value_aggregate));
         ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;
 
-        text = std::to_wstring(aggregate);
+        text = text_aggregate;
         ld->aggregate_shares = text;
         ld->SetData(col, trade, tickerId, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
@@ -570,28 +569,22 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             col++;
 
             if (!is_history) {
+                text = (leg->market_value_text.length()) ? leg->market_value_text : L"";
+                ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                    COLOR_WHITEDARK, font8, FontStyleRegular);   
+                col++;
 
                 text = L"";
-
-                text = (leg->position_cost_text.length()) ? leg->position_cost_text : L"";
-                ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Book Value and average Price
-                col++;
-
-                text = (leg->market_value_text.length()) ? leg->market_value_text : L"";
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_2, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   // Market Value
+                    COLOR_WHITEDARK, font8, FontStyleRegular);   
                 col++;
 
-                text = (leg->unrealized_pnl_text.length()) ? leg->unrealized_pnl_text : L"";
-                clr = (leg->unrealized_pnl_color != COLOR_WHITEDARK) ? leg->unrealized_pnl_color : COLOR_WHITEDARK;
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_3, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    clr, font8, FontStyleRegular);   // Unrealized profit or loss
-
-                text = (leg->percentage_text.length()) ? leg->percentage_text : L"";
-                ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    clr, font8, FontStyleRegular);   // Percentage values for the previous two columns data
+                    clr, font8, FontStyleRegular);   
                 col++;
+
+                ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, tickerId, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                    clr, font8, FontStyleRegular);   
             }
 
             ListBox_AddString(hListBox, ld);

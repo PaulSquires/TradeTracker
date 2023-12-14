@@ -169,8 +169,8 @@ const int nTradesMinColWidth[MAX_COLUMNS] =
     50,     /* DTE */
     60,     /* strike price / current price */
     45,     /* put/call */
-    50,     /* AvgPX and Cost Basis*/
-    50,     /* Market Vaue */
+    75,     /* Adjusted Cost Basis*/
+    50,     /* Market Value */
     50,     /* Unrealized PNL */
     50,     /* Percentages */
     0

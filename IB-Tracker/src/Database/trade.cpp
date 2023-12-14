@@ -90,6 +90,8 @@ void Trade::CreateOpenLegsVector()
     // already be a suitable display order.
 
     open_legs.clear();
+    this->aggregate_shares = 0;
+    this->aggregate_futures = 0;
 
     std::wstring current_date = AfxCurrentDate();
 
@@ -106,8 +108,13 @@ void Trade::CreateOpenLegsVector()
                 if (leg->underlying == L"OPTIONS") {
                     int dte = AfxDaysBetween(current_date, leg->expiry_date);
                     if (dte < this->earliest_legs_DTE) this->earliest_legs_DTE = dte;
+                } 
+                else if (leg->underlying == L"SHARES") {
+                    this->aggregate_shares += leg->open_quantity;
+                } 
+                else if (leg->underlying == L"FUTURES") {
+                    this->aggregate_futures += leg->open_quantity;
                 }
-
             }
         }
     }
