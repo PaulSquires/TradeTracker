@@ -33,15 +33,31 @@ SOFTWARE.
 
 
 
-const std::wstring dbFilename = AfxGetExePath() + L"\\IB-Tracker-database.db";
+const std::wstring dbFilename_new = AfxGetExePath() + L"\\database.db";
+const std::wstring dbFilename_old = AfxGetExePath() + L"\\IB-Tracker-database.db";
 
-const std::wstring idMagic = L"IB-TRACKER-DATABASE";
-const std::wstring version = L"1.0.0";
+std::wstring dbFilename;
+
 
 // Pointer list for all trades (initially loaded from database)
 // This variable is accessed via extern in other files that require it.
 std::vector<std::shared_ptr<Trade>> trades;
 
+
+bool Version4UpgradeDatabase()
+{
+    // If version 4 filenames already exist then we would have already upgraded the
+    // files previously,
+    if (AfxFileExists(dbFilename_new)) {
+        dbFilename = dbFilename_new;
+        return false;
+    }
+    else {
+        // Old files will be renamed after they are first loaded into memory.
+        dbFilename = dbFilename_old;
+        return true;
+    }
+}
 
 
 int UnderlyingToNumber(const std::wstring& underlying)
@@ -112,8 +128,7 @@ bool SaveDatabase()
         return false;
     }
 
-    db << idMagic << "|" << version << "\n"
-        << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
+    db  << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
         << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
         << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|PutCall|action|underlying\n"
         << "// isOpen:        0:FALSE, 1:TRUE\n"
@@ -188,6 +203,8 @@ inline static double try_catch_double(const std::vector<std::wstring>& st, const
 
 bool LoadDatabase()
 {
+    bool upgrade_to_version4 = Version4UpgradeDatabase();
+
     trades.clear();
     trades.reserve(5000);         // reserve space for 5000 trades
 
@@ -226,24 +243,6 @@ bool LoadDatabase()
         st = AfxSplit(line, L'|');
 
         if (st.empty()) continue;
-
-        // First line must be the database identifier and version
-        if (isFirstline) {
-            if (try_catch_wstring(st, 0) != idMagic) {
-                MessageBox(
-                    NULL,
-                    (LPCWSTR)(L"Invalid trades database"),
-                    (LPCWSTR)L"Warning",
-                    MB_ICONWARNING
-                );
-                db.close();
-                return false;
-            }
-            databaseVersion = try_catch_wstring(st, 1);
-            isFirstline = false;
-            continue;
-        }
-
 
         // Check for Trades, Trans, and Legs
 
@@ -330,6 +329,13 @@ bool LoadDatabase()
         trade->CalculateAdjustedCostBase();
     }
 
+    if (upgrade_to_version4) {
+        std::cout << "Upgrade database to version 4" << std::endl;
+        dbFilename = dbFilename_new;
+        SaveDatabase();
+        // Delete the older version file
+        DeleteFile(dbFilename_old.c_str());
+    }
 
     return true;
 }

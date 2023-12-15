@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by IB-Tracker.rc
+// Used by TradeTracker.rc
 //
 #define IDI_MAINICON                    106
 #define IDB_CONNECT                     110

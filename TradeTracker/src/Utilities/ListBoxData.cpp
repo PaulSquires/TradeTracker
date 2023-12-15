@@ -264,7 +264,7 @@ void ListBoxData_NoTradesExistMessage(HWND hListBox)
     ListBox_AddString(hListBox, ld);
 
     ld = new ListBoxData;
-    text = L"Create Trades manually and IB-Tracker will retrieve data from IBKR TWS.";
+    text = L"Create Trades manually and TradeTracker will retrieve data from IBKR TWS.";
     ld->line_type = LineType::category_header;
     ld->SetData(0, nullptr, -1, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleRegular);

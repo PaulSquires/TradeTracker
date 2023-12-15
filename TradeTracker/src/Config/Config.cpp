@@ -35,11 +35,19 @@ SOFTWARE.
 #include "Config.h"
 
 
-const std::wstring dbConfig = AfxGetExePath() + L"\\IB-Tracker-config.txt";
-const std::wstring dbJournalNotes = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
-const std::wstring dbTradePlan = AfxGetExePath() + L"\\IB-Tracker-tradeplan.txt";
+// Filenames used on and after Version 4.0.0
+const std::wstring dbConfig_new = AfxGetExePath() + L"\\config.txt";
+const std::wstring dbJournalNotes_new = AfxGetExePath() + L"\\journalnotes.txt";
+const std::wstring dbTradePlan_new = AfxGetExePath() + L"\\tradeplan.txt";
 
-const std::wstring idMagic = L"IB-TRACKER-CONFIG";
+// Filenames used prior to Version 4.0.0
+const std::wstring dbConfig_old = AfxGetExePath() + L"\\IB-Tracker-config.txt";
+const std::wstring dbJournalNotes_old = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
+const std::wstring dbTradePlan_old = AfxGetExePath() + L"\\IB-Tracker-tradeplan.txt";
+
+std::wstring dbConfig;
+std::wstring dbJournalNotes;
+std::wstring dbTradePlan;
 
 std::wstring journal_notes_text = L"";
 std::wstring trade_plan_text = L"";
@@ -114,6 +122,55 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
     { L"/ZS", 4 }
 };
 
+
+
+// ========================================================================================
+// Determine if upgrade to Version 4 filenames. 
+// ========================================================================================
+bool Version4UpgradeConfig()
+{
+    // If version 4 filenames already exist then we would have already upgraded the
+    // files previously,
+    if (AfxFileExists(dbConfig_new)) {
+        dbConfig = dbConfig_new;
+        return false;
+    }
+    else {
+        // Old files will be renamed after they are first loaded into memory.
+        dbConfig = dbConfig_old;
+        return true;
+    }
+}
+
+bool Version4UpgradeJournalNotes()
+{
+    // If version 4 filenames already exist then we would have already upgraded the
+    // files previously,
+    if (AfxFileExists(dbJournalNotes_new)) {
+        dbJournalNotes = dbJournalNotes_new;
+        return false;
+    }
+    else {
+        // Old files will be renamed after they are first loaded into memory.
+        dbJournalNotes = dbJournalNotes_old;
+        return true;
+    }
+}
+
+bool Version4UpgradeTradePlan()
+{
+    // If version 4 filenames already exist then we would have already upgraded the
+    // files previously,
+    if (AfxFileExists(dbTradePlan_new)) {
+        dbTradePlan = dbTradePlan_new;
+        return false;
+    }
+    else {
+        // Old files will be renamed after they are first loaded into memory.
+        dbTradePlan = dbTradePlan_old;
+        return true;
+    }
+}
 
 
 // ========================================================================================
@@ -348,6 +405,8 @@ void SetCategoryDescription(int category_index, const std::wstring& wszDescripti
 // ========================================================================================
 std::wstring GetJournalNotesText()
 {
+    bool upgrade_to_version4 = Version4UpgradeJournalNotes();
+
     static bool is_JournalNotes_loaded = false;
 
     if (!is_JournalNotes_loaded) {
@@ -362,6 +421,13 @@ std::wstring GetJournalNotesText()
 
             is_JournalNotes_loaded = true;
         }
+    }
+
+    if (upgrade_to_version4) {
+        dbJournalNotes = dbJournalNotes_new;
+        SetJournalNotesText(journal_notes_text);
+        // Delete the older version file
+        DeleteFile(dbJournalNotes_old.c_str());
     }
 
     return journal_notes_text;
@@ -399,6 +465,8 @@ void SetJournalNotesText(const std::wstring& wszText)
 // ========================================================================================
 std::wstring GetTradePlanText()
 {
+    bool upgrade_to_version4 = Version4UpgradeTradePlan();
+
     static bool is_TradePlan_loaded = false;
 
     if (!is_TradePlan_loaded) {
@@ -413,6 +481,13 @@ std::wstring GetTradePlanText()
 
             is_TradePlan_loaded = true;
         }
+    }
+
+    if (upgrade_to_version4) {
+        dbTradePlan = dbTradePlan_new;
+        SetTradePlanText(trade_plan_text);
+        // Delete the older version file
+        DeleteFile(dbTradePlan_old.c_str());
     }
 
     return trade_plan_text;
@@ -464,9 +539,6 @@ bool SaveConfig()
         return false;
     }
 
-
-    db << idMagic << "|" << version << "\n";
-
     db << "ENABLEPAPERTRADING|" << (startup_paper_trading ? L"true" : L"false") << "\n";
     
     db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
@@ -506,6 +578,8 @@ bool SaveConfig()
 // ========================================================================================
 bool LoadConfig()
 {
+    bool upgrade_to_version4 = Version4UpgradeConfig();
+
     // If the Config does not exist then create a new one.
     if (!AfxFileExists(dbConfig)) {
         SaveConfig();
@@ -539,26 +613,7 @@ bool LoadConfig()
 
         if (st.empty()) continue;
 
-        // First line must be the database identifier and version
-        if (isFirstline) {
-            if (st.at(0) != idMagic) {
-                MessageBox(
-                    NULL,
-                    (LPCWSTR)(L"Invalid configuration file"),
-                    (LPCWSTR)L"Warning",
-                    MB_ICONWARNING
-                );
-                db.close();
-                return false;
-            }
-            config_version = st.at(1);
-            isFirstline = false;
-            continue;
-        }
-
-
         std::wstring arg = AfxTrim(st.at(0));
-
 
         // Check for paper trading
         if (arg == L"ENABLEPAPERTRADING") {
@@ -703,6 +758,18 @@ bool LoadConfig()
     }
 
     db.close();
+
+    if (upgrade_to_version4) {
+        std::cout << "Upgrade config to version 4" << std::endl;
+        dbConfig = dbConfig_new;
+        SaveConfig();
+        // Delete the older version file
+        DeleteFile(dbConfig_old.c_str());
+        // Also load the TradePlan and JournalNotes so that they can be converted
+        // now rather than waiting for the user to click on their tabs.
+        GetJournalNotesText();
+        GetTradePlanText();
+    }
 
     return true;
 }

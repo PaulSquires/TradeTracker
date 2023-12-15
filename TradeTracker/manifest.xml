@@ -3,7 +3,7 @@
 
       <assemblyIdentity version="1.0.0.0"
          processorArchitecture="*"
-         name="IB-Tracker"
+         name="TradeTracker"
          type="win32"/>
       <description>Stocks, Futures and Options positions tracker</description>
 

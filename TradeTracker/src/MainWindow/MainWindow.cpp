@@ -25,7 +25,7 @@ SOFTWARE.
 */
 
 //
-// Defines the entry point for the IB-TRACKER application.
+// Defines the entry point for the TradeTracker application.
 //
 
 #include "pch.h"

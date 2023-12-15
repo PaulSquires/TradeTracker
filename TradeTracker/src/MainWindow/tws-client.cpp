@@ -811,12 +811,12 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 	case 1100:   // 'Connectivity between IB and Trader Workstation has been lost.'
 	{
 		// This normally occurs when the internet connection is lost. It refers to the 
-		// connection between TWS and IBKR, and not TWS and IB-Tracker. The connection
-		// between IB-Tracker and TWS will resume as soon as TWS reconnects back to the
-		// IBKR servers (ie. IB-Trackers sockets remain open).
+		// connection between TWS and IBKR, and not TWS and TradeTracker. The connection
+		// between TradeTracker and TWS will resume as soon as TWS reconnects back to the
+		// IBKR servers (ie. TradeTrackers sockets remain open).
 		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
-			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nIB-Tracker will resume automatically when TWS reconnects to IBKR.";
+			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nTradeTracker will resume automatically when TWS reconnects to IBKR.";
 		//MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;

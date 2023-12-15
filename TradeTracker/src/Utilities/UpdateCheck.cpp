@@ -25,7 +25,7 @@ SOFTWARE.
 */
 
 //
-// Looks for updated version of the IB-Tracker program and displays message.
+// Looks for updated version of the TradeTracker program and displays message.
 //
 
 #include "pch.h"
@@ -50,7 +50,7 @@ std::jthread updatecheck_thread;
 void ShowReleasesWebPage()
 {
 	// URL of the webpage you want to open
-	const wchar_t* url = L"https://github.com/PaulSquires/IB-Tracker/releases";
+	const wchar_t* url = L"https://github.com/PaulSquires/TradeTracker/releases";
 
 	// Open the webpage
 	HINSTANCE result = ShellExecute(nullptr, L"open", url, nullptr, nullptr, SW_SHOWNORMAL);
@@ -83,9 +83,9 @@ void UpdateCheckFunction(std::stop_token st) {
 		std::cout << "Update Check failed: Curl does not exist." << std::endl;
 	}
 	else {
-		std::wstring local_file = AfxGetExePath() + L"\\IB-Tracker-versioncheck.txt";
+		std::wstring local_file = AfxGetExePath() + L"\\TradeTracker-versioncheck.txt";
 		std::wstring cmd = L"C:/Windows/System32/curl.exe -o " + 
-			local_file + L" \"https://www.planetsquires.com/ibtracker_version.txt\"";
+			local_file + L" \"https://www.planetsquires.com/TradeTracker_version.txt\"";
 		std::wstring text = AfxExecCmd(cmd);
 
 		std::wstring version_available = L"";

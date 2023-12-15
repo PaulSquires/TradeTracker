@@ -40,7 +40,7 @@ public:
 extern HWND HWND_RECONCILE;
 
 // Structure & vector to hold all positions returned from connection to IBKR (TWS).
-// These are used for the reconciliation between IB-Tracker and IBKR.
+// These are used for the reconciliation between TradeTracker and IBKR.
 struct positionStruct {
 	int contract_id = 0;
 	std::vector<std::shared_ptr<Leg>> legs;    // pointer list for all legs that make up the position

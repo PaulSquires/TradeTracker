@@ -50,10 +50,10 @@ All release packages come with a compiled EXE. That is all the application requi
 4. To uninstall, just delete the files and folder.
 
 TradeTracker will create four additional files as needed when it executes:
-* TradeTracker-config.txt
-* TradeTracker-journalnotes.txt
-* TradeTracker-tradeplan.txt
-* TradeTracker-database.db
+* config.txt
+* journalnotes.txt
+* tradeplan.txt
+* database.db
 
 **NOTE:** If you get a popup warning message box from the operating system saying that "a DLL is not found and reinstalling the program may fix this problem", then it means that you are missing the Visual C++ redistributable package that is normally available on most Windows 10 and Windows 11 machines. Download and install it from this Microsoft page:  https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170   Here is the direct link to the file: https://aka.ms/vs/17/release/vc_redist.x86.exe  
 
