@@ -164,7 +164,6 @@ int GetStartupPort()
 // ========================================================================================
 int GetStartupWidth()
 {
-    if (startup_width > 0) return startup_width;
 
     // Size the main window to encompass 75% of screen width.
     int inital_main_width = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
@@ -175,7 +174,13 @@ int GetStartupWidth()
     // Target a minimum 720p screen resolution size (1280 x 720).
     if (inital_main_width > 1280) inital_main_width = 1280;
 
-    return inital_main_width;
+    // Get the previously saved Startup Width and restrict its maximum
+    // to the size of the width of the work area.
+    if (startup_width == 0 ||
+        startup_width > AfxUnScaleX(AfxGetWorkAreaWidth()))
+        startup_width = inital_main_width;
+    
+    return startup_width;
 }
 
 
@@ -185,8 +190,6 @@ int GetStartupWidth()
 // ========================================================================================
 int GetStartupHeight()
 {
-    if (startup_height > 0) return startup_height;
-
     // Size the main window to encompass 85% of screen height.
     int inital_main_height = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
@@ -196,7 +199,13 @@ int GetStartupHeight()
     // Target a minimum 720p screen resolution size (1280 x 720).
     if (inital_main_height > 720) inital_main_height = 720;
 
-    return inital_main_height;
+    // Get the previously saved Startup Height and restrict its maximum
+    // to the size of the height of the work area.
+    if (startup_height == 0 ||
+        startup_height > AfxUnScaleY(AfxGetWorkAreaHeight()))
+        startup_height = inital_main_height;
+
+    return startup_height;
 }
 
 
