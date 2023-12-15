@@ -39,11 +39,13 @@ SOFTWARE.
 const std::wstring dbConfig_new = AfxGetExePath() + L"\\tt-config.txt";
 const std::wstring dbJournalNotes_new = AfxGetExePath() + L"\\tt-journalnotes.txt";
 const std::wstring dbTradePlan_new = AfxGetExePath() + L"\\tt-tradeplan.txt";
+const std::wstring exe_new = AfxGetExePath() + L"\\TradeTracker.exe";
 
 // Filenames used prior to Version 4.0.0
 const std::wstring dbConfig_old = AfxGetExePath() + L"\\IB-Tracker-config.txt";
 const std::wstring dbJournalNotes_old = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
 const std::wstring dbTradePlan_old = AfxGetExePath() + L"\\IB-Tracker-tradeplan.txt";
+const std::wstring exe_old = AfxGetExePath() + L"\\IB-Tracker.exe";
 
 std::wstring dbConfig;
 std::wstring dbJournalNotes;
@@ -127,6 +129,14 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
 // ========================================================================================
 // Determine if upgrade to Version 4 filenames. 
 // ========================================================================================
+void Version4UpgradeExe()
+{
+    // Delete pre-Version4 exe
+    if (AfxFileExists(exe_new)) {
+        DeleteFile(exe_old.c_str());
+    }
+}
+
 bool Version4UpgradeConfig()
 {
     // If version 4 filenames already exist then we would have already upgraded the
@@ -578,6 +588,7 @@ bool SaveConfig()
 // ========================================================================================
 bool LoadConfig()
 {
+    Version4UpgradeExe();
     bool upgrade_to_version4 = Version4UpgradeConfig();
 
     // If the Config does not exist then create a new one.
