@@ -83,9 +83,9 @@ void UpdateCheckFunction(std::stop_token st) {
 		std::cout << "Update Check failed: Curl does not exist." << std::endl;
 	}
 	else {
-		std::wstring local_file = AfxGetExePath() + L"\\TradeTracker-versioncheck.txt";
+		std::wstring local_file = AfxGetExePath() + L"\\_versioncheck.txt";
 		std::wstring cmd = L"C:/Windows/System32/curl.exe -o " + 
-			local_file + L" \"https://www.planetsquires.com/TradeTracker_version.txt\"";
+			local_file + L" \"https://www.planetsquires.com/ibtracker_version.txt\"";
 		std::wstring text = AfxExecCmd(cmd);
 
 		std::wstring version_available = L"";
