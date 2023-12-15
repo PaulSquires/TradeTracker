@@ -33,7 +33,7 @@ SOFTWARE.
 
 
 
-const std::wstring dbFilename_new = AfxGetExePath() + L"\\database.db";
+const std::wstring dbFilename_new = AfxGetExePath() + L"\\tt-database.db";
 const std::wstring dbFilename_old = AfxGetExePath() + L"\\IB-Tracker-database.db";
 
 std::wstring dbFilename;

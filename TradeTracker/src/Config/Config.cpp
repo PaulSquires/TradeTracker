@@ -36,9 +36,9 @@ SOFTWARE.
 
 
 // Filenames used on and after Version 4.0.0
-const std::wstring dbConfig_new = AfxGetExePath() + L"\\config.txt";
-const std::wstring dbJournalNotes_new = AfxGetExePath() + L"\\journalnotes.txt";
-const std::wstring dbTradePlan_new = AfxGetExePath() + L"\\tradeplan.txt";
+const std::wstring dbConfig_new = AfxGetExePath() + L"\\tt-config.txt";
+const std::wstring dbJournalNotes_new = AfxGetExePath() + L"\\tt-journalnotes.txt";
+const std::wstring dbTradePlan_new = AfxGetExePath() + L"\\tt-tradeplan.txt";
 
 // Filenames used prior to Version 4.0.0
 const std::wstring dbConfig_old = AfxGetExePath() + L"\\IB-Tracker-config.txt";

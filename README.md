@@ -9,7 +9,7 @@
 ## What is TradeTracker 
 TradeTracker a free application that allows you to track your Stocks, Futures and Options positions. A fantastic alternative to using spreadsheets like Microsoft Excel or Google Sheets! 
 
-**NOTE:** TradeTracker is the new name for this project. The old name IB-Tracker is being phased out but you may see references to that name on this site and in the prior Release downloads.
+**NOTE:** TradeTracker is the new name for this project. The old name IB-Tracker is being phased out but you may see references to that name on this site and in the prior Release downloads. New Version 4 is almost complete and sports a new, streamlined, spreadsheet-like interface, and better integration with Interactive Brokers TWS (for those that use that feature).
 
 Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 
@@ -52,10 +52,10 @@ All release packages come with a compiled EXE. That is all the application requi
 4. To uninstall, just delete the files and folder.
 
 TradeTracker will create four additional files as needed when it executes:
-* config.txt
-* journalnotes.txt
-* tradeplan.txt
-* database.db
+* tt-config.txt
+* tt-journalnotes.txt
+* tt-tradeplan.txt
+* tt-database.db
 
 **NOTE:** If you get a popup warning message box from the operating system saying that "a DLL is not found and reinstalling the program may fix this problem", then it means that you are missing the Visual C++ redistributable package that is normally available on most Windows 10 and Windows 11 machines. Download and install it from this Microsoft page:  https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170   Here is the direct link to the file: https://aka.ms/vs/17/release/vc_redist.x86.exe  
 
