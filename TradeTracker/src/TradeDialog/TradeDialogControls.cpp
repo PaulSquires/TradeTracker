@@ -291,6 +291,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
             tdd.trade_action == TradeAction::add_futures_to_trade ||
             tdd.trade_action == TradeAction::add_shares_to_trade ||
+            tdd.trade_action == TradeAction::manage_shares ||
+            tdd.trade_action == TradeAction::manage_futures ||
             tdd.trade_action == TradeAction::other_income_expense) {
             multiplier = 1;
         }
