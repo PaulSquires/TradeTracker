@@ -98,10 +98,10 @@
     <ClInclude Include="src\YearEndDialog\YearEndDialog.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="IB-Tracker.rc" />
+    <ResourceCompile Include="TradeTracker.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IB-Tracker.aps" />
+    <None Include="TradeTracker.aps" />
     <None Include="rcdata1.bin" />
   </ItemGroup>
   <ItemGroup>
@@ -192,6 +192,7 @@
     <ProjectGuid>{03741994-E562-4D2D-AE15-F90431B9ABCD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>TradeTracker</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
