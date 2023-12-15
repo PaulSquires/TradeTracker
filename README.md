@@ -9,6 +9,8 @@
 ## What is TradeTracker 
 TradeTracker a free application that allows you to track your Stocks, Futures and Options positions. A fantastic alternative to using spreadsheets like Microsoft Excel or Google Sheets! 
 
+**NOTE:** TradeTracker is the new name for this project. The old name IB-Tracker is being phased out but you may see references to that name on this site and in the prior Release downloads.
+
 Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 
 You do not need an Interactive Brokers account but if you have one then TradeTracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture. 
