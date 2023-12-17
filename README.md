@@ -27,6 +27,11 @@ This program exists because tracking trades and their corresponding transactions
 
 ![screenshot](/TradeTracker/assets/TradeTracker-trans.png?raw=true "TradeTracker Transactions")
 
+
+**VERSION 4, PREVIEW OF NEW USER INTERFACE** 
+![screenshot](/TradeTracker/assets/TradeTracker-version4-preview.png?raw=true "New TradeTracker Version4 User Interface")
+
+
 ## Goals
 * Can easily be used with or without an IBKR account allowing TradeTracker to be a great alternative to tracking your positions using spreadsheets.
 * Equity and Futures Options focused (underlying stocks and futures can also be tracked).
