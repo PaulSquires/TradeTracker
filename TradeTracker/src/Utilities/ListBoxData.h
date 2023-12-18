@@ -124,7 +124,7 @@ enum class TableType
 const int nHistoryMinColWidth[MAX_COLUMNS] =
 {
     15,     /* dropdown arrow */
-    60,     /* Description */
+    62,     /* Description */
     50,     /* position quantity */
     50,     /* expiry date */
     40,     /* DTE */
