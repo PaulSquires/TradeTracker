@@ -379,6 +379,9 @@ void ActiveTrades_ShowListBoxItem(int index)
     HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
 
+    // Select the correct menu panel item
+    TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_ACTIVETRADES);
+
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 
@@ -587,7 +590,6 @@ bool ActiveTrades_SelectListBoxItem(HWND hListBox, int idx)
         return false;
     }
 
-    
     // Show the trade history for the selected trade
     ActiveTrades_ShowListBoxItem(idx);
 

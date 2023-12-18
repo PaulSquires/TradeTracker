@@ -99,6 +99,9 @@ void TransPanel_ShowListBoxItem(int index)
 
     ListBox_SetCurSel(hListBox, index);
 
+    // Ensure that the Transactions menu item is selected
+    TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_TRANSACTIONS);
+
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
 

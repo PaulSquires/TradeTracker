@@ -69,8 +69,8 @@ void ClosedTrades_ShowListBoxItem(int index)
 
     ListBox_SetCurSel(hListBox, index);
 
-    // Ensure that the ActiveTrades menu item is selected
-    //SideMenu_SelectMenuItem(HWND_SIDEMENU, IDC_SIDEMENU_CLOSEDTRADES);
+    // Ensure that the ClosedTrades menu item is selected
+    TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_CLOSEDTRADES);
 
     //  update the scrollbar position if necessary
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
