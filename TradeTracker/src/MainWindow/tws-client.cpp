@@ -890,12 +890,15 @@ void TwsClient::accountSummary(int reqId, const std::string& account, const std:
 
 	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	
-
 	std::wstring account_value = ansi2unicode(value);
 
-	// Get the value and convert it into K amounts
+	// Get the value and convert it into Million(M) or Thousands(K) amounts
 	double amount = AfxValDouble(account_value);
-	if (amount > 1000) {
+	if (amount > 1000000) {
+		amount = amount / 1000000;
+		account_value = AfxMoney(amount, false, 2) + L"M";
+	}
+	else if (amount > 1000) {
 		amount = amount / 1000;
 		account_value = AfxMoney(amount, false, 1) + L"K";
 	}
