@@ -56,6 +56,7 @@ public:
 
 	DWORD back_color{};
 	HBRUSH back_brush = NULL;
+	HMODULE hRichEditLib = NULL;
 
 	// Text
 	std::wstring text;

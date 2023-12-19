@@ -34,6 +34,9 @@ SOFTWARE.
 
 #include "CustomTextBox.h"
 
+#include <shlwapi.h>
+#pragma comment(lib, "Shlwapi.lib")
+
 
 extern CMainWindow Main;
 
@@ -228,6 +231,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             if (SendMessage(pData->hParent, uMsg, wParam, lParam) == TRUE)
                 return 0;
         }
+
     }
     break;
 
@@ -417,6 +421,7 @@ LRESULT CALLBACK CustomTextBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             HFONT hFont = (HFONT)SendMessage(pData->hTextBox, WM_GETFONT, 0, 0);
             DeleteFont(hFont);
             pData->hFontText = nullptr;
+            if (pData->hRichEditLib) FreeLibrary(pData->hRichEditLib);
         }
     }
     break;
@@ -658,6 +663,11 @@ HWND CreateCustomTextBox(
                 WS_CHILD | WS_VISIBLE | WS_TABSTOP | Alignment | 
                 (isMultiLine ? ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL : ES_AUTOHSCROLL),
                 0, 0, 0, 0, hCtl, (HMENU)100, hInst, (LPVOID)NULL);
+
+        // Add autocomplete to the edit control. This allows for Ctrl+Backspace deleting current
+        // word without us having to add any additional code in the edit subclass handler.
+        SHAutoComplete(pData->hTextBox, SHACF_DEFAULT);
+
         SetWindowTheme(pData->hTextBox, L"", L"");
 
         // Subclass the child TextBox if pWndProc is not null

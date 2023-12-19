@@ -102,7 +102,6 @@ public:
         }
 
 
-
         // Generate class name based on unique memory address of class
         m_class_name_text = L"CWindowClass:" + std::to_wstring((unsigned long long)this);
 
@@ -121,9 +120,8 @@ public:
 
     ~CWindowBase()
     {
-        if (m_hFont) {
-            DeleteObject(m_hFont);
-        }
+        if (m_hFont) DeleteObject(m_hFont);
+        if (m_hRichEditLib) FreeLibrary(m_hRichEditLib);
         if (m_class_name_text.length()) UnregisterClass(m_class_name_text.c_str(), m_hInstance);
     }
 
@@ -364,6 +362,16 @@ public:
         }
         break;
 
+        case Controls::RichEdit:
+        {
+            if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN;
+            class_name_text = L"RichEdit50W";
+            hCtl = CreateControl(class_name_text, hParent, cID, wszTitle, x, y, nWidth, nHeight, dwStyle, dwExStyle, lpParam);
+            m_hRichEditLib = LoadLibrary(L"MSFTEDIT.DLL");
+        }
+        break;
+
         case Controls::ComboBox:
         {
             if (dwExStyle == -1) dwExStyle = WS_EX_CLIENTEDGE;
@@ -473,12 +481,6 @@ public:
         }
         break;
 
-        case Controls::RichEdit:
-        {
-
-        }
-        break;
-
         default:
         {
             return NULL;
@@ -523,6 +525,7 @@ protected:
     HFONT m_hFont = NULL;
     HINSTANCE m_hInstance = NULL;
     HACCEL m_hAccel = NULL;
+    HMODULE m_hRichEditLib = NULL;
     std::wstring m_class_name_text;
     std::wstring m_wszDefaultFontName;
     int m_Defaultfont_size = 9;

@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Utilities/UpdateCheck.h"
 #include <wchar.h>
 
-#include "codetimer.h"
 
 
 void BindStdHandlesToConsole()
@@ -121,12 +120,8 @@ int APIENTRY wWinMain(
     LoadConfig();
 
 
-    TIMER_START();
-
     // Load all transactions. 
     LoadDatabase();
-
-    TIMER_END();
 
 
     HWND hWndMain = Main.Create(
@@ -135,6 +130,9 @@ int APIENTRY wWinMain(
                         CW_USEDEFAULT, CW_USEDEFAULT,
                         GetStartupWidth(),
                         GetStartupHeight());
+
+    // Initialize COM
+    CoInitialize(NULL);
 
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
@@ -204,6 +202,9 @@ int APIENTRY wWinMain(
         CloseHandle(hMutexHandle);
     }
 
+
+    // Uninitialize COM
+    CoUninitialize();
 
     return 0;
 }
