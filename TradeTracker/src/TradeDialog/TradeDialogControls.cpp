@@ -39,6 +39,9 @@ SOFTWARE.
 #include "Config/Config.h"
 
 
+int most_recently_used_category = 0;
+
+
 
 // ========================================================================================
 // Set the Short/Long background color.
@@ -763,6 +766,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         (tdd.trade_action == TradeAction::edit_transaction &&
         tdd.trade->category != CATEGORY_OTHER)) {
         ShowWindow(hCtl, SW_SHOW);
+        // Set the Category to the most recently used Category for convenience
+        CategoryControl_SetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY), most_recently_used_category);
     }
 
 

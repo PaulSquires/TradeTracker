@@ -61,6 +61,7 @@ extern TradeDialogData tdd;
 extern HWND HWND_TRADEDIALOG;
 extern int dialog_return_code;
 
+extern int most_recently_used_category;
 
 constexpr int IDC_TRADEDIALOG_LBLEDITACTION  = 101;
 constexpr int IDC_TRADEDIALOG_LBLTICKER      = 102;
