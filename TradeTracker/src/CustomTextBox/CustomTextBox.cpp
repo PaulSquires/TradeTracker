@@ -31,15 +31,102 @@ SOFTWARE.
 #include "pch.h"
 #include "Utilities/CWindowBase.h"
 #include "MainWindow/MainWindow.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
 
 #include "CustomTextBox.h"
-
-#include <shlwapi.h>
-#pragma comment(lib, "Shlwapi.lib")
 
 
 extern CMainWindow Main;
 
+
+// ========================================================================================
+// Empty text from the Windows clipboard
+// ========================================================================================
+void EmptyClipboardText()
+{
+    if (OpenClipboard(nullptr))
+    {
+        // Empty the clipboard
+        EmptyClipboard();
+
+        // Close the clipboard
+        CloseClipboard();
+    }
+}
+        
+        
+// ========================================================================================
+// Set unicode text into the Windows clipboard
+// ========================================================================================
+void SetClipboardText(const std::wstring& text)
+{
+    if (OpenClipboard(nullptr))
+    {
+        // Empty the clipboard
+        EmptyClipboard();
+
+        // Allocate global memory for the Unicode text
+        HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(wchar_t));
+        if (hMem != nullptr)
+        {
+            // Lock the memory and copy the text into it
+            wchar_t* pMem = static_cast<wchar_t*>(GlobalLock(hMem));
+            if (pMem != nullptr)
+            {
+                wcscpy_s(pMem, text.length() + 1, text.c_str());
+                GlobalUnlock(hMem);
+
+                // Set the Unicode text to the clipboard
+                SetClipboardData(CF_UNICODETEXT, hMem);
+            }
+        }
+
+        // Close the clipboard
+        CloseClipboard();
+    }
+}
+
+
+// ========================================================================================
+// Get unicode text from the Windows clipboard
+// ========================================================================================
+std::wstring GetClipboardText()
+{
+    std::wstring clipboard_text = L"";
+
+    // Attempt to open the clipboard
+    if (OpenClipboard(nullptr)) {
+        // Attempt to retrieve text from the clipboard
+        HANDLE hClipboardData = GetClipboardData(CF_UNICODETEXT);
+
+        if (hClipboardData != nullptr) {
+            // Lock the handle to get a pointer to the text
+            wchar_t* text = static_cast<wchar_t*>(GlobalLock(hClipboardData));
+
+            if (text != nullptr) {
+                // Print or use the clipboard text
+                clipboard_text.assign(text);
+
+                // Unlock the global memory
+                GlobalUnlock(hClipboardData);
+            }
+            else {
+                std::cerr << "Failed to lock clipboard memory." << std::endl;
+            }
+        }
+        else {
+            std::cerr << "Failed to retrieve clipboard data." << std::endl;
+        }
+
+        // Close the clipboard
+        CloseClipboard();
+    }
+    else {
+        std::cerr << "Failed to open the clipboard." << std::endl;
+    }
+
+    return clipboard_text;
+}
 
 
 // ========================================================================================
@@ -107,24 +194,56 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
+
+    // Create static accumulation variable to collect the data from
+    // a series of middle mouse wheel scrolls.
+    static int accumDelta = 0;
+
     CustomTextBox* pData = CustomTextBox_GetOptions(GetParent(hWnd));
 
     switch (uMsg)
     { 
 
+    case WM_MOUSEWHEEL:
+    {
+        if (!pData->is_multiline || !pData->hScrollBar) return 0;
+
+        // Accumulate delta until scroll one line (up +120, down -120). 
+        // 120 is the Microsoft default delta
+        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int num_lines = 0;
+        accumDelta += zDelta;
+        if (accumDelta >= 120) {     // scroll up 1 line
+            num_lines = -1;
+            SendMessage(hWnd, EM_LINESCROLL, 0, (LPARAM)num_lines);
+            accumDelta = 0;
+        }
+        else {
+            if (accumDelta <= -120) {     // scroll down 1 line
+                num_lines = 1;
+                SendMessage(hWnd, EM_LINESCROLL, 0, (LPARAM)num_lines);
+                accumDelta = 0;
+            }
+        }
+
+        CustomVScrollBar_Recalculate(pData->hScrollBar);
+        return 0;
+    }
+
+
     case WM_CHAR:
     {
         // Prevent the TAB and ESCAPE character causing a BEEP. We handle TAB key navigation
-        // ourselves in WM_KEYDOW. Likewise for ENTER and ESCAPE key.
+        // ourselves in WM_KEYDOWN. Likewise for ENTER and ESCAPE key.
         if (wParam == VK_TAB || wParam == VK_ESCAPE) return 0;
         
+        if (pData == nullptr) break;
+
         // Allow the ENTER key for multiline textboxes but prevent it otherwise because it
-        // will beep otherwise.
+        // will beep otherwise. 
         if (wParam == VK_RETURN) {
             if (!pData->is_multiline) return 0;
         }
-
-        if (pData == nullptr) break;
 
         // Allow any character for non-numeric these TextBoxes
         if (!pData->is_numeric) {
@@ -132,14 +251,12 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             break;
         }
 
+
+        if (wParam == VK_BACK) break;   // Allow normal backspace
+
         // Handle Numeric textboxes
-
-        // Allow backspace
-        if (wParam == VK_BACK) break;
-
-        
         // Allow 0 to 9 and Decimal
-        if (wParam >= 48 && wParam <= 57 || wParam == 46) {
+        if (wParam >= '0' && wParam <= '9' || wParam == '.') {
             // If decimal places are allowed then only allow the digit
             // if room exists after the decimal point.
             if (pData->decimal_count == 0) {
@@ -179,7 +296,6 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         }
 
 
-
         // Negative sign 
         if (wParam == 45) {
             if (pData->allow_negative == CustomTextBoxNegative::disallow) return 0;
@@ -201,12 +317,40 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
     case WM_CUT:
     {
+        // Send a postmessage to recalculate the scrollbar metrics. 
+        PostMessage(hWnd, MSG_RECALCULATE_VSCROLLBAR, 0, 0);
+
         if (!pData->is_numeric) {
             PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
             break;
         }
         return 0;
     }
+
+
+    case WM_PASTE:
+    {
+        int start_pos = 0, end_pos = 0;
+        SendMessage(hWnd, EM_GETSEL, (WPARAM)(&start_pos), (LPARAM)(&end_pos));
+        std::wstring replace_text = GetClipboardText();
+        SendMessage(hWnd, EM_REPLACESEL, (WPARAM)true, (LPARAM)replace_text.c_str());
+
+        // Send a postmessage to recalculate the scrollbar metrics. 
+        PostMessage(hWnd, MSG_RECALCULATE_VSCROLLBAR, 0, 0);
+        PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
+        return 0;
+    }
+    break;
+
+
+    case MSG_RECALCULATE_VSCROLLBAR:
+    {
+        if (pData->hScrollBar) {
+            CustomVScrollBar_Recalculate(pData->hScrollBar);
+            return 0;
+        }
+    }
+    break;
 
 
     case WM_KEYDOWN:
@@ -225,6 +369,14 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 return 0;
         }
 
+
+        if (wParam == VK_UP || wParam == VK_DOWN ||
+            wParam == VK_PRIOR || wParam == VK_NEXT ||
+            wParam == VK_HOME || wParam == VK_END) {
+            // Send a postmessage to recalculate the scrollbar metrics. 
+            PostMessage(hWnd, MSG_RECALCULATE_VSCROLLBAR, 0, 0);
+        }
+
         // Handle the TAB navigation key to move amongst cells in the table rather
         // than move away from the table itself.
         if (wParam == VK_TAB) {
@@ -232,6 +384,60 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 return 0;
         }
 
+        // Check for Ctrl + Backspace
+        if ((GetKeyState(VK_CONTROL) & 0x8000) && (wParam == VK_BACK))
+        {
+            // Get the current selection range
+            int start_pos = 0, end_pos = 0;
+            SendMessage(hWnd, EM_GETSEL, (WPARAM)(&start_pos), (LPARAM)(&end_pos));
+
+            // If the start and end are not equal then text is selected. We do not want
+            // our Ctrl+Backspace to work on selected text.
+            if (start_pos != end_pos) return 0;
+
+            // Get the current text in the Edit control
+            int textLength = GetWindowTextLength(hWnd);
+            if (textLength > 0)
+            {
+                std::wstring buffer(textLength, L'\0');
+                GetWindowText(hWnd, &buffer[0], textLength + 1);
+
+                buffer = buffer.substr(0, start_pos);
+
+                // Find the position of the last non-space character before the cursor
+                size_t lastNonSpacePos = buffer.find_last_not_of(L" \t", start_pos);
+                if (lastNonSpacePos != std::wstring::npos)
+                {
+                    // Find the position of the previous space character before the cursor
+                    static std::wstring search_for_text = L" \t!@#$%^&*()+~`-={}|[]\\:;'<>?,./\"";
+                    size_t previousSpacePos = buffer.find_last_of(search_for_text, lastNonSpacePos);
+
+                    SendMessage(hWnd, EM_SETSEL, (WPARAM)previousSpacePos, (LPARAM)end_pos);
+                    SendMessage(hWnd, WM_CUT, 0, 0);
+                    PostMessage(hWnd, MSG_REMOVE_BOXCHAR, 0, 0);
+
+                    return 0;
+                }
+            }
+        }
+
+
+    }
+    break;
+
+    
+    case MSG_REMOVE_BOXCHAR:
+    {
+        // Remove the box character that is inserted during the ctrl+backspace
+        int start_pos = 0, end_pos = 0;
+        SendMessage(hWnd, EM_GETSEL, (WPARAM)(&start_pos), (LPARAM)(&end_pos));
+        
+        start_pos = max(0, start_pos - 1);
+        SendMessage(hWnd, EM_SETSEL, (WPARAM)start_pos, (LPARAM)end_pos);
+        
+        // Replace with blank character and set false to not allow undo
+        std::wstring nullchar = L"";
+        SendMessage(hWnd, EM_REPLACESEL, (WPARAM)false, (LPARAM)nullchar.c_str());
     }
     break;
 
@@ -245,14 +451,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
     }
     break;
 
-
-    case WM_PASTE:
-    {
-        PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->CtrlId, EN_CHANGE), (LPARAM)pData->hWindow);
-    }
-    break;
-
-
+    
     case WM_KILLFOCUS:
     {
         // If this is a numeric textbox that allows decimal places then we will
@@ -559,6 +758,20 @@ void CustomTextBox_SetSelectOnFocus(HWND hCtrl, bool allow_select_onfocus)
 
 
 // ========================================================================================
+// Attach a custom vertical scrollbar control to this textbox. 
+// Used to coordinate and keep in sync when mousewheel used.
+// ========================================================================================
+void CustomTextBox_AttachScrollBar(HWND hCtrl, HWND hScrollBar)
+{
+    CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
+    if (pData != nullptr) {
+        pData->hScrollBar = hScrollBar;
+        CustomTextBox_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
 // Set the font for the custom control.
 // ========================================================================================
 void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size)
@@ -663,10 +876,6 @@ HWND CreateCustomTextBox(
                 WS_CHILD | WS_VISIBLE | WS_TABSTOP | Alignment | 
                 (isMultiLine ? ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL : ES_AUTOHSCROLL),
                 0, 0, 0, 0, hCtl, (HMENU)100, hInst, (LPVOID)NULL);
-
-        // Add autocomplete to the edit control. This allows for Ctrl+Backspace deleting current
-        // word without us having to add any additional code in the edit subclass handler.
-        SHAutoComplete(pData->hTextBox, SHACF_DEFAULT);
 
         SetWindowTheme(pData->hTextBox, L"", L"");
 

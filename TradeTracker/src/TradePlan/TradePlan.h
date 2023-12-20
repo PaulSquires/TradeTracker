@@ -42,6 +42,7 @@ extern HWND HWND_TRADEPLAN;
 
 constexpr int IDC_TRADEPLAN_LBLNOTES = 100;
 constexpr int IDC_TRADEPLAN_TXTNOTES = 101;
+constexpr int IDC_TRADEPLAN_CUSTOMVSCROLLBAR = 102;
 
 void TradePlan_ShowTradePlan();
 

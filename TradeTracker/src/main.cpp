@@ -132,7 +132,7 @@ int APIENTRY wWinMain(
                         GetStartupHeight());
 
     // Initialize COM
-    CoInitialize(NULL);
+    HRESULT hResult = CoInitialize(NULL);
 
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.

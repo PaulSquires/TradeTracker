@@ -436,7 +436,7 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     ListBox_AddString(hCtl, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
 
 
     // Create Header control for our Ticker Totals output

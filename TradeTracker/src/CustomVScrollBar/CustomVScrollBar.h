@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/Colors.h"
+#include "Utilities/CWindowBase.h"
 
 
 class CustomVScrollBar
@@ -34,12 +35,14 @@ class CustomVScrollBar
 public:
     HWND hwnd = NULL;
     HWND hParent = NULL;
-    HWND hListBox = NULL;
+    HWND hChildCtl = NULL;
     INT CtrlId = 0;
     bool drag_active = false;
 
+    Controls ChildControlType = Controls::ListBox;
+
     POINT prev_pt{};
-    int listbox_height = 0;
+    int child_control_height = 0;
     int item_height = 0;
     int items_count = 0;
     int items_per_page = 0;
@@ -57,7 +60,8 @@ public:
 
 constexpr int CUSTOMVSCROLLBAR_WIDTH = 14;
 
-HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hListBox);
+HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hWndChild, Controls ChildControlType);
 CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl);
 void CustomVScrollBar_Recalculate(HWND hCtrl);
+void CustomVScrollBar_ScrollLines(HWND hCtrl, int num_lines);
 

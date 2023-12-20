@@ -42,6 +42,7 @@ extern HWND HWND_JOURNALNOTES;
 
 constexpr int IDC_JOURNALNOTES_LBLNOTES = 100;
 constexpr int IDC_JOURNALNOTES_TXTNOTES = 101;
+constexpr int IDC_JOURNALNOTES_CUSTOMVSCROLLBAR = 102;
 
 void JournalNotes_ShowJournalNotes();
 

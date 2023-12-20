@@ -27,10 +27,12 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
 #include "Config/Config.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
+
 #include "JournalNotes.h"
 
 
@@ -121,18 +123,36 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     HWND hNotesLabel = GetDlgItem(hwnd, IDC_JOURNALNOTES_LBLNOTES);
     HWND hNotesTextBox = GetDlgItem(hwnd, IDC_JOURNALNOTES_TXTNOTES);
+    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
 
     HDWP hdwp = BeginDeferWindowPos(4);
 
-    // Move and size the top label into place
+    // Do not call the calcVThumbRect() function during a scrollbar move. 
+    bool show_scrollbar = false;
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    if (pData != nullptr) {
+        if (pData->drag_active) {
+            show_scrollbar = true;
+        }
+        else {
+            show_scrollbar = pData->calcVThumbRect();
+        }
+    }
+    int custom_scrollbar_width = show_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
+    // Move and size the top label into place
     int height_notes_label = AfxScaleY(24);
 
     hdwp = DeferWindowPos(hdwp, hNotesLabel, 0,
         0, 0, cx, height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0,
-        0, height_notes_label, cx, cy - height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
+        0, height_notes_label, cx - custom_scrollbar_width, cy - height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0,
+        cx - custom_scrollbar_width, height_notes_label,
+        custom_scrollbar_width, cy - height_notes_label,
+        SWP_NOZORDER | (show_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
 }
@@ -153,6 +173,10 @@ BOOL JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomTextBox_SetMargins(hCtl, 3, 3);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
     CustomTextBox_SetSelectOnFocus(hCtl, false);
+
+    // Create our custom vertical scrollbar and attach the TextBox to it.
+    HWND hScrollBar = CreateCustomVScrollBar(hwnd, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR, hCtl, Controls::MultilineTextBox);
+    CustomTextBox_AttachScrollBar(hCtl, hScrollBar);
 
     return TRUE;
 }
@@ -182,6 +206,7 @@ LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 void JournalNotes_ShowJournalNotes()
 {
     HWND hTextBox = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_TXTNOTES);
+    HWND hCustomVScrollBar = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
 
     // Load the JournalNotes into the textbox
     std::wstring wszText = GetJournalNotesText();
@@ -189,5 +214,8 @@ void JournalNotes_ShowJournalNotes()
 
     // Ensure that the JournalNotes panel is set
     MainWindow_SetRightPanel(HWND_JOURNALNOTES);
+
+    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+
     SetFocus(hTextBox);
 }

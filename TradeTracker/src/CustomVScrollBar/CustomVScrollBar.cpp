@@ -40,32 +40,90 @@ SOFTWARE.
 // ========================================================================================
 bool CustomVScrollBar::calcVThumbRect()
 {
-    // calculate the vertical scrollbar in client coordinates
-    SetRectEmpty(&rc);
-    int top_index = (int)SendMessage(hListBox, LB_GETTOPINDEX, 0, 0);
+    if (ChildControlType == Controls::ListBox) {
+        // calculate the vertical scrollbar in client coordinates
+        SetRectEmpty(&rc);
+        int top_index = (int)SendMessage(hChildCtl, LB_GETTOPINDEX, 0, 0);
     
-    RECT rcListBox{};
-    GetClientRect(hListBox, &rcListBox);
-    listbox_height = (rcListBox.bottom - rcListBox.top);
-    items_count = ListBox_GetCount(hListBox);
+        RECT rcListBox{};
+        GetClientRect(hChildCtl, &rcListBox);
+        child_control_height = (rcListBox.bottom - rcListBox.top);
+        items_count = ListBox_GetCount(hChildCtl);
 
-    int index = (items_count > 0) ? 1 : 0;
-    item_height = ListBox_GetItemHeight(hListBox, index);
+        int index = (items_count > 0) ? 1 : 0;
+        item_height = ListBox_GetItemHeight(hChildCtl, index);
 
-    // If no items exist then exit to avoid division by zero GPF's.
-    if (items_count == 0) return FALSE;
+        // If no items exist then exit to avoid division by zero GPF's.
+        if (items_count == 0) return FALSE;
 
-    items_per_page = (int)(std::round(listbox_height / (float)item_height));
-    thumb_height = (int)(((float)items_per_page / (float)items_count) * (float)listbox_height);
+        items_per_page = (int)(std::round(child_control_height / (float)item_height));
+        thumb_height = (int)(((float)items_per_page / (float)items_count) * (float)child_control_height);
 
-    rc.left = rcListBox.left;
-    rc.top = (int)(rcListBox.top + (((float)top_index / (float)items_count) * (float)listbox_height));
-    rc.right = rcListBox.right;
-    rc.bottom = (rc.top + thumb_height);
+        rc.left = rcListBox.left;
+        rc.top = (int)(rcListBox.top + (((float)top_index / (float)items_count) * (float)child_control_height));
+        rc.right = rcListBox.right;
+        rc.bottom = (rc.top + thumb_height);
 
-    // If the number of items in the listbox is less than what could display
-    // on the screen then there is no need to show the scrollbar.
-    return (items_count < items_per_page) ? FALSE : TRUE;
+        // If the number of items in the listbox is less than what could display
+        // on the screen then there is no need to show the scrollbar.
+        return (items_count < items_per_page) ? FALSE : TRUE;
+    }
+
+    if (ChildControlType == Controls::MultilineTextBox) {
+        SetRectEmpty(&rc);
+        int top_index = (int)SendMessage(hChildCtl, EM_GETFIRSTVISIBLELINE, 0, 0);
+        
+        // Get the line height
+        HFONT hFont = (HFONT)SendMessage(hChildCtl, WM_GETFONT, 0, 0);
+        HDC hdc = GetDC(hChildCtl);
+        auto const hOldFont = SelectFont(hdc, hFont);
+        TEXTMETRIC tm;
+        GetTextMetrics(hdc, &tm);
+        item_height = tm.tmHeight;
+        if (hOldFont) SelectFont(hdc, hOldFont);
+        ReleaseDC(hChildCtl, hdc);
+
+        RECT rcTextBox{};
+        GetClientRect(hChildCtl, &rcTextBox);
+        child_control_height = (rcTextBox.bottom - rcTextBox.top);
+        items_count = Edit_GetLineCount(hChildCtl);  // value will never be less than 1.
+        
+        items_per_page = (int)(std::round(child_control_height / (float)item_height));
+        thumb_height = (int)(((float)items_per_page / (float)items_count) * (float)child_control_height);
+
+        rc.left = rcTextBox.left;
+        rc.top = (int)(rcTextBox.top + (((float)top_index / (float)items_count) * (float)child_control_height));
+        rc.right = rcTextBox.right;
+        rc.bottom = (rc.top + thumb_height);
+
+        // If the number of items in the textbox is less than what could display
+        // on the screen then there is no need to show the scrollbar.
+        return (items_count < items_per_page) ? FALSE : TRUE;
+    }
+
+    return false;
+}
+
+
+// ========================================================================================
+// Scroll the correct number of lines up or down depending on the control type.
+// ========================================================================================
+void CustomVScrollBar_ScrollLines(HWND hScrollCtl, int num_lines)
+{
+    CustomVScrollBar* pData = (CustomVScrollBar*)GetWindowLongPtr(hScrollCtl, 0);
+    if (pData == nullptr) return;
+
+    HWND hChildCtl = pData->hChildCtl;
+
+    if (pData->ChildControlType == Controls::ListBox) {
+        int top_index = (int)SendMessage(hChildCtl, LB_GETTOPINDEX, 0, 0);
+        top_index = max(0, top_index + num_lines);
+        SendMessage(hChildCtl, LB_SETTOPINDEX, top_index, 0);
+    }
+
+    if (pData->ChildControlType == Controls::MultilineTextBox) {
+        SendMessage(hChildCtl, EM_LINESCROLL, 0, (LPARAM)num_lines);
+    }
 }
 
 
@@ -93,18 +151,14 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = (int)SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
         accumDelta += zDelta;
         if (accumDelta >= 120) {     // scroll up 3 lines
-            top_index -= 3;
-            top_index = max(0, top_index);
-            SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
+            CustomVScrollBar_ScrollLines(hWnd, -3);
             accumDelta = 0;
         }
         else {
             if (accumDelta <= -120) {     // scroll down 3 lines
-                top_index += +3;
-                SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
+                CustomVScrollBar_ScrollLines(hWnd, 3);
                 accumDelta = 0;
             }
         }
@@ -129,18 +183,14 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
             }
             else {
                 // we have clicked on a PageUp or PageDn
-                int top_index = (int)SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
                 if (pt.y < pData->rc.top) {
-                    top_index = max(top_index - pData->items_per_page, 0);
-                    SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
+                    CustomVScrollBar_ScrollLines(hWnd, -pData->items_per_page);
                     pData->calcVThumbRect();
                     AfxRedrawWindow(pData->hwnd);
                 }
                 else {
                     if (pt.y > pData->rc.bottom) {
-                        int nMaxTopIndex = pData->items_count - pData->items_per_page;
-                        top_index = min(top_index + pData->items_per_page, nMaxTopIndex);
-                        SendMessage(pData->hListBox, LB_SETTOPINDEX, top_index, 0);
+                        CustomVScrollBar_ScrollLines(hWnd, pData->items_per_page);
                         pData->calcVThumbRect();
                         AfxRedrawWindow(pData->hwnd);
                     }
@@ -169,10 +219,20 @@ LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
                     pData->prev_pt = pt;
 
-                    int previous_topline = (int)SendMessage(pData->hListBox, LB_GETTOPINDEX, 0, 0);
-                    int top_line = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
-                    if (top_line != previous_topline)
-                        SendMessage(pData->hListBox, LB_SETTOPINDEX, (WPARAM)top_line, 0);
+                    if (pData->ChildControlType == Controls::ListBox) {
+                        int previous_top_index = (int)SendMessage(pData->hChildCtl, LB_GETTOPINDEX, 0, 0);
+                        int top_index = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
+                        if (top_index != previous_top_index) {
+                            SendMessage(pData->hChildCtl, LB_SETTOPINDEX, top_index, 0);
+                        }
+                    }
+                    if (pData->ChildControlType == Controls::MultilineTextBox) {
+                        int previous_top_index = (int)SendMessage(pData->hChildCtl, EM_GETFIRSTVISIBLELINE, 0, 0);
+                        int top_index = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
+                        if (top_index != previous_top_index) {
+                            SendMessage(pData->hChildCtl, EM_LINESCROLL, 0, (LPARAM)(top_index - previous_top_index));
+                        }
+                    }
 
                     AfxRedrawWindow(hWnd);
                 }
@@ -283,7 +343,8 @@ void CustomVScrollBar_Recalculate(HWND hCtrl)
 HWND CreateCustomVScrollBar(
     HWND hWndParent,
     LONG_PTR CtrlId,
-    HWND hListBox
+    HWND hWndChild,
+    Controls ChildControlType
     )
 {
     std::wstring class_name_text(L"CUSTOMVSCROLLBAR_CONTROL");
@@ -319,8 +380,13 @@ HWND CreateCustomVScrollBar(
 
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
-        pData->hListBox = hListBox;
+        pData->hChildCtl = hWndChild;
+        if (ChildControlType == Controls::MultilineTextBox) {
+            pData->hChildCtl = GetDlgItem(hWndChild, 100);
+        }
         pData->CtrlId = (int)CtrlId;
+        pData->ChildControlType = ChildControlType;
+
         pData->calcVThumbRect();
 
         SetWindowLongPtr(hCtl, 0, (LONG_PTR)pData);

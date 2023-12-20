@@ -49,6 +49,8 @@ public:
 	HWND hWindow = NULL;
 	HWND hParent = NULL;
 	HWND hTextBox = NULL;    // the actual child textbox
+	HWND hScrollBar = NULL;  // optional custom vertical scrollbar
+
 	HINSTANCE hInst = NULL;
 	std::wstring user_data;
 
@@ -77,6 +79,9 @@ public:
 	CustomTextBoxFormatting allow_formatting = CustomTextBoxFormatting::disallow;
 };
 
+constexpr int MSG_RECALCULATE_VSCROLLBAR = WM_USER + 1000;
+constexpr int MSG_REMOVE_BOXCHAR = WM_USER + 1001;
+
 
 CustomTextBox* CustomTextBox_GetOptions(HWND hCtrl);
 int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData);
@@ -89,6 +94,7 @@ void CustomTextBox_SetMargins(HWND hCtrl, int horiz_text_margin, int vert_text_m
 void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 void CustomTextBox_SetSelectOnFocus(HWND hCtrl, bool allow_select_onfocus);
+void CustomTextBox_AttachScrollBar(HWND hCtrl, HWND hScrollBar);
 
 HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool is_multiLine,
 	int alignment, std::wstring text, int nLeft, int nTop, int nWidth, int nHeight);

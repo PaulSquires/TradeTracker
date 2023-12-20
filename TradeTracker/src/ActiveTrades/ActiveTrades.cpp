@@ -1149,23 +1149,20 @@ LRESULT CALLBACK ActiveTrades_ListBox_SubclassProc(
     {
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
+        HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        //int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
         accumDelta += zDelta;
         if (accumDelta >= 120) {     // scroll up 3 lines
-            top_index -= 3;
-            top_index = max(0, top_index);
-            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
+            CustomVScrollBar_ScrollLines(hCustomVScrollBar, -3);
             accumDelta = 0;
         }
         else {
             if (accumDelta <= -120) {     // scroll down 3 lines
-                top_index += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
+                CustomVScrollBar_ScrollLines(hCustomVScrollBar, 3);
                 accumDelta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
         break;
@@ -1545,7 +1542,7 @@ BOOL ActiveTrades_OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct)
     ListBox_AddString(hCtl, NULL);
         
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl);
+    CreateCustomVScrollBar(hwnd, IDC_TRADES_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
 
     return TRUE;
 }
