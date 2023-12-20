@@ -131,10 +131,6 @@ int APIENTRY wWinMain(
                         GetStartupWidth(),
                         GetStartupHeight());
 
-    // Initialize COM
-    HRESULT hResult = CoInitialize(NULL);
-
-
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
     BOOL value = true;
     ::DwmSetWindowAttribute(hWndMain, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
@@ -201,10 +197,6 @@ int APIENTRY wWinMain(
         ReleaseMutex(hMutexHandle);
         CloseHandle(hMutexHandle);
     }
-
-
-    // Uninitialize COM
-    CoUninitialize();
 
     return 0;
 }
