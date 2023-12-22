@@ -118,10 +118,12 @@ void UpdateCheckFunction(std::stop_token st) {
 
 		DeleteFile(local_file.c_str());
 
-		if (AfxWStringCompareI(version, version_available) == false) {
-			CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE),
-				L"** v" + version_available + L" available **");
-			ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE), SW_SHOWNORMAL);
+		if (version_available.length()) {
+			if (AfxWStringCompareI(version, version_available) == false) {
+				CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE),
+					L"** v" + version_available + L" available **");
+				ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE), SW_SHOWNORMAL);
+			}
 		}
 
 		std::cout << "Update Check Thread Terminated" << std::endl;
