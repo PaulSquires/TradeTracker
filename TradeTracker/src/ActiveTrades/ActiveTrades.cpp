@@ -720,6 +720,10 @@ void ActiveTrades_CalledAwayAssignment(
     bool isShares = (IsFuturesTicker(trade->ticker_symbol)) ? false : true;
 
     int quantity_assigned = 0;
+    std::wstring quantity_assigned_text;
+    std::wstring strike_price_text;
+    std::wstring long_short_text;
+
     int leg_quantity = 0;
     double multiplier = 1;
 
@@ -728,24 +732,28 @@ void ActiveTrades_CalledAwayAssignment(
     if (isShares == true) {
         quantity_assigned = min(abs(leg->open_quantity * 100), abs(aggregate_shares));
         leg_quantity = quantity_assigned / 100;
-        msg += std::to_wstring(quantity_assigned) + L" shares called away at $" + leg->strike_price + L" per share.";
+        quantity_assigned_text = std::to_wstring(quantity_assigned);
+        strike_price_text = L" shares called away at $" + leg->strike_price + L" per share.";
         multiplier = 1;
     }
     else {
         quantity_assigned = min(abs(leg->open_quantity), abs(aggregate_futures));
         leg_quantity = quantity_assigned;
-        msg += std::to_wstring(quantity_assigned) + L" futures called away at $" + leg->strike_price + L" per future.";
+        quantity_assigned_text = std::to_wstring(quantity_assigned);
+        strike_price_text = L" futures called away at $" + leg->strike_price + L" per future.";
         multiplier = trade->multiplier;
     }
     leg_quantity = (leg->open_quantity < 0) ? leg_quantity * -1 : leg_quantity;
 
-    int res = MessageBox(
-        HWND_ACTIVETRADES,
-        (LPCWSTR)(msg.c_str()),
-        (LPCWSTR)L"Confirm",
-        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
 
-    if (res != IDYES) return;
+    if (Assignment_Show(long_short_text,
+        quantity_assigned_text,
+        strike_price_text) == DIALOG_RETURN_CANCEL) {
+        return;
+    }
+
+    // Retreive the Quantity amount that was set by the Assignment modal when OK was pressed.
+    quantity_assigned = AfxValInteger(quantity_set_from_assignment_modal);
 
 
     // Close the Option. Save this transaction's leg quantities
@@ -759,15 +767,24 @@ void ActiveTrades_CalledAwayAssignment(
     trade->nextleg_id += 1;
     newleg->leg_id = trade->nextleg_id;
     newleg->underlying = trans->underlying;
-    newleg->original_quantity = leg_quantity * -1;
     newleg->open_quantity = 0;
+
+    if (isShares == true) {
+        newleg->original_quantity = (quantity_assigned / 100);
+        leg->open_quantity = (leg->open_quantity + (quantity_assigned / 100));;
+    }
+    else {
+        newleg->original_quantity = quantity_assigned;
+        leg->open_quantity = (leg->open_quantity + quantity_assigned);;
+    }
     newleg->leg_back_pointer_id = leg->leg_id;
-    leg->open_quantity = leg->open_quantity - leg_quantity;
+
+    //leg->open_quantity = leg->open_quantity - leg_quantity;
 
     if (leg->action == L"STO") newleg->action = L"BTC";
     if (leg->action == L"BTO") newleg->action = L"STC";
 
-    newleg->expiry_date = leg->expiry_date;
+    newleg->expiry_date = AfxCurrentDate();
     newleg->strike_price = leg->strike_price;
     newleg->PutCall = leg->PutCall;
     trans->legs.push_back(newleg);
@@ -861,7 +878,6 @@ void ActiveTrades_Assignment(auto trade, auto leg)
 
     // Retreive the Quantity amount that was set by the Assignment modal when OK was pressed.
     quantity_assigned = AfxValInteger(quantity_set_from_assignment_modal);
-    //quantity_assigned_text = quantity_set_from_assignment_modal;
 
 
     // Close the Option. Save this transaction's leg quantities

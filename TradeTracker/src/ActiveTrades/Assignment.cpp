@@ -136,56 +136,6 @@ BOOL Assignment_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     HWND_ASSIGNMENT = hwnd;
 
-    std::wstring font_name = AfxGetDefaultFont();
-    int font_size = 9;
-    int horiz_text_margin = 0;
-    int vert_text_margin = 3;
-
-    HWND hCtl = NULL;
-
-    int nLeft = 30;
-    int nTop = 20;
-    int nWidth = 300;
-    int nHeight = 23;
-
-    CustomLabel_SimpleLabel(hwnd, -1, L"Continue with OPTION ASSIGNMENT?", COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
-
-    nTop += nHeight;
-    nWidth = 50;
-    CustomLabel_SimpleLabel(hwnd, IDC_ASSIGNMENT_LBLTEXT1, L"", COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
-
-    nLeft += nWidth;
-    nWidth = 50;
-    hCtl = CreateCustomTextBox(hwnd, IDC_ASSIGNMENT_TXTQUANTITY, false, ES_RIGHT, L"0", nLeft, nTop, nWidth, nHeight);
-    CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
-    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
-
-    nLeft += nWidth;
-    nWidth = 200;
-    CustomLabel_SimpleLabel(hwnd, IDC_ASSIGNMENT_LBLTEXT2, L"", COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
-
-    // SAVE button
-    nTop += nHeight * 2;
-    nLeft = 240;    
-    nWidth = 80;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ASSIGNMENT_OK, L"OK",
-        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
-    // CANCEL button
-    nTop += nHeight + 10;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ASSIGNMENT_CANCEL, L"Cancel",
-        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
     return TRUE;
 }
 
@@ -287,9 +237,58 @@ int Assignment_Show(const std::wstring& long_short_text, const std::wstring& qua
 
     max_quantity_allowed_text = quantity_assigned_text;
 
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_ASSIGNMENT_LBLTEXT1), long_short_text);
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_ASSIGNMENT_LBLTEXT2), strike_price_text);
-    CustomTextBox_SetText(GetDlgItem(hwnd, IDC_ASSIGNMENT_TXTQUANTITY), quantity_assigned_text);
+
+
+    std::wstring font_name = AfxGetDefaultFont();
+    int font_size = 9;
+    int horiz_text_margin = 0;
+    int vert_text_margin = 3;
+
+    HWND hCtl = NULL;
+
+    int nLeft = 30;
+    int nTop = 20;
+    nWidth = 300;
+    nHeight = 23;
+
+    CustomLabel_SimpleLabel(hwnd, -1, L"Continue with OPTION ASSIGNMENT?", COLOR_WHITELIGHT, COLOR_GRAYDARK,
+        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+
+    nTop += nHeight;
+    nWidth = (long_short_text.length() ? 50 : 0);
+    CustomLabel_SimpleLabel(hwnd, IDC_ASSIGNMENT_LBLTEXT1, long_short_text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
+        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+
+    nLeft += nWidth;
+    nWidth = 50;
+    hCtl = CreateCustomTextBox(hwnd, IDC_ASSIGNMENT_TXTQUANTITY, false, ES_RIGHT, quantity_assigned_text, nLeft, nTop, nWidth, nHeight);
+    CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
+    CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
+    CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
+
+    nLeft += nWidth;
+    nWidth = 300;
+    CustomLabel_SimpleLabel(hwnd, IDC_ASSIGNMENT_LBLTEXT2, strike_price_text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
+        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+
+    // SAVE button
+    nTop += nHeight * 2;
+    nLeft = 240;
+    nWidth = 80;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ASSIGNMENT_OK, L"OK",
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    // CANCEL button
+    nTop += nHeight + 10;
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ASSIGNMENT_CANCEL, L"Cancel",
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
 
     ShowWindow(hwnd, SW_SHOWNORMAL);
     UpdateWindow(hwnd);
