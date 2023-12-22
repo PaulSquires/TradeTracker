@@ -118,7 +118,7 @@ void UpdateCheckFunction(std::stop_token st) {
 
 		DeleteFile(local_file.c_str());
 
-		if (version_available.length()) {
+		if (version_available.length() > 4) {
 			if (AfxWStringCompareI(version, version_available) == false) {
 				CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE),
 					L"** v" + version_available + L" available **");
