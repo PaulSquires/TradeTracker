@@ -32,8 +32,9 @@ SOFTWARE.
 #include "database.h"
 
 
+extern std::wstring GetDataFilesFolder();
 
-const std::wstring dbFilename_new = AfxGetExePath() + L"\\tt-database.db";
+std::wstring dbFilename_new = L"\\tt-database.db";
 const std::wstring dbFilename_old = AfxGetExePath() + L"\\IB-Tracker-database.db";
 
 std::wstring dbFilename;
@@ -46,6 +47,8 @@ std::vector<std::shared_ptr<Trade>> trades;
 
 bool Version4UpgradeDatabase()
 {
+    dbFilename_new = GetDataFilesFolder() + dbFilename_new;
+
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
     if (AfxFileExists(dbFilename_new)) {

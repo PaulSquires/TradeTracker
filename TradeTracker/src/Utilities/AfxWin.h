@@ -31,8 +31,12 @@ SOFTWARE.
 #include <string>
 #include <winver.h>
 #include <cwctype>
+#include <shlobj.h>
 
 
+bool AfxCreateNestedFolder(const std::wstring& folderPath);
+std::wstring AfxGetProgramFilesFolder();
+std::wstring AfxGetLocalAppDataFolder();
 std::wstring AfxExecCmd(const std::wstring& cmd);
 
 void AfxRedrawWindow(HWND hwnd);

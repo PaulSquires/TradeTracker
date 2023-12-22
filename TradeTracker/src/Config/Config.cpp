@@ -36,10 +36,10 @@ SOFTWARE.
 
 
 // Filenames used on and after Version 4.0.0
-const std::wstring dbConfig_new = AfxGetExePath() + L"\\tt-config.txt";
-const std::wstring dbJournalNotes_new = AfxGetExePath() + L"\\tt-journalnotes.txt";
-const std::wstring dbTradePlan_new = AfxGetExePath() + L"\\tt-tradeplan.txt";
-const std::wstring exe_new = AfxGetExePath() + L"\\TradeTracker.exe";
+std::wstring dbConfig_new = L"\\tt-config.txt";
+std::wstring dbJournalNotes_new = L"\\tt-journalnotes.txt";
+std::wstring dbTradePlan_new = L"\\tt-tradeplan.txt";
+std::wstring exe_new = L"\\TradeTracker.exe";
 
 // Filenames used prior to Version 4.0.0
 const std::wstring dbConfig_old = AfxGetExePath() + L"\\IB-Tracker-config.txt";
@@ -129,8 +129,27 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
 // ========================================================================================
 // Determine if upgrade to Version 4 filenames. 
 // ========================================================================================
+std::wstring GetDataFilesFolder()
+{
+    std::wstring exe_folder = AfxGetExePath();  // no trailing backslash
+    std::wstring program_files_folder = AfxGetProgramFilesFolder();   // no trailing backslash
+    std::wstring data_files_folder = exe_folder;   // default data files to same location as EXE
+    
+    if (AfxGetExePath().substr(0, program_files_folder.length()) == program_files_folder) {
+        // Program is installed in the Program Files folder so we need to 
+        // set the data folder to the AppData Local folder.
+        data_files_folder = AfxGetLocalAppDataFolder() + L"\\TradeTracker";
+        // Create the data files folder in Local App Data should it not exist.
+        AfxCreateNestedFolder(data_files_folder);
+    }
+
+    return data_files_folder;
+}
+
 void Version4UpgradeExe()
 {
+    exe_new = AfxGetExePath() + exe_new;
+
     // Delete pre-Version4 exe
     if (AfxFileExists(exe_new)) {
         DeleteFile(exe_old.c_str());
@@ -139,6 +158,8 @@ void Version4UpgradeExe()
 
 bool Version4UpgradeConfig()
 {
+    dbConfig_new = GetDataFilesFolder() + dbConfig_new;
+
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
     if (AfxFileExists(dbConfig_new)) {
@@ -154,6 +175,8 @@ bool Version4UpgradeConfig()
 
 bool Version4UpgradeJournalNotes()
 {
+    dbJournalNotes_new = GetDataFilesFolder() + dbJournalNotes_new;
+
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
     if (AfxFileExists(dbJournalNotes_new)) {
@@ -169,6 +192,8 @@ bool Version4UpgradeJournalNotes()
 
 bool Version4UpgradeTradePlan()
 {
+    dbTradePlan_new = GetDataFilesFolder() + dbTradePlan_new;
+
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
     if (AfxFileExists(dbTradePlan_new)) {

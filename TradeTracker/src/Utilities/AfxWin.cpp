@@ -30,6 +30,74 @@ SOFTWARE.
 
 
 //
+// Create a nested folder structure if it does not already exist.
+//
+bool AfxCreateNestedFolder(const std::wstring& folderPath) 
+{
+    if (CreateDirectory(folderPath.c_str(), nullptr) || ERROR_ALREADY_EXISTS == GetLastError()) {
+        std::wcout << L"Folder created or already exists: " << folderPath << std::endl;
+        return true;
+    }
+    else {
+        std::cerr << "Error creating folder: " << GetLastError() << std::endl;
+        return false;
+    }
+}
+
+
+//
+// Retrieve the Windows system Program Files folder name
+//
+std::wstring AfxGetProgramFilesFolder()
+{
+    wchar_t* knownFolderPath = nullptr;
+
+    // Get the path of the Program Files folder
+    HRESULT result = SHGetKnownFolderPath(FOLDERID_ProgramFilesX64, 0, nullptr, &knownFolderPath);
+
+    if (SUCCEEDED(result)) {
+        // Compare the provided folder path with the Program Files folder path
+        std::wstring folder_name(knownFolderPath);
+
+        // Free the allocated memory for the known folder path
+        CoTaskMemFree(knownFolderPath);
+
+        return folder_name;
+    }
+    else {
+        std::cout << "Error getting Program Files folder path: 0x" << std::hex << result << std::endl;
+        return L"";
+    }
+}
+
+
+//
+// Retrieve the Windows system Local AppData folder name
+//
+std::wstring AfxGetLocalAppDataFolder()
+{
+    wchar_t* knownFolderPath = nullptr;
+
+    // Get the path of the Program Files folder
+    HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &knownFolderPath);
+
+    if (SUCCEEDED(result)) {
+        // Compare the provided folder path with the Program Files folder path
+        std::wstring folder_name(knownFolderPath);
+
+        // Free the allocated memory for the known folder path
+        CoTaskMemFree(knownFolderPath);
+
+        return folder_name;
+    }
+    else {
+        std::cout << "Error getting Program Files folder path: 0x" << std::hex << result << std::endl;
+        return L"";
+    }
+}
+
+
+//
 // Execute a command and get the results. (Only standard output)
 //
 std::wstring AfxExecCmd(const std::wstring& cmd) // [in] command to execute
