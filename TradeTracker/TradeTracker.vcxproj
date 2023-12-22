@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\ActiveTrades\ActiveTrades.h" />
+    <ClInclude Include="src\ActiveTrades\Assignment.h" />
     <ClInclude Include="src\codetimer.h" />
     <ClInclude Include="src\CustomCombo\CustomCombo.h" />
     <ClInclude Include="src\CustomCombo\CustomComboPopup.h" />
@@ -113,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ActiveTrades\ActiveTrades.cpp" />
+    <ClCompile Include="src\ActiveTrades\Assignment.cpp" />
     <ClCompile Include="src\CustomCombo\CustomCombo.cpp" />
     <ClCompile Include="src\CustomCombo\CustomComboPopup.cpp" />
     <ClCompile Include="src\Category\Category.cpp" />

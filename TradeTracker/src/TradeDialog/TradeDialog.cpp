@@ -185,11 +185,9 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             std::wstring multiplier = GetMultiplier(ticker_symbol);
             if (tdd.trade_action == TradeAction::new_shares_trade ||
                 tdd.trade_action == TradeAction::manage_shares ||
-                tdd.trade_action == TradeAction::manage_futures ||
                 tdd.trade_action == TradeAction::add_dividend_to_trade ||
                 tdd.trade_action == TradeAction::other_income_expense ||
-                tdd.trade_action == TradeAction::add_shares_to_trade ||
-                tdd.trade_action == TradeAction::add_futures_to_trade) {
+                tdd.trade_action == TradeAction::add_shares_to_trade) {
                 multiplier = L"1";
             }
             CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), multiplier);

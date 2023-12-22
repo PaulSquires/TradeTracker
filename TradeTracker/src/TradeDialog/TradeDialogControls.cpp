@@ -285,6 +285,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         // Set the multiplier based on the incoming trade. Ensure that multiplier is always 100 for Option
         // transactions because it could be set to 1 if the Trade only contains existing Shares.
         double multiplier = tdd.trade->multiplier;
+
         if (IsNewOptionsTradeAction(tdd.trade_action) ||
             tdd.trade_action == TradeAction::add_call_to_trade ||
             tdd.trade_action == TradeAction::add_put_to_trade ||
@@ -292,12 +293,14 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             if (IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
         if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
-            tdd.trade_action == TradeAction::add_futures_to_trade ||
             tdd.trade_action == TradeAction::add_shares_to_trade ||
             tdd.trade_action == TradeAction::manage_shares ||
-            tdd.trade_action == TradeAction::manage_futures ||
             tdd.trade_action == TradeAction::other_income_expense) {
             multiplier = 1;
+        }
+        if (tdd.trade_action == TradeAction::add_futures_to_trade ||
+            tdd.trade_action == TradeAction::manage_futures) {
+            multiplier = AfxValDouble(GetMultiplier(tdd.trade->ticker_symbol));
         }
         if (tdd.trade_action == TradeAction::roll_leg ||
             tdd.trade_action == TradeAction::close_leg) {
@@ -949,8 +952,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
     if (tdd.trade_action == TradeAction::new_shares_trade ||
         tdd.trade_action == TradeAction::new_futures_trade ||
-        tdd.trade_action == TradeAction::manage_shares ||
         tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::manage_shares ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
