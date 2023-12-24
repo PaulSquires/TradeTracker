@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -52,7 +52,7 @@ public:
 	bool IsSocketOK() const;
 	void WaitForSignal();
 	void ProcessMsgs();
-	void CancelMarketData(TickerId tickerId);
+	void CancelMarketData(TickerId ticker_id);
 	void RequestMarketData(ListBoxData* ld);
 	void CancelPositions();
 	void RequestPositions();
@@ -107,15 +107,15 @@ void tws_EndTickerUpdateThread();
 bool tws_Connect();
 bool tws_Disconnect();
 bool tws_IsConnected();
-void tws_CancelMarketData(TickerId tickerId);
+void tws_CancelMarketData(TickerId ticker_id);
 void tws_RequestMarketData(ListBoxData* ld);
 void tws_PerformReconciliation();
 void tws_RequestAccountSummary();
 void tws_RequestMarketUpdates();
 void tws_RequestPositions();
 void tws_CancelPositions();
-void tws_RequestWshMetaData(int reqId);
-void tws_RequestWshEventData(int reqId, const WshEventData& wshEventData);
+void tws_RequestWshMetaData(int req_id);
+void tws_RequestWshEventData(int req_id, const WshEventData& wshEventData);
 
 
 

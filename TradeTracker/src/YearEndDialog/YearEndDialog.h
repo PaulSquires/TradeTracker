@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -42,11 +42,9 @@ public:
 extern HWND HWND_YEARENDDIALOG;
 extern int dialog_return_code;
 
-
 constexpr int IDC_YEARENDDIALOG_TXTDATE = 100;
 constexpr int IDC_YEARENDDIALOG_PROCESS = 101;
 constexpr int IDC_YEARENDDIALOG_CANCEL = 102;
-
 
 int YearEndDialog_Show();
 

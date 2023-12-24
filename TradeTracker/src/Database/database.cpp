@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -45,8 +45,7 @@ std::wstring dbFilename;
 std::vector<std::shared_ptr<Trade>> trades;
 
 
-bool Version4UpgradeDatabase()
-{
+bool Version4UpgradeDatabase() {
     dbFilename_new = GetDataFilesFolder() + dbFilename_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
@@ -63,8 +62,7 @@ bool Version4UpgradeDatabase()
 }
 
 
-int UnderlyingToNumber(const std::wstring& underlying)
-{
+int UnderlyingToNumber(const std::wstring& underlying) {
     static const std::unordered_map<std::wstring, int> map = {
          {L"OPTIONS", 0}, {L"SHARES", 1}, {L"FUTURES", 2},
          {L"DIVIDEND", 3}, {L"OTHER", 4}
@@ -76,10 +74,8 @@ int UnderlyingToNumber(const std::wstring& underlying)
 }
 
 
-std::wstring NumberToUnderlying(const int number)
-{
-    switch (number) 
-    {
+std::wstring NumberToUnderlying(const int number) {
+    switch (number) {
     case 0: return L"OPTIONS";
     case 1: return L"SHARES";
     case 2: return L"FUTURES";
@@ -90,8 +86,7 @@ std::wstring NumberToUnderlying(const int number)
 }
 
 
-int ActionToNumber(const std::wstring& action)
-{
+int ActionToNumber(const std::wstring& action) {
     static const std::unordered_map<std::wstring, int> map = {
      {L"STO", 0}, {L"BTO", 1}, {L"STC", 2}, {L"BTC", 3}
     };
@@ -102,10 +97,8 @@ int ActionToNumber(const std::wstring& action)
 }
 
 
-std::wstring NumberToAction(const int number)
-{
-    switch (number)
-    {
+std::wstring NumberToAction(const int number) {
+    switch (number) {
     case 0: return L"STO";
     case 1: return L"BTO";
     case 2: return L"STC";
@@ -115,8 +108,7 @@ std::wstring NumberToAction(const int number)
 }
 
 
-bool SaveDatabase()
-{
+bool SaveDatabase() {
     std::wofstream db;
 
     db.open(dbFilename, std::ios::out | std::ios::trunc);
@@ -134,7 +126,7 @@ bool SaveDatabase()
     db  << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
         << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
         << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|PutCall|action|underlying\n"
-        << "// isOpen:        0:FALSE, 1:TRUE\n"
+        << "// isOpen:        0:false, 1:true\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
         << "// Category:      0,1,2,3,4, etc (integer value)\n"
         << "// underlying:    0:OPTIONS, 1:SHARES, 2:FUTURES, 3:DIVIDEND\n"
@@ -173,7 +165,7 @@ bool SaveDatabase()
                     << leg->open_quantity << "|"
                     << AfxRemoveDateHyphens(leg->expiry_date) << "|"
                     << leg->strike_price << "|"
-                    << leg->PutCall << "|"
+                    << leg->put_call << "|"
                     << ActionToNumber(leg->action) << "|"
                     << UnderlyingToNumber(leg->underlying)
                     << "\n";
@@ -204,8 +196,7 @@ inline static double try_catch_double(const std::vector<std::wstring>& st, const
 }
 
 
-bool LoadDatabase()
-{
+bool LoadDatabase() {
     bool upgrade_to_version4 = Version4UpgradeDatabase();
 
     trades.clear();
@@ -220,17 +211,14 @@ bool LoadDatabase()
 
     std::wstring databaseVersion;
 
-
     std::shared_ptr<Trade> trade;
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> leg; 
 
-    bool isFirstline = true;
-
     std::wstring line;
     std::wstring text;
     std::wstring date_text;
-    std::wstring wszexpiry_date;
+    std::wstring expiry_date;
     
     std::vector<std::wstring> st;
 
@@ -266,7 +254,6 @@ bool LoadDatabase()
             continue;
         }
 
-
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
             date_text          = try_catch_wstring(st, 1);
@@ -294,23 +281,22 @@ bool LoadDatabase()
             leg->leg_back_pointer_id = try_catch_int(st, 2);
             leg->original_quantity   = try_catch_int(st, 3);
             leg->open_quantity       = try_catch_int(st, 4);
-            wszexpiry_date           = try_catch_wstring(st, 5);
-            leg->expiry_date         = AfxInsertDateHyphens(wszexpiry_date);
+            expiry_date              = try_catch_wstring(st, 5);
+            leg->expiry_date         = AfxInsertDateHyphens(expiry_date);
             leg->strike_price        = try_catch_wstring(st, 6);
-            leg->PutCall             = try_catch_wstring(st, 7); 
+            leg->put_call            = try_catch_wstring(st, 7); 
             leg->action              = NumberToAction(try_catch_int(st, 8));
             leg->underlying          = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr) {
                 leg->trans = trans;
                 if (trade != nullptr) {
                     // Determine latest date for BP ROI calculation.
-                    if (AfxValDouble(wszexpiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = wszexpiry_date;
+                    if (AfxValDouble(expiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = expiry_date;
                 }
                 trans->legs.emplace_back(leg);
             }
             continue;
         }
-
     }
 
     db.close();

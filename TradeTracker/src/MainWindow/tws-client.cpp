@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -68,8 +68,7 @@ TwsClient client;
 // If not connected to TWS or after hours and no market data then attmept to scrape yahoo finance
 // to get the closing price of the stock.
 //
-double GetScrapedClosingPrice(std::wstring ticker_symbol)
-{
+double GetScrapedClosingPrice(std::wstring ticker_symbol) {
 	static std::wstring curl_command = L"C:/Windows/System32/curl.exe";
 	static bool curl_exists = AfxFileExists(curl_command);
 	if (!curl_exists) return 0;
@@ -111,8 +110,7 @@ double GetScrapedClosingPrice(std::wstring ticker_symbol)
 //
 #include <wininet.h>
 #pragma comment(lib,"Wininet.lib")
-void UpdateTickersWithScrapedData()
-{
+void UpdateTickersWithScrapedData() {
 	// Do a simple check to see if connected to internet. If fail then simply
 	// advise the user via a messgebox.
 	std::wstring url = L"https://www.google.com";
@@ -124,7 +122,6 @@ void UpdateTickersWithScrapedData()
 			(LPCWSTR)L"Connection", MB_ICONWARNING);
 		return;
 	}
-
 
 	SetCursor(LoadCursor(0, IDC_WAIT));
 
@@ -186,7 +183,7 @@ void UpdateTickersWithScrapedData()
 
 				RECT rc{};
 				ListBox_GetItemRect(hListBox, index, &rc);
-				InvalidateRect(hListBox, &rc, TRUE);
+				InvalidateRect(hListBox, &rc, true);
 				UpdateWindow(hListBox);
 			}
 		}
@@ -202,11 +199,9 @@ void UpdateTickersWithScrapedData()
 }
 
 
-
 //
 // Thread functions
 //
-
 void PingFunction(std::stop_token st) {
 	std::cout << "Starting the ping thread" << std::endl;
 
@@ -282,7 +277,6 @@ void MonitoringFunction(std::stop_token st) {
 			PostMessage(HWND_TABPANEL, MSG_TWS_WARNING_EXCEPTION, 0, 0);
 			break;
 		}
-
 	}
 
 	is_monitor_thread_active = false;
@@ -293,7 +287,6 @@ void MonitoringFunction(std::stop_token st) {
 	// Request to shut down the Ping thread also
 	ping_thread.request_stop();
 
-
 	std::cout << "Requesting TickerUpdate Thread to Terminate" << std::endl;
 	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
 	std::cout << "Monitoring Thread Terminated" << std::endl;
@@ -301,51 +294,43 @@ void MonitoringFunction(std::stop_token st) {
 }
 
 
-void tws_StartMonitorThread()
-{
+void tws_StartMonitorThread() {
 	if (is_monitor_thread_active) return;
 	monitoring_thread = std::jthread(MonitoringFunction);
 }
 
 
-void tws_EndMonitorThread()
-{
+void tws_EndMonitorThread() {
 	if (is_monitor_thread_active) {
 		std::cout << "Monitoring thread will be stopped soon...." << std::endl;
 		monitoring_thread.request_stop();
 	}
 }
 
-void tws_StartTickerUpdateThread()
-{
+void tws_StartTickerUpdateThread() {
 	if (is_monitor_thread_active) return;
 	ticker_update_thread = std::jthread(TickerUpdateFunction);
 }
 
 
-void tws_EndTickerUpdateThread()
-{
+void tws_EndTickerUpdateThread() {
 	if (is_ticker_update_thread_active) {
 		std::cout << "TickerUpdate thread will be stopped soon...." << std::endl;
 		ticker_update_thread.request_stop();
 	}
 }
 
-void tws_StartPingThread()
-{
+void tws_StartPingThread() {
 	if (is_ping_thread_active) return;
 	ping_thread = std::jthread(PingFunction);
 }
 
 
-
-void tws_ConnectionSuccessful()
-{
+void tws_ConnectionSuccessful() {
 	// This function is called when TWS has successfully connected and has
 	// sent the nextValidId callback. This signals that the connection is
 	// ready to start to receive messages from us, etc.
 	// This function is called from nextValidId();
-
 	if (tws_IsConnected()) {
 		// Load all local positions in vector
 		Reconcile_LoadAllLocalPositions();
@@ -358,8 +343,7 @@ void tws_ConnectionSuccessful()
 }
 
 
-bool tws_Connect()
-{
+bool tws_Connect() {
     if (tws_IsConnected()) return false;
 
     const char* host = "";
@@ -389,7 +373,6 @@ bool tws_Connect()
 		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
-
 	
 	if (res == false) {
         //SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
@@ -407,8 +390,7 @@ bool tws_Connect()
 }
 
 
-bool tws_Disconnect()
-{
+bool tws_Disconnect() {
     if (tws_IsConnected() == false) return true;
 
     client.Disconnect();
@@ -418,8 +400,7 @@ bool tws_Disconnect()
 }
 
 
-bool tws_IsConnected()
-{
+bool tws_IsConnected() {
 	bool res = false;
     if ((client.IsSocketOK()) && (client.IsConnected())) {
         res = true;
@@ -428,63 +409,55 @@ bool tws_IsConnected()
 }
 
 
-void tws_CancelMarketData(TickerId ticker_id)
-{
+void tws_CancelMarketData(TickerId ticker_id) {
 	if (!tws_IsConnected()) return;
 	if (ticker_id < 1) return;
 	client.CancelMarketData(ticker_id);
 }
 
 
-void tws_RequestMarketUpdates()
-{
+void tws_RequestMarketUpdates() {
 	ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
 }
 
 
-void tws_RequestMarketData(ListBoxData* ld)
-{
+void tws_RequestMarketData(ListBoxData* ld) {
 	if (!tws_IsConnected()) return;
-	if (ld->trade == nullptr) return;
+	if (!ld->trade) return;
 	client.RequestMarketData(ld);
 }
 
 
-void tws_RequestAccountSummary()
-{
+void tws_RequestAccountSummary() {
 	if (!tws_IsConnected()) return;
 	client.RequestAccountSummary();
 }
 
 
-void tws_CancelPositions()
-{
+void tws_CancelPositions() {
 	if (!tws_IsConnected()) return;
 	client.CancelPositions();
 }
 
 
-void tws_RequestPositions()
-{
+void tws_RequestPositions() {
 	if (!tws_IsConnected()) return;
 	client.RequestPositions();
 }
 
-void tws_RequestWshMetaData(int reqId)
-{
+void tws_RequestWshMetaData(int req_id) {
 	if (!tws_IsConnected()) return;
-	client.RequestWshMetaData(reqId);
+	client.RequestWshMetaData(req_id);
 }
 
-void tws_RequestWshEventData(int reqId, const WshEventData& wshEventData)
+void tws_RequestWshEventData(int req_id, const WshEventData& wshEventData)
 {
 	if (!tws_IsConnected()) return;
-	client.RequestWshEventData(reqId, wshEventData);
+	client.RequestWshEventData(req_id, wshEventData);
 }
 
 
-void tws_PerformReconciliation()
-{
+void tws_PerformReconciliation() {
 	if (!tws_IsConnected()) {
 		MessageBox(
 			HWND_ACTIVETRADES,
@@ -517,8 +490,7 @@ TwsClient::TwsClient() :
 {
 }
 //! [socket_init]
-TwsClient::~TwsClient()
-{
+TwsClient::~TwsClient() {
 	// destroy the reader before the client
 	if (m_pReader)
 		m_pReader.reset();
@@ -526,8 +498,7 @@ TwsClient::~TwsClient()
 	delete m_pClient;
 }
 
-bool TwsClient::Connect(const char* host, int port, int clientId)
-{
+bool TwsClient::Connect(const char* host, int port, int clientId) {
 	// trying to connect
 	printf("Connecting to %s:%d clientId:%d\n", !(host && *host) ? "127.0.0.1" : host, port, clientId);
 
@@ -545,61 +516,48 @@ bool TwsClient::Connect(const char* host, int port, int clientId)
 	return bRes;
 }
 
-void TwsClient::PingTWS() const
-{
+void TwsClient::PingTWS() const {
 	m_pClient->reqCurrentTime();
 	// printf("ping\n");
 }
 
-void TwsClient::Disconnect() const
-{
+void TwsClient::Disconnect() const {
 	m_pClient->eDisconnect();
 
 	printf("Disconnected\n");
 }
 
-bool TwsClient::IsConnected() const
-{
+bool TwsClient::IsConnected() const {
 	return m_pClient->isConnected();
 }
 
-bool TwsClient::IsSocketOK() const
-{
+bool TwsClient::IsSocketOK() const {
 	return m_pClient->isSocketOK();
 }
 
-void TwsClient::WaitForSignal()
-{
+void TwsClient::WaitForSignal() {
 	m_osSignal.waitForSignal();
-
 }
 
-void TwsClient::ProcessMsgs()
-{
+void TwsClient::ProcessMsgs() {
 	m_pReader->processMsgs();
 }
 
-
-void TwsClient::CancelPortfolioUpdates()
-{
+void TwsClient::CancelPortfolioUpdates() {
 	m_pClient->reqAccountUpdates(false, "");
 }
 
-void TwsClient::RequestPortfolioUpdates()
-{
+void TwsClient::RequestPortfolioUpdates() {
 	m_pClient->reqAccountUpdates(true, "");
 }
 
-
-void TwsClient::CancelMarketData(TickerId tickerId)
-{
-	m_pClient->cancelMktData(tickerId);
+void TwsClient::CancelMarketData(TickerId ticker_id) {
+	m_pClient->cancelMktData(ticker_id);
 }
 
 
-void TwsClient::RequestMarketData(ListBoxData* ld)
-{
-	// If the tickerId has already been previously requested then no need to request it again.
+void TwsClient::RequestMarketData(ListBoxData* ld) {
+	// If the ticker_id has already been previously requested then no need to request it again.
 	if (ld->trade->ticker_data_requested) return;
 
 	// Convert the unicode symbol to regular string type
@@ -616,7 +574,6 @@ void TwsClient::RequestMarketData(ListBoxData* ld)
 		contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
 	}
 	else {
-
 		if (symbol.substr(0,1) == "/") {
 			contract.symbol = symbol.substr(1);
 			contract.secType = "FUT";
@@ -636,36 +593,30 @@ void TwsClient::RequestMarketData(ListBoxData* ld)
 			contract.exchange = "SMART";
 			contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
 		}
-
 	}
 
 	ld->trade->ticker_data_requested = true;
-	m_pClient->reqMktData(ld->tickerId, contract, "", false, false, TagValueListSPtr());
+	m_pClient->reqMktData(ld->ticker_id, contract, "", false, false, TagValueListSPtr());
 }
-	
-void TwsClient::CancelPositions()
-{
+
+
+void TwsClient::CancelPositions() {
 	m_pClient->cancelPositions();
 }
 
-void TwsClient::RequestPositions()
-{
+void TwsClient::RequestPositions() {
 	m_pClient->reqPositions();
 }
 
-
-void TwsClient::RequestWshMetaData(int reqId)
-{
-	m_pClient->reqWshMetaData(reqId);
+void TwsClient::RequestWshMetaData(int req_id) {
+	m_pClient->reqWshMetaData(req_id);
 }
 
-void TwsClient::RequestWshEventData(int reqId, const WshEventData& wshEventData)
-{
-	m_pClient->reqWshEventData(reqId, wshEventData);
+void TwsClient::RequestWshEventData(int req_id, const WshEventData& wshEventData) {
+	m_pClient->reqWshEventData(req_id, wshEventData);
 }
 
-void TwsClient::RequestAccountSummary()
-{
+void TwsClient::RequestAccountSummary() {
 	m_pClient->reqAccountSummary(1000, "All", "NetLiquidation,ExcessLiquidity");
 }
 
@@ -679,8 +630,7 @@ void TwsClient::connectAck() {
 }
 
 
-void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) {
-
+void TwsClient::tickGeneric(TickerId ticker_id, TickType tickType, double value) {
 	// Handle any HALTED tickers (Halted notifications only arrive via tickGeneric).
 	//Value	Description
 	//	- 1	Halted status not available.Usually returned with frozen data.
@@ -697,7 +647,7 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 			ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
 			if (ld == nullptr) continue;
 
-			if ((ld->tickerId == tickerId) && (ld->trade != nullptr) && (ld->line_type == LineType::ticker_line)) {
+			if ((ld->ticker_id == ticker_id) && (ld->trade != nullptr) && (ld->line_type == LineType::ticker_line)) {
 				ld->SetTextData(COLUMN_TICKER_CHANGE, L"HALTED", COLOR_RED);
 				if (ListBoxData_ResizeColumnWidths(hListBox, TableType::active_trades)) {
 					AfxRedrawWindow(hListBox);
@@ -709,14 +659,16 @@ void TwsClient::tickGeneric(TickerId tickerId, TickType tickType, double value) 
 }
 
 
-
-void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, double price, Decimal size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) {
+void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, 
+	double price, Decimal size, const TickAttribLast& tickAttribLast, 
+	const std::string& exchange, const std::string& specialConditions) 
+{
 	//printf("Tick-By-Tick. ReqId: %d, TickType: %s, Time: %s, Price: %s, Size: %s, PastLimit: %d, Unreported: %d, Exchange: %s, SpecialConditions:%s\n",
 	//	reqId, (tickType == 1 ? "Last" : "AllLast"), ctime(&time), Utils::doubleMaxString(price).c_str(), decimalStringToDisplay(size).c_str(), tickAttribLast.pastLimit, tickAttribLast.unreported, exchange.c_str(), specialConditions.c_str());
 }
 
 
-void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib& attribs) {
+void TwsClient::tickPrice(TickerId ticker_id, TickType field, double price, const TickAttrib& attribs) {
 
 	if (price == -1) return;   // no data currently available
 
@@ -726,7 +678,7 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	// quote of 0 (typically for a combo contract).
 
 	// Parameters
-	// tickerId	the request's unique identifier.
+	// ticker_id	the request's unique identifier.
 	// field	the type of the price being received(i.e.ask price)(TickType)
 	// price	the actual price.
 	// attribs	an TickAttrib object that contains price attributes such as TickAttrib::CanAutoExecute, TickAttrib::PastLimit and TickAttrib::PreOpen.
@@ -736,14 +688,14 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
 
-		//if (field == LAST) std::cout << "tickPrice LAST " << tickerId << " " << price << std::endl;
-		//if (field == OPEN) std::cout << "tickPrice OPEN " << tickerId << " " << price << std::endl;
-		//if (field == CLOSE) std::cout << "tickPrice CLOSE " << tickerId << " " << price << std::endl;
+		//if (field == LAST) std::cout << "tickPrice LAST " << ticker_id << " " << price << std::endl;
+		//if (field == OPEN) std::cout << "tickPrice OPEN " << ticker_id << " " << price << std::endl;
+		//if (field == CLOSE) std::cout << "tickPrice CLOSE " << ticker_id << " " << price << std::endl;
 
 		TickerData td{};
 
-		if (mapTickerData.count(tickerId)) {
-			td = mapTickerData.at(tickerId);
+		if (mapTickerData.count(ticker_id)) {
+			td = mapTickerData.at(ticker_id);
 		}
 
 		if (field == OPEN) {
@@ -753,16 +705,15 @@ void TwsClient::tickPrice(TickerId tickerId, TickType field, double price, const
 		if (field == CLOSE) td.close_price = price;
 		if (field == LAST) td.last_price = price;
 
-		mapTickerData[tickerId] = td;
+		mapTickerData[ticker_id] = td;
 	}  
 }
 
 
-
 void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	double market_price, double market_value, double average_cost,
-	double unrealized_PNL, double realized_PNL, const std::string& account_name) {
-
+	double unrealized_PNL, double realized_PNL, const std::string& account_name) 
+{
 	//printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
 	//	(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
 	//	Utils::doubleMaxString(market_price).c_str(), Utils::doubleMaxString(market_value).c_str(), Utils::doubleMaxString(average_cost).c_str(),
@@ -782,12 +733,12 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 }
 
 
-
 void TwsClient::connectionClosed() {
 	printf("Connection Closed\n");
 }
 
-void TwsClient::error(int id, int error_code, const std::string& error_string, const std::string& advanced_order_reject_json)
+void TwsClient::error(int id, int error_code, 
+	const std::string& error_string, const std::string& advanced_order_reject_json)
 {
 	switch (error_code) {
 	case 2104:
@@ -796,7 +747,6 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 		return;
 	}
 	printf("Error. Id: %d, Code: %d, Msg: %s\n", id, error_code, error_string.c_str());
-
 
 	// If error codes 10091 or 10089 then we are connected most likely after hours and we do not have
 	// access to streaming data. In this case we will attempt scrap for the closing price.
@@ -832,8 +782,7 @@ void TwsClient::error(int id, int error_code, const std::string& error_string, c
 
 static bool positionEnd_fired = false;
 
-void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avg_cost)
-{
+void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avg_cost) {
 	// This callback is initiated by the reqPositions().
 	Reconcile_position(contract, position);
 	
@@ -842,8 +791,8 @@ void TwsClient::position(const std::string& account, const Contract& contract, D
 	}
 }
 
-void TwsClient::positionEnd()
-{
+
+void TwsClient::positionEnd() {
 	if (!positionEnd_fired) {
 		Reconcile_doPositionMatching();
 		positionEnd_fired = true;
@@ -861,11 +810,12 @@ void TwsClient::positionEnd()
 		UpdateTickersWithScrapedData();
 		market_data_subscription_error = false;
 	}
-
 }
 
+
 void TwsClient::updateAccountValue(const std::string& key, const std::string& val,
-	const std::string& currency, const std::string& accountName) {
+	const std::string& currency, const std::string& accountName) 
+{
 	// This callback will fire when PortfolioValue updates are initiated. We look for the
 	// string "AccountReady". 
 	// Note: An important key passed back in IBApi.EWrapper.updateAccountValue after a call 
@@ -884,7 +834,8 @@ void TwsClient::updateAccountTime(const std::string& timeStamp) {
 }
 
 
-void TwsClient::accountSummary(int reqId, const std::string& account, const std::string& tag, const std::string& value, const std::string& currency) 
+void TwsClient::accountSummary(int reqId, const std::string& account, 
+	const std::string& tag, const std::string& value, const std::string& currency) 
 {
 	// Values will return immediately when first requested and then everytime they change or 3 minutes.
 
@@ -922,6 +873,7 @@ void TwsClient::wshMetaData(int reqId, const std::string& dataJson) {
 	printf("WSH Meta Data. ReqId: %d, dataJson: %s\n", reqId, dataJson.c_str());
 }
 
+
 void TwsClient::wshEventData(int reqId, const std::string& dataJson) {
 	printf("WSH Event Data. ReqId: %d, dataJson: %s\n", reqId, dataJson.c_str());
 }
@@ -931,12 +883,12 @@ void TwsClient::accountSummaryEnd(int reqId) {
 	// std::cout << "account summary end" << std::endl;
 }
 
-void TwsClient::tickSize(TickerId tickerId, TickType field, Decimal size) {
-	//std::cout << "tickSize  id: " << tickerId << "  size: " << (int)intelDecimalToDouble(size) << std::endl;
+void TwsClient::tickSize(TickerId ticker_id, TickType field, Decimal size) {
+	//std::cout << "tickSize  id: " << ticker_id << "  size: " << (int)intelDecimalToDouble(size) << std::endl;
 }
 
-void TwsClient::tickString(TickerId tickerId, TickType tickType, const std::string& value) {
-	// printf("Tick String. Ticker Id: %ld, Type: %d, Value: %s\n", tickerId, (int)tickType, value.c_str());
+void TwsClient::tickString(TickerId ticker_id, TickType tickType, const std::string& value) {
+	// printf("Tick String. Ticker Id: %ld, Type: %d, Value: %s\n", ticker_id, (int)tickType, value.c_str());
 }
 
 void TwsClient::winError(const std::string& str, int lastError) {}

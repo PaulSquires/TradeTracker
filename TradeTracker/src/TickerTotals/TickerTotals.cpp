@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -40,23 +40,18 @@ HWND HWND_TICKERPANEL = NULL;
 CTickerPanel TickerPanel;
 
 
-
 // ========================================================================================
 // Populate the ListBox with the total earnings from each Ticker.
 // ========================================================================================
-void TickerPanel_ShowTickerTotals()
-{
+void TickerPanel_ShowTickerTotals() {
     HWND hListBox = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CUSTOMVSCROLLBAR);
 
-
     // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
+    SendMessage(hListBox, WM_SETREDRAW, false, 0);
 
     // Clear the current table
     ListBoxData_DestroyItemData(hListBox);
-
 
     // Calculate the amounts per Ticker Symbol
     std::unordered_map<std::wstring, double> mapTicker;
@@ -87,13 +82,11 @@ void TickerPanel_ShowTickerTotals()
     std::sort(vec.begin(), vec.end(),
         [](VecData a, VecData b) {return (a.amount > b.amount); });
 
-
     for (const auto& i : vec) {
         ListBoxData_OutputTickerTotals(hListBox, i.ticker, i.amount);
     }
 
     ListBoxData_AddBlankLine(hListBox);
-
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
@@ -101,16 +94,13 @@ void TickerPanel_ShowTickerTotals()
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, TableType::ticker_totals);
 
-
     // Set the ListBox to the topline.
     ListBox_SetTopIndex(hListBox, 0);
 
-
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    SendMessage(hListBox, WM_SETREDRAW, true, 0);
     AfxRedrawWindow(hListBox);
-
 
     // Ensure that the Ticker panel is set
     MainWindow_SetRightPanel(HWND_TICKERPANEL);
@@ -123,46 +113,37 @@ void TickerPanel_ShowTickerTotals()
 // Header control subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TickerPanel_Header_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_ERASEBKGND:
-    {
-        return TRUE;
+    case WM_ERASEBKGND: {
+        return true;
     }
 
-
-    case WM_PAINT:
-    {
-        Header_OnPaint(hWnd);
+    case WM_PAINT: {
+        Header_OnPaint(hwnd);
         return 0;
-        break;
     }
 
-
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TickerPanel_Header_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TickerPanel_Header_SubclassProc, uIdSubclass);
         break;
     }
-
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Show the Closed Trades for the selected Ticker line
 // ========================================================================================
-bool TickerTotals_ShowTickerClosedTrades(HWND hListBox, int idx)
-{
+bool TickerTotals_ShowTickerClosedTrades(HWND hListBox, int idx) {
     // Get the listbox pointer for the selected line.
     ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
     if (ld == nullptr) return false;
@@ -181,83 +162,75 @@ bool TickerTotals_ShowTickerClosedTrades(HWND hListBox, int idx)
 }
 
 
-
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
     // Create static accumulation variable to collect the data from
     // a series of middle mouse wheel scrolls.
-    static int accumDelta = 0;
+    static int accum_delta = 0;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_MOUSEWHEEL:
-    {
+    case WM_MOUSEWHEEL: {
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
-        accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
+        int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
+        accum_delta += zdelta;
+        if (accum_delta >= 120) {     // scroll up 3 lines
             top_index -= 3;
             top_index = max(0, top_index);
-            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-            accumDelta = 0;
+            SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+            accum_delta = 0;
         }
         else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
+            if (accum_delta <= -120) {     // scroll down 3 lines
                 top_index += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-                accumDelta = 0;
+                SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+                accum_delta = 0;
             }
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
-        break;
     }
-
     
-    case WM_LBUTTONDOWN:
-    {
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    case WM_LBUTTONDOWN: {
+        int idx = Listbox_ItemFromPoint(hwnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == 1) break;
 
         // Invoke the Closed Trades and show the selected Ticker transactions for the entire year-to-date.
-        TickerTotals_ShowTickerClosedTrades(hWnd, idx);
+        TickerTotals_ShowTickerClosedTrades(hwnd, idx);
+        break;
     }
-    break;
 
-
-    case WM_ERASEBKGND:
-    {
+    case WM_ERASEBKGND: {
         // If the number of lines in the listbox maybe less than the number per page then 
         // calculate from last item to bottom of listbox, otherwise calculate based on
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
-        RECT rc; GetClientRect(hWnd, &rc);
+        RECT rc; GetClientRect(hwnd, &rc);
 
         RECT rcItem{};
-        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int item_height = (rcItem.bottom - rcItem.top);
-        int items_count = ListBox_GetCount(hWnd);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int items_count = ListBox_GetCount(hwnd);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;
-        int nWidth = (rc.right - rc.left);
-        int nHeight = (rc.bottom - rc.top);
+        int width = (rc.right - rc.left);
+        int height = (rc.bottom - rc.top);
 
         if (items_count > 0) {
-            items_per_page = (nHeight) / item_height;
+            items_per_page = (height) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
@@ -266,43 +239,38 @@ LRESULT CALLBACK TickerPanel_ListBox_SubclassProc(
         }
 
         if (rc.top < rc.bottom) {
-            nHeight = (rc.bottom - rc.top);
+            height = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             SolidBrush back_brush(COLOR_GRAYDARK);
-            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
         }
 
-        ValidateRect(hWnd, &rc);
+        ValidateRect(hwnd, &rc);
         return true;
-        break;
     }
 
-
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
-        ListBoxData_DestroyItemData(hWnd);
+        ListBoxData_DestroyItemData(hwnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TickerPanel_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TickerPanel_ListBox_SubclassProc, uIdSubclass);
         break;
     }
-
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TickerPanel
 // ========================================================================================
-void TickerPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
-{
+void TickerPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(TICKER_LISTBOX_ROWHEIGHT);
 }
 
@@ -310,18 +278,16 @@ void TickerPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TickerPanel
 // ========================================================================================
-BOOL TickerPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TickerPanel_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TickerPanel
 // ========================================================================================
-void TickerPanel_OnPaint(HWND hwnd)
-{
+void TickerPanel_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -332,9 +298,9 @@ void TickerPanel_OnPaint(HWND hwnd)
     SolidBrush back_brush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -343,13 +309,10 @@ void TickerPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: TickerPanel
 // ========================================================================================
-void TickerPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-    switch (codeNotify)
-    {
+void TickerPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
+    switch (codeNotify) {
 
-    case (LBN_SELCHANGE):
-    {
+    case LBN_SELCHANGE: {
         int nCurSel = ListBox_GetCurSel(hwndCtl);
         if (nCurSel == -1) break;
         // Invoke the Closed Trades and show the selected Ticker transactions for the entire year-to-date.
@@ -364,8 +327,7 @@ void TickerPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TickerPanel
 // ========================================================================================
-void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HWND hHeaderTickerTotals = GetDlgItem(hwnd, IDC_TICKER_HEADER_TOTALS);
     HWND hListBox = GetDlgItem(hwnd, IDC_TICKER_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR);
@@ -383,7 +345,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool show_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
-    if (pData != nullptr) {
+    if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
         }
@@ -393,21 +355,21 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int custom_scrollbar_width = show_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
-    int nTop = margin;
-    int nLeft = 0;
-    int nWidth = cx;
-    int nHeight = AfxScaleY(TICKER_LISTBOX_ROWHEIGHT);
+    int top = margin;
+    int left = 0;
+    int width = cx;
+    int height = AfxScaleY(TICKER_LISTBOX_ROWHEIGHT);
 
-    hdwp = DeferWindowPos(hdwp, hHeaderTickerTotals, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-    nTop = nTop + nHeight + AfxScaleX(1);
+    hdwp = DeferWindowPos(hdwp, hHeaderTickerTotals, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = top + height + AfxScaleX(1);
 
-    nWidth = cx - custom_scrollbar_width;
-    nHeight = cy - nTop;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    width = cx - custom_scrollbar_width;
+    height = cy - top;
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    left = left + width;   // right edge of ListBox
+    width = custom_scrollbar_width;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height,
         SWP_NOZORDER | (show_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
@@ -417,8 +379,7 @@ void TickerPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TickerPanel
 // ========================================================================================
-BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TICKERPANEL = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TICKER_SYMBOL, L"Ticker Totals",
@@ -438,7 +399,6 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TICKER_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
 
-
     // Create Header control for our Ticker Totals output
     hCtl = TickerPanel.AddControl(Controls::Header, hwnd, IDC_TICKER_HEADER_TOTALS,
         L"", 0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TickerPanel_Header_SubclassProc,
@@ -448,17 +408,15 @@ BOOL TickerPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Header_InsertNewItem(hCtl, 2, AfxScaleX(nTickerTotalsMinColWidth[2]), L"Company Name", HDF_LEFT);
     Header_InsertNewItem(hCtl, 3, AfxScaleX(nTickerTotalsMinColWidth[3]), L"Amount", HDF_RIGHT);
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTickerPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTickerPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TickerPanel_OnCreate);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TickerPanel_OnCommand);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TickerPanel_OnEraseBkgnd);
@@ -466,8 +424,7 @@ LRESULT CTickerPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, TickerPanel_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TickerPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 

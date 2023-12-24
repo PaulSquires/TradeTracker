@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -33,6 +33,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 
 #include "Config.h"
+
 
 
 // Filenames used on and after Version 4.0.0
@@ -129,8 +130,7 @@ std::unordered_map<std::wstring, int> mapTickerDecimals {
 // ========================================================================================
 // Determine if upgrade to Version 4 filenames. 
 // ========================================================================================
-std::wstring GetDataFilesFolder()
-{
+std::wstring GetDataFilesFolder() {
     std::wstring exe_folder = AfxGetExePath();  // no trailing backslash
     std::wstring program_files_folder = AfxGetProgramFilesFolder();   // no trailing backslash
     std::wstring data_files_folder = exe_folder;   // default data files to same location as EXE
@@ -146,8 +146,7 @@ std::wstring GetDataFilesFolder()
     return data_files_folder;
 }
 
-void Version4UpgradeExe()
-{
+void Version4UpgradeExe() {
     exe_new = AfxGetExePath() + exe_new;
 
     // Delete pre-Version4 exe
@@ -156,8 +155,7 @@ void Version4UpgradeExe()
     }
 }
 
-bool Version4UpgradeConfig()
-{
+bool Version4UpgradeConfig() {
     dbConfig_new = GetDataFilesFolder() + dbConfig_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
@@ -173,8 +171,7 @@ bool Version4UpgradeConfig()
     }
 }
 
-bool Version4UpgradeJournalNotes()
-{
+bool Version4UpgradeJournalNotes() {
     dbJournalNotes_new = GetDataFilesFolder() + dbJournalNotes_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
@@ -190,8 +187,7 @@ bool Version4UpgradeJournalNotes()
     }
 }
 
-bool Version4UpgradeTradePlan()
-{
+bool Version4UpgradeTradePlan() {
     dbTradePlan_new = GetDataFilesFolder() + dbTradePlan_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
@@ -212,8 +208,7 @@ bool Version4UpgradeTradePlan()
 // Display Paper Trading warning message if port is enabled. 
 // Normal Trading 7496;   7497 is paper trading account.
 // ========================================================================================
-void DisplayPaperTradingWarning()
-{
+void DisplayPaperTradingWarning() {
     if (!startup_paper_trading) return;
 
     CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
@@ -225,8 +220,7 @@ void DisplayPaperTradingWarning()
 // ========================================================================================
 // Determine if show/hide the Portfolio dollar value on the main screen.
 // ========================================================================================
-bool GetShowPortfolioValue()
-{
+bool GetShowPortfolioValue() {
     return show_portfolio_value;
 }
 
@@ -234,8 +228,7 @@ bool GetShowPortfolioValue()
 // ========================================================================================
 // Determine if allow to check for available program update.
 // ========================================================================================
-bool GetAllowUpdateCheck()
-{
+bool GetAllowUpdateCheck() {
     return allow_update_check;
 }
 
@@ -244,8 +237,7 @@ bool GetAllowUpdateCheck()
 // Return the TWS connect Port. 
 // Normal Trading 7496;   7497 is paper trading account.
 // ========================================================================================
-int GetStartupPort()
-{
+int GetStartupPort() {
     return (startup_paper_trading ? 7497 : 7496);   // paper trading port is 7497
 }
 
@@ -254,9 +246,7 @@ int GetStartupPort()
 // Return the application's startup width value as returned from the Config file.
 // If no value exits then return default value.
 // ========================================================================================
-int GetStartupWidth()
-{
-
+int GetStartupWidth() {
     // Size the main window to encompass 75% of screen width.
     int inital_main_width = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
 
@@ -280,8 +270,7 @@ int GetStartupWidth()
 // Return the application's startup height value as returned from the Config file.
 // If no value exits then return default value.
 // ========================================================================================
-int GetStartupHeight()
-{
+int GetStartupHeight() {
     // Size the main window to encompass 85% of screen height.
     int inital_main_height = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
@@ -304,8 +293,7 @@ int GetStartupHeight()
 // ========================================================================================
 // Set the application's startup height value.
 // ========================================================================================
-void SetStartupHeight(int height)
-{
+void SetStartupHeight(int height) {
     startup_height = AfxUnScaleY(height);
 }
 
@@ -313,8 +301,7 @@ void SetStartupHeight(int height)
 // ========================================================================================
 // Set the application's startup width value.
 // ========================================================================================
-void SetStartupWidth(int width)
-{
+void SetStartupWidth(int width) {
     startup_width = AfxUnScaleX(width);
 }
 
@@ -323,8 +310,7 @@ void SetStartupWidth(int width)
 // Return the application's Right Panel startup width value as returned from the Config file.
 // If no value exits then return default value.
 // ========================================================================================
-int GetStartupRightPanelWidth()
-{
+int GetStartupRightPanelWidth() {
     if (startup_right_panel_width > 0) return startup_right_panel_width;
     return 440;
 }
@@ -333,8 +319,7 @@ int GetStartupRightPanelWidth()
 // ========================================================================================
 // Set the application's Right Panel startup width value.
 // ========================================================================================
-void SetStartupRightPanelWidth(int width)
-{
+void SetStartupRightPanelWidth(int width) {
     startup_right_panel_width = AfxUnScaleX(width);
 }
 
@@ -342,8 +327,7 @@ void SetStartupRightPanelWidth(int width)
 // ========================================================================================
 // Determine if the incoming ticker symbol is a Future.
 // ========================================================================================
-bool IsFuturesTicker(const std::wstring& ticker)
-{
+bool IsFuturesTicker(const std::wstring& ticker) {
     return (ticker.substr(0, 1) == L"/");
 }
 
@@ -351,8 +335,7 @@ bool IsFuturesTicker(const std::wstring& ticker)
 // ========================================================================================
 // Get the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-int GetTickerDecimals(const std::wstring& underlying)
-{
+int GetTickerDecimals(const std::wstring& underlying) {
     if (mapTickerDecimals.count(underlying)) {
         return mapTickerDecimals.at(underlying);
     }
@@ -365,8 +348,7 @@ int GetTickerDecimals(const std::wstring& underlying)
 // ========================================================================================
 // Set the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-void SetTickerDecimals(const std::wstring& underlying, int decimals)
-{
+void SetTickerDecimals(const std::wstring& underlying, int decimals) {
     mapTickerDecimals[underlying] = decimals;
 }
 
@@ -374,8 +356,7 @@ void SetTickerDecimals(const std::wstring& underlying, int decimals)
 // ========================================================================================
 // Get the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-std::wstring GetMultiplier(const std::wstring& underlying)
-{
+std::wstring GetMultiplier(const std::wstring& underlying) {
     if (mapMultipliers.count(underlying)) {
         return mapMultipliers.at(underlying);
     }
@@ -388,8 +369,7 @@ std::wstring GetMultiplier(const std::wstring& underlying)
 // ========================================================================================
 // Set the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-void SetMultiplier(const std::wstring& underlying, const std::wstring& multiplier)
-{
+void SetMultiplier(const std::wstring& underlying, const std::wstring& multiplier) {
     mapMultipliers[underlying] = multiplier;
 }
 
@@ -397,8 +377,7 @@ void SetMultiplier(const std::wstring& underlying, const std::wstring& multiplie
 // ========================================================================================
 // Get the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-std::string GetFuturesExchange(const std::string& underlying)
-{
+std::string GetFuturesExchange(const std::string& underlying) {
     if (mapFuturesExchanges.count(underlying)) {
         return mapFuturesExchanges.at(underlying);
     }
@@ -411,8 +390,7 @@ std::string GetFuturesExchange(const std::string& underlying)
 // ========================================================================================
 // Set the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-void SetFuturesExchange(const std::string& underlying, const std::string& exchange)
-{
+void SetFuturesExchange(const std::string& underlying, const std::string& exchange) {
     mapFuturesExchanges[underlying] = exchange;
 }
 
@@ -420,31 +398,28 @@ void SetFuturesExchange(const std::string& underlying, const std::string& exchan
 // ========================================================================================
 // Get the Category Description for the incoming category number.
 // ========================================================================================
-std::wstring GetCategoryDescription(int category_index)
-{
-    return mapCategoryDescriptions.at(category_index);
+std::wstring GetCategoryDescription(int index) {
+    return mapCategoryDescriptions.at(index);
 }
 
 
 // ========================================================================================
 // Set the Category Description for the incoming category number.
 // ========================================================================================
-void SetCategoryDescription(int category_index, const std::wstring& wszDescription)
-{
-    mapCategoryDescriptions[category_index] = wszDescription;
+void SetCategoryDescription(int index, const std::wstring& description) {
+    mapCategoryDescriptions[index] = description;
 }
 
 
 // ========================================================================================
 // Get the JournalNotes text.
 // ========================================================================================
-std::wstring GetJournalNotesText()
-{
+std::wstring GetJournalNotesText() {
     bool upgrade_to_version4 = Version4UpgradeJournalNotes();
 
-    static bool is_JournalNotes_loaded = false;
+    static bool is_journal_notes_loaded = false;
 
-    if (!is_JournalNotes_loaded) {
+    if (!is_journal_notes_loaded) {
         std::wifstream db;
 
         db.open(dbJournalNotes, std::ios::in);
@@ -454,7 +429,7 @@ std::wstring GetJournalNotesText()
             ss << db.rdbuf();
             journal_notes_text = ss.str();
 
-            is_JournalNotes_loaded = true;
+            is_journal_notes_loaded = true;
         }
     }
 
@@ -472,8 +447,7 @@ std::wstring GetJournalNotesText()
 // ========================================================================================
 // Set and save the JournalNotes text.
 // ========================================================================================
-void SetJournalNotesText(const std::wstring& wszText)
-{
+void SetJournalNotesText(const std::wstring& text) {
     std::wofstream db;
 
     db.open(dbJournalNotes, std::ios::out | std::ios::trunc);
@@ -488,23 +462,22 @@ void SetJournalNotesText(const std::wstring& wszText)
         return;
     }
 
-    db << wszText;
+    db << text;
     db.close();
 
-    journal_notes_text = wszText;
+    journal_notes_text = text;
 }
 
 
 // ========================================================================================
 // Get the TradePlan text.
 // ========================================================================================
-std::wstring GetTradePlanText()
-{
+std::wstring GetTradePlanText() {
     bool upgrade_to_version4 = Version4UpgradeTradePlan();
 
-    static bool is_TradePlan_loaded = false;
+    static bool is_trade_plan_loaded = false;
 
-    if (!is_TradePlan_loaded) {
+    if (!is_trade_plan_loaded) {
         std::wifstream db;
 
         db.open(dbTradePlan, std::ios::in);
@@ -514,7 +487,7 @@ std::wstring GetTradePlanText()
             ss << db.rdbuf();
             trade_plan_text = ss.str();
 
-            is_TradePlan_loaded = true;
+            is_trade_plan_loaded = true;
         }
     }
 
@@ -532,8 +505,7 @@ std::wstring GetTradePlanText()
 // ========================================================================================
 // Set and save the TradePlan text.
 // ========================================================================================
-void SetTradePlanText(const std::wstring& wszText)
-{
+void SetTradePlanText(const std::wstring& text) {
     std::wofstream db;
 
     db.open(dbTradePlan, std::ios::out | std::ios::trunc);
@@ -548,18 +520,17 @@ void SetTradePlanText(const std::wstring& wszText)
         return;
     }
 
-    db << wszText;
+    db << text;
     db.close();
 
-    trade_plan_text = wszText;
+    trade_plan_text = text;
 }
 
 
 // ========================================================================================
 // Save the Config values to a simple text file.
 // ========================================================================================
-bool SaveConfig()
-{
+bool SaveConfig() {
     std::wofstream db;
 
     db.open(dbConfig, std::ios::out | std::ios::trunc);
@@ -611,9 +582,9 @@ bool SaveConfig()
 // ========================================================================================
 // Load the Config values from file.
 // ========================================================================================
-bool LoadConfig()
-{
+bool LoadConfig() {
     Version4UpgradeExe();
+
     bool upgrade_to_version4 = Version4UpgradeConfig();
 
     // If the Config does not exist then create a new one.
@@ -631,9 +602,6 @@ bool LoadConfig()
     }
 
     std::wstring config_version;
-
-    bool isFirstline = true;
-
     std::wstring line;
 
     while (!db.eof()) {
@@ -662,7 +630,6 @@ bool LoadConfig()
             continue;
         }
 
-
         // Check if should show/hide Total Portfolio dollar amount on main screen
         if (arg == L"SHOWPORTFOLIOVALUE") {
             std::wstring value;
@@ -673,7 +640,6 @@ bool LoadConfig()
             show_portfolio_value = AfxWStringCompareI(value, L"true");
             continue;
         }
-
 
         // Check if should allow checking for available program update
         if (arg == L"ALLOWUPDATECHECK") {
@@ -686,7 +652,6 @@ bool LoadConfig()
             continue;
         }
 
-
         // Check for startup_width
         if (arg == L"STARTUPWIDTH") {
             std::wstring width;
@@ -697,7 +662,6 @@ bool LoadConfig()
             startup_width = AfxValInteger(width);
             continue;
         }
-
 
         // Check for startup_height
         if (arg == L"STARTUPHEIGHT") {
@@ -710,10 +674,9 @@ bool LoadConfig()
             continue;
         }
 
-
         // Check for category descriptions
         if (arg == L"CATEGORY") {
-            int category_index;
+            int category_index{0};
             std::wstring description;
             
             try {category_index = stoi(st.at(1));}
@@ -726,7 +689,6 @@ bool LoadConfig()
             continue;
         }
 
-
         // Check for startup_right_panel_width
         if (arg == L"STARTUPRIGHTPANELWIDTH") {
             std::wstring width;
@@ -737,7 +699,6 @@ bool LoadConfig()
             startup_right_panel_width = AfxValInteger(width);
             continue;
         }
-
 
         // Check for Futures Exchanges
         if (arg == L"EXCHANGE") {
@@ -757,7 +718,6 @@ bool LoadConfig()
             continue;
         }
 
-
         // Check for Multipliers
         if (arg == L"MULTIPLIER") {
             std::wstring underlying;
@@ -774,19 +734,18 @@ bool LoadConfig()
             continue;
         }
 
-
         // Check for Ticker Decimals
         if (arg == L"TICKERDECIMALS") {
             std::wstring underlying;
-            int numDecimals;
+            int decimals{0};
             
             try {underlying = st.at(1);}
             catch (...) {continue;}
             
-            try { numDecimals = stoi(st.at(2));}
+            try { decimals = stoi(st.at(2));}
             catch (...) {continue;}
             
-            SetTickerDecimals(underlying, numDecimals);
+            SetTickerDecimals(underlying, decimals);
 
             continue;
         }

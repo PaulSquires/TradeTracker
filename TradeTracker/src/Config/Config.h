@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -33,17 +33,17 @@ bool LoadConfig();
 
 bool GetShowPortfolioValue();
 bool GetAllowUpdateCheck();
-int GetTickerDecimals(const std::wstring& wunderlying);
-void SetTickerDecimals(const std::wstring& wunderlying, int numDecimals);
+int GetTickerDecimals(const std::wstring& underlying);
+void SetTickerDecimals(const std::wstring& underlying, int decimals);
 std::wstring GetMultiplier(const std::wstring& wunderlying);
-void SetMultiplier(const std::wstring& wunderlying, const std::wstring& wszMultiplier);
+void SetMultiplier(const std::wstring& wunderlying, const std::wstring& multiplier);
 std::string GetFuturesExchange(const std::string& underlying);
 void SetFuturesExchange(const std::string& underlying, const std::string& exchange);
-std::wstring GetCategoryDescription(int category_index);
-void SetCategoryDescription(int category_index, const std::wstring& wszDescription);
+std::wstring GetCategoryDescription(int index);
+void SetCategoryDescription(int index, const std::wstring& description);
 void DisplayPaperTradingWarning();
 int GetStartupPort();
-bool IsFuturesTicker(const std::wstring& wszTicker);
+bool IsFuturesTicker(const std::wstring& ticker);
 int GetStartupWidth();
 int GetStartupHeight();
 int GetStartupRightPanelWidth();
@@ -51,6 +51,6 @@ void SetStartupWidth(int width);
 void SetStartupHeight(int height);
 void SetStartupRightPanelWidth(int width);
 std::wstring GetJournalNotesText();
-void SetJournalNotesText(const std::wstring& wszText);
+void SetJournalNotesText(const std::wstring& text);
 std::wstring GetTradePlanText();
-void SetTradePlanText(const std::wstring& wszText);
+void SetTradePlanText(const std::wstring& text);

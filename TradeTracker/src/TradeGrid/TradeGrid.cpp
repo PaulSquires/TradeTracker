@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -36,17 +36,16 @@ SOFTWARE.
 // ========================================================================================
 // Helper function to set a column's data and update display 
 // ========================================================================================
-void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& text)
-{
+void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& text) {
     TradeGrid* pData = TradeGrid_GetOptions(hGrid);
-    if (pData == nullptr) return;
+    if (!pData) return;
 
-    int numCols = (pData->bShowOriginalQuantity) ? 8 : 7;
+    int num_cols = (pData->show_original_quantity) ? 8 : 7;
 
-    int idx = (row * numCols) + col;
+    int idx = (row * num_cols) + col;
 
     GridColInfo* pCol = pData->gridCols.at(idx);
-    if (pCol == nullptr) return;
+    if (!pCol) return;
 
     switch (pCol->colType)
     {
@@ -83,10 +82,9 @@ void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& text
 // ========================================================================================
 // Calculate Days To Expiration (DTE) and display it in the table
 // ========================================================================================
-void TradeGrid_CalculateDTE(HWND hwnd)
-{
+void TradeGrid_CalculateDTE(HWND hwnd) {
     TradeGrid* pData = TradeGrid_GetOptions(hwnd);
-    if (pData == nullptr) return;
+    if (!pData) return;
 
     std::wstring transDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_LBLTRANSDATE));
         
@@ -98,7 +96,7 @@ void TradeGrid_CalculateDTE(HWND hwnd)
         int expiry_dateCol = 0;
         int dteCol = 0;
         
-        if (pData->bShowOriginalQuantity) {
+        if (pData->show_original_quantity) {
             colStart = i * 8;
             expiry_dateCol = colStart + 2;
             dteCol = colStart + 3;
@@ -124,9 +122,8 @@ void TradeGrid_CalculateDTE(HWND hwnd)
 // ========================================================================================
 // Populate the trade grid (all 4 rows and columns).
 // ========================================================================================
-void TradeGrid_PopulateColumns(TradeGrid* pData)
-{
-    if (pData == nullptr) return;
+void TradeGrid_PopulateColumns(TradeGrid* pData) {
+    if (!pData) return;
 
     // Setup the lines and columns
 
@@ -135,16 +132,16 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
     pData->gridCols.reserve(24);
 
     HWND hCtl = NULL;
-    int idCtrl = IDC_TRADEGRID_FIRSTCONTROL;
+    int ctrl_id = IDC_TRADEGRID_FIRSTCONTROL;
 
     DWORD light_back_color = COLOR_GRAYLIGHT;
     DWORD light_text_color = COLOR_WHITELIGHT;
     DWORD dark_back_color = COLOR_GRAYMEDIUM;
 
-    int nTop = 0;
-    int nLeft = 0;
-    int nWidth = 50;
-    int nHeight = 23;
+    int top = 0;
+    int left = 0;
+    int width = 50;
+    int height = 23;
     
     int vsp = 2;
     int hsp = 2;
@@ -152,8 +149,8 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
     int horiz_text_margin = 0;
     int vert_text_margin = 3;
     
-    int nTotalWidth = 0;
-    int nTotalHeight = 0;
+    int total_width = 0;
+    int total_height = 0;
 
     CustomLabel* pLabelData = nullptr;
 
@@ -161,110 +158,108 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         // All are center except Quantity which is right align.
         GridColInfo* col;
 
-
         // QUANTITY (ORIGINAL)
-        if (pData->bShowOriginalQuantity == true) {
-            nWidth = 25;
-            hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
+        if (pData->show_original_quantity == true) {
+            width = 25;
+            hCtl = CreateCustomTextBox(pData->hWindow, ctrl_id, false, ES_RIGHT, L"", left, top, width, height);
             CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::allow, CustomTextBoxFormatting::disallow);
             CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
             CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
             col = new GridColInfo;
             col->hCtl = hCtl;
-            col->idCtrl = idCtrl;
+            col->ctrl_id = ctrl_id;
             col->colType = GridColType::TextBox;
             pData->gridCols.push_back(col);
-            idCtrl++;
-            nLeft = nLeft + nWidth + hsp;
+            ctrl_id++;
+            left = left + width + hsp;
         }
 
         // QUANTITY (OPEN)
-        nWidth = (pData->bShowOriginalQuantity == true) ? 25 : 50;
-        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_RIGHT, L"", nLeft, nTop, nWidth, nHeight);
+        width = (pData->show_original_quantity == true) ? 25 : 50;
+        hCtl = CreateCustomTextBox(pData->hWindow, ctrl_id, false, ES_RIGHT, L"", left, top, width, height);
         CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::allow, CustomTextBoxFormatting::disallow);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
         CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
+        col->ctrl_id = ctrl_id;
         col->colType = GridColType::TextBox;
         pData->gridCols.push_back(col);
-        idCtrl++;
-        nLeft = nLeft + nWidth + hsp;
+        ctrl_id++;
+        left = left + width + hsp;
 
-        nWidth = 50;
+        width = 50;
 
         // EXPIRY DATE
-        hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl, 
+        hCtl = CustomLabel_SimpleLabel(pData->hWindow, ctrl_id, 
             L"", COLOR_WHITELIGHT, COLOR_GRAYLIGHT,
-            CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+            CustomLabelAlignment::middle_center, left, top, width, height);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
-        if (pData->bShowOriginalQuantity == false) {
+        col->ctrl_id = ctrl_id;
+        if (pData->show_original_quantity == false) {
             if (row == 0) col->isTriggerCell = true;
         }
         col->colType = GridColType::DatePicker;
         pData->gridCols.push_back(col);
-        idCtrl++;
-        nLeft = nLeft + nWidth + hsp;
+        ctrl_id++;
+        left = left + width + hsp;
 
         // DTE
-        hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
+        hCtl = CustomLabel_SimpleLabel(pData->hWindow, ctrl_id,
             L"", COLOR_WHITEDARK, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+            CustomLabelAlignment::middle_center, left, top, width, height);
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
+        col->ctrl_id = ctrl_id;
         col->colType = GridColType::Label;
         pData->gridCols.push_back(col);
-        idCtrl++;
-        nLeft = nLeft + nWidth + hsp;
+        ctrl_id++;
+        left = left + width + hsp;
 
         // STRIKE PRICE
-        hCtl = CreateCustomTextBox(pData->hWindow, idCtrl, false, ES_CENTER, L"", nLeft, nTop, nWidth, nHeight);
+        hCtl = CreateCustomTextBox(pData->hWindow, ctrl_id, false, ES_CENTER, L"", left, top, width, height);
         CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::disallow);
         CustomTextBox_SetColors(hCtl, light_text_color, light_back_color);
         CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
+        col->ctrl_id = ctrl_id;
         col->colType = GridColType::TextBox;
         pData->gridCols.push_back(col);
-        idCtrl++;
-        nLeft = nLeft + nWidth + hsp;
+        ctrl_id++;
+        left = left + width + hsp;
 
         // PUT/CALL
-        hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
+        hCtl = CustomLabel_SimpleLabel(pData->hWindow, ctrl_id,
             L"", COLOR_WHITEDARK, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::middle_center, nLeft, nTop, (nWidth/2), nHeight);
+            CustomLabelAlignment::middle_center, left, top, (width/2), height);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
+        col->ctrl_id = ctrl_id;
         col->colType = GridColType::PutCallCombo;
         pData->gridCols.push_back(col);
-        idCtrl++;
-        nLeft = nLeft + (nWidth/2) + hsp;
+        ctrl_id++;
+        left = left + (width/2) + hsp;
 
         // ACTION
-        hCtl = CustomLabel_SimpleLabel(pData->hWindow, idCtrl,
+        hCtl = CustomLabel_SimpleLabel(pData->hWindow, ctrl_id,
             L"", COLOR_WHITELIGHT, COLOR_GRAYLIGHT,
-            CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+            CustomLabelAlignment::middle_center, left, top, width, height);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
+        col->ctrl_id = ctrl_id;
         col->colType = GridColType::ActionCombo;
         pData->gridCols.push_back(col);
-        idCtrl++;
-        nLeft = nLeft + nWidth + hsp;
-
+        ctrl_id++;
+        left = left + width + hsp;
 
         // RESET LINE INDICATOR
-        hCtl = CreateCustomLabel(pData->hWindow, idCtrl,
-            CustomLabelType::text_only, nLeft, nTop, TRADEGRID_LINERESETICONWIDTH, nHeight);
+        hCtl = CreateCustomLabel(pData->hWindow, ctrl_id,
+            CustomLabelType::text_only, left, top, TRADEGRID_LINERESETICONWIDTH, height);
         pLabelData = CustomLabel_GetOptions(hCtl);
         if (pLabelData) {
             pLabelData->text = GLYPH_RESETLINE;
@@ -282,35 +277,32 @@ void TradeGrid_PopulateColumns(TradeGrid* pData)
         }
         col = new GridColInfo;
         col->hCtl = hCtl;
-        col->idCtrl = idCtrl;
+        col->ctrl_id = ctrl_id;
         col->colType = GridColType::LineReset;
         col->colData = row;
         pData->gridCols.push_back(col);
-        idCtrl++;
+        ctrl_id++;
 
-        nTop = nTop + nHeight + vsp;
-        nLeft = 0;
-        
+        top = top + height + vsp;
+        left = 0;
     }
 
-    nTotalWidth = AfxScaleX((float)5 * (nWidth + hsp)) + AfxScaleX((float)nWidth/2);
-    nTotalHeight = AfxScaleY((float)4 * (nHeight + vsp) - vsp);
+    total_width = AfxScaleX((float)5 * (width + hsp)) + AfxScaleX((float)width/2);
+    total_height = AfxScaleY((float)4 * (height + vsp) - vsp);
 
     // Add width for the line reset indicators
-    nTotalWidth += AfxScaleX(TRADEGRID_LINERESETICONWIDTH);
+    total_width += AfxScaleX(TRADEGRID_LINERESETICONWIDTH);
 
     // Resize the control container to fit the size of the trade grid.
-    SetWindowPos(pData->hWindow, 0, 0, 0, nTotalWidth, nTotalHeight, SWP_NOMOVE | SWP_NOZORDER);
-
+    SetWindowPos(pData->hWindow, 0, 0, 0, total_width, total_height, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 
 // ========================================================================================
 // Set text in a trade grid cell.
 // ========================================================================================
-void TradeGrid_SetText(GridColInfo* col, std::wstring text)
-{
-    if (col == nullptr) return;
+void TradeGrid_SetText(GridColInfo* col, std::wstring text) {
+    if (!col) return;
 
     CustomLabel_SetText(col->hCtl, text);
 
@@ -325,10 +317,9 @@ void TradeGrid_SetText(GridColInfo* col, std::wstring text)
 // ========================================================================================
 // Handle when the PutCall button is clicked.
 // ========================================================================================
-void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
-{
-    if (pData == nullptr) return;
-    if (col == nullptr) return;
+void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col) {
+    if (!pData) return;
+    if (!col) return;
 
     std::wstring PutCall = CustomLabel_GetText(col->hCtl);
     if (PutCall.length() == 0) {
@@ -344,10 +335,9 @@ void TradeGrid_OnClickPutCall(TradeGrid* pData, GridColInfo* col)
 // ========================================================================================
 // Handle when the Action trade grid cell is clicked.
 // ========================================================================================
-void TradeGrid_OnClickAction(TradeGrid* pData, GridColInfo* col)
-{
-    if (pData == nullptr) return;
-    if (col == nullptr) return;
+void TradeGrid_OnClickAction(TradeGrid* pData, GridColInfo* col) {
+    if (!pData) return;
+    if (!col) return;
 
     // STO,BTO,STC,BTC
 
@@ -375,17 +365,16 @@ void TradeGrid_OnClickAction(TradeGrid* pData, GridColInfo* col)
 // ========================================================================================
 // Handle when the Line Reset trade grid cell is clicked.
 // ========================================================================================
-void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
-{
-    if (pData == nullptr) return;
-    if (col == nullptr) return;
+void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col) {
+    if (!pData) return;
+    if (!col) return;
 
-    int numCols = (pData->bShowOriginalQuantity) ? 8 : 7;
+    int num_cols = (pData->show_original_quantity) ? 8 : 7;
 
     // Determine the line being reset
-    int colStart = (col->colData * numCols);
+    int colStart = (col->colData * num_cols);
 
-    if (pData->bShowOriginalQuantity) {
+    if (pData->show_original_quantity) {
         CustomTextBox_SetText(pData->gridCols.at(colStart)->hCtl, L"");     // original_quantity
         CustomTextBox_SetText(pData->gridCols.at(colStart+1)->hCtl, L"");   // open_quantity
         CustomLabel_SetText(pData->gridCols.at(colStart+2)->hCtl, L"");     // Expiry Date
@@ -410,10 +399,9 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col)
 // ========================================================================================
 // Handle when the Date Picker (Calendar) grid cell is clicked.
 // ========================================================================================
-void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
-{
-    if (pData == nullptr) return;
-    if (col == nullptr) return;
+void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col) {
+    if (!pData) return;
+    if (!col) return;
 
     std::wstring date_text = CustomLabel_GetUserData(col->hCtl);
     Calendar_CreateDatePicker(pData->hParent, col->hCtl, date_text, CalendarPickerReturnType::short_date, 2);
@@ -423,18 +411,17 @@ void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col)
 // ========================================================================================
 // Get text from a trade grid cell (row, cell).
 // ========================================================================================
-std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
-{
+std::wstring TradeGrid_GetText(HWND hCtl, int row, int col) {
     std::wstring text;
     TradeGrid* pData = TradeGrid_GetOptions(hCtl);
-    if (pData == nullptr) return text;
+    if (!pData) return text;
 
     if (row < 0 || row > 3) return text;
     if (col < 0 || col > 6) return text;
 
     // Determine the cell index
-    int numCols = (pData->bShowOriginalQuantity) ? 8 : 7;
-    int idx = (row * numCols) + col;
+    int num_cols = (pData->show_original_quantity) ? 8 : 7;
+    int idx = (row * num_cols) + col;
 
     if (pData->gridCols.at(idx)->colType == GridColType::TextBox) {
         text = AfxGetWindowText(GetDlgItem(pData->gridCols.at(idx)->hCtl,100));
@@ -458,23 +445,22 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col)
 // when the first row leg quantity or leg expiry date changes then those changes get 
 // populated to the other three rows in the trade grid.
 // ========================================================================================
-void TradeGrid_PopulateTriggerCells(HWND hWnd, auto col)
-{
-    TradeGrid* pData = TradeGrid_GetOptions(hWnd);
-    if (pData == nullptr) return;
+void TradeGrid_PopulateTriggerCells(HWND hwnd, auto col) {
+    TradeGrid* pData = TradeGrid_GetOptions(hwnd);
+    if (!pData) return;
 
-    std::wstring wszCellText = TradeGrid_GetText(hWnd, 0, 0);
+    std::wstring wszCellText = TradeGrid_GetText(hwnd, 0, 0);
     
-    int offset = (pData->bShowOriginalQuantity) ? 1 : 0;
+    int offset = (pData->show_original_quantity) ? 1 : 0;
 
-    std::wstring wszISODate = CustomLabel_GetUserData(pData->gridCols.at(1+offset)->hCtl);
+    std::wstring iso_date = CustomLabel_GetUserData(pData->gridCols.at(1+offset)->hCtl);
     std::wstring text;
 
     for (int i = 1; i < 4; ++i) {
         if (col->colType == GridColType::DatePicker) {
-            text = TradeGrid_GetText(hWnd, i, 1);
+            text = TradeGrid_GetText(hwnd, i, 1);
             if (text.length() != 0) {
-                TradeGrid_SetColData(hWnd, i, 1, wszISODate);
+                TradeGrid_SetColData(hwnd, i, 1, iso_date);
             }
         }
     }
@@ -484,19 +470,16 @@ void TradeGrid_PopulateTriggerCells(HWND hWnd, auto col)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK TradeGridProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     TradeGrid* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
-        pData = (TradeGrid*)GetWindowLongPtr(hWnd, 0);
+        pData = (TradeGrid*)GetWindowLongPtr(hwnd, 0);
     }
 
+    switch (uMsg) {
 
-    switch (uMsg)
-    {
-
-    case WM_COMMAND:
+    case WM_COMMAND: {
         if (HIWORD(wParam) == EN_KILLFOCUS) {
             // A textbox in the grid has lost focus. Determine if this window has
             // the isTriggerCell flag set to true that will then populate its value
@@ -505,7 +488,7 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             for (const auto& col : pData->gridCols) {
                 if (col->hCtl == hCtl) {
                     if (col->isTriggerCell == true) {
-                        TradeGrid_PopulateTriggerCells(hWnd, col);
+                        TradeGrid_PopulateTriggerCells(hwnd, col);
                     }
                     break;
                 }
@@ -513,42 +496,38 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             return 0;
         }
         break;
+    }
 
-
-    case MSG_DATEPICKER_DATECHANGED:
-    {
+    case MSG_DATEPICKER_DATECHANGED: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
-        if (hCtl == NULL) return 0;
+        if (!hCtl) return 0;
 
         // If this date cell has the isTriggerCell then send a message to the parent to
         // populate the other rows in the grid with this new date data.
         for (const auto& col : pData->gridCols) {
-            if (col->idCtrl == CtrlId) {
+            if (col->ctrl_id == ctrl_id) {
                 if (col->isTriggerCell == true) {
-                    TradeGrid_PopulateTriggerCells(hWnd, col);
+                    TradeGrid_PopulateTriggerCells(hwnd, col);
                 }
                 break;
             }
         }
 
-        TradeGrid_CalculateDTE(hWnd);
+        TradeGrid_CalculateDTE(hwnd);
         return 0;
     }
-    break;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
-        if (hCtl == NULL) return 0;
+        if (!hCtl) return 0;
 
         // Find the data for the table cell that was clicked on
         for (const auto& col : pData->gridCols) {
-            if (col->idCtrl == CtrlId) {
+            if (col->ctrl_id == ctrl_id) {
 
                 if (col->colType == GridColType::DatePicker) {
                     TradeGrid_OnClickDatePicker(pData, col);
@@ -575,22 +554,16 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         }
         return 0;
     }
-    break;
 
-
-    case WM_ERASEBKGND:
-    {
+    case WM_ERASEBKGND: {
         // Handle all of the painting in WM_PAINT
-        return TRUE;
+        return true;
     }
-    break;
 
-
-    case WM_PAINT:
-    {
+    case WM_PAINT: {
         PAINTSTRUCT ps;
 
-        HDC hdc = BeginPaint(hWnd, &ps);
+        HDC hdc = BeginPaint(hwnd, &ps);
         if (pData) {
             SaveDC(hdc);
 
@@ -599,19 +572,19 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             SelectBitmap(memDC, hbit);
 
             Graphics graphics(memDC);
-            int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-            int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+            int width = (ps.rcPaint.right - ps.rcPaint.left);
+            int height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
             Color back_color(pData->back_color);
             SolidBrush back_brush(back_color);
-            graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+            graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
             // Portion that displays behind the grid reset icons must be the same color
             // as the main TradeDialog.
             int nIconWidth = AfxScaleX(TRADEGRID_LINERESETICONWIDTH);
             back_color.SetValue(COLOR_GRAYDARK);
             back_brush.SetColor(back_color);
-            graphics.FillRectangle(&back_brush, ps.rcPaint.right - nIconWidth, ps.rcPaint.top, nIconWidth, nHeight);
+            graphics.FillRectangle(&back_brush, ps.rcPaint.right - nIconWidth, ps.rcPaint.top, nIconWidth, height);
 
             // Copy the entire memory bitmap to the main display
             BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -623,14 +596,11 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             DeleteObject(hbit);
             DeleteDC(memDC);
         }
-        EndPaint(hWnd, &ps);
+        EndPaint(hwnd, &ps);
         return 0;
     }
-    break;
 
-
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         if (wParam == VK_UP || wParam == VK_DOWN) {
             int direction = 0;
             if (wParam == VK_UP) direction = -7;   // up 1 row (minus 7 columns)
@@ -656,59 +626,52 @@ LRESULT CALLBACK TradeGridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
                 SetFocus(pData->gridCols.at(idx)->hCtl);
             }
 
-            return TRUE;
+            return true;
         }
 
         if (wParam == VK_TAB) {
             HWND hFocus = GetFocus();
             HWND hNextCtrl = NULL;
             if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-                hNextCtrl = GetNextDlgTabItem(hWnd, hFocus, TRUE);
+                hNextCtrl = GetNextDlgTabItem(hwnd, hFocus, true);
             }
             else {
-                hNextCtrl = GetNextDlgTabItem(hWnd, hFocus, FALSE);
+                hNextCtrl = GetNextDlgTabItem(hwnd, hFocus, false);
             }
             SetFocus(hNextCtrl);
-            return TRUE;
+            return true;
         }
+        
+        break;
     }
-    break;
 
-
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         if (pData) {
             for (auto& col : pData->gridCols) {
                 delete(col);
             }
         }
+        break;
     }
-    break;
 
-
-    case WM_NCDESTROY:
-    {
+    case WM_NCDESTROY: {
         if (pData) {
             DeleteBrush(pData->hback_brush);
             delete(pData);
         }
+        break;
     }
-    break;
 
-
-    default:
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
-    return 0;
 
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Get the custom control data pointer.
 // ========================================================================================
-TradeGrid* TradeGrid_GetOptions(HWND hCtrl)
-{
+TradeGrid* TradeGrid_GetOptions(HWND hCtrl) {
     TradeGrid* pData = (TradeGrid*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
@@ -717,13 +680,10 @@ TradeGrid* TradeGrid_GetOptions(HWND hCtrl)
 // ========================================================================================
 // Store the custom control data pointer.
 // ========================================================================================
-int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData)
-{
-    if (pData == nullptr) return 0;
-
+int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData) {
+    if (!pData) return 0;
     SetWindowLongPtr(hCtrl, 0, (LONG_PTR)pData);
     AfxRedrawWindow(hCtrl);
-
     return 0;
 }
 
@@ -733,12 +693,12 @@ int TradeGrid_SetOptions(HWND hCtrl, TradeGrid* pData)
 // ========================================================================================
 HWND CreateTradeGrid(
     HWND hWndParent,
-    LONG_PTR CtrlId,
-    int nLeft,
-    int nTop,
-    int nWidth,
-    int nHeight,
-    bool bShowOriginalQuantity)
+    LONG_PTR ctrl_id,
+    int left,
+    int top,
+    int width,
+    int height,
+    bool show_original_quantity)
 {
     std::wstring class_name_text(L"TRADEGRID_CONTROL");
 
@@ -765,12 +725,11 @@ HWND CreateTradeGrid(
     float rx = AfxScaleRatioX();
     float ry = AfxScaleRatioY();
 
-
     HWND hCtl =
         CreateWindowEx(0, class_name_text.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-            (int)(nLeft * rx), (int)(nTop * ry), (int)(nWidth * rx), (int)(nHeight * ry),
-            hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
+            (int)(left * rx), (int)(top * ry), (int)(width * rx), (int)(height * ry),
+            hWndParent, (HMENU)ctrl_id, hInst, (LPVOID)NULL);
 
     if (hCtl) {
         TradeGrid* pData = new TradeGrid;
@@ -778,10 +737,10 @@ HWND CreateTradeGrid(
         pData->hWindow = hCtl;
         pData->hParent = hWndParent;
         pData->hInst = hInst;
-        pData->CtrlId = (int)CtrlId;
+        pData->ctrl_id = (int)ctrl_id;
         pData->back_color = COLOR_BLACK;
         pData->hback_brush = CreateSolidBrush(pData->back_color);
-        pData->bShowOriginalQuantity = bShowOriginalQuantity;
+        pData->show_original_quantity = show_original_quantity;
 
         TradeGrid_PopulateColumns(pData);
         TradeGrid_SetOptions(hCtl, pData);
@@ -789,5 +748,3 @@ HWND CreateTradeGrid(
 
     return hCtl;
 }
-
-

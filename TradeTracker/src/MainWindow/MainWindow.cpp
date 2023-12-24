@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -65,7 +65,7 @@ CMainWindowShadow Shadow;
 CMainWindow Main;
 
 RECT rcSplitter{};
-bool isDragging = false;    // If dragging our splitter
+bool is_dragging = false;    // If dragging our splitter
 POINT prev_pt{};            // for tracking current splitter drag
 
 
@@ -73,8 +73,7 @@ POINT prev_pt{};            // for tracking current splitter drag
 // Set the HWND for the panel that will display on the right side of the MainWindow.
 // Also place it into position and hide previous HWND of right panel.
 // ========================================================================================
-void MainWindow_SetRightPanel(HWND hPanel)
-{
+void MainWindow_SetRightPanel(HWND hPanel) {
     // If the incoming panel is already set as the right panel then simply exit.
     if (hPanel == HWND_RIGHTPANEL) return;
 
@@ -94,8 +93,7 @@ void MainWindow_SetRightPanel(HWND hPanel)
 // Set the HWND for the panel that will display in the left of the MainWindow.
 // Also place it into position and hide previous HWND of left panel.
 // ========================================================================================
-void MainWindow_SetLeftPanel(HWND hPanel)
-{
+void MainWindow_SetLeftPanel(HWND hPanel) {
     // If the incoming panel is already set as the middle panel then simply exit.
     if (hPanel == HWND_LEFTPANEL) return;
 
@@ -118,8 +116,7 @@ void MainWindow_SetLeftPanel(HWND hPanel)
 // into if the user is not distracted by the MainWindow menu panel, trades and history
 // data displaying behind the popup.
 // ========================================================================================
-void MainWindow_BlurPanels(bool active)
-{
+void MainWindow_BlurPanels(bool active) {
     if (isWineActive()) return;
 
     if (active) {
@@ -143,20 +140,17 @@ void MainWindow_BlurPanels(bool active)
         SetWindowPos(Shadow.WindowHandle(), 0,
             rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-        
     }
     else {
         ShowWindow(Shadow.WindowHandle(), SW_HIDE);
     }
-
 }
 
 
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnClose(HWND hwnd)
-{
+void MainWindow_OnClose(HWND hwnd) {
     // Disconnect from IBKR TWS and shut down monitoring thread.
     tws_Disconnect();
 
@@ -178,8 +172,7 @@ void MainWindow_OnClose(HWND hwnd)
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnDestroy(HWND hwnd)
-{
+void MainWindow_OnDestroy(HWND hwnd) {
     // Quit the application
     PostQuitMessage(0);
 }
@@ -188,20 +181,18 @@ void MainWindow_OnDestroy(HWND hwnd)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: MainWindow
 // ========================================================================================
-BOOL MainWindow_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool MainWindow_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     // We do not need to paint the background because the full client area will always
     // be covered by child windows (NavPanel, Trades Panel, History Panel)
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnPaint(HWND hwnd)
-{
+void MainWindow_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -211,9 +202,9 @@ void MainWindow_OnPaint(HWND hwnd)
     // Create the background brush
     SolidBrush back_brush(COLOR_BLACK);
 
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -222,8 +213,7 @@ void MainWindow_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     // Position all of the child windows
     if (state == SIZE_MINIMIZED) return;
     
@@ -249,22 +239,22 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 
     // Position the Warning label
-    //HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
-    //int nTop = AfxScaleY(20);
-    //int nHeight = AfxScaleY(16);
-    //int nWidth = middle_panel_width; 
-    //DeferWindowPos(hdwp, hCtl, 0, left_panel_width, cy - nTop, nWidth, nHeight, SWP_NOZORDER);
+    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
+    int top = AfxScaleY(20);
+    int height = AfxScaleY(16);
+    int width = left_panel_width; 
+    DeferWindowPos(hdwp, hCtl, 0, 0, cy - top, width, height, SWP_NOZORDER);
 
     // Move the bottom TabPanel into place
-    int nHeight = AfxScaleY(TABPANEL_HEIGHT);
-    int nTop = nHeight;
-    int nWidth = left_panel_width; 
-    DeferWindowPos(hdwp, HWND_TABPANEL, 0, 0, cy - nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    height = AfxScaleY(TABPANEL_HEIGHT);
+    top = height;
+    width = left_panel_width; 
+    DeferWindowPos(hdwp, HWND_TABPANEL, 0, 0, cy - top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Position the Update Available label
-    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
-    nWidth = right_panel_width; 
-    DeferWindowPos(hdwp, hCtl, 0, cx - right_panel_width, cy - nTop, nWidth - SPLITTER_WIDTH, nHeight, SWP_NOZORDER);
+    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
+    width = right_panel_width; 
+    DeferWindowPos(hdwp, hCtl, 0, cx - right_panel_width, cy - top, width - SPLITTER_WIDTH, height, SWP_NOZORDER);
 
     EndDeferWindowPos(hdwp);
 
@@ -273,15 +263,13 @@ void MainWindow_OnSize(HWND hwnd, UINT state, int cx, int cy)
     rcSplitter.top = 0;
     rcSplitter.right = rcSplitter.left + SPLITTER_WIDTH;
     rcSplitter.bottom = cy;
-
 }
 
 
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: MainWindow
 // ========================================================================================
-BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_MAINWINDOW = hwnd;
 
     HWND_RIGHTPANEL = TradeHistory.Create(hwnd, L"", 0, 0, GetStartupRightPanelWidth(), 0,
@@ -320,7 +308,6 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-
     // Create a Warning label at bottom of the MainWindow to display warning messages.
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"", COLOR_YELLOW, COLOR_RED,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
@@ -333,33 +320,31 @@ BOOL MainWindow_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
     ShowWindow(hCtl, SW_HIDE);
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Determine if mouse cursor is over our splitter control area.
 // ========================================================================================
-bool IsMouseOverSplitter(HWND hwnd)
-{
+bool IsMouseOverSplitter(HWND hwnd) {
     POINT pt; GetCursorPos(&pt);
     MapWindowPoints(HWND_DESKTOP, hwnd, (POINT*)&pt, 1);
 
     if (PtInRect(&rcSplitter, pt)) {
         SetCursor(LoadCursor(NULL, (LPCWSTR)IDC_SIZEWE));
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
 // ========================================================================================
 // Process WM_LBUTTONDOWN message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
-{
+void MainWindow_OnLButtonDown(HWND hwnd, bool fDoubleClick, int x, int y, UINT keyFlags) {
     if (IsMouseOverSplitter(hwnd)) {
-        isDragging = true;
+        is_dragging = true;
         prev_pt.x = x;
         SetCapture(hwnd);
     }
@@ -369,9 +354,8 @@ void MainWindow_OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 // ========================================================================================
 // Update the panel sizes based the completed splitter action.
 // ========================================================================================
-void UpdateSplitterChildren(HWND hwnd, int xDelta)
-{
-    int right_panel_width = AfxGetWindowWidth(HWND_RIGHTPANEL) + xDelta;
+void UpdateSplitterChildren(HWND hwnd, int xdelta) {
+    int right_panel_width = AfxGetWindowWidth(HWND_RIGHTPANEL) + xdelta;
     int right_panel_height = AfxGetWindowHeight(HWND_RIGHTPANEL);
     SetWindowPos(HWND_RIGHTPANEL, 0,
         0, 0, right_panel_width, right_panel_height, SWP_NOZORDER | SWP_NOMOVE);
@@ -387,20 +371,18 @@ void UpdateSplitterChildren(HWND hwnd, int xDelta)
 // ========================================================================================
 // Process WM_MOUSEMOVE message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
-{
-    if (isDragging) {
+void MainWindow_OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags) {
+    if (is_dragging) {
         // Calculate the change between mouse movements and resize
         // the child windows accordingly.
-        int xDelta = prev_pt.x - x;
+        int xdelta = prev_pt.x - x;
 
         // Only reposition after a cummulative greater than 3 pixel move
         // in order to reduce the amount of screen updating.
-        if (abs(xDelta) > 3) {
-            UpdateSplitterChildren(hwnd, xDelta);
+        if (abs(xdelta) > 3) {
+            UpdateSplitterChildren(hwnd, xdelta);
             prev_pt.x = x;
         }
-
     }
 }
 
@@ -408,12 +390,11 @@ void MainWindow_OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
 // ========================================================================================
 // Process WM_LBUTTONUP message for window/dialog: MainWindow
 // ========================================================================================
-void MainWindow_OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
-{
-    if (isDragging) {
-        isDragging = false;
-        int xDelta = prev_pt.x - x;
-        UpdateSplitterChildren(hwnd, xDelta);
+void MainWindow_OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags) {
+    if (is_dragging) {
+        is_dragging = false;
+        int xdelta = prev_pt.x - x;
+        UpdateSplitterChildren(hwnd, xdelta);
         ReleaseCapture();
     }
 }
@@ -422,18 +403,16 @@ void MainWindow_OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
 // ========================================================================================
 // Process WM_SETCURSOR message for window/dialog: MainWindow
 // ========================================================================================
-BOOL MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT msg)
-{
+bool MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT msg) {
     LPWSTR curId = IDC_ARROW;
 
     // Determine if the mouse is over our "splitter control"
     if (IsMouseOverSplitter(hwnd)) {
         SetCursor(LoadCursor(NULL, (LPCWSTR)IDC_SIZEWE));
-        return TRUE;
+        return true;
     }
 
-    switch (codeHitTest)
-    {
+    switch (codeHitTest) {
     case HTTOPRIGHT:
     case HTBOTTOMLEFT:
         curId = IDC_SIZENESW;
@@ -459,15 +438,14 @@ BOOL MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT m
     }
 
     SetCursor(LoadCursor(NULL, (LPCWSTR)curId));
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Close combobox popup menus when ESCAPE is pressed or application loses focus.
 // ========================================================================================
-void MainWindow_CloseComboPopups()
-{
+void MainWindow_CloseComboPopups() {
     if (IsWindowVisible(HWND_TRANSDATEFILTER)) {
         DestroyWindow(HWND_TRANSDATEFILTER);
     }
@@ -489,10 +467,8 @@ void MainWindow_CloseComboPopups()
 // ========================================================================================
 // Windows callback function (MainWindow).
 // ========================================================================================
-LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, MainWindow_OnCreate);
         HANDLE_MSG(m_hwnd, WM_CLOSE, MainWindow_OnClose);
         HANDLE_MSG(m_hwnd, WM_DESTROY, MainWindow_OnDestroy);
@@ -504,9 +480,7 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_LBUTTONUP, MainWindow_OnLButtonUp);
         HANDLE_MSG(m_hwnd, WM_SETCURSOR, MainWindow_OnSetCursor);
 
-
-    case WM_ACTIVATEAPP:
-    {
+    case WM_ACTIVATEAPP: {
         // Application is losing focus so destroy any visible popup
         // combobox popups.
         if (wParam == false) {
@@ -515,11 +489,8 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     }
-    break;
 
-
-    case WM_SHOWWINDOW:
-    {
+    case WM_SHOWWINDOW: {
         // Workaround for the Windows white flashing bug.
         // https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
 
@@ -527,8 +498,7 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             GWL_EXSTYLE,
             GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
-        {
+        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL)) {
             HDC hdc = GetDC(m_hwnd);
             SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
             DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
@@ -543,26 +513,22 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
-    break;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
         if (hCtl == NULL) return 0;
 
-        if (CtrlId == IDC_MAINWINDOW_UPDATEAVAILABLE) {
+        if (ctrl_id == IDC_MAINWINDOW_UPDATEAVAILABLE) {
             ShowReleasesWebPage();
         }
         return 0;
     }
-    break;
 
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 

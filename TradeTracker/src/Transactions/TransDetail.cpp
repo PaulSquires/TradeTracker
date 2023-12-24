@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -51,11 +51,10 @@ CTransDetail TransDetail;
 // ========================================================================================
 // Retrieve the Leg pointer based on a leg's backPointerID.
 // ========================================================================================
-std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int backPointerID)
-{
+std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id) {
     for (auto trans : trade->transactions) {
         for (auto leg : trans->legs) {
-            if (leg->leg_id == backPointerID) {
+            if (leg->leg_id == back_pointer_id) {
                 return leg;
             }
         }
@@ -67,10 +66,9 @@ std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade,
 // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit it.
 // ========================================================================================
-void TransDetail_EditTransaction(HWND hwnd)
-{
-    if (tradeEditDelete == nullptr) return;
-    if (transEditDelete == nullptr) return;
+void TransDetail_EditTransaction(HWND hwnd) {
+    if (!tradeEditDelete) return;
+    if (!transEditDelete) return;
 
     tdd.legs.clear();
     tdd.legs = transEditDelete->legs;
@@ -83,10 +81,9 @@ void TransDetail_EditTransaction(HWND hwnd)
 // ========================================================================================
 // Delete (after confirmation) the selected Transaction.
 // ========================================================================================
-void TransDetail_DeleteTransaction(HWND hwnd)
-{
-    if (tradeEditDelete == nullptr) return;
-    if (transEditDelete == nullptr) return;
+void TransDetail_DeleteTransaction(HWND hwnd) {
+    if (!tradeEditDelete) return;
+    if (!transEditDelete) return;
 
     int res = MessageBox(
         HWND_TRANSDETAIL,
@@ -100,11 +97,9 @@ void TransDetail_DeleteTransaction(HWND hwnd)
     // transaction that we need to delete.
     for (auto trade : trades) {
         auto iter = trade->transactions.begin();
-        while (iter != trade->transactions.end())
-        {
+        while (iter != trade->transactions.end()) {
             // If element matches the element to be deleted then delete it
-            if (*iter == transEditDelete)
-            {
+            if (*iter == transEditDelete) {
                 // Cycle through the legs being deleted to see if any contains a leg backpointer.
                 // If yes, then retrieve the leg related to that pointer and update its open
                 // quantity amount. Backpointers exist for Transactions that modify quantity
@@ -154,8 +149,7 @@ void TransDetail_DeleteTransaction(HWND hwnd)
 // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit/Delete it.
 // ========================================================================================
-void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans)
-{
+void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans) {
     tradeEditDelete = trade;
     transEditDelete = trans;
 
@@ -166,7 +160,7 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
     // Ensure that the Transaction panel is set
     MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
-    if (trade == nullptr) {
+    if (!trade) {
         CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1), L"");
         CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), L"");
         CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), L"");
@@ -203,7 +197,6 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
     CustomLabel_SetText(
         GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), text);
 
-
     // Show the detail leg information for this transaction.
     for (const auto& leg : trans->legs) {
         if (leg->underlying == L"OPTIONS") { 
@@ -238,110 +231,100 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
     // Create static accumulation variable to collect the data from
     // a series of middle mouse wheel scrolls.
-    static int accumDelta = 0;
+    static int accum_delta = 0;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_MOUSEWHEEL:
-    {
+    case WM_MOUSEWHEEL: {
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
-        accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
+        int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
+        accum_delta += zdelta;
+        if (accum_delta >= 120) {     // scroll up 3 lines
             top_index -= 3;
             top_index = max(0, top_index);
-            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-            accumDelta = 0;
+            SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+            accum_delta = 0;
         }
         else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
+            if (accum_delta <= -120) {     // scroll down 3 lines
                 top_index += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-                accumDelta = 0;
+                SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+                accum_delta = 0;
             }
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
-        break;
     }
 
-
-    case WM_ERASEBKGND:
-    {
+    case WM_ERASEBKGND: {
         // If the number of lines in the listbox maybe less than the number per page then 
         // calculate from last item to bottom of listbox, otherwise calculate based on
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
-        RECT rc; GetClientRect(hWnd, &rc);
+        RECT rc; GetClientRect(hwnd, &rc);
 
         RECT rcItem{};
-        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
-        int items_count = ListBox_GetCount(hWnd);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hwnd);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;
-        int nWidth = (rc.right - rc.left);
-        int nHeight = (rc.bottom - rc.top);
+        int width = (rc.right - rc.left);
+        int height = (rc.bottom - rc.top);
 
         if (items_count > 0) {
-            items_per_page = (nHeight) / itemHeight;
+            items_per_page = (height) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
             visible_rows = (bottom_index - top_index) + 1;
-            rc.top = visible_rows * itemHeight;
+            rc.top = visible_rows * item_height;
         }
 
         if (rc.top < rc.bottom) {
-            nHeight = (rc.bottom - rc.top);
+            height = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             Color back_color(COLOR_GRAYDARK);
             SolidBrush back_brush(back_color);
-            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
         }
 
-        ValidateRect(hWnd, &rc);
-        return TRUE;
-        break;
-
+        ValidateRect(hwnd, &rc);
+        return true;
     }
 
-
-    case WM_DESTROY:
+    case WM_DESTROY: {
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
-        ListBoxData_DestroyItemData(hWnd);
+        ListBoxData_DestroyItemData(hwnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransDetail_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TransDetail_ListBox_SubclassProc, uIdSubclass);
         break;
-
+    }
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransDetail
 // ========================================================================================
-void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
-{
+void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(TRANSDETAIL_LISTBOX_ROWHEIGHT);
 }
 
@@ -349,18 +332,16 @@ void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TransDetail
 // ========================================================================================
-BOOL TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TransDetail
 // ========================================================================================
-void TransDetail_OnPaint(HWND hwnd)
-{
+void TransDetail_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -372,9 +353,9 @@ void TransDetail_OnPaint(HWND hwnd)
     SolidBrush back_brush(back_color);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -383,45 +364,44 @@ void TransDetail_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TransDetail
 // ========================================================================================
-void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HWND hListBox = GetDlgItem(hwnd, IDC_TRANSDETAIL_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
 
     int margin = AfxScaleY(TRANSDETAIL_MARGIN);
-    int nTop = 0;
-    int nLeft = 0;
-    int nButtonWidth = AfxScaleX(80);
-    int nButtonHeight = AfxScaleX(23);
+    int top = 0;
+    int left = 0;
+    int button_width = AfxScaleX(80);
+    int button_height = AfxScaleX(23);
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
     // Move and size the top label into place
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LABEL1), 0,
-        0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        0, top, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop += margin;
+    top += margin;
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_SYMBOL), 0,
-        0, nTop, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        0, top, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop += margin;
+    top += margin;
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LBLCOST), 0,
-        0, nTop, cx - (nButtonWidth * 2) - AfxScaleX(8), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
+        0, top, cx - (button_width * 2) - AfxScaleX(8), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = cx - (nButtonWidth * 2) - AfxScaleX(8);
+    left = cx - (button_width * 2) - AfxScaleX(8);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDEDIT), 0,
-        nLeft, nTop, nButtonWidth, nButtonHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top, button_width, button_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = cx - nButtonWidth;
+    left = cx - button_width;
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDDELETE), 0,
-        nLeft, nTop, nButtonWidth, nButtonHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top, button_width, button_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
-    if (pData != nullptr) {
+    if (pData) {
         if (pData->drag_active) {
             bshow_scrollbar = true;
         }
@@ -431,15 +411,15 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
-    nTop = AfxScaleY(80);
-    nLeft = 0;
-    int nWidth = cx - custom_scrollbar_width;
-    int nHeight = cy - nTop;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = AfxScaleY(80);
+    left = 0;
+    int width = cx - custom_scrollbar_width;
+    int height = cy - top;
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    left = left + width;   // right edge of ListBox
+    width = custom_scrollbar_width;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
@@ -449,8 +429,7 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TransDetail
 // ========================================================================================
-BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TRANSDETAIL = hwnd;
 
     std::wstring font_name = AfxGetDefaultFont();
@@ -464,7 +443,6 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRANSDETAIL_LBLCOST, L"",
         COLOR_WHITEDARK, COLOR_BLACK);
-
 
     // EDIT button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANSDETAIL_CMDEDIT, L"EDIT",
@@ -495,17 +473,15 @@ BOOL TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TransDetail_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDetail_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TransDetail_OnPaint);
@@ -513,28 +489,25 @@ LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDetail_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
         if (hCtl == NULL) return 0;
 
-        if (CtrlId == IDC_TRANSDETAIL_CMDEDIT) {
+        if (ctrl_id == IDC_TRANSDETAIL_CMDEDIT) {
             TransDetail_EditTransaction(m_hwnd);
             return 0;
         }
 
-        if (CtrlId == IDC_TRANSDETAIL_CMDDELETE) {
+        if (ctrl_id == IDC_TRANSDETAIL_CMDDELETE) {
             TransDetail_DeleteTransaction(m_hwnd);
         }
         return 0;
+    }
 
     }
 
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
-    }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 

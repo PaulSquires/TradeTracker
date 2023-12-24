@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -45,18 +45,16 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TradePlan
 // ========================================================================================
-BOOL TradePlan_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TradePlan_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TradePlan
 // ========================================================================================
-void TradePlan_OnPaint(HWND hwnd)
-{
+void TradePlan_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -67,9 +65,9 @@ void TradePlan_OnPaint(HWND hwnd)
     SolidBrush back_brush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -78,14 +76,12 @@ void TradePlan_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: TradePlan
 // ========================================================================================
-void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
+void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     static bool is_notes_dirty = false;
     static std::wstring notes = L"";
 
-    switch (id)
-    {
-    case (IDC_TRADEPLAN_TXTNOTES):
+    switch (id) {
+    case IDC_TRADEPLAN_TXTNOTES: {
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
 
@@ -97,19 +93,18 @@ void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             }
             break;
         }
-
-        if (codeNotify == EN_CHANGE) {
+        else if (codeNotify == EN_CHANGE) {
             notes = AfxGetWindowText(hwndCtl);
             is_notes_dirty = true;
             break;
         }
-
-        if (codeNotify == EN_SETFOCUS) {
+        else if (codeNotify == EN_SETFOCUS) {
             is_notes_dirty = false;
             break;
         }
 
         break;
+    }
 
     }
 }
@@ -118,8 +113,7 @@ void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TradePlan
 // ========================================================================================
-void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HWND hNotesLabel = GetDlgItem(hwnd, IDC_TRADEPLAN_LBLNOTES);
     HWND hNotesTextBox = GetDlgItem(hwnd, IDC_TRADEPLAN_TXTNOTES);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADEPLAN_CUSTOMVSCROLLBAR);
@@ -129,7 +123,7 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Do not call the calcVThumbRect() function during a scrollbar move. 
     bool show_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
-    if (pData != nullptr) {
+    if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
         }
@@ -138,7 +132,6 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy)
         }
     }
     int custom_scrollbar_width = show_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
-
 
     // Move and size the top label into place
     int height_notes_label = AfxScaleY(24);
@@ -161,8 +154,7 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TradePlan
 // ========================================================================================
-BOOL TradePlan_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TradePlan_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TRADEPLAN = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEPLAN_LBLNOTES, L"Trade Plan",
@@ -178,33 +170,29 @@ BOOL TradePlan_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hScrollBar = CreateCustomVScrollBar(hwnd, IDC_TRADEPLAN_CUSTOMVSCROLLBAR, hCtl, Controls::MultilineTextBox);
     CustomTextBox_AttachScrollBar(hCtl, hScrollBar);
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTradePlan::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTradePlan::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TradePlan_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradePlan_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradePlan_OnPaint);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TradePlan_OnCommand);
         HANDLE_MSG(m_hwnd, WM_SIZE, TradePlan_OnSize);
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Display the TradePlan side panel.
 // ========================================================================================
-void TradePlan_ShowTradePlan()
-{
+void TradePlan_ShowTradePlan() {
     HWND hTextBox = GetDlgItem(HWND_TRADEPLAN, IDC_TRADEPLAN_TXTNOTES);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEPLAN, IDC_TRADEPLAN_CUSTOMVSCROLLBAR);
 

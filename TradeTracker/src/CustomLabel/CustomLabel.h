@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -30,8 +30,7 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 
 
-enum class CustomLabelType
-{
+enum class CustomLabelType {
 	text_only,
 	image_only,
 	image_and_text,
@@ -39,8 +38,7 @@ enum class CustomLabelType
 	line_vertical
 };
 
-enum class CustomLabelAlignment
-{
+enum class CustomLabelAlignment {
 	// Text alignment
 	middle_center,
 	middle_left,
@@ -53,23 +51,13 @@ enum class CustomLabelAlignment
 	bottom_right
 };
 
-enum class CustomLabelPointer
-{
+enum class CustomLabelPointer {
 	arrow,
 	hand
 };
 
 
-class CustomLabel
-{
-private:
-	HDC m_memDC = NULL;           // Double buffering
-	HBITMAP m_hbit = NULL;        // Double buffering
-	RECT m_rcClient{};
-	float m_rx = 0;
-	float m_ry = 0;
-	bool m_is_hot = false;
-
+class CustomLabel {
 public:
 	HWND hWindow = NULL;
 	HWND hParent = NULL;
@@ -86,8 +74,8 @@ public:
 	DWORD selected_underline_color{};
 	int selected_underline_width = 1;
 
-	int CtrlId = 0;
-	CustomLabelType CtrlType = CustomLabelType::text_only;
+	int ctrl_id = 0;
+	CustomLabelType ctrl_type = CustomLabelType::text_only;
 	bool hot_test_enable = false;
 	DWORD back_color{};
 	DWORD back_color_hot{};
@@ -120,7 +108,7 @@ public:
 	// Text Normal
 	std::wstring text{};
 	std::wstring font_name{};
-	REAL font_size = 0;
+	REAL font_size = 9;
 	bool font_bold = false;
 	bool font_italic = false;
 	bool font_underline = false;
@@ -130,7 +118,7 @@ public:
 	// Text Hot
 	std::wstring text_hot{};
 	std::wstring font_name_hot{};
-	REAL font_size_hot = 0;
+	REAL font_size_hot = 9;
 	bool font_bold_hot = false;
 	bool font_italic_hot = false;
 	bool font_underline_hot = false;
@@ -145,6 +133,13 @@ public:
 	void DrawBordersInBuffer();
 	void EndDoubleBuffering(HDC hdc);
 
+private:
+	HDC m_memDC = NULL;           // Double buffering
+	HBITMAP m_hbit = NULL;        // Double buffering
+	RECT m_rcClient{};
+	float m_rx = 0;
+	float m_ry = 0;
+	bool is_hot = false;
 };
 
 
@@ -162,44 +157,44 @@ void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD text_colorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, DWORD back_color);
 void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD back_color_hot);
 void CustomLabel_SetBackColorSelected(HWND hCtrl, DWORD back_color_selected);
-void CustomLabel_SetBorderColor(HWND hCtrl, DWORD BorderColor);
-void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD BorderColorHot);
+void CustomLabel_SetBorderColor(HWND hCtrl, DWORD border_color);
+void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD border_color_hot);
 DWORD CustomLabel_GetBackColor(HWND hCtrl);
-void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool FontBold);
-void CustomLabel_SetFontHot(HWND hCtrl, std::wstring font_name, int font_size, bool FontBold);
+void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool font_bold);
+void CustomLabel_SetFontHot(HWND hCtrl, std::wstring font_name, int font_size, bool font_bold);
 void CustomLabel_SetUserData(HWND hCtrl, std::wstring text);
 std::wstring CustomLabel_GetUserData(HWND hCtrl);
 void CustomLabel_SetUserDataInt(HWND hCtrl, int value);
 int CustomLabel_GetUserDataInt(HWND hCtrl);
-void CustomLabel_SetBorder(HWND hCtrl, REAL BorderWidth, DWORD BorderColor, DWORD BorderColorHot);
+void CustomLabel_SetBorder(HWND hCtrl, REAL border_width, DWORD border_color, DWORD border_color_hot);
 void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetImageOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
-void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer NormalPointer, CustomLabelPointer HotPointer);
+void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer normal_pointer, CustomLabelPointer hot_pointer);
 void CustomLabel_SetImages(HWND hCtrl, int image_id, int image_hot_id);
 
-HWND CustomLabel_SimpleLabel(HWND hParent, int CtrlId, std::wstring text,
+HWND CustomLabel_SimpleLabel(HWND hParent, int ctrl_id, std::wstring text,
 	DWORD text_color, DWORD back_color, CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
-	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+	int left = 0, int top = 0, int width = 0, int height = 0);
 
-HWND CustomLabel_HorizontalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
-	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+HWND CustomLabel_HorizontalLine(HWND hParent, int ctrl_id, DWORD line_color, DWORD back_color,
+	int left = 0, int top = 0, int width = 0, int height = 0);
 
-HWND CustomLabel_VerticalLine(HWND hParent, int CtrlId, DWORD line_color, DWORD back_color,
-	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+HWND CustomLabel_VerticalLine(HWND hParent, int ctrl_id, DWORD line_color, DWORD back_color,
+	int left = 0, int top = 0, int width = 0, int height = 0);
 
-HWND CustomLabel_ButtonLabel(HWND hParent, int CtrlId, std::wstring text,
-	DWORD text_color, DWORD back_color, DWORD back_color_hot, DWORD back_color_button_down, DWORD FocusBorderColor,
+HWND CustomLabel_ButtonLabel(HWND hParent, int ctrl_id, std::wstring text,
+	DWORD text_color, DWORD back_color, DWORD back_color_hot, DWORD back_color_button_down, DWORD focus_border_color,
 	CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
-	int nLeft = 0, int nTop = 0, int nWidth = 0, int nHeight = 0);
+	int left = 0, int top = 0, int width = 0, int height = 0);
 
 	
-HWND CustomLabel_SimpleImageLabel(HWND hParent, int CtrlId,
+HWND CustomLabel_SimpleImageLabel(HWND hParent, int ctrl_id,
 	int image_id, int image_hot_id,
 	int image_width, int image_height,
-	int nLeft, int nTop, int nWidth, int nHeight);
+	int left, int top, int width, int height);
 
-HWND CreateCustomLabel(HWND hWndParent, LONG_PTR CtrlId, CustomLabelType nCtrlType,
-	int nLeft, int nTop, int nWidth, int nHeight);
+HWND CreateCustomLabel(HWND hWndParent, LONG_PTR ctrl_id, CustomLabelType ctrl_type,
+	int left, int top, int width, int height);
 
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype);
 

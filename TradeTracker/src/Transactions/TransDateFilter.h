@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -40,8 +40,7 @@ extern CTransDateFilter TransDateFilter;
 extern HWND HWND_TRANSDATEFILTER;
 
 
-enum class TransDateFilterType
-{
+enum class TransDateFilterType {
     Today,
     Yesterday,
     Days7,

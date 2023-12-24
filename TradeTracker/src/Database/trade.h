@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -52,9 +52,9 @@ public:
     int          open_quantity = 0;
     std::wstring expiry_date   = L"";
     std::wstring strike_price  = L"";
-    std::wstring PutCall      = L"";
-    std::wstring action       = L"";       // STO,BTO,STC,BTC
-    std::wstring underlying   = L"";       // OPTIONS, STOCKS, FUTURES
+    std::wstring put_call      = L"";
+    std::wstring action        = L"";      // STO,BTO,STC,BTC
+    std::wstring underlying    = L"";      // OPTIONS, STOCKS, FUTURES
     bool         isOpen();                 // method to calc if leg quantity is not zero
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
 
@@ -90,9 +90,9 @@ public:
 class Trade
 {
 public:
-    TickerId      tickerId      = -1;
+    TickerId      ticker_id     = -1;
     bool          ticker_data_requested = false;   // ticker data already requested
-    bool          is_open       = true;    // False if all legs are closed
+    bool          is_open       = true;    // false if all legs are closed
     std::wstring  ticker_symbol = L"";
     std::wstring  ticker_name   = L"";
     std::wstring  future_expiry = L"";     // YYYYMM of Futures contract expiry

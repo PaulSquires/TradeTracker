@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -213,7 +213,7 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGrid, row, 4, leg->strike_price);
 
         // PUT/CALL
-        TradeGrid_SetColData(hGrid, row, 5, leg->PutCall);
+        TradeGrid_SetColData(hGrid, row, 5, leg->put_call);
 
         // ACTION
         TradeGrid_SetColData(hGrid, row, 6, leg->action);
@@ -471,7 +471,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     // Display the legs being closed and set each to the needed inverse action.
     HWND hGridMain = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
     TradeGrid* pData = TradeGrid_GetOptions(hGridMain);
-    if (pData == nullptr) return;
+    if (!pData) return;
 
     int row = 0;
     for (const auto& leg : tdd.legs) {
@@ -490,7 +490,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGridMain, row, 3, leg->strike_price);
 
         // PUT/CALL
-        TradeGrid_SetColData(hGridMain, row, 4, leg->PutCall);
+        TradeGrid_SetColData(hGridMain, row, 4, leg->put_call);
 
         // ACTION
         if (leg->action == L"STO") { text = L"BTC"; }
@@ -511,7 +511,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     if (tdd.trade_action == TradeAction::roll_leg) {
         HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
         pData = TradeGrid_GetOptions(hGridRoll);
-        if (pData == nullptr) return;
+        if (!pData) return;
 
         row = 0;
         for (const auto& leg : tdd.legs) {
@@ -531,7 +531,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             TradeGrid_SetColData(hGridRoll, row, 3, leg->strike_price);
 
             // PUT/CALL
-            TradeGrid_SetColData(hGridRoll, row, 4, leg->PutCall);
+            TradeGrid_SetColData(hGridRoll, row, 4, leg->put_call);
 
             // ACTION
             TradeGrid_SetColData(hGridRoll, row, 5, leg->action);
@@ -901,10 +901,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
         // If we are rolling or editing then create the second trade grid.
         if (tdd.trade_action == TradeAction::roll_leg || tdd.trade_action == TradeAction::edit_transaction) {
-            int nWidth = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
+            int width = AfxUnScaleX((float)AfxGetWindowWidth(hGridMain)) + 60;
             CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
-                CustomLabelAlignment::middle_left, nWidth, 155, 300, 22);
-            hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, nWidth, 180, 0, 0, show_original_quantity);
+                CustomLabelAlignment::middle_left, width, 155, 300, 22);
+            hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, width, 180, 0, 0, show_original_quantity);
         }
         if (tdd.trade && tdd.trade->category == CATEGORY_OTHER) {
             ShowWindow(hGridMain, SW_HIDE);

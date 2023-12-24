@@ -91,7 +91,7 @@ const char* EDecoder::processTickByTickDataMsg(const char* ptr, const char* endP
 
 const char* EDecoder::processTickPriceMsg(const char* ptr, const char* endPtr) {
 	int version;
-	int tickerId;
+	int ticker_id;
 	int tickTypeInt;
 	double price;
 
@@ -99,7 +99,7 @@ const char* EDecoder::processTickPriceMsg(const char* ptr, const char* endPtr) {
 	int attrMask;
 
 	DECODE_FIELD( version);
-	DECODE_FIELD( tickerId);
+	DECODE_FIELD( ticker_id);
 	DECODE_FIELD( tickTypeInt);
 	DECODE_FIELD( price);
 	DECODE_FIELD( size); // ver 2 field
@@ -122,7 +122,7 @@ const char* EDecoder::processTickPriceMsg(const char* ptr, const char* endPtr) {
 		}
 	}
 
-	m_pEWrapper->tickPrice( tickerId, (TickType)tickTypeInt, price, attrib);
+	m_pEWrapper->tickPrice( ticker_id, (TickType)tickTypeInt, price, attrib);
 
 	// process ver 2 fields
 	{
@@ -150,7 +150,7 @@ const char* EDecoder::processTickPriceMsg(const char* ptr, const char* endPtr) {
 			break;
 		}
 		if( sizeTickType != NOT_SET)
-			m_pEWrapper->tickSize( tickerId, sizeTickType, size);
+			m_pEWrapper->tickSize( ticker_id, sizeTickType, size);
 	}
 
 	return ptr;
@@ -158,48 +158,48 @@ const char* EDecoder::processTickPriceMsg(const char* ptr, const char* endPtr) {
 
 const char* EDecoder::processTickSizeMsg(const char* ptr, const char* endPtr) {
 	int version;
-	int tickerId;
+	int ticker_id;
 	int tickTypeInt;
 	Decimal size;
 
 	DECODE_FIELD( version);
-	DECODE_FIELD( tickerId);
+	DECODE_FIELD( ticker_id);
 	DECODE_FIELD( tickTypeInt);
 	DECODE_FIELD( size);
 
-	m_pEWrapper->tickSize( tickerId, (TickType)tickTypeInt, size);
+	m_pEWrapper->tickSize( ticker_id, (TickType)tickTypeInt, size);
 
 	return ptr;
 }
 
 const char* EDecoder::processTickGenericMsg(const char* ptr, const char* endPtr) {
 	int version;
-	int tickerId;
+	int ticker_id;
 	int tickTypeInt;
 	double value;
 
 	DECODE_FIELD( version);
-	DECODE_FIELD( tickerId);
+	DECODE_FIELD( ticker_id);
 	DECODE_FIELD( tickTypeInt);
 	DECODE_FIELD( value);
 
-	m_pEWrapper->tickGeneric( tickerId, (TickType)tickTypeInt, value);
+	m_pEWrapper->tickGeneric( ticker_id, (TickType)tickTypeInt, value);
 
 	return ptr;
 }
 
 const char* EDecoder::processTickStringMsg(const char* ptr, const char* endPtr) {
 	int version;
-	int tickerId;
+	int ticker_id;
 	int tickTypeInt;
 	std::string value;
 
 	DECODE_FIELD( version);
-	DECODE_FIELD( tickerId);
+	DECODE_FIELD( ticker_id);
 	DECODE_FIELD( tickTypeInt);
 	DECODE_FIELD( value);
 
-	m_pEWrapper->tickString( tickerId, (TickType)tickTypeInt, value);
+	m_pEWrapper->tickString( ticker_id, (TickType)tickTypeInt, value);
 
 	return ptr;
 }

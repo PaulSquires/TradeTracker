@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -43,30 +43,29 @@ SOFTWARE.
 // ========================================================================================
 // Get the index of the selected Category in the group.
 // ========================================================================================
-int CategoryControl_GetSelectedIndex(HWND hwnd)
-{
-    return CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX));
+int CategoryControl_GetSelectedIndex(HWND hwnd) {
+    HWND hComboBox = GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX);
+    return CustomLabel_GetUserDataInt(hComboBox);
 }
 
 
 // ========================================================================================
 // Select the incoming index in the Category group.
 // ========================================================================================
-void CategoryControl_SetSelectedIndex(HWND hwnd, int index)
-{
-    CustomLabel_SetUserDataInt(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX), index);
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX), GetCategoryDescription(index));
+void CategoryControl_SetSelectedIndex(HWND hwnd, int index) {
+    HWND hComboBox = GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX);
+    CustomLabel_SetUserDataInt(hComboBox, index);
+    CustomLabel_SetText(hComboBox, GetCategoryDescription(index));
 }
 
 
 // ========================================================================================
 // Create child controls for the Window.
 // ========================================================================================
-void CategoryControl_OnCreate(HWND hwnd)
-{
+void CategoryControl_OnCreate(HWND hwnd) {
     HWND hCtl = NULL;
 
-    int nLeft = 0;
+    int left = 0;
 
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
@@ -74,91 +73,80 @@ void CategoryControl_OnCreate(HWND hwnd)
     int category = CategoryControl_Getallow_all_categories(hwnd) ? CATEGORY_ALL : CATEGORY_START;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, GetCategoryDescription(category),
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_left, nLeft, 0, CATEGORYCONTROL_COMBOBOX_WIDTH, CATEGORYCONTROL_HEIGHT);
+        CustomLabelAlignment::middle_left, left, 0, CATEGORYCONTROL_COMBOBOX_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
     CustomLabel_SetUserDataInt(hCtl, category);
 
-    nLeft += CATEGORYCONTROL_COMBOBOX_WIDTH;
+    left += CATEGORYCONTROL_COMBOBOX_WIDTH;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMMAND, GLYPH_DROPDOWN,
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, 0, CATEGORYCONTROL_COMMAND_WIDTH, CATEGORYCONTROL_HEIGHT);
+        CustomLabelAlignment::middle_center, left, 0, CATEGORYCONTROL_COMMAND_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    nLeft += CATEGORYCONTROL_COMMAND_WIDTH + CATEGORYCONTROL_HMARGIN;
-
+    left += CATEGORYCONTROL_COMMAND_WIDTH + CATEGORYCONTROL_HMARGIN;
 
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_SETUP, GLYPH_SETUP,
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, 0, CATEGORYCONTROL_SETUP_WIDTH, CATEGORYCONTROL_HEIGHT);
+        CustomLabelAlignment::middle_center, left, 0, CATEGORYCONTROL_SETUP_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetToolTip(hCtl, L"Configure Categories");
-
 }
 
 
 // ========================================================================================
 // Windows message callback for the custom Category control.
 // ========================================================================================
-LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK CategoryControlProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     CategoryControl* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
-        pData = (CategoryControl*)GetWindowLongPtr(hWnd, 0);
+        pData = (CategoryControl*)GetWindowLongPtr(hwnd, 0);
     }
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         // Parent to handle the TAB navigation key to move amongst constrols.
         if (wParam == VK_TAB) {
-            if (SendMessage(GetParent(hWnd), uMsg, wParam, lParam) == TRUE)
+            if (SendMessage(GetParent(hwnd), uMsg, wParam, lParam))
                 return 0;
         }
+        break;
     }
-    break;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
-        if (hCtl == NULL) return 0;
+        if (!hCtl) return 0;
 
-        if (CtrlId == IDC_CATEGORYCONTROL_COMBOBOX || CtrlId == IDC_CATEGORYCONTROL_COMMAND) {
+        if (ctrl_id == IDC_CATEGORYCONTROL_COMBOBOX || ctrl_id == IDC_CATEGORYCONTROL_COMMAND) {
             // Clicked on the combobox dropdown or label itself
-            CategoryPopup_CreatePopup(hWnd, GetDlgItem(hWnd, IDC_CATEGORYCONTROL_COMBOBOX));
+            CategoryPopup_CreatePopup(hwnd, GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX));
         }
 
-        if (CtrlId == IDC_CATEGORYCONTROL_SETUP) {
-            HWND hWndParent = GetParent(hWnd);
+        if (ctrl_id == IDC_CATEGORYCONTROL_SETUP) {
+            HWND hWndParent = GetParent(hwnd);
             if (hWndParent == HWND_CLOSEDTRADES) hWndParent = HWND_MAINWINDOW;
             if (CategoryDialog_Show(hWndParent) == DIALOG_RETURN_OK) {
-                int selected_category = CategoryControl_GetSelectedIndex(hWnd);   // Update the label in case text has changed
-                CategoryControl_SetSelectedIndex(hWnd, selected_category);
-                SendMessage(GetParent(hWnd), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
+                int selected_category = CategoryControl_GetSelectedIndex(hwnd);   // Update the label in case text has changed
+                CategoryControl_SetSelectedIndex(hwnd, selected_category);
+                SendMessage(GetParent(hwnd), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
             }
         }
         
         return 0;
     }
-    break;
 
+    case WM_ERASEBKGND: {
+        return true;
+    }
 
-    case WM_ERASEBKGND:
-        return TRUE;
-        break;
-
-
-    case WM_PAINT:
-    {
-        if (pData == nullptr) break;
+    case WM_PAINT: {
+        if (!pData) break;
         PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hWnd, &ps);
+        HDC hdc = BeginPaint(hwnd, &ps);
 
         SaveDC(hdc);
 
@@ -167,12 +155,12 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         SelectBitmap(memDC, hbit);
 
         Graphics graphics(memDC);
-        int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-        int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+        int width = (ps.rcPaint.right - ps.rcPaint.left);
+        int height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
         Color back_color(pData->back_color);
         SolidBrush back_brush(back_color);
-        graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+        graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
         // Copy the entire memory bitmap to the main display
         BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -184,30 +172,26 @@ LRESULT CALLBACK CategoryControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         DeleteObject(hbit);
         DeleteDC(memDC);
 
-        EndPaint(hWnd, &ps);
+        EndPaint(hwnd, &ps);
 
         return 0;
-        break;
     }
 
-
-    case WM_NCDESTROY:
+    case WM_NCDESTROY: {
         if (pData) delete(pData);
         break;
-
-
-    default:
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
-    return 0;
+
+    }
+    
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Retrieve the stored data pointer from the control
 // ========================================================================================
-CategoryControl* CategoryControl_GetOptions(HWND hCtrl)
-{
+CategoryControl* CategoryControl_GetOptions(HWND hCtrl) {
     CategoryControl* pData = (CategoryControl*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
@@ -216,9 +200,8 @@ CategoryControl* CategoryControl_GetOptions(HWND hCtrl)
 // ========================================================================================
 // Store the data pointer into the control
 // ========================================================================================
-int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData)
-{
-    if (pData == nullptr) return 0;
+int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData) {
+    if (!pData) return 0;
 
     if (pData->tooltip_text.length()) {
         if (pData->hToolTip) {
@@ -236,10 +219,9 @@ int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData)
 // ========================================================================================
 // Return if control will allow the "All Categories" menu option.
 // ========================================================================================
-bool CategoryControl_Getallow_all_categories(HWND hwnd)
-{
+bool CategoryControl_Getallow_all_categories(HWND hwnd) {
     CategoryControl* pData = CategoryControl_GetOptions(hwnd);
-    if (pData != nullptr) {
+    if (pData) {
         return pData->allow_all_categories;
     }
     return false;
@@ -249,7 +231,8 @@ bool CategoryControl_Getallow_all_categories(HWND hwnd)
 // ========================================================================================
 // Create the Category control.
 // ========================================================================================
-HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int selected_index, bool allow_all_categories)
+HWND CreateCategoryControl(HWND hWndParent, 
+    int ctrl_id, int left, int top, int selected_index, bool allow_all_categories)
 {
     std::wstring class_name_text(L"CATEGORYCONTROL_CONTROL");
 
@@ -276,22 +259,22 @@ HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int
     float rx = AfxScaleRatioX();
     float ry = AfxScaleRatioY();
 
-    int nWidth = CATEGORYCONTROL_COMBOBOX_WIDTH + CATEGORYCONTROL_COMMAND_WIDTH + 
+    int width = CATEGORYCONTROL_COMBOBOX_WIDTH + CATEGORYCONTROL_COMMAND_WIDTH + 
                     CATEGORYCONTROL_HMARGIN + CATEGORYCONTROL_SETUP_WIDTH;
-    int nHeight = CATEGORYCONTROL_HEIGHT;
+    int height = CATEGORYCONTROL_HEIGHT;
 
     HWND hCtl =
         CreateWindowEx(WS_EX_CONTROLPARENT, class_name_text.c_str(), L"",
             WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-            (int)(nLeft * rx), (int)(nTop * ry), 
-            (int)(nWidth * rx), (int)(nHeight * ry),   
-            hWndParent, (HMENU)(UINT_PTR)CtrlId, hInst, (LPVOID)NULL);
+            (int)(left * rx), (int)(top * ry), 
+            (int)(width * rx), (int)(height * ry),   
+            hWndParent, (HMENU)(UINT_PTR)ctrl_id, hInst, (LPVOID)NULL);
 
     if (hCtl) {
         CategoryControl* pData = new CategoryControl;
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
-        pData->CtrlId = CtrlId;
+        pData->ctrl_id = ctrl_id;
         pData->back_color = (hWndParent == HWND_CLOSEDTRADES) ? COLOR_BLACK :COLOR_GRAYDARK;
         pData->allow_all_categories = allow_all_categories;
 
@@ -302,5 +285,4 @@ HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int
 
     return hCtl;
 }
-
 

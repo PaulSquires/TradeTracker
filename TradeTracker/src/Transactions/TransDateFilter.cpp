@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -47,10 +47,8 @@ HHOOK hTransDatePopupMouseHook = nullptr;
 // ========================================================================================
 // Return string based on TransDateFilterType
 // ========================================================================================
-std::wstring TransDateFilter_GetString(int idx)
-{
-    switch ((TransDateFilterType)idx)
-    {
+std::wstring TransDateFilter_GetString(int idx) {
+    switch ((TransDateFilterType)idx) {
     case TransDateFilterType::Today: return L"Today";
     case TransDateFilterType::Yesterday: return L"Yesterday";
     case TransDateFilterType::Days7: return L"7 days";
@@ -69,8 +67,7 @@ std::wstring TransDateFilter_GetString(int idx)
 // Handle selecting an item in the listview. This will set the parent label window, update
 // its CustomDataInt, and set its text label. Finally, it will close the popup dialog.
 // ========================================================================================
-void TransDateFilter_DoSelected(int idx)
-{
+void TransDateFilter_DoSelected(int idx) {
     CustomLabel_SetUserDataInt(hDateUpdateParentCtl, idx);
     CustomLabel_SetText(hDateUpdateParentCtl, TransDateFilter_GetString(idx).c_str());
     PostMessage(GetParent(hDateUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
@@ -83,42 +80,34 @@ void TransDateFilter_DoSelected(int idx)
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_MOUSEMOVE:
-    {
+    case WM_MOUSEMOVE: {
         // Tracks the mouse movement and stores the hot state
-        if (GetProp(hWnd, L"HOT") == 0) {
+        if (GetProp(hwnd, L"HOT") == 0) {
             TRACKMOUSEEVENT trackMouse{};
             trackMouse.cbSize = sizeof(trackMouse);
             trackMouse.dwFlags = TME_LEAVE;
-            trackMouse.hwndTrack = hWnd;
+            trackMouse.hwndTrack = hwnd;
             trackMouse.dwHoverTime = 1;
             TrackMouseEvent(&trackMouse);
-            SetProp(hWnd, L"HOT", (HANDLE)TRUE);
+            SetProp(hwnd, L"HOT", (HANDLE)true);
         }
-        AfxRedrawWindow(hWnd);
+        AfxRedrawWindow(hwnd);
         return 0;
     }
-    break;
 
-
-    case WM_MOUSELEAVE:
-    {
-        RemoveProp(hWnd, L"HOT");
-        AfxRedrawWindow(hWnd);
+    case WM_MOUSELEAVE: {
+        RemoveProp(hwnd, L"HOT");
+        AfxRedrawWindow(hwnd);
         return 0;
     }
-    break;
 
-
-    case WM_LBUTTONDOWN:
-    {
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    case WM_LBUTTONDOWN: {
+        int idx = Listbox_ItemFromPoint(hwnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
@@ -127,71 +116,63 @@ LRESULT CALLBACK TransDateFilter_ListBox_SubclassProc(
         TransDateFilter_DoSelected(idx);
         return 0;
     }
-    break;
 
-
-    case WM_ERASEBKGND:
-    {
+    case WM_ERASEBKGND: {
         // If the number of lines in the listbox maybe less than the number per page then 
         // calculate from last item to bottom of listbox, otherwise calculate based on
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
-        RECT rc; GetClientRect(hWnd, &rc);
+        RECT rc; GetClientRect(hwnd, &rc);
 
         RECT rcItem{};
-        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
-        int items_count = ListBox_GetCount(hWnd);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hwnd);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;
-        int nWidth = (rc.right - rc.left);
-        int nHeight = (rc.bottom - rc.top);
+        int width = (rc.right - rc.left);
+        int height = (rc.bottom - rc.top);
 
         if (items_count > 0) {
-            items_per_page = (nHeight) / itemHeight;
+            items_per_page = (height) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
             visible_rows = (bottom_index - top_index) + 1;
-            rc.top = visible_rows * itemHeight;
+            rc.top = visible_rows * item_height;
         }
 
         if (rc.top < rc.bottom) {
-            nHeight = (rc.bottom - rc.top);
+            height = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             SolidBrush back_brush(COLOR_GRAYDARK);
-            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
         }
 
-        ValidateRect(hWnd, &rc);
-        return TRUE;
-        break;
-
+        ValidateRect(hwnd, &rc);
+        return true;
     }
 
-
-    case WM_DESTROY:
+    case WM_DESTROY: {
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransDateFilter_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TransDateFilter_ListBox_SubclassProc, uIdSubclass);
         break;
-
+    }
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TransDateFilter
 // ========================================================================================
-void TransDateFilter_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void TransDateFilter_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     int margin = AfxScaleX(1);
     SetWindowPos(GetDlgItem(hwnd, IDC_TRANSDATEFILTER_LISTBOX), 0, 
         margin, margin, cx-(margin*2), cy-(margin*2), SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -202,18 +183,16 @@ void TransDateFilter_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TransDateFilter
 // ========================================================================================
-BOOL TransDateFilter_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TransDateFilter_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TransDateFilter
 // ========================================================================================
-void TransDateFilter_OnPaint(HWND hwnd)
-{
+void TransDateFilter_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -224,9 +203,9 @@ void TransDateFilter_OnPaint(HWND hwnd)
     SolidBrush back_brush(COLOR_BLACK);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -235,17 +214,16 @@ void TransDateFilter_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_DRAWITEM message for window/dialog: TransDateFilter
 // ========================================================================================
-void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
-{
+void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
     if (lpDrawItem->itemID == -1) return;
 
     if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
         lpDrawItem->itemAction == ODA_SELECT) {
 
-        int nWidth = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
-        int nHeight = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
+        int width = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
+        int height = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
 
-        bool bIsHot = false;
+        bool is_hot = false;
 
         SaveDC(lpDrawItem->hDC);
 
@@ -253,54 +231,53 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
         HBITMAP hbit = NULL;      // Double buffering
 
         memDC = CreateCompatibleDC(lpDrawItem->hDC);
-        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, nWidth, nHeight);
+        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, width, height);
         if (hbit) SelectObject(memDC, hbit);
 
         if ((lpDrawItem->itemAction | ODA_SELECT) &&
             (lpDrawItem->itemState & ODS_SELECTED)) {
-            bIsHot = true;
+            is_hot = true;
         }
 
         // Determine if we are in a Hot mouseover state
         POINT pt; GetCursorPos(&pt);
         MapWindowPoints(HWND_DESKTOP, lpDrawItem->hwndItem, &pt, 1);
-        if (PtInRect(&lpDrawItem->rcItem, pt)) bIsHot = true;
+        if (PtInRect(&lpDrawItem->rcItem, pt)) is_hot = true;
 
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-        DWORD back_color = (bIsHot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
-        DWORD ntext_color = (bIsHot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
+        DWORD back_color = (is_hot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
+        DWORD text_color = (is_hot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
 
         std::wstring font_name = AfxGetDefaultFont();
         FontFamily   fontFamily(font_name.c_str());
-        REAL fontSize = 9;
-        int fontStyle = FontStyleRegular;
+        REAL font_size = 9;
+        int font_style = FontStyleRegular;
 
         // Paint the full width background using brush 
         SolidBrush back_brush(back_color);
-        graphics.FillRectangle(&back_brush, 0, 0, nWidth, nHeight);
+        graphics.FillRectangle(&back_brush, 0, 0, width, height);
 
-        Font         font(&fontFamily, fontSize, fontStyle, Unit::UnitPoint);
-        SolidBrush   text_brush(ntext_color);
+        Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
+        SolidBrush   text_brush(text_color);
         StringFormat stringF(StringFormatFlagsNoWrap);
         stringF.SetLineAlignment(StringAlignment::StringAlignmentCenter);
 
         std::wstring text;
         
         if ((int)SelectedFilterType == lpDrawItem->itemID) text = GLYPH_CHECKMARK;
-        RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)nHeight);
+        RectF rcText1((REAL)0, (REAL)0, (REAL)AfxScaleX(24), (REAL)height);
         stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
         graphics.DrawString(text.c_str(), -1, &font, rcText1, &stringF, &text_brush);
 
         text = AfxGetListBoxText(lpDrawItem->hwndItem, lpDrawItem->itemID);
-        RectF rcText2((REAL)AfxScaleX(24), (REAL)0, (REAL)nWidth, (REAL)nHeight);
+        RectF rcText2((REAL)AfxScaleX(24), (REAL)0, (REAL)width, (REAL)height);
         stringF.SetAlignment(StringAlignment::StringAlignmentNear);
         graphics.DrawString(text.c_str(), -1, &font, rcText2, &stringF, &text_brush);
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
-            lpDrawItem->rcItem.top, nWidth, nHeight, memDC, 0, 0, SRCCOPY);
-
+            lpDrawItem->rcItem.top, width, height, memDC, 0, 0, SRCCOPY);
 
         // Cleanup
         RestoreDC(lpDrawItem->hDC, -1);
@@ -313,8 +290,7 @@ void TransDateFilter_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransDateFilter
 // ========================================================================================
-void TransDateFilter_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
-{
+void TransDateFilter_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT);
 }
 
@@ -322,8 +298,7 @@ void TransDateFilter_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TransDateFilter
 // ========================================================================================
-BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TRANSDATEFILTER = hwnd;
 
     HWND hCtl =
@@ -340,23 +315,20 @@ BOOL TransDateFilter_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         ListBox_SetItemData(hCtl, idx, i);
     }
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Global mouse hook.
 // ========================================================================================
-LRESULT CALLBACK TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam) {
     // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
     // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
     // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
     // at the point this hook is called).
-    if (wParam == WM_LBUTTONDOWN)
-    {
-        if (HWND_TRANSDATEFILTER)
-        {
+    if (wParam == WM_LBUTTONDOWN) {
+        if (HWND_TRANSDATEFILTER) {
             POINT pt;       GetCursorPos(&pt);
             RECT rcWindow;  GetWindowRect(HWND_TRANSDATEFILTER, &rcWindow);
 
@@ -374,10 +346,8 @@ LRESULT CALLBACK TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TransDateFilter_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDateFilter_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TransDateFilter_OnPaint);
@@ -385,9 +355,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDateFilter_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, TransDateFilter_OnDrawItem);
 
-
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         // unhook and remove our global mouse hook
         UnhookWindowsHookEx(hTransDatePopupMouseHook);
         hTransDatePopupMouseHook = nullptr;
@@ -396,18 +364,14 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HWND_TRANSDATEFILTER = NULL;
         return 0;
     }
-    break;
 
-
-    case WM_MOUSEACTIVATE:
-    {
+    case WM_MOUSEACTIVATE: {
         return MA_NOACTIVATE;
     }
-    break;
 
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
@@ -415,8 +379,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // Create TransDateFilter picker control and move it into position under the 
 // specified incoming control.
 // ========================================================================================
-HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
-{
+HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl) {
     TransDateFilter.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
@@ -432,7 +395,6 @@ HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl)
 
     // Get the current selected filter and apply it to the popup
     SelectedFilterType = (TransDateFilterType)CustomLabel_GetUserDataInt(hParentCtl);
-
 
     // Set the module global hUpdateParentCtl after the above is created in
     // to ensure the variable address is correct.

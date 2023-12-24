@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -51,13 +51,10 @@ TradeDialogData tdd;
 int dialog_return_code = DIALOG_RETURN_CANCEL;
 
 
-
-
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: TradeDialog
 // ========================================================================================
-void TradeDialog_OnClose(HWND hwnd)
-{
+void TradeDialog_OnClose(HWND hwnd) {
     if (dialog_return_code == DIALOG_RETURN_OK) {
 
         // Set the open status of the entire trade based on the new modified legs
@@ -80,7 +77,7 @@ void TradeDialog_OnClose(HWND hwnd)
     }
 
     MainWindow_BlurPanels(false);
-    EnableWindow(HWND_MAINWINDOW, TRUE);
+    EnableWindow(HWND_MAINWINDOW, true);
     DestroyWindow(hwnd);
 
     tdd.trade = nullptr;
@@ -90,8 +87,7 @@ void TradeDialog_OnClose(HWND hwnd)
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: TradeDialog
 // ========================================================================================
-void TradeDialog_OnDestroy(HWND hwnd)
-{
+void TradeDialog_OnDestroy(HWND hwnd) {
     PostQuitMessage(0);
 }
 
@@ -99,31 +95,26 @@ void TradeDialog_OnDestroy(HWND hwnd)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TradeDialog
 // ========================================================================================
-BOOL TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TradeDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TRADEDIALOG = hwnd;
-
     TradeDialogControls_CreateControls(hwnd);
-
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TradeDialog
 // ========================================================================================
-BOOL TradeDialog_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TradeDialog_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TradeDialog
 // ========================================================================================
-void TradeDialog_OnPaint(HWND hwnd)
-{
+void TradeDialog_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -135,12 +126,12 @@ void TradeDialog_OnPaint(HWND hwnd)
     SelectBitmap(memDC, hbit);
 
     Graphics graphics(memDC);
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     // Create the background brush
     SolidBrush back_brush(COLOR_GRAYDARK);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     // Copy the entire memory bitmap to the main display
     BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -159,11 +150,9 @@ void TradeDialog_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: TradeDialog
 // ========================================================================================
-void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-    switch (id)
-    {
-    case (IDC_TRADEDIALOG_TXTTICKER):
+void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
+    switch (id) {
+    case IDC_TRADEDIALOG_TXTTICKER: {
         if (codeNotify == EN_KILLFOCUS) {
             // Show the Futures contract date field and set the label descriptions if needed.
             TradeDialogControls_ShowFuturesContractDate(hwnd);
@@ -196,19 +185,20 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             if (!IsFuturesTicker(ticker_symbol)) {
                 // TODO: Scrape web data to get Earnings Date
             }
-
         }
         break;
+    }
 
 
     case (IDC_TRADEDIALOG_TXTQUANTITY):
     case (IDC_TRADEDIALOG_TXTMULTIPLIER):
     case (IDC_TRADEDIALOG_TXTPRICE):
-    case (IDC_TRADEDIALOG_TXTFEES):
+    case (IDC_TRADEDIALOG_TXTFEES): {
         if (codeNotify == EN_KILLFOCUS) {
             TradeDialog_CalculateTradeTotal(hwnd);
         }
         break;
+    }
 
     }
 }
@@ -217,10 +207,8 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Process a change in the DR/CR button (colors and trade totals).
 // ========================================================================================
-void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring text)
-{
+void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring text) {
     CustomLabel_SetText(hCtl, text);
-
     DWORD clr = (text == L"CR") ? COLOR_GREEN : COLOR_RED;
     CustomLabel_SetBackColor(hCtl, clr);
     CustomLabel_SetBackColorHot(hCtl, clr);
@@ -231,20 +219,16 @@ void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring text)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TradeDialog_OnCreate);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TradeDialog_OnCommand);
         HANDLE_MSG(m_hwnd, WM_DESTROY, TradeDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, TradeDialog_OnClose);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradeDialog_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradeDialog_OnPaint);
-
     
-    case WM_SHOWWINDOW:
-    {
+    case WM_SHOWWINDOW: {
         // Workaround for the Windows 11 (The cloaking solution seems to work only
         // on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work
         // on Windows 11).
@@ -254,8 +238,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             GWL_EXSTYLE,
             GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
-        {
+        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL)) {
             HDC hdc = GetDC(m_hwnd);
             SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
             DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
@@ -270,73 +253,66 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
-    return 0;
 
-
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         // We are handling the TAB naviagation ourselves.
         if (wParam == VK_TAB) {
             HWND hFocus = GetFocus();
             HWND hNextCtrl = NULL;
             if (GetAsyncKeyState(VK_SHIFT) & 0x8000) { 
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, true);
             }
             else {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, false);
             }
             SetFocus(hNextCtrl);
-            return TRUE;
+            return true;
         }
+        break;
     }
-    return 0;
-
     
-    case MSG_DATEPICKER_DATECHANGED:
-    {
+    case MSG_DATEPICKER_DATECHANGED: {
         TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN));
         TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL));
+        return 0;
     }
-    return 0;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
-        if (hCtl == NULL) return 0;
+        if (!hCtl) return 0;
 
-        if (CtrlId == IDC_TRADEDIALOG_BUYSHARES) {
+        if (ctrl_id == IDC_TRADEDIALOG_BUYSHARES) {
             TradeDialog_ToggleBuyLongShortText(hCtl);
             TradeDialog_SetLongShortback_color(hCtl);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_BUYSHARES_DROPDOWN) {
+        if (ctrl_id == IDC_TRADEDIALOG_BUYSHARES_DROPDOWN) {
             hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_BUYSHARES);
             TradeDialog_ToggleBuyLongShortText(hCtl);
             TradeDialog_SetLongShortback_color(hCtl);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_SELLSHARES) {
+        if (ctrl_id == IDC_TRADEDIALOG_SELLSHARES) {
             TradeDialog_ToggleSellLongShortText(hCtl);
             TradeDialog_SetLongShortback_color(hCtl);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_SELLSHARES_DROPDOWN) {
+        if (ctrl_id == IDC_TRADEDIALOG_SELLSHARES_DROPDOWN) {
             hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SELLSHARES);
             TradeDialog_ToggleSellLongShortText(hCtl);
             TradeDialog_SetLongShortback_color(hCtl);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_COMBODRCR) {
+        if (ctrl_id == IDC_TRADEDIALOG_COMBODRCR) {
             // Clicked on the DRCR combo so cycle through the choices
             std::wstring text = CustomLabel_GetText(hCtl);
             text = (text == L"DR") ? L"CR" : L"DR";
             TradeDialog_SetComboDRCR(hCtl, text);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_CMDTRANSDATE || CtrlId == IDC_TRADEDIALOG_LBLTRANSDATE) {
+        if (ctrl_id == IDC_TRADEDIALOG_CMDTRANSDATE || ctrl_id == IDC_TRADEDIALOG_LBLTRANSDATE) {
             // Clicked on the Transaction Date dropdown or label itself
             std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
             Calendar_CreateDatePicker(
@@ -344,7 +320,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 CalendarPickerReturnType::long_date, 1);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_CMDCONTRACTDATE || CtrlId == IDC_TRADEDIALOG_LBLCONTRACTDATE) {
+        if (ctrl_id == IDC_TRADEDIALOG_CMDCONTRACTDATE || ctrl_id == IDC_TRADEDIALOG_LBLCONTRACTDATE) {
             // Clicked on the Futures Contract Date dropdown or label itself
             std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
             Calendar_CreateDatePicker(
@@ -352,7 +328,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                 CalendarPickerReturnType::long_date, 2);
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_SAVE) {
+        if (ctrl_id == IDC_TRADEDIALOG_SAVE) {
             if (IsNewSharesTradeAction(tdd.trade_action) == true ||
                 tdd.trade_action == TradeAction::add_shares_to_trade||
                 tdd.trade_action == TradeAction::add_futures_to_trade||
@@ -399,7 +375,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if (CtrlId == IDC_TRADEDIALOG_CANCEL) {
+        if (ctrl_id == IDC_TRADEDIALOG_CANCEL) {
             dialog_return_code = DIALOG_RETURN_CANCEL;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
@@ -407,28 +383,27 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
-
 
 
 // ========================================================================================
 // Create and show the Trade modal dialog.
 // ========================================================================================
-int TradeDialog_Show(TradeAction inTradeAction)
-{
+int TradeDialog_Show(TradeAction inTradeAction) {
     tdd.trade_action = inTradeAction;
 
-    int nWidth = 715;
-    int nHeight = 500;
+    int width = 715;
+    int height = 500;
 
-    HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, nWidth, nHeight,
+    HWND hwnd = TradeDialog.Create(HWND_MAINWINDOW, L"Trade Management", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
-    BOOL value = true;
+    BOOL value = TRUE;
     ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
     HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
@@ -436,7 +411,6 @@ int TradeDialog_Show(TradeAction inTradeAction)
 
     HANDLE hIconSmall = LoadImage(TradeDialog.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
-
 
     // Show the legsEdit legs (if any) based on the incoming action and set the
     // Ticker and Company Name labels.
@@ -452,7 +426,7 @@ int TradeDialog_Show(TradeAction inTradeAction)
 
     AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
-    EnableWindow(HWND_MAINWINDOW, FALSE);
+    EnableWindow(HWND_MAINWINDOW, false);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;

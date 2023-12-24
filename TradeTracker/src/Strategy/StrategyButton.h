@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -45,22 +45,19 @@ constexpr int IDC_STRATEGYBUTTON_STRATEGY  = 102;
 constexpr int IDC_STRATEGYBUTTON_GO        = 103;
 constexpr int IDC_STRATEGYBUTTON_DROPDOWN  = 104;
 
-enum class LongShort
-{
+enum class LongShort {
     Long = 0,
     Short,
     Count 
 };
 
-enum class PutCall
-{
+enum class PutCall {
     Put = 0,
     Call,
     Count
 };
 
-enum class Strategy
-{
+enum class Strategy {
     Vertical = 0,
     Strangle,
     Straddle,
@@ -73,8 +70,6 @@ enum class Strategy
     Count
 };
 
-
-
 std::wstring StrategyButton_GetLongShortEnumText(LongShort ls);
 std::wstring StrategyButton_GetPutCallEnumText(PutCall pc);
 std::wstring StrategyButton_GetStrategyEnumText(Strategy s);
@@ -85,5 +80,4 @@ void StrategyButton_SetLongShortTextColor(HWND hCtl);
 void StrategyButton_SetLongShortBackColor(HWND hCtl);
 bool StrategyButton_StrategyAllowPutCall(HWND hCtl);
 void StrategyButton_InvokeStrategy();
-
 

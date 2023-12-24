@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -34,7 +34,7 @@ public:
     HWND hwnd = NULL;
     HWND hParent = NULL;
     HWND hListBox = NULL;
-    INT CtrlId = 0;
+    int ctrl_id = 0;
 
     HWND hToolTip = NULL;
     std::wstring tooltip_text;
@@ -92,5 +92,5 @@ int CategoryControl_GetSelectedIndex(HWND hwnd);
 void CategoryControl_SetSelectedIndex(HWND hwnd, int index);
 bool CategoryControl_Getallow_all_categories(HWND hwnd);
 
-HWND CreateCategoryControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int selected_index, bool allow_all_categories);
+HWND CreateCategoryControl(HWND hWndParent, int ctrl_id, int left, int top, int selected_index, bool allow_all_categories);
 

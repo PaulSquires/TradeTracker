@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -39,7 +39,7 @@ public:
     HWND hwnd = NULL;
     HWND hParent = NULL;
     HWND hListBox = NULL;
-    int CtrlId = 0;
+    int ctrl_id = 0;
     int item_count = 0;
 
     std::vector< CustomComboItemData> items;
@@ -71,5 +71,5 @@ int CustomComboControl_SetOptions(HWND hCtrl, CustomComboControl* pData);
 int CustomComboControl_GetSelectedIndex(HWND hwnd);
 void CustomComboControl_SetSelectedIndex(HWND hwnd, int index);
 
-HWND CreateCustomComboControl(HWND hWndParent, int CtrlId, int nLeft, int nTop, int item_count);
+HWND CreateCustomComboControl(HWND hWndParent, int ctrl_id, int left, int top, int item_count);
 

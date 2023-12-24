@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -48,9 +48,8 @@ CCategoryDialog CategoryDialog;
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: CategoryDialog
 // ========================================================================================
-void CategoryDialog_OnClose(HWND hwnd)
-{
-    EnableWindow(GetParent(hwnd), TRUE);
+void CategoryDialog_OnClose(HWND hwnd) {
+    EnableWindow(GetParent(hwnd), true);
     DestroyWindow(hwnd);
 }
 
@@ -58,8 +57,7 @@ void CategoryDialog_OnClose(HWND hwnd)
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: CategoryDialog
 // ========================================================================================
-void CategoryDialog_OnDestroy(HWND hwnd)
-{
+void CategoryDialog_OnDestroy(HWND hwnd) {
     PostQuitMessage(0);
 }
 
@@ -67,8 +65,7 @@ void CategoryDialog_OnDestroy(HWND hwnd)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: CategoryDialog
 // ========================================================================================
-BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_CATEGORYDIALOG = hwnd;
 
     DWORD light_text_color = COLOR_WHITELIGHT;
@@ -89,36 +86,35 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SimpleLabel(hwnd, -1, L"Description", text_color_dim, back_color,
         CustomLabelAlignment::middle_left, 108, 20, 115, 22);
 
-    int nTop = 45;
-    int ctlID = IDC_CATEGORYCONTROL_FIRST;
+    int top = 45;
+    int ctl_id = IDC_CATEGORYCONTROL_FIRST;
 
     for (int i = 0; i < 8; ++i) {
         CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), text_color, back_color,
-            CustomLabelAlignment::middle_left, 60, nTop, 20, 23);
-        hCtl = CreateCustomTextBox(hwnd, ctlID, false, ES_LEFT, L"", 110, nTop, 300, 23);
+            CustomLabelAlignment::middle_left, 60, top, 20, 23);
+        hCtl = CreateCustomTextBox(hwnd, ctl_id, false, ES_LEFT, L"", 110, top, 300, 23);
         CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
         AfxSetWindowText(hCtl, GetCategoryDescription(i));
-        nTop += 25;
-        ctlID++;
+        top += 25;
+        ctl_id++;
     }
-
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Category", text_color_dim, back_color,
         CustomLabelAlignment::middle_left, 420, 20, 68, 22);
     CustomLabel_SimpleLabel(hwnd, -1, L"Description", text_color_dim, back_color,
         CustomLabelAlignment::middle_left, 498, 20, 115, 22);
 
-    nTop = 45;
+    top = 45;
     for (int i = 8; i < 16; ++i) {
         CustomLabel_SimpleLabel(hwnd, -1, std::to_wstring(i), text_color, back_color,
-            CustomLabelAlignment::middle_left, 450, nTop, 20, 23);
-        hCtl = CreateCustomTextBox(hwnd, ctlID, false, ES_LEFT, L"", 500, nTop, 300, 23);
+            CustomLabelAlignment::middle_left, 450, top, 20, 23);
+        hCtl = CreateCustomTextBox(hwnd, ctl_id, false, ES_LEFT, L"", 500, top, 300, 23);
         CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
         AfxSetWindowText(hCtl, GetCategoryDescription(i));
-        nTop += 25;
-        ctlID++;
+        top += 25;
+        ctl_id++;
     }
 
     // SAVE button
@@ -139,25 +135,23 @@ BOOL CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: CategoryDialog
 // ========================================================================================
-BOOL CategoryDialog_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool CategoryDialog_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: CategoryDialog
 // ========================================================================================
-void CategoryDialog_OnPaint(HWND hwnd)
-{
+void CategoryDialog_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -169,12 +163,12 @@ void CategoryDialog_OnPaint(HWND hwnd)
     SelectBitmap(memDC, hbit);
 
     Graphics graphics(memDC);
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     // Create the background brush
     SolidBrush back_brush(COLOR_GRAYDARK);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     // Copy the entire memory bitmap to the main display
     BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -193,19 +187,15 @@ void CategoryDialog_OnPaint(HWND hwnd)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, CategoryDialog_OnCreate);
         HANDLE_MSG(m_hwnd, WM_DESTROY, CategoryDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, CategoryDialog_OnClose);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, CategoryDialog_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, CategoryDialog_OnPaint);
 
-
-    case WM_SHOWWINDOW:
-    {
+    case WM_SHOWWINDOW: {
         // Workaround for the Windows 11 (The cloaking solution seems to work only
         // on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work
         // on Windows 11).
@@ -215,8 +205,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             GWL_EXSTYLE,
             GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
-        {
+        if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL)) {
             HDC hdc = GetDC(m_hwnd);
             SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
             DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
@@ -231,42 +220,36 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
-    break;
 
-
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         // We are handling the TAB naviagation ourselves.
         if (wParam == VK_TAB) {
             HWND hFocus = GetFocus();
             HWND hNextCtrl = NULL;
             if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, true);
             }
             else {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, false);
             }
             SetFocus(hNextCtrl);
-            return TRUE;
+            return true;
         }
         return 0;
     }
-    break;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
         if (hCtl == NULL) return 0;
 
-        if (CtrlId == IDC_CATEGORYDIALOG_CANCEL) {
+        if (ctrl_id == IDC_CATEGORYDIALOG_CANCEL) {
             dialog_return_code = DIALOG_RETURN_CANCEL;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
 
-        if (CtrlId == IDC_CATEGORYDIALOG_SAVE) {
+        if (ctrl_id == IDC_CATEGORYDIALOG_SAVE) {
             int cID = IDC_CATEGORYCONTROL_FIRST;
             for (int i = 0; i < 16; ++i) {
                 SetCategoryDescription(i, AfxGetWindowText(GetDlgItem(m_hwnd, cID)));
@@ -280,9 +263,8 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
 
+        return 0;
     }
-    return 0;
-
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
@@ -292,17 +274,16 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Category modal dialog.
 // ========================================================================================
-int CategoryDialog_Show(HWND hWndParent)
-{
-    int nWidth = 840;
-    int nHeight = 500;
+int CategoryDialog_Show(HWND hWndParent) {
+    int width = 840;
+    int height = 500;
 
-    HWND hwnd = CategoryDialog.Create(hWndParent, L"Category Management", 0, 0, nWidth, nHeight,
+    HWND hwnd = CategoryDialog.Create(hWndParent, L"Category Management", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
-    BOOL value = true;
+    BOOL value = TRUE;
     ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
     HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
@@ -311,10 +292,9 @@ int CategoryDialog_Show(HWND hWndParent)
     HANDLE hIconSmall = LoadImage(CategoryDialog.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
-
     AfxCenterWindow(hwnd, hWndParent);
 
-    EnableWindow(hWndParent, FALSE);
+    EnableWindow(hWndParent, false);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;
@@ -332,8 +312,7 @@ int CategoryDialog_Show(HWND hWndParent)
 
     // Call modal message pump and wait for it to end.
     MSG msg{};
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
+    while (GetMessage(&msg, NULL, 0, 0)) {
         if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
             SendMessage(hwnd, WM_CLOSE, 0, 0);
         }

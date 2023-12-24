@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -46,17 +46,18 @@ std::wstring max_quantity_allowed_text;
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: Assignment
 // ========================================================================================
-void Assignment_OnClose(HWND hwnd)
-{
+void Assignment_OnClose(HWND hwnd) {
+    HWND hTextBox = GetDlgItem(hwnd, IDC_ASSIGNMENT_TXTQUANTITY);
+
     if (dialog_return_code == DIALOG_RETURN_OK) {
-        std::wstring quantity_text = AfxGetWindowText(GetDlgItem(hwnd, IDC_ASSIGNMENT_TXTQUANTITY));
+        std::wstring quantity_text = AfxGetWindowText(hTextBox);
         int quantity_assigned = AfxValInteger(quantity_text);
         int max_quantity_allowed = AfxValInteger(max_quantity_allowed_text);
 
         if (quantity_text.length() == 0 || quantity_assigned <= 0 || quantity_assigned > max_quantity_allowed) {
             MessageBox(hwnd, (LPCWSTR)L"Invalid quantity amount.", (LPCWSTR)L"Error", MB_ICONWARNING | MB_OK);
-            CustomTextBox_SetText(GetDlgItem(hwnd, IDC_ASSIGNMENT_TXTQUANTITY), max_quantity_allowed_text);
-            SetFocus(GetDlgItem(hwnd, IDC_ASSIGNMENT_TXTQUANTITY));
+            CustomTextBox_SetText(hTextBox, max_quantity_allowed_text);
+            SetFocus(hTextBox);
             dialog_return_code = DIALOG_RETURN_CANCEL;
             return;
         }
@@ -68,7 +69,7 @@ void Assignment_OnClose(HWND hwnd)
     }
 
     MainWindow_BlurPanels(false);
-    EnableWindow(HWND_MAINWINDOW, TRUE);
+    EnableWindow(HWND_MAINWINDOW, true);
     DestroyWindow(hwnd);
 }
 
@@ -76,8 +77,7 @@ void Assignment_OnClose(HWND hwnd)
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: Assignment
 // ========================================================================================
-void Assignment_OnDestroy(HWND hwnd)
-{
+void Assignment_OnDestroy(HWND hwnd) {
     PostQuitMessage(0);
 }
 
@@ -85,18 +85,16 @@ void Assignment_OnDestroy(HWND hwnd)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: Assignment
 // ========================================================================================
-BOOL Assignment_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool Assignment_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: Assignment
 // ========================================================================================
-void Assignment_OnPaint(HWND hwnd)
-{
+void Assignment_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -108,12 +106,12 @@ void Assignment_OnPaint(HWND hwnd)
     SelectBitmap(memDC, hbit);
 
     Graphics graphics(memDC);
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
 
     // Create the background brush
     SolidBrush back_brush(COLOR_GRAYDARK);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     // Copy the entire memory bitmap to the main display
     BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
@@ -132,60 +130,52 @@ void Assignment_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: Assignment
 // ========================================================================================
-BOOL Assignment_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool Assignment_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_ASSIGNMENT = hwnd;
-
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CAssignment::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CAssignment::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, Assignment_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, Assignment_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, Assignment_OnPaint);
         HANDLE_MSG(m_hwnd, WM_DESTROY, Assignment_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, Assignment_OnClose);
-
     
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         // We are handling the TAB naviagation ourselves.
         if (wParam == VK_TAB) {
             HWND hFocus = GetFocus();
             HWND hNextCtrl = NULL;
             if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, true);
             }
             else {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, false);
             }
             SetFocus(hNextCtrl);
-            return TRUE;
+            return true;
         }
+        return 0;
     }
-    return 0;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
         if (hCtl == NULL) return 0;
 
-        if (CtrlId == IDC_ASSIGNMENT_OK) {
+        if (ctrl_id == IDC_ASSIGNMENT_OK) {
             dialog_return_code = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
 
-        if (CtrlId == IDC_ASSIGNMENT_CANCEL) {
+        if (ctrl_id == IDC_ASSIGNMENT_CANCEL) {
             dialog_return_code = DIALOG_RETURN_CANCEL;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }
@@ -201,17 +191,18 @@ LRESULT CAssignment::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Create and show the Assignment modal dialog.
 // ========================================================================================
-int Assignment_Show(const std::wstring& long_short_text, const std::wstring& quantity_assigned_text, const std::wstring& strike_price_text)
+int Assignment_Show(const std::wstring& long_short_text, 
+    const std::wstring& quantity_assigned_text, const std::wstring& strike_price_text)
 {
-    int nWidth = 350;
-    int nHeight = 200;
+    int width = 350;
+    int height = 200;
 
-    HWND hwnd = Assignment.Create(HWND_MAINWINDOW, L"Assignment", 0, 0, nWidth, nHeight,
+    HWND hwnd = Assignment.Create(HWND_MAINWINDOW, L"Assignment", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
-    BOOL value = true;
+    BOOL value = TRUE;
     ::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
     HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
@@ -219,7 +210,6 @@ int Assignment_Show(const std::wstring& long_short_text, const std::wstring& qua
 
     HANDLE hIconSmall = LoadImage(Assignment.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
-
 
     // Blur the underlying MainWindow panels in order to reduce "visual noise" while
     // our Trade Management popup is active. The MainWindow panels are shown again
@@ -229,15 +219,13 @@ int Assignment_Show(const std::wstring& long_short_text, const std::wstring& qua
 
     AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
-    EnableWindow(HWND_MAINWINDOW, FALSE);
+    EnableWindow(HWND_MAINWINDOW, false);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
     max_quantity_allowed_text = quantity_assigned_text;
-
-
 
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
@@ -246,49 +234,48 @@ int Assignment_Show(const std::wstring& long_short_text, const std::wstring& qua
 
     HWND hCtl = NULL;
 
-    int nLeft = 30;
-    int nTop = 20;
-    nWidth = 300;
-    nHeight = 23;
+    int left = 30;
+    int top = 20;
+    width = 300;
+    height = 23;
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Continue with OPTION ASSIGNMENT?", COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::middle_left, left, top, width, height);
 
-    nTop += nHeight;
-    nWidth = (long_short_text.length() ? 50 : 0);
+    top += height;
+    width = (long_short_text.length()) ? 50 : 0;
     CustomLabel_SimpleLabel(hwnd, IDC_ASSIGNMENT_LBLTEXT1, long_short_text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::middle_left, left, top, width, height);
 
-    nLeft += nWidth;
-    nWidth = 50;
-    hCtl = CreateCustomTextBox(hwnd, IDC_ASSIGNMENT_TXTQUANTITY, false, ES_RIGHT, quantity_assigned_text, nLeft, nTop, nWidth, nHeight);
+    left += width;
+    width = 50;
+    hCtl = CreateCustomTextBox(hwnd, IDC_ASSIGNMENT_TXTQUANTITY, false, ES_RIGHT, quantity_assigned_text, left, top, width, height);
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 0, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
 
-    nLeft += nWidth;
-    nWidth = 300;
+    left += width;
+    width = 300;
     CustomLabel_SimpleLabel(hwnd, IDC_ASSIGNMENT_LBLTEXT2, strike_price_text, COLOR_WHITELIGHT, COLOR_GRAYDARK,
-        CustomLabelAlignment::middle_left, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::middle_left, left, top, width, height);
 
     // SAVE button
-    nTop += nHeight * 2;
-    nLeft = 240;
-    nWidth = 80;
+    top += height * 2;
+    left = 240;
+    width = 80;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ASSIGNMENT_OK, L"OK",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::middle_center, left, top, width, height);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // CANCEL button
-    nTop += nHeight + 10;
+    top += height + 10;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ASSIGNMENT_CANCEL, L"Cancel",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, nLeft, nTop, nWidth, nHeight);
+        CustomLabelAlignment::middle_center, left, top, width, height);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
 
     ShowWindow(hwnd, SW_SHOWNORMAL);
     UpdateWindow(hwnd);
@@ -302,8 +289,7 @@ int Assignment_Show(const std::wstring& long_short_text, const std::wstring& qua
 
     // Call modal message pump and wait for it to end.
     MSG msg{};
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
+    while (GetMessage(&msg, NULL, 0, 0)) {
         if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
            SendMessage(hwnd, WM_CLOSE, 0, 0);
         }

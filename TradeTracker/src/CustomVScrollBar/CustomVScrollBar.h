@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -36,7 +36,7 @@ public:
     HWND hwnd = NULL;
     HWND hParent = NULL;
     HWND hChildCtl = NULL;
-    INT CtrlId = 0;
+    INT ctrl_id = 0;
     bool drag_active = false;
 
     Controls ChildControlType = Controls::ListBox;
@@ -60,7 +60,7 @@ public:
 
 constexpr int CUSTOMVSCROLLBAR_WIDTH = 14;
 
-HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR CtrlId, HWND hWndChild, Controls ChildControlType);
+HWND CreateCustomVScrollBar(HWND hWndParent, LONG_PTR ctrl_id, HWND hWndChild, Controls ChildControlType);
 CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl);
 void CustomVScrollBar_Recalculate(HWND hCtrl);
 void CustomVScrollBar_ScrollLines(HWND hCtrl, int num_lines);

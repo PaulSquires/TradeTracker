@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -46,18 +46,16 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: JournalNotes
 // ========================================================================================
-BOOL JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: JournalNotes
 // ========================================================================================
-void JournalNotes_OnPaint(HWND hwnd)
-{
+void JournalNotes_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -68,9 +66,9 @@ void JournalNotes_OnPaint(HWND hwnd)
     SolidBrush back_brush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -79,14 +77,13 @@ void JournalNotes_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: JournalNotes
 // ========================================================================================
-void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
+void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     static bool is_notes_dirty = false;
     static std::wstring notes = L"";
 
-    switch (id)
-    {
-    case (IDC_JOURNALNOTES_TXTNOTES):
+    switch (id) {
+    case IDC_JOURNALNOTES_TXTNOTES: {
+
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
 
@@ -96,21 +93,17 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
                 is_notes_dirty = false;
                 notes = L"";
             }
-            break;
         }
-
-        if (codeNotify == EN_CHANGE) {
+        else if (codeNotify == EN_CHANGE) {
             notes = AfxGetWindowText(hwndCtl);
             is_notes_dirty = true;
-            break;
         }
-
-        if (codeNotify == EN_SETFOCUS) {
+        else if (codeNotify == EN_SETFOCUS) {
             is_notes_dirty = false;
-            break;
         }
 
         break;
+    }
 
     }
 }
@@ -119,8 +112,7 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: JournalNotes
 // ========================================================================================
-void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HWND hNotesLabel = GetDlgItem(hwnd, IDC_JOURNALNOTES_LBLNOTES);
     HWND hNotesTextBox = GetDlgItem(hwnd, IDC_JOURNALNOTES_TXTNOTES);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
@@ -130,7 +122,7 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // Do not call the calcVThumbRect() function during a scrollbar move. 
     bool show_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
-    if (pData != nullptr) {
+    if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
         }
@@ -161,8 +153,7 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: JournalNotes
 // ========================================================================================
-BOOL JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_JOURNALNOTES = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_JOURNALNOTES_LBLNOTES, L"Journal Notes",
@@ -178,33 +169,29 @@ BOOL JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     HWND hScrollBar = CreateCustomVScrollBar(hwnd, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR, hCtl, Controls::MultilineTextBox);
     CustomTextBox_AttachScrollBar(hCtl, hScrollBar);
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, JournalNotes_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, JournalNotes_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, JournalNotes_OnPaint);
         HANDLE_MSG(m_hwnd, WM_COMMAND, JournalNotes_OnCommand);
         HANDLE_MSG(m_hwnd, WM_SIZE, JournalNotes_OnSize);
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Display the JournalNotes side panel.
 // ========================================================================================
-void JournalNotes_ShowJournalNotes()
-{
+void JournalNotes_ShowJournalNotes() {
     HWND hTextBox = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_TXTNOTES);
     HWND hCustomVScrollBar = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
 

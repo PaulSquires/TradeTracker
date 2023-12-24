@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -32,8 +32,7 @@ SOFTWARE.
 //
 // Create a nested folder structure if it does not already exist.
 //
-bool AfxCreateNestedFolder(const std::wstring& folderPath) 
-{
+bool AfxCreateNestedFolder(const std::wstring& folderPath) {
     if (CreateDirectory(folderPath.c_str(), nullptr) || ERROR_ALREADY_EXISTS == GetLastError()) {
         std::wcout << L"Folder created or already exists: " << folderPath << std::endl;
         return true;
@@ -48,8 +47,7 @@ bool AfxCreateNestedFolder(const std::wstring& folderPath)
 //
 // Retrieve the Windows system Program Files folder name
 //
-std::wstring AfxGetProgramFilesFolder()
-{
+std::wstring AfxGetProgramFilesFolder() {
     wchar_t* knownFolderPath = nullptr;
 
     // Get the path of the Program Files folder
@@ -74,8 +72,7 @@ std::wstring AfxGetProgramFilesFolder()
 //
 // Retrieve the Windows system Local AppData folder name
 //
-std::wstring AfxGetLocalAppDataFolder()
-{
+std::wstring AfxGetLocalAppDataFolder() {
     wchar_t* knownFolderPath = nullptr;
 
     // Get the path of the Program Files folder
@@ -100,13 +97,13 @@ std::wstring AfxGetLocalAppDataFolder()
 //
 // Execute a command and get the results. (Only standard output)
 //
-std::wstring AfxExecCmd(const std::wstring& cmd) // [in] command to execute
-{
+std::wstring AfxExecCmd(const std::wstring& cmd) {
+    // [in] command to execute 
     std::wstring strResult;
     HANDLE hPipeRead, hPipeWrite;
 
     SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
-    saAttr.bInheritHandle = TRUE; // Pipe handles are inherited by child process.
+    saAttr.bInheritHandle = true; // Pipe handles are inherited by child process.
     saAttr.lpSecurityDescriptor = NULL;
 
     // Create a pipe to get results from child's stdout.
@@ -123,7 +120,7 @@ std::wstring AfxExecCmd(const std::wstring& cmd) // [in] command to execute
 
     PROCESS_INFORMATION pi = { 0 };
 
-    BOOL fSuccess = CreateProcessW(NULL, (LPWSTR)cmd.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+    bool fSuccess = CreateProcessW(NULL, (LPWSTR)cmd.c_str(), NULL, NULL, true, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
     if (!fSuccess)
     {
         CloseHandle(hPipeWrite);
@@ -176,8 +173,7 @@ std::wstring AfxExecCmd(const std::wstring& cmd) // [in] command to execute
 // Redraws the specified window.
 // Do not use it from within a WM_PAINT message.
 // ========================================================================================
-void AfxRedrawWindow(HWND hwnd)
-{
+void AfxRedrawWindow(HWND hwnd) {
     InvalidateRect(hwnd, NULL, true);
     UpdateWindow(hwnd);
 }
@@ -186,8 +182,7 @@ void AfxRedrawWindow(HWND hwnd)
 // ========================================================================================
 // Retrieves the desktop horizontal scaling ratio.
 // ========================================================================================
-float AfxScaleRatioX()
-{
+float AfxScaleRatioX() {
     HDC hDC = GetDC(HWND_DESKTOP);
     float res = (float)(GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f);
     ReleaseDC(HWND_DESKTOP, hDC);
@@ -198,8 +193,7 @@ float AfxScaleRatioX()
 // ========================================================================================
 // Retrieves the desktop vertical scaling ratio.
 // ========================================================================================
-float AfxScaleRatioY()
-{
+float AfxScaleRatioY() {
     HDC hDC = GetDC(HWND_DESKTOP);
     float res = (float)(GetDeviceCaps(hDC, LOGPIXELSY) / 96.0f);
     ReleaseDC(HWND_DESKTOP, hDC);
@@ -210,12 +204,10 @@ float AfxScaleRatioY()
 // ========================================================================================
 // Scales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
 // ========================================================================================
-int AfxScaleX(float cx)
-{
+int AfxScaleX(float cx) {
     return (int)round((cx * AfxScaleRatioX()));
 }
-int AfxScaleX(int cx)
-{
+int AfxScaleX(int cx) {
     return (int)round((cx * AfxScaleRatioX()));
 }
 
@@ -223,12 +215,10 @@ int AfxScaleX(int cx)
 // ========================================================================================
 // Scales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
 // ========================================================================================
-int AfxScaleY(float cy)
-{
+int AfxScaleY(float cy) {
     return (int)round((cy * AfxScaleRatioX()));
 }
-int AfxScaleY(int cy)
-{
+int AfxScaleY(int cy) {
     return (int)round((cy * AfxScaleRatioX()));
 }
 
@@ -236,12 +226,10 @@ int AfxScaleY(int cy)
 // ========================================================================================
 // Unscales an horizontal coordinate according the DPI (dots per pixel) being used by the desktop.
 // ========================================================================================
-int AfxUnScaleX(float cx)
-{
+int AfxUnScaleX(float cx) {
     return (int)round((cx / AfxScaleRatioX()));
 }
-int AfxUnScaleX(int cx)
-{
+int AfxUnScaleX(int cx) {
     return (int)round((cx / AfxScaleRatioX()));
 }
 
@@ -249,12 +237,10 @@ int AfxUnScaleX(int cx)
 // ========================================================================================
 // Unscales a vertical coordinate according the DPI (dots per pixel) being used by the desktop.
 // ========================================================================================
-int AfxUnScaleY(float cy)
-{
+int AfxUnScaleY(float cy) {
     return (int)round((cy / AfxScaleRatioY()));
 }
-int AfxUnScaleY(int cy)
-{
+int AfxUnScaleY(int cy) {
     return (int)round((cy / AfxScaleRatioY()));
 }
 
@@ -262,8 +248,7 @@ int AfxUnScaleY(int cy)
 // ========================================================================================
 // Retrieve text from the specified window
 // ========================================================================================
-std::wstring AfxGetWindowText(HWND hwnd)
-{
+std::wstring AfxGetWindowText(HWND hwnd) {
     DWORD dwBufLen = GetWindowTextLength(hwnd) + 1; 
     std::wstring buffer;
     buffer.resize(dwBufLen);
@@ -276,8 +261,7 @@ std::wstring AfxGetWindowText(HWND hwnd)
 // ========================================================================================
 // Set text for the specified window
 // ========================================================================================
-bool AfxSetWindowText(HWND hwnd, const std::wstring& text)
-{
+bool AfxSetWindowText(HWND hwnd, const std::wstring& text) {
     return SetWindowText(hwnd, text.c_str());
 }
 
@@ -285,8 +269,7 @@ bool AfxSetWindowText(HWND hwnd, const std::wstring& text)
 // ========================================================================================
 // Gets the client width in pixels of a window.
 // ========================================================================================
-int AfxGetClientWidth(HWND hwnd)
-{
+int AfxGetClientWidth(HWND hwnd) {
     RECT rc{};
     GetClientRect(hwnd, &rc);
     return rc.right;
@@ -296,8 +279,7 @@ int AfxGetClientWidth(HWND hwnd)
 // ========================================================================================
 // Gets the client height in pixels of a window.
 // ========================================================================================
-int AfxGetClientHeight(HWND hwnd)
-{
+int AfxGetClientHeight(HWND hwnd) {
     RECT rc{};
     GetClientRect(hwnd, &rc);
     return rc.bottom;
@@ -307,8 +289,7 @@ int AfxGetClientHeight(HWND hwnd)
 // ========================================================================================
 // Gets the width in pixels of a window.
 // ========================================================================================
-int AfxGetWindowWidth(HWND hwnd)
-{
+int AfxGetWindowWidth(HWND hwnd) {
     RECT rc{};
     GetWindowRect(hwnd, &rc);
     return rc.right - rc.left;
@@ -318,8 +299,7 @@ int AfxGetWindowWidth(HWND hwnd)
 // ========================================================================================
 // Gets the height in pixels of a window.
 // ========================================================================================
-int AfxGetWindowHeight(HWND hwnd)
-{
+int AfxGetWindowHeight(HWND hwnd) {
     RECT rc{};
     GetWindowRect(hwnd, &rc);
     return rc.bottom - rc.top;
@@ -333,8 +313,7 @@ int AfxGetWindowHeight(HWND hwnd)
 // - hwnd = Handle of the window.
 // - hwndParent = [optional] Handle of the parent window.
 // ========================================================================================
-void AfxCenterWindow(HWND hwnd, HWND hwndParent)
-{
+void AfxCenterWindow(HWND hwnd, HWND hwndParent) {
     RECT rc{};            // Window coordinates
     RECT rcParent{};      // Parent window coordinates
     RECT rcWorkArea{};    // Work area coordinates
@@ -344,8 +323,8 @@ void AfxCenterWindow(HWND hwnd, HWND hwndParent)
     GetWindowRect(hwnd, &rc);
 
     // Calculate the width and height of the window
-    int nWidth = rc.right - rc.left;
-    int nHeight = rc.bottom - rc.top;
+    int width = rc.right - rc.left;
+    int height = rc.bottom - rc.top;
 
     // Get the coordinates of the work area
     if (SystemParametersInfo(SPI_GETWORKAREA, sizeof(rcWorkArea), &rcWorkArea, 0) == 0) {
@@ -365,25 +344,25 @@ void AfxCenterWindow(HWND hwnd, HWND hwndParent)
     }
 
     // Calculate the width and height of the parent window
-    int nParentWidth = rcParent.right - rcParent.left;
-    int nParentHeight = rcParent.bottom - rcParent.top;
+    int parent_width = rcParent.right - rcParent.left;
+    int parent_height = rcParent.bottom - rcParent.top;
 
     // Calculate the new x coordinate and adjust for work area
-    pt.x = rcParent.left + ((nParentWidth - nWidth) / 2);
+    pt.x = rcParent.left + ((parent_width - width) / 2);
     if (pt.x < rcWorkArea.left) {
         pt.x = rcWorkArea.left;
     }
-    else if ((pt.x + nWidth) > rcWorkArea.right) {
-        pt.x = rcWorkArea.right - nWidth;
+    else if ((pt.x + width) > rcWorkArea.right) {
+        pt.x = rcWorkArea.right - width;
     }
 
     // Calculate the new y coordinate and adjust for work area
-    pt.y = rcParent.top + ((nParentHeight - nHeight) / 2);
+    pt.y = rcParent.top + ((parent_height - height) / 2);
     if (pt.y < rcWorkArea.top) {
         pt.y = rcWorkArea.top;
     }
-    else if ((pt.y + nHeight) > rcWorkArea.bottom) {
-        pt.y = rcWorkArea.bottom - nHeight;
+    else if ((pt.y + height) > rcWorkArea.bottom) {
+        pt.y = rcWorkArea.bottom - height;
     }
 
     // Convert screen coordinates to client area coordinates
@@ -401,8 +380,7 @@ void AfxCenterWindow(HWND hwnd, HWND hwndParent)
 // the system taskbar or by application desktop toolbars. To get the work area of a monitor
 // other than the primary display monitor, call the GetMonitorInfo function.
 // ========================================================================================
-int AfxGetWorkAreaWidth()
-{
+int AfxGetWorkAreaWidth() {
     RECT rcWrk{};
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWrk, 0);
     return (rcWrk.right - rcWrk.left);
@@ -410,8 +388,7 @@ int AfxGetWorkAreaWidth()
 
 
 // ========================================================================================
-int AfxGetWorkAreaHeight()
-{
+int AfxGetWorkAreaHeight() {
     RECT rcWrk{};
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWrk, 0);
     return (rcWrk.bottom - rcWrk.top);
@@ -422,18 +399,17 @@ int AfxGetWorkAreaHeight()
 // Returns the version of specified file multiplied by 100, e.g. 601 for version 6.01.
 // Example: DIM ver AS LONG = AfxGetFileVersion("COMCTL32.DLL")
 // ========================================================================================
-int AfxGetFileVersion(const std::wstring& wszFileName)
-{
+int AfxGetFileVersion(const std::wstring& file_name) {
     VS_FIXEDFILEINFO* pvsffi = nullptr;
     DWORD dwHandle = 0;
     int res = 0;
 
-    DWORD cbLen = GetFileVersionInfoSize(wszFileName.c_str(), &dwHandle);
+    DWORD cbLen = GetFileVersionInfoSize(file_name.c_str(), &dwHandle);
     if (cbLen == 0) return 0;
 
     HANDLE pVerInfo = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, cbLen);
     if (pVerInfo == NULL) return 0;
-    if (GetFileVersionInfo(wszFileName.c_str(), 0L, cbLen, pVerInfo)) {
+    if (GetFileVersionInfo(file_name.c_str(), 0L, cbLen, pVerInfo)) {
         if (VerQueryValue(pVerInfo, L"\\", (LPVOID*)&pvsffi, (PUINT)&cbLen)) {
             WORD wMajor = HIWORD(pvsffi->dwFileVersionMS);
             WORD wMinor = LOWORD(pvsffi->dwFileVersionMS);
@@ -449,8 +425,7 @@ int AfxGetFileVersion(const std::wstring& wszFileName)
 // ========================================================================================
 // Returns the version of CommCtl32.dll multiplied by 100, e.g. 582 for version 5.82.
 // ========================================================================================
-int AfxComCtlVersion()
-{
+int AfxComCtlVersion() {
     return AfxGetFileVersion(L"COMCTL32.DLL");
 }
 
@@ -460,13 +435,12 @@ int AfxComCtlVersion()
 // Parameters:
 // - hwnd      = Handle of the window or control
 // - text   = Tooltip text
-// - bBalloon  = Ballon tip (TRUE or FALSE)
-// - bCentered = Centered (TRUE or FALSE)
+// - bBalloon  = Ballon tip (true or false)
+// - bCentered = Centered (true or false)
 // Return Value:
 //   The handle of the tooltip control
 // ========================================================================================
-HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon, bool bCentered)
-{
+HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon, bool bCentered) {
     if (IsWindow(hwnd) == 0) return 0;
 
     // Creates the tooltip control
@@ -519,8 +493,7 @@ HWND AfxAddTooltip(HWND hwnd, const std::wstring& text, bool bBalloon, bool bCen
 // - hwnd     = Handle of the window or control
 // - text  = Tooltip text
 // ========================================================================================
-void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text)
-{
+void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text) {
     if ((hTooltip == NULL) || (hwnd == NULL)) return;
     // 32-bit: The size of the TOOLINFOW structure is 48 bytes in
     // version 6 of comctl32.dll, and 44 bytes in lower versions.
@@ -554,8 +527,7 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text)
 // - hListBox: A handle to the list box.
 // - index: The zero-based index of the item.
 // ========================================================================================
-std::wstring AfxGetListBoxText(HWND hListBox, int index)
-{
+std::wstring AfxGetListBoxText(HWND hListBox, int index) {
     DWORD dwBufLen = ListBox_GetTextLen(hListBox, index) + 1;
     std::wstring buffer;
     buffer.resize(dwBufLen);
@@ -569,8 +541,7 @@ std::wstring AfxGetListBoxText(HWND hListBox, int index)
 // Returns the path of the program which is currently executing.
 // The path name will not contain a trailing backslash.
 // ========================================================================================
-std::wstring AfxGetExePath()
-{
+std::wstring AfxGetExePath() {
     // The following retrieves the full path *and* exe name and extension.
     std::wstring buffer(MAX_PATH, NULL);
     GetModuleFileName(NULL, (LPWSTR)buffer.c_str(), MAX_PATH);
@@ -584,8 +555,7 @@ std::wstring AfxGetExePath()
 // ========================================================================================
 // Convert wstring to integer catching any exceptions
 // ========================================================================================
-int AfxValInteger(const std::wstring& st) 
-{
+int AfxValInteger(const std::wstring& st)  {
     try {
         size_t pos;
         int result = std::stoi(st, &pos);
@@ -602,8 +572,7 @@ int AfxValInteger(const std::wstring& st)
 // ========================================================================================
 // Convert wstring to double catching any exceptions
 // ========================================================================================
-double AfxValDouble(const std::wstring& st) 
-{
+double AfxValDouble(const std::wstring& st) {
     try {
         size_t pos;
         double result = std::stod(st, &pos);
@@ -621,23 +590,22 @@ double AfxValDouble(const std::wstring& st)
 // Insert embedded hyphen "-" into a date string.
 // e.g.  20230728 would be returned as 2023-07-28
 // ========================================================================================
-std::wstring AfxInsertDateHyphens(const std::wstring& dateString)
-{
-    if (dateString.length() != 8) return L"";
+std::wstring AfxInsertDateHyphens(const std::wstring& date_string) {
+    if (date_string.length() != 8) return L"";
 
-    std::wstring newDate = dateString;
+    std::wstring new_date = date_string;
     // YYYYMMDD
     // 01234567
 
-    newDate.insert(4, L"-");
+    new_date.insert(4, L"-");
     // YYYY-MMDD
     // 012345678
 
-    newDate.insert(7, L"-");
+    new_date.insert(7, L"-");
     // YYYY-MM-DD
     // 0123456789
 
-    return newDate;
+    return new_date;
 }
 
 
@@ -645,44 +613,40 @@ std::wstring AfxInsertDateHyphens(const std::wstring& dateString)
 // Remove any embedded hyphen "-" from a date string.
 // e.g.  2023-07-28 would be returned as 20230728
 // ========================================================================================
-std::wstring AfxRemoveDateHyphens(const std::wstring& dateString)
-{
-    std::wstring newDate = dateString;
-    newDate.erase(remove(newDate.begin(), newDate.end(), L'-'), newDate.end());
-    return newDate;
+std::wstring AfxRemoveDateHyphens(const std::wstring& date_string) {
+    std::wstring new_date = date_string;
+    new_date.erase(remove(new_date.begin(), new_date.end(), L'-'), new_date.end());
+    return new_date;
 }
 
 
 // ========================================================================================
 // Determines if a given year is a leap year or not.
 // Parameters:
-// - nYear: A four digit year, e.g. 2011.
+// - year: A four digit year, e.g. 2011.
 // Return Value:
-// - TRUE or FALSE.
+// - true or false.
 // Note: A leap year is defined as all years divisible by 4, except for years divisible by
 // 100 that are not also divisible by 400. Years divisible by 400 are leap years. 2000 is a
 // leap year. 1900 is not a leap year.
 // ========================================================================================
-bool AfxIsLeapYear(int nYear)
-{
-    return (nYear % 4 == 0) ? ((nYear % 100 == 0) ? ((nYear % 400 == 0) ? true : false) : true) : false;
+bool AfxIsLeapYear(int year) {
+    return (year % 4 == 0) ? ((year % 100 == 0) ? ((year % 400 == 0) ? true : false) : true) : false;
 }
 
 
 // ========================================================================================
 // Returns the number of days in the specified month.
 // Parameters:
-// - nMonth: A two digit month (1-12).
-// - nYear: A four digit year, e.g. 2011.
+// - month: A two digit month (1-12).
+// - year: A four digit year, e.g. 2011.
 // Return Value:
 // - The number of days.
 //' ========================================================================================
-int AfxDaysInMonth(int nMonth, int nYear)
-{
-    switch (nMonth)
-    {
+int AfxDaysInMonth(int month, int year) {
+    switch (month) {
     case 2:
-        return AfxIsLeapYear(nYear) ? 29 : 28;
+        return AfxIsLeapYear(year) ? 29 : 28;
         break;
     case 4: case 6: case 9: case 11:
         return 30;
@@ -700,22 +664,20 @@ int AfxDaysInMonth(int nMonth, int nYear)
 // ========================================================================================
 // Return the days in month from an ISO specified date.
 // ========================================================================================
-int AfxDaysInMonthISODate(const std::wstring& date_text)
-{
+int AfxDaysInMonthISODate(const std::wstring& date_text) {
     // YYYY-MM-DD
     // 0123456789
     if (date_text.length() != 10) return 0;
-    int nYear = std::stoi(date_text.substr(0, 4));
-    int nMonth = std::stoi(date_text.substr(5, 2));
-    return AfxDaysInMonth(nMonth, nYear);
+    int year = std::stoi(date_text.substr(0, 4));
+    int month = std::stoi(date_text.substr(5, 2));
+    return AfxDaysInMonth(month, year);
 }
 
 
 // ========================================================================================
 // Adds the specified number of days to the incoming date and returns the new date.
 // ========================================================================================
-std::wstring AfxDateAddDays(const std::wstring& date_text, int numDaysToAdd)
-{
+std::wstring AfxDateAddDays(const std::wstring& date_text, int num_days_to_add) {
     // YYYY-MM-DD
     // 0123456789
     if (date_text.length() != 10) return L"";
@@ -734,7 +696,7 @@ std::wstring AfxDateAddDays(const std::wstring& date_text, int numDaysToAdd)
     u.HighPart = ft.dwHighDateTime;
 
     // Add seconds to our large integer
-    u.QuadPart += (60 * 60 * 24 * (LONGLONG)numDaysToAdd) * 10000000LLU;
+    u.QuadPart += (60 * 60 * 24 * (LONGLONG)num_days_to_add) * 10000000LLU;
 
     ft.dwLowDateTime = u.LowPart;
     ft.dwHighDateTime = u.HighPart;
@@ -742,16 +704,15 @@ std::wstring AfxDateAddDays(const std::wstring& date_text, int numDaysToAdd)
     FileTimeToSystemTime(&ft, &st);
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Return the number of days between two dates (YYYY-MM-DD)
 // ========================================================================================
-int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
-{
+int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2) {
     if (date1.length() != 10) return 0;
     if (date2.length() != 10) return 0;
     static const ULONGLONG FT_SECOND = ((ULONGLONG)10000000);
@@ -770,7 +731,6 @@ int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
     ULARGE_INTEGER u1 = { 0 };
     u1.LowPart = ft1.dwLowDateTime;
     u1.HighPart = ft1.dwHighDateTime;
-
 
     SYSTEMTIME st2 = { 0 };
     FILETIME ft2 = { 0 };
@@ -801,19 +761,17 @@ int AfxDaysBetween(const std::wstring& date1, const std::wstring& date2)
 // ========================================================================================
 // Returns the current date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxCurrentDate()
-{
+std::wstring AfxCurrentDate() {
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, NULL, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, NULL, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Returns the year from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetYear(const std::wstring& date_text)
-{
+int AfxGetYear(const std::wstring& date_text) {
     // YYYY-MM-DD
     // 0123456789
     if (date_text.length() != 10) return 0;
@@ -824,8 +782,7 @@ int AfxGetYear(const std::wstring& date_text)
 // ========================================================================================
 // Returns the month from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetMonth(const std::wstring& date_text)
-{
+int AfxGetMonth(const std::wstring& date_text) {
     // YYYY-MM-DD
     // 0123456789
     if (date_text.length() != 10) return 0;
@@ -836,8 +793,7 @@ int AfxGetMonth(const std::wstring& date_text)
 // ========================================================================================
 // Returns the day from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-int AfxGetDay(const std::wstring& date_text)
-{
+int AfxGetDay(const std::wstring& date_text) {
     // YYYY-MM-DD
     // 0123456789
     if (date_text.length() != 10) return 0;
@@ -848,8 +804,7 @@ int AfxGetDay(const std::wstring& date_text)
 // ========================================================================================
 // Returns the current local year. The valid values are 1601 through 30827.
 // ========================================================================================
-int AfxLocalYear()
-{
+int AfxLocalYear() {
     SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wYear;
@@ -859,8 +814,7 @@ int AfxLocalYear()
 // ========================================================================================
 // Returns the current local month. The valid values are 1 through 12 (1 = January, etc.).
 // ========================================================================================
-int AfxLocalMonth()
-{
+int AfxLocalMonth() {
     SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wMonth;
@@ -870,8 +824,7 @@ int AfxLocalMonth()
 // ========================================================================================
 // Returns the current local day. The valid values are 1 through 31.
 // ========================================================================================
-int AfxLocalDay()
-{
+int AfxLocalDay() {
     SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wDay;
@@ -882,8 +835,7 @@ int AfxLocalDay()
 // Returns the current day of the week.
 // It is a numeric value in the range of 0-6 (representing Sunday through Saturday).
 // ========================================================================================
-int AfxLocalDayOfWeek()
-{
+int AfxLocalDayOfWeek() {
     SYSTEMTIME st{};
     GetLocalTime(&st);
     return st.wDayOfWeek;
@@ -893,8 +845,7 @@ int AfxLocalDayOfWeek()
 // ========================================================================================
 // Returns the UNIX (Epoch) time given the incoming ISO date (YYYY-MM-DD).
 // ========================================================================================
-unsigned int AfxUnixTime(const std::wstring& date_text)
-{
+unsigned int AfxUnixTime(const std::wstring& date_text) {
     // YYYY-MM-DD
     // 0123456789
     if (date_text.length() != 10) return 0;
@@ -919,8 +870,7 @@ unsigned int AfxUnixTime(const std::wstring& date_text)
 // Returns the Futures Contract date MMMDD from a date in ISO format (YYYY-MM-DD)
 // This is used for display purposes on the Trade Management screen.
 // ========================================================================================
-std::wstring AfxFormatFuturesDate(const std::wstring& date_text)
-{
+std::wstring AfxFormatFuturesDate(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
     SYSTEMTIME st{};
     st.wYear = (WORD)std::stoi(date_text.substr(0, 4));
@@ -928,8 +878,8 @@ std::wstring AfxFormatFuturesDate(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
-    std::wstring text = buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMdd", (LPWSTR)buffer.c_str(), 260);
+    std::wstring text = buffer.substr(0, bytes_written - 1); // remove terminating null
     return AfxUpper(text);
 }
 
@@ -938,21 +888,19 @@ std::wstring AfxFormatFuturesDate(const std::wstring& date_text)
 // Returns the Futures Contract date YYYYMM from a date in ISO format (YYYY-MM-DD)
 // This is used for retrieveing market data. (uses ansi strings rather than unicode).
 // ========================================================================================
-std::string AfxFormatFuturesDateMarketData(const std::wstring& date_text)
-{
+std::string AfxFormatFuturesDateMarketData(const std::wstring& date_text) {
     if (date_text.length() == 0) return "";
     // Date enters as YYYY-MM-DD so we simply need to remove the hyphens    
-    std::string newDate = unicode2ansi(date_text);
-    newDate.erase(remove(newDate.begin(), newDate.end(), '-'), newDate.end());
-    return newDate;  //YYYYMMDD
+    std::string new_date = unicode2ansi(date_text);
+    new_date.erase(remove(new_date.begin(), new_date.end(), '-'), new_date.end());
+    return new_date;  //YYYYMMDD
 }
 
 
 // ========================================================================================
 // Returns the short format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetShortDayName(const std::wstring& date_text)
-{
+std::wstring AfxGetShortDayName(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
@@ -963,16 +911,15 @@ std::wstring AfxGetShortDayName(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"ddd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"ddd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Returns the long format day based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetLongDayName(const std::wstring& date_text)
-{
+std::wstring AfxGetLongDayName(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
@@ -983,16 +930,15 @@ std::wstring AfxGetLongDayName(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"dddd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"dddd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Returns the short format month based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetShortMonthName(const std::wstring& date_text)
-{
+std::wstring AfxGetShortMonthName(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
@@ -1003,16 +949,15 @@ std::wstring AfxGetShortMonthName(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Returns the long format month based on the specified date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxGetLongMonthName(const std::wstring& date_text)
-{
+std::wstring AfxGetLongMonthName(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
     // YYYY-MM-DD
     // 0123456789
@@ -1023,8 +968,8 @@ std::wstring AfxGetLongMonthName(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMM", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMMM", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
@@ -1032,8 +977,7 @@ std::wstring AfxGetLongMonthName(const std::wstring& date_text)
 // Returns the short date MMM DD from a date in ISO format (YYYY-MM-DD)
 // We use this when dealing with Option expiration dates to display.
 // ========================================================================================
-std::wstring AfxShortDate(const std::wstring& date_text)
-{
+std::wstring AfxShortDate(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
 
     SYSTEMTIME st{};
@@ -1042,16 +986,15 @@ std::wstring AfxShortDate(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Returns the long date MMM DD, yyyy from a date in ISO format (YYYY-MM-DD)
 // ========================================================================================
-std::wstring AfxLongDate(const std::wstring& date_text)
-{
+std::wstring AfxLongDate(const std::wstring& date_text) {
     if (date_text.length() == 0) return L"";
 
     SYSTEMTIME st{};
@@ -1060,49 +1003,46 @@ std::wstring AfxLongDate(const std::wstring& date_text)
     st.wDay = (WORD)std::stoi(date_text.substr(8, 2));
 
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd, yyyy", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"MMM dd, yyyy", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Returns the date in ISO format (YYYY-MM-DD) based on incoming year, month, day.
 // ========================================================================================
-std::wstring AfxMakeISODate(int year, int month, int day)
-{
+std::wstring AfxMakeISODate(int year, int month, int day) {
     SYSTEMTIME st{};
     st.wYear = (WORD)year;
     st.wMonth = (WORD)month;
     st.wDay = (WORD)day;
     std::wstring buffer(260, NULL);
-    int bytesWritten = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
-    return buffer.substr(0, bytesWritten - 1); // remove terminating null
+    int bytes_written = GetDateFormat(LOCALE_USER_DEFAULT, NULL, &st, L"yyyy-MM-dd", (LPWSTR)buffer.c_str(), 260);
+    return buffer.substr(0, bytes_written - 1); // remove terminating null
 }
 
 
 // ========================================================================================
 // Retrieve name of font to use for GUI elements
 // ========================================================================================
-std::wstring AfxGetDefaultFont()
-{
+std::wstring AfxGetDefaultFont() {
     // Tahoma seems to exist on base Windows.
-    std::wstring wszFont = L"Tahoma";
+    std::wstring font_string = L"Tahoma";
 
     // Use macro from versionhelpers.h
-    if (IsWindowsVistaOrGreater()) wszFont = L"Segoe UI";   
+    if (IsWindowsVistaOrGreater()) font_string = L"Segoe UI";
     
     // Segoe has been default Windows font since Vista
     // User should install Segoe UI font under Linux Wine if used on that platform.
 
-    return wszFont;
+    return font_string;
 }
 
 
 // ========================================================================================
 // Convert an wide Unicode string to ANSI string
 // ========================================================================================
-std::string unicode2ansi(const std::wstring& wstr)
-{
+std::string unicode2ansi(const std::wstring& wstr) {
     // Size, in bytes, including any terminating null character
     int size_needed = WideCharToMultiByte(CP_ACP, 0, &wstr[0], -1, NULL, 0, NULL, NULL);
     std::string strTo(size_needed, 0);
@@ -1115,8 +1055,7 @@ std::string unicode2ansi(const std::wstring& wstr)
 // ========================================================================================
 // Convert an ANSI string to a wide Unicode String
 // ========================================================================================
-std::wstring ansi2unicode(const std::string& str)
-{
+std::wstring ansi2unicode(const std::string& str) {
     int size_needed = MultiByteToWideChar(CP_ACP, 0, &str[0], (int)str.size(), NULL, 0);
     std::wstring wstrTo(size_needed, 0);
     MultiByteToWideChar(CP_ACP, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
@@ -1129,21 +1068,20 @@ std::wstring ansi2unicode(const std::string& str)
 // Decimal places = 2 unless specified otherwise.
 // Negative values will be encloses in parenthesis.
 // ========================================================================================
-std::wstring AfxMoney(double value, bool UseMinusSign, int NumDecimalPlaces)
-{
-    static std::wstring DecimalSep = L".";
-    static std::wstring ThousandSep = L",";
+std::wstring AfxMoney(double value, bool use_minus_sign, int num_decimal_places) {
+    static std::wstring decimal_sep = L".";
+    static std::wstring thousand_sep = L",";
 
     static NUMBERFMTW num{};
-    num.NumDigits = NumDecimalPlaces;
+    num.NumDigits = num_decimal_places;
     num.LeadingZero = true;
     num.Grouping = 3;
-    num.lpDecimalSep = (LPWSTR)DecimalSep.c_str();
-    num.lpThousandSep = (LPWSTR)ThousandSep.c_str();
+    num.lpDecimalSep = (LPWSTR)decimal_sep.c_str();
+    num.lpThousandSep = (LPWSTR)thousand_sep.c_str();
 
     num.NegativeOrder = 0;   // Left parenthesis, number, right parenthesis; for example, (1.1)
 
-    if (UseMinusSign)
+    if (use_minus_sign)
         num.NegativeOrder = 1;   // Negative sign, number; for example, -1.1
 
     std::wstring money(std::to_wstring(value));
@@ -1154,11 +1092,10 @@ std::wstring AfxMoney(double value, bool UseMinusSign, int NumDecimalPlaces)
 
     // If value is negative then add a space after the negative parenthesis for visual purposes
     if (value < 0) {
-        if (UseMinusSign == false) money.insert(1, L" ");
+        if (use_minus_sign == false) money.insert(1, L" ");
     }
 
     return money;
-
 }
 
 
@@ -1168,8 +1105,7 @@ std::wstring AfxMoney(double value, bool UseMinusSign, int NumDecimalPlaces)
 // if the specified point is in the client area of the list box, or one if it is outside
 // the client area.
 // ========================================================================================
-int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y)
-{
+int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y) {
     return (int)SendMessage(hListBox, LB_ITEMFROMPOINT, 0, (LPARAM)MAKELONG(x, y));
 }
 
@@ -1184,14 +1120,12 @@ inline bool caseInsCharCompareW(wchar_t a, wchar_t b) {
     return (towupper(a) == towupper(b));
 }
 
-bool AfxStringCompareI(const std::string& s1, const std::string& s2)
-{
+bool AfxStringCompareI(const std::string& s1, const std::string& s2) {
     return ((s1.size() == s2.size()) &&
     std::equal (s1.begin(), s1.end(), s2.begin(), caseInsCharCompareN));
 }
 
-bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2) 
-{
+bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2) {
     return ((s1.size() == s2.size()) &&
     std::equal(s1.begin(), s1.end(), s2.begin(), caseInsCharCompareW));
 }
@@ -1213,8 +1147,7 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2)
 //    return result;
 //}
 
-std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter)
-{
+std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) {
     std::wistringstream stream(input);
     std::vector<std::wstring> result;
 
@@ -1241,7 +1174,7 @@ std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter)
 //   access permissions to the root and all subdirectories on the path. To extend the limit
 //   of MAX_PATH wide characters to 32,767 wide characters, prepend "\\?\" to the path.
 // Return value:
-//   Returns TRUE if the specified file exists or FALSE otherwise.
+//   Returns true if the specified file exists or false otherwise.
 // Remarks:
 //   Prepending the string "\\?\" does not allow access to the root directory.
 //   On network shares, you can use a pwszFileSpec in the form of the following:
@@ -1257,8 +1190,7 @@ std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter)
 //   the CreateFile function with CREATE_NEW (which fails if the file exists) or OPEN_EXISTING
 //   (which fails if the file does not exist).
 // ========================================================================================
-bool AfxFileExists(const std::wstring& wszFileSpec)
-{
+bool AfxFileExists(const std::wstring& wszFileSpec) {
     WIN32_FIND_DATAW fd{};
     if (wszFileSpec.c_str() == NULL) return false;
 
@@ -1272,8 +1204,7 @@ bool AfxFileExists(const std::wstring& wszFileSpec)
 // ========================================================================================
 // Remove all leading whitespace characters from a string
 // ========================================================================================
-std::wstring AfxLTrim(const std::wstring& input)
-{
+std::wstring AfxLTrim(const std::wstring& input) {
     // Find the position of the first non-whitespace character
     auto firstNonWhitespace = std::find_if_not(input.begin(), input.end(), std::iswspace);
 
@@ -1285,8 +1216,7 @@ std::wstring AfxLTrim(const std::wstring& input)
 // ========================================================================================
 // Remove all trailing whitespace characters from a string
 // ========================================================================================
-std::wstring AfxRTrim(const std::wstring& input) 
-{
+std::wstring AfxRTrim(const std::wstring& input) {
     if (input.empty()) {
         return input;  // Nothing to remove if the string is empty
     }
@@ -1307,8 +1237,7 @@ std::wstring AfxRTrim(const std::wstring& input)
 // ========================================================================================
 // Remove all leading and trailing whitespace characters from a string
 // ========================================================================================
-std::wstring AfxTrim(const std::wstring& input) 
-{
+std::wstring AfxTrim(const std::wstring& input) {
     // Find the first non-whitespace character
     size_t startPos = input.find_first_not_of(L" \t\n\r");
 
@@ -1328,10 +1257,9 @@ std::wstring AfxTrim(const std::wstring& input)
 // ========================================================================================
 // Right align string in of string of size width
 // ========================================================================================
-std::wstring AfxRSet(const std::wstring& text, int nWidth)
-{
-    if (text.length() > nWidth) return text;
-    size_t num_chars = nWidth - text.length();
+std::wstring AfxRSet(const std::wstring& text, int width) {
+    if (text.length() > width) return text;
+    size_t num_chars = width - text.length();
     if (num_chars <= 0) return text;
     std::wstring spaces_string(num_chars, L' ');
     return spaces_string + text;
@@ -1341,10 +1269,9 @@ std::wstring AfxRSet(const std::wstring& text, int nWidth)
 // ========================================================================================
 // Left align string in of string of size width
 // ========================================================================================
-std::wstring AfxLSet(const std::wstring& text, int nWidth)
-{
-    if (text.length() > nWidth) return text;
-    size_t num_chars = nWidth - text.length();
+std::wstring AfxLSet(const std::wstring& text, int width) {
+    if (text.length() > width) return text;
+    size_t num_chars = width - text.length();
     if (num_chars <= 0) return text;
     std::wstring spaces_string(num_chars, L' ');
     return text + spaces_string;
@@ -1354,33 +1281,31 @@ std::wstring AfxLSet(const std::wstring& text, int nWidth)
 // ========================================================================================
 // Replace one char/string another char/string. Return a copy.
 // ========================================================================================
-std::wstring AfxReplace(const std::wstring& str, const std::wstring& from, const std::wstring& to)
-{
-    std::wstring wszString = str;
-    if (str.empty()) return wszString;
-    if (from.empty()) return wszString;
+std::wstring AfxReplace(const std::wstring& str, const std::wstring& from, const std::wstring& to) {
+    std::wstring text_string = str;
+    if (str.empty()) return text_string;
+    if (from.empty()) return text_string;
     size_t start_pos = 0;
-    const size_t toLength = to.length();
-    while ((start_pos = wszString.find(from, start_pos)) != std::wstring::npos) {
-        wszString.replace(start_pos, from.length(), to);
-        start_pos += toLength;     // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    const size_t to_length = to.length();
+    while ((start_pos = text_string.find(from, start_pos)) != std::wstring::npos) {
+        text_string.replace(start_pos, from.length(), to);
+        start_pos += to_length;     // In case 'to' contains 'from', like replacing 'x' with 'yx'
     }
-    return wszString;
+    return text_string;
 }
 
 
 // ========================================================================================
 // Remove char/string from string. Return a copy.
 // ========================================================================================
-std::wstring AfxRemove(const std::wstring& text, const std::wstring& repl)
-{
-    std::wstring wszString = text;
-    std::string::size_type i = wszString.find(repl);
+std::wstring AfxRemove(const std::wstring& text, const std::wstring& repl) {
+    std::wstring text_string = text;
+    std::string::size_type i = text_string.find(repl);
     while (i != std::string::npos) {
-        wszString.erase(i, repl.length());
-        i = wszString.find(repl, i);
+        text_string.erase(i, repl.length());
+        i = text_string.find(repl, i);
     }
-    return wszString;
+    return text_string;
 }
 
 
@@ -1391,13 +1316,12 @@ std::wstring AfxRemove(const std::wstring& text, const std::wstring& repl)
 // Return value:
 //   The previous window styles
 // ========================================================================================
-DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
-{
+DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle) {
     DWORD dwOldStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
     DWORD dwNewStyle = dwOldStyle & ~(dwStyle);
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
     SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
-    InvalidateRect(hwnd, NULL, TRUE);
+    InvalidateRect(hwnd, NULL, true);
     return dwOldStyle;
 }
 
@@ -1409,13 +1333,12 @@ DWORD AfxRemoveWindowStyle(HWND hwnd, DWORD dwStyle)
 // Return value:
 //   The previous window styles
 // ========================================================================================
-DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle)
-{
+DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle) {
     DWORD dwOldStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_STYLE);
     DWORD dwNewStyle = dwOldStyle | (dwStyle);
     SetWindowLongPtr(hwnd, GWL_STYLE, dwNewStyle);
     SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
-    InvalidateRect(hwnd, NULL, TRUE);
+    InvalidateRect(hwnd, NULL, true);
     return dwOldStyle;
 }
 
@@ -1427,8 +1350,7 @@ DWORD AfxAddWindowStyle(HWND hwnd, DWORD dwStyle)
 // Return value:
 //   The previous window styles
 // ========================================================================================
-DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
-{
+DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle) {
     DWORD dwOldExStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_EXSTYLE);
     DWORD dwNewExStyle = dwOldExStyle & ~(dwExStyle);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewExStyle);
@@ -1443,8 +1365,7 @@ DWORD AfxRemoveWindowExStyle(HWND hwnd, DWORD dwExStyle)
 // Return value:
 //   The previous window EX styles
 // ========================================================================================
-DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle)
-{
+DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle) {
     DWORD dwOldStyle = (DWORD)GetWindowLongPtr(hwnd, GWL_EXSTYLE);
     DWORD dwNewStyle = dwOldStyle | (dwExStyle);
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwNewStyle);
@@ -1456,12 +1377,11 @@ DWORD AfxAddWindowExStyle(HWND hwnd, DWORD dwExStyle)
 // Sets the width of the specified item of a header control.
 // Returns nonzero upon success, or zero otherwise.
 // ========================================================================================
-bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth)
-{
+bool Header_SetItemWidth(HWND hwndHD, int item_index, int width) {
     HDITEM hdi{};
     hdi.mask = HDI_WIDTH;
-    hdi.cxy = nWidth;
-    return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    hdi.cxy = width;
+    return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)item_index, (LPARAM)(HDITEMW*)&hdi);
 }
 
 
@@ -1469,55 +1389,50 @@ bool Header_SetItemWidth(HWND hwndHD, int nItem, int nWidth)
 // Gets the width of the specified item of a header control.
 // Returns nonzero upon success, or zero otherwise.
 // ========================================================================================
-int Header_GetItemWidth(HWND hwndHD, int nItem)
-{
+int Header_GetItemWidth(HWND hwndHD, int item_index) {
     HDITEM hdi{};
     hdi.mask = HDI_WIDTH;
-    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)item_index, (LPARAM)(HDITEMW*)&hdi);
     return hdi.cxy;
 }
 
 
 // ========================================================================================
-// Sets the Header text of the specified item. Returns TRUE or FALSE.
+// Sets the Header text of the specified item. Returns true or false.
 // ========================================================================================
-bool Header_SetItemText(HWND hwndHD, int nItem, LPCWSTR ptext)
-{
+bool Header_SetItemText(HWND hwndHD, int item_index, LPCWSTR ptext) {
     if (ptext == nullptr) return 0;
     HDITEM hdi{};
     hdi.mask = HDI_TEXT;
     hdi.cchTextMax = lstrlenW(ptext);
     hdi.pszText = (LPWSTR)ptext;
-    return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    return SendMessage(hwndHD, HDM_SETITEM, (WPARAM)item_index, (LPARAM)(HDITEMW*)&hdi);
 }
 
 
 // ========================================================================================
 // Gets the Header text of the specified item. 
 // ========================================================================================
-std::wstring Header_GetItemText(HWND hwndHD, int nItem)
-{
+std::wstring Header_GetItemText(HWND hwndHD, int item_index) {
     std::wstring buffer(MAX_PATH, NULL);
 
     HDITEM hdi{};
     hdi.mask = HDI_TEXT;
     hdi.cchTextMax = MAX_PATH;
     hdi.pszText = (LPWSTR)buffer.c_str();
-    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)item_index, (LPARAM)(HDITEMW*)&hdi);
 
     return buffer.substr(0, lstrlenW(buffer.c_str()));
-
 }
 
 
 // ========================================================================================
 // Gets the Header alignment of the specified item. 
 // ========================================================================================
-int Header_GetItemAlignment(HWND hwndHD, int nItem)
-{
+int Header_GetItemAlignment(HWND hwndHD, int item_index) {
     HDITEM hdi{};
     hdi.mask = HDI_FORMAT;
-    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)nItem, (LPARAM)(HDITEMW*)&hdi);
+    SendMessage(hwndHD, HDM_GETITEM, (WPARAM)item_index, (LPARAM)(HDITEMW*)&hdi);
 
     if ((hdi.fmt & ~HDF_STRING) == HDF_LEFT) return HDF_LEFT;
     if ((hdi.fmt & ~HDF_STRING) == HDF_CENTER) return HDF_CENTER;
@@ -1531,17 +1446,16 @@ int Header_GetItemAlignment(HWND hwndHD, int nItem)
 // Inserts an item into a header control. Returns the index of the new item.
 // hwndHeader - handle to the header control. 
 // iInsertAfter - index of the previous item. 
-// nWidth - width of the new item. 
+// width - width of the new item. 
 // lpsz - address of the item string. 
 // ========================================================================================
-bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR ptext, int Alignment)
-{
+bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int width, LPCWSTR ptext, int alignment) {
     HDITEM hdi{};
     hdi.mask = HDI_TEXT | HDI_FORMAT | HDI_WIDTH;
-    hdi.cxy = nWidth;
+    hdi.cxy = width;
     hdi.pszText = (LPWSTR)ptext; // lpsz;
     hdi.cchTextMax = lstrlenW(ptext);
-    hdi.fmt = Alignment | HDF_STRING;
+    hdi.fmt = alignment | HDF_STRING;
 
     return SendMessage(hwndHD, HDM_INSERTITEM, (WPARAM)iInsertAfter, (LPARAM)&hdi);
 }
@@ -1550,16 +1464,14 @@ bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int nWidth, LPCWSTR pte
 // ========================================================================================
 // Convert a string to uppercase or lowercase. 
 // ========================================================================================
-std::wstring AfxUpper(const std::wstring& text)
-{
+std::wstring AfxUpper(const std::wstring& text) {
     // using transform() function and ::toupper in STL
     std::wstring s = text;
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     return s;
 }
 
-std::wstring AfxLower(const std::wstring& text)
-{
+std::wstring AfxLower(const std::wstring& text) {
     // using transform() function and ::tolower in STL
     std::wstring s = text;
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -1570,8 +1482,7 @@ std::wstring AfxLower(const std::wstring& text)
 //' ========================================================================================
 //  Determine if program is running under Wine in Linux
 //' ========================================================================================
-bool isWineActive()
-{
+bool isWineActive() {
     HMODULE hntdll = GetModuleHandle(L"ntdll.dll");
     if (!hntdll) return false;
     FARPROC pwine_get_version = GetProcAddress(hntdll, "wine_get_version");

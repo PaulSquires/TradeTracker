@@ -8,7 +8,7 @@
 #endif
 
 
-virtual void tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib) EWRAPPER_VIRTUAL_IMPL;
+virtual void tickPrice( TickerId ticker_id, TickType field, double price, const TickAttrib& attrib) EWRAPPER_VIRTUAL_IMPL;
 virtual void connectionClosed() EWRAPPER_VIRTUAL_IMPL;
 virtual void connectAck() EWRAPPER_VIRTUAL_IMPL;
 virtual void error(int id, int errorCode, const std::string& errorString, const std::string& advancedOrderRejectJson) EWRAPPER_VIRTUAL_IMPL;
@@ -16,9 +16,9 @@ virtual void position( const std::string& account, const Contract& contract, Dec
 virtual void positionEnd() EWRAPPER_VIRTUAL_IMPL;
 
 
-virtual void tickSize(TickerId tickerId, TickType field, Decimal size) EWRAPPER_VIRTUAL_IMPL;
-virtual void tickGeneric(TickerId tickerId, TickType tickType, double value) EWRAPPER_VIRTUAL_IMPL;
-virtual void tickString(TickerId tickerId, TickType tickType, const std::string& value) EWRAPPER_VIRTUAL_IMPL;
+virtual void tickSize(TickerId ticker_id, TickType field, Decimal size) EWRAPPER_VIRTUAL_IMPL;
+virtual void tickGeneric(TickerId ticker_id, TickType tickType, double value) EWRAPPER_VIRTUAL_IMPL;
+virtual void tickString(TickerId ticker_id, TickType tickType, const std::string& value) EWRAPPER_VIRTUAL_IMPL;
 virtual void tickByTickAllLast(int reqId, int tickType, time_t time, double price, Decimal size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) EWRAPPER_VIRTUAL_IMPL;
 virtual void winError( const std::string& str, int lastError) EWRAPPER_VIRTUAL_IMPL;
 virtual void updateAccountValue(const std::string& key, const std::string& val,

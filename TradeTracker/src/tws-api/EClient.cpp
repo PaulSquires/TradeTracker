@@ -238,25 +238,25 @@ int EClient::bufferedSend(const std::string& msg) {
     return m_transport->send(&emsg);
 }
 
-void EClient::reqMktData(TickerId tickerId, const Contract& contract,
+void EClient::reqMktData(TickerId ticker_id, const Contract& contract,
                          const std::string& genericTicks, bool snapshot, bool regulatorySnaphsot, const TagValueListSPtr& mktDataOptions)
 {
     // not connected?
     if( !isConnected()) {
-        m_pEWrapper->error( tickerId, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        m_pEWrapper->error( ticker_id, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
         return;
     }
 
     // not needed anymore validation
     //if( m_serverVersion < MIN_SERVER_VER_SNAPSHOT_MKT_DATA && snapshot) {
-    //	m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+    //	m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
     //		"  It does not support snapshot market data requests.");
     //	return;
     //}
 
     if( m_serverVersion < MIN_SERVER_VER_DELTA_NEUTRAL) {
         if( contract.deltaNeutralContract) {
-            m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
                 "  It does not support delta-neutral orders.", "");
             return;
         }
@@ -264,7 +264,7 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
 
     if (m_serverVersion < MIN_SERVER_VER_REQ_MKT_DATA_CONID) {
         if( contract.conId > 0) {
-            m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
                 "  It does not support conId parameter.", "");
             return;
         }
@@ -272,7 +272,7 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
 
     if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
         if( !contract.tradingClass.empty() ) {
-            m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
                 "  It does not support tradingClass parameter in reqMktData.", "");
             return;
         }
@@ -287,7 +287,7 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
         // send req mkt data msg
         ENCODE_FIELD( REQ_MKT_DATA);
         ENCODE_FIELD( VERSION);
-        ENCODE_FIELD( tickerId);
+        ENCODE_FIELD( ticker_id);
 
         // send contract fields
         if( m_serverVersion >= MIN_SERVER_VER_REQ_MKT_DATA_CONID) {
@@ -354,18 +354,18 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
         }
     }
     catch (EClientException& ex) {
-        m_pEWrapper->error(tickerId, ex.error().code(), ex.error().msg() + ex.text(), "");
+        m_pEWrapper->error(ticker_id, ex.error().code(), ex.error().msg() + ex.text(), "");
         return;
     }
 
     closeAndSend( msg.str());
 }
 
-void EClient::cancelMktData(TickerId tickerId)
+void EClient::cancelMktData(TickerId ticker_id)
 {
     // not connected?
     if( !isConnected()) {
-        m_pEWrapper->error( tickerId, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        m_pEWrapper->error( ticker_id, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
         return;
     }
 
@@ -377,16 +377,16 @@ void EClient::cancelMktData(TickerId tickerId)
     // send cancel mkt data msg
     ENCODE_FIELD( CANCEL_MKT_DATA);
     ENCODE_FIELD( VERSION);
-    ENCODE_FIELD( tickerId);
+    ENCODE_FIELD( ticker_id);
 
     closeAndSend( msg.str());
 }
 
-void EClient::reqMktDepth( TickerId tickerId, const Contract& contract, int numRows, bool isSmartDepth, const TagValueListSPtr& mktDepthOptions)
+void EClient::reqMktDepth( TickerId ticker_id, const Contract& contract, int numRows, bool isSmartDepth, const TagValueListSPtr& mktDepthOptions)
 {
     // not connected?
     if( !isConnected()) {
-        m_pEWrapper->error( tickerId, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        m_pEWrapper->error( ticker_id, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
         return;
     }
 
@@ -399,20 +399,20 @@ void EClient::reqMktDepth( TickerId tickerId, const Contract& contract, int numR
 
     if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
         if( !contract.tradingClass.empty() || (contract.conId > 0)) {
-            m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+            m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
                 "  It does not support conId and tradingClass parameters in reqMktDepth.", "");
             return;
         }
     }
 
     if (m_serverVersion < MIN_SERVER_VER_SMART_DEPTH && isSmartDepth) {
-        m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+        m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
             "  It does not support SMART depth request.", "");
         return;
     }
 
     if (m_serverVersion < MIN_SERVER_VER_MKT_DEPTH_PRIM_EXCHANGE && !contract.primaryExchange.empty()) {
-        m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+        m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
             "  It does not support primaryExchange parameter in reqMktDepth.", "");
         return;
     }
@@ -426,7 +426,7 @@ void EClient::reqMktDepth( TickerId tickerId, const Contract& contract, int numR
         // send req mkt data msg
         ENCODE_FIELD( REQ_MKT_DEPTH);
         ENCODE_FIELD( VERSION);
-        ENCODE_FIELD( tickerId);
+        ENCODE_FIELD( ticker_id);
 
         // send contract fields
         if( m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
@@ -460,7 +460,7 @@ void EClient::reqMktDepth( TickerId tickerId, const Contract& contract, int numR
         }
     }
     catch (EClientException& ex) {
-        m_pEWrapper->error(tickerId, ex.error().code(), ex.error().msg() + ex.text(), "");
+        m_pEWrapper->error(ticker_id, ex.error().code(), ex.error().msg() + ex.text(), "");
         return;
     }
 
@@ -468,16 +468,16 @@ void EClient::reqMktDepth( TickerId tickerId, const Contract& contract, int numR
 }
 
 
-void EClient::cancelMktDepth( TickerId tickerId, bool isSmartDepth)
+void EClient::cancelMktDepth( TickerId ticker_id, bool isSmartDepth)
 {
     // not connected?
     if( !isConnected()) {
-        m_pEWrapper->error( tickerId, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
+        m_pEWrapper->error( ticker_id, NOT_CONNECTED.code(), NOT_CONNECTED.msg(), "");
         return;
     }
 
     if (m_serverVersion < MIN_SERVER_VER_SMART_DEPTH && isSmartDepth) {
-        m_pEWrapper->error( tickerId, UPDATE_TWS.code(), UPDATE_TWS.msg() +
+        m_pEWrapper->error( ticker_id, UPDATE_TWS.code(), UPDATE_TWS.msg() +
             "  It does not support SMART depth cancel.", "");
         return;
     }
@@ -497,7 +497,7 @@ void EClient::cancelMktDepth( TickerId tickerId, bool isSmartDepth)
     // send cancel mkt data msg
     ENCODE_FIELD( CANCEL_MKT_DEPTH);
     ENCODE_FIELD( VERSION);
-    ENCODE_FIELD( tickerId);
+    ENCODE_FIELD( ticker_id);
 
     if( m_serverVersion >= MIN_SERVER_VER_SMART_DEPTH) {
         ENCODE_FIELD( isSmartDepth);
@@ -543,7 +543,7 @@ void EClient::reqAccountUpdates(bool subscribe, const std::string& acctCode)
         // send req acct msg
         ENCODE_FIELD( REQ_ACCT_DATA);
         ENCODE_FIELD( VERSION);
-        ENCODE_FIELD( subscribe);  // TRUE = subscribe, FALSE = unsubscribe.
+        ENCODE_FIELD( subscribe);  // true = subscribe, false = unsubscribe.
 
         // Send the account code. This will only be used for FA clients
         ENCODE_FIELD( acctCode); // srv v9 and above

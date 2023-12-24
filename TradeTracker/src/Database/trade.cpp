@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -29,14 +29,12 @@ SOFTWARE.
 #include "Utilities/AfxWin.h"
 
 
-bool Leg::isOpen()
-{
+bool Leg::isOpen() {
     return  (open_quantity == 0 ? false : true);
 }
 
 
-void Trade::SetTradeOpenStatus()
-{
+void Trade::SetTradeOpenStatus() {
     // default that the Trade is closed
     is_open = false;
 
@@ -64,7 +62,7 @@ void Trade::SetTradeOpenStatus()
 
     // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO. 
     if (do_quantity_check) {
-        this->is_open = (aggregate == 0 ? false : true);
+        this->is_open = (aggregate == 0) ? false : true;
         return;
     }
 
@@ -73,8 +71,7 @@ void Trade::SetTradeOpenStatus()
 }
 
 
-void Trade::CalculateAdjustedCostBase()
-{
+void Trade::CalculateAdjustedCostBase() {
     this->acb = 0;
     for (const auto& trans : this->transactions) {
         this->acb += trans->total;
@@ -82,8 +79,7 @@ void Trade::CalculateAdjustedCostBase()
 }
 
 
-void Trade::CreateOpenLegsVector()
-{
+void Trade::CreateOpenLegsVector() {
     // Create the openLegs vector. We need this vector because we have to sort the
     // collection of open legs in order to have Puts before Calls. There could be
     // multiple Transactions in this trade and therefore Puts and Calls would not
@@ -122,11 +118,11 @@ void Trade::CreateOpenLegsVector()
     // Finally, sort the vector based on Puts first with lowest Strike Price.
     std::sort(open_legs.begin(), open_legs.end(),
         [](const auto& leg1, const auto& leg2) {
-            if (leg1->PutCall == L"P" && leg2->PutCall == L"C") {return true;}
-            if (leg1->PutCall == L"P" && leg2->PutCall == L"P") {
+            if (leg1->put_call == L"P" && leg2->put_call == L"C") {return true;}
+            if (leg1->put_call == L"P" && leg2->put_call == L"P") {
                 if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
             }
-            if (leg1->PutCall == L"C" && leg2->PutCall == L"C") {
+            if (leg1->put_call == L"C" && leg2->put_call == L"C") {
                 if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
             }
             return false;

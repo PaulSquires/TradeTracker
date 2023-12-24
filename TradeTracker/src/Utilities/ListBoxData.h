@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -72,7 +72,7 @@ class ListBoxData {
 public:
     LineType        line_type = LineType::none;
     std::wstring    aggregate_shares;
-    TickerId        tickerId = -1;
+    TickerId        ticker_id = -1;
     std::shared_ptr<Trade> trade = nullptr;
     std::shared_ptr<Transaction> trans = nullptr;
     std::shared_ptr<Leg> leg = nullptr;
@@ -80,13 +80,13 @@ public:
 
 
     void SetData(
-        int index, const std::shared_ptr<Trade>& tradeptr, TickerId tickId,
+        int index, const std::shared_ptr<Trade>& tradeptr, TickerId ticker_id,
         const std::wstring& text, StringAlignment HAlignment, StringAlignment VAlignment, 
         DWORD back_theme, DWORD text_theme, REAL font_size, int font_style)
     {
-        if (tickId != -1) {
+        if (ticker_id != -1) {
             line_type = LineType::ticker_line;
-            tickerId = tickId;
+            ticker_id = ticker_id;
         }
         trade = tradeptr;
 
@@ -106,12 +106,10 @@ public:
         col[index].text = text;
         col[index].text_theme = textTheme;
     }
-
 };
 
 
-enum class TableType
-{
+enum class TableType {
     active_trades,
     closed_trades,
     trade_history,
@@ -249,8 +247,8 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType table_type);
 void ListBoxData_DestroyItemData(HWND hListBox);
 void ListBoxData_RequestMarketData(HWND hListBox);
 void ListBoxData_NoTradesExistMessage(HWND hListBox);
-void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
-void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId tickerId);
+void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId ticker_id);
+void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId ticker_id);
 void ListBoxData_HistoryHeader(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_HistoryOptionsLeg(
@@ -272,5 +270,5 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double running_gro
     double running_fees_total, double running_net_total);
 void ListBoxData_OutputTransaction(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
 void ListBoxData_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
-void Header_OnPaint(HWND hWnd);
+void Header_OnPaint(HWND hwnd);
 

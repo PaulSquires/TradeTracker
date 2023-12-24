@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -26,21 +26,18 @@ SOFTWARE.
 
 #pragma once
 
-enum class CustomTextBoxNegative
-{
+enum class CustomTextBoxNegative {
 	allow,
 	disallow
 };
 
-enum class CustomTextBoxFormatting
-{
+enum class CustomTextBoxFormatting {
 	allow,
 	disallow
 };
 
 
-class CustomTextBox
-{
+class CustomTextBox {
 private:
 	float m_rx = 0;
 	float m_ry = 0;
@@ -54,7 +51,7 @@ public:
 	HINSTANCE hInst = NULL;
 	std::wstring user_data;
 
-	int CtrlId = 0;
+	int ctrl_id = 0;
 
 	DWORD back_color{};
 	HBRUSH back_brush = NULL;
@@ -96,6 +93,6 @@ std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 void CustomTextBox_SetSelectOnFocus(HWND hCtrl, bool allow_select_onfocus);
 void CustomTextBox_AttachScrollBar(HWND hCtrl, HWND hScrollBar);
 
-HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR CtrlId, bool is_multiLine,
-	int alignment, std::wstring text, int nLeft, int nTop, int nWidth, int nHeight);
+HWND CreateCustomTextBox(HWND hWndParent, LONG_PTR ctrl_id, bool is_multiLine,
+	int alignment, std::wstring text, int left, int top, int width, int height);
 

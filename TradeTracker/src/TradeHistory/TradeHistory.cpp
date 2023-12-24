@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -50,19 +50,16 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy);
 // ========================================================================================
 // Populate the History ListBox with the current active/open trades
 // ========================================================================================
-void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
-{
+void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
     HWND hListBox = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
     HWND hSymbol = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_SYMBOL);
     HWND hNotesText = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES);
 
-
     // Ensure that the Trade History panel is set
     MainWindow_SetRightPanel(HWND_TRADEHISTORY);
 
-
-    if (trade == nullptr) {
+    if (!trade) {
         // Clear the current trade history table
         ListBoxData_DestroyItemData(hListBox);
         CustomTextBox_SetText(hNotesText, L"");
@@ -76,15 +73,13 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
     tradeNotes = trade;
 
     // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
+    SendMessage(hListBox, WM_SETREDRAW, false, 0);
     
     std::wstring ticker = trade->ticker_symbol + L": " + trade->ticker_name;
     if (IsFuturesTicker(trade->ticker_symbol)) ticker += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
     CustomLabel_SetText(hSymbol, ticker);
 
     CustomTextBox_SetText(hNotesText, trade->notes);
-
 
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
@@ -128,106 +123,94 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade)
     }
     ListBoxData_AddBlankLine(hListBox);
 
-
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
     ListBoxData_ResizeColumnWidths(hListBox, TableType::trade_history);
 
-
     // Set the ListBox to the topline.
     ListBox_SetTopIndex(hListBox, 0);
 
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    SendMessage(hListBox, WM_SETREDRAW, true, 0);
     AfxRedrawWindow(hListBox);
 
     RECT rc; GetClientRect(HWND_TRADEHISTORY, &rc);
     TradeHistory_OnSize(HWND_TRADEHISTORY, 0, rc.right, rc.bottom);
 
     CustomVScrollBar_Recalculate(hCustomVScrollBar);
-
 }
-
 
 
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
     // Create static accumulation variable to collect the data from
     // a series of middle mouse wheel scrolls.
-    static int accumDelta = 0;
+    static int accum_delta = 0;
 
     // Track the last hot Transaction line
     static int last_hot_index = 0;
 
+    switch (uMsg) {
 
-    switch (uMsg)
-    {
-
-    case WM_MOUSEWHEEL:
-    {
+    case WM_MOUSEWHEEL: {
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
-        accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
+        int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
+        accum_delta += zdelta;
+        if (accum_delta >= 120) {     // scroll up 3 lines
             top_index -= 3;
             top_index = max(0, top_index);
-            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-            accumDelta = 0;
+            SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+            accum_delta = 0;
         }
         else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
+            if (accum_delta <= -120) {     // scroll down 3 lines
                 top_index += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-                accumDelta = 0;
+                SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+                accum_delta = 0;
             }
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
-        break;
     }
 
-
-    case WM_LBUTTONDOWN:
-    {
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    case WM_LBUTTONDOWN: {
+        int idx = Listbox_ItemFromPoint(hwnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwnd, idx);
         if (ld != nullptr) {
             if (ld->line_type == LineType::transaction_header) {
                 TransDetail_ShowTransDetail(ld->trade, ld->trans);
             }
         }
 
+        break;
     }
-    break;
 
-
-    case WM_MOUSEMOVE:
-    {
+    case WM_MOUSEMOVE: {
         // Track that we are over the control in order to catch the 
         // eventual WM_MOUSEHOVER and WM_MOUSELEAVE events
         TRACKMOUSEEVENT tme{};
         tme.cbSize = sizeof(TRACKMOUSEEVENT);
         tme.dwFlags = TME_LEAVE;
-        tme.hwndTrack = hWnd;
+        tme.hwndTrack = hwnd;
         TrackMouseEvent(&tme);
 
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        int idx = Listbox_ItemFromPoint(hwnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
@@ -236,62 +219,56 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
         
         // Hot highlight the new line 
         if (HIWORD(idx) != 1 && idx > -1) {
-            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, idx);
+            ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwnd, idx);
             if (ld != nullptr) {
                 if (ld->line_type == LineType::transaction_header && idx != last_hot_index) {
                     ld->col[8].text_theme = COLOR_WHITEDARK;
 
                     // Update the Text color for the previous highlight line (make icon hidden)
-                    ld = (ListBoxData*)ListBox_GetItemData(hWnd, last_hot_index);
+                    ld = (ListBoxData*)ListBox_GetItemData(hwnd, last_hot_index);
                     if (ld != nullptr) {
                         ld->col[8].text_theme = COLOR_GRAYDARK;
                     }
                     last_hot_index = idx;
-                    AfxRedrawWindow(hWnd);
+                    AfxRedrawWindow(hwnd);
                 }
             }
         }
 
         return 0;
     }
-    break;
 
-
-    case WM_MOUSELEAVE:
-    {
+    case WM_MOUSELEAVE: {
         // Update the Text color for the previous highlight line
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hWnd, last_hot_index);
-        if (ld != nullptr) {
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwnd, last_hot_index);
+        if (ld) {
             ld->col[8].text_theme = COLOR_GRAYDARK;
         }
-        AfxRedrawWindow(hWnd);
+        AfxRedrawWindow(hwnd);
         last_hot_index = 0;
         return 0;
     }
-    break;
 
-
-    case WM_ERASEBKGND:
-    {
+    case WM_ERASEBKGND: {
         // If the number of lines in the listbox maybe less than the number per page then 
         // calculate from last item to bottom of listbox, otherwise calculate based on
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
-        RECT rc; GetClientRect(hWnd, &rc);
+        RECT rc; GetClientRect(hwnd, &rc);
         
         RECT rcItem{};
-        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int item_height = (rcItem.bottom - rcItem.top);
-        int items_count = ListBox_GetCount(hWnd);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        int items_count = ListBox_GetCount(hwnd);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;
-        int nWidth = (rc.right - rc.left);
-        int nHeight = (rc.bottom - rc.top);
+        int width = (rc.right - rc.left);
+        int height = (rc.bottom - rc.top);
 
-        if (items_count > 0) {
-            items_per_page = (nHeight) / item_height;
+        if (items_count) {
+            items_per_page = (height) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
@@ -300,45 +277,39 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
         }
 
         if (rc.top < rc.bottom) {
-            nHeight = (rc.bottom - rc.top);
+            height = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             Color back_color(COLOR_GRAYDARK);
             SolidBrush back_brush(back_color);
-            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
         }
 
-        ValidateRect(hWnd, &rc);
-        return TRUE;
-        break;
-
+        ValidateRect(hwnd, &rc);
+        return true;
     }
 
-
-    case WM_DESTROY:
+    case WM_DESTROY: {
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
-        ListBoxData_DestroyItemData(hWnd);
+        ListBoxData_DestroyItemData(hwnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TradeHistory_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TradeHistory_ListBox_SubclassProc, uIdSubclass);
         break;
-
+    }
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
-
 
 
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TradeHistory
 // ========================================================================================
-void TradeHistory_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
-{
+void TradeHistory_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(HISTORY_LISTBOX_ROWHEIGHT);
 }
 
@@ -346,18 +317,16 @@ void TradeHistory_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TradeHistory
 // ========================================================================================
-BOOL TradeHistory_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TradeHistory_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TradeHistory
 // ========================================================================================
-void TradeHistory_OnPaint(HWND hwnd)
-{
+void TradeHistory_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -368,9 +337,9 @@ void TradeHistory_OnPaint(HWND hwnd)
     SolidBrush back_brush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -379,19 +348,17 @@ void TradeHistory_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: TradeHistory
 // ========================================================================================
-void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
+void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     static bool is_notes_dirty = false;
     static std::shared_ptr<Trade> trade = nullptr;
     static std::wstring notes = L"";
 
-    switch (id)
-    {
-    case (IDC_HISTORY_TXTNOTES):
+    switch (id) {
+    case IDC_HISTORY_TXTNOTES: {
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
                 if (trade != nullptr) trade->notes = notes;
-                
+
                 // Save the database because the Notes for this Trade has been updated.
                 SaveDatabase();
 
@@ -401,20 +368,19 @@ void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             }
             break;
         }
-
-        if (codeNotify == EN_CHANGE) {
+        else if (codeNotify == EN_CHANGE) {
             notes = AfxGetWindowText(hwndCtl);
             is_notes_dirty = true;
             break;
         }
-
-        if (codeNotify == EN_SETFOCUS) {
+        else if (codeNotify == EN_SETFOCUS) {
             trade = tradeNotes;
             is_notes_dirty = false;
             break;
         }
 
         break;
+    }
 
     }
 }
@@ -423,8 +389,7 @@ void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TradeHistory
 // ========================================================================================
-void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HWND hListBox = GetDlgItem(hwnd, IDC_HISTORY_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR);
     HWND hSeparator = GetDlgItem(hwnd, IDC_HISTORY_SEPARATOR);
@@ -447,7 +412,7 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool show_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
-    if (pData != nullptr) {
+    if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
         }
@@ -460,46 +425,44 @@ void TradeHistory_OnSize(HWND hwnd, UINT state, int cx, int cy)
     int height_notes_textbox = AfxScaleY(100);
     int height_notes_label = AfxScaleY(24);
 
-    int nLeft = 0;
-    int nTop = margin;
-    int nWidth = cx - custom_scrollbar_width;
-    int nHeight = cy - nTop - height_notes_textbox - height_notes_label - AfxScaleY(10);
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
+    int left = 0;
+    int top = margin;
+    int width = cx - custom_scrollbar_width;
+    int height = cy - top - height_notes_textbox - height_notes_label - AfxScaleY(10);
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | show_flag);
 
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nTop = margin;
-    nWidth = custom_scrollbar_width;
+    left = left + width;   // right edge of ListBox
+    top = margin;
+    width = custom_scrollbar_width;
 
     int int_show_scrollbar = (show_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
     if (show_flag == SWP_HIDEWINDOW) int_show_scrollbar = SWP_HIDEWINDOW;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height,
         SWP_NOZORDER | int_show_scrollbar);
 
-    nLeft = 0;
-    nTop = nTop + nHeight + AfxScaleY(5);
-    nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hSeparator, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | show_flag);
+    left = 0;
+    top = top + height + AfxScaleY(5);
+    width = cx;
+    hdwp = DeferWindowPos(hdwp, hSeparator, 0, left, top, width, height, SWP_NOZORDER | show_flag);
 
-    nLeft = 0;
-    nTop = cy - height_notes_textbox - height_notes_label;
-    nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, nLeft, nTop, nWidth, height_notes_label, SWP_NOZORDER | show_flag);
+    left = 0;
+    top = cy - height_notes_textbox - height_notes_label;
+    width = cx;
+    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0, left, top, width, height_notes_label, SWP_NOZORDER | show_flag);
 
-    nLeft = 0;
-    nTop = cy - height_notes_textbox;
-    nWidth = cx;
-    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, nLeft, nTop, nWidth, height_notes_textbox, SWP_NOZORDER | show_flag);
+    left = 0;
+    top = cy - height_notes_textbox;
+    width = cx;
+    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0, left, top, width, height_notes_textbox, SWP_NOZORDER | show_flag);
 
     EndDeferWindowPos(hdwp);
-
 }
 
 
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TradeHistory
 // ========================================================================================
-BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TRADEHISTORY = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_SYMBOL, L"Trade History",
@@ -519,7 +482,6 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_HISTORY_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
-
 
     CustomLabel_SimpleLabel(hwnd, IDC_HISTORY_LBLNOTES, L"Notes", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_left, 0, 0, 0, 0);
@@ -542,17 +504,15 @@ BOOL TradeHistory_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetOptions(hCtl, pData);
     }
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTradeHistory::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTradeHistory::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TradeHistory_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradeHistory_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, TradeHistory_OnPaint);
@@ -560,8 +520,7 @@ LRESULT CTradeHistory::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_SIZE, TradeHistory_OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TradeHistory_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 

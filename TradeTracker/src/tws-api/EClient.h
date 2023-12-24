@@ -269,8 +269,8 @@ public:
 		const std::string& genericTicks, bool snapshot, bool regulatorySnaphsot, const TagValueListSPtr& mktDataOptions);
 	void cancelMktData(TickerId id);
 	void reqAccountUpdates(bool subscribe, const std::string& acctCode);
-	void reqMktDepth(TickerId tickerId, const Contract& contract, int numRows, bool isSmartDepth, const TagValueListSPtr& mktDepthOptions);
-	void cancelMktDepth(TickerId tickerId, bool isSmartDepth);
+	void reqMktDepth(TickerId ticker_id, const Contract& contract, int numRows, bool isSmartDepth, const TagValueListSPtr& mktDepthOptions);
+	void cancelMktDepth(TickerId ticker_id, bool isSmartDepth);
 	void reqCurrentTime();
 	void reqPositions();
 	void cancelPositions();

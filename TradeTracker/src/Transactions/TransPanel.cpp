@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -48,52 +48,49 @@ CTransPanel TransPanel;
 // ========================================================================================
 // Set the StartDate and EndDate based on the current value of the Date Filter.
 // ========================================================================================
-void TransPanel_SetStartEndDates(HWND hwnd)
-{
+void TransPanel_SetStartEndDates(HWND hwnd) {
     int idx = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRANS_TRANSDATE));
 
     // Do not modify dates if Custom has been set.
     if ((TransDateFilterType)idx == TransDateFilterType::Custom) return;
 
-    std::wstring wszEndDate = AfxCurrentDate();   // ISO format
-    std::wstring wszStartDate = wszEndDate;       // ISO format
-    int AdjustDays = 0;
+    std::wstring end_date = AfxCurrentDate();   // ISO format
+    std::wstring start_date = end_date;       // ISO format
+    int adjust_days = 0;
 
     if ((TransDateFilterType)idx == TransDateFilterType::YearToDate) {
-        wszStartDate = wszEndDate.substr(0, 4)+ L"-01-01";
+        start_date = end_date.substr(0, 4)+ L"-01-01";
     }
     else if ((TransDateFilterType)idx == TransDateFilterType::Yesterday) {
-        wszStartDate = AfxDateAddDays(wszEndDate, -1);
-        wszEndDate = wszStartDate;
+        start_date = AfxDateAddDays(end_date, -1);
+        end_date = start_date;
     }
     else if ((TransDateFilterType)idx == TransDateFilterType::Today) {
         // Dates are already set to current date
     }
     else {
-        switch ((TransDateFilterType)idx)
-        {
-        case TransDateFilterType::Days7: AdjustDays = 7; break;
-        case TransDateFilterType::Days14: AdjustDays = 14; break;
-        case TransDateFilterType::Days30: AdjustDays = 30; break;
-        case TransDateFilterType::Days60: AdjustDays = 60; break;
-        case TransDateFilterType::Days120: AdjustDays = 120; break;
+        switch ((TransDateFilterType)idx) {
+        case TransDateFilterType::Days7: adjust_days = 7; break;
+        case TransDateFilterType::Days14: adjust_days = 14; break;
+        case TransDateFilterType::Days30: adjust_days = 30; break;
+        case TransDateFilterType::Days60: adjust_days = 60; break;
+        case TransDateFilterType::Days120: adjust_days = 120; break;
         }
-        wszStartDate = AfxDateAddDays(wszEndDate, -(AdjustDays));
+        start_date = AfxDateAddDays(end_date, -(adjust_days));
     }
 
-    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRANS_STARTDATE), wszStartDate);
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRANS_STARTDATE), AfxLongDate(wszStartDate));
+    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRANS_STARTDATE), start_date);
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRANS_STARTDATE), AfxLongDate(start_date));
 
-    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRANS_ENDDATE), wszEndDate);
-    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRANS_ENDDATE), AfxLongDate(wszEndDate));
+    CustomLabel_SetUserData(GetDlgItem(hwnd, IDC_TRANS_ENDDATE), end_date);
+    CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRANS_ENDDATE), AfxLongDate(end_date));
 }
 
 
 // ========================================================================================
 // Central function that actually selects and displays the incoming ListBox index item.
 // ========================================================================================
-void TransPanel_ShowListBoxItem(int index)
-{
+void TransPanel_ShowListBoxItem(int index) {
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
@@ -109,7 +106,7 @@ void TransPanel_ShowListBoxItem(int index)
     // can show the transaction detail.
     if (index > -1) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
-        if (ld != nullptr)
+        if (ld)
             TransDetail_ShowTransDetail(ld->trade, ld->trans);
     }
 
@@ -120,8 +117,7 @@ void TransPanel_ShowListBoxItem(int index)
 // ========================================================================================
 // Populate the Transaction ListBox with the Transactions per the user selected dates.
 // ========================================================================================
-void TransPanel_ShowTransactions()
-{
+void TransPanel_ShowTransactions() {
     HWND hListBox = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
 
@@ -133,8 +129,7 @@ void TransPanel_ShowTransactions()
     MainWindow_SetRightPanel(HWND_TRANSDETAIL);
 
     // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(hListBox, WM_SETREDRAW, FALSE, 0);
-
+    SendMessage(hListBox, WM_SETREDRAW, false, 0);
 
     struct TransData {
         std::shared_ptr<Trade> trade;
@@ -143,19 +138,19 @@ void TransPanel_ShowTransactions()
     std::vector<TransData> tdata;
     tdata.reserve(2000);    // reserve space for 2000 Transactions
 
-    std::wstring wszStartDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
-    std::wstring wszEndDate = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
+    std::wstring start_date = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
+    std::wstring end_date = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
 
-    std::wstring wszTicker = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
-    wszTicker = AfxTrim(wszTicker);
+    std::wstring ticker = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
+    ticker = AfxTrim(ticker);
 
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
-            if (wszTicker.length() > 0) {
-                if (wszTicker != trade->ticker_symbol) continue;
+            if (ticker.length() > 0) {
+                if (ticker != trade->ticker_symbol) continue;
             }
 
-            if (trans->trans_date < wszStartDate || trans->trans_date > wszEndDate) continue;
+            if (trans->trans_date < start_date || trans->trans_date > end_date) continue;
 
             TransData td;
             td.trade = trade;
@@ -163,7 +158,6 @@ void TransPanel_ShowTransactions()
             tdata.push_back(td);
         }
     }
-
 
     // Sort the vector based on most recent date then by ticker
     std::sort(tdata.begin(), tdata.end(),
@@ -185,28 +179,24 @@ void TransPanel_ShowTransactions()
     ListBoxData_DestroyItemData(hListBox);
 
     // Create the new Listbox data that will display for the Transactions
-    double runningGrossTotal = 0;
-    double runningFeesTotal = 0;
-    double runningNetTotal = 0;
+    double running_gross_total = 0;
+    double running_fees_total = 0;
+    double running_net_total = 0;
 
     for (const auto& td : tdata) {
         ListBoxData_OutputTransaction(hListBox, td.trade, td.trans);
-
-        runningNetTotal += td.trans->total;
-        runningFeesTotal += td.trans->fees;
-        runningGrossTotal += (td.trans->total + td.trans->fees);
+        running_net_total += td.trans->total;
+        running_fees_total += td.trans->fees;
+        running_gross_total += (td.trans->total + td.trans->fees);
     }
-    ListBoxData_OutputTransactionRunningTotal(hListBox, runningGrossTotal, runningFeesTotal, runningNetTotal);
-
+    ListBoxData_OutputTransactionRunningTotal(hListBox, running_gross_total, running_fees_total, running_net_total);
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     ListBoxData_ResizeColumnWidths(hListBox, TableType::trans_panel);
 
-
     // Set the ListBox to the topline.
     ListBox_SetTopIndex(hListBox, 0);
-
 
     // If no transactions then add at least one line
     if (ListBox_GetCount(hListBox)) {
@@ -221,49 +211,39 @@ void TransPanel_ShowTransactions()
 
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, TRUE, 0);
+    SendMessage(hListBox, WM_SETREDRAW, true, 0);
     AfxRedrawWindow(hListBox);
-
 }
-
 
 
 // ========================================================================================
 // Header control subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TransPanel_Header_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_ERASEBKGND:
-    {
-        return TRUE;
+    case WM_ERASEBKGND: {
+        return true;
     }
 
-
-    case WM_PAINT:
-    {
-        Header_OnPaint(hWnd);
+    case WM_PAINT: {
+        Header_OnPaint(hwnd);
         return 0;
-        break;
     }
 
-
-    case WM_DESTROY:
-
+    case WM_DESTROY: {
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransPanel_Header_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TransPanel_Header_SubclassProc, uIdSubclass);
         break;
-
+    }
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
 
@@ -271,57 +251,50 @@ LRESULT CALLBACK TransPanel_Header_SubclassProc(
 // Listbox subclass Window procedure
 // ========================================================================================
 LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
-    HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
     // Create static accumulation variable to collect the data from
     // a series of middle mouse wheel scrolls.
-    static int accumDelta = 0;
+    static int accum_delta = 0;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         // Parent to handle the TAB navigation key to move amongst constrols.
         if (wParam == VK_TAB) {
-            if (SendMessage(GetParent(hWnd), uMsg, wParam, lParam) == TRUE)
+            if (SendMessage(GetParent(hwnd), uMsg, wParam, lParam))
                 return 0;
         }
+        break;
     }
-    break;
 
-
-    case WM_MOUSEWHEEL:
-    {
+    case WM_MOUSEWHEEL: {
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
-        accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
+        int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
+        accum_delta += zdelta;
+        if (accum_delta >= 120) {     // scroll up 3 lines
             top_index -= 3;
             top_index = max(0, top_index);
-            SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-            accumDelta = 0;
+            SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+            accum_delta = 0;
         }
         else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
+            if (accum_delta <= -120) {     // scroll down 3 lines
                 top_index += +3;
-                SendMessage(hWnd, LB_SETTOPINDEX, top_index, 0);
-                accumDelta = 0;
+                SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+                accum_delta = 0;
             }
         }
         HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
-        break;
     }
 
-
-    case WM_LBUTTONDOWN:
-    {
-        int idx = Listbox_ItemFromPoint(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    case WM_LBUTTONDOWN: {
+        int idx = Listbox_ItemFromPoint(hwnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
         // if the specified point is in the client area of the list box, or one if it is outside the 
         // client area.
@@ -331,75 +304,67 @@ LRESULT CALLBACK TransPanel_ListBox_SubclassProc(
         TransPanel_ShowListBoxItem(idx);
         return 0;
     }
-    break;
 
-
-    case WM_ERASEBKGND:
-    {
+    case WM_ERASEBKGND: {
         // If the number of lines in the listbox maybe less than the number per page then 
         // calculate from last item to bottom of listbox, otherwise calculate based on
         // the mod of the lineheight to listbox height so we can color the partial line
         // that won't be displayed at the bottom of the list.
-        RECT rc; GetClientRect(hWnd, &rc);
+        RECT rc; GetClientRect(hwnd, &rc);
         RECT rcItem{};
-        SendMessage(hWnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
-        int itemHeight = (rcItem.bottom - rcItem.top);
-        int items_count = ListBox_GetCount(hWnd);
-        int top_index = (int)SendMessage(hWnd, LB_GETTOPINDEX, 0, 0);
+        SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hwnd);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
         int visible_rows = 0;
         int items_per_page = 0;
         int bottom_index = 0;
-        int nWidth = (rc.right - rc.left);
-        int nHeight = (rc.bottom - rc.top);
+        int width = (rc.right - rc.left);
+        int height = (rc.bottom - rc.top);
 
         if (items_count > 0) {
-            items_per_page = (nHeight) / itemHeight;
+            items_per_page = (height) / item_height;
             bottom_index = (top_index + items_per_page);
             if (bottom_index >= items_count)
                 bottom_index = items_count - 1;
             visible_rows = (bottom_index - top_index) + 1;
-            rc.top = visible_rows * itemHeight;
+            rc.top = visible_rows * item_height;
         }
 
         if (rc.top < rc.bottom) {
-            nHeight = (rc.bottom - rc.top);
+            height = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
             Color back_color(COLOR_GRAYDARK);
             SolidBrush back_brush(back_color);
-            graphics.FillRectangle(&back_brush, rc.left, rc.top, nWidth, nHeight);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
         }
 
-        ValidateRect(hWnd, &rc);
-        return TRUE;
-        break;
-
+        ValidateRect(hwnd, &rc);
+        return true;
     }
 
-
-    case WM_DESTROY:
+    case WM_DESTROY: {
         // Destroy all manually allocated ListBox display data that is held
         // in the LineData structures..
-        ListBoxData_DestroyItemData(hWnd);
+        ListBoxData_DestroyItemData(hwnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hWnd, TransPanel_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, TransPanel_ListBox_SubclassProc, uIdSubclass);
         break;
-
+    }
 
     }   // end of switch statment
 
     // For messages that we don't deal with
-    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransPanel
 // ========================================================================================
-void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
-{
+void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
 }
 
@@ -407,18 +372,16 @@ void TransPanel_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TransPanel
 // ========================================================================================
-BOOL TransPanel_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool TransPanel_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TransPanel
 // ========================================================================================
-void TransPanel_OnPaint(HWND hwnd)
-{
+void TransPanel_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -430,9 +393,9 @@ void TransPanel_OnPaint(HWND hwnd)
     SolidBrush back_brush(back_color);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     // Paint the area to the left of the ListBox in order to give the illusion
     // of a margin before the ListBox data is displyed.
@@ -441,9 +404,9 @@ void TransPanel_OnPaint(HWND hwnd)
     // Set the background brush
     back_color.SetValue(COLOR_GRAYDARK);
     back_brush.SetColor(back_color);
-    nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    width = (ps.rcPaint.right - ps.rcPaint.left);
+    height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -452,8 +415,7 @@ void TransPanel_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TransPanel
 // ========================================================================================
-void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HWND hHeader = GetDlgItem(hwnd, IDC_TRANS_HEADER);
     HWND hListBox = GetDlgItem(hwnd, IDC_TRANS_LISTBOX);
     HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR);
@@ -463,7 +425,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bshow_scrollbar = false;
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
-    if (pData != nullptr) {
+    if (pData) {
         if (pData->drag_active) {
             bshow_scrollbar = true;
         }
@@ -473,80 +435,79 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
     }
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
-
     HDWP hdwp = BeginDeferWindowPos(15);
 
     int margin = AfxScaleY(TRANSPANEL_MARGIN);
-    int nLeft = AfxScaleY(APP_LEFTMARGIN_WIDTH);
-    int nTop = 0;
-    int nWidth = 0;
-    int nHeight = AfxScaleY(23);
-    int nStartTop = nTop;
+    int left = AfxScaleY(APP_LEFTMARGIN_WIDTH);
+    int top = 0;
+    int width = 0;
+    int height = AfxScaleY(23);
+    int start_top = top;
 
-    nStartTop = nHeight;
+    start_top = height;
 
-    nTop = nStartTop;
-    nWidth = AfxScaleX(75);
+    top = start_top;
+    width = AfxScaleX(75);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLTICKERFILTER), 0,
-        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_TXTTICKER), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-    nLeft += nWidth;
-    nWidth = AfxScaleX(23);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    left += width;
+    width = AfxScaleX(23);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDTICKERGO), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nStartTop;
-    nLeft += nWidth + AfxScaleX(18);
-    nWidth = AfxScaleX(90);
+    top = start_top;
+    left += width + AfxScaleX(18);
+    width = AfxScaleX(90);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLDATEFILTER), 0,
-        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_TRANSDATE), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-    nLeft += nWidth;
-    nWidth = AfxScaleX(23);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    left += width;
+    width = AfxScaleX(23);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDTRANSDATE), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nStartTop;
-    nLeft += nWidth + AfxScaleX(18);
-    nWidth = AfxScaleX(90);
+    top = start_top;
+    left += width + AfxScaleX(18);
+    width = AfxScaleX(90);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLSTARTDATE), 0,
-        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_STARTDATE), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-    nLeft += nWidth;
-    nWidth = AfxScaleX(23);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    left += width;
+    width = AfxScaleX(23);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDSTARTDATE), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nTop = nStartTop;
-    nLeft += nWidth + AfxScaleX(18);
-    nWidth = AfxScaleX(90);
+    top = start_top;
+    left += width + AfxScaleX(18);
+    width = AfxScaleX(90);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_LBLENDDATE), 0,
-        nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_ENDDATE), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-    nLeft += nWidth;
-    nWidth = AfxScaleX(23);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    left += width;
+    width = AfxScaleX(23);
     hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANS_CMDENDDATE), 0,
-        nLeft, nTop + nHeight, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = AfxScaleX(APP_LEFTMARGIN_WIDTH);
-    nTop = margin;
-    nWidth = cx;
-    nHeight = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
+    left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
+    top = margin;
+    width = cx;
+    height = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
 
-    hdwp = DeferWindowPos(hdwp, hHeader, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
-    nTop = nTop + nHeight + AfxScaleY(1);
+    hdwp = DeferWindowPos(hdwp, hHeader, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = top + height + AfxScaleY(1);
 
-    nWidth = cx - nLeft - custom_scrollbar_width;
-    nHeight = cy - nTop;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, nLeft, nTop, nWidth, nHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
+    width = cx - left - custom_scrollbar_width;
+    height = cy - top;
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    nLeft = nLeft + nWidth;   // right edge of ListBox
-    nWidth = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, nLeft, nTop, nWidth, nHeight,
+    left = left + width;   // right edge of ListBox
+    width = custom_scrollbar_width;
+    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
@@ -556,8 +517,7 @@ void TransPanel_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TransPanel
 // ========================================================================================
-BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TRANSPANEL = hwnd;
 
     int horiz_text_margin = 0;
@@ -580,7 +540,6 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"7 days",
@@ -596,7 +555,6 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
         COLOR_WHITEDARK, COLOR_BLACK);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, L"",
@@ -609,7 +567,6 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
 
     CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
         COLOR_WHITEDARK, COLOR_BLACK);
@@ -624,10 +581,8 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-
     // Set the Start & End dates based on the filter type.
     TransPanel_SetStartEndDates(hwnd);
-
 
     hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)TransPanel_Header_SubclassProc,
@@ -643,7 +598,6 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 
-
     // Create an Ownerdraw listbox that we will use to custom paint our Transactions.
     hCtl =
         TransPanel.AddControl(Controls::ListBox, hwnd, IDC_TRANS_LISTBOX, L"",
@@ -655,33 +609,31 @@ BOOL TransPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             IDC_TRANS_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
 
-
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
 
     SetFocus(GetDlgItem(hwnd, IDC_TRANS_TXTTICKER));
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: TransPanel
 // ========================================================================================
-void TransPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
-{
-    switch (codeNotify)
-    {
+void TransPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
+    switch (codeNotify) {
 
-    case (LBN_SELCHANGE):
-        int nCurSel = ListBox_GetCurSel(hwndCtl);
-        if (nCurSel == -1) break;
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, nCurSel);
-        if (ld != nullptr) {
+    case LBN_SELCHANGE: {
+        int current_sel = ListBox_GetCurSel(hwndCtl);
+        if (current_sel == -1) break;
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, current_sel);
+        if (ld) {
             // Show the transaction detail for the selected transaction
-            TransPanel_ShowListBoxItem(nCurSel);
+            TransPanel_ShowListBoxItem(current_sel);
         }
         break;
+    }
 
     }
 }
@@ -690,10 +642,8 @@ void TransPanel_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, TransPanel_OnCreate);
         HANDLE_MSG(m_hwnd, WM_COMMAND, TransPanel_OnCommand);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransPanel_OnEraseBkgnd);
@@ -702,29 +652,24 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransPanel_OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
-
-    case WM_KEYDOWN:
-    {
+    case WM_KEYDOWN: {
         // We are handling the TAB naviagation ourselves.
         if (wParam == VK_TAB) {
             HWND hFocus = GetFocus();
             HWND hNextCtrl = NULL;
             if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, TRUE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, true);
             }
             else {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, FALSE);
+                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, false);
             }
             SetFocus(hNextCtrl);
-            return TRUE;
+            return true;
         }
         return 0;
     }
-    break;
 
-
-    case WM_KEYUP:
-    {
+    case WM_KEYUP: {
         // Handle ENTER key if pressed in the Ticker textbox.
         HWND hTicker = GetDlgItem(m_hwnd, IDC_TRANS_TXTTICKER);
         if (GetFocus() == GetDlgItem(hTicker, 100)) {
@@ -735,11 +680,8 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     }
-    break;
 
-
-    case MSG_DATEPICKER_DATECHANGED:
-    {
+    case MSG_DATEPICKER_DATECHANGED: {
         // If the StartDate or EndDate is changed then we set the DateFilter to Custom.
         if ((HWND)lParam == GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE) ||
             (HWND)lParam == GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE)) {
@@ -753,33 +695,30 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         TransPanel_ShowTransactions();
         return 0;
     }
-    break;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
-        if (hCtl == NULL) return 0;
+        if (!hCtl) return 0;
 
-        if (CtrlId == IDC_TRANS_CMDTICKERGO) {
+        if (ctrl_id == IDC_TRANS_CMDTICKERGO) {
             TransPanel_ShowTransactions();
         }
 
-        if (CtrlId == IDC_TRANS_CMDTRANSDATE || CtrlId == IDC_TRANS_TRANSDATE) {
+        if (ctrl_id == IDC_TRANS_CMDTRANSDATE || ctrl_id == IDC_TRANS_TRANSDATE) {
             // Clicked on the Date Filter dropdown or label itself
             TransDateFilter_CreatePicker(m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_TRANSDATE));
         }
 
-        if (CtrlId == IDC_TRANS_CMDSTARTDATE || CtrlId == IDC_TRANS_STARTDATE) {
+        if (ctrl_id == IDC_TRANS_CMDSTARTDATE || ctrl_id == IDC_TRANS_STARTDATE) {
             // Clicked on the Start Date dropdown or label itself
             std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE));
             Calendar_CreateDatePicker(
                 m_hwnd, GetDlgItem(m_hwnd, IDC_TRANS_STARTDATE), date_text, CalendarPickerReturnType::long_date, 1);
         }
 
-        if (CtrlId == IDC_TRANS_CMDENDDATE || CtrlId == IDC_TRANS_ENDDATE) {
+        if (ctrl_id == IDC_TRANS_CMDENDDATE || ctrl_id == IDC_TRANS_ENDDATE) {
             // Clicked on the End Date dropdown or label itself
             std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRANS_ENDDATE));
             Calendar_CreateDatePicker(
@@ -788,9 +727,9 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
         return 0;
     }
-    break;
 
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 

@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -43,18 +43,16 @@ HHOOK hStrategyPopupMouseHook = nullptr;
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: StrategyPopup
 // ========================================================================================
-BOOL StrategyPopup_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool StrategyPopup_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: StrategyPopup
 // ========================================================================================
-void StrategyPopup_OnPaint(HWND hwnd)
-{
+void StrategyPopup_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -65,9 +63,9 @@ void StrategyPopup_OnPaint(HWND hwnd)
     SolidBrush back_brush(COLOR_GRAYDARK);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
@@ -76,12 +74,11 @@ void StrategyPopup_OnPaint(HWND hwnd)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: StrategyPopup
 // ========================================================================================
-BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_STRATEGYPOPUP = hwnd;
 
-    int nHeight = 23;
-    int nTop = 0;
+    int height = 23;
+    int top = 0;
 
     HWND hCtl = NULL;
     HWND hCtlPutCall = NULL;
@@ -93,10 +90,9 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     bool bold = true;
 
     for (int i = 0; i < (int)Strategy::Count; ++i) {
-
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_LONGSHORT + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::middle_left, 0, nTop, 50, nHeight);
+            CustomLabelAlignment::middle_left, 0, top, 50, height);
         CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
@@ -105,9 +101,9 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         CustomLabel_SetText(hCtl, text);
         hCtlLongShort = hCtl;
 
-        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_PutCall + i, L"",
+        hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_PUTCALL + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::middle_center, 51, nTop, 50, nHeight);
+            CustomLabelAlignment::middle_center, 51, top, 50, height);
         CustomLabel_SetUserDataInt(hCtl, (int)PutCall::Put);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
@@ -117,7 +113,7 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_STRATEGY + i, L"",
             COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
-            CustomLabelAlignment::middle_left, 102, nTop, 100, nHeight);
+            CustomLabelAlignment::middle_left, 102, top, 100, height);
         CustomLabel_SetUserDataInt(hCtl, (int)i);
         CustomLabel_SetFont(hCtl, font_name, font_size, bold);
         CustomLabel_SetTextOffset(hCtl, 5, 0);
@@ -130,32 +126,29 @@ BOOL StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_STRATEGYPOPUP_GO + i, L"GO",
             COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
-            CustomLabelAlignment::middle_center, 203, nTop, 30, nHeight);
+            CustomLabelAlignment::middle_center, 203, top, 30, height);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         CustomLabel_SetFont(hCtl, font_name, font_size, true);
         CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-        nTop += nHeight + 1;
+        top += height + 1;
 
     }
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Global mouse hook.
 // ========================================================================================
-LRESULT CALLBACK StrategyPopupHook(int Code, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK StrategyPopupHook(int Code, WPARAM wParam, LPARAM lParam) {
     // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
     // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
     // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
     // at the point this hook is called).
-    if (wParam == WM_LBUTTONDOWN)
-    {
-        if (HWND_STRATEGYPOPUP)
-        {
+    if (wParam == WM_LBUTTONDOWN) {
+        if (HWND_STRATEGYPOPUP) {
             POINT pt;       GetCursorPos(&pt);
             RECT rcWindow;  GetWindowRect(HWND_STRATEGYPOPUP, &rcWindow);
 
@@ -173,17 +166,13 @@ LRESULT CALLBACK StrategyPopupHook(int Code, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, StrategyPopup_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, StrategyPopup_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, StrategyPopup_OnPaint);
 
-
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         // unhook and remove our global mouse hook
         UnhookWindowsHookEx(hStrategyPopupMouseHook);
         hStrategyPopupMouseHook = nullptr;
@@ -191,34 +180,28 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HWND_STRATEGYPOPUP = NULL;
         return 0;
     }
-    break;
 
-
-    case WM_MOUSEACTIVATE:
-    {
+    case WM_MOUSEACTIVATE: {
         return MA_NOACTIVATE;
     }
-    break;
 
-
-    case MSG_CUSTOMLABEL_CLICK:
-    {
+    case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
-        int CtrlId = (int)wParam;
+        int ctrl_id = (int)wParam;
 
-        if (hCtl == NULL) return 0;
+        if (!hCtl) return 0;
 
-        if (CtrlId >= IDC_STRATEGYPOPUP_LONGSHORT && CtrlId <= IDC_STRATEGYPOPUP_LONGSHORT + 40) {
+        if (ctrl_id >= IDC_STRATEGYPOPUP_LONGSHORT && ctrl_id <= IDC_STRATEGYPOPUP_LONGSHORT + 40) {
             StrategyButton_ToggleLongShortText(hCtl);
             StrategyButton_SetLongShortTextColor(hCtl);
         }
-        if (CtrlId >= IDC_STRATEGYPOPUP_PutCall && CtrlId <= IDC_STRATEGYPOPUP_PutCall + 40) {
-            int offset = CtrlId - IDC_STRATEGYPOPUP_PutCall;
+        if (ctrl_id >= IDC_STRATEGYPOPUP_PUTCALL && ctrl_id <= IDC_STRATEGYPOPUP_PUTCALL + 40) {
+            int offset = ctrl_id - IDC_STRATEGYPOPUP_PUTCALL;
             int idStrategy = IDC_STRATEGYPOPUP_STRATEGY + offset;
             StrategyButton_TogglePutCallText(hCtl, GetDlgItem(HWND_STRATEGYPOPUP, idStrategy));
         }
-        if (CtrlId >= IDC_STRATEGYPOPUP_GO && CtrlId <= IDC_STRATEGYPOPUP_GO + 40) {
-            int offset = CtrlId - IDC_STRATEGYPOPUP_GO;
+        if (ctrl_id >= IDC_STRATEGYPOPUP_GO && ctrl_id <= IDC_STRATEGYPOPUP_GO + 40) {
+            int offset = ctrl_id - IDC_STRATEGYPOPUP_GO;
             std::wstring text;
 
             LongShort ls = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_LONGSHORT+offset));
@@ -228,7 +211,7 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
             text = AfxUpper(StrategyButton_GetLongShortEnumText(ls));
             CustomLabel_SetText(hCtlLongShort, text);
 
-            PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_PutCall+offset));
+            PutCall pc = (PutCall)CustomLabel_GetUserDataInt(GetDlgItem(m_hwnd, IDC_STRATEGYPOPUP_PUTCALL+offset));
             text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
             HWND hCtlPutCall = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_PUTCALL);
             CustomLabel_SetUserDataInt(hCtlPutCall, (int)pc);
@@ -246,22 +229,19 @@ LRESULT CStrategyPopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
             StrategyButton_InvokeStrategy();
             DestroyWindow(m_hwnd);
-
         }
         return 0;
     }
-    break;
 
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Create an show the modeless popup Strategy picker panel
 // ========================================================================================
-HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
-{
+HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl) {
 
     HWND hPopup = StrategyPopup.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -287,7 +267,7 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
             CustomLabel_SetText(hCtlLongShort, text);
             StrategyButton_SetLongShortTextColor(hCtlLongShort);
 
-            HWND hCtlPutCall = GetDlgItem(hPopup, IDC_STRATEGYPOPUP_PutCall + i);
+            HWND hCtlPutCall = GetDlgItem(hPopup, IDC_STRATEGYPOPUP_PUTCALL + i);
             CustomLabel_SetUserDataInt(hCtlPutCall, (int)pc);
             text = AfxUpper(StrategyButton_GetPutCallEnumText(pc));
             if (!StrategyButton_StrategyAllowPutCall(hCtlStrategy)) {
@@ -312,5 +292,3 @@ HWND StrategyPopup_CreatePopup(HWND hParent, HWND hParentCtl)
 
     return hPopup;
 }
-
-

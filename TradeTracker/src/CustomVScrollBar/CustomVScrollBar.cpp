@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -36,10 +36,9 @@ SOFTWARE.
 
 // ========================================================================================
 // Calculate the RECT that holds the client coordinates of the scrollbar's vertical thumb
-// Will return TRUE if RECT is not empty. 
+// Will return true if RECT is not empty. 
 // ========================================================================================
-bool CustomVScrollBar::calcVThumbRect()
-{
+bool CustomVScrollBar::calcVThumbRect() {
     if (ChildControlType == Controls::ListBox) {
         // calculate the vertical scrollbar in client coordinates
         SetRectEmpty(&rc);
@@ -54,7 +53,7 @@ bool CustomVScrollBar::calcVThumbRect()
         item_height = ListBox_GetItemHeight(hChildCtl, index);
 
         // If no items exist then exit to avoid division by zero GPF's.
-        if (items_count == 0) return FALSE;
+        if (items_count == 0) return false;
 
         items_per_page = (int)(std::round(child_control_height / (float)item_height));
         thumb_height = (int)(((float)items_per_page / (float)items_count) * (float)child_control_height);
@@ -66,7 +65,7 @@ bool CustomVScrollBar::calcVThumbRect()
 
         // If the number of items in the listbox is less than what could display
         // on the screen then there is no need to show the scrollbar.
-        return (items_count < items_per_page) ? FALSE : TRUE;
+        return (items_count < items_per_page) ? false : true;
     }
 
     if (ChildControlType == Controls::MultilineTextBox) {
@@ -98,7 +97,7 @@ bool CustomVScrollBar::calcVThumbRect()
 
         // If the number of items in the textbox is less than what could display
         // on the screen then there is no need to show the scrollbar.
-        return (items_count < items_per_page) ? FALSE : TRUE;
+        return (items_count < items_per_page) ? false : true;
     }
 
     return false;
@@ -108,10 +107,9 @@ bool CustomVScrollBar::calcVThumbRect()
 // ========================================================================================
 // Scroll the correct number of lines up or down depending on the control type.
 // ========================================================================================
-void CustomVScrollBar_ScrollLines(HWND hScrollCtl, int num_lines)
-{
+void CustomVScrollBar_ScrollLines(HWND hScrollCtl, int num_lines) {
     CustomVScrollBar* pData = (CustomVScrollBar*)GetWindowLongPtr(hScrollCtl, 0);
-    if (pData == nullptr) return;
+    if (!pData) return;
 
     HWND hChildCtl = pData->hChildCtl;
 
@@ -130,195 +128,176 @@ void CustomVScrollBar_ScrollLines(HWND hScrollCtl, int num_lines)
 // ========================================================================================
 // Windows message callback for the custom ScrollBar control.
 // ========================================================================================
-LRESULT CALLBACK CustomVScrollBarProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK CustomVScrollBarProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     CustomVScrollBar* pData = nullptr;
 
     // Create static accumulation variable to collect the data from
     // a series of middle mouse wheel scrolls.
-    static int accumDelta = 0;
-
+    static int accum_delta = 0;
 
     if (uMsg != WM_CREATE) {
-        pData = (CustomVScrollBar*)GetWindowLongPtr(hWnd, 0);
+        pData = (CustomVScrollBar*)GetWindowLongPtr(hwnd, 0);
     }
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
 
-    case WM_MOUSEWHEEL:
-    {
+    case WM_MOUSEWHEEL: {
         // Accumulate delta until scroll one line (up +120, down -120). 
         // 120 is the Microsoft default delta
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        accumDelta += zDelta;
-        if (accumDelta >= 120) {     // scroll up 3 lines
-            CustomVScrollBar_ScrollLines(hWnd, -3);
-            accumDelta = 0;
+        int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        accum_delta += zdelta;
+        if (accum_delta >= 120) {     // scroll up 3 lines
+            CustomVScrollBar_ScrollLines(hwnd, -3);
+            accum_delta = 0;
         }
         else {
-            if (accumDelta <= -120) {     // scroll down 3 lines
-                CustomVScrollBar_ScrollLines(hWnd, 3);
-                accumDelta = 0;
+            if (accum_delta <= -120) {     // scroll down 3 lines
+                CustomVScrollBar_ScrollLines(hwnd, 3);
+                accum_delta = 0;
             }
         }
-        CustomVScrollBar_Recalculate(hWnd);
+        CustomVScrollBar_Recalculate(hwnd);
         return 0;
-        break;
     }
 
+    case WM_LBUTTONDOWN: {
+        if (!pData) break;
+        POINT pt;
+        pt.x = GET_X_LPARAM(lParam);
+        pt.y = GET_Y_LPARAM(lParam);
+        pData->calcVThumbRect();
 
-    case WM_LBUTTONDOWN:
-        {
-            if (pData == nullptr) break;
-            POINT pt;
-            pt.x = GET_X_LPARAM(lParam);
-            pt.y = GET_Y_LPARAM(lParam);
-            pData->calcVThumbRect();
-
-            if (PtInRect(&pData->rc, pt)) {
-                pData->prev_pt = pt;
-                pData->drag_active = true;
-                SetCapture(hWnd);
+        if (PtInRect(&pData->rc, pt)) {
+            pData->prev_pt = pt;
+            pData->drag_active = true;
+            SetCapture(hwnd);
+        }
+        else {
+            // we have clicked on a PageUp or PageDn
+            if (pt.y < pData->rc.top) {
+                CustomVScrollBar_ScrollLines(hwnd, -pData->items_per_page);
+                pData->calcVThumbRect();
+                AfxRedrawWindow(pData->hwnd);
             }
             else {
-                // we have clicked on a PageUp or PageDn
-                if (pt.y < pData->rc.top) {
-                    CustomVScrollBar_ScrollLines(hWnd, -pData->items_per_page);
+                if (pt.y > pData->rc.bottom) {
+                    CustomVScrollBar_ScrollLines(hwnd, pData->items_per_page);
                     pData->calcVThumbRect();
                     AfxRedrawWindow(pData->hwnd);
                 }
-                else {
-                    if (pt.y > pData->rc.bottom) {
-                        CustomVScrollBar_ScrollLines(hWnd, pData->items_per_page);
-                        pData->calcVThumbRect();
-                        AfxRedrawWindow(pData->hwnd);
+            }
+
+        }
+        return 0;
+    }
+
+    case WM_MOUSEMOVE: {
+        if (!pData) break;
+        if (pData->drag_active) {
+            POINT pt;
+            pt.x = GET_X_LPARAM(lParam);
+            pt.y = GET_Y_LPARAM(lParam);
+            if (pt.y != pData->prev_pt.y) {
+                int delta = (pt.y - pData->prev_pt.y);
+
+                RECT rc; GetClientRect(hwnd, &rc);
+                pData->rc.top = max(0, pData->rc.top + delta);
+                pData->rc.top = min(pData->rc.top, rc.bottom - pData->thumb_height);
+                pData->rc.bottom = pData->rc.top + pData->thumb_height;
+
+                pData->prev_pt = pt;
+
+                if (pData->ChildControlType == Controls::ListBox) {
+                    int previous_top_index = (int)SendMessage(pData->hChildCtl, LB_GETTOPINDEX, 0, 0);
+                    int top_index = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
+                    if (top_index != previous_top_index) {
+                        SendMessage(pData->hChildCtl, LB_SETTOPINDEX, top_index, 0);
+                    }
+                }
+                if (pData->ChildControlType == Controls::MultilineTextBox) {
+                    int previous_top_index = (int)SendMessage(pData->hChildCtl, EM_GETFIRSTVISIBLELINE, 0, 0);
+                    int top_index = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
+                    if (top_index != previous_top_index) {
+                        SendMessage(pData->hChildCtl, EM_LINESCROLL, 0, (LPARAM)(top_index - previous_top_index));
                     }
                 }
 
+                AfxRedrawWindow(hwnd);
             }
-            return 0;
-            break;
+        }
+        return 0;
+    }
+
+    case WM_LBUTTONUP:
+    {
+        if (!pData) break;
+        pData->drag_active = false;
+        pData->prev_pt.x = 0;
+        pData->prev_pt.y = 0;
+        ReleaseCapture();
+        return 0;
+    }
+
+    case WM_ERASEBKGND: {
+        return true;
+    }
+
+    case WM_PAINT: {
+        if (!pData) break;
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+
+        SaveDC(hdc);
+
+        HDC memDC = CreateCompatibleDC(hdc);
+        HBITMAP hbit = CreateCompatibleBitmap(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
+        SelectBitmap(memDC, hbit);
+
+        Graphics graphics(memDC);
+        int width = (ps.rcPaint.right - ps.rcPaint.left);
+        int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+
+        SolidBrush back_brush(pData->scrollbar_back_color);
+        graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
+
+        if (pData->items_count > pData->items_per_page) {
+            back_brush.SetColor(pData->scrollbar_thumb_color);
+            graphics.FillRectangle(&back_brush, pData->rc.left, pData->rc.top, width, pData->thumb_height);
+
+            Pen pen(pData->scrollbar_line_color, 1);
+            graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
         }
 
+        // Copy the entire memory bitmap to the main display
+        BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
 
-        case WM_MOUSEMOVE:
-        {
-            if (pData == nullptr) break;
-            if (pData->drag_active) {
-                POINT pt;
-                pt.x = GET_X_LPARAM(lParam);
-                pt.y = GET_Y_LPARAM(lParam);
-                if (pt.y != pData->prev_pt.y) {
-                    int delta = (pt.y - pData->prev_pt.y);
+        // Restore the original state of the DC
+        RestoreDC(hdc, -1);
 
-                    RECT rc; GetClientRect(hWnd, &rc);
-                    pData->rc.top = max(0, pData->rc.top + delta);
-                    pData->rc.top = min(pData->rc.top, rc.bottom - pData->thumb_height);
-                    pData->rc.bottom = pData->rc.top + pData->thumb_height;
+        // Cleanup
+        DeleteObject(hbit);
+        DeleteDC(memDC);
 
-                    pData->prev_pt = pt;
+        EndPaint(hwnd, &ps);
 
-                    if (pData->ChildControlType == Controls::ListBox) {
-                        int previous_top_index = (int)SendMessage(pData->hChildCtl, LB_GETTOPINDEX, 0, 0);
-                        int top_index = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
-                        if (top_index != previous_top_index) {
-                            SendMessage(pData->hChildCtl, LB_SETTOPINDEX, top_index, 0);
-                        }
-                    }
-                    if (pData->ChildControlType == Controls::MultilineTextBox) {
-                        int previous_top_index = (int)SendMessage(pData->hChildCtl, EM_GETFIRSTVISIBLELINE, 0, 0);
-                        int top_index = (int)std::round(pData->rc.top / (float)rc.bottom * pData->items_count);
-                        if (top_index != previous_top_index) {
-                            SendMessage(pData->hChildCtl, EM_LINESCROLL, 0, (LPARAM)(top_index - previous_top_index));
-                        }
-                    }
+        return 0;
+    }
 
-                    AfxRedrawWindow(hWnd);
-                }
-            }
-            return 0;
-            break;
-        }
-
-
-        case WM_LBUTTONUP:
-        {
-            if (pData == nullptr) break;
-            pData->drag_active = false;
-            pData->prev_pt.x = 0;
-            pData->prev_pt.y = 0;
-            ReleaseCapture();
-            return 0;
-            break;
-        }
-
-        case WM_ERASEBKGND:
-            return TRUE;
-            break;
-
-
-        case WM_PAINT:
-        {
-            if (pData == nullptr) break;
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-
-            SaveDC(hdc);
-
-            HDC memDC = CreateCompatibleDC(hdc);
-            HBITMAP hbit = CreateCompatibleBitmap(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
-            SelectBitmap(memDC, hbit);
-
-            Graphics graphics(memDC);
-            int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-            int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-
-            SolidBrush back_brush(pData->scrollbar_back_color);
-            graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
-
-            if (pData->items_count > pData->items_per_page) {
-                back_brush.SetColor(pData->scrollbar_thumb_color);
-                graphics.FillRectangle(&back_brush, pData->rc.left, pData->rc.top, nWidth, pData->thumb_height);
-
-                Pen pen(pData->scrollbar_line_color, 1);
-                graphics.DrawLine(&pen, (INT)ps.rcPaint.left, (INT)ps.rcPaint.top, (INT)ps.rcPaint.left, (INT)ps.rcPaint.bottom);
-            }
-
-            // Copy the entire memory bitmap to the main display
-            BitBlt(hdc, 0, 0, ps.rcPaint.right, ps.rcPaint.bottom, memDC, 0, 0, SRCCOPY);
-
-            // Restore the original state of the DC
-            RestoreDC(hdc, -1);
-
-            // Cleanup
-            DeleteObject(hbit);
-            DeleteDC(memDC);
-
-            EndPaint(hWnd, &ps);
-
-            return 0;
-            break;
-        }
-
-
-    case WM_NCDESTROY:
+    case WM_NCDESTROY: {
         if (pData) delete(pData);
         break;
-
-
-    default:
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
-    return 0;
+
+    }
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Retrieve the stored data pointer from the custom ScrollBar
 // ========================================================================================
-CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl)
-{
+CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl) {
     CustomVScrollBar* pData = (CustomVScrollBar*)GetWindowLongPtr(hCtrl, 0);
     return pData;
 }
@@ -327,10 +306,9 @@ CustomVScrollBar* CustomVScrollBar_GetPointer(HWND hCtrl)
 // ========================================================================================
 // Recalculate the ScrollBar thumb size and refresh display.
 // ========================================================================================
-void CustomVScrollBar_Recalculate(HWND hCtrl)
-{
+void CustomVScrollBar_Recalculate(HWND hCtrl) {
     CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCtrl);
-    if (pData != nullptr) {
+    if (pData) {
         pData->calcVThumbRect();
         AfxRedrawWindow(pData->hwnd);
     }
@@ -342,7 +320,7 @@ void CustomVScrollBar_Recalculate(HWND hCtrl)
 // ========================================================================================
 HWND CreateCustomVScrollBar(
     HWND hWndParent,
-    LONG_PTR CtrlId,
+    LONG_PTR ctrl_id,
     HWND hWndChild,
     Controls ChildControlType
     )
@@ -373,7 +351,7 @@ HWND CreateCustomVScrollBar(
         CreateWindowEx(0, class_name_text.c_str(), L"",
             WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             0, 0, 0, 0,
-            hWndParent, (HMENU)CtrlId, hInst, (LPVOID)NULL);
+            hWndParent, (HMENU)ctrl_id, hInst, (LPVOID)NULL);
 
     if (hCtl) {
         CustomVScrollBar* pData = new CustomVScrollBar;
@@ -384,7 +362,7 @@ HWND CreateCustomVScrollBar(
         if (ChildControlType == Controls::MultilineTextBox) {
             pData->hChildCtl = GetDlgItem(hWndChild, 100);
         }
-        pData->CtrlId = (int)CtrlId;
+        pData->ctrl_id = (int)ctrl_id;
         pData->ChildControlType = ChildControlType;
 
         pData->calcVThumbRect();

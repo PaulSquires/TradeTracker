@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -48,18 +48,16 @@ HHOOK hCalanderPopupMouseHook = nullptr;
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: Calendar
 // ========================================================================================
-BOOL Calendar_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool Calendar_OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: Calendar
 // ========================================================================================
-void Calendar_OnPaint(HWND hwnd)
-{
+void Calendar_OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -71,20 +69,18 @@ void Calendar_OnPaint(HWND hwnd)
     SolidBrush back_brush(back_color);
 
     // Paint the background using brush.
-    int nWidth = (ps.rcPaint.right - ps.rcPaint.left);
-    int nHeight = (ps.rcPaint.bottom - ps.rcPaint.top);
-    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, nWidth, nHeight);
+    int width = (ps.rcPaint.right - ps.rcPaint.left);
+    int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+    graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
 
     EndPaint(hwnd, &ps);
 }
 
 
-
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: Calendar
 // ========================================================================================
-BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_CALENDAR = hwnd;
 
     HWND hCtl = CreateWindowEx(0,
@@ -109,23 +105,20 @@ BOOL Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         MonthCal_SetCurSel(hCtl, &st);
     }
 
-    return TRUE;
+    return true;
 }
 
 
 // ========================================================================================
 // Global mouse hook.
 // ========================================================================================
-LRESULT CALLBACK CalanderPopupHook(int Code, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK CalanderPopupHook(int Code, WPARAM wParam, LPARAM lParam) {
     // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
     // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
     // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
     // at the point this hook is called).
-    if (wParam == WM_LBUTTONDOWN)
-    {
-        if (HWND_CALENDAR)
-        {
+    if (wParam == WM_LBUTTONDOWN) {
+        if (HWND_CALENDAR) {
             POINT pt;       GetCursorPos(&pt);
             RECT rcWindow;  GetWindowRect(HWND_CALENDAR, &rcWindow);
 
@@ -143,21 +136,16 @@ LRESULT CALLBACK CalanderPopupHook(int Code, WPARAM wParam, LPARAM lParam)
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
+LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, Calendar_OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, Calendar_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, Calendar_OnPaint);
 
-    case WM_NOTIFY:
-    {
-        switch (((LPNMHDR)lParam)->code)
-        {
+    case WM_NOTIFY: {
+        switch (((LPNMHDR)lParam)->code) {
         case MCN_SELECT:
-            if (((LPNMHDR)lParam)->idFrom == IDC_CALENDAR_CALENDAR)
-            {
+            if (((LPNMHDR)lParam)->idFrom == IDC_CALENDAR_CALENDAR) {
                 LPNMSELCHANGE lpNMSelChange = (LPNMSELCHANGE)lParam;
 
                 the_selected_date = AfxMakeISODate(
@@ -166,8 +154,7 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     lpNMSelChange->stSelStart.wDay);
 
                 std::wstring text;
-                switch (the_update_date_return_type)
-                {
+                switch (the_update_date_return_type) {
                 case CalendarPickerReturnType::short_date:
                     text = AfxShortDate(the_selected_date);
                     break;
@@ -185,18 +172,14 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
                     GetDlgCtrlID(hTheUpdateParentCtl), (LPARAM)hTheUpdateParentCtl);
                 DestroyWindow(m_hwnd);
 
-
-                return TRUE;
+                return true;
             }
             break;
         }
         return 0;
     }
-    break;
 
-
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         // unhook and remove our global mouse hook
         UnhookWindowsHookEx(hCalanderPopupMouseHook);
         hCalanderPopupMouseHook = nullptr;
@@ -205,18 +188,14 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
         HWND_CALENDAR = NULL;
         return 0;
     }
-    break;
 
-
-    case WM_MOUSEACTIVATE:
-    {
+    case WM_MOUSEACTIVATE: {
         return MA_NOACTIVATE;
     }
-    break;
 
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
@@ -231,7 +210,6 @@ HWND Calendar_CreateDatePicker(
         date_text = AfxCurrentDate();
 
     the_selected_date = date_text;
-
 
     Calendar.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

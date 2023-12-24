@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -41,7 +41,7 @@ extern HWND HWND_STRATEGYPOPUP;
 
 
 constexpr int IDC_STRATEGYPOPUP_LONGSHORT = 100;
-constexpr int IDC_STRATEGYPOPUP_PutCall   = 150;
+constexpr int IDC_STRATEGYPOPUP_PUTCALL   = 150;
 constexpr int IDC_STRATEGYPOPUP_STRATEGY  = 200;
 constexpr int IDC_STRATEGYPOPUP_GO        = 250;
 

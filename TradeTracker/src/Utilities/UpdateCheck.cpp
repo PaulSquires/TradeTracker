@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -41,14 +41,12 @@ std::atomic<bool> is_updatecheck_thread_active = false;
 std::jthread updatecheck_thread;
 
 
-
 #include <wininet.h>
 #pragma comment(lib,"Wininet.lib")
 #include <shellapi.h>
 #pragma comment(lib, "shell32.lib")
 
-void ShowReleasesWebPage()
-{
+void ShowReleasesWebPage() {
 	// URL of the webpage you want to open
 	const wchar_t* url = L"https://github.com/PaulSquires/TradeTracker/releases";
 
@@ -132,9 +130,7 @@ void UpdateCheckFunction(std::stop_token st) {
 }
 
 
-
-void DisplayUpdateAvailableMessage()
-{
+void DisplayUpdateAvailableMessage() {
 	if (!GetAllowUpdateCheck()) {
 		std::cout << "Update Check Disabled in Configuration" << std::endl;
 		return;

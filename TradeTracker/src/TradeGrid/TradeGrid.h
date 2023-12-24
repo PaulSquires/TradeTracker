@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -33,8 +33,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 
 
-enum class GridColType
-{
+enum class GridColType {
 	Label,
 	TextBox,
 	DatePicker,
@@ -43,13 +42,10 @@ enum class GridColType
 	LineReset
 };
 
-
-
-class GridColInfo
-{
+class GridColInfo {
 public:
 	HWND hCtl = NULL;
-	int idCtrl = 0;
+	int ctrl_id = 0;
 	GridColType colType = GridColType::TextBox;
 	int colData = 0;  // holds LineReset line number
 
@@ -60,9 +56,7 @@ public:
 	bool isTriggerCell = false;
 };
 
-
-class TradeGrid
-{
+class TradeGrid {
 private:
 	float m_rx = 0;
 	float m_ry = 0;
@@ -72,23 +66,20 @@ public:
 	HWND hParent = NULL;
 	HINSTANCE hInst = NULL;
 
-	int CtrlId = 0;
+	int ctrl_id = 0;
 
 	COLORREF back_color{};
 	HBRUSH hback_brush = NULL;
 	HFONT hFont = NULL;
-	bool bShowOriginalQuantity = false;
+	bool show_original_quantity = false;
 
 	std::vector<GridColInfo*> gridCols;
 
-
-	~TradeGrid()
-	{
+	~TradeGrid() {
 		for (const auto& col : gridCols) {
 			DestroyWindow(col->hCtl);
 		}
 	}
-
 };
 
 
@@ -103,5 +94,5 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col);
 void TradeGrid_CalculateDTE(HWND hwnd);
 void TradeGrid_SetColData(HWND hGrid, int row, int col, const std::wstring& text);
 
-HWND CreateTradeGrid(HWND hWndParent, LONG_PTR CtrlId, int nLeft, int nTop, int nWidth, int nHeight, bool bShowOriginalQuantity);
+HWND CreateTradeGrid(HWND hWndParent, LONG_PTR ctrl_id, int left, int top, int width, int height, bool show_original_quantity);
 

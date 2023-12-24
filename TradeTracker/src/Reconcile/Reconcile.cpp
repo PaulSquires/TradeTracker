@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -50,10 +50,8 @@ std::wstring results_text;
 // ========================================================================================
 // Load one open trades into the local_positions vector
 // ========================================================================================
-void Reconcile_LoadOneLocalPosition(const auto& trade)
-{
+void Reconcile_LoadOneLocalPosition(const auto& trade) {
 	for (const auto& leg : trade->open_legs) {
-
 		positionStruct p{};
 		p.open_quantity = leg->open_quantity;
 		p.ticker_symbol = trade->ticker_symbol;
@@ -64,14 +62,13 @@ void Reconcile_LoadOneLocalPosition(const auto& trade)
 
 		p.strike_price = AfxValDouble(leg->strike_price);
 		p.expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
-		p.PutCall = leg->PutCall;
+		p.put_call = leg->put_call;
 
 		// Check if the ticker is a future
 		if (IsFuturesTicker(p.ticker_symbol)) {
 			p.ticker_symbol = trade->ticker_symbol.substr(1);
 			if (p.underlying == L"OPT") p.underlying = L"FOP";
 		}
-
 
 		// Check to see if the LOCAL position already exists in the vector. If it
 		// does then simply update the Local quantity. We need to do this because IBKR
@@ -83,7 +80,7 @@ void Reconcile_LoadOneLocalPosition(const auto& trade)
 				if (p.strike_price == local.strike_price &&
 					p.ticker_symbol == local.ticker_symbol &&
 					p.expiry_date == local.expiry_date &&
-					p.PutCall == local.PutCall) {
+					p.put_call == local.put_call) {
 					found = true;
 					local.open_quantity += p.open_quantity;
 					local.legs.push_back(leg);
@@ -106,7 +103,6 @@ void Reconcile_LoadOneLocalPosition(const auto& trade)
 			p.legs.push_back(leg);
 			local_positions.push_back(p);
 		}
-
 	}
 }
 
@@ -114,8 +110,7 @@ void Reconcile_LoadOneLocalPosition(const auto& trade)
 // ========================================================================================
 // Load all open trades into the local_positions vector
 // ========================================================================================
-void Reconcile_LoadAllLocalPositions()
-{
+void Reconcile_LoadAllLocalPositions() {
 	// Add all of the current LOCAL "Open" positions to the local_positions vector
 	local_positions.clear();
 	for (const auto& trade : trades) {
@@ -128,8 +123,7 @@ void Reconcile_LoadAllLocalPositions()
 // ========================================================================================
 // Information received from TwsClient::position callback
 // ========================================================================================
-void Reconcile_position(const Contract& contract, Decimal position)
-{
+void Reconcile_position(const Contract& contract, Decimal position) {
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
 	// This will receive every open position as reported by IBKR. We take these positions and
 	// store them in the IBKRPositions vector for later processing.
@@ -152,7 +146,7 @@ void Reconcile_position(const Contract& contract, Decimal position)
 	p.underlying    = ansi2unicode(contract.secType);
 	p.expiry_date   = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
 	p.strike_price  = contract.strike;
-	p.PutCall       = ansi2unicode(contract.right);
+	p.put_call       = ansi2unicode(contract.right);
 	// If this is a Lean Hog Futures contract then we multiply the strike by 100 b/c IBKR
 	// stores it as cents but we placed the trade as "dollars".  eg. .85 vs. 85
 	if (p.ticker_symbol == L"HE" && p.underlying == L"FOP") {
@@ -168,15 +162,14 @@ void Reconcile_position(const Contract& contract, Decimal position)
 // ========================================================================================
 // Test if IBKR and LOCAL position are equal
 // ========================================================================================
-bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
-{
+bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local) {
 	if (ibkr.underlying == L"OPT" ||
 		ibkr.underlying == L"FOP") {
 		if (ibkr.strike_price == local.strike_price &&
 			ibkr.open_quantity == local.open_quantity &&
 			ibkr.ticker_symbol == local.ticker_symbol &&
 			ibkr.expiry_date == local.expiry_date &&
-			ibkr.PutCall == local.PutCall &&
+			ibkr.put_call == local.put_call &&
 			ibkr.underlying == local.underlying) {
 			return true;
 		}
@@ -194,13 +187,11 @@ bool Reconcile_ArePositionsEqual(positionStruct ibkr, positionStruct local)
 }
 
 
-
 // ========================================================================================
 // Information received from TwsClient::positionEnd callback and when Reconciliation
 // is requested to be run.
 // ========================================================================================
-void Reconcile_doPositionMatching()
-{
+void Reconcile_doPositionMatching() {
 	for (const auto& ibkr : ibkr_positions) {
 		if (ibkr.open_quantity == 0) continue;
 		bool found = false;
@@ -225,9 +216,8 @@ void Reconcile_doPositionMatching()
 // ========================================================================================
 // Perform a reconciliation between IBKR positions and local positions.
 // ========================================================================================
-void Reconcile_doReconciliation()
-{
-	std::wstring text = L"";
+void Reconcile_doReconciliation() {
+	std::wstring text;
 	std::wstring sp = L"  ";
 
 	// (1) Determine what IBKR "real" positions do not exist in the Local database.
@@ -250,7 +240,7 @@ void Reconcile_doReconciliation()
 				text += sp + 
 					AfxLSet(AfxInsertDateHyphens(ibkr.expiry_date), 12) + 
 					AfxRSet(std::to_wstring(ibkr.strike_price), 16) +
-					AfxRSet(ibkr.PutCall, 3);
+					AfxRSet(ibkr.put_call, 3);
 			}
 			text += L"\r\n";
 		}
@@ -280,7 +270,7 @@ void Reconcile_doReconciliation()
 					text += sp +
 						AfxLSet(AfxInsertDateHyphens(local.expiry_date), 12) +
 						AfxRSet(std::to_wstring(local.strike_price), 16) +
-						AfxRSet(local.PutCall, 3);
+						AfxRSet(local.put_call, 3);
 				}
 				text += L"\r\n";
 			}
@@ -295,8 +285,7 @@ void Reconcile_doReconciliation()
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: Reconcile
 // ========================================================================================
-void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy)
-{
+void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     // Move and size the TextBox into place
     SetWindowPos(
         GetDlgItem(HWND_RECONCILE, IDC_RECONCILE_TEXTBOX), 
@@ -307,10 +296,9 @@ void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy)
 // ========================================================================================
 // Process WM_CLOSE message for window/dialog: Reconcile
 // ========================================================================================
-void Reconcile_OnClose(HWND hwnd)
-{
+void Reconcile_OnClose(HWND hwnd) {
 	MainWindow_BlurPanels(false);
-	EnableWindow(HWND_MAINWINDOW, TRUE);
+	EnableWindow(HWND_MAINWINDOW, true);
 	DestroyWindow(hwnd);
 }
 
@@ -318,8 +306,7 @@ void Reconcile_OnClose(HWND hwnd)
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: Reconcile
 // ========================================================================================
-void Reconcile_OnDestroy(HWND hwnd)
-{
+void Reconcile_OnDestroy(HWND hwnd) {
 	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);
 	DeleteFont(hFont);
 	PostQuitMessage(0);
@@ -329,8 +316,7 @@ void Reconcile_OnDestroy(HWND hwnd)
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: Reconcile
 // ========================================================================================
-BOOL Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
-{
+bool Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_RECONCILE = hwnd;
 
     Reconcile.AddControl(Controls::MultilineTextBox, hwnd, IDC_RECONCILE_TEXTBOX, 
@@ -338,38 +324,31 @@ BOOL Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 		WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN, 
 		0);
 
-	return TRUE;
+	return true;
 }
 
 
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 	static HBRUSH hBackBrush = CreateSolidBrush(Color(COLOR_GRAYDARK).ToCOLORREF());
 
-    switch (msg)
-    {
+    switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, Reconcile_OnCreate);
 		HANDLE_MSG(m_hwnd, WM_DESTROY, Reconcile_OnDestroy);
 		HANDLE_MSG(m_hwnd, WM_CLOSE, Reconcile_OnClose);
         HANDLE_MSG(m_hwnd, WM_SIZE, Reconcile_OnSize);
 
-
-	case WM_CTLCOLOREDIT:
-	{
+	case WM_CTLCOLOREDIT: {
 		HDC hdc = (HDC)wParam;
 		SetTextColor(hdc, Color(COLOR_WHITELIGHT).ToCOLORREF());
 		SetBkColor(hdc, Color(COLOR_GRAYDARK).ToCOLORREF());
 		SetBkMode(hdc, OPAQUE);
 		return (LRESULT)hBackBrush;
 	}
-	break;
 
-
-	case WM_SHOWWINDOW:
-	{
+	case WM_SHOWWINDOW:	{
 		// Workaround for the Windows 11 (The cloaking solution seems to work only
 		// on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work
 		// on Windows 11).
@@ -379,8 +358,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 			GWL_EXSTYLE,
 			GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-		if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL))
-		{
+		if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL)) {
 			HDC hdc = GetDC(m_hwnd);
 			SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
 			DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
@@ -395,25 +373,22 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 		return DefWindowProc(m_hwnd, msg, wParam, lParam);
 	}
-	break;
 
-
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+	return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
 // ========================================================================================
 // Create and show the Reconcile modal dialog.
 // ========================================================================================
-void Reconcile_Show()
-{
+void Reconcile_Show() {
 	HWND hwnd = Reconcile.Create(HWND_MAINWINDOW, L"Reconcile Local Data to IBKR TWS", 0, 0, 600, 390,
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
 	// Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
-	BOOL value = true;
+	BOOL value = TRUE;
 	::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
 	HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
@@ -426,13 +401,12 @@ void Reconcile_Show()
 
 	AfxCenterWindow(hwnd, HWND_MAINWINDOW);
 
-	EnableWindow(HWND_MAINWINDOW, FALSE);
-
+	EnableWindow(HWND_MAINWINDOW, false);
 
 	// Apply fixed width font for better readability
 	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);
 	DeleteFont(hFont);
-	hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET);
+	hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, false, false, false, DEFAULT_CHARSET);
 	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
 	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
 
@@ -480,6 +454,5 @@ void Reconcile_Show()
 	results_text = L"";
 
 	DeleteFont(hFont);
-
 }
 

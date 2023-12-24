@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright(c) 2023 Paul Squires
+Copyright(c) 2023-2024 Paul Squires
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -49,7 +49,7 @@ struct positionStruct {
 	std::wstring underlying;
 	std::wstring expiry_date;
 	double strike_price = 0;
-	std::wstring PutCall;
+	std::wstring put_call;
 };
 
 
