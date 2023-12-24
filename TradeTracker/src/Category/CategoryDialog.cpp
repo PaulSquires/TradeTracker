@@ -252,13 +252,13 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         if (ctrl_id == IDC_CATEGORYDIALOG_SAVE) {
             int cID = IDC_CATEGORYCONTROL_FIRST;
             for (int i = 0; i < 16; ++i) {
-                SetCategoryDescription(i, AfxGetWindowText(GetDlgItem(m_hwnd, cID)));
+                SetCategoryDescription(i, CustomTextBox_GetText(GetDlgItem(m_hwnd, cID)));
                 cID++;
             }
             SaveConfig();
             dialog_return_code = DIALOG_RETURN_OK;
-            if (HWND_LEFTPANEL == HWND_ACTIVETRADES) {
-                ActiveTrades_ShowActiveTrades();
+            if (HWND_LEFTPANEL == ActiveTrades.hWindow) {
+                ActiveTrades.ShowActiveTrades();
             }
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
         }

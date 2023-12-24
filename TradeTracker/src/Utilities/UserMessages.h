@@ -28,8 +28,7 @@ SOFTWARE.
 
 
 // Various actions that can be performed on selected Trade or Legs.
-enum class TradeAction
-{
+enum class TradeAction {
     new_options_trade,
     new_shares_trade,
     new_futures_trade,
@@ -74,6 +73,9 @@ constexpr int MSG_RECONCILIATION_READY      = WM_USER + 1010;
 constexpr int MSG_CATEGORY_CATEGORYCHANGED  = WM_USER + 1011;
 constexpr int MSG_CUSTOMCOMBO_ITEMCHANGED   = WM_USER + 1012;
 constexpr int MSG_POSITIONS_READY           = WM_USER + 1013;
+constexpr int MSG_ACTIVETRADES_SELECTLISTBOXITEM = WM_USER + 1014;
+constexpr int MSG_ACTIVETRADES_RIGHTCLICKMENU = WM_USER + 1015;
+constexpr int MSG_TICKERTOTALS_SHOWTICKERCLOSEDTRADES = WM_USER + 1016;
 
 constexpr int DIALOG_RETURN_OK = 0;
 constexpr int DIALOG_RETURN_CANCEL = 1;

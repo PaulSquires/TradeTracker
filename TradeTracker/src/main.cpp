@@ -144,7 +144,7 @@ int APIENTRY wWinMain(
     UpdateWindow(hWndMain);
 
     // Show the current list of active trades
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades.ShowActiveTrades();
 
     // Display message if Paper Trading is enabled.
     DisplayPaperTradingWarning();

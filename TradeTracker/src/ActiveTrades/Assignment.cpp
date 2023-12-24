@@ -33,8 +33,6 @@ SOFTWARE.
 #include "Assignment.h"
 
 
-HWND HWND_ASSIGNMENT = NULL;
-
 CAssignment Assignment;
 
 extern int dialog_return_code;
@@ -44,20 +42,39 @@ std::wstring max_quantity_allowed_text;
 
 
 // ========================================================================================
+// Get the HWND's of the the controls on the form.
+// ========================================================================================
+inline HWND CAssignment::QuantityTextBox() {
+    return GetDlgItem(hWindow, IDC_ASSIGNMENT_TXTQUANTITY);
+}
+inline HWND CAssignment::Text1Label() {
+    return GetDlgItem(hWindow, IDC_ASSIGNMENT_LBLTEXT1);
+}
+inline HWND CAssignment::Text2Label() {
+    return GetDlgItem(hWindow, IDC_ASSIGNMENT_LBLTEXT2);
+}
+inline HWND CAssignment::OkayButton() {
+    return GetDlgItem(hWindow, IDC_ASSIGNMENT_OK);
+}
+inline HWND CAssignment::CancelButton() {
+    return GetDlgItem(hWindow, IDC_ASSIGNMENT_CANCEL);
+}
+
+
+// ========================================================================================
 // Process WM_CLOSE message for window/dialog: Assignment
 // ========================================================================================
-void Assignment_OnClose(HWND hwnd) {
-    HWND hTextBox = GetDlgItem(hwnd, IDC_ASSIGNMENT_TXTQUANTITY);
+void CAssignment::OnClose(HWND hwnd) {
 
     if (dialog_return_code == DIALOG_RETURN_OK) {
-        std::wstring quantity_text = AfxGetWindowText(hTextBox);
+        std::wstring quantity_text = CustomTextBox_GetText(QuantityTextBox());
         int quantity_assigned = AfxValInteger(quantity_text);
         int max_quantity_allowed = AfxValInteger(max_quantity_allowed_text);
 
         if (quantity_text.length() == 0 || quantity_assigned <= 0 || quantity_assigned > max_quantity_allowed) {
             MessageBox(hwnd, (LPCWSTR)L"Invalid quantity amount.", (LPCWSTR)L"Error", MB_ICONWARNING | MB_OK);
-            CustomTextBox_SetText(hTextBox, max_quantity_allowed_text);
-            SetFocus(hTextBox);
+            CustomTextBox_SetText(QuantityTextBox(), max_quantity_allowed_text);
+            SetFocus(QuantityTextBox());
             dialog_return_code = DIALOG_RETURN_CANCEL;
             return;
         }
@@ -77,7 +94,7 @@ void Assignment_OnClose(HWND hwnd) {
 // ========================================================================================
 // Process WM_DESTROY message for window/dialog: Assignment
 // ========================================================================================
-void Assignment_OnDestroy(HWND hwnd) {
+void CAssignment::OnDestroy(HWND hwnd) {
     PostQuitMessage(0);
 }
 
@@ -85,7 +102,7 @@ void Assignment_OnDestroy(HWND hwnd) {
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: Assignment
 // ========================================================================================
-bool Assignment_OnEraseBkgnd(HWND hwnd, HDC hdc) {
+bool CAssignment::OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     return true;
 }
@@ -94,7 +111,7 @@ bool Assignment_OnEraseBkgnd(HWND hwnd, HDC hdc) {
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: Assignment
 // ========================================================================================
-void Assignment_OnPaint(HWND hwnd) {
+void CAssignment::OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -130,8 +147,8 @@ void Assignment_OnPaint(HWND hwnd) {
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: Assignment
 // ========================================================================================
-bool Assignment_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
-    HWND_ASSIGNMENT = hwnd;
+bool CAssignment::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+    hWindow = hwnd;
     return true;
 }
 
@@ -141,11 +158,11 @@ bool Assignment_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // ========================================================================================
 LRESULT CAssignment::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        HANDLE_MSG(m_hwnd, WM_CREATE, Assignment_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, Assignment_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, Assignment_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_DESTROY, Assignment_OnDestroy);
-        HANDLE_MSG(m_hwnd, WM_CLOSE, Assignment_OnClose);
+        HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, OnPaint);
+        HANDLE_MSG(m_hwnd, WM_DESTROY, OnDestroy);
+        HANDLE_MSG(m_hwnd, WM_CLOSE, OnClose);
     
     case WM_KEYDOWN: {
         // We are handling the TAB naviagation ourselves.
@@ -191,7 +208,7 @@ LRESULT CAssignment::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 // Create and show the Assignment modal dialog.
 // ========================================================================================
-int Assignment_Show(const std::wstring& long_short_text, 
+int CAssignment::ShowModal(const std::wstring& long_short_text, 
     const std::wstring& quantity_assigned_text, const std::wstring& strike_price_text)
 {
     int width = 350;

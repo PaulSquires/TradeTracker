@@ -135,7 +135,7 @@ void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
     HWND hCtl3 = GetDlgItem(hwnd, IDC_TRADEDIALOG_CMDCONTRACTDATE);
 
     // Futures Ticker symbols will start with a forward slash character.
-    std::wstring ticker = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+    std::wstring ticker = CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     int nShow = (IsFuturesTicker(ticker)) ? SW_SHOW : SW_HIDE;
 
     ShowWindow(hCtl1, nShow);
@@ -156,10 +156,10 @@ void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
 void TradeDialog_CalculateTradeTotal(HWND hwnd)
 {
     double total = 0;
-    double quantity = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-    double multiplier = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
-    double price = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
-    double fees = stod(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
+    double quantity = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+    double multiplier = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
+    double price = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
+    double fees = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
 
     DWORD text_color = COLOR_RED;
     DWORD back_color = COLOR_GRAYMEDIUM;
@@ -286,7 +286,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         // transactions because it could be set to 1 if the Trade only contains existing Shares.
         double multiplier = tdd.trade->multiplier;
 
-        if (IsNewOptionsTradeAction(tdd.trade_action) ||
+        if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
             tdd.trade_action == TradeAction::add_call_to_trade ||
             tdd.trade_action == TradeAction::add_put_to_trade ||
             tdd.trade_action == TradeAction::add_options_to_trade) {
@@ -673,8 +673,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
 
     // NEW TRADE SHOWS TEXTBOXES, OTHERS JUST LABELS
-    if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
-        IsNewSharesTradeAction(tdd.trade_action) == true) {
+    if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsNewSharesTradeAction(tdd.trade_action)) {
         CustomLabel_SimpleLabel(hwnd, -1, L"Ticker", COLOR_WHITEDARK, COLOR_GRAYDARK,
             CustomLabelAlignment::middle_left, 40, 20, 65, 22);
         hCtl = CreateCustomTextBox(hwnd, IDC_TRADEDIALOG_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 40, 45, 65, 23);
@@ -764,8 +764,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     int selected_index = (tdd.trade != nullptr) ? tdd.trade->category : 0;
     hCtl = CreateCategoryControl(hwnd, IDC_TRADEDIALOG_CATEGORY, 450, 45, selected_index, false);
     ShowWindow(hCtl, SW_HIDE);
-    if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
-        IsNewSharesTradeAction(tdd.trade_action) == true ||
+    if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
         (tdd.trade_action == TradeAction::edit_transaction &&
         tdd.trade->category != CATEGORY_OTHER)) {
         ShowWindow(hCtl, SW_SHOW);
@@ -796,8 +796,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
-    if (IsNewOptionsTradeAction(tdd.trade_action) == false ||
-        IsNewSharesTradeAction(tdd.trade_action) == true) {
+    if (!ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsNewSharesTradeAction(tdd.trade_action)) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_HIDE);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_HIDE);
     }
@@ -813,7 +813,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // We create the Strategy button and label but we only show it for New options
     // However we do need the window for other tradeAction cases for example "Add To"
     // because the tradeAction into the Strategy button and then InvokeStrategy.
-    if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
+    if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_options_to_trade ||
         tdd.trade_action == TradeAction::add_put_to_trade ||
         tdd.trade_action == TradeAction::add_call_to_trade) {
@@ -828,7 +828,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_left, 40, 155, 300, 22);
 
-    if (IsNewSharesTradeAction(tdd.trade_action) == true ||
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         std::wstring font_name = AfxGetDefaultFont();
@@ -989,7 +989,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomLabelAlignment::middle_center, 490, 337, 30, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    if (IsNewSharesTradeAction(tdd.trade_action) == true ||
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         TradeDialog_SetComboDRCR(hCtl, L"DR");

@@ -166,7 +166,7 @@ void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData) {
         num.lpThousandSep = (LPWSTR)thousand_sep.c_str();
         num.NegativeOrder = 1;   // Negative sign, number; for example, -1.1
 
-        std::wstring money = AfxGetWindowText(pData->hTextBox);
+        std::wstring money = CustomTextBox_GetText(pData->hTextBox);
 
         std::wstring buffer(256, 0);
         size_t j = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, money.c_str(), &num, (LPWSTR)buffer.c_str(), 256);
@@ -253,7 +253,7 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
             size_t end_position = HIWORD(pos);
 
             // Allow decimal (but only once), and digit if limit not reached
-            std::wstring text = AfxGetWindowText(hwnd);
+            std::wstring text = CustomTextBox_GetText(hwnd);
             // Remove any selected text that will be replaced
             if (start_position != end_position) {   // we have selected text
                 text.erase(start_position, (end_position - start_position + 1));
@@ -592,7 +592,7 @@ int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData) {
 // ========================================================================================
 // Set the text for the custom control.
 // ========================================================================================
-void CustomTextBox_SetText(HWND hCtrl, std::wstring text) {
+void CustomTextBox_SetText(HWND hCtrl, const std::wstring& text) {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData) {
         pData->text = text;
@@ -605,9 +605,17 @@ void CustomTextBox_SetText(HWND hCtrl, std::wstring text) {
 
 
 // ========================================================================================
+// Get the text for the custom control.
+// ========================================================================================
+std::wstring CustomTextBox_GetText(HWND hCtrl) {
+    return AfxGetWindowText(hCtrl);
+}
+
+
+// ========================================================================================
 // Set the user defined text data (wstring) for the custom control.
 // ========================================================================================
-void CustomTextBox_SetUserData(HWND hCtrl, std::wstring user_data) {
+void CustomTextBox_SetUserData(HWND hCtrl, const std::wstring& user_data) {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData) {
         pData->user_data = user_data;
@@ -688,7 +696,7 @@ void CustomTextBox_AttachScrollBar(HWND hCtrl, HWND hScrollBar) {
 // ========================================================================================
 // Set the font for the custom control.
 // ========================================================================================
-void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size) {
+void CustomTextBox_SetFont(HWND hCtrl, const std::wstring& font_name, int font_size) {
     CustomTextBox* pData = CustomTextBox_GetOptions(hCtrl);
     if (pData) {
         if (pData->hFontText) DeleteFont(pData->hFontText);

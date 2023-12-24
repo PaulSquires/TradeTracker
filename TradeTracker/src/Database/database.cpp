@@ -46,12 +46,12 @@ std::vector<std::shared_ptr<Trade>> trades;
 
 
 bool Version4UpgradeDatabase() {
-    dbFilename_new = GetDataFilesFolder() + dbFilename_new;
+    std::wstring dbFilename_filename = GetDataFilesFolder() + dbFilename_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbFilename_new)) {
-        dbFilename = dbFilename_new;
+    if (AfxFileExists(dbFilename_filename)) {
+        dbFilename = dbFilename_filename;
         return false;
     }
     else {

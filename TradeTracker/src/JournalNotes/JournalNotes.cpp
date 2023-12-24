@@ -30,23 +30,30 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
 #include "Config/Config.h"
-#include "Utilities/ListBoxData.h"
-#include "Utilities/AfxWin.h"
-
 #include "JournalNotes.h"
 
 
-HWND HWND_JOURNALNOTES = NULL;
-
 CJournalNotes JournalNotes;
 
-void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy);
+
+// ========================================================================================
+// Get the HWND's of the the controls on the form.
+// ========================================================================================
+inline HWND CJournalNotes::NotesTextBox() {
+    return GetDlgItem(hWindow, IDC_JOURNALNOTES_TXTNOTES);
+}
+inline HWND CJournalNotes::NotesLabel() {
+    return GetDlgItem(hWindow, IDC_JOURNALNOTES_LBLNOTES);
+}
+inline HWND CJournalNotes::VScrollBar() {
+    return GetDlgItem(hWindow, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
+}
 
 
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: JournalNotes
 // ========================================================================================
-bool JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc) {
+bool CJournalNotes::OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     return true;
 }
@@ -55,7 +62,7 @@ bool JournalNotes_OnEraseBkgnd(HWND hwnd, HDC hdc) {
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: JournalNotes
 // ========================================================================================
-void JournalNotes_OnPaint(HWND hwnd) {
+void CJournalNotes::OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -77,7 +84,7 @@ void JournalNotes_OnPaint(HWND hwnd) {
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: JournalNotes
 // ========================================================================================
-void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
+void CJournalNotes::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     static bool is_notes_dirty = false;
     static std::wstring notes = L"";
 
@@ -95,7 +102,7 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
             }
         }
         else if (codeNotify == EN_CHANGE) {
-            notes = AfxGetWindowText(hwndCtl);
+            notes = CustomTextBox_GetText(hwndCtl);
             is_notes_dirty = true;
         }
         else if (codeNotify == EN_SETFOCUS) {
@@ -112,16 +119,12 @@ void JournalNotes_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: JournalNotes
 // ========================================================================================
-void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    HWND hNotesLabel = GetDlgItem(hwnd, IDC_JOURNALNOTES_LBLNOTES);
-    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_JOURNALNOTES_TXTNOTES);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
-
+void CJournalNotes::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HDWP hdwp = BeginDeferWindowPos(4);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. 
     bool show_scrollbar = false;
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(VScrollBar());
     if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
@@ -135,13 +138,13 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     // Move and size the top label into place
     int height_notes_label = AfxScaleY(24);
 
-    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0,
+    hdwp = DeferWindowPos(hdwp, NotesLabel(), 0,
         0, 0, cx, height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0,
+    hdwp = DeferWindowPos(hdwp, NotesTextBox(), 0,
         0, height_notes_label, cx - custom_scrollbar_width, cy - height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0,
+    hdwp = DeferWindowPos(hdwp, VScrollBar(), 0,
         cx - custom_scrollbar_width, height_notes_label,
         custom_scrollbar_width, cy - height_notes_label,
         SWP_NOZORDER | (show_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
@@ -153,8 +156,8 @@ void JournalNotes_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: JournalNotes
 // ========================================================================================
-bool JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
-    HWND_JOURNALNOTES = hwnd;
+bool CJournalNotes::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+    hWindow = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_JOURNALNOTES_LBLNOTES, L"Journal Notes",
         COLOR_WHITELIGHT, COLOR_BLACK);
@@ -178,11 +181,11 @@ bool JournalNotes_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // ========================================================================================
 LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        HANDLE_MSG(m_hwnd, WM_CREATE, JournalNotes_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, JournalNotes_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, JournalNotes_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, JournalNotes_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_SIZE, JournalNotes_OnSize);
+        HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, OnPaint);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, OnCommand);
+        HANDLE_MSG(m_hwnd, WM_SIZE, OnSize);
     }
     return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
@@ -191,18 +194,16 @@ LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 // Display the JournalNotes side panel.
 // ========================================================================================
-void JournalNotes_ShowJournalNotes() {
-    HWND hTextBox = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_TXTNOTES);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_JOURNALNOTES, IDC_JOURNALNOTES_CUSTOMVSCROLLBAR);
+void CJournalNotes::ShowJournalNotes() {
 
     // Load the JournalNotes into the textbox
-    std::wstring wszText = GetJournalNotesText();
-    CustomTextBox_SetText(hTextBox, wszText);
+    std::wstring text = GetJournalNotesText();
+    CustomTextBox_SetText(NotesTextBox(), text);
 
     // Ensure that the JournalNotes panel is set
-    MainWindow_SetRightPanel(HWND_JOURNALNOTES);
+    MainWindow_SetRightPanel(hWindow);
 
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+    CustomVScrollBar_Recalculate(VScrollBar());
 
-    SetFocus(hTextBox);
+    SetFocus(NotesTextBox());
 }

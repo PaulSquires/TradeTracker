@@ -48,7 +48,7 @@ CYearEndDialog YearEndDialog;
 bool YearEndDialog_Process(HWND hwnd) {
     HWND hTextDate = GetDlgItem(hwnd, IDC_YEARENDDIALOG_TXTDATE);
 
-    std::wstring year_text = AfxGetWindowText(hTextDate);
+    std::wstring year_text = CustomTextBox_GetText(hTextDate);
 
     std::wstring text = L"Remove closed Trades on or before December 31, " + year_text 
         + L"? \n\nDo not continue if you have not made a database backup.";

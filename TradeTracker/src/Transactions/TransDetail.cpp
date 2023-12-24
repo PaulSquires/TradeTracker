@@ -142,7 +142,7 @@ void TransDetail_DeleteTransaction(HWND hwnd) {
     transEditDelete = nullptr;
 
     // Reset the Active Trades
-    ActiveTrades_ShowActiveTrades();
+    ActiveTrades.ShowActiveTrades();
 }
 
 

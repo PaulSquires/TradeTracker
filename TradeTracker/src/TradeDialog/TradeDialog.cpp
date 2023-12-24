@@ -73,7 +73,7 @@ void TradeDialog_OnClose(HWND hwnd) {
         Reconcile_doPositionMatching();
 
         // Show our new list of open trades
-        ActiveTrades_ShowActiveTrades();
+        ActiveTrades.ShowActiveTrades();
     }
 
     MainWindow_BlurPanels(false);
@@ -158,7 +158,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
             TradeDialogControls_ShowFuturesContractDate(hwnd);
 
             // Attempt to lookup the specified Ticker and fill in the corresponding Company Name & Multiplier.
-            std::wstring ticker_symbol = AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
+            std::wstring ticker_symbol = CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
             std::wstring company_name = L"";
 
             auto iter = std::find_if(trades.begin(), trades.end(),
@@ -329,7 +329,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         if (ctrl_id == IDC_TRADEDIALOG_SAVE) {
-            if (IsNewSharesTradeAction(tdd.trade_action) == true ||
+            if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
                 tdd.trade_action == TradeAction::add_shares_to_trade||
                 tdd.trade_action == TradeAction::add_futures_to_trade||
                 tdd.trade_action == TradeAction::manage_shares ||
@@ -438,8 +438,8 @@ int TradeDialog_Show(TradeAction inTradeAction) {
     cloak = FALSE;
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
-    if (IsNewOptionsTradeAction(tdd.trade_action) == true ||
-        IsNewSharesTradeAction(tdd.trade_action) == true) {
+    if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsNewSharesTradeAction(tdd.trade_action)) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     }
     else if (tdd.trade_action == TradeAction::other_income_expense) {

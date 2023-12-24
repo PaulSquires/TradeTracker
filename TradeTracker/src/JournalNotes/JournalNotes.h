@@ -27,22 +27,32 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "Database/database.h"
 
 
-class CJournalNotes : public CWindowBase<CJournalNotes>
-{
+class CJournalNotes : public CWindowBase<CJournalNotes> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    HWND hWindow = NULL;
+
+    HWND NotesLabel();
+    HWND NotesTextBox();
+    HWND VScrollBar();
+
+    void ShowJournalNotes();
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
 };
 
-extern CJournalNotes JournalNotes;
-extern HWND HWND_JOURNALNOTES;
 
 constexpr int IDC_JOURNALNOTES_LBLNOTES = 100;
 constexpr int IDC_JOURNALNOTES_TXTNOTES = 101;
 constexpr int IDC_JOURNALNOTES_CUSTOMVSCROLLBAR = 102;
 
-void JournalNotes_ShowJournalNotes();
+extern CJournalNotes JournalNotes;
 

@@ -160,7 +160,7 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype) {
     // Update the widths of any associated Header control. 
     HWND hHeader = NULL;
     if (tabletype == TableType::closed_trades) hHeader = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_HEADER);
-    if (tabletype == TableType::ticker_totals) hHeader = GetDlgItem(HWND_TICKERPANEL, IDC_TICKER_HEADER_TOTALS);
+    if (tabletype == TableType::ticker_totals) hHeader = TickerPanel.TickersHeader();
     if (tabletype == TableType::trans_panel) hHeader = GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_HEADER);
     
     if (hHeader) {

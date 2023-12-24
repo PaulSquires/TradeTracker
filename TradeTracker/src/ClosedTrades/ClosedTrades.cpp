@@ -112,7 +112,7 @@ void ClosedTrades_ShowClosedTrades() {
     
     int selected_category = CategoryControl_GetSelectedIndex(hCategory);
 
-    std::wstring ticker = AfxGetWindowText(GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_TXTTICKER));
+    std::wstring ticker = CustomTextBox_GetText(GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_TXTTICKER));
     ticker = AfxTrim(ticker);
 
     for (auto& trade : trades) {
@@ -665,7 +665,7 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         ClosedTrades_ShowClosedTrades();
 
         // Also need to update Active Trades list because Category headers have changed.
-        AfxRedrawWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+        AfxRedrawWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
         return 0;
     }
 

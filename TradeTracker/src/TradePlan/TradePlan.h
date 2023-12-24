@@ -27,22 +27,31 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "Database/database.h"
 
 
-class CTradePlan : public CWindowBase<CTradePlan>
-{
+class CTradePlan : public CWindowBase<CTradePlan> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-};
+    HWND hWindow = NULL;
 
-extern CTradePlan TradePlan;
-extern HWND HWND_TRADEPLAN;
+    HWND NotesLabel();
+    HWND NotesTextBox();
+    HWND VScrollBar();
+
+    void ShowTradePlan();
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+};
 
 constexpr int IDC_TRADEPLAN_LBLNOTES = 100;
 constexpr int IDC_TRADEPLAN_TXTNOTES = 101;
 constexpr int IDC_TRADEPLAN_CUSTOMVSCROLLBAR = 102;
 
-void TradePlan_ShowTradePlan();
+extern CTradePlan TradePlan;
 

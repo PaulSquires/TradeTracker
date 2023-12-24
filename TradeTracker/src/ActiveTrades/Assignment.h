@@ -30,15 +30,29 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 
 
-class CAssignment: public CWindowBase<CAssignment>
-{
+class CAssignment: public CWindowBase<CAssignment> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    HWND hWindow = NULL;
+
+    HWND QuantityTextBox();
+    HWND Text1Label();
+    HWND Text2Label();
+    HWND OkayButton();
+    HWND CancelButton();
+
+    int ShowModal(const std::wstring& long_short_text, 
+        const std::wstring& quantity_assigned_text, const std::wstring& strike_price_text);
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnClose(HWND hwnd);
+    void OnDestroy(HWND hwnd);
 };
 
-
-extern CAssignment Assignment;
-extern HWND HWND_ASSIGNMENT;
 
 constexpr int IDC_ASSIGNMENT_LBLTEXT1 = 100;
 constexpr int IDC_ASSIGNMENT_LBLTEXT2 = 101;
@@ -46,5 +60,4 @@ constexpr int IDC_ASSIGNMENT_TXTQUANTITY = 102;
 constexpr int IDC_ASSIGNMENT_OK = 103;
 constexpr int IDC_ASSIGNMENT_CANCEL = 104;
 
-int Assignment_Show(const std::wstring& long_short_text, const std::wstring& quantity_assigned_text, const std::wstring& strike_price_text);
-
+extern CAssignment Assignment;

@@ -342,7 +342,7 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         TabPanel_SelectPanelItem(m_hwnd, ctrl_id);
 
         if (ctrl_id == IDC_TABPANEL_ACTIVETRADES) {
-            ActiveTrades_ShowActiveTrades();
+            ActiveTrades.ShowActiveTrades();
         }
         if (ctrl_id == IDC_TABPANEL_CLOSEDTRADES) {
             ClosedTrades_ShowClosedTrades();
@@ -351,13 +351,13 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             TransPanel_ShowTransactions();
         }
         if (ctrl_id == IDC_TABPANEL_TICKERTOTALS) {
-            TickerPanel_ShowTickerTotals();
+            TickerPanel.ShowTickerTotals();
         }
         if (ctrl_id == IDC_TABPANEL_JOURNALNOTES) {
-            JournalNotes_ShowJournalNotes();
+            JournalNotes.ShowJournalNotes();
         }
         if (ctrl_id == IDC_TABPANEL_TRADEPLAN) {
-            TradePlan_ShowTradePlan();
+            TradePlan.ShowTradePlan();
         }
 
         return 0;

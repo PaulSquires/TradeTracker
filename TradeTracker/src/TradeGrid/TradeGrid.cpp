@@ -424,7 +424,7 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col) {
     int idx = (row * num_cols) + col;
 
     if (pData->gridCols.at(idx)->colType == GridColType::TextBox) {
-        text = AfxGetWindowText(GetDlgItem(pData->gridCols.at(idx)->hCtl,100));
+        text = CustomTextBox_GetText(GetDlgItem(pData->gridCols.at(idx)->hCtl,100));
     }
     else if (pData->gridCols.at(idx)->colType == GridColType::DatePicker) {
         // If the column is a DatePicker then return the ISO date rather

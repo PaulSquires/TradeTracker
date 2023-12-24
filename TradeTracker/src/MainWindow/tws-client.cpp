@@ -117,7 +117,7 @@ void UpdateTickersWithScrapedData() {
 	bool is_internet_available = InternetCheckConnection(url.c_str(), FLAG_ICC_FORCE_CONNECTION, 0);
 	
 	if (!is_internet_available) {
-		MessageBox(HWND_ACTIVETRADES,
+		MessageBox(ActiveTrades.hWindow,
 			(LPCWSTR)(L"No Internet connection exists.\n\nCan not retrieve scraped ticker data."),
 			(LPCWSTR)L"Connection", MB_ICONWARNING);
 		return;
@@ -127,7 +127,7 @@ void UpdateTickersWithScrapedData() {
 
 	std::unordered_map<std::wstring, double> map_prices;
 
-	HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+	HWND hListBox = GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX);
 
 	int item_count = ListBox_GetCount(hListBox);
 
@@ -175,7 +175,7 @@ void UpdateTickersWithScrapedData() {
 				ld->trade->ticker_last_price_text = text; 
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
-				PerformITMcalculation(ld->trade);
+				ActiveTrades.PerformITMcalculation(ld->trade);
 				ld->SetTextData(COLUMN_TICKER_ITM, ld->trade->itm_text, ld->trade->itm_color);  // ITM
 
 				text = AfxMoney(ld->trade->ticker_close_price, false, ld->trade->ticker_decimals);
@@ -242,7 +242,7 @@ void TickerUpdateFunction(std::stop_token st) {
 
 		try {
 			if (is_monitor_thread_active == true) {
-				ActiveTrades_UpdateTickerPrices();
+				ActiveTrades.UpdateTickerPrices();
 			}
 			else {
 				break;
@@ -338,7 +338,7 @@ void tws_ConnectionSuccessful() {
 		// Request Account Summary in order to get liquidity amounts
 		tws_RequestAccountSummary();
 
-		ActiveTrades_ShowActiveTrades();
+		ActiveTrades.ShowActiveTrades();
 	}
 }
 
@@ -370,7 +370,7 @@ bool tws_Connect() {
 		SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
-		MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 	
@@ -380,7 +380,7 @@ bool tws_Connect() {
 			L"Could not connect to TWS.\n\n" \
 			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
 			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
-		if (MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
+		if (MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
 			UpdateTickersWithScrapedData();
 		}
 		return false;
@@ -417,7 +417,7 @@ void tws_CancelMarketData(TickerId ticker_id) {
 
 
 void tws_RequestMarketUpdates() {
-	ListBoxData_RequestMarketData(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX));
+	ListBoxData_RequestMarketData(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
 }
 
 
@@ -460,7 +460,7 @@ void tws_RequestWshEventData(int req_id, const WshEventData& wshEventData)
 void tws_PerformReconciliation() {
 	if (!tws_IsConnected()) {
 		MessageBox(
-			HWND_ACTIVETRADES,
+			ActiveTrades.hWindow,
 			(LPCWSTR)L"Must be connected to TWS to perform a reconciliation.",
 			(LPCWSTR)L"Error",
 			MB_ICONINFORMATION);
@@ -639,7 +639,7 @@ void TwsClient::tickGeneric(TickerId ticker_id, TickType tickType, double value)
 	//	2	Volatility halt.Trading halt is imposed by the exchange to protect against extreme volatility.
 
 	if (tickType == HALTED && value == 1 || value == 2) {  // 49
-		HWND hListBox = GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_LISTBOX);
+		HWND hListBox = GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX);
 		int item_count = ListBox_GetCount(hListBox);
 		if (item_count == 0) return;
 
@@ -767,7 +767,7 @@ void TwsClient::error(int id, int error_code,
 		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
 			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nTradeTracker will resume automatically when TWS reconnects to IBKR.";
-		//MessageBox(HWND_ACTIVETRADES, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		//MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;
 
@@ -800,7 +800,7 @@ void TwsClient::positionEnd() {
 
 	// Send notification to ActiveTrades window that positions have all been loaded
 	// thereby allowing the loading of portfolio values.
-	SendMessage(HWND_ACTIVETRADES, MSG_POSITIONS_READY, 0, 0);
+	SendMessage(ActiveTrades.hWindow, MSG_POSITIONS_READY, 0, 0);
 
 	// We have finished requesting positions. It is possible that some position closing prices were 
 	// not retrieved because maybe we are connected but it is after hours and we need additional
@@ -858,13 +858,13 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 	}
 
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
-		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_NETLIQUIDATION_VALUE), account_value);
-		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		CustomLabel_SetText(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE), account_value);
+		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
-		CustomLabel_SetText(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), account_value);
-		ShowWindow(GetDlgItem(HWND_ACTIVETRADES, IDC_TRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		CustomLabel_SetText(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), account_value);
+		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
 	}
 }
 

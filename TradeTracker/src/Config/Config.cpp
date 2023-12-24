@@ -156,12 +156,12 @@ void Version4UpgradeExe() {
 }
 
 bool Version4UpgradeConfig() {
-    dbConfig_new = GetDataFilesFolder() + dbConfig_new;
+    std::wstring dbConfig_filename = GetDataFilesFolder() + dbConfig_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbConfig_new)) {
-        dbConfig = dbConfig_new;
+    if (AfxFileExists(dbConfig_filename)) {
+        dbConfig = dbConfig_filename;
         return false;
     }
     else {
@@ -172,12 +172,12 @@ bool Version4UpgradeConfig() {
 }
 
 bool Version4UpgradeJournalNotes() {
-    dbJournalNotes_new = GetDataFilesFolder() + dbJournalNotes_new;
+    std::wstring dbJournalNotes_filename = GetDataFilesFolder() + dbJournalNotes_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbJournalNotes_new)) {
-        dbJournalNotes = dbJournalNotes_new;
+    if (AfxFileExists(dbJournalNotes_filename)) {
+        dbJournalNotes = dbJournalNotes_filename;
         return false;
     }
     else {
@@ -188,12 +188,12 @@ bool Version4UpgradeJournalNotes() {
 }
 
 bool Version4UpgradeTradePlan() {
-    dbTradePlan_new = GetDataFilesFolder() + dbTradePlan_new;
+    std::wstring dbTradePlan_filename = GetDataFilesFolder() + dbTradePlan_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbTradePlan_new)) {
-        dbTradePlan = dbTradePlan_new;
+    if (AfxFileExists(dbTradePlan_filename)) {
+        dbTradePlan = dbTradePlan_filename;
         return false;
     }
     else {

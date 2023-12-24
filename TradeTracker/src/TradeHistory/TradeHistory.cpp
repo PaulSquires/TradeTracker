@@ -369,7 +369,7 @@ void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
             break;
         }
         else if (codeNotify == EN_CHANGE) {
-            notes = AfxGetWindowText(hwndCtl);
+            notes = CustomTextBox_GetText(hwndCtl);
             is_notes_dirty = true;
             break;
         }

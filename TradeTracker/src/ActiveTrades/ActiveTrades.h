@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Utilities/CWindowBase.h"
 #include "Utilities/UserMessages.h"
+#include "Utilities/ListBoxData.h"
 #include "Database/trade.h"
 
 typedef long TickerId;
@@ -39,27 +40,70 @@ enum class SortOrder {
 };
 
 
-class CActiveTrades : public CWindowBase<CActiveTrades>
-{
+class CActiveTrades : public CWindowBase<CActiveTrades> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
     SortOrder sort_order = SortOrder::Category;
+
+    HWND hWindow = NULL;
+
+    HWND TradesListBox();
+    HWND SortFilterLabel();
+    HWND SortFilterTextBox();
+    HWND NewTradeLabel();
+    HWND NewTradeTextBox();
+    HWND NetLiquidationLabel();
+    HWND NetLiquidationValueLabel();
+    HWND ExcessLiquidityLabel();
+    HWND ExcessLiquidityValueLabel();
+    HWND VScrollBar();
+
+    void ShowActiveTrades();
+    void PerformITMcalculation(std::shared_ptr<Trade>& trade);
+    bool IsNewOptionsTradeAction(TradeAction action);
+    bool IsNewSharesTradeAction(TradeAction action);
+    void UpdateTickerPrices();
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+
+    std::wstring GetSortFilterDescription(const int index);
+    std::wstring GetNewTradeDescription(const int index);
+    void UpdateTickerPricesLine(int index, ListBoxData* ld);
+    void UpdateTickerPortfolioLine(int index, int index_trade, ListBoxData* ld);
+    void UpdateLegPortfolioLine(int index, ListBoxData* ld);
+    void ExpireSelectedLegs(auto trade);
+    void CalledAwayAssignment(auto trade, auto leg, int aggregate_shares, int aggregate_futures);
+    void CreateAssignment(auto trade, auto leg);
+    void OptionAssignment(auto trade);
+    void PopulateLegsEditVector(HWND hListBox);
+    int ShowHideLiquidityLabels(HWND hwnd);
+    
+    void ShowListBoxItem(int index);
+    void RightClickMenu(HWND hListBox, int idx);
+    bool SelectListBoxItem(HWND hListBox, int idx);
+    
+    static LRESULT CALLBACK ListBox_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 };
 
 
-extern CActiveTrades ActiveTrades;
-extern HWND HWND_ACTIVETRADES;
-
-constexpr int IDC_TRADES_LISTBOX = 100;
-constexpr int IDC_TRADES_CUSTOMVSCROLLBAR = 102;
-constexpr int IDC_TRADES_LBLSORTFILTER = 104;
-constexpr int IDC_TRADES_SORTFILTER = 105;
-constexpr int IDC_TRADES_LBLNEWTRADE = 106;
-constexpr int IDC_TRADES_NEWTRADE = 107;
-constexpr int IDC_TRADES_NETLIQUIDATION = 108;
-constexpr int IDC_TRADES_NETLIQUIDATION_VALUE = 109;
-constexpr int IDC_TRADES_EXCESSLIQUIDITY = 110;
-constexpr int IDC_TRADES_EXCESSLIQUIDITY_VALUE = 111;
+constexpr int IDC_ACTIVETRADES_LISTBOX = 100;
+constexpr int IDC_ACTIVETRADES_CUSTOMVSCROLLBAR = 102;
+constexpr int IDC_ACTIVETRADES_LBLSORTFILTER = 104;
+constexpr int IDC_ACTIVETRADES_SORTFILTER = 105;
+constexpr int IDC_ACTIVETRADES_LBLNEWTRADE = 106;
+constexpr int IDC_ACTIVETRADES_NEWTRADE = 107;
+constexpr int IDC_ACTIVETRADES_NETLIQUIDATION = 108;
+constexpr int IDC_ACTIVETRADES_NETLIQUIDATION_VALUE = 109;
+constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY = 110;
+constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE = 111;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 80;
@@ -106,12 +150,4 @@ constexpr int COLUMN_TICKER_PORTFOLIO_3 = 10;
 constexpr int COLUMN_TICKER_PORTFOLIO_4 = 11;
 constexpr int COLUMN_TICKER_PORTFOLIO_5 = 12;
 
-
-bool IsNewOptionsTradeAction(TradeAction action);
-bool IsNewSharesTradeAction(TradeAction action);
-void ActiveTrades_ShowActiveTrades();
-void ActiveTrades_OnSize(HWND hwnd, UINT state, int cx, int cy);
-void ActiveTrades_UpdateTickerPrices();
-void PerformITMcalculation(std::shared_ptr<Trade>& trade);
-std::wstring GetSortFilterDescription(const int index);
-std::wstring GetNewTradeDescription(const int index);
+extern CActiveTrades ActiveTrades;

@@ -82,13 +82,14 @@ constexpr int MSG_REMOVE_BOXCHAR = WM_USER + 1001;
 
 CustomTextBox* CustomTextBox_GetOptions(HWND hCtrl);
 int CustomTextBox_SetOptions(HWND hCtrl, CustomTextBox* pData);
-void CustomTextBox_SetText(HWND hCtrl, std::wstring text);
-void CustomTextBox_SetFont(HWND hCtrl, std::wstring font_name, int font_size);
+void CustomTextBox_SetText(HWND hCtrl, const std::wstring& text);
+std::wstring CustomTextBox_GetText(HWND hCtrl);
+void CustomTextBox_SetFont(HWND hCtrl, const std::wstring& font_name, int font_size);
 void CustomTextBox_SetNumericAttributes(
 	HWND hCtrl, int decimal_places, CustomTextBoxNegative allow_negative, CustomTextBoxFormatting allow_formatting);
 void CustomTextBox_SetColors(HWND hCtrl, DWORD text_color, DWORD back_color);
 void CustomTextBox_SetMargins(HWND hCtrl, int horiz_text_margin, int vert_text_margin);
-void CustomTextBox_SetUserData(HWND hCtrl, std::wstring UserData);
+void CustomTextBox_SetUserData(HWND hCtrl, const std::wstring& UserData);
 std::wstring CustomTextBox_GetUserData(HWND hCtrl);
 void CustomTextBox_SetSelectOnFocus(HWND hCtrl, bool allow_select_onfocus);
 void CustomTextBox_AttachScrollBar(HWND hCtrl, HWND hScrollBar);

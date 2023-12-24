@@ -67,15 +67,15 @@ public:
         // the Fees textbox thereby not firing the KillFocus that triggers the calculation.
         TradeDialog_CalculateTradeTotal(hwnd);
 
-        ticker_symbol = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER)));
-        ticker_name   = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY)));
+        ticker_symbol = RemovePipeChar(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER)));
+        ticker_name   = RemovePipeChar(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY)));
         future_expiry = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
         
         category      = CategoryControl_GetSelectedIndex(GetDlgItem(hwnd, IDC_TRADEDIALOG_CATEGORY));
         most_recently_used_category = category;
 
         trans_date    = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-        description   = RemovePipeChar(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
+        description   = RemovePipeChar(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
         
         if (tdd.trade_action == TradeAction::roll_leg) description = L"Roll";
         if (tdd.trade_action == TradeAction::close_leg) description = L"Close";
@@ -106,13 +106,13 @@ public:
             underlying = tdd.trans->underlying;
         }
 
-        quantity   = (int)AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-        price      = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
-        multiplier = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
-        fees       = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-        trade_bp   = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP)));
+        quantity   = (int)AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
+        price      = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
+        multiplier = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
+        fees       = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
+        trade_bp   = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP)));
         DRCR       = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-        total      = AfxValDouble(AfxGetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+        total      = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
         
         if (DRCR == L"DR") { total = total * -1; }
         ACB = ACB + total;
@@ -199,7 +199,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
 
     std::shared_ptr<Trade> trade;
 
-    if (IsNewSharesTradeAction(tdd.trade_action) == true) {
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action)) {
         trade = std::make_shared<Trade>();
         trades.push_back(trade);
     }
@@ -237,7 +237,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     // Set the Share/Futures quantity based on whether Long or Short based on 
     // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
 
-    if (IsNewSharesTradeAction(tdd.trade_action) == true ||
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_BUYSHARES));
@@ -536,7 +536,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
     std::shared_ptr<Trade> trade;
 
-    if (IsNewOptionsTradeAction(tdd.trade_action) == true) {
+    if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action)) {
         trade = std::make_shared<Trade>();
         trades.push_back(trade);
     }

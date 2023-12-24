@@ -30,22 +30,30 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
 #include "Config/Config.h"
-#include "Utilities/ListBoxData.h"
-#include "Utilities/AfxWin.h"
 #include "TradePlan.h"
 
 
-HWND HWND_TRADEPLAN = NULL;
-
 CTradePlan TradePlan;
 
-void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy);
+
+// ========================================================================================
+// Get the HWND's of the the controls on the form.
+// ========================================================================================
+inline HWND CTradePlan::NotesTextBox() {
+    return GetDlgItem(hWindow, IDC_TRADEPLAN_TXTNOTES);
+}
+inline HWND CTradePlan::NotesLabel() {
+    return GetDlgItem(hWindow, IDC_TRADEPLAN_LBLNOTES);
+}
+inline HWND CTradePlan::VScrollBar() {
+    return GetDlgItem(hWindow, IDC_TRADEPLAN_CUSTOMVSCROLLBAR);
+}
 
 
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TradePlan
 // ========================================================================================
-bool TradePlan_OnEraseBkgnd(HWND hwnd, HDC hdc) {
+bool CTradePlan::OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     return true;
 }
@@ -54,7 +62,7 @@ bool TradePlan_OnEraseBkgnd(HWND hwnd, HDC hdc) {
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TradePlan
 // ========================================================================================
-void TradePlan_OnPaint(HWND hwnd) {
+void CTradePlan::OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -76,7 +84,7 @@ void TradePlan_OnPaint(HWND hwnd) {
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: TradePlan
 // ========================================================================================
-void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
+void CTradePlan::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     static bool is_notes_dirty = false;
     static std::wstring notes = L"";
 
@@ -94,7 +102,7 @@ void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
             break;
         }
         else if (codeNotify == EN_CHANGE) {
-            notes = AfxGetWindowText(hwndCtl);
+            notes = CustomTextBox_GetText(hwndCtl);
             is_notes_dirty = true;
             break;
         }
@@ -113,16 +121,12 @@ void TradePlan_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TradePlan
 // ========================================================================================
-void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    HWND hNotesLabel = GetDlgItem(hwnd, IDC_TRADEPLAN_LBLNOTES);
-    HWND hNotesTextBox = GetDlgItem(hwnd, IDC_TRADEPLAN_TXTNOTES);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRADEPLAN_CUSTOMVSCROLLBAR);
-
+void CTradePlan::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HDWP hdwp = BeginDeferWindowPos(4);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. 
     bool show_scrollbar = false;
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(VScrollBar());
     if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
@@ -136,13 +140,13 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     // Move and size the top label into place
     int height_notes_label = AfxScaleY(24);
 
-    hdwp = DeferWindowPos(hdwp, hNotesLabel, 0,
+    hdwp = DeferWindowPos(hdwp, NotesLabel(), 0,
         0, 0, cx, height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    hdwp = DeferWindowPos(hdwp, hNotesTextBox, 0,
+    hdwp = DeferWindowPos(hdwp, NotesTextBox(), 0,
         0, height_notes_label, cx - custom_scrollbar_width, cy - height_notes_label, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, 
+    hdwp = DeferWindowPos(hdwp, VScrollBar(), 0,
         cx - custom_scrollbar_width, height_notes_label, 
         custom_scrollbar_width, cy - height_notes_label, 
         SWP_NOZORDER | (show_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
@@ -154,8 +158,8 @@ void TradePlan_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TradePlan
 // ========================================================================================
-bool TradePlan_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
-    HWND_TRADEPLAN = hwnd;
+bool CTradePlan::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+    hWindow = hwnd;
 
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEPLAN_LBLNOTES, L"Trade Plan",
         COLOR_WHITELIGHT, COLOR_BLACK);
@@ -179,11 +183,11 @@ bool TradePlan_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // ========================================================================================
 LRESULT CTradePlan::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        HANDLE_MSG(m_hwnd, WM_CREATE, TradePlan_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TradePlan_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TradePlan_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, TradePlan_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TradePlan_OnSize);
+        HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, OnPaint);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, OnCommand);
+        HANDLE_MSG(m_hwnd, WM_SIZE, OnSize);
     }
     return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
@@ -192,18 +196,16 @@ LRESULT CTradePlan::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 // Display the TradePlan side panel.
 // ========================================================================================
-void TradePlan_ShowTradePlan() {
-    HWND hTextBox = GetDlgItem(HWND_TRADEPLAN, IDC_TRADEPLAN_TXTNOTES);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_TRADEPLAN, IDC_TRADEPLAN_CUSTOMVSCROLLBAR);
+void CTradePlan::ShowTradePlan() {
 
     // Load the TradePlan into the textbox
-    std::wstring wszText = GetTradePlanText();
-    CustomTextBox_SetText(hTextBox, wszText);
+    std::wstring text = GetTradePlanText();
+    CustomTextBox_SetText(NotesTextBox(), text);
 
     // Ensure that the TradePlan panel is set
-    MainWindow_SetRightPanel(HWND_TRADEPLAN);
+    MainWindow_SetRightPanel(hWindow);
 
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+    CustomVScrollBar_Recalculate(VScrollBar());
 
-    SetFocus(hTextBox);
+    SetFocus(NotesTextBox());
 }

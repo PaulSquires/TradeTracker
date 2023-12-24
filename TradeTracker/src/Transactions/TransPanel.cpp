@@ -141,7 +141,7 @@ void TransPanel_ShowTransactions() {
     std::wstring start_date = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_STARTDATE));
     std::wstring end_date = CustomLabel_GetUserData(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_ENDDATE));
 
-    std::wstring ticker = AfxGetWindowText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
+    std::wstring ticker = CustomTextBox_GetText(GetDlgItem(HWND_TRANSPANEL, IDC_TRANS_TXTTICKER));
     ticker = AfxTrim(ticker);
 
     for (auto& trade : trades) {
