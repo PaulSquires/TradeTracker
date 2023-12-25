@@ -29,15 +29,34 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CTransDateFilter : public CWindowBase<CTransDateFilter>
-{
+class CTransDateFilter : public CWindowBase<CTransDateFilter> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    static HWND hWindow;
+
+    HWND PopupListBox();
+
+    std::wstring GetFilterDescription(int idx);
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+    void OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
+
+    void DoSelected(int idx);
+
+    static LRESULT CALLBACK TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK ListBox_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 };
 
-extern CTransDateFilter TransDateFilter;
-extern HWND HWND_TRANSDATEFILTER;
+HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl);
 
 
 enum class TransDateFilterType {
@@ -58,6 +77,5 @@ constexpr int IDC_TRANSDATEFILTER_LISTBOX = 100;
 constexpr int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
 constexpr int TRANSDATEFILTER_WIDTH = 113;
 
-HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl);
-std::wstring TransDateFilter_GetString(int idx);
 
+extern CTransDateFilter TransDateFilter;

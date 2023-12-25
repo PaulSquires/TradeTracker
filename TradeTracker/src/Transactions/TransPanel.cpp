@@ -728,7 +728,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         if ((HWND)lParam == StartDateCombo() || EndDateCombo()) {
             CustomLabel_SetUserDataInt(TransDateCombo(), (int)TransDateFilterType::Custom);
             CustomLabel_SetText(TransDateCombo(),
-                TransDateFilter_GetString((int)TransDateFilterType::Custom).c_str());
+                TransDateFilter.GetFilterDescription((int)TransDateFilterType::Custom).c_str());
         }
 
         SetStartEndDates(m_hwnd);

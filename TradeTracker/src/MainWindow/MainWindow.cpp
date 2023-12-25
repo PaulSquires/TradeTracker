@@ -446,8 +446,8 @@ bool MainWindow_OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT m
 // Close combobox popup menus when ESCAPE is pressed or application loses focus.
 // ========================================================================================
 void MainWindow_CloseComboPopups() {
-    if (IsWindowVisible(HWND_TRANSDATEFILTER)) {
-        DestroyWindow(HWND_TRANSDATEFILTER);
+    if (IsWindowVisible(TransDateFilter.hWindow)) {
+        DestroyWindow(TransDateFilter.hWindow);
     }
     else if (IsWindowVisible(HWND_CALENDAR)) {
         DestroyWindow(HWND_CALENDAR);
