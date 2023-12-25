@@ -57,7 +57,7 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
     HWND hNotesText = GetDlgItem(HWND_TRADEHISTORY, IDC_HISTORY_TXTNOTES);
 
     // Ensure that the Trade History panel is set
-    MainWindow_SetRightPanel(HWND_TRADEHISTORY);
+    MainWindow.SetRightPanel(HWND_TRADEHISTORY);
 
     if (!trade) {
         // Clear the current trade history table
@@ -194,7 +194,7 @@ LRESULT CALLBACK TradeHistory_ListBox_SubclassProc(
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwnd, idx);
         if (ld != nullptr) {
             if (ld->line_type == LineType::transaction_header) {
-                TransDetail_ShowTransDetail(ld->trade, ld->trans);
+                TransDetail.ShowTransDetail(ld->trade, ld->trans);
             }
         }
 

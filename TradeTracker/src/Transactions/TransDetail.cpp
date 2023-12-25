@@ -39,21 +39,44 @@ SOFTWARE.
 #include "TransDetail.h"
 
 
-HWND HWND_TRANSDETAIL = NULL;
-
 std::shared_ptr<Trade> tradeEditDelete = nullptr;
 std::shared_ptr<Transaction> transEditDelete = nullptr;
 
 CTransDetail TransDetail;
 
 
+// ========================================================================================
+// Get the HWND's of the the controls on the form.
+// ========================================================================================
+inline HWND CTransDetail::TransListBox() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_LISTBOX);
+}
+inline HWND CTransDetail::VScrollBar() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
+}
+inline HWND CTransDetail::Label1() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_LABEL1);
+}
+inline HWND CTransDetail::CostLabel() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_LBLCOST);
+}
+inline HWND CTransDetail::SymbolLabel() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_SYMBOL);
+}
+inline HWND CTransDetail::EditButton() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_CMDEDIT);
+}
+inline HWND CTransDetail::DeleteButton() {
+    return GetDlgItem(hWindow, IDC_TRANSDETAIL_CMDDELETE);
+}
+
 
 // ========================================================================================
 // Retrieve the Leg pointer based on a leg's backPointerID.
 // ========================================================================================
-std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id) {
-    for (auto trans : trade->transactions) {
-        for (auto leg : trans->legs) {
+std::shared_ptr<Leg> CTransDetail::GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id) {
+    for (auto& trans : trade->transactions) {
+        for (auto& leg : trans->legs) {
             if (leg->leg_id == back_pointer_id) {
                 return leg;
             }
@@ -66,7 +89,7 @@ std::shared_ptr<Leg> TransDetail_GetLegBackPointer(std::shared_ptr<Trade> trade,
 // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit it.
 // ========================================================================================
-void TransDetail_EditTransaction(HWND hwnd) {
+void CTransDetail::EditTransaction(HWND hwnd) {
     if (!tradeEditDelete) return;
     if (!transEditDelete) return;
 
@@ -81,12 +104,12 @@ void TransDetail_EditTransaction(HWND hwnd) {
 // ========================================================================================
 // Delete (after confirmation) the selected Transaction.
 // ========================================================================================
-void TransDetail_DeleteTransaction(HWND hwnd) {
+void CTransDetail::DeleteTransaction(HWND hwnd) {
     if (!tradeEditDelete) return;
     if (!transEditDelete) return;
 
     int res = MessageBox(
-        HWND_TRANSDETAIL,
+        hWindow,
         (LPCWSTR)(L"Are you sure you wish to DELETE this Transaction?"),
         (LPCWSTR)L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -95,7 +118,7 @@ void TransDetail_DeleteTransaction(HWND hwnd) {
 
     // Iterate the trades and look into each TransDetail vector to match the 
     // transaction that we need to delete.
-    for (auto trade : trades) {
+    for (auto& trade : trades) {
         auto iter = trade->transactions.begin();
         while (iter != trade->transactions.end()) {
             // If element matches the element to be deleted then delete it
@@ -104,11 +127,11 @@ void TransDetail_DeleteTransaction(HWND hwnd) {
                 // If yes, then retrieve the leg related to that pointer and update its open
                 // quantity amount. Backpointers exist for Transactions that modify quantity
                 // amounts like CLOSE, EXPIRE, ROLL.
-                for (auto leg : transEditDelete->legs) {
+                for (auto& leg : transEditDelete->legs) {
                     if (leg->leg_back_pointer_id != 0) {
                         // Get the backpointer leg.
                         std::shared_ptr<Leg> LegBackPointer = nullptr;
-                        LegBackPointer = TransDetail_GetLegBackPointer(trade, leg->leg_back_pointer_id);
+                        LegBackPointer = GetLegBackPointer(trade, leg->leg_back_pointer_id);
                         if (LegBackPointer != nullptr) {
                             LegBackPointer->open_quantity = LegBackPointer->open_quantity - leg->original_quantity;
                         }
@@ -149,36 +172,33 @@ void TransDetail_DeleteTransaction(HWND hwnd) {
 // ========================================================================================
 // Display the selected Transaction detail (legs) and ability to Edit/Delete it.
 // ========================================================================================
-void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans) {
+void CTransDetail::ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans) {
     tradeEditDelete = trade;
     transEditDelete = trans;
 
     // Clear the current transaction history table
-    HWND hListBox = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LISTBOX);
-    ListBoxData_DestroyItemData(hListBox);
+    ListBoxData_DestroyItemData(TransListBox());
 
     // Ensure that the Transaction panel is set
-    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
+    MainWindow.SetRightPanel(hWindow);
 
     if (!trade) {
-        CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1), L"");
-        CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), L"");
-        CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), L"");
-        ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDEDIT), SW_HIDE);
-        ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDDELETE), SW_HIDE);
-        ListBoxData_AddBlankLine(hListBox);
-        AfxRedrawWindow(hListBox);
+        CustomLabel_SetText(Label1(), L"");
+        CustomLabel_SetText(CostLabel(), L"");
+        CustomLabel_SetText(SymbolLabel(), L"");
+        ShowWindow(EditButton(), SW_HIDE);
+        ShowWindow(DeleteButton(), SW_HIDE);
+        ListBoxData_AddBlankLine(TransListBox());
+        AfxRedrawWindow(TransListBox());
         return;
     }
 
-    ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDEDIT), SW_SHOW);
-    ShowWindow(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CMDDELETE), SW_SHOW);
+    ShowWindow(EditButton(), SW_SHOW);
+    ShowWindow(DeleteButton(), SW_SHOW);
 
-    ListBoxData_HistoryHeader(hListBox, trade, trans);
+    ListBoxData_HistoryHeader(TransListBox(), trade, trans);
 
-    CustomLabel_SetText(
-        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LABEL1),
-        L"Transaction Details");
+    CustomLabel_SetText(Label1(), L"Transaction Details");
 
     // Construct the string to display the cost details of the selected transaction
     std::wstring wszDRCR = (transEditDelete->total < 0) ? L" DR" : L" CR";
@@ -188,41 +208,40 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
                 AfxMoney(transEditDelete->price, false, GetTickerDecimals(trade->ticker_symbol)) + wszPlusMinus +
                 AfxMoney(transEditDelete->fees) + L" = " +
                 AfxMoney(abs(transEditDelete->total)) + wszDRCR;
-    CustomLabel_SetText(GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_LBLCOST), text);
+    CustomLabel_SetText(CostLabel(), text);
     
     text = trade->ticker_symbol + L": " + trade->ticker_name;
     if (trade->future_expiry.length()) {
         text = text + L" ( " + AfxFormatFuturesDate(trade->future_expiry) + L" )";
     }
-    CustomLabel_SetText(
-        GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_SYMBOL), text);
+    CustomLabel_SetText(SymbolLabel(), text);
 
     // Show the detail leg information for this transaction.
     for (const auto& leg : trans->legs) {
         if (leg->underlying == L"OPTIONS") { 
-            ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); 
+            ListBoxData_HistoryOptionsLeg(TransListBox(), trade, trans, leg);
         }
         else if (leg->underlying == L"SHARES") { 
-            ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg); 
+            ListBoxData_HistorySharesLeg(TransListBox(), trade, trans, leg);
         }
         else if (leg->underlying == L"FUTURES") {
-            ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
+            ListBoxData_HistorySharesLeg(TransListBox(), trade, trans, leg);
         }
         else if (leg->underlying == L"DIVIDEND") {
-            ListBoxData_HistoryDividendLeg(hListBox, trade, trans, leg);
+            ListBoxData_HistoryDividendLeg(TransListBox(), trade, trans, leg);
         }
     }
 
-    ListBoxData_AddBlankLine(hListBox);
+    ListBoxData_AddBlankLine(TransListBox());
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::trade_history);
+    ListBoxData_ResizeColumnWidths(TransListBox(), TableType::trade_history);
 
     // Set the ListBox to the topline.
-    ListBox_SetTopIndex(hListBox, 0);
+    ListBox_SetTopIndex(TransListBox(), 0);
 
 }
 
@@ -230,7 +249,7 @@ void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
+LRESULT CALLBACK CTransDetail::ListBox_SubclassProc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -259,7 +278,7 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
                 accum_delta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_TRANSDETAIL, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(GetParent(hwnd), IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
     }
@@ -310,7 +329,7 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
         ListBoxData_DestroyItemData(hwnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hwnd, TransDetail_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, ListBox_SubclassProc, uIdSubclass);
         break;
     }
 
@@ -324,7 +343,7 @@ LRESULT CALLBACK TransDetail_ListBox_SubclassProc(
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransDetail
 // ========================================================================================
-void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
+void CTransDetail::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(TRANSDETAIL_LISTBOX_ROWHEIGHT);
 }
 
@@ -332,7 +351,7 @@ void TransDetail_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TransDetail
 // ========================================================================================
-bool TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc) {
+bool CTransDetail::OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     return true;
 }
@@ -341,7 +360,7 @@ bool TransDetail_OnEraseBkgnd(HWND hwnd, HDC hdc) {
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TransDetail
 // ========================================================================================
-void TransDetail_OnPaint(HWND hwnd) {
+void CTransDetail::OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -364,10 +383,7 @@ void TransDetail_OnPaint(HWND hwnd) {
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TransDetail
 // ========================================================================================
-void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    HWND hListBox = GetDlgItem(hwnd, IDC_TRANSDETAIL_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_TRANSDETAIL_CUSTOMVSCROLLBAR);
-
+void CTransDetail::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     int margin = AfxScaleY(TRANSDETAIL_MARGIN);
     int top = 0;
     int left = 0;
@@ -377,30 +393,30 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     HDWP hdwp = BeginDeferWindowPos(10);
 
     // Move and size the top label into place
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LABEL1), 0,
+    hdwp = DeferWindowPos(hdwp, Label1(), 0,
         0, top, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top += margin;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_SYMBOL), 0,
+    hdwp = DeferWindowPos(hdwp, SymbolLabel(), 0,
         0, top, cx, margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top += margin;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_LBLCOST), 0,
+    hdwp = DeferWindowPos(hdwp, CostLabel(), 0,
         0, top, cx - (button_width * 2) - AfxScaleX(8), margin, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = cx - (button_width * 2) - AfxScaleX(8);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDEDIT), 0,
+    hdwp = DeferWindowPos(hdwp, EditButton(), 0,
         left, top, button_width, button_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = cx - button_width;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_TRANSDETAIL_CMDDELETE), 0,
+    hdwp = DeferWindowPos(hdwp, DeleteButton(), 0,
         left, top, button_width, button_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bshow_scrollbar = false;
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(VScrollBar());
     if (pData) {
         if (pData->drag_active) {
             bshow_scrollbar = true;
@@ -415,11 +431,11 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     left = 0;
     int width = cx - custom_scrollbar_width;
     int height = cy - top;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, TransListBox(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = left + width;   // right edge of ListBox
     width = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height,
+    hdwp = DeferWindowPos(hdwp, VScrollBar(), 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
@@ -429,8 +445,8 @@ void TransDetail_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TransDetail
 // ========================================================================================
-bool TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
-    HWND_TRANSDETAIL = hwnd;
+bool CTransDetail::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+    hWindow = hwnd;
 
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
@@ -466,7 +482,7 @@ bool TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
             LBS_NOINTEGRALHEIGHT | LBS_NOSEL |
             LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)TransDetail_ListBox_SubclassProc,
+            (SUBCLASSPROC)ListBox_SubclassProc,
             IDC_TRANSDETAIL_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
 
@@ -482,11 +498,11 @@ bool TransDetail_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // ========================================================================================
 LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        HANDLE_MSG(m_hwnd, WM_CREATE, TransDetail_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, TransDetail_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, TransDetail_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, TransDetail_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, TransDetail_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     case MSG_CUSTOMLABEL_CLICK: {
@@ -496,12 +512,12 @@ LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         if (hCtl == NULL) return 0;
 
         if (ctrl_id == IDC_TRANSDETAIL_CMDEDIT) {
-            TransDetail_EditTransaction(m_hwnd);
+            EditTransaction(m_hwnd);
             return 0;
         }
 
         if (ctrl_id == IDC_TRANSDETAIL_CMDDELETE) {
-            TransDetail_DeleteTransaction(m_hwnd);
+            DeleteTransaction(m_hwnd);
         }
         return 0;
     }

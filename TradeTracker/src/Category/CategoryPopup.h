@@ -30,8 +30,7 @@ SOFTWARE.
 #include "Category.h"
 
 
-class CCategoryPopup: public CWindowBase<CCategoryPopup>
-{
+class CCategoryPopup: public CWindowBase<CCategoryPopup> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 

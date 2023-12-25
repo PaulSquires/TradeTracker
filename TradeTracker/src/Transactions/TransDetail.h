@@ -30,15 +30,40 @@ SOFTWARE.
 #include "Database/trade.h"
 
 
-class CTransDetail: public CWindowBase<CTransDetail>
-{
+class CTransDetail: public CWindowBase<CTransDetail> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    HWND hWindow = NULL;
+
+    HWND TransListBox();
+    HWND VScrollBar();
+    HWND Label1();
+    HWND CostLabel();
+    HWND SymbolLabel();
+    HWND EditButton();
+    HWND DeleteButton();
+
+    void ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+
+    std::shared_ptr<Leg> GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id);
+    void EditTransaction(HWND hwnd);
+    void DeleteTransaction(HWND hwnd);
+
+    static LRESULT CALLBACK ListBox_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 };
 
 extern CTransDetail TransDetail;
-extern HWND HWND_TRANSDETAIL;
 
 
 constexpr int IDC_TRANSDETAIL_LISTBOX = 110;
@@ -53,4 +78,3 @@ constexpr int TRANSDETAIL_LISTBOX_ROWHEIGHT = 20;
 constexpr int TRANSDETAIL_WIDTH = 400;
 constexpr int TRANSDETAIL_MARGIN = 24;
 
-void TransDetail_ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);

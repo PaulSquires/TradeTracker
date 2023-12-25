@@ -31,8 +31,7 @@ SOFTWARE.
 #include "Database/trade.h"
 
 
-class CYearEndDialog : public CWindowBase<CYearEndDialog>
-{
+class CYearEndDialog : public CWindowBase<CYearEndDialog> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 

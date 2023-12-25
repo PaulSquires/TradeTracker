@@ -36,8 +36,6 @@ SOFTWARE.
 #include "CustomTextBox.h"
 
 
-extern CMainWindow Main;
-
 
 // ========================================================================================
 // Empty text from the Windows clipboard
@@ -702,7 +700,7 @@ void CustomTextBox_SetFont(HWND hCtrl, const std::wstring& font_name, int font_s
         if (pData->hFontText) DeleteFont(pData->hFontText);
         pData->font_name = font_name;
         pData->font_size = font_size;
-        pData->hFontText = Main.CreateFont(font_name, font_size, FW_NORMAL, false, false, false, DEFAULT_CHARSET);
+        pData->hFontText = MainWindow.CreateFont(font_name, font_size, FW_NORMAL, false, false, false, DEFAULT_CHARSET);
         if (pData->hFontText) SendMessage(pData->hTextBox, WM_SETFONT, (WPARAM)pData->hFontText, false);
         CustomTextBox_SetOptions(hCtrl, pData);
         AfxRedrawWindow(hCtrl);

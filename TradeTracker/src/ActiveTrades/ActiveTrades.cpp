@@ -425,7 +425,7 @@ void CActiveTrades::ShowActiveTrades() {
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_ACTIVETRADES);
 
     // Ensure that the Trades panel is set
-    MainWindow_SetLeftPanel(hWindow);
+    MainWindow.SetLeftPanel(hWindow);
 
     // Determine if we need to initialize the listbox
     if (trades.size()) {
@@ -435,7 +435,7 @@ void CActiveTrades::ShowActiveTrades() {
 
         // In case of newly added/deleted data ensure data is sorted.
 
-        if (ActiveTrades.sort_order == SortOrder::Category) {
+        if (sort_order == SortOrder::Category) {
             // Sort based on Category and then TickerSymbol
             std::sort(trades.begin(), trades.end(),
                 [](const auto& trade1, const auto& trade2) {
@@ -452,7 +452,7 @@ void CActiveTrades::ShowActiveTrades() {
                 });
         }
 
-        if (ActiveTrades.sort_order == SortOrder::TickerSymbol) {
+        if (sort_order == SortOrder::TickerSymbol) {
             // Sort based on TickerSymbol and Expiration
             std::sort(trades.begin(), trades.end(),
                 [](const auto& trade1, const auto& trade2) {
@@ -469,7 +469,7 @@ void CActiveTrades::ShowActiveTrades() {
                 });
         }
 
-        if (ActiveTrades.sort_order == SortOrder::Expiration) {
+        if (sort_order == SortOrder::Expiration) {
             // Sort based on Expiration and TickerSymbol
             std::sort(trades.begin(), trades.end(),
                 [](const auto& trade1, const auto& trade2) {
@@ -497,7 +497,7 @@ void CActiveTrades::ShowActiveTrades() {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
                 trade->ticker_decimals = GetTickerDecimals(trade->ticker_symbol);
 
-                if (ActiveTrades.sort_order == SortOrder::Category) {
+                if (sort_order == SortOrder::Category) {
                     if (trade->category != category_header) {
                         ListBoxData_AddCategoryHeader(TradesListBox(), trade);
                         category_header = trade->category;
@@ -551,7 +551,9 @@ void CActiveTrades::ShowActiveTrades() {
     CustomVScrollBar_Recalculate(VScrollBar());
 
     current_sel = ListBox_GetCurSel(TradesListBox());
-    if (current_sel <= 1) current_sel = 1;
+    if (current_sel <= 1) {
+        current_sel = (sort_order == SortOrder::Category) ? 1 : 0;
+    }
 
     // If trades exist then select the first trade so that its history will show
     if (ListBox_GetCount(TradesListBox()) == 0) {

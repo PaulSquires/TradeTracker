@@ -29,21 +29,41 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CMainWindow : public CWindowBase<CMainWindow>
-{
+class CMainWindow : public CWindowBase<CMainWindow> {
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    HWND hWindow = NULL;
+    HWND hLeftPanel = NULL;
+    HWND hRightPanel = NULL;
+
+
+    void BlurPanels(bool active);
+    void SetLeftPanel(HWND hPanel);
+    void SetRightPanel(HWND hPanel);
+    void CloseComboPopups();
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnClose(HWND hwnd);
+    void OnDestroy(HWND hwnd);
+    void OnLButtonDown(HWND hwnd, bool fDoubleClick, int x, int y, UINT keyFlags);
+    void OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags);
+    void OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags);
+    bool OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT msg);
+
+    bool IsMouseOverSplitter(HWND hwnd);
+    void UpdateSplitterChildren(HWND hwnd, int xdelta);
+};
+
+class CMainWindowShadow : public CWindowBase<CMainWindowShadow> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
-class CMainWindowShadow : public CWindowBase<CMainWindowShadow>
-{
-public:
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
-
-extern CMainWindow Main;
-extern HWND HWND_MAINWINDOW;
-extern HWND HWND_LEFTPANEL;
 
 #define IDI_MAINICON 106
 #define IDB_CONNECT 110
@@ -56,10 +76,4 @@ constexpr int IDC_MAINWINDOW_UPDATEAVAILABLE = 101;
 
 constexpr int APP_LEFTMARGIN_WIDTH = 24;
 
-
-void MainWindow_BlurPanels(bool active);
-void MainWindow_SetLeftPanel(HWND hPanel);
-void MainWindow_SetRightPanel(HWND hPanel);
-void MainWindow_CloseComboPopups();
-
-
+extern CMainWindow MainWindow;

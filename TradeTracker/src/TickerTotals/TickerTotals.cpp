@@ -115,7 +115,7 @@ void CTickerPanel::ShowTickerTotals() {
     AfxRedrawWindow(TickersListBox());
 
     // Ensure that the Ticker panel is set
-    MainWindow_SetRightPanel(hWindow);
+    MainWindow.SetRightPanel(hWindow);
 
     CustomVScrollBar_Recalculate(VScrollBar());
 }

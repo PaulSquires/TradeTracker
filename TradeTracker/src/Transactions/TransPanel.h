@@ -32,6 +32,7 @@ SOFTWARE.
 class CTransPanel : public CWindowBase<CTransPanel> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    
     HWND hWindow = NULL;
 
     HWND TradesListBox();

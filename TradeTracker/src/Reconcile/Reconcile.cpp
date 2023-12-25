@@ -297,8 +297,8 @@ void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // Process WM_CLOSE message for window/dialog: Reconcile
 // ========================================================================================
 void Reconcile_OnClose(HWND hwnd) {
-	MainWindow_BlurPanels(false);
-	EnableWindow(HWND_MAINWINDOW, true);
+	MainWindow.BlurPanels(false);
+	EnableWindow(MainWindow.hWindow, true);
 	DestroyWindow(hwnd);
 }
 
@@ -383,7 +383,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // Create and show the Reconcile modal dialog.
 // ========================================================================================
 void Reconcile_Show() {
-	HWND hwnd = Reconcile.Create(HWND_MAINWINDOW, L"Reconcile Local Data to IBKR TWS", 0, 0, 600, 390,
+	HWND hwnd = Reconcile.Create(MainWindow.hWindow, L"Reconcile Local Data to IBKR TWS", 0, 0, 600, 390,
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -397,11 +397,11 @@ void Reconcile_Show() {
 	HANDLE hIconSmall = LoadImage(Reconcile.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
 	SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
-	MainWindow_BlurPanels(true);
+	MainWindow.BlurPanels(true);
 
-	AfxCenterWindow(hwnd, HWND_MAINWINDOW);
+	AfxCenterWindow(hwnd, MainWindow.hWindow);
 
-	EnableWindow(HWND_MAINWINDOW, false);
+	EnableWindow(MainWindow.hWindow, false);
 
 	// Apply fixed width font for better readability
 	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);

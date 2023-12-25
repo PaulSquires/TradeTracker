@@ -211,9 +211,9 @@ bool Version4UpgradeTradePlan() {
 void DisplayPaperTradingWarning() {
     if (!startup_paper_trading) return;
 
-    CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING),
+    CustomLabel_SetText(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING),
         L"*** USING PAPER TRADING ACCOUNT ***");
-    ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+    ShowWindow(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
 }
 
 

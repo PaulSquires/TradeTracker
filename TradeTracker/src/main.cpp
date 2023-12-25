@@ -115,7 +115,7 @@ int APIENTRY wWinMain(
     // Load all transactions. 
     LoadDatabase();
 
-    HWND hWndMain = Main.Create(
+    HWND hWndMain = MainWindow.Create(
                         HWND_DESKTOP,
                         caption,
                         CW_USEDEFAULT, CW_USEDEFAULT,
@@ -128,10 +128,10 @@ int APIENTRY wWinMain(
 
     // Set the large and small application icons that will represent the application
     // in various area of Windows such as the title bar, task bar, and shortcuts.
-    HANDLE hIconBig = LoadImage(Main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
+    HANDLE hIconBig = LoadImage(MainWindow.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 32, 32, LR_SHARED);
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hIconBig);
 
-    HANDLE hIconSmall = LoadImage(Main.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
+    HANDLE hIconSmall = LoadImage(MainWindow.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hWndMain, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
     if (hWndMain == NULL) return 0;
@@ -158,11 +158,11 @@ int APIENTRY wWinMain(
     while (GetMessage(&msg, NULL, 0, 0))
     {            
         if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
-            MainWindow_CloseComboPopups();
+            MainWindow.CloseComboPopups();
         }
 
         // Processes accelerator keys for menu commands
-        if (Main.hAccel() == NULL || (!TranslateAccelerator(hWndMain, Main.hAccel(), &msg))) {
+        if (MainWindow.hAccel() == NULL || (!TranslateAccelerator(hWndMain, MainWindow.hAccel(), &msg))) {
             // Translates virtual-key messages into character messages.
             TranslateMessage(&msg);
             // Dispatches a message to a window procedure.

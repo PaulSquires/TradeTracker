@@ -201,7 +201,7 @@ void CJournalNotes::ShowJournalNotes() {
     CustomTextBox_SetText(NotesTextBox(), text);
 
     // Ensure that the JournalNotes panel is set
-    MainWindow_SetRightPanel(hWindow);
+    MainWindow.SetRightPanel(hWindow);
 
     CustomVScrollBar_Recalculate(VScrollBar());
 

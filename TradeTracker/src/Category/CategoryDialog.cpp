@@ -257,7 +257,7 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             SaveConfig();
             dialog_return_code = DIALOG_RETURN_OK;
-            if (HWND_LEFTPANEL == ActiveTrades.hWindow) {
+            if (MainWindow.hLeftPanel == ActiveTrades.hWindow) {
                 ActiveTrades.ShowActiveTrades();
             }
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);

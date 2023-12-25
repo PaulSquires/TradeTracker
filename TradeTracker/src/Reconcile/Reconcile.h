@@ -30,8 +30,7 @@ SOFTWARE.
 #include "tws-api/Contract.h"
 
 
-class CReconcile: public CWindowBase<CReconcile>
-{
+class CReconcile: public CWindowBase<CReconcile> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 

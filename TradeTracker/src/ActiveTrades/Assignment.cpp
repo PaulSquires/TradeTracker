@@ -85,8 +85,8 @@ void CAssignment::OnClose(HWND hwnd) {
         dialog_return_code = DIALOG_RETURN_CANCEL;
     }
 
-    MainWindow_BlurPanels(false);
-    EnableWindow(HWND_MAINWINDOW, true);
+    MainWindow.BlurPanels(false);
+    EnableWindow(MainWindow.hWindow, true);
     DestroyWindow(hwnd);
 }
 
@@ -214,7 +214,7 @@ int CAssignment::ShowModal(const std::wstring& long_short_text,
     int width = 350;
     int height = 200;
 
-    HWND hwnd = Assignment.Create(HWND_MAINWINDOW, L"Assignment", 0, 0, width, height,
+    HWND hwnd = Assignment.Create(MainWindow.hWindow, L"Assignment", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -232,11 +232,11 @@ int CAssignment::ShowModal(const std::wstring& long_short_text,
     // our Trade Management popup is active. The MainWindow panels are shown again
     // during our call to TradeDialog_OnClose() prior to enabling the MainWindow
     // and this popup closing.
-    MainWindow_BlurPanels(true);
+    MainWindow.BlurPanels(true);
 
-    AfxCenterWindow(hwnd, HWND_MAINWINDOW);
+    AfxCenterWindow(hwnd, MainWindow.hWindow);
 
-    EnableWindow(HWND_MAINWINDOW, false);
+    EnableWindow(MainWindow.hWindow, false);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;

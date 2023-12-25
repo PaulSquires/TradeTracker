@@ -203,7 +203,7 @@ void CTradePlan::ShowTradePlan() {
     CustomTextBox_SetText(NotesTextBox(), text);
 
     // Ensure that the TradePlan panel is set
-    MainWindow_SetRightPanel(hWindow);
+    MainWindow.SetRightPanel(hWindow);
 
     CustomVScrollBar_Recalculate(VScrollBar());
 

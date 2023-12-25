@@ -118,9 +118,9 @@ void UpdateCheckFunction(std::stop_token st) {
 
 		if (version_available.length() > 4) {
 			if (AfxWStringCompareI(version, version_available) == false) {
-				CustomLabel_SetText(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE),
+				CustomLabel_SetText(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_UPDATEAVAILABLE),
 					L"** v" + version_available + L" available **");
-				ShowWindow(GetDlgItem(HWND_MAINWINDOW, IDC_MAINWINDOW_UPDATEAVAILABLE), SW_SHOWNORMAL);
+				ShowWindow(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_UPDATEAVAILABLE), SW_SHOWNORMAL);
 			}
 		}
 

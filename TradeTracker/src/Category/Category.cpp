@@ -97,7 +97,7 @@ void CategoryControl_OnCreate(HWND hwnd) {
 // ========================================================================================
 // Windows message callback for the custom Category control.
 // ========================================================================================
-LRESULT CALLBACK CategoryControlProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK CategoryControl_CategoryControlProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     CategoryControl* pData = nullptr;
 
     if (uMsg != WM_CREATE) {
@@ -128,7 +128,7 @@ LRESULT CALLBACK CategoryControlProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
         if (ctrl_id == IDC_CATEGORYCONTROL_SETUP) {
             HWND hWndParent = GetParent(hwnd);
-            if (hWndParent == ClosedTrades.hWindow) hWndParent = HWND_MAINWINDOW;
+            if (hWndParent == ClosedTrades.hWindow) hWndParent = MainWindow.hWindow;
             if (CategoryDialog_Show(hWndParent) == DIALOG_RETURN_OK) {
                 int selected_category = CategoryControl_GetSelectedIndex(hwnd);   // Update the label in case text has changed
                 CategoryControl_SetSelectedIndex(hwnd, selected_category);
@@ -231,7 +231,7 @@ bool CategoryControl_Getallow_all_categories(HWND hwnd) {
 // ========================================================================================
 // Create the Category control.
 // ========================================================================================
-HWND CreateCategoryControl(HWND hWndParent, 
+HWND CreateCategoryControl(HWND hWndParent,
     int ctrl_id, int left, int top, int selected_index, bool allow_all_categories)
 {
     std::wstring class_name_text(L"CATEGORYCONTROL_CONTROL");
@@ -243,7 +243,7 @@ HWND CreateCategoryControl(HWND hWndParent,
     if (GetClassInfoEx(hInst, class_name_text.c_str(), &wcex) == 0) {
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = CategoryControlProc;
+        wcex.lpfnWndProc = CategoryControl_CategoryControlProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = sizeof(HANDLE);    // make room to store a pointer to the class
         wcex.hInstance = hInst;

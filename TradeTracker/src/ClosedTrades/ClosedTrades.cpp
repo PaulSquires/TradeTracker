@@ -118,7 +118,7 @@ void CClosedTrades::ShowClosedTrades() {
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_CLOSEDTRADES);
 
     // Ensure that the Closed panel is set
-    MainWindow_SetLeftPanel(hWindow);
+    MainWindow.SetLeftPanel(hWindow);
 
     // Prevent ListBox redrawing until all calculations are completed.
     SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);

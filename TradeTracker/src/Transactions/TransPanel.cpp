@@ -151,7 +151,7 @@ void CTransPanel::ShowListBoxItem(int index) {
     if (index > -1) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(TradesListBox(), index);
         if (ld)
-            TransDetail_ShowTransDetail(ld->trade, ld->trans);
+            TransDetail.ShowTransDetail(ld->trade, ld->trans);
     }
 
     SetFocus(TradesListBox());
@@ -167,8 +167,8 @@ void CTransPanel::ShowTransactions() {
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_TRANSACTIONS);
 
     // Ensure that the TransDetail panel and Detail Panel are set
-    MainWindow_SetLeftPanel(hWindow);
-    MainWindow_SetRightPanel(HWND_TRANSDETAIL);
+    MainWindow.SetLeftPanel(hWindow);
+    MainWindow.SetRightPanel(TransDetail.hWindow);
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);

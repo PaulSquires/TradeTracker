@@ -28,8 +28,7 @@ SOFTWARE.
 
 
 
-class CategoryControl
-{
+class CategoryControl {
 public:
     HWND hwnd = NULL;
     HWND hParent = NULL;
@@ -48,7 +47,16 @@ public:
     int font_size = 9;
     std::wstring text;
     bool allow_all_categories = false;  // Also includes OTHER category
+
 };
+
+CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
+int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);
+int CategoryControl_GetSelectedIndex(HWND hwnd);
+void CategoryControl_SetSelectedIndex(HWND hwnd, int index);
+bool CategoryControl_Getallow_all_categories(HWND hwnd);
+static LRESULT CALLBACK CategoryControl_CategoryControlProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+HWND CreateCategoryControl(HWND hWndParent, int ctrl_id, int left, int top, int selected_index, bool allow_all_categories);
 
 
 constexpr int CATEGORY_START = 0;
@@ -86,11 +94,4 @@ constexpr int IDC_CATEGORYCONTROL_14     = 154;
 constexpr int IDC_CATEGORYCONTROL_15     = 155;
 constexpr int IDC_CATEGORYCONTROL_LAST   = 155;
 
-CategoryControl* CategoryControl_GetOptions(HWND hCtrl);
-int CategoryControl_SetOptions(HWND hCtrl, CategoryControl* pData);
-int CategoryControl_GetSelectedIndex(HWND hwnd);
-void CategoryControl_SetSelectedIndex(HWND hwnd, int index);
-bool CategoryControl_Getallow_all_categories(HWND hwnd);
-
-HWND CreateCategoryControl(HWND hWndParent, int ctrl_id, int left, int top, int selected_index, bool allow_all_categories);
 
