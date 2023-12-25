@@ -33,16 +33,16 @@ class CTransDateFilter : public CWindowBase<CTransDateFilter> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    static HWND hWindow;
+    HWND hWindow = NULL;
 
     HWND PopupListBox();
 
     std::wstring GetFilterDescription(int idx);
+    HWND CreatePicker(HWND hParent, HWND hParentCtl);
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
     void OnSize(HWND hwnd, UINT state, int cx, int cy);
-    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
     void OnPaint(HWND hwnd);
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
     void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
@@ -50,13 +50,11 @@ private:
 
     void DoSelected(int idx);
 
-    static LRESULT CALLBACK TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK ListBox_SubclassProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
         UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 };
 
-HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl);
 
 
 enum class TransDateFilterType {

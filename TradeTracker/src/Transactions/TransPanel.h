@@ -69,7 +69,6 @@ private:
     static LRESULT CALLBACK Header_SubclassProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
         UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
-
 };
 
 

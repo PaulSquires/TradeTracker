@@ -76,7 +76,7 @@ std::wstring CTransDateFilter::GetFilterDescription(int idx) {
 // ========================================================================================
 void CTransDateFilter::DoSelected(int idx) {
     CustomLabel_SetUserDataInt(hDateUpdateParentCtl, idx);
-    CustomLabel_SetText(hDateUpdateParentCtl, GetFilterDescription(idx).c_str());
+    CustomLabel_SetText(hDateUpdateParentCtl, GetFilterDescription(idx));
     PostMessage(GetParent(hDateUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
         GetDlgCtrlID(hDateUpdateParentCtl), (LPARAM)hDateUpdateParentCtl);
     DestroyWindow(hWindow);
@@ -120,7 +120,7 @@ LRESULT CALLBACK CTransDateFilter::ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        SendMessage(GetParent(hwnd), MSG_TRANSDATEFILTER_DOSELECTED, idx, 0);
+        SendMessage(GetParent(hwnd), MSG_TRANSDATEFILTER_DOSELECTED, LOWORD(idx), 0);
         return 0;
     }
 
@@ -329,19 +329,20 @@ bool CTransDateFilter::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // ========================================================================================
 // Global mouse hook.
 // ========================================================================================
-LRESULT CALLBACK CTransDateFilter::TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK TransDateFilter_TransDatePopupHook(int Code, WPARAM wParam, LPARAM lParam) {
     // messages are defined in a linear way the first being WM_LBUTTONUP up to WM_MBUTTONDBLCLK
     // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
     // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
     // at the point this hook is called).
+
     if (wParam == WM_LBUTTONDOWN) {
-        if (CTransDateFilter::hWindow) {
+        if (TransDateFilter.hWindow) {
             POINT pt;       GetCursorPos(&pt);
-            RECT rcWindow;  GetWindowRect(CTransDateFilter::hWindow, &rcWindow);
+            RECT rcWindow;  GetWindowRect(TransDateFilter.hWindow, &rcWindow);
 
             // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
             if (!PtInRect(&rcWindow, pt)) {
-                DestroyWindow(CTransDateFilter::hWindow);
+                DestroyWindow(TransDateFilter.hWindow);
             }
         }
     }
@@ -381,6 +382,8 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
         return 0;
     }
 
+    }
+
     return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
@@ -389,7 +392,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
 // Create TransDateFilter picker control and move it into position under the 
 // specified incoming control.
 // ========================================================================================
-HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl) {
+HWND CTransDateFilter::CreatePicker(HWND hParent, HWND hParentCtl) {
     TransDateFilter.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
@@ -411,7 +414,7 @@ HWND TransDateFilter_CreatePicker(HWND hParent, HWND hParentCtl) {
     hDateUpdateParentCtl = hParentCtl;
 
     // Set our hook and store the handle in the global variable
-    hTransDatePopupMouseHook = SetWindowsHookEx(WH_MOUSE, TransDatePopupHook, 0, GetCurrentThreadId());
+    hTransDatePopupMouseHook = SetWindowsHookEx(WH_MOUSE, TransDateFilter_TransDatePopupHook, 0, GetCurrentThreadId());
 
     return TransDateFilter.WindowHandle();
 }

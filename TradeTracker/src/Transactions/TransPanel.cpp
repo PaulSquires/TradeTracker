@@ -180,8 +180,8 @@ void CTransPanel::ShowTransactions() {
     std::vector<TransData> tdata;
     tdata.reserve(2000);    // reserve space for 2000 Transactions
 
-    std::wstring start_date = CustomLabel_GetUserData(StartDateButton());
-    std::wstring end_date = CustomLabel_GetUserData(EndDateButton());
+    std::wstring start_date = CustomLabel_GetUserData(StartDateCombo());
+    std::wstring end_date = CustomLabel_GetUserData(EndDateCombo());
 
     std::wstring ticker = CustomTextBox_GetText(TickerTextBox());
     ticker = AfxTrim(ticker);
@@ -725,7 +725,8 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
     case MSG_DATEPICKER_DATECHANGED: {
         // If the StartDate or EndDate is changed then we set the DateFilter to Custom.
-        if ((HWND)lParam == StartDateCombo() || EndDateCombo()) {
+        HWND hCombo = (HWND)lParam;
+        if (hCombo == StartDateCombo() || hCombo == EndDateCombo()) {
             CustomLabel_SetUserDataInt(TransDateCombo(), (int)TransDateFilterType::Custom);
             CustomLabel_SetText(TransDateCombo(),
                 TransDateFilter.GetFilterDescription((int)TransDateFilterType::Custom).c_str());
@@ -748,7 +749,7 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_TRANS_CMDTRANSDATE || ctrl_id == IDC_TRANS_TRANSDATE) {
             // Clicked on the Date Filter dropdown or label itself
-            TransDateFilter_CreatePicker(m_hwnd, TransDateCombo());
+            TransDateFilter.CreatePicker(m_hwnd, TransDateCombo());
         }
 
         if (ctrl_id == IDC_TRANS_CMDSTARTDATE || ctrl_id == IDC_TRANS_STARTDATE) {
