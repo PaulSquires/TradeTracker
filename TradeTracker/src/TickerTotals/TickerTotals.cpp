@@ -165,9 +165,9 @@ void CTickerPanel::ShowTickerClosedTrades(HWND hListBox, int idx) {
 
     // Show the trade history for the selected trade
     if (ticker_symbol.length()) {
-        CustomTextBox_SetText(GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_TXTTICKER), ticker_symbol);
-        ClosedTrades_SetShowTradeDetail(false);
-        ClosedTrades_ShowClosedTrades();
+        CustomTextBox_SetText(ClosedTrades.TickerTextBox(), ticker_symbol);
+        ClosedTrades.SetShowTradeDetail(false);
+        ClosedTrades.ShowClosedTrades();
     }
 }
 

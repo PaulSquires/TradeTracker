@@ -29,31 +29,55 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CClosedTrades : public CWindowBase<CClosedTrades>
-{
+class CClosedTrades : public CWindowBase<CClosedTrades> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    HWND hWindow = NULL;
+
+    HWND TradesListBox();
+    HWND TradesHeader();
+    HWND VScrollBar();
+    HWND TickerTextBox();
+    HWND CategoryCombo();
+    HWND YearEndButton();
+    HWND FilterLabel();
+    HWND TickerGoButton();
+
+    void ShowClosedTrades();
+    void SetShowTradeDetail(bool enable);
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+
+    void ShowListBoxItem(int index);
+        
+    static LRESULT CALLBACK ListBox_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+    static LRESULT CALLBACK Header_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 };
 
-extern CClosedTrades ClosedTrades;
-extern HWND HWND_CLOSEDTRADES;
 
-constexpr int IDC_CLOSED_LISTBOX = 100;
-constexpr int IDC_CLOSED_CUSTOMVSCROLLBAR = 102;
-constexpr int IDC_CLOSED_HEADER = 103;
-constexpr int IDC_CLOSED_LBLCATEGORYFILTER = 104;
-constexpr int IDC_CLOSED_CATEGORY = 105;
-constexpr int IDC_CLOSED_CMDYEAREND = 106;
-constexpr int IDC_CLOSED_LBLTICKERFILTER = 107;
-constexpr int IDC_CLOSED_TXTTICKER = 108;
-constexpr int IDC_CLOSED_CMDTICKERGO = 109;
+constexpr int IDC_CLOSEDTRADES_LISTBOX = 100;
+constexpr int IDC_CLOSEDTRADES_CUSTOMVSCROLLBAR = 102;
+constexpr int IDC_CLOSEDTRADES_HEADER = 103;
+constexpr int IDC_CLOSEDTRADES_LBLCATEGORYFILTER = 104;
+constexpr int IDC_CLOSEDTRADES_CATEGORY = 105;
+constexpr int IDC_CLOSEDTRADES_CMDYEAREND = 106;
+constexpr int IDC_CLOSEDTRADES_LBLTICKERFILTER = 107;
+constexpr int IDC_CLOSEDTRADES_TXTTICKER = 108;
+constexpr int IDC_CLOSEDTRADES_CMDTICKERGO = 109;
 
 constexpr int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
 constexpr int CLOSEDTRADES_MARGIN = 80;
 
-bool IsNewOptionsTradeAction(TradeAction action);
-bool IsNewSharesTradeAction(TradeAction action);
-void ClosedTrades_ShowClosedTrades();
-void ClosedTrades_SetShowTradeDetail(bool enable);
 
+extern CClosedTrades ClosedTrades;

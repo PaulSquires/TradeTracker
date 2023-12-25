@@ -345,10 +345,10 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             ActiveTrades.ShowActiveTrades();
         }
         if (ctrl_id == IDC_TABPANEL_CLOSEDTRADES) {
-            ClosedTrades_ShowClosedTrades();
+            ClosedTrades.ShowClosedTrades();
         }
         if (ctrl_id == IDC_TABPANEL_TRANSACTIONS) {
-            TransPanel_ShowTransactions();
+            TransPanel.ShowTransactions();
         }
         if (ctrl_id == IDC_TABPANEL_TICKERTOTALS) {
             TickerPanel.ShowTickerTotals();

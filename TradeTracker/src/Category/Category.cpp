@@ -128,7 +128,7 @@ LRESULT CALLBACK CategoryControlProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
         if (ctrl_id == IDC_CATEGORYCONTROL_SETUP) {
             HWND hWndParent = GetParent(hwnd);
-            if (hWndParent == HWND_CLOSEDTRADES) hWndParent = HWND_MAINWINDOW;
+            if (hWndParent == ClosedTrades.hWindow) hWndParent = HWND_MAINWINDOW;
             if (CategoryDialog_Show(hWndParent) == DIALOG_RETURN_OK) {
                 int selected_category = CategoryControl_GetSelectedIndex(hwnd);   // Update the label in case text has changed
                 CategoryControl_SetSelectedIndex(hwnd, selected_category);
@@ -275,7 +275,7 @@ HWND CreateCategoryControl(HWND hWndParent,
         pData->hwnd = hCtl;
         pData->hParent = hWndParent;
         pData->ctrl_id = ctrl_id;
-        pData->back_color = (hWndParent == HWND_CLOSEDTRADES) ? COLOR_BLACK :COLOR_GRAYDARK;
+        pData->back_color = (hWndParent == ClosedTrades.hWindow) ? COLOR_BLACK :COLOR_GRAYDARK;
         pData->allow_all_categories = allow_all_categories;
 
         CategoryControl_SetOptions(hCtl, pData);

@@ -39,11 +39,38 @@ SOFTWARE.
 #include "ClosedTrades.h"
 
 
-HWND HWND_CLOSEDTRADES = NULL;
-
 CClosedTrades ClosedTrades;
 
 bool show_trade_detail = true;
+
+
+// ========================================================================================
+// Get the HWND's of the the controls on the form.
+// ========================================================================================
+inline HWND CClosedTrades::TradesListBox() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_LISTBOX);
+}
+inline HWND CClosedTrades::VScrollBar() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_CUSTOMVSCROLLBAR);
+}
+inline HWND CClosedTrades::TickerTextBox() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_TXTTICKER);
+}
+inline HWND CClosedTrades::CategoryCombo() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_CATEGORY);
+}
+inline HWND CClosedTrades::TradesHeader() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_HEADER);
+}
+inline HWND CClosedTrades::YearEndButton() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_CMDYEAREND);
+}
+inline HWND CClosedTrades::FilterLabel() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_LBLTICKERFILTER);
+}
+inline HWND CClosedTrades::TickerGoButton() {
+    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_CMDTICKERGO);
+}
 
 
 // ========================================================================================
@@ -51,7 +78,7 @@ bool show_trade_detail = true;
 // is clicked on. This is useful when TickerTotals is shown and we do want the 
 // TickerTotals list to remain shown.
 // ========================================================================================
-void ClosedTrades_SetShowTradeDetail(bool enable) {
+void CClosedTrades::SetShowTradeDetail(bool enable) {
     show_trade_detail = enable;
 }
 
@@ -59,48 +86,42 @@ void ClosedTrades_SetShowTradeDetail(bool enable) {
 // ========================================================================================
 // Central function that actually selects and displays the incoming ListBox index item.
 // ========================================================================================
-void ClosedTrades_ShowListBoxItem(int index) {
+void CClosedTrades::ShowListBoxItem(int index) {
     if (!show_trade_detail) return;
 
-    HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
-
-    ListBox_SetCurSel(hListBox, index);
+    ListBox_SetCurSel(TradesListBox(), index);
 
     // Ensure that the ClosedTrades menu item is selected
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_CLOSEDTRADES);
 
     //  update the scrollbar position if necessary
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+    CustomVScrollBar_Recalculate(VScrollBar());
 
     // Get the current line to determine if a valid Trade pointer exists so that we
     // can show the trade history.
     if (index > -1) {
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, index);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(TradesListBox(), index);
         if (ld != nullptr)
             TradeHistory_ShowTradesHistoryTable(ld->trade);
     }
 
-    SetFocus(hListBox);
+    SetFocus(TradesListBox());
 }
 
 
 // ========================================================================================
 // Populate the ListBox with the closed trades
 // ========================================================================================
-void ClosedTrades_ShowClosedTrades() {
-    HWND hListBox = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_LISTBOX);
-    HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
-    HWND hCategory = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CATEGORY);
+void CClosedTrades::ShowClosedTrades() {
 
     // Select the correct menu panel item
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_CLOSEDTRADES);
 
     // Ensure that the Closed panel is set
-    MainWindow_SetLeftPanel(HWND_CLOSEDTRADES);
+    MainWindow_SetLeftPanel(hWindow);
 
     // Prevent ListBox redrawing until all calculations are completed.
-    SendMessage(hListBox, WM_SETREDRAW, false, 0);
+    SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);
 
     struct ClosedData {
         std::wstring closed_date;
@@ -110,9 +131,9 @@ void ClosedTrades_ShowClosedTrades() {
     std::vector<ClosedData> vectorClosed;
     vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
     
-    int selected_category = CategoryControl_GetSelectedIndex(hCategory);
+    int selected_category = CategoryControl_GetSelectedIndex(CategoryCombo());
 
-    std::wstring ticker = CustomTextBox_GetText(GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_TXTTICKER));
+    std::wstring ticker = CustomTextBox_GetText(TickerTextBox());
     ticker = AfxTrim(ticker);
 
     for (auto& trade : trades) {
@@ -140,7 +161,7 @@ void ClosedTrades_ShowClosedTrades() {
     }
 
     // Destroy any existing ListBox line data
-    ListBoxData_DestroyItemData(hListBox);
+    ListBoxData_DestroyItemData(TradesListBox());
 
     // Sort the closed vector based on trade closed date
     std::sort(vectorClosed.begin(), vectorClosed.end(),
@@ -184,7 +205,7 @@ void ClosedTrades_ShowClosedTrades() {
         current_month = AfxGetMonth(ClosedData.closed_date);
         current_year = AfxGetYear(ClosedData.closed_date);
         if (subtotal_month != current_month && subtotal_month != 0) {
-            ListBoxData_OutputClosedMonthSubtotal(hListBox, current_date, subtotal_amount, current_month_win, current_month_loss);
+            ListBoxData_OutputClosedMonthSubtotal(TradesListBox(), current_date, subtotal_amount, current_month_win, current_month_loss);
             current_date = ClosedData.closed_date;
             subtotal_amount = 0;
             current_month_win = 0;
@@ -220,45 +241,45 @@ void ClosedTrades_ShowClosedTrades() {
             if (ClosedData.trade->acb < 0) ++year_loss;
             YTD += ClosedData.trade->acb;
         }
-        ListBoxData_OutputClosedPosition(hListBox, ClosedData.trade, ClosedData.closed_date);
+        ListBoxData_OutputClosedPosition(TradesListBox(), ClosedData.trade, ClosedData.closed_date);
     }
     if (subtotal_amount != 0) {
-        ListBoxData_OutputClosedMonthSubtotal(hListBox, current_date, subtotal_amount, current_month_win, current_month_loss);
+        ListBoxData_OutputClosedMonthSubtotal(TradesListBox(), current_date, subtotal_amount, current_month_win, current_month_loss);
     }
 
-    ListBoxData_OutputClosedYearTotal(hListBox, today_year, YTD, year_win, year_loss);
-    ListBoxData_OutputClosedMonthTotal(hListBox, monthly_amount, month_win, month_loss);
-    ListBoxData_OutputClosedWeekTotal(hListBox, weekly_amount, week_win, week_loss);
-    ListBoxData_OutputClosedDayTotal(hListBox, daily_amount, day_win, day_loss);
+    ListBoxData_OutputClosedYearTotal(TradesListBox(), today_year, YTD, year_win, year_loss);
+    ListBoxData_OutputClosedMonthTotal(TradesListBox(), monthly_amount, month_win, month_loss);
+    ListBoxData_OutputClosedWeekTotal(TradesListBox(), weekly_amount, week_win, week_loss);
+    ListBoxData_OutputClosedDayTotal(TradesListBox(), daily_amount, day_win, day_loss);
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
     // This function is also called when receiving new price data from TWS because
     // that data may need the column width to be wider.
-    ListBoxData_ResizeColumnWidths(hListBox, TableType::closed_trades);
+    ListBoxData_ResizeColumnWidths(TradesListBox(), TableType::closed_trades);
 
     // If no closed trades exist then add at least one line
-    if (ListBox_GetCount(hListBox) == 0) {
-        ListBoxData_AddBlankLine(hListBox);
+    if (ListBox_GetCount(TradesListBox()) == 0) {
+        ListBoxData_AddBlankLine(TradesListBox());
     }
 
-    CustomVScrollBar_Recalculate(hCustomVScrollBar);
+    CustomVScrollBar_Recalculate(VScrollBar());
 
     // Select row past the DAY total line if possible
-    int curSel = min(ListBox_GetCount(hListBox)-1, 5);
-    ClosedTrades_ShowListBoxItem(curSel);  
+    int curSel = min(ListBox_GetCount(TradesListBox())-1, 5);
+    ShowListBoxItem(curSel);  
 
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
-    SendMessage(hListBox, WM_SETREDRAW, true, 0);
-    AfxRedrawWindow(hListBox);
+    SendMessage(TradesListBox(), WM_SETREDRAW, true, 0);
+    AfxRedrawWindow(TradesListBox());
 }
 
 
 // ========================================================================================
 // Header control subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK ClosedTrades_Header_SubclassProc(
+LRESULT CALLBACK CClosedTrades::Header_SubclassProc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -275,7 +296,7 @@ LRESULT CALLBACK ClosedTrades_Header_SubclassProc(
 
     case WM_DESTROY: {
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hwnd, ClosedTrades_Header_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, Header_SubclassProc, uIdSubclass);
         break;
     }
 
@@ -289,7 +310,7 @@ LRESULT CALLBACK ClosedTrades_Header_SubclassProc(
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
+LRESULT CALLBACK CClosedTrades::ListBox_SubclassProc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -318,7 +339,7 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
                 accum_delta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(HWND_CLOSEDTRADES, IDC_CLOSED_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = GetDlgItem(GetParent(hwnd), IDC_CLOSEDTRADES_CUSTOMVSCROLLBAR);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
     }
@@ -330,8 +351,8 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        ClosedTrades_SetShowTradeDetail(true);
-        ClosedTrades_ShowListBoxItem(idx);
+        SendMessage(GetParent(hwnd), MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL, true, 0);
+        SendMessage(GetParent(hwnd), MSG_CLOSEDTRADES_SHOWLISTBOXITEM, idx, 0);
         break;
     }
 
@@ -380,7 +401,7 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
         ListBoxData_DestroyItemData(hwnd);
 
         // REQUIRED: Remove control subclassing
-        RemoveWindowSubclass(hwnd, ClosedTrades_ListBox_SubclassProc, uIdSubclass);
+        RemoveWindowSubclass(hwnd, ListBox_SubclassProc, uIdSubclass);
         break;
     }
 
@@ -394,7 +415,7 @@ LRESULT CALLBACK ClosedTrades_ListBox_SubclassProc(
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: ClosedTrades
 // ========================================================================================
-void ClosedTrades_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
+void CClosedTrades::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
 }
 
@@ -402,8 +423,7 @@ void ClosedTrades_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: ClosedTrades
 // ========================================================================================
-bool ClosedTrades_OnEraseBkgnd(HWND hwnd, HDC hdc)
-{
+bool CClosedTrades::OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     return true;
 }
@@ -412,7 +432,7 @@ bool ClosedTrades_OnEraseBkgnd(HWND hwnd, HDC hdc)
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: ClosedTrades
 // ========================================================================================
-void ClosedTrades_OnPaint(HWND hwnd) {
+void CClosedTrades::OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -447,13 +467,7 @@ void ClosedTrades_OnPaint(HWND hwnd) {
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: ClosedTrades
 // ========================================================================================
-void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    HWND hHeader = GetDlgItem(hwnd, IDC_CLOSED_HEADER);
-    HWND hListBox = GetDlgItem(hwnd, IDC_CLOSED_LISTBOX);
-    HWND hCategory = GetDlgItem(hwnd, IDC_CLOSED_CATEGORY);
-    HWND hYearEnd = GetDlgItem(hwnd, IDC_CLOSED_CMDYEAREND);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR);
-
+void CClosedTrades::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
 
     HDWP hdwp = BeginDeferWindowPos(10);
@@ -462,7 +476,7 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bshow_scrollbar = false;
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(VScrollBar());
     if (pData) {
         if (pData->drag_active) {
             bshow_scrollbar = true;
@@ -482,43 +496,43 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 
     top = start_top;
     width = AfxScaleX(75);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LBLTICKERFILTER), 0,
+    hdwp = DeferWindowPos(hdwp, FilterLabel(), 0,
         left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_TXTTICKER), 0,
+    hdwp = DeferWindowPos(hdwp, TickerTextBox(), 0,
         left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     left += width;
     width = AfxScaleX(23);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_CMDTICKERGO), 0,
+    hdwp = DeferWindowPos(hdwp, TickerGoButton(), 0,
         left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top = start_top;
     left += width + AfxScaleX(18);
     width = AfxScaleX(100);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_CLOSED_LBLCATEGORYFILTER), 0,
+    hdwp = DeferWindowPos(hdwp, FilterLabel(), 0,
         left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top = top + height;
-    hdwp = DeferWindowPos(hdwp, hCategory, 0, left, top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, CategoryCombo(), 0, left, top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
 
     width = AfxScaleX(100);
     left = cx - width - custom_scrollbar_width;
     height = AfxScaleY(CATEGORYCONTROL_HEIGHT);
-    hdwp = DeferWindowPos(hdwp, hYearEnd, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, YearEndButton(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     top = margin;
     width = cx - left;
     height = AfxScaleY(CLOSED_TRADES_LISTBOX_ROWHEIGHT);
-    hdwp = DeferWindowPos(hdwp, hHeader, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, TradesHeader(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     top = top + height + AfxScaleY(1);
 
     width = cx - left - custom_scrollbar_width;
     height = cy - top;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, TradesListBox(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = left + width;   // right edge of ListBox
     width = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height,
+    hdwp = DeferWindowPos(hdwp, VScrollBar(), 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
     EndDeferWindowPos(hdwp);
@@ -528,12 +542,12 @@ void ClosedTrades_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: ClosedTrades
 // ========================================================================================
-bool ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
-    HWND_CLOSEDTRADES = hwnd;
+bool CClosedTrades::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+    hWindow = hwnd;
 
-    HWND hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSED_HEADER, L"",
-        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ClosedTrades_Header_SubclassProc,
-        IDC_CLOSED_HEADER, NULL);
+    HWND hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSEDTRADES_HEADER, L"",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)Header_SubclassProc,
+        IDC_CLOSEDTRADES_HEADER, NULL);
     Header_InsertNewItem(hCtl, 0, AfxScaleX(nClosedMinColWidth[0]), L"", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, AfxScaleX(nClosedMinColWidth[1]), L"Date", HDF_LEFT);
     Header_InsertNewItem(hCtl, 2, AfxScaleX(nClosedMinColWidth[2]), L"Ticker", HDF_LEFT);
@@ -550,27 +564,27 @@ bool ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
 
-    CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LBLTICKERFILTER, L"Ticker Filter",
+    CustomLabel_SimpleLabel(hwnd, IDC_CLOSEDTRADES_LBLTICKERFILTER, L"Ticker Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CreateCustomTextBox(hwnd, IDC_CLOSED_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
+    hCtl = CreateCustomTextBox(hwnd, IDC_CLOSEDTRADES_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSED_CMDTICKERGO, L"GO",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSEDTRADES_CMDTICKERGO, L"GO",
         COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    CustomLabel_SimpleLabel(hwnd, IDC_CLOSED_LBLCATEGORYFILTER, L"Category Filter",
+    CustomLabel_SimpleLabel(hwnd, IDC_CLOSEDTRADES_LBLCATEGORYFILTER, L"Category Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
 
     // CATEGORY SELECTOR
-    hCtl = CreateCategoryControl(hwnd, IDC_CLOSED_CATEGORY, 0, 0, CATEGORY_ALL, true);
+    hCtl = CreateCategoryControl(hwnd, IDC_CLOSEDTRADES_CATEGORY, 0, 0, CATEGORY_ALL, true);
     
     // YEAR END CLOSE
     font_size = 9;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSED_CMDYEAREND, L"Year End",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSEDTRADES_CMDYEAREND, L"Year End",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
@@ -579,17 +593,17 @@ bool ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various closed trades.
     hCtl =
-        ClosedTrades.AddControl(Controls::ListBox, hwnd, IDC_CLOSED_LISTBOX, L"",
+        ClosedTrades.AddControl(Controls::ListBox, hwnd, IDC_CLOSEDTRADES_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
-            (SUBCLASSPROC)ClosedTrades_ListBox_SubclassProc,
-            IDC_CLOSED_LISTBOX, NULL);
+            (SUBCLASSPROC)ListBox_SubclassProc,
+            IDC_CLOSEDTRADES_LISTBOX, NULL);
     ListBox_AddString(hCtl, NULL);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_CLOSED_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
+    CreateCustomVScrollBar(hwnd, IDC_CLOSEDTRADES_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
 
     return true;
 }
@@ -598,7 +612,7 @@ bool ClosedTrades_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // ========================================================================================
 // Process WM_COMMAND message for window/dialog: ClosedTrades
 // ========================================================================================
-void ClosedTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
+void CClosedTrades::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     switch (codeNotify) {
 
     case LBN_SELCHANGE: {
@@ -607,8 +621,8 @@ void ClosedTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
         ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, selected);
         if (ld) {
             // Show the trade history for the selected trade
-            ClosedTrades_SetShowTradeDetail(true);
-            ClosedTrades_ShowListBoxItem(selected);
+            SetShowTradeDetail(true);
+            ShowListBoxItem(selected);
         }
         break;
     }
@@ -622,12 +636,12 @@ void ClosedTrades_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
 // ========================================================================================
 LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        HANDLE_MSG(m_hwnd, WM_CREATE, ClosedTrades_OnCreate);
-        HANDLE_MSG(m_hwnd, WM_COMMAND, ClosedTrades_OnCommand);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, ClosedTrades_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, ClosedTrades_OnPaint);
-        HANDLE_MSG(m_hwnd, WM_SIZE, ClosedTrades_OnSize);
-        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, ClosedTrades_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
+        HANDLE_MSG(m_hwnd, WM_COMMAND, OnCommand);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, OnPaint);
+        HANDLE_MSG(m_hwnd, WM_SIZE, OnSize);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
     case WM_KEYDOWN: {
@@ -649,10 +663,9 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
     case WM_KEYUP: {
         // Handle ENTER key if pressed in the Ticker textbox.
-        HWND hTicker = GetDlgItem(m_hwnd, IDC_CLOSED_TXTTICKER);
-        if (GetFocus() == GetDlgItem(hTicker, 100)) {
+        if (GetFocus() == GetDlgItem(TickerTextBox(), 100)) {
             if (wParam == 13) {
-                ClosedTrades_ShowClosedTrades();
+                ShowClosedTrades();
                 return true;
             }
         }
@@ -661,8 +674,8 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
     case MSG_CATEGORY_CATEGORYCHANGED: {
         // Categories have change so update the Closed Trades list.
-        ClosedTrades_SetShowTradeDetail(true);
-        ClosedTrades_ShowClosedTrades();
+        SetShowTradeDetail(true);
+        ShowClosedTrades();
 
         // Also need to update Active Trades list because Category headers have changed.
         AfxRedrawWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
@@ -675,15 +688,25 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (hCtl == NULL) return 0;
 
-        if (ctrl_id == IDC_CLOSED_CMDTICKERGO) {
-            ClosedTrades_ShowClosedTrades();
+        if (ctrl_id == IDC_CLOSEDTRADES_CMDTICKERGO) {
+            ShowClosedTrades();
         }
 
-        if (ctrl_id == IDC_CLOSED_CMDYEAREND) {
+        if (ctrl_id == IDC_CLOSEDTRADES_CMDYEAREND) {
             YearEndDialog_Show();
         }
         return 0;
     }
+
+    case MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL: {
+        SetShowTradeDetail((bool)wParam);
+        return 0;
+    }
+
+    case MSG_CLOSEDTRADES_SHOWLISTBOXITEM: {
+        ShowListBoxItem((int)wParam);
+        return 0;
+    } 
 
     default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }

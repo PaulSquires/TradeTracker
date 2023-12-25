@@ -90,7 +90,7 @@ bool YearEndDialog_Process(HWND hwnd) {
 
     SaveDatabase();
     
-    ClosedTrades_ShowClosedTrades();
+    ClosedTrades.ShowClosedTrades();
 
     SetCursor(LoadCursor(0, IDC_ARROW));
 

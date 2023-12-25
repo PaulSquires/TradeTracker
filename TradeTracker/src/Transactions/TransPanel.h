@@ -29,15 +29,48 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CTransPanel : public CWindowBase<CTransPanel>
-{
+class CTransPanel : public CWindowBase<CTransPanel> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    HWND hWindow = NULL;
+
+    HWND TradesListBox();
+    HWND TradesHeader();
+    HWND VScrollBar();
+    HWND TickerFilterLabel();
+    HWND TickerTextBox();
+    HWND TickerGoButton();
+    HWND DateFilterLabel();
+    HWND TransDateCombo();
+    HWND TransDateButton();
+    HWND StartDateLabel();
+    HWND StartDateCombo();
+    HWND StartDateButton();
+    HWND EndDateLabel();
+    HWND EndDateCombo();
+    HWND EndDateButton();
+
+    void ShowTransactions();
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+    void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+
+    void SetStartEndDates(HWND hwnd);
+    void ShowListBoxItem(int index);
+
+    static LRESULT CALLBACK ListBox_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+    static LRESULT CALLBACK Header_SubclassProc(
+        HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+        UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 };
-
-extern CTransPanel TransPanel;
-extern HWND HWND_TRANSPANEL;
 
 
 constexpr int IDC_TRANS_LISTBOX = 100;
@@ -64,4 +97,4 @@ constexpr int IDC_TRANS_CMDENDDATE = 127;
 constexpr int TRANSPANEL_LISTBOX_ROWHEIGHT = 18;
 constexpr int TRANSPANEL_MARGIN = 80;
 
-void TransPanel_ShowTransactions();
+extern CTransPanel TransPanel;
