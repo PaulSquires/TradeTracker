@@ -491,7 +491,7 @@ void CActiveTrades::ShowActiveTrades() {
 
         // Create the new ListBox line data and initiate the new market data.
         int category_header = -1;
-        for (const auto& trade : trades) {
+        for (auto& trade : trades) {
             // We are displaying only open trades 
             if (trade->is_open) {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.

@@ -80,13 +80,13 @@ public:
 
 
     void SetData(
-        int index, const std::shared_ptr<Trade>& tradeptr, TickerId ticker_id,
+        int index, const std::shared_ptr<Trade>& tradeptr, TickerId tickerid,
         const std::wstring& text, StringAlignment HAlignment, StringAlignment VAlignment, 
         DWORD back_theme, DWORD text_theme, REAL font_size, int font_style)
     {
-        if (ticker_id != -1) {
+        if (tickerid != -1) {
             line_type = LineType::ticker_line;
-            ticker_id = ticker_id;
+            ticker_id = tickerid;
         }
         trade = tradeptr;
 
