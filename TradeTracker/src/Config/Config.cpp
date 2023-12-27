@@ -94,6 +94,7 @@ std::unordered_map<std::string, std::string> mapFuturesExchanges {
     { "/HE",  "CME" }, 
     { "/LE",  "CME" }, 
     { "/GC",  "COMEX" }, 
+    { "/HG",  "COMEX" }, 
     { "/NG",  "NYMEX" },
     { "/CL",  "NYMEX" },
     { "/MCL", "NYMEX" },
@@ -111,6 +112,7 @@ std::unordered_map<std::wstring, std::wstring> mapMultipliers {
     { L"/CL",  L"1000" },
     { L"/HE",  L"400" },
     { L"/LE",  L"400" },
+    { L"/HG",  L"25000" },
     { L"/ZB",  L"1000" }
 };
 
