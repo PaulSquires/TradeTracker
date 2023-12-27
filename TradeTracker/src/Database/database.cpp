@@ -133,7 +133,7 @@ bool SaveDatabase() {
         << "// action:        0:STO, 1:BTO, 2:STC, 3:BTC\n"
         << "// Dates are all in YYYYMMDD format with no embedded separators.\n";
 
-    for (const auto trade : trades) {
+    for (const auto& trade : trades) {
         db << "T|"
             << std::wstring(trade->is_open ? L"1|" : L"0|")
             << trade->nextleg_id << "|"
@@ -145,7 +145,7 @@ bool SaveDatabase() {
             << AfxReplace(trade->notes, L"\r\n", L"~~") 
             << "\n";
 
-        for (const auto trans : trade->transactions) {
+        for (const auto& trans : trade->transactions) {
             db << "X|"
                 << AfxRemoveDateHyphens(trans->trans_date) << "|"
                 << trans->description << "|"
@@ -157,7 +157,7 @@ bool SaveDatabase() {
                 << std::fixed << std::setprecision(4) << trans->total
                 << "\n";
 
-            for (const auto leg : trans->legs) {
+            for (const auto& leg : trans->legs) {
                 db << "L|"
                     << leg->leg_id << "|"
                     << leg->leg_back_pointer_id << "|"
