@@ -42,6 +42,8 @@ SOFTWARE.
 #include "Assignment.h"
 #include "ActiveTrades.h"
 
+#include <ranges>
+
 
 CActiveTrades ActiveTrades;
 
