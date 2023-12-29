@@ -27,17 +27,10 @@ SOFTWARE.
 #include "pch.h"
 
 #include "Utilities/AfxWin.h"
+#include "Config/Config.h"
 
 #include "trade.h"
 #include "database.h"
-
-
-extern std::wstring GetDataFilesFolder();
-
-std::wstring dbFilename_new = L"\\tt-database.db";
-const std::wstring dbFilename_old = AfxGetExePath() + L"\\IB-Tracker-database.db";
-
-std::wstring dbFilename;
 
 
 // Pointer list for all trades (initially loaded from database)
@@ -45,8 +38,8 @@ std::wstring dbFilename;
 std::vector<std::shared_ptr<Trade>> trades;
 
 
-bool Version4UpgradeDatabase() {
-    std::wstring dbFilename_filename = GetDataFilesFolder() + dbFilename_new;
+bool CDatabase::Version4UpgradeDatabase() {
+    std::wstring dbFilename_filename = config.GetDataFilesFolder() + dbFilename_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
@@ -62,7 +55,40 @@ bool Version4UpgradeDatabase() {
 }
 
 
-int UnderlyingToNumber(const std::wstring& underlying) {
+bool CDatabase::Version4UpgradeJournalNotes() {
+    std::wstring dbJournalNotes_filename = config.GetDataFilesFolder() + dbJournalNotes_new;
+
+    // If version 4 filenames already exist then we would have already upgraded the
+    // files previously,
+    if (AfxFileExists(dbJournalNotes_filename)) {
+        dbJournalNotes = dbJournalNotes_filename;
+        return false;
+    }
+    else {
+        // Old files will be renamed after they are first loaded into memory.
+        dbJournalNotes = dbJournalNotes_old;
+        return true;
+    }
+}
+
+bool CDatabase::Version4UpgradeTradePlan() {
+    std::wstring dbTradePlan_filename = config.GetDataFilesFolder() + dbTradePlan_new;
+
+    // If version 4 filenames already exist then we would have already upgraded the
+    // files previously,
+    if (AfxFileExists(dbTradePlan_filename)) {
+        dbTradePlan = dbTradePlan_filename;
+        return false;
+    }
+    else {
+        // Old files will be renamed after they are first loaded into memory.
+        dbTradePlan = dbTradePlan_old;
+        return true;
+    }
+}
+
+
+int CDatabase::UnderlyingToNumber(const std::wstring& underlying) {
     static const std::unordered_map<std::wstring, int> map = {
          {L"OPTIONS", 0}, {L"SHARES", 1}, {L"FUTURES", 2},
          {L"DIVIDEND", 3}, {L"OTHER", 4}
@@ -74,7 +100,7 @@ int UnderlyingToNumber(const std::wstring& underlying) {
 }
 
 
-std::wstring NumberToUnderlying(const int number) {
+std::wstring CDatabase::NumberToUnderlying(const int number) {
     switch (number) {
     case 0: return L"OPTIONS";
     case 1: return L"SHARES";
@@ -86,7 +112,7 @@ std::wstring NumberToUnderlying(const int number) {
 }
 
 
-int ActionToNumber(const std::wstring& action) {
+int CDatabase::ActionToNumber(const std::wstring& action) {
     static const std::unordered_map<std::wstring, int> map = {
      {L"STO", 0}, {L"BTO", 1}, {L"STC", 2}, {L"BTC", 3}
     };
@@ -97,7 +123,7 @@ int ActionToNumber(const std::wstring& action) {
 }
 
 
-std::wstring NumberToAction(const int number) {
+std::wstring CDatabase::NumberToAction(const int number) {
     switch (number) {
     case 0: return L"STO";
     case 1: return L"BTO";
@@ -108,7 +134,123 @@ std::wstring NumberToAction(const int number) {
 }
 
 
-bool SaveDatabase() {
+// ========================================================================================
+// Get the JournalNotes text.
+// ========================================================================================
+std::wstring CDatabase::GetJournalNotesText() {
+    bool upgrade_to_version4 = Version4UpgradeJournalNotes();
+
+    static bool is_journal_notes_loaded = false;
+
+    if (!is_journal_notes_loaded) {
+        std::wifstream db;
+
+        db.open(dbJournalNotes, std::ios::in);
+
+        if (db.is_open()) {
+            std::wostringstream ss;
+            ss << db.rdbuf();
+            journal_notes_text = ss.str();
+
+            is_journal_notes_loaded = true;
+        }
+    }
+
+    if (upgrade_to_version4) {
+        dbJournalNotes = dbJournalNotes_new;
+        SetJournalNotesText(journal_notes_text);
+        // Delete the older version file
+        DeleteFile(dbJournalNotes_old.c_str());
+    }
+
+    return journal_notes_text;
+}
+
+
+// ========================================================================================
+// Set and save the JournalNotes text.
+// ========================================================================================
+void CDatabase::SetJournalNotesText(const std::wstring& text) {
+    std::wofstream db;
+
+    db.open(dbJournalNotes, std::ios::out | std::ios::trunc);
+
+    if (!db.is_open()) {
+        MessageBox(
+            NULL,
+            (LPCWSTR)(L"Could not save JournalNotes text to file"),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING
+        );
+        return;
+    }
+
+    db << text;
+    db.close();
+
+    journal_notes_text = text;
+}
+
+
+// ========================================================================================
+// Get the TradePlan text.
+// ========================================================================================
+std::wstring CDatabase::GetTradePlanText() {
+    bool upgrade_to_version4 = Version4UpgradeTradePlan();
+
+    static bool is_trade_plan_loaded = false;
+
+    if (!is_trade_plan_loaded) {
+        std::wifstream db;
+
+        db.open(dbTradePlan, std::ios::in);
+
+        if (db.is_open()) {
+            std::wostringstream ss;
+            ss << db.rdbuf();
+            trade_plan_text = ss.str();
+
+            is_trade_plan_loaded = true;
+        }
+    }
+
+    if (upgrade_to_version4) {
+        dbTradePlan = dbTradePlan_new;
+        SetTradePlanText(trade_plan_text);
+        // Delete the older version file
+        DeleteFile(dbTradePlan_old.c_str());
+    }
+
+    return trade_plan_text;
+}
+
+
+// ========================================================================================
+// Set and save the TradePlan text.
+// ========================================================================================
+void CDatabase::SetTradePlanText(const std::wstring& text) {
+    std::wofstream db;
+
+    db.open(dbTradePlan, std::ios::out | std::ios::trunc);
+
+    if (!db.is_open()) {
+        MessageBox(
+            NULL,
+            (LPCWSTR)(L"Could not save TradePlan text to file"),
+            (LPCWSTR)L"Warning",
+            MB_ICONWARNING
+        );
+        return;
+    }
+
+    db << text;
+    db.close();
+
+    trade_plan_text = text;
+}
+
+
+bool CDatabase::SaveDatabase() {
     std::wofstream db;
 
     db.open(dbFilename, std::ios::out | std::ios::trunc);
@@ -196,7 +338,7 @@ inline static double try_catch_double(const std::vector<std::wstring>& st, const
 }
 
 
-bool LoadDatabase() {
+bool CDatabase::LoadDatabase() {
     bool upgrade_to_version4 = Version4UpgradeDatabase();
 
     trades.clear();
@@ -324,6 +466,10 @@ bool LoadDatabase() {
         SaveDatabase();
         // Delete the older version file
         DeleteFile(dbFilename_old.c_str());
+        // Also load the TradePlan and JournalNotes so that they can be converted
+        // now rather than waiting for the user to click on their tabs.
+        GetJournalNotesText();
+        GetTradePlanText();
     }
 
     return true;

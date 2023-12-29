@@ -26,6 +26,44 @@ SOFTWARE.
 
 #pragma once
 
-bool LoadDatabase();
-bool SaveDatabase();
+#include "Utilities/AfxWin.h"
 
+
+class CDatabase {
+private:
+	std::wstring dbFilename_new = L"\\tt-database.db";
+	std::wstring dbTradePlan_new = L"\\tt-tradeplan.txt";
+	std::wstring dbJournalNotes_new = L"\\tt-journalnotes.txt";
+
+	const std::wstring dbFilename_old = AfxGetExePath() + L"\\IB-Tracker-database.db";
+	const std::wstring dbJournalNotes_old = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
+	const std::wstring dbTradePlan_old = AfxGetExePath() + L"\\IB-Tracker-tradeplan.txt";
+
+	std::wstring dbFilename;
+	
+	std::wstring dbJournalNotes;
+	std::wstring dbTradePlan;
+
+	std::wstring journal_notes_text = L"";
+	std::wstring trade_plan_text = L"";
+
+	bool Version4UpgradeDatabase();
+	bool Version4UpgradeJournalNotes();
+	bool Version4UpgradeTradePlan();
+
+	int UnderlyingToNumber(const std::wstring& underlying);
+	std::wstring NumberToUnderlying(const int number);
+	int ActionToNumber(const std::wstring& action);
+	std::wstring NumberToAction(const int number);
+
+public:
+	std::wstring GetJournalNotesText();
+	void SetJournalNotesText(const std::wstring& text);
+	std::wstring GetTradePlanText();
+	void SetTradePlanText(const std::wstring& text);
+
+	bool LoadDatabase();
+	bool SaveDatabase();
+};
+
+extern CDatabase db;

@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include <unordered_map>
 #include "Utilities/AfxWin.h"
 
 #include "CustomLabel/CustomLabel.h"
@@ -35,104 +34,10 @@ SOFTWARE.
 #include "Config.h"
 
 
-
-// Filenames used on and after Version 4.0.0
-std::wstring dbConfig_new = L"\\tt-config.txt";
-std::wstring dbJournalNotes_new = L"\\tt-journalnotes.txt";
-std::wstring dbTradePlan_new = L"\\tt-tradeplan.txt";
-std::wstring exe_new = L"\\TradeTracker.exe";
-
-// Filenames used prior to Version 4.0.0
-const std::wstring dbConfig_old = AfxGetExePath() + L"\\IB-Tracker-config.txt";
-const std::wstring dbJournalNotes_old = AfxGetExePath() + L"\\IB-Tracker-journalnotes.txt";
-const std::wstring dbTradePlan_old = AfxGetExePath() + L"\\IB-Tracker-tradeplan.txt";
-const std::wstring exe_old = AfxGetExePath() + L"\\IB-Tracker.exe";
-
-std::wstring dbConfig;
-std::wstring dbJournalNotes;
-std::wstring dbTradePlan;
-
-std::wstring journal_notes_text = L"";
-std::wstring trade_plan_text = L"";
-
-int startup_width = 0;
-int startup_height = 0;
-int startup_right_panel_width = 0;
-
-bool startup_paper_trading = false;
-bool show_portfolio_value = true;
-bool allow_update_check = true;
- 
-
-std::unordered_map<int, std::wstring> mapCategoryDescriptions {
-    { 0, L"Category 0"},
-    { 1, L"Category 1" },
-    { 2, L"Category 2" },
-    { 3, L"Category 3" },
-    { 4, L"Category 4" },
-    { 5, L"Category 5" },
-    { 6, L"Category 6" },
-    { 7, L"Category 7" },
-    { 8, L"Category 8" },
-    { 9, L"Category 9" },
-    { 10, L"Category 10" },
-    { 11, L"Category 11" },
-    { 12, L"Category 12" },
-    { 13, L"Category 13" },
-    { 14, L"Category 14" },
-    { 15, L"Category 15" },
-    { 99, L"All Categories" },
-    {100, L"Other Income/Expense" }
-};
-
-std::unordered_map<std::string, std::string> mapFuturesExchanges {
-    { "/AUD", "CME" },
-    { "/EUR", "CME" },
-    { "/GBP", "CME" },
-    { "/ES",  "CME" },
-    { "/MES", "CME" }, 
-    { "/HE",  "CME" }, 
-    { "/LE",  "CME" }, 
-    { "/GC",  "COMEX" }, 
-    { "/HG",  "COMEX" }, 
-    { "/NG",  "NYMEX" },
-    { "/CL",  "NYMEX" },
-    { "/MCL", "NYMEX" },
-    { "/ZB",  "CBOT" },
-    { "/ZC",  "CBOT" },
-    { "/ZS",  "CBOT" }
-};
-
-std::unordered_map<std::wstring, std::wstring> mapMultipliers {
-    { L"/AUD", L"100000" },
-    { L"/EUR", L"125000" },
-    { L"/GBP", L"62500" },
-    { L"/ES",  L"50" },
-    { L"/MES", L"5" },
-    { L"/CL",  L"1000" },
-    { L"/HE",  L"400" },
-    { L"/LE",  L"400" },
-    { L"/HG",  L"25000" },
-    { L"/ZB",  L"1000" }
-};
-
-std::unordered_map<std::wstring, int> mapTickerDecimals {
-    { L"/AUD", 5 },
-    { L"/EUR", 5 },
-    { L"/GBP", 4 },
-    { L"/ZB", 3 },
-    { L"/ZC", 3 },
-    { L"/LE", 3 },
-    { L"/HE", 4 },
-    { L"/ZS", 4 }
-};
-
-
-
 // ========================================================================================
 // Determine if upgrade to Version 4 filenames. 
 // ========================================================================================
-std::wstring GetDataFilesFolder() {
+std::wstring CConfig::GetDataFilesFolder() {
     std::wstring exe_folder = AfxGetExePath();  // no trailing backslash
     std::wstring program_files_folder = AfxGetProgramFilesFolder();   // no trailing backslash
     std::wstring data_files_folder = exe_folder;   // default data files to same location as EXE
@@ -148,7 +53,7 @@ std::wstring GetDataFilesFolder() {
     return data_files_folder;
 }
 
-void Version4UpgradeExe() {
+void CConfig::Version4UpgradeExe() {
     exe_new = AfxGetExePath() + exe_new;
 
     // Delete pre-Version4 exe
@@ -157,7 +62,7 @@ void Version4UpgradeExe() {
     }
 }
 
-bool Version4UpgradeConfig() {
+bool CConfig::Version4UpgradeConfig() {
     std::wstring dbConfig_filename = GetDataFilesFolder() + dbConfig_new;
 
     // If version 4 filenames already exist then we would have already upgraded the
@@ -173,56 +78,19 @@ bool Version4UpgradeConfig() {
     }
 }
 
-bool Version4UpgradeJournalNotes() {
-    std::wstring dbJournalNotes_filename = GetDataFilesFolder() + dbJournalNotes_new;
-
-    // If version 4 filenames already exist then we would have already upgraded the
-    // files previously,
-    if (AfxFileExists(dbJournalNotes_filename)) {
-        dbJournalNotes = dbJournalNotes_filename;
-        return false;
-    }
-    else {
-        // Old files will be renamed after they are first loaded into memory.
-        dbJournalNotes = dbJournalNotes_old;
-        return true;
-    }
-}
-
-bool Version4UpgradeTradePlan() {
-    std::wstring dbTradePlan_filename = GetDataFilesFolder() + dbTradePlan_new;
-
-    // If version 4 filenames already exist then we would have already upgraded the
-    // files previously,
-    if (AfxFileExists(dbTradePlan_filename)) {
-        dbTradePlan = dbTradePlan_filename;
-        return false;
-    }
-    else {
-        // Old files will be renamed after they are first loaded into memory.
-        dbTradePlan = dbTradePlan_old;
-        return true;
-    }
-}
-
 
 // ========================================================================================
-// Display Paper Trading warning message if port is enabled. 
-// Normal Trading 7496;   7497 is paper trading account.
+// Determine if paper trading mode is active.
 // ========================================================================================
-void DisplayPaperTradingWarning() {
-    if (!startup_paper_trading) return;
-
-    CustomLabel_SetText(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING),
-        L"*** USING PAPER TRADING ACCOUNT ***");
-    ShowWindow(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+bool CConfig::IsPaperTradingActive() {
+    return startup_paper_trading;
 }
 
 
 // ========================================================================================
 // Determine if show/hide the Portfolio dollar value on the main screen.
 // ========================================================================================
-bool GetShowPortfolioValue() {
+bool CConfig::IsShowPortfolioValueActive() {
     return show_portfolio_value;
 }
 
@@ -230,7 +98,7 @@ bool GetShowPortfolioValue() {
 // ========================================================================================
 // Determine if allow to check for available program update.
 // ========================================================================================
-bool GetAllowUpdateCheck() {
+bool CConfig::IsUpdateCheckActive() {
     return allow_update_check;
 }
 
@@ -239,7 +107,7 @@ bool GetAllowUpdateCheck() {
 // Return the TWS connect Port. 
 // Normal Trading 7496;   7497 is paper trading account.
 // ========================================================================================
-int GetStartupPort() {
+int CConfig::GetStartupPort() {
     return (startup_paper_trading ? 7497 : 7496);   // paper trading port is 7497
 }
 
@@ -248,7 +116,7 @@ int GetStartupPort() {
 // Return the application's startup width value as returned from the Config file.
 // If no value exits then return default value.
 // ========================================================================================
-int GetStartupWidth() {
+int CConfig::GetStartupWidth() {
     // Size the main window to encompass 75% of screen width.
     int inital_main_width = AfxUnScaleX(AfxGetWorkAreaWidth() * 0.75f);
 
@@ -272,7 +140,7 @@ int GetStartupWidth() {
 // Return the application's startup height value as returned from the Config file.
 // If no value exits then return default value.
 // ========================================================================================
-int GetStartupHeight() {
+int CConfig::GetStartupHeight() {
     // Size the main window to encompass 85% of screen height.
     int inital_main_height = AfxUnScaleY(AfxGetWorkAreaHeight() * 0.85f);
 
@@ -295,7 +163,7 @@ int GetStartupHeight() {
 // ========================================================================================
 // Set the application's startup height value.
 // ========================================================================================
-void SetStartupHeight(int height) {
+void CConfig::SetStartupHeight(int height) {
     startup_height = AfxUnScaleY(height);
 }
 
@@ -303,7 +171,7 @@ void SetStartupHeight(int height) {
 // ========================================================================================
 // Set the application's startup width value.
 // ========================================================================================
-void SetStartupWidth(int width) {
+void CConfig::SetStartupWidth(int width) {
     startup_width = AfxUnScaleX(width);
 }
 
@@ -312,7 +180,7 @@ void SetStartupWidth(int width) {
 // Return the application's Right Panel startup width value as returned from the Config file.
 // If no value exits then return default value.
 // ========================================================================================
-int GetStartupRightPanelWidth() {
+int CConfig::GetStartupRightPanelWidth() {
     if (startup_right_panel_width > 0) return startup_right_panel_width;
     return 440;
 }
@@ -321,7 +189,7 @@ int GetStartupRightPanelWidth() {
 // ========================================================================================
 // Set the application's Right Panel startup width value.
 // ========================================================================================
-void SetStartupRightPanelWidth(int width) {
+void CConfig::SetStartupRightPanelWidth(int width) {
     startup_right_panel_width = AfxUnScaleX(width);
 }
 
@@ -329,7 +197,7 @@ void SetStartupRightPanelWidth(int width) {
 // ========================================================================================
 // Determine if the incoming ticker symbol is a Future.
 // ========================================================================================
-bool IsFuturesTicker(const std::wstring& ticker) {
+bool CConfig::IsFuturesTicker(const std::wstring& ticker) {
     return (ticker.substr(0, 1) == L"/");
 }
 
@@ -337,7 +205,7 @@ bool IsFuturesTicker(const std::wstring& ticker) {
 // ========================================================================================
 // Get the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-int GetTickerDecimals(const std::wstring& underlying) {
+int CConfig::GetTickerDecimals(const std::wstring& underlying) {
     if (mapTickerDecimals.count(underlying)) {
         return mapTickerDecimals.at(underlying);
     }
@@ -350,7 +218,7 @@ int GetTickerDecimals(const std::wstring& underlying) {
 // ========================================================================================
 // Set the Ticker Decimals for the incoming underlying.
 // ========================================================================================
-void SetTickerDecimals(const std::wstring& underlying, int decimals) {
+void CConfig::SetTickerDecimals(const std::wstring& underlying, int decimals) {
     mapTickerDecimals[underlying] = decimals;
 }
 
@@ -358,7 +226,7 @@ void SetTickerDecimals(const std::wstring& underlying, int decimals) {
 // ========================================================================================
 // Get the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-std::wstring GetMultiplier(const std::wstring& underlying) {
+std::wstring CConfig::GetMultiplier(const std::wstring& underlying) {
     if (mapMultipliers.count(underlying)) {
         return mapMultipliers.at(underlying);
     }
@@ -371,7 +239,7 @@ std::wstring GetMultiplier(const std::wstring& underlying) {
 // ========================================================================================
 // Set the Futures Multiplier for the incoming underlying.
 // ========================================================================================
-void SetMultiplier(const std::wstring& underlying, const std::wstring& multiplier) {
+void CConfig::SetMultiplier(const std::wstring& underlying, const std::wstring& multiplier) {
     mapMultipliers[underlying] = multiplier;
 }
 
@@ -379,7 +247,7 @@ void SetMultiplier(const std::wstring& underlying, const std::wstring& multiplie
 // ========================================================================================
 // Get the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-std::string GetFuturesExchange(const std::string& underlying) {
+std::string CConfig::GetFuturesExchange(const std::string& underlying) {
     if (mapFuturesExchanges.count(underlying)) {
         return mapFuturesExchanges.at(underlying);
     }
@@ -392,7 +260,7 @@ std::string GetFuturesExchange(const std::string& underlying) {
 // ========================================================================================
 // Set the Futures Exchanges for the incoming underlying.
 // ========================================================================================
-void SetFuturesExchange(const std::string& underlying, const std::string& exchange) {
+void CConfig::SetFuturesExchange(const std::string& underlying, const std::string& exchange) {
     mapFuturesExchanges[underlying] = exchange;
 }
 
@@ -400,7 +268,7 @@ void SetFuturesExchange(const std::string& underlying, const std::string& exchan
 // ========================================================================================
 // Get the Category Description for the incoming category number.
 // ========================================================================================
-std::wstring GetCategoryDescription(int index) {
+std::wstring CConfig::GetCategoryDescription(int index) {
     return mapCategoryDescriptions.at(index);
 }
 
@@ -408,131 +276,15 @@ std::wstring GetCategoryDescription(int index) {
 // ========================================================================================
 // Set the Category Description for the incoming category number.
 // ========================================================================================
-void SetCategoryDescription(int index, const std::wstring& description) {
+void CConfig::SetCategoryDescription(int index, const std::wstring& description) {
     mapCategoryDescriptions[index] = description;
-}
-
-
-// ========================================================================================
-// Get the JournalNotes text.
-// ========================================================================================
-std::wstring GetJournalNotesText() {
-    bool upgrade_to_version4 = Version4UpgradeJournalNotes();
-
-    static bool is_journal_notes_loaded = false;
-
-    if (!is_journal_notes_loaded) {
-        std::wifstream db;
-
-        db.open(dbJournalNotes, std::ios::in);
-
-        if (db.is_open()) {
-            std::wostringstream ss;
-            ss << db.rdbuf();
-            journal_notes_text = ss.str();
-
-            is_journal_notes_loaded = true;
-        }
-    }
-
-    if (upgrade_to_version4) {
-        dbJournalNotes = dbJournalNotes_new;
-        SetJournalNotesText(journal_notes_text);
-        // Delete the older version file
-        DeleteFile(dbJournalNotes_old.c_str());
-    }
-
-    return journal_notes_text;
-}
-
-
-// ========================================================================================
-// Set and save the JournalNotes text.
-// ========================================================================================
-void SetJournalNotesText(const std::wstring& text) {
-    std::wofstream db;
-
-    db.open(dbJournalNotes, std::ios::out | std::ios::trunc);
-
-    if (!db.is_open()) {
-        MessageBox(
-            NULL,
-            (LPCWSTR)(L"Could not save JournalNotes text to file"),
-            (LPCWSTR)L"Warning",
-            MB_ICONWARNING
-        );
-        return;
-    }
-
-    db << text;
-    db.close();
-
-    journal_notes_text = text;
-}
-
-
-// ========================================================================================
-// Get the TradePlan text.
-// ========================================================================================
-std::wstring GetTradePlanText() {
-    bool upgrade_to_version4 = Version4UpgradeTradePlan();
-
-    static bool is_trade_plan_loaded = false;
-
-    if (!is_trade_plan_loaded) {
-        std::wifstream db;
-
-        db.open(dbTradePlan, std::ios::in);
-
-        if (db.is_open()) {
-            std::wostringstream ss;
-            ss << db.rdbuf();
-            trade_plan_text = ss.str();
-
-            is_trade_plan_loaded = true;
-        }
-    }
-
-    if (upgrade_to_version4) {
-        dbTradePlan = dbTradePlan_new;
-        SetTradePlanText(trade_plan_text);
-        // Delete the older version file
-        DeleteFile(dbTradePlan_old.c_str());
-    }
-
-    return trade_plan_text;
-}
-
-
-// ========================================================================================
-// Set and save the TradePlan text.
-// ========================================================================================
-void SetTradePlanText(const std::wstring& text) {
-    std::wofstream db;
-
-    db.open(dbTradePlan, std::ios::out | std::ios::trunc);
-
-    if (!db.is_open()) {
-        MessageBox(
-            NULL,
-            (LPCWSTR)(L"Could not save TradePlan text to file"),
-            (LPCWSTR)L"Warning",
-            MB_ICONWARNING
-        );
-        return;
-    }
-
-    db << text;
-    db.close();
-
-    trade_plan_text = text;
 }
 
 
 // ========================================================================================
 // Save the Config values to a simple text file.
 // ========================================================================================
-bool SaveConfig() {
+bool CConfig::SaveConfig() {
     std::wofstream db;
 
     db.open(dbConfig, std::ios::out | std::ios::trunc);
@@ -584,7 +336,7 @@ bool SaveConfig() {
 // ========================================================================================
 // Load the Config values from file.
 // ========================================================================================
-bool LoadConfig() {
+bool CConfig::LoadConfig() {
     Version4UpgradeExe();
 
     bool upgrade_to_version4 = Version4UpgradeConfig();
@@ -762,10 +514,6 @@ bool LoadConfig() {
         SaveConfig();
         // Delete the older version file
         DeleteFile(dbConfig_old.c_str());
-        // Also load the TradePlan and JournalNotes so that they can be converted
-        // now rather than waiting for the user to click on their tabs.
-        GetJournalNotesText();
-        GetTradePlanText();
     }
 
     return true;

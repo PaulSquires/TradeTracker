@@ -231,7 +231,7 @@ void ListBoxData_RequestMarketData(HWND hListBox) {
 void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade) {
     ListBoxData* ld = new ListBoxData;
 
-    std::wstring text = AfxUpper(GetCategoryDescription(trade->category));
+    std::wstring text = AfxUpper(config.GetCategoryDescription(trade->category));
 
     ld->SetData(0, nullptr, -1, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleBold);
@@ -908,7 +908,7 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
     std::wstring ticker_name = trade->ticker_name;
-    if (IsFuturesTicker(trade->ticker_symbol)) ticker_name += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
+    if (config.IsFuturesTicker(trade->ticker_symbol)) ticker_name += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
     ld->SetData(3, trade, ticker_id, ticker_name, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
@@ -918,7 +918,7 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
 
     // col 5 is a "spacer" column
 
-    ld->SetData(6, trade, ticker_id, GetCategoryDescription(trade->category), StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(6, trade, ticker_id, config.GetCategoryDescription(trade->category), StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
@@ -987,7 +987,7 @@ void ListBoxData_OutputTransaction(
     ld->SetData(4, trade, ticker_id, AfxMoney(trans->quantity), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(5, trade, ticker_id, AfxMoney(trans->price, false, GetTickerDecimals(trade->ticker_symbol)), 
+    ld->SetData(5, trade, ticker_id, AfxMoney(trans->price, false, config.GetTickerDecimals(trade->ticker_symbol)), 
         StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
     ld->SetData(6, trade, ticker_id, AfxMoney(trans->fees), StringAlignmentFar, StringAlignmentCenter,

@@ -50,7 +50,7 @@ void CategoryPopup_DoSelected(HWND hListBox, int idx) {
     int item_data = (int)ListBox_GetItemData(hListBox, idx);
     if (item_data != selected_category) {
         CustomLabel_SetUserDataInt(hCategoryUpdateParentCtl, item_data);
-        CustomLabel_SetText(hCategoryUpdateParentCtl, GetCategoryDescription(item_data));
+        CustomLabel_SetText(hCategoryUpdateParentCtl, config.GetCategoryDescription(item_data));
         SendMessage(GetParent(GetParent(hCategoryUpdateParentCtl)), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
     }
     DestroyWindow(HWND_CATEGORYPOPUP);
@@ -293,7 +293,7 @@ bool CategoryPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
             IDC_CATEGORYPOPUP_LISTBOX, NULL);
 
     for (int i = CATEGORY_START; i <= CATEGORY_END; ++i) {
-        int idx = ListBox_AddString(hCtl, GetCategoryDescription(i).c_str());
+        int idx = ListBox_AddString(hCtl, config.GetCategoryDescription(i).c_str());
         ListBox_SetItemData(hCtl, idx, i);
     }
 
@@ -379,9 +379,9 @@ HWND CategoryPopup_CreatePopup(HWND hParent, HWND hParentCtl) {
 
     if (CategoryControl_Getallow_all_categories(hParent)) {
         HWND hListBox = GetDlgItem(hPopup, IDC_CATEGORYPOPUP_LISTBOX);
-        int idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_OTHER).c_str());
+        int idx = ListBox_InsertString(hListBox, 0, config.GetCategoryDescription(CATEGORY_OTHER).c_str());
         ListBox_SetItemData(hListBox, idx, CATEGORY_OTHER);
-        idx = ListBox_InsertString(hListBox, 0, GetCategoryDescription(CATEGORY_ALL).c_str());
+        idx = ListBox_InsertString(hListBox, 0, config.GetCategoryDescription(CATEGORY_ALL).c_str());
         ListBox_SetItemData(hListBox, idx, CATEGORY_ALL);
     }
 

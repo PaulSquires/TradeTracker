@@ -136,7 +136,7 @@ void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
 
     // Futures Ticker symbols will start with a forward slash character.
     std::wstring ticker = CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
-    int nShow = (IsFuturesTicker(ticker)) ? SW_SHOW : SW_HIDE;
+    int nShow = (config.IsFuturesTicker(ticker)) ? SW_SHOW : SW_HIDE;
 
     ShowWindow(hCtl1, nShow);
     ShowWindow(hCtl2, nShow);
@@ -290,7 +290,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             tdd.trade_action == TradeAction::add_call_to_trade ||
             tdd.trade_action == TradeAction::add_put_to_trade ||
             tdd.trade_action == TradeAction::add_options_to_trade) {
-            if (IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
+            if (config.IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
         if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
             tdd.trade_action == TradeAction::add_shares_to_trade ||
@@ -300,11 +300,11 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         }
         if (tdd.trade_action == TradeAction::add_futures_to_trade ||
             tdd.trade_action == TradeAction::manage_futures) {
-            multiplier = AfxValDouble(GetMultiplier(tdd.trade->ticker_symbol));
+            multiplier = AfxValDouble(config.GetMultiplier(tdd.trade->ticker_symbol));
         }
         if (tdd.trade_action == TradeAction::roll_leg ||
             tdd.trade_action == TradeAction::close_leg) {
-            if (IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
+            if (config.IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
             
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), std::to_wstring(multiplier));
@@ -735,7 +735,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         show_contract_expiry = true;
     }
     if (tdd.trade_action == TradeAction::edit_transaction) {
-        if (IsFuturesTicker(tdd.trade->ticker_symbol)) {   // this is a Future
+        if (config.IsFuturesTicker(tdd.trade->ticker_symbol)) {   // this is a Future
             contract_date = tdd.trade->future_expiry;
             show_contract_expiry = true;
         }

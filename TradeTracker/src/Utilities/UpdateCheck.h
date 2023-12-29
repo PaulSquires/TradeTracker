@@ -26,7 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-
-void DisplayUpdateAvailableMessage();
+void PerformUpdateCheck();
 void ShowReleasesWebPage();
 

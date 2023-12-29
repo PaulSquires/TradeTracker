@@ -33,6 +33,8 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "Utilities/UpdateCheck.h"
 
+CConfig config;
+CDatabase db;
 
 
 void BindStdHandlesToConsole() {
@@ -109,18 +111,18 @@ int APIENTRY wWinMain(
         BindStdHandlesToConsole();
     }
 
-    // Load the Configuration file. 
-    LoadConfig();
+    // Load the Configuration. 
+    config.LoadConfig();
 
-    // Load all transactions. 
-    LoadDatabase();
+    // Load all trade transactions. 
+    db.LoadDatabase();
 
     HWND hWndMain = MainWindow.Create(
                         HWND_DESKTOP,
                         caption,
                         CW_USEDEFAULT, CW_USEDEFAULT,
-                        GetStartupWidth(),
-                        GetStartupHeight());
+                        config.GetStartupWidth(),
+                        config.GetStartupHeight());
 
     // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
     BOOL value = TRUE;
@@ -147,11 +149,11 @@ int APIENTRY wWinMain(
     ActiveTrades.ShowActiveTrades();
 
     // Display message if Paper Trading is enabled.
-    DisplayPaperTradingWarning();
+    MainWindow.DisplayPaperTradingWarning();
 
     // Start thread to check for internet connection and determine if an updated
     // version of the program is available.
-    DisplayUpdateAvailableMessage();
+    MainWindow.DisplayUpdateAvailableMessage();
 
     // Call the main modal message pump and wait for it to end.
     MSG msg = { };

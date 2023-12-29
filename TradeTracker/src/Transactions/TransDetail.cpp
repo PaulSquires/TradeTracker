@@ -159,7 +159,7 @@ void CTransDetail::DeleteTransaction(HWND hwnd) {
     }
 
     // Save the modified data
-    SaveDatabase();
+    db.SaveDatabase();
 
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;
@@ -205,7 +205,7 @@ void CTransDetail::ShowTransDetail(const std::shared_ptr<Trade> trade, const std
     std::wstring wszPlusMinus = (transEditDelete->total < 0) ? L" + " : L" - ";
     std::wstring text;
     text = std::to_wstring(transEditDelete->quantity) + L" @ " +
-                AfxMoney(transEditDelete->price, false, GetTickerDecimals(trade->ticker_symbol)) + wszPlusMinus +
+                AfxMoney(transEditDelete->price, false, config.GetTickerDecimals(trade->ticker_symbol)) + wszPlusMinus +
                 AfxMoney(transEditDelete->fees) + L" = " +
                 AfxMoney(abs(transEditDelete->total)) + wszDRCR;
     CustomLabel_SetText(CostLabel(), text);

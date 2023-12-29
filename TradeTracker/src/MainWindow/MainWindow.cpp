@@ -66,6 +66,28 @@ POINT prev_pt{};            // for tracking current splitter drag
 
 
 // ========================================================================================
+// Display Paper Trading warning message if port is enabled. 
+// Normal Trading 7496;   7497 is paper trading account.
+// ========================================================================================
+void CMainWindow::DisplayPaperTradingWarning() {
+    if (!config.IsPaperTradingActive()) return;
+
+    CustomLabel_SetText(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING),
+        L"*** USING PAPER TRADING ACCOUNT ***");
+    ShowWindow(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
+}
+
+
+// ========================================================================================
+// Check the server to determine if an update is available to be downloaded.
+// ========================================================================================
+void CMainWindow::DisplayUpdateAvailableMessage() {
+    if (!config.IsUpdateCheckActive()) return;
+    PerformUpdateCheck();
+}
+
+
+// ========================================================================================
 // Set the HWND for the panel that will display on the right side of the MainWindow.
 // Also place it into position and hide previous HWND of right panel.
 // ========================================================================================
@@ -155,11 +177,11 @@ void CMainWindow::OnClose(HWND hwnd) {
 
     // Save the Config file so that startup_width and startup_height will persist
     // for the time application is executed.
-    SetStartupWidth(AfxGetWindowWidth(hwnd));
-    SetStartupHeight(AfxGetWindowHeight(hwnd));
-    SetStartupRightPanelWidth(AfxGetWindowWidth(hRightPanel));
+    config.SetStartupWidth(AfxGetWindowWidth(hwnd));
+    config.SetStartupHeight(AfxGetWindowHeight(hwnd));
+    config.SetStartupRightPanelWidth(AfxGetWindowWidth(hRightPanel));
 
-    SaveConfig();
+    config.SaveConfig();
 
     DestroyWindow(hwnd);
 }
@@ -268,7 +290,7 @@ void CMainWindow::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 bool CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
 
-    hRightPanel = TradeHistory.Create(hwnd, L"", 0, 0, GetStartupRightPanelWidth(), 0,
+    hRightPanel = TradeHistory.Create(hwnd, L"", 0, 0, config.GetStartupRightPanelWidth(), 0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 

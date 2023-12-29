@@ -76,7 +76,7 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
     SendMessage(hListBox, WM_SETREDRAW, false, 0);
     
     std::wstring ticker = trade->ticker_symbol + L": " + trade->ticker_name;
-    if (IsFuturesTicker(trade->ticker_symbol)) ticker += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
+    if (config.IsFuturesTicker(trade->ticker_symbol)) ticker += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
     CustomLabel_SetText(hSymbol, ticker);
 
     CustomTextBox_SetText(hNotesText, trade->notes);
@@ -360,7 +360,7 @@ void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
                 if (trade != nullptr) trade->notes = notes;
 
                 // Save the database because the Notes for this Trade has been updated.
-                SaveDatabase();
+                db.SaveDatabase();
 
                 is_notes_dirty = false;
                 trade = nullptr;

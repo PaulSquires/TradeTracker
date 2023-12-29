@@ -55,7 +55,7 @@ int CategoryControl_GetSelectedIndex(HWND hwnd) {
 void CategoryControl_SetSelectedIndex(HWND hwnd, int index) {
     HWND hComboBox = GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX);
     CustomLabel_SetUserDataInt(hComboBox, index);
-    CustomLabel_SetText(hComboBox, GetCategoryDescription(index));
+    CustomLabel_SetText(hComboBox, config.GetCategoryDescription(index));
 }
 
 
@@ -71,7 +71,7 @@ void CategoryControl_OnCreate(HWND hwnd) {
     int font_size = 8;
 
     int category = CategoryControl_Getallow_all_categories(hwnd) ? CATEGORY_ALL : CATEGORY_START;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, GetCategoryDescription(category),
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CATEGORYCONTROL_COMBOBOX, config.GetCategoryDescription(category),
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_left, left, 0, CATEGORYCONTROL_COMBOBOX_WIDTH, CATEGORYCONTROL_HEIGHT);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);

@@ -95,7 +95,7 @@ bool CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         hCtl = CreateCustomTextBox(hwnd, ctl_id, false, ES_LEFT, L"", 110, top, 300, 23);
         CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
-        AfxSetWindowText(hCtl, GetCategoryDescription(i));
+        AfxSetWindowText(hCtl, config.GetCategoryDescription(i));
         top += 25;
         ctl_id++;
     }
@@ -112,7 +112,7 @@ bool CategoryDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         hCtl = CreateCustomTextBox(hwnd, ctl_id, false, ES_LEFT, L"", 500, top, 300, 23);
         CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
         CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
-        AfxSetWindowText(hCtl, GetCategoryDescription(i));
+        AfxSetWindowText(hCtl, config.GetCategoryDescription(i));
         top += 25;
         ctl_id++;
     }
@@ -252,10 +252,10 @@ LRESULT CCategoryDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         if (ctrl_id == IDC_CATEGORYDIALOG_SAVE) {
             int cID = IDC_CATEGORYCONTROL_FIRST;
             for (int i = 0; i < 16; ++i) {
-                SetCategoryDescription(i, CustomTextBox_GetText(GetDlgItem(m_hwnd, cID)));
+                config.SetCategoryDescription(i, CustomTextBox_GetText(GetDlgItem(m_hwnd, cID)));
                 cID++;
             }
-            SaveConfig();
+            config.SaveConfig();
             dialog_return_code = DIALOG_RETURN_OK;
             if (MainWindow.hLeftPanel == ActiveTrades.hWindow) {
                 ActiveTrades.ShowActiveTrades();

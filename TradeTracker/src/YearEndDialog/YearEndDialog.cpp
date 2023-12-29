@@ -87,8 +87,7 @@ bool YearEndDialog_Process(HWND hwnd) {
         }
     }
 
-
-    SaveDatabase();
+    db.SaveDatabase();
     
     ClosedTrades.ShowClosedTrades();
 

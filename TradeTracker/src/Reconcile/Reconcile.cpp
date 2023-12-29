@@ -65,7 +65,7 @@ void Reconcile_LoadOneLocalPosition(const auto& trade) {
 		p.put_call = leg->put_call;
 
 		// Check if the ticker is a future
-		if (IsFuturesTicker(p.ticker_symbol)) {
+		if (config.IsFuturesTicker(p.ticker_symbol)) {
 			p.ticker_symbol = trade->ticker_symbol.substr(1);
 			if (p.underlying == L"OPT") p.underlying = L"FOP";
 		}

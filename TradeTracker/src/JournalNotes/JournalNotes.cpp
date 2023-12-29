@@ -29,7 +29,7 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
-#include "Config/Config.h"
+#include "Database/Database.h"
 #include "JournalNotes.h"
 
 
@@ -95,7 +95,7 @@ void CJournalNotes::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) 
             if (is_notes_dirty == true) {
 
                 // Save JournalNotes because the data has changed.
-                SetJournalNotesText(notes);
+                db.SetJournalNotesText(notes);
 
                 is_notes_dirty = false;
                 notes = L"";
@@ -197,7 +197,7 @@ LRESULT CJournalNotes::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 void CJournalNotes::ShowJournalNotes() {
 
     // Load the JournalNotes into the textbox
-    std::wstring text = GetJournalNotesText();
+    std::wstring text = db.GetJournalNotesText();
     CustomTextBox_SetText(NotesTextBox(), text);
 
     // Ensure that the JournalNotes panel is set

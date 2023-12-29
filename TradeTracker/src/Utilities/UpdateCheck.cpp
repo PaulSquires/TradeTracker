@@ -130,12 +130,7 @@ void UpdateCheckFunction(std::stop_token st) {
 }
 
 
-void DisplayUpdateAvailableMessage() {
-	if (!GetAllowUpdateCheck()) {
-		std::cout << "Update Check Disabled in Configuration" << std::endl;
-		return;
-	}
-
+void PerformUpdateCheck() {
 	if (is_updatecheck_thread_active) return;
 	updatecheck_thread = std::jthread(UpdateCheckFunction);
 }

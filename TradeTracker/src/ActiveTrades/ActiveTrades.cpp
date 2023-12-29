@@ -34,6 +34,7 @@ SOFTWARE.
 #include "TradeHistory/TradeHistory.h"
 #include "TabPanel/TabPanel.h"
 #include "Database/trade.h"
+#include "Database/database.h"
 #include "Category/Category.h"
 #include "Config/Config.h"
 
@@ -41,8 +42,6 @@ SOFTWARE.
 
 #include "Assignment.h"
 #include "ActiveTrades.h"
-
-#include <ranges>
 
 
 CActiveTrades ActiveTrades;
@@ -497,7 +496,7 @@ void CActiveTrades::ShowActiveTrades() {
             // We are displaying only open trades 
             if (trade->is_open) {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
-                trade->ticker_decimals = GetTickerDecimals(trade->ticker_symbol);
+                trade->ticker_decimals = config.GetTickerDecimals(trade->ticker_symbol);
 
                 if (sort_order == SortOrder::Category) {
                     if (trade->category != category_header) {
@@ -698,7 +697,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
     trade->CreateOpenLegsVector();
 
     // Save the new data to the database
-    SaveDatabase();
+    db.SaveDatabase();
 
     // Reload the trade list
     ShowActiveTrades();
@@ -714,7 +713,7 @@ void CActiveTrades::CalledAwayAssignment(
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
-    bool is_shares = (IsFuturesTicker(trade->ticker_symbol)) ? false : true;
+    bool is_shares = (config.IsFuturesTicker(trade->ticker_symbol)) ? false : true;
 
     int quantity_assigned{0};
     std::wstring quantity_assigned_text;
@@ -825,7 +824,7 @@ void CActiveTrades::CalledAwayAssignment(
     trade->CreateOpenLegsVector();
 
     // Save the new data to the database
-    SaveDatabase();
+    db.SaveDatabase();
 
     // Reload the trade list
     ShowActiveTrades();
@@ -944,7 +943,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     trade->CreateOpenLegsVector();
 
     // Save the new data to the database
-    SaveDatabase();
+    db.SaveDatabase();
 
     // Reload the trade list
     ShowActiveTrades();
@@ -1099,7 +1098,7 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_call_to_trade, L"Add Call to Trade");
     InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 3, L"");
 
-    if (IsFuturesTicker(trade->ticker_symbol)) {
+    if (config.IsFuturesTicker(trade->ticker_symbol)) {
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_futures_to_trade, L"Add Futures to Trade");
     } else {
         InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_shares_to_trade, L"Add Shares to Trade");
@@ -1317,7 +1316,7 @@ void CActiveTrades::OnPaint(HWND hwnd) {
 // Show/Hide the Net and Excess liquidity labels and values.
 // ========================================================================================
 int CActiveTrades::ShowHideLiquidityLabels(HWND hwnd) {
-    int nShow = (GetShowPortfolioValue()) ? SW_SHOW : SW_HIDE;
+    int nShow = (config.IsShowPortfolioValueActive()) ? SW_SHOW : SW_HIDE;
     if (!tws_IsConnected()) nShow = SW_HIDE;
 
     ShowWindow(GetDlgItem(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION), nShow);

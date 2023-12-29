@@ -144,7 +144,7 @@ void UpdateTickersWithScrapedData() {
 				if (ticker_symbol == L"NDX") ticker_symbol = L"^NDX";
 				if (ticker_symbol == L"RUT") ticker_symbol = L"^RUT";
 				if (ticker_symbol == L"VIX") ticker_symbol = L"^VIX";
-				if (IsFuturesTicker(ticker_symbol)) {
+				if (config.IsFuturesTicker(ticker_symbol)) {
 					ticker_symbol = ticker_symbol.substr(1);
 					if (ticker_symbol == L"AUD") ticker_symbol = L"6A";
 					if (ticker_symbol == L"GBP") ticker_symbol = L"6B";
@@ -347,7 +347,7 @@ bool tws_Connect() {
     if (tws_IsConnected()) return false;
 
     const char* host = "";
-	int port = GetStartupPort();  // 7496;   // 7497 is paper trading account
+	int port = config.GetStartupPort();  // 7496;   // 7497 is paper trading account
 	
 	SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_START, 0, 0);
 
@@ -580,7 +580,7 @@ void TwsClient::RequestMarketData(ListBoxData* ld) {
 			contract.currency = "USD";
 			contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->future_expiry);   // YYYYMMDD
 
-			std::string futExchange = GetFuturesExchange(symbol);
+			std::string futExchange = config.GetFuturesExchange(symbol);
 			if (futExchange.length() == 0) futExchange = "CME";
 
 			contract.exchange = futExchange;

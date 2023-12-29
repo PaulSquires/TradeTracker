@@ -37,7 +37,8 @@ public:
     HWND hLeftPanel = NULL;
     HWND hRightPanel = NULL;
 
-
+    void DisplayPaperTradingWarning();
+    void DisplayUpdateAvailableMessage();
     void BlurPanels(bool active);
     void SetLeftPanel(HWND hPanel);
     void SetRightPanel(HWND hPanel);

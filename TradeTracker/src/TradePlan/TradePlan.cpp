@@ -29,7 +29,7 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
-#include "Config/Config.h"
+#include "Database/Database.h"
 #include "TradePlan.h"
 
 
@@ -94,7 +94,7 @@ void CTradePlan::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
             if (is_notes_dirty == true) {
 
                 // Save TradePlan because the data has changed.
-                SetTradePlanText(notes);
+                db.SetTradePlanText(notes);
 
                 is_notes_dirty = false;
                 notes = L"";
@@ -199,7 +199,7 @@ LRESULT CTradePlan::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 void CTradePlan::ShowTradePlan() {
 
     // Load the TradePlan into the textbox
-    std::wstring text = GetTradePlanText();
+    std::wstring text = db.GetTradePlanText();
     CustomTextBox_SetText(NotesTextBox(), text);
 
     // Ensure that the TradePlan panel is set

@@ -67,7 +67,7 @@ void TradeDialog_OnClose(HWND hwnd) {
         tdd.trade->CalculateAdjustedCostBase();
 
         // Save the new data
-        SaveDatabase();
+        db.SaveDatabase();
 
         Reconcile_LoadAllLocalPositions();
         Reconcile_doPositionMatching();
@@ -171,7 +171,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
 
             AfxSetWindowText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), company_name);
 
-            std::wstring multiplier = GetMultiplier(ticker_symbol);
+            std::wstring multiplier = config.GetMultiplier(ticker_symbol);
             if (tdd.trade_action == TradeAction::new_shares_trade ||
                 tdd.trade_action == TradeAction::manage_shares ||
                 tdd.trade_action == TradeAction::add_dividend_to_trade ||
@@ -182,7 +182,7 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
             CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), multiplier);
 
             // If this is a Stock then try to get the Earnings Date and (if applicable) Dividend Date.
-            if (!IsFuturesTicker(ticker_symbol)) {
+            if (!config.IsFuturesTicker(ticker_symbol)) {
                 // TODO: Scrape web data to get Earnings Date
             }
         }
