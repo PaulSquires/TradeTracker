@@ -41,10 +41,16 @@ typedef long TickerId;
 
 class Transaction;   // forward declare
 
+enum class PutCall {
+    Put,
+    Call,
+    Count     // used in StrategyButton when toggling state
+};
 
-class Leg
-{
+
+class Leg {
 public:
+    bool         isOpen();                 // method to calc if leg quantity is not zero
     int          contract_id = 0;          // Contract ID received from IBKR 
     int          leg_id = 0;               // Unique id for this leg within the Trade (see Trade nextleg_id) 
     int          leg_back_pointer_id = 0;  // If transaction is CLOSE, EXPIRE, ROLL this points back to leg where quantity modified
@@ -52,10 +58,9 @@ public:
     int          open_quantity = 0;
     std::wstring expiry_date   = L"";
     std::wstring strike_price  = L"";
-    std::wstring put_call      = L"";
+    PutCall put_call = PutCall::Put;
     std::wstring action        = L"";      // STO,BTO,STC,BTC
     std::wstring underlying    = L"";      // OPTIONS, STOCKS, FUTURES
-    bool         isOpen();                 // method to calc if leg quantity is not zero
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
 
     double position_cost = 0;              // real time data receive via updatePortfolio
@@ -71,10 +76,9 @@ public:
 };
 
 
-class Transaction
-{
+class Transaction {
 public:
-    std::wstring  underlying  = L"";      // OPTIONS,STOCKS,FUTURES
+    std::wstring  underlying  = L"";      // OPTIONS,STOCKS,FUTURES,DIVIDEND
     std::wstring  description = L"";      // Iron Condor, Strangle, Roll, Expired, Closed, Exercised, etc
     std::wstring  trans_date  = L"";      // YYYY-MM-DD
     int           quantity    = 0;
@@ -87,23 +91,22 @@ public:
 };
 
 
-class Trade
-{
+class Trade {
 public:
-    TickerId      ticker_id     = -1;
-    bool          ticker_data_requested = false;   // ticker data already requested
     bool          is_open       = true;    // false if all legs are closed
+    bool          ticker_data_requested = false;   // ticker data already requested
+    TickerId      ticker_id     = -1;
     std::wstring  ticker_symbol = L"";
     std::wstring  ticker_name   = L"";
     std::wstring  future_expiry = L"";     // YYYYMM of Futures contract expiry
     std::wstring  notes         = L"";     
     int           category      = 0;       // Category number
-    double        acb           = 0;       // adjusted cost base
-    double        trade_bp      = 0;       // Buying Power for the entire trade 
     int           nextleg_id    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
-    double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
     int           aggregate_shares = 0;    // Calculated from all transactions roll-up
     int           aggregate_futures = 0;   // Calculated from all transactions roll-up
+    double        acb           = 0;       // adjusted cost base
+    double        trade_bp      = 0;       // Buying Power for the entire trade 
+    double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
 
     double        ticker_last_price  = 0;
     double        ticker_close_price = 0;
@@ -130,12 +133,10 @@ public:
     DWORD ticker_percent_change_color = COLOR_WHITELIGHT;
     DWORD column_ticker_portfolio_3_color = COLOR_WHITEDARK;
 
-
     // Dates used to calculate ROI on TradeBP.
     std::wstring  bp_start_date = L"99999999";            // YYYYMMDD  First transaction date
     std::wstring  bp_end_date = L"00000000";              // YYYYMMDD  Last trans expiry date or trade close date if earlier) 
     std::wstring  oldest_trade_trans_date = L"00000000";  // If Trade is closed then this trans will be the BPendDate
-
 
     std::vector<std::shared_ptr<Transaction>> transactions;     // pointer list for all transactions in the trade
     std::vector<std::shared_ptr<Leg>> open_legs;                 // sorted list of open legs for this trade

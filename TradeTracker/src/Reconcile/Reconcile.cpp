@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "MainWindow/MainWindow.h"
 #include "Database/trade.h"
+#include "Database/database.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "tws-api/IntelDecimal/IntelDecimal.h"
 #include "Utilities/UserMessages.h"
@@ -62,7 +63,7 @@ void Reconcile_LoadOneLocalPosition(const auto& trade) {
 
 		p.strike_price = AfxValDouble(leg->strike_price);
 		p.expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
-		p.put_call = leg->put_call;
+		p.put_call = db.PutCallToString(leg->put_call);
 
 		// Check if the ticker is a future
 		if (config.IsFuturesTicker(p.ticker_symbol)) {
@@ -146,7 +147,7 @@ void Reconcile_position(const Contract& contract, Decimal position) {
 	p.underlying    = ansi2unicode(contract.secType);
 	p.expiry_date   = ansi2unicode(contract.lastTradeDateOrContractMonth);   // YYYYMMDD
 	p.strike_price  = contract.strike;
-	p.put_call       = ansi2unicode(contract.right);
+	p.put_call      = ansi2unicode(contract.right);
 	// If this is a Lean Hog Futures contract then we multiply the strike by 100 b/c IBKR
 	// stores it as cents but we placed the trade as "dollars".  eg. .85 vs. 85
 	if (p.ticker_symbol == L"HE" && p.underlying == L"FOP") {

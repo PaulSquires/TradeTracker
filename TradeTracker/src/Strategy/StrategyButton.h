@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "Database/trade.h"
 
 
 class CStrategyButton : public CWindowBase<CStrategyButton>
@@ -49,12 +50,6 @@ enum class LongShort {
     Long = 0,
     Short,
     Count 
-};
-
-enum class PutCall {
-    Put = 0,
-    Call,
-    Count
 };
 
 enum class Strategy {

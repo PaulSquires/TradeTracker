@@ -118,11 +118,11 @@ void Trade::CreateOpenLegsVector() {
     // Finally, sort the vector based on Puts first with lowest Strike Price.
     std::sort(open_legs.begin(), open_legs.end(),
         [](const auto& leg1, const auto& leg2) {
-            if (leg1->put_call == L"P" && leg2->put_call == L"C") {return true;}
-            if (leg1->put_call == L"P" && leg2->put_call == L"P") {
+            if (leg1->put_call == PutCall::Put && leg2->put_call == PutCall::Call) {return true;}
+            if (leg1->put_call == PutCall::Put && leg2->put_call == PutCall::Put) {
                 if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
             }
-            if (leg1->put_call == L"C" && leg2->put_call == L"C") {
+            if (leg1->put_call == PutCall::Call && leg2->put_call == PutCall::Call) {
                 if (std::stod(leg1->strike_price) < std::stod(leg2->strike_price)) return true;
             }
             return false;

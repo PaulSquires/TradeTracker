@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "TradeDialog.h"
 #include "Utilities/AfxWin.h"
+#include "Database/database.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "TradeGrid/TradeGrid.h"
@@ -102,9 +103,7 @@ public:
         if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = L"FUTURES";
         if (tdd.trade_action == TradeAction::other_income_expense) underlying = L"OTHER";
         if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = L"DIVIDEND";
-        if (tdd.trans != nullptr) {
-            underlying = tdd.trans->underlying;
-        }
+        if (tdd.trans) underlying = tdd.trans->underlying;
 
         quantity   = (int)AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
         price      = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
@@ -122,7 +121,7 @@ public:
             leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0));
             leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
             leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
-            leg.put_call = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4);
+            leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4));
             leg.action = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
             legs.push_back(leg);
         }
@@ -132,7 +131,7 @@ public:
             leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0));
             leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
             leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
-            leg.put_call = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4);
+            leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4));
             leg.action = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
             legsRoll.push_back(leg);
         }
@@ -465,7 +464,6 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         if (guiData.legs.at(row).original_quantity == 0 && 
             guiData.legs.at(row).expiry_date.length() == 0 && 
             guiData.legs.at(row).strike_price.length() == 0 && 
-            guiData.legs.at(row).put_call.length() == 0 && 
             guiData.legs.at(row).action.length() == 0) {
             num_blank_legs++;
             continue;
@@ -477,7 +475,6 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
         if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
         if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
-        if (guiData.legs.at(row).put_call.length() == 0) incomplete = true;
         if (guiData.legs.at(row).action.length() == 0) incomplete = true;
 
         if (incomplete == true) {
@@ -494,7 +491,6 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
             if (guiData.legsRoll.at(row).original_quantity == 0 &&
                 guiData.legsRoll.at(row).expiry_date.length() == 0 &&
                 guiData.legsRoll.at(row).strike_price.length() == 0 &&
-                guiData.legsRoll.at(row).put_call.length() == 0 &&
                 guiData.legsRoll.at(row).action.length() == 0) {
                 num_blank_legs++;
                 continue;
@@ -506,7 +502,6 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
             if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
-            if (guiData.legsRoll.at(row).put_call.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).action.length() == 0) incomplete = true;
 
             if (incomplete == true) {
@@ -675,7 +670,6 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
             guiData.legs.at(row).open_quantity == 0 &&
             guiData.legs.at(row).expiry_date.length() == 0 &&
             guiData.legs.at(row).strike_price.length() == 0 &&
-            guiData.legs.at(row).put_call.length() == 0 &&
             guiData.legs.at(row).action.length() == 0) {
             num_blank_legs++;
             continue;
@@ -688,7 +682,6 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
             if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
-            if (guiData.legs.at(row).put_call.length() == 0) incomplete = true;
             if (guiData.legs.at(row).action.length() == 0) incomplete = true;
         }
 
@@ -707,7 +700,6 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
             guiData.legsRoll.at(row).open_quantity == 0 &&
             guiData.legsRoll.at(row).expiry_date.length() == 0 &&
             guiData.legsRoll.at(row).strike_price.length() == 0 &&
-            guiData.legsRoll.at(row).put_call.length() == 0 &&
             guiData.legsRoll.at(row).action.length() == 0) {
             num_blank_legs++;
             continue;
@@ -720,7 +712,6 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
             if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
-            if (guiData.legsRoll.at(row).put_call.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).action.length() == 0) incomplete = true;
         }
 
@@ -787,7 +778,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         std::wstring leg_open_quantity = TradeGrid_GetText(hGrid, row, 1);
         std::wstring leg_expiry = TradeGrid_GetText(hGrid, row, 2);
         std::wstring leg_strike = TradeGrid_GetText(hGrid, row, 4);
-        std::wstring leg_PutCall = TradeGrid_GetText(hGrid, row, 5);
+        PutCall leg_PutCall = db.StringToPutCall(TradeGrid_GetText(hGrid, row, 5));
         std::wstring leg_action = TradeGrid_GetText(hGrid, row, 6);
 
             

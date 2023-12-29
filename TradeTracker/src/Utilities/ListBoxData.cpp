@@ -543,7 +543,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
                 COLOR_GRAYLIGHT, COLOR_WHITELIGHT, font8, FontStyleRegular);   // strike price
             col++;
 
-            ld->SetData(col, trade, ticker_id, L"  " + leg->put_call, StringAlignmentNear, StringAlignmentCenter,
+            ld->SetData(col, trade, ticker_id, L"  " + db.PutCallToString(leg->put_call), StringAlignmentNear, StringAlignmentCenter,
                 COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);   // PutCall
             col++;
 
@@ -716,7 +716,7 @@ void ListBoxData_HistoryOptionsLeg(
     ld->SetData(5, trade, ticker_id, leg->strike_price, StringAlignmentCenter, StringAlignmentCenter,
         COLOR_GRAYLIGHT, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    ld->SetData(6, trade, ticker_id, L" " + leg->put_call, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(6, trade, ticker_id, L" " + db.PutCallToString(leg->put_call), StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     DWORD clr = COLOR_RED;

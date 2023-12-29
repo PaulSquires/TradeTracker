@@ -94,7 +94,7 @@ void CActiveTrades::PerformITMcalculation(std::shared_ptr<Trade>& trade) {
 
     for (const auto& leg : trade->open_legs) {
         if (leg->underlying == L"OPTIONS") {
-            if (leg->put_call == L"P") {
+            if (leg->put_call == PutCall::Put) {
                 if (trade->ticker_last_price < AfxValDouble(leg->strike_price)) {
                     if (leg->open_quantity < 0) {
                         is_itm_red = (is_long_spread == true) ? false : true;
@@ -104,7 +104,7 @@ void CActiveTrades::PerformITMcalculation(std::shared_ptr<Trade>& trade) {
                     }
                 }
             }
-            else if (leg->put_call == L"C") {
+            else if (leg->put_call == PutCall::Call) {
                 if (trade->ticker_last_price > AfxValDouble(leg->strike_price)) {
                     if (leg->open_quantity < 0) {
                         is_itm_red = (is_long_spread == true) ? false : true;
@@ -117,7 +117,7 @@ void CActiveTrades::PerformITMcalculation(std::shared_ptr<Trade>& trade) {
         }
     }
 
-    std::wstring text = L"";
+    std::wstring text;
 
     DWORD theme_color = COLOR_WHITELIGHT;
     if (is_itm_red) {
@@ -163,7 +163,7 @@ void CActiveTrades::UpdateTickerPricesLine(int index, ListBoxData* ld) {
         delta = (ld->trade->ticker_last_price - ld->trade->ticker_close_price);
     }
 
-    std::wstring text = L"";
+    std::wstring text;
     DWORD theme_color = COLOR_WHITELIGHT;
 
     // Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
@@ -204,7 +204,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
 
     DWORD theme_color = COLOR_WHITEDARK;
 
-    std::wstring text = L"";
+    std::wstring text;
 
     // Update the Trade's tickerLine with the new totals
     ld = (ListBoxData*)ListBox_GetItemData(TradesListBox(), index_trade);
@@ -266,7 +266,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
 
     DWORD theme_color = COLOR_WHITEDARK;
 
-    std::wstring text = L"";
+    std::wstring text;
 
     if (ld->line_type == LineType::shares ||
         ld->line_type == LineType::futures &&
@@ -800,7 +800,7 @@ void CActiveTrades::CalledAwayAssignment(
     newleg->underlying = trans->underlying;
     newleg->strike_price = leg->strike_price;
 
-    if (leg->put_call == L"P") {
+    if (leg->put_call == PutCall::Put) {
         newleg->action = L"BTC";
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
@@ -845,7 +845,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     std::wstring strike_price_text;
     double multiplier = 1;
 
-    std::wstring long_short_text = (leg->put_call == L"P") ? L"LONG " : L"SHORT ";
+    std::wstring long_short_text = (leg->put_call == PutCall::Put) ? L"LONG " : L"SHORT ";
         
     if (is_shares) {
         quantity_assigned = abs(leg->open_quantity * 100);
@@ -919,7 +919,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     newleg->underlying = trans->underlying;
     newleg->strike_price = leg->strike_price;
 
-    if (leg->put_call == L"P") {
+    if (leg->put_call == PutCall::Put) {
         newleg->action = L"BTO";
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
@@ -983,12 +983,12 @@ void CActiveTrades::OptionAssignment(auto trade) {
     auto leg = tdd.legs.at(0);
 
     // Are LONG SHARES or LONG FUTURES being called away
-    if ((aggregate_shares > 0 || aggregate_futures > 0) && leg->put_call == L"C") {
+    if ((aggregate_shares > 0 || aggregate_futures > 0) && leg->put_call == PutCall::Call) {
         CalledAwayAssignment(trade, leg, aggregate_shares, aggregate_futures);
         return;
     }
     // Are SHORT SHARES or SHORT FUTURES being called away
-    if ((aggregate_shares < 0 || aggregate_futures < 0) && leg->put_call == L"P") {
+    if ((aggregate_shares < 0 || aggregate_futures < 0) && leg->put_call == PutCall::Put) {
         CalledAwayAssignment(trade, leg, aggregate_shares, aggregate_futures);
         return;
     }

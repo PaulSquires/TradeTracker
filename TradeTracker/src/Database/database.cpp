@@ -88,6 +88,20 @@ bool CDatabase::Version4UpgradeTradePlan() {
 }
 
 
+std::wstring CDatabase::PutCallToString(const PutCall e) {
+    if (e == PutCall::Put) return L"P";
+    if (e == PutCall::Call) return L"C";
+    return L"P";
+}
+
+
+PutCall CDatabase::StringToPutCall(const std::wstring& text) {
+    if (text == L"P") return PutCall::Put;
+    if (text == L"C") return PutCall::Call;
+    return PutCall::Put;
+}
+
+
 int CDatabase::UnderlyingToNumber(const std::wstring& underlying) {
     static const std::unordered_map<std::wstring, int> map = {
          {L"OPTIONS", 0}, {L"SHARES", 1}, {L"FUTURES", 2},
@@ -307,7 +321,7 @@ bool CDatabase::SaveDatabase() {
                     << leg->open_quantity << "|"
                     << AfxRemoveDateHyphens(leg->expiry_date) << "|"
                     << leg->strike_price << "|"
-                    << leg->put_call << "|"
+                    << PutCallToString(leg->put_call) << "|"
                     << ActionToNumber(leg->action) << "|"
                     << UnderlyingToNumber(leg->underlying)
                     << "\n";
@@ -426,7 +440,7 @@ bool CDatabase::LoadDatabase() {
             expiry_date              = try_catch_wstring(st, 5);
             leg->expiry_date         = AfxInsertDateHyphens(expiry_date);
             leg->strike_price        = try_catch_wstring(st, 6);
-            leg->put_call            = try_catch_wstring(st, 7); 
+            leg->put_call            = StringToPutCall(try_catch_wstring(st, 7)); 
             leg->action              = NumberToAction(try_catch_int(st, 8));
             leg->underlying          = NumberToUnderlying(try_catch_int(st, 9));
             if (trans != nullptr) {

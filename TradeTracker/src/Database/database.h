@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/AfxWin.h"
+#include "Database/trade.h"
 
 
 class CDatabase {
@@ -61,6 +62,8 @@ public:
 	void SetJournalNotesText(const std::wstring& text);
 	std::wstring GetTradePlanText();
 	void SetTradePlanText(const std::wstring& text);
+	std::wstring PutCallToString(const PutCall e);
+	PutCall StringToPutCall(const std::wstring& text);
 
 	bool LoadDatabase();
 	bool SaveDatabase();
