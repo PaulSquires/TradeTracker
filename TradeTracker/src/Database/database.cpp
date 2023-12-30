@@ -122,31 +122,6 @@ std::wstring CDatabase::UnderlyingToString(const Underlying e) {
     return std::to_wstring((int)e);
 }
 
-//Underlying CDatabase::StringToUnderlying(const std::wstring& text) {
-//    static const std::unordered_map<std::wstring, Underlying> map = {
-//        {L"OPTIONS", Underlying::Options}, {L"SHARES", Underlying::Shares}, 
-//        {L"FUTURES", Underlying::Futures}, {L"DIVIDEND", Underlying::Dividend},
-//        {L"OTHER", Underlying::Other}
-//    };
-//
-//    // Search for an element in the map
-//    auto it = map.find(text);
-//    return (it != map.end()) ? it->second : Underlying::Nothing;
-//}
-//
-//
-//std::wstring CDatabase::UnderlyingToString(const Underlying e) {
-//    switch (e) {
-//    case Underlying::Options: return L"OPTIONS";
-//    case Underlying::Shares: return L"SHARES";
-//    case Underlying::Futures: return L"FUTURES";
-//    case Underlying::Dividend: return L"DIVIDEND";
-//    case Underlying::Other: return L"OTHER";
-//    case Underlying::Nothing: return L"";
-//    default: return L"OPTIONS";
-//    }
-//}
-
 
 Action CDatabase::StringDescriptionToAction(const std::wstring& text) {
     static const std::unordered_map<std::wstring, Action> map = {
