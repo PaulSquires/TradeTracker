@@ -1134,32 +1134,32 @@ bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2) {
 // ========================================================================================
 // Function to split the string to words in a vector separated by the delimiter
 // ========================================================================================
-//std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) 
-//{
-//    std::wistringstream stream(input);
-//    std::wstring token;
-//    std::vector<std::wstring> result;
-//
-//    while (std::getline(stream, token, delimiter)) {
-//        result.push_back(token);
-//    }
-//
-//    return result;
-//}
-
-std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) {
+std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) 
+{
     std::wistringstream stream(input);
+    std::wstring token;
     std::vector<std::wstring> result;
 
-    // Reserve space to avoid unnecessary reallocations
-    result.reserve(std::count(input.begin(), input.end(), delimiter) + 1);
-
-    for (std::wstring token; std::getline(stream, token, delimiter); ) {
-        result.push_back(std::move(token));
+    while (std::getline(stream, token, delimiter)) {
+        result.push_back(token);
     }
 
     return result;
 }
+
+//std::vector<std::wstring> AfxSplit(const std::wstring& input, wchar_t delimiter) {
+//    std::wistringstream stream(input);
+//    std::vector<std::wstring> result;
+//
+//    // Reserve space to avoid unnecessary reallocations
+//    result.reserve(std::count(input.begin(), input.end(), delimiter) + 1);
+//
+//    for (std::wstring token; std::getline(stream, token, delimiter); ) {
+//        result.push_back(std::move(token));
+//    }
+//
+//    return result;
+//}
 
 
 // ========================================================================================

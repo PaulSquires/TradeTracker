@@ -435,7 +435,7 @@ void CActiveTrades::ShowActiveTrades() {
         SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);
 
         // In case of newly added/deleted data ensure data is sorted.
-
+        
         if (sort_order == SortOrder::Category) {
             // Sort based on Category and then TickerSymbol
             std::sort(trades.begin(), trades.end(),
@@ -502,14 +502,11 @@ void CActiveTrades::ShowActiveTrades() {
                     if (trade->category != category_header) {
 
                         // Count the number of open trades in this category
-                        int num_trades_category = 0;
-                        for (const auto& t : trades) {
-                            if (t->is_open && (t->category == trade->category)) {
-                                num_trades_category++;
-                            }
-                        }
+                        auto num_trades_category{ std::ranges::count_if(trades, 
+                            [trade](auto t) {return (t->is_open && (t->category == trade->category)) ? true : false; })
+                        };
 
-                        ListBoxData_AddCategoryHeader(TradesListBox(), trade, num_trades_category);
+                        ListBoxData_AddCategoryHeader(TradesListBox(), trade, (int)num_trades_category);
                         category_header = trade->category;
                     }
                 }

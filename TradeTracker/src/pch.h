@@ -32,6 +32,7 @@
 #include <vector>
 #include <map> 
 #include <algorithm>
+#include <ranges>
 #include <tuple>     // std::ignore
 
 #include <objidl.h>
