@@ -93,7 +93,7 @@ void CActiveTrades::PerformITMcalculation(std::shared_ptr<Trade>& trade) {
     bool is_long_spread = false;
 
     for (const auto& leg : trade->open_legs) {
-        if (leg->underlying == L"OPTIONS") {
+        if (leg->underlying == Underlying::Options) {
             if (leg->put_call == PutCall::Put) {
                 if (trade->ticker_last_price < AfxValDouble(leg->strike_price)) {
                     if (leg->open_quantity < 0) {
@@ -662,7 +662,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
 
     trans->description = L"Expiration";
-    trans->underlying = L"OPTIONS";
+    trans->underlying = Underlying::Options;
     trade->transactions.push_back(trans);
 
     for (const auto& leg : tdd.legs) {
@@ -681,8 +681,8 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
         newleg->leg_back_pointer_id = leg->leg_id;
         leg->open_quantity = 0;
 
-        if (leg->action == L"STO") newleg->action = L"BTC";
-        if (leg->action == L"BTO") newleg->action = L"STC"; 
+        if (leg->action == Action::STO) newleg->action = Action::BTC;
+        if (leg->action == Action::BTO) newleg->action = Action::STC; 
 
         newleg->expiry_date = leg->expiry_date;
         newleg->strike_price = leg->strike_price;
@@ -755,7 +755,7 @@ void CActiveTrades::CalledAwayAssignment(
     trans = std::make_shared<Transaction>();
     trans->trans_date = AfxCurrentDate();
     trans->description = L"Called away";
-    trans->underlying = L"OPTIONS";
+    trans->underlying = Underlying::Options;
     trade->transactions.push_back(trans);
 
     newleg = std::make_shared<Leg>();
@@ -774,8 +774,8 @@ void CActiveTrades::CalledAwayAssignment(
     }
     newleg->leg_back_pointer_id = leg->leg_id;
 
-    if (leg->action == L"STO") newleg->action = L"BTC";
-    if (leg->action == L"BTO") newleg->action = L"STC";
+    if (leg->action == Action::STO) newleg->action = Action::BTC;
+    if (leg->action == Action::BTO) newleg->action = Action::STC;
 
     newleg->expiry_date = AfxCurrentDate();
     newleg->strike_price = leg->strike_price;
@@ -787,7 +787,7 @@ void CActiveTrades::CalledAwayAssignment(
     trans = std::make_shared<Transaction>();
     trans->trans_date = AfxCurrentDate();
     trans->description = L"Called away";
-    trans->underlying = (is_shares) ? L"SHARES" : L"FUTURES";
+    trans->underlying = (is_shares) ? Underlying::Shares : Underlying::Futures;
     trans->quantity = quantity_assigned;
     trans->price = AfxValDouble(leg->strike_price);
     trans->multiplier = multiplier;
@@ -801,14 +801,14 @@ void CActiveTrades::CalledAwayAssignment(
     newleg->strike_price = leg->strike_price;
 
     if (leg->put_call == PutCall::Put) {
-        newleg->action = L"BTC";
+        newleg->action = Action::BTC;
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
         trans->total = trans->quantity * multiplier * trans->price * -1;  // DR
         trade->acb = trade->acb + trans->total;
     }
     else {
-        newleg->action = L"STC";
+        newleg->action = Action::STC;
         newleg->original_quantity = quantity_assigned * -1;
         newleg->open_quantity = quantity_assigned * -1;
         trans->total = trans->quantity * multiplier * trans->price;  // CR
@@ -874,7 +874,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     trans = std::make_shared<Transaction>();
     trans->trans_date = AfxCurrentDate();
     trans->description = L"Assignment";
-    trans->underlying = L"OPTIONS";
+    trans->underlying = Underlying::Options;
     trade->transactions.push_back(trans);
 
     newleg = std::make_shared<Leg>();
@@ -894,8 +894,8 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     }
     newleg->leg_back_pointer_id = leg->leg_id;
 
-    if (leg->action == L"STO") newleg->action = L"BTC";
-    if (leg->action == L"BTO") newleg->action = L"STC";
+    if (leg->action == Action::STO) newleg->action = Action::BTC;
+    if (leg->action == Action::BTO) newleg->action = Action::STC;
 
     newleg->expiry_date = AfxCurrentDate();;
     newleg->strike_price = leg->strike_price;
@@ -906,7 +906,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     trans = std::make_shared<Transaction>();
     trans->trans_date = AfxCurrentDate();
     trans->description = L"Assignment";
-    trans->underlying = (is_shares) ? L"SHARES" : L"FUTURES";
+    trans->underlying = (is_shares) ? Underlying::Shares : Underlying::Futures;
     trans->quantity = quantity_assigned;
     trans->price = AfxValDouble(leg->strike_price);
     trans->multiplier = multiplier;
@@ -920,14 +920,14 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     newleg->strike_price = leg->strike_price;
 
     if (leg->put_call == PutCall::Put) {
-        newleg->action = L"BTO";
+        newleg->action = Action::BTO;
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
         trans->total = trans->quantity * multiplier * trans->price * -1;  // DR
         trade->acb = trade->acb + trans->total;
     }
     else {
-        newleg->action = L"STO";
+        newleg->action = Action::STO;
         newleg->original_quantity = quantity_assigned * -1;
         newleg->open_quantity = quantity_assigned * -1;
         trans->total = trans->quantity * multiplier * trans->price;  // CR
@@ -971,10 +971,10 @@ void CActiveTrades::OptionAssignment(auto trade) {
 
     for (const auto& trans : trade->transactions) {
         for (const auto& leg : trans->legs) {
-            if (leg->underlying == L"SHARES") {
+            if (leg->underlying == Underlying::Shares) {
                 aggregate_shares += leg->open_quantity;
             }
-            else if (leg->underlying == L"FUTURES") {
+            else if (leg->underlying == Underlying::Futures) {
                 aggregate_futures += leg->open_quantity;
             }
         }

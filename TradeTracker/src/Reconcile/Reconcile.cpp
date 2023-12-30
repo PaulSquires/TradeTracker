@@ -57,9 +57,9 @@ void Reconcile_LoadOneLocalPosition(const auto& trade) {
 		p.open_quantity = leg->open_quantity;
 		p.ticker_symbol = trade->ticker_symbol;
 
-		if (leg->underlying == L"FUTURES") p.underlying = L"FUT";
-		if (leg->underlying == L"OPTIONS") p.underlying = L"OPT";
-		if (leg->underlying == L"SHARES") p.underlying = L"STK";
+		if (leg->underlying == Underlying::Futures) p.underlying = L"FUT";
+		if (leg->underlying == Underlying::Options) p.underlying = L"OPT";
+		if (leg->underlying == Underlying::Shares) p.underlying = L"STK";
 
 		p.strike_price = AfxValDouble(leg->strike_price);
 		p.expiry_date = AfxRemoveDateHyphens(leg->expiry_date);

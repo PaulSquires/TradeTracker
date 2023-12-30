@@ -47,7 +47,7 @@ public:
     int category = 0;
     std::wstring trans_date;
     std::wstring description;
-    std::wstring underlying;
+    Underlying underlying = Underlying::Nothing;
     int quantity = 0;
     double price = 0;
     double multiplier = 0;
@@ -94,15 +94,15 @@ public:
             description = L"Dividend";
         }
          
-        underlying = L"OPTIONS";
-        if (tdd.trade_action == TradeAction::new_shares_trade) underlying = L"SHARES";
-        if (tdd.trade_action == TradeAction::new_futures_trade) underlying = L"FUTURES";
-        if (tdd.trade_action == TradeAction::manage_shares) underlying = L"SHARES";
-        if (tdd.trade_action == TradeAction::manage_futures) underlying = L"FUTURES";
-        if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = L"SHARES";
-        if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = L"FUTURES";
-        if (tdd.trade_action == TradeAction::other_income_expense) underlying = L"OTHER";
-        if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = L"DIVIDEND";
+        underlying = Underlying::Options;
+        if (tdd.trade_action == TradeAction::new_shares_trade) underlying = Underlying::Shares;
+        if (tdd.trade_action == TradeAction::new_futures_trade) underlying = Underlying::Futures;
+        if (tdd.trade_action == TradeAction::manage_shares) underlying = Underlying::Shares;
+        if (tdd.trade_action == TradeAction::manage_futures) underlying = Underlying::Futures;
+        if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = Underlying::Shares;
+        if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = Underlying::Futures;
+        if (tdd.trade_action == TradeAction::other_income_expense) underlying = Underlying::Other;
+        if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = Underlying::Dividend;
         if (tdd.trans) underlying = tdd.trans->underlying;
 
         quantity   = (int)AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
@@ -122,7 +122,7 @@ public:
             leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
             leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
             leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4));
-            leg.action = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5);
+            leg.action = db.StringDescriptionToAction(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5));
             legs.push_back(leg);
         }
 
@@ -132,7 +132,7 @@ public:
             leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
             leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
             leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4));
-            leg.action = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5);
+            leg.action = db.StringDescriptionToAction(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5));
             legsRoll.push_back(leg);
         }
 
@@ -244,14 +244,14 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
             leg->original_quantity = trans->quantity;
             leg->open_quantity = trans->quantity;
             leg->strike_price = std::to_wstring(trans->price);
-            leg->action = L"BTO";
+            leg->action = Action::BTO;
         }
         else {
             if (sel == (int)LongShort::Short) {
                 leg->original_quantity = trans->quantity * -1;
                 leg->open_quantity = trans->quantity * -1;
                 leg->strike_price = std::to_wstring(trans->price);
-                leg->action = L"STO";
+                leg->action = Action::STO;
             }
         }
     }
@@ -262,13 +262,13 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         if (sel == (int)LongShort::Long) {
             leg->original_quantity = trans->quantity;
             leg->open_quantity = trans->quantity;
-            leg->action = L"BTC";
+            leg->action = Action::BTC;
         }
         else {
             if (sel == (int)LongShort::Short) {
                 leg->original_quantity = trans->quantity * -1;
                 leg->open_quantity = trans->quantity * -1;
-                leg->action = L"STC";
+                leg->action = Action::STC;
             }
         }
     }
@@ -346,7 +346,7 @@ void TradeDialog_CreateOtherIncomeData(HWND hwnd)
     leg->original_quantity = trans->quantity;
     leg->open_quantity = 0;
     leg->strike_price = std::to_wstring(trans->total);
-    leg->action = L"BTO";
+    leg->action = Action::BTO;
 
     trans->legs.push_back(leg);
 
@@ -429,7 +429,7 @@ void TradeDialog_CreateDividendTradeData(HWND hwnd)
     leg->original_quantity = trans->quantity;
     leg->open_quantity = 0;
     leg->strike_price = std::to_wstring(trans->total);
-    leg->action = L"BTO";
+    leg->action = Action::BTO;
 
     trans->legs.push_back(leg);
 
@@ -464,7 +464,8 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         if (guiData.legs.at(row).original_quantity == 0 && 
             guiData.legs.at(row).expiry_date.length() == 0 && 
             guiData.legs.at(row).strike_price.length() == 0 && 
-            guiData.legs.at(row).action.length() == 0) {
+            guiData.legs.at(row).put_call == PutCall::Nothing && 
+            guiData.legs.at(row).action == Action::Nothing) {
             num_blank_legs++;
             continue;
         }
@@ -475,7 +476,8 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
         if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
         if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
         if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
-        if (guiData.legs.at(row).action.length() == 0) incomplete = true;
+        if (guiData.legs.at(row).put_call == PutCall::Nothing) incomplete = true;
+        if (guiData.legs.at(row).action == Action::Nothing) incomplete = true;
 
         if (incomplete == true) {
             error_message += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
@@ -491,7 +493,8 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
             if (guiData.legsRoll.at(row).original_quantity == 0 &&
                 guiData.legsRoll.at(row).expiry_date.length() == 0 &&
                 guiData.legsRoll.at(row).strike_price.length() == 0 &&
-                guiData.legsRoll.at(row).action.length() == 0) {
+                guiData.legsRoll.at(row).put_call == PutCall::Nothing && 
+                guiData.legsRoll.at(row).action == Action::Nothing) {
                 num_blank_legs++;
                 continue;
             }
@@ -502,7 +505,8 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
             if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
-            if (guiData.legsRoll.at(row).action.length() == 0) incomplete = true;
+            if (guiData.legsRoll.at(row).put_call == PutCall::Nothing) incomplete = true;
+            if (guiData.legsRoll.at(row).action == Action::Nothing) incomplete = true;
 
             if (incomplete == true) {
                 error_message += L"- Roll Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
@@ -670,7 +674,8 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
             guiData.legs.at(row).open_quantity == 0 &&
             guiData.legs.at(row).expiry_date.length() == 0 &&
             guiData.legs.at(row).strike_price.length() == 0 &&
-            guiData.legs.at(row).action.length() == 0) {
+            guiData.legs.at(row).put_call == PutCall::Nothing &&
+            guiData.legs.at(row).action == Action::Nothing) {
             num_blank_legs++;
             continue;
         }
@@ -678,11 +683,12 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool incomplete = false;
 
-        if (guiData.underlying == L"OPTIONS") {
+        if (guiData.underlying == Underlying::Options) {
             if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
-            if (guiData.legs.at(row).action.length() == 0) incomplete = true;
+            if (guiData.legs.at(row).put_call == PutCall::Nothing) incomplete = true;
+            if (guiData.legs.at(row).action == Action::Nothing) incomplete = true;
         }
 
         if (incomplete == true) {
@@ -700,7 +706,8 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
             guiData.legsRoll.at(row).open_quantity == 0 &&
             guiData.legsRoll.at(row).expiry_date.length() == 0 &&
             guiData.legsRoll.at(row).strike_price.length() == 0 &&
-            guiData.legsRoll.at(row).action.length() == 0) {
+            guiData.legsRoll.at(row).put_call == PutCall::Nothing &&
+            guiData.legsRoll.at(row).action == Action::Nothing) {
             num_blank_legs++;
             continue;
         }
@@ -708,11 +715,12 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
         // If any of the strings are zero length at this point then the row has incompete data.
         bool incomplete = false;
 
-        if (guiData.underlying == L"OPTIONS") {
+        if (guiData.underlying == Underlying::Options) {
             if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
-            if (guiData.legsRoll.at(row).action.length() == 0) incomplete = true;
+            if (guiData.legsRoll.at(row).put_call == PutCall::Nothing) incomplete = true;
+            if (guiData.legsRoll.at(row).action == Action::Nothing) incomplete = true;
         }
 
         if (incomplete == true) {
@@ -779,8 +787,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         std::wstring leg_expiry = TradeGrid_GetText(hGrid, row, 2);
         std::wstring leg_strike = TradeGrid_GetText(hGrid, row, 4);
         PutCall leg_PutCall = db.StringToPutCall(TradeGrid_GetText(hGrid, row, 5));
-        std::wstring leg_action = TradeGrid_GetText(hGrid, row, 6);
-
+        Action  leg_action  = db.StringToAction(TradeGrid_GetText(hGrid, row, 6));
             
         // Nothing new or changed to add? Just iterate to next line.
         if (leg_original_quantity.length() == 0) {
@@ -797,7 +804,6 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
 
         int int_open_quantity = AfxValInteger(leg_open_quantity);   // will GPF if empty leg_open_quantity string
         if (int_open_quantity == 0) continue;
-
 
         // Determine if backpointers exist and if yes then re-use that leg instead
         // of creating a new leg in order to preserve the integrity of the data.

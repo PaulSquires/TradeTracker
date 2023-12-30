@@ -216,7 +216,7 @@ void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGrid, row, 5, db.PutCallToString(leg->put_call));
 
         // ACTION
-        TradeGrid_SetColData(hGrid, row, 6, leg->action);
+        TradeGrid_SetColData(hGrid, row, 6, db.ActionToString(leg->action));
 
         row++;
     }
@@ -493,8 +493,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         TradeGrid_SetColData(hGridMain, row, 4, db.PutCallToString(leg->put_call));
 
         // ACTION
-        if (leg->action == L"STO") { text = L"BTC"; }
-        if (leg->action == L"BTO") { text = L"STC"; }
+        if (leg->action == Action::STO) { text = L"BTC"; }
+        if (leg->action == Action::BTO) { text = L"STC"; }
         TradeGrid_SetColData(hGridMain, row, 5, text);
 
         row++;
@@ -534,7 +534,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             TradeGrid_SetColData(hGridRoll, row, 4, db.PutCallToString(leg->put_call));
 
             // ACTION
-            TradeGrid_SetColData(hGridRoll, row, 5, leg->action);
+            TradeGrid_SetColData(hGridRoll, row, 5, db.ActionToString(leg->action));
 
             row++;
         }

@@ -91,58 +91,103 @@ bool CDatabase::Version4UpgradeTradePlan() {
 std::wstring CDatabase::PutCallToString(const PutCall e) {
     if (e == PutCall::Put) return L"P";
     if (e == PutCall::Call) return L"C";
-    return L"P";
+    return L"";
 }
 
 
 PutCall CDatabase::StringToPutCall(const std::wstring& text) {
     if (text == L"P") return PutCall::Put;
     if (text == L"C") return PutCall::Call;
-    return PutCall::Put;
+    if (text.length() == 0) return PutCall::Nothing;
+    return PutCall::Nothing;
 }
 
 
-int CDatabase::UnderlyingToNumber(const std::wstring& underlying) {
-    static const std::unordered_map<std::wstring, int> map = {
-         {L"OPTIONS", 0}, {L"SHARES", 1}, {L"FUTURES", 2},
-         {L"DIVIDEND", 3}, {L"OTHER", 4}
+Underlying CDatabase::StringToUnderlying(const std::wstring& text) {
+    static const std::unordered_map<std::wstring, Underlying> map = {
+        {L"0", Underlying::Options}, {L"1", Underlying::Shares}, 
+        {L"2", Underlying::Futures}, {L"3", Underlying::Dividend},
+        {L"4", Underlying::Other}
     };
 
+    if (text.length() == 0) return Underlying::Nothing;
+
     // Search for an element in the map
-    auto it = map.find(underlying);
-    return (it != map.end()) ? it->second : 0;
+    auto it = map.find(text);
+    return (it != map.end()) ? it->second : Underlying::Nothing;
 }
 
 
-std::wstring CDatabase::NumberToUnderlying(const int number) {
-    switch (number) {
-    case 0: return L"OPTIONS";
-    case 1: return L"SHARES";
-    case 2: return L"FUTURES";
-    case 3: return L"DIVIDEND";
-    case 4: return L"OTHER";
-    default: return L"OPTIONS";
-    }
+std::wstring CDatabase::UnderlyingToString(const Underlying e) {
+    return std::to_wstring((int)e);
 }
 
+//Underlying CDatabase::StringToUnderlying(const std::wstring& text) {
+//    static const std::unordered_map<std::wstring, Underlying> map = {
+//        {L"OPTIONS", Underlying::Options}, {L"SHARES", Underlying::Shares}, 
+//        {L"FUTURES", Underlying::Futures}, {L"DIVIDEND", Underlying::Dividend},
+//        {L"OTHER", Underlying::Other}
+//    };
+//
+//    // Search for an element in the map
+//    auto it = map.find(text);
+//    return (it != map.end()) ? it->second : Underlying::Nothing;
+//}
+//
+//
+//std::wstring CDatabase::UnderlyingToString(const Underlying e) {
+//    switch (e) {
+//    case Underlying::Options: return L"OPTIONS";
+//    case Underlying::Shares: return L"SHARES";
+//    case Underlying::Futures: return L"FUTURES";
+//    case Underlying::Dividend: return L"DIVIDEND";
+//    case Underlying::Other: return L"OTHER";
+//    case Underlying::Nothing: return L"";
+//    default: return L"OPTIONS";
+//    }
+//}
 
-int CDatabase::ActionToNumber(const std::wstring& action) {
-    static const std::unordered_map<std::wstring, int> map = {
-     {L"STO", 0}, {L"BTO", 1}, {L"STC", 2}, {L"BTC", 3}
+
+Action CDatabase::StringDescriptionToAction(const std::wstring& text) {
+    static const std::unordered_map<std::wstring, Action> map = {
+        {L"STO", Action::STO}, {L"BTO", Action::BTO}, 
+        {L"STC", Action::STC}, {L"BTC", Action::BTC},
+        {L"", Action::Nothing}
     };
 
+    if (text.length() == 0) return Action::Nothing;
+
     // Search for an element in the map
-    auto it = map.find(action);
-    return (it != map.end()) ? it->second : 0;
+    auto it = map.find(text);
+    return (it != map.end()) ? it->second : Action::Nothing;
+}
+
+Action CDatabase::StringToAction(const std::wstring& text) {
+    static const std::unordered_map<std::wstring, Action> map = {
+        {L"0", Action::STO}, {L"1", Action::BTO}, 
+        {L"2", Action::STC}, {L"3", Action::BTC},
+        {L"", Action::Nothing}
+    };
+
+    if (text.length() == 0) return Action::Nothing;
+
+    // Search for an element in the map
+    auto it = map.find(text);
+    return (it != map.end()) ? it->second : Action::Nothing;
 }
 
 
-std::wstring CDatabase::NumberToAction(const int number) {
-    switch (number) {
-    case 0: return L"STO";
-    case 1: return L"BTO";
-    case 2: return L"STC";
-    case 3: return L"BTC";
+std::wstring CDatabase::ActionToString(const Action e) {
+    return std::to_wstring((int)e);
+}
+
+std::wstring CDatabase::ActionToStringDescription(const Action e) {
+    switch (e) {
+    case Action::STO: return L"STO";
+    case Action::BTO: return L"BTO";
+    case Action::STC: return L"STC";
+    case Action::BTC: return L"BTC";
+    case Action::Nothing : return L"";
     default: return L"STO";
     } 
 }
@@ -285,7 +330,7 @@ bool CDatabase::SaveDatabase() {
         << "// isOpen:        0:false, 1:true\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
         << "// Category:      0,1,2,3,4, etc (integer value)\n"
-        << "// underlying:    0:OPTIONS, 1:SHARES, 2:FUTURES, 3:DIVIDEND\n"
+        << "// underlying:    0:OPTIONS, 1:SHARES, 2:FUTURES, 3:DIVIDEND, 4:OTHER\n"
         << "// action:        0:STO, 1:BTO, 2:STC, 3:BTC\n"
         << "// Dates are all in YYYYMMDD format with no embedded separators.\n";
 
@@ -305,7 +350,7 @@ bool CDatabase::SaveDatabase() {
             db << "X|"
                 << AfxRemoveDateHyphens(trans->trans_date) << "|"
                 << trans->description << "|"
-                << UnderlyingToNumber(trans->underlying) << "|"
+                << UnderlyingToString(trans->underlying) << "|"
                 << trans->quantity << "|"
                 << std::fixed << std::setprecision(4) << trans->price << "|"
                 << std::fixed << std::setprecision(4) << trans->multiplier << "|"
@@ -322,8 +367,8 @@ bool CDatabase::SaveDatabase() {
                     << AfxRemoveDateHyphens(leg->expiry_date) << "|"
                     << leg->strike_price << "|"
                     << PutCallToString(leg->put_call) << "|"
-                    << ActionToNumber(leg->action) << "|"
-                    << UnderlyingToNumber(leg->underlying)
+                    << ActionToString(leg->action) << "|"
+                    << UnderlyingToString(leg->underlying)
                     << "\n";
             }
         }
@@ -415,13 +460,13 @@ bool CDatabase::LoadDatabase() {
             date_text          = try_catch_wstring(st, 1);
             trans->trans_date  = AfxInsertDateHyphens(date_text);
             trans->description = try_catch_wstring(st, 2);
-            trans->underlying  = NumberToUnderlying(try_catch_int(st, 3));
+            trans->underlying  = StringToUnderlying(try_catch_wstring(st, 3));
             trans->quantity    = try_catch_int(st, 4);
             trans->price       = try_catch_double(st, 5);
             trans->multiplier  = try_catch_double(st, 6);
             trans->fees        = try_catch_double(st, 7);
             trans->total       = try_catch_double(st, 8);
-            if (trade != nullptr) {
+            if (trade) {
                 // Determine earliest and latest dates for BP ROI calculation.
                 if (AfxValDouble(date_text) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = date_text;
                 if (AfxValDouble(date_text) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = date_text;
@@ -441,11 +486,11 @@ bool CDatabase::LoadDatabase() {
             leg->expiry_date         = AfxInsertDateHyphens(expiry_date);
             leg->strike_price        = try_catch_wstring(st, 6);
             leg->put_call            = StringToPutCall(try_catch_wstring(st, 7)); 
-            leg->action              = NumberToAction(try_catch_int(st, 8));
-            leg->underlying          = NumberToUnderlying(try_catch_int(st, 9));
-            if (trans != nullptr) {
+            leg->action              = StringToAction(try_catch_wstring(st, 8));
+            leg->underlying          = StringToUnderlying(try_catch_wstring(st, 9));
+            if (trans) {
                 leg->trans = trans;
-                if (trade != nullptr) {
+                if (trade) {
                     // Determine latest date for BP ROI calculation.
                     if (AfxValDouble(expiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = expiry_date;
                 }
@@ -462,7 +507,7 @@ bool CDatabase::LoadDatabase() {
     // rather than physically storing that value in the database. This allows us to
     // manually edit individual Transactions externally and not have to go through
     // an error prone process of recalculating the ACB with the new change.
-    for (const auto& trade : trades) {
+    for (auto& trade : trades) {
         if (trade->is_open) {
             trade->CreateOpenLegsVector();
         }

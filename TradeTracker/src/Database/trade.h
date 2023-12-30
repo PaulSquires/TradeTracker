@@ -44,7 +44,25 @@ class Transaction;   // forward declare
 enum class PutCall {
     Put,
     Call,
-    Count     // used in StrategyButton when toggling state
+    Count,     // used in StrategyButton when toggling state
+    Nothing     // always put last for historical reasons saving int to database
+};
+
+enum class Underlying {
+    Options,
+    Shares,
+    Futures,
+    Dividend,
+    Other,
+    Nothing     // always put last for historical reasons saving int to database
+};
+
+enum class Action {
+    STO,
+    BTO,
+    STC,
+    BTC,
+    Nothing     // always put last for historical reasons saving int to database
 };
 
 
@@ -58,9 +76,9 @@ public:
     int          open_quantity = 0;
     std::wstring expiry_date   = L"";
     std::wstring strike_price  = L"";
-    PutCall put_call = PutCall::Put;
-    std::wstring action        = L"";      // STO,BTO,STC,BTC
-    std::wstring underlying    = L"";      // OPTIONS, STOCKS, FUTURES
+    PutCall      put_call      = PutCall::Nothing;
+    Action       action        = Action::Nothing;      // STO,BTO,STC,BTC
+    Underlying   underlying    = Underlying::Nothing;      // OPTIONS, STOCKS, FUTURES, DIVIDEND, OTHER
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
 
     double position_cost = 0;              // real time data receive via updatePortfolio
@@ -78,7 +96,7 @@ public:
 
 class Transaction {
 public:
-    std::wstring  underlying  = L"";      // OPTIONS,STOCKS,FUTURES,DIVIDEND
+    Underlying    underlying  = Underlying::Nothing;      // OPTIONS,STOCKS,FUTURES,DIVIDEND
     std::wstring  description = L"";      // Iron Condor, Strangle, Roll, Expired, Closed, Exercised, etc
     std::wstring  trans_date  = L"";      // YYYY-MM-DD
     int           quantity    = 0;

@@ -356,7 +356,6 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
         text = L"";
 
-
         text = (trade->itm_text.length()) ? trade->itm_text : L"";
         clr = (trade->itm_color != COLOR_WHITELIGHT) ? trade->itm_color : COLOR_WHITELIGHT;
         ld->SetData(COLUMN_TICKER_ITM, trade, ticker_id, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -487,7 +486,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
     // *** OPTION LEGS ***
     for (const auto& leg : trade->open_legs) {
-        if (leg->underlying == L"OPTIONS") {
+        if (leg->underlying == Underlying::Options) {
             ld = new ListBoxData;
 
             ld->leg = leg;
@@ -635,7 +634,10 @@ void ListBoxData_HistorySharesLeg(
     TickerId ticker_id = -1;
     REAL font8 = 8;
 
-    ld->SetData(2, trade, ticker_id, trans->underlying, StringAlignmentNear, StringAlignmentCenter,
+    std::wstring text = L"SHARES";
+    if (trans->underlying == Underlying::Futures) text = L"FUTURES";
+
+    ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     for (int i = 3; i < 6; i++) {
@@ -643,7 +645,7 @@ void ListBoxData_HistorySharesLeg(
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
     }
     
-    std::wstring text = AfxMoney(trans->price, false, trade->ticker_decimals);
+    text = AfxMoney(trans->price, false, trade->ticker_decimals);
     ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
@@ -665,7 +667,8 @@ void ListBoxData_HistoryDividendLeg(
     TickerId ticker_id = -1;
     REAL font8 = 8;
 
-    ld->SetData(2, trade, ticker_id, trans->underlying, StringAlignmentNear, StringAlignmentCenter,
+    std::wstring text = L"DIVIDEND";
+    ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     for (int i = 3; i < 8; i++) {
@@ -673,7 +676,7 @@ void ListBoxData_HistoryDividendLeg(
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
     }
     
-    std::wstring text = AfxMoney(trans->price);  // , false, trade->ticker_decimals);
+    text = AfxMoney(trans->price);  // , false, trade->ticker_decimals);
     ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
@@ -720,9 +723,9 @@ void ListBoxData_HistoryOptionsLeg(
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     DWORD clr = COLOR_RED;
-    if (leg->action == L"BTO" || leg->action == L"BTC") clr = COLOR_GREEN;
+    if (leg->action == Action::BTO || leg->action == Action::BTC) clr = COLOR_GREEN;
 
-    ld->SetData(7, trade, ticker_id, leg->action, StringAlignmentCenter, StringAlignmentCenter,
+    ld->SetData(7, trade, ticker_id, db.ActionToStringDescription(leg->action), StringAlignmentCenter, StringAlignmentCenter,
         COLOR_GRAYLIGHT, clr, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);

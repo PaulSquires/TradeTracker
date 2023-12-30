@@ -44,18 +44,17 @@ void Trade::SetTradeOpenStatus() {
 
     for (const auto& trans : transactions) {
         for (const auto& leg : trans->legs) {
-            if (leg->underlying == L"OPTIONS") {
+            switch (leg->underlying) {
+            case Underlying::Options:
                 if (leg->isOpen()) {
                     // A leg is open so therefore the Trade must stay open
                     this->is_open = true;
                     return;
                 }
-            } else if (leg->underlying == L"SHARES") {
+            case Underlying::Shares:
+            case Underlying::Futures:
                aggregate += leg->open_quantity;
                do_quantity_check = true;
-            } else if (leg->underlying == L"FUTURES") {
-                aggregate += leg->open_quantity;
-                do_quantity_check = true;
             }
         }
     }
@@ -93,6 +92,7 @@ void Trade::CreateOpenLegsVector() {
 
     for (const auto& trans : transactions) {
         if (trans->multiplier > 0) this->multiplier = trans->multiplier;
+        int dte = 0;
         for (auto& leg : trans->legs) {
             if (leg->isOpen()) {
                 leg->trans = trans;
@@ -101,15 +101,17 @@ void Trade::CreateOpenLegsVector() {
                 // Do check to calculate the DTE and compare to the earliest already calculated DTE
                 // for the Trade. We store the earliest DTE value because ActiveTrades uses it when
                 // sorted by Expiration.
-                if (leg->underlying == L"OPTIONS") {
-                    int dte = AfxDaysBetween(current_date, leg->expiry_date);
+                switch (leg->underlying) {
+                case Underlying::Options:
+                    dte = AfxDaysBetween(current_date, leg->expiry_date);
                     if (dte < this->earliest_legs_DTE) this->earliest_legs_DTE = dte;
-                } 
-                else if (leg->underlying == L"SHARES") {
+                    break;
+                case Underlying::Shares:
                     this->aggregate_shares += leg->open_quantity;
-                } 
-                else if (leg->underlying == L"FUTURES") {
+                    break;
+                case Underlying::Futures:
                     this->aggregate_futures += leg->open_quantity;
+                    break;
                 }
             }
         }

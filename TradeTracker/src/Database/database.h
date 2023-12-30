@@ -52,18 +52,23 @@ private:
 	bool Version4UpgradeJournalNotes();
 	bool Version4UpgradeTradePlan();
 
-	int UnderlyingToNumber(const std::wstring& underlying);
-	std::wstring NumberToUnderlying(const int number);
-	int ActionToNumber(const std::wstring& action);
-	std::wstring NumberToAction(const int number);
-
 public:
 	std::wstring GetJournalNotesText();
 	void SetJournalNotesText(const std::wstring& text);
+
 	std::wstring GetTradePlanText();
 	void SetTradePlanText(const std::wstring& text);
+
 	std::wstring PutCallToString(const PutCall e);
 	PutCall StringToPutCall(const std::wstring& text);
+
+	Underlying StringToUnderlying(const std::wstring& underlying);
+	std::wstring UnderlyingToString(const Underlying e);
+
+	Action StringToAction(const std::wstring& action);
+	Action StringDescriptionToAction(const std::wstring& action);
+	std::wstring ActionToString(const Action e);
+	std::wstring ActionToStringDescription(const Action e);
 
 	bool LoadDatabase();
 	bool SaveDatabase();

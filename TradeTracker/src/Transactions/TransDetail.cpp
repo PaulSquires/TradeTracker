@@ -218,17 +218,19 @@ void CTransDetail::ShowTransDetail(const std::shared_ptr<Trade> trade, const std
 
     // Show the detail leg information for this transaction.
     for (const auto& leg : trans->legs) {
-        if (leg->underlying == L"OPTIONS") { 
+        switch (leg->underlying) {
+        case Underlying::Options:
             ListBoxData_HistoryOptionsLeg(TransListBox(), trade, trans, leg);
-        }
-        else if (leg->underlying == L"SHARES") { 
+            break;
+        case Underlying::Shares:
             ListBoxData_HistorySharesLeg(TransListBox(), trade, trans, leg);
-        }
-        else if (leg->underlying == L"FUTURES") {
+            break;
+        case Underlying::Futures:
             ListBoxData_HistorySharesLeg(TransListBox(), trade, trans, leg);
-        }
-        else if (leg->underlying == L"DIVIDEND") {
+            break;
+        case Underlying::Dividend:
             ListBoxData_HistoryDividendLeg(TransListBox(), trade, trans, leg);
+            break;
         }
     }
 
