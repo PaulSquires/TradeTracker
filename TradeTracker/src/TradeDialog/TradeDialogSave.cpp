@@ -116,23 +116,43 @@ public:
         if (DRCR == L"DR") { total = total * -1; }
         ACB = ACB + total;
 
+        int col = 0;
         for (int row = 0; row < 4; ++row) {
             Leg leg;
-            leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 0));
-            leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 1);
-            leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 3);
-            leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 4));
-            leg.action = db.StringDescriptionToAction(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, 5));
+            col = 0;
+            leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, col));
+            if (tdd.trade_action == TradeAction::edit_transaction) {
+                col += 1;
+                leg.open_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, col));
+            }
+            col += 1;
+            leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, col);
+            col += 2;
+            leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, col);
+            col += 1;
+            leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, col));
+            col += 1;
+            leg.action = db.StringDescriptionToAction(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN), row, col));
             legs.push_back(leg);
         }
 
+        col = 0;
         for (int row = 0; row < 4; ++row) {
             Leg leg;
-            leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 0));
-            leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 1);
-            leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 3);
-            leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 4));
-            leg.action = db.StringDescriptionToAction(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, 5));
+            col = 0;
+            leg.original_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, col));
+            if (tdd.trade_action == TradeAction::edit_transaction) {
+                col += 1;
+                leg.open_quantity = AfxValInteger(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, col));
+            }
+            col += 1;
+            leg.expiry_date = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, col);
+            col += 2;
+            leg.strike_price = TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, col);
+            col += 1;
+            leg.put_call = db.StringToPutCall(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, col));
+            col += 1;
+            leg.action = db.StringDescriptionToAction(TradeGrid_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL), row, col));
             legsRoll.push_back(leg);
         }
 
@@ -576,7 +596,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         leg->underlying   = trans->underlying;
         leg->expiry_date  = guiData.legs.at(row).expiry_date;
         leg->strike_price = guiData.legs.at(row).strike_price;
-        leg->put_call      = guiData.legs.at(row).put_call;
+        leg->put_call     = guiData.legs.at(row).put_call;
         leg->action       = guiData.legs.at(row).action;
         leg->trans        = trans;
         int intQuantity   = guiData.legs.at(row).original_quantity * trans->quantity;
@@ -627,7 +647,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->underlying   = trans->underlying;
             leg->expiry_date  = guiData.legsRoll.at(row).expiry_date;
             leg->strike_price = guiData.legsRoll.at(row).strike_price;
-            leg->put_call      = guiData.legsRoll.at(row).put_call;
+            leg->put_call     = guiData.legsRoll.at(row).put_call;
             leg->action       = guiData.legsRoll.at(row).action;
             leg->trans        = trans;
             int intQuantity   = guiData.legsRoll.at(row).original_quantity;
@@ -787,7 +807,7 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
         std::wstring leg_expiry = TradeGrid_GetText(hGrid, row, 2);
         std::wstring leg_strike = TradeGrid_GetText(hGrid, row, 4);
         PutCall leg_PutCall = db.StringToPutCall(TradeGrid_GetText(hGrid, row, 5));
-        Action  leg_action  = db.StringToAction(TradeGrid_GetText(hGrid, row, 6));
+        Action  leg_action  = db.StringDescriptionToAction(TradeGrid_GetText(hGrid, row, 6));
             
         // Nothing new or changed to add? Just iterate to next line.
         if (leg_original_quantity.length() == 0) {

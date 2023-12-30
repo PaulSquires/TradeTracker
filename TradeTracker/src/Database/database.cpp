@@ -163,7 +163,7 @@ std::wstring CDatabase::ActionToStringDescription(const Action e) {
     case Action::STC: return L"STC";
     case Action::BTC: return L"BTC";
     case Action::Nothing : return L"";
-    default: return L"STO";
+    default: return L"";
     } 
 }
 
