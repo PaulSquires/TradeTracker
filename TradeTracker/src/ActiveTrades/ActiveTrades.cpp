@@ -500,7 +500,16 @@ void CActiveTrades::ShowActiveTrades() {
 
                 if (sort_order == SortOrder::Category) {
                     if (trade->category != category_header) {
-                        ListBoxData_AddCategoryHeader(TradesListBox(), trade);
+
+                        // Count the number of open trades in this category
+                        int num_trades_category = 0;
+                        for (const auto& t : trades) {
+                            if (t->is_open && (t->category == trade->category)) {
+                                num_trades_category++;
+                            }
+                        }
+
+                        ListBoxData_AddCategoryHeader(TradesListBox(), trade, num_trades_category);
                         category_header = trade->category;
                     }
                 }

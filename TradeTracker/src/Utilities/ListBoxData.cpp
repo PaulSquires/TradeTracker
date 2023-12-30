@@ -228,10 +228,11 @@ void ListBoxData_RequestMarketData(HWND hListBox) {
 // ========================================================================================
 // Create the display data for a Category Header line
 // ========================================================================================
-void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade) {
+void ListBoxData_AddCategoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade, int num_trades_category) {
     ListBoxData* ld = new ListBoxData;
 
-    std::wstring text = AfxUpper(config.GetCategoryDescription(trade->category));
+    std::wstring text = AfxUpper(config.GetCategoryDescription(trade->category)) +
+        L" (" + std::to_wstring(num_trades_category) + L" trades)";
 
     ld->SetData(0, nullptr, -1, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_BLUE, 9, FontStyleBold);
