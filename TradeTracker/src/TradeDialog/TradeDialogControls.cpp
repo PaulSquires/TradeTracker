@@ -967,7 +967,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         L"0", 310, 337, 80, 23);
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
-    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
+    CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::allow, CustomTextBoxFormatting::allow);
 
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Total", COLOR_WHITEDARK, COLOR_GRAYDARK,
