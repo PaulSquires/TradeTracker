@@ -191,7 +191,7 @@ std::wstring CDatabase::GetJournalNotesText() {
     }
 
     if (upgrade_to_version4) {
-        dbJournalNotes = dbJournalNotes_new;
+        dbJournalNotes = config.GetDataFilesFolder() + dbJournalNotes_new;
         SetJournalNotesText(journal_notes_text);
         // Delete the older version file
         DeleteFile(dbJournalNotes_old.c_str());
@@ -249,7 +249,7 @@ std::wstring CDatabase::GetTradePlanText() {
     }
 
     if (upgrade_to_version4) {
-        dbTradePlan = dbTradePlan_new;
+        dbTradePlan = config.GetDataFilesFolder() + dbTradePlan_new;
         SetTradePlanText(trade_plan_text);
         // Delete the older version file
         DeleteFile(dbTradePlan_old.c_str());
@@ -496,7 +496,7 @@ bool CDatabase::LoadDatabase() {
 
     if (upgrade_to_version4) {
         std::cout << "Upgrade database to version 4" << std::endl;
-        dbFilename = dbFilename_new;
+        dbFilename = config.GetDataFilesFolder() + dbFilename_new;
         SaveDatabase();
         // Delete the older version file
         DeleteFile(dbFilename_old.c_str());

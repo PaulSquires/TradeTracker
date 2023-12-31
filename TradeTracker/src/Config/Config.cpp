@@ -510,7 +510,7 @@ bool CConfig::LoadConfig() {
 
     if (upgrade_to_version4) {
         std::cout << "Upgrade config to version 4" << std::endl;
-        dbConfig = dbConfig_new;
+        dbConfig = GetDataFilesFolder() + dbConfig_new;
         SaveConfig();
         // Delete the older version file
         DeleteFile(dbConfig_old.c_str());
