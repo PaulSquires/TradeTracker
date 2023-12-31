@@ -17,7 +17,7 @@ You do not need an Interactive Brokers account but if you have one then TradeTra
 
 If you are not using TWS integration, TradeTracker allows you to "scrape" stock and futures prices from Yahoo Finance (albeit, the prices will be at least 15 minutes delayed). You just need to attempt to connect to TWS and when that fails, you will get a popup asking if you would like to retrieve the scraped market prices.
 
-This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. IB-Trader aims to make the trade tracking process as enjoyable and painless as possible.
+This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. TradeTracker aims to make the trade tracking process as enjoyable and painless as possible.
 
 ![screenshot](/TradeTracker/assets/TradeTracker-main.png?raw=true "TradeTracker Main")
 
