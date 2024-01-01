@@ -356,7 +356,7 @@ void CActiveTrades::UpdateTickerPrices() {
 
 
 // ========================================================================================
-// Returns true/false if incoming Trade action is consider a "New" Options type of action.
+// Returns true/false if incoming Trade action is considered a "New" Options type of action.
 // ========================================================================================
 bool CActiveTrades::IsNewOptionsTradeAction(TradeAction action) {
     switch (action) {
@@ -368,6 +368,49 @@ bool CActiveTrades::IsNewOptionsTradeAction(TradeAction action) {
     case TradeAction::new_short_put_vertical:
     case TradeAction::new_short_call:
     case TradeAction::new_short_call_vertical:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
+// ========================================================================================
+// Returns true/false if incoming Trade action is considered an "Add Options To" action.
+// ========================================================================================
+bool CActiveTrades::IsAddOptionToTradeAction(TradeAction action) {
+    switch (action) {
+    case TradeAction::add_options_to_trade:
+    case TradeAction::add_put_to_trade:
+    case TradeAction::add_call_to_trade:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
+// ========================================================================================
+// Returns true/false if incoming Trade action is considered an "Add Shares To" action.
+// ========================================================================================
+bool CActiveTrades::IsAddSharesToTradeAction(TradeAction action) {
+    switch (action) {
+    case TradeAction::add_shares_to_trade:
+    case TradeAction::add_futures_to_trade:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
+// ========================================================================================
+// Returns true/false if incoming Trade action is considered a "Manage Shares" action.
+// ========================================================================================
+bool CActiveTrades::IsManageSharesTradeAction(TradeAction action) {
+    switch (action) {
+    case TradeAction::manage_shares:
+    case TradeAction::manage_futures:
         return true;
     default:
         return false;

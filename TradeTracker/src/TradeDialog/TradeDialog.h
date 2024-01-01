@@ -31,16 +31,13 @@ SOFTWARE.
 #include "Database/trade.h"
 
 
-class CTradeDialog : public CWindowBase<CTradeDialog>
-{
+class CTradeDialog : public CWindowBase<CTradeDialog> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 };
 
 
-class TradeDialogData
-{
+class TradeDialogData {
 public:
     TradeAction trade_action = TradeAction::no_action;
     std::shared_ptr<Trade> trade = nullptr;

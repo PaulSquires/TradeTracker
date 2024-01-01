@@ -264,12 +264,11 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
     HWND hCtl = NULL;
     std::wstring text;
 
-    if (tdd.trade_action == TradeAction::new_options_trade) return;
     if (tdd.trade_action == TradeAction::new_shares_trade) return;
     if (tdd.trade_action == TradeAction::new_futures_trade) return;
 
     // Update the Trade Management table with the details of the Trade.
-    if (tdd.trade != nullptr) {
+    if (tdd.trade) {
         CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLCOMPANY), tdd.trade->ticker_name);
         CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTCOMPANY), tdd.trade->ticker_name);  // hidden
 
@@ -287,9 +286,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         double multiplier = tdd.trade->multiplier;
 
         if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
-            tdd.trade_action == TradeAction::add_call_to_trade ||
-            tdd.trade_action == TradeAction::add_put_to_trade ||
-            tdd.trade_action == TradeAction::add_options_to_trade) {
+            ActiveTrades.IsAddOptionToTradeAction(tdd.trade_action)) {
             if (config.IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
         if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
@@ -319,6 +316,11 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
         return;
     }
 
+    if (tdd.trade_action == TradeAction::new_options_trade ||
+        tdd.trade_action == TradeAction::add_options_to_trade) {
+        CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), L"Option");
+        return;
+    }
 
     if (tdd.trade_action == TradeAction::new_iron_condor) {
         hCtl = GetDlgItem(HWND_STRATEGYBUTTON, IDC_STRATEGYBUTTON_LONGSHORT);
@@ -795,28 +797,27 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
 
-    if (!ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
-        ActiveTrades.IsNewSharesTradeAction(tdd.trade_action)) {
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsManageSharesTradeAction(tdd.trade_action) ||
+        tdd.trade_action == TradeAction::add_dividend_to_trade) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_HIDE);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_HIDE);
     }
-
-    if (tdd.trade_action == TradeAction::edit_transaction ||
-        tdd.trade_action == TradeAction::other_income_expense) {
-        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_SHOW);
-        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_SHOW);
+    else if(tdd.trade_action == TradeAction::edit_transaction) {
+        if (tdd.trans &&
+            tdd.trans->underlying == Underlying::Shares ||
+            tdd.trans->underlying == Underlying::Futures) {
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLDESCRIBE), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE), SW_HIDE);
+        }
     }
-
-
 
     // We create the Strategy button and label but we only show it for New options
     // However we do need the window for other tradeAction cases for example "Add To"
     // because the tradeAction into the Strategy button and then InvokeStrategy.
     if (ActiveTrades.IsNewOptionsTradeAction(tdd.trade_action) ||
-        tdd.trade_action == TradeAction::add_options_to_trade ||
-        tdd.trade_action == TradeAction::add_put_to_trade ||
-        tdd.trade_action == TradeAction::add_call_to_trade) {
-
+        ActiveTrades.IsAddOptionToTradeAction(tdd.trade_action)) {
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLSTRATEGY, L"Strategy", COLOR_WHITEDARK, COLOR_GRAYDARK,
             CustomLabelAlignment::middle_left, 340, 72, 100, 22);
         hCtl = StrategyButton.Create(hwnd, L"", 340, 97, 264, 23,

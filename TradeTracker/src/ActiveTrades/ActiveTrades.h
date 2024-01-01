@@ -60,8 +60,11 @@ public:
 
     void ShowActiveTrades();
     void PerformITMcalculation(std::shared_ptr<Trade>& trade);
+    bool IsAddOptionToTradeAction(TradeAction action);
+    bool IsAddSharesToTradeAction(TradeAction action);
     bool IsNewOptionsTradeAction(TradeAction action);
     bool IsNewSharesTradeAction(TradeAction action);
+    bool IsManageSharesTradeAction(TradeAction action);
     void UpdateTickerPrices();
 
 private:
