@@ -57,17 +57,27 @@ int dialog_return_code = DIALOG_RETURN_CANCEL;
 void TradeDialog_OnClose(HWND hwnd) {
     if (dialog_return_code == DIALOG_RETURN_OK) {
 
-        // Set the open status of the entire trade based on the new modified legs
-        tdd.trade->SetTradeOpenStatus();
+        // If this was an EDIT then we will Save and Load in order to correctly calculate
+        // the BP dates. We need to do this because an EDIT could have changed the closing
+        // date of the Trade.
+        if (tdd.trade_action == TradeAction::edit_transaction) {
+            // Save/Load the new data
+            db.SaveDatabase();
+            db.LoadDatabase();
+        }
+        else {
+            // Set the open status of the entire trade based on the new modified legs
+            tdd.trade->SetTradeOpenStatus();
 
-        // Rebuild the openLegs position vector
-        tdd.trade->CreateOpenLegsVector();
+            // Rebuild the openLegs position vector
+            tdd.trade->CreateOpenLegsVector();
 
-        // Recalculate the ACB for the trade
-        tdd.trade->CalculateAdjustedCostBase();
+            // Recalculate the ACB for the trade
+            tdd.trade->CalculateAdjustedCostBase();
 
-        // Save the new data
-        db.SaveDatabase();
+            // Save the new data
+            db.SaveDatabase();
+        }
 
         Reconcile_LoadAllLocalPositions();
         Reconcile_doPositionMatching();

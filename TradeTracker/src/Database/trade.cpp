@@ -92,17 +92,19 @@ void Trade::CreateOpenLegsVector() {
 
     for (const auto& trans : transactions) {
         if (trans->multiplier > 0) this->multiplier = trans->multiplier;
+
         int dte = 0;
         for (auto& leg : trans->legs) {
+
             if (leg->isOpen()) {
                 leg->trans = trans;
                 open_legs.push_back(leg);
 
-                // Do check to calculate the DTE and compare to the earliest already calculated DTE
-                // for the Trade. We store the earliest DTE value because ActiveTrades uses it when
-                // sorted by Expiration.
                 switch (leg->underlying) {
                 case Underlying::Options:
+                    // Do check to calculate the DTE and compare to the earliest already calculated DTE
+                    // for the Trade. We store the earliest DTE value because ActiveTrades uses it when
+                    // sorted by Expiration.
                     dte = AfxDaysBetween(current_date, leg->expiry_date);
                     if (dte < this->earliest_legs_DTE) this->earliest_legs_DTE = dte;
                     break;
