@@ -827,6 +827,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_left, 40, 155, 300, 22);
 
+    HWND hGridMain = NULL;
+    HWND hGridRoll = NULL;
+
     if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
@@ -892,9 +895,6 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     {
         bool show_original_quantity = (tdd.trade_action == TradeAction::edit_transaction) ? true : false;
 
-        HWND hGridMain = NULL;
-        HWND hGridRoll = NULL;
-
         // Create the main trade options leg grid
         hGridMain = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN, 40, 180, 0, 0, show_original_quantity);
 
@@ -905,6 +905,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
                 CustomLabelAlignment::middle_left, width, 155, 300, 22);
             hGridRoll = CreateTradeGrid(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL, width, 180, 0, 0, show_original_quantity);
         }
+
         if (tdd.trade && tdd.trade->category == CATEGORY_OTHER) {
             ShowWindow(hGridMain, SW_HIDE);
             ShowWindow(hGridRoll, SW_HIDE);
@@ -913,6 +914,15 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         }
     }
 
+    // Hide the grids if this is an Edit Transaction but is not Options.
+    if (tdd.trade &&
+        tdd.trade_action == TradeAction::edit_transaction &&
+        tdd.trans->underlying != Underlying::Options) {
+        ShowWindow(hGridMain, SW_HIDE);
+        ShowWindow(hGridRoll, SW_HIDE);
+        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLGRIDMAIN), SW_HIDE);
+        ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLGRIDROLL), SW_HIDE);
+    }
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Quantity", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_right, 40, 310, 80, 23);

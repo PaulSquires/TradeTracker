@@ -688,63 +688,62 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     // are blank then there is nothing to save to add that to the error message.
     int num_blank_legs = 0;
 
-    for (int row = 0; row < 4; ++row) {
-        // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (guiData.legs.at(row).original_quantity == 0 &&
-            guiData.legs.at(row).open_quantity == 0 &&
-            guiData.legs.at(row).expiry_date.length() == 0 &&
-            guiData.legs.at(row).strike_price.length() == 0 &&
-            guiData.legs.at(row).put_call == PutCall::Nothing &&
-            guiData.legs.at(row).action == Action::Nothing) {
-            num_blank_legs++;
-            continue;
-        }
+    if (guiData.underlying == Underlying::Options) {
 
-        // If any of the strings are zero length at this point then the row has incompete data.
-        bool incomplete = false;
+        for (int row = 0; row < 4; ++row) {
+            // All strings must be zero length in order to skip it from being included in the transaction. 
+            if (guiData.legs.at(row).original_quantity == 0 &&
+                guiData.legs.at(row).open_quantity == 0 &&
+                guiData.legs.at(row).expiry_date.length() == 0 &&
+                guiData.legs.at(row).strike_price.length() == 0 &&
+                guiData.legs.at(row).put_call == PutCall::Nothing &&
+                guiData.legs.at(row).action == Action::Nothing) {
+                num_blank_legs++;
+                continue;
+            }
 
-        if (guiData.underlying == Underlying::Options) {
+            // If any of the strings are zero length at this point then the row has incompete data.
+            bool incomplete = false;
+
             if (guiData.legs.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legs.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legs.at(row).strike_price.length() == 0) incomplete = true;
             if (guiData.legs.at(row).put_call == PutCall::Nothing) incomplete = true;
             if (guiData.legs.at(row).action == Action::Nothing) incomplete = true;
+
+            if (incomplete == true) {
+                error_message += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
+            }
         }
 
-        if (incomplete == true) {
-            error_message += L"- Leg #" + std::to_wstring(row + 1) + L" has incomplete or missing data.\n";
-        }
-    }
-
-    if (num_blank_legs == 4) {
-        error_message += L"- No Legs exist to be saved.\n";
-    }
-
-    for (int row = 0; row < 4; ++row) {
-        // All strings must be zero length in order to skip it from being included in the transaction. 
-        if (guiData.legsRoll.at(row).original_quantity == 0 &&
-            guiData.legsRoll.at(row).open_quantity == 0 &&
-            guiData.legsRoll.at(row).expiry_date.length() == 0 &&
-            guiData.legsRoll.at(row).strike_price.length() == 0 &&
-            guiData.legsRoll.at(row).put_call == PutCall::Nothing &&
-            guiData.legsRoll.at(row).action == Action::Nothing) {
-            num_blank_legs++;
-            continue;
+        if (num_blank_legs == 4) {
+            error_message += L"- No Legs exist to be saved.\n";
         }
 
-        // If any of the strings are zero length at this point then the row has incompete data.
-        bool incomplete = false;
+        for (int row = 0; row < 4; ++row) {
+            // All strings must be zero length in order to skip it from being included in the transaction. 
+            if (guiData.legsRoll.at(row).original_quantity == 0 &&
+                guiData.legsRoll.at(row).open_quantity == 0 &&
+                guiData.legsRoll.at(row).expiry_date.length() == 0 &&
+                guiData.legsRoll.at(row).strike_price.length() == 0 &&
+                guiData.legsRoll.at(row).put_call == PutCall::Nothing &&
+                guiData.legsRoll.at(row).action == Action::Nothing) {
+                num_blank_legs++;
+                continue;
+            }
 
-        if (guiData.underlying == Underlying::Options) {
+            // If any of the strings are zero length at this point then the row has incompete data.
+            bool incomplete = false;
+
             if (guiData.legsRoll.at(row).original_quantity == 0) incomplete = true;
             if (guiData.legsRoll.at(row).expiry_date.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).strike_price.length() == 0) incomplete = true;
             if (guiData.legsRoll.at(row).put_call == PutCall::Nothing) incomplete = true;
             if (guiData.legsRoll.at(row).action == Action::Nothing) incomplete = true;
-        }
 
-        if (incomplete == true) {
-            error_message += L"- Leg #" + std::to_wstring(row + 5) + L" has incomplete or missing data.\n";
+            if (incomplete == true) {
+                error_message += L"- Leg #" + std::to_wstring(row + 5) + L" has incomplete or missing data.\n";
+            }
         }
     }
 
