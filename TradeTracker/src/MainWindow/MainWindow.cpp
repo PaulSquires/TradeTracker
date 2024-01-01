@@ -108,6 +108,14 @@ void CMainWindow::SetRightPanel(HWND hPanel) {
 
 
 // ========================================================================================
+// Get the HWND for the panel that is currently displayed in the left of the MainWindow.
+// ========================================================================================
+HWND CMainWindow::GetLeftPanel() {
+    return hLeftPanel;
+}
+
+    
+// ========================================================================================
 // Set the HWND for the panel that will display in the left of the MainWindow.
 // Also place it into position and hide previous HWND of left panel.
 // ========================================================================================

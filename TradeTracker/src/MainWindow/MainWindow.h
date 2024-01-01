@@ -40,6 +40,7 @@ public:
     void DisplayPaperTradingWarning();
     void DisplayUpdateAvailableMessage();
     void BlurPanels(bool active);
+    HWND GetLeftPanel();
     void SetLeftPanel(HWND hPanel);
     void SetRightPanel(HWND hPanel);
     void CloseComboPopups();

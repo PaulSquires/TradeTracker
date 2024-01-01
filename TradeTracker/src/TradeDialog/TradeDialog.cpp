@@ -33,6 +33,8 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "MainWindow/tws-client.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "ClosedTrades/ClosedTrades.h"
+#include "Transactions/TransPanel.h"
 #include "CustomLabel/CustomLabel.h"
 #include "DatePicker/Calendar.h"
 #include "Strategy/StrategyPopup.h"
@@ -82,8 +84,11 @@ void TradeDialog_OnClose(HWND hwnd) {
         Reconcile_LoadAllLocalPositions();
         Reconcile_doPositionMatching();
 
-        // Show our new list of open trades
-        ActiveTrades.ShowActiveTrades();
+        // Show our new list of trades depending on what is showing in the active pane.
+        HWND hLeftPanel = MainWindow.GetLeftPanel();
+        if (hLeftPanel == ActiveTrades.hWindow) ActiveTrades.ShowActiveTrades();
+        if (hLeftPanel == ClosedTrades.hWindow) ClosedTrades.ShowClosedTrades();
+        if (hLeftPanel == TransPanel.hWindow) TransPanel.ShowTransactions();
     }
 
     MainWindow.BlurPanels(false);
