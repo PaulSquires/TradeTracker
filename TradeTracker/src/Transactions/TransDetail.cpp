@@ -110,7 +110,7 @@ void CTransDetail::DeleteTransaction(HWND hwnd) {
     if (!transEditDelete) return;
 
     int res = CustomMessageBox.Show(
-        hWindow,
+        MainWindow.hWindow,
         L"Are you sure you wish to DELETE this Transaction?",
         L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -159,8 +159,9 @@ void CTransDetail::DeleteTransaction(HWND hwnd) {
         tradeEditDelete->SetTradeOpenStatus();
     }
 
-    // Save the modified data
+    // Save/Load the modified data
     db.SaveDatabase();
+    db.LoadDatabase();
 
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;
