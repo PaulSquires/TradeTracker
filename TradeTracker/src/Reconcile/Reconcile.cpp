@@ -405,7 +405,7 @@ void Reconcile_Show() {
 
 	MainWindow.BlurPanels(true);
 
-	AfxCenterWindow(hwnd, MainWindow.hWindow);
+	AfxCenterWindowMonitorAware(hwnd, MainWindow.hWindow);
 
 	EnableWindow(MainWindow.hWindow, false);
 

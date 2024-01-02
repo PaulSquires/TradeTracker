@@ -137,7 +137,10 @@ LRESULT CALLBACK CustomPopupMenu_ListBox_SubclassProc(
 // Process WM_SIZE message for window/dialog: CCustomPopupMenu
 // ========================================================================================
 void CCustomPopupMenu::OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    SetWindowPos(GetDlgItem(hwnd, IDC_CUSTOMPOPUPMENU_LISTBOX), 0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
+    int vmargin = AfxScaleY(1);
+    int hmargin = AfxScaleY(1);
+    SetWindowPos(GetDlgItem(hwnd, IDC_CUSTOMPOPUPMENU_LISTBOX), 0, 
+        hmargin, vmargin, cx - (hmargin * 2), cy - (vmargin * 2), SWP_NOZORDER | SWP_SHOWWINDOW);
     return;
 }
 
@@ -162,7 +165,7 @@ void CCustomPopupMenu::OnPaint(HWND hwnd) {
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush back_brush(COLOR_GRAYMEDIUM);
+    SolidBrush back_brush(COLOR_BLACK);
 
     // Paint the background using brush.
     int width = (ps.rcPaint.right - ps.rcPaint.left);
@@ -234,10 +237,10 @@ void CCustomPopupMenu::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
 
         if (items.at(lpDrawItem->itemID).is_separator) {
             // Draw the horizontal line
+            int margin = AfxScaleX(6);
             ARGB clrPen = ntext_color;
             Pen pen(clrPen, 1);
-            RectF rcLine2((REAL)glyph_width, (REAL)0, (REAL)width, (REAL)height);
-            graphics.DrawLine(&pen, 0, height / 2, width, height / 2);
+            graphics.DrawLine(&pen, margin, height / 2, width - margin, height / 2);
         }
         else {
             if (selected_item == lpDrawItem->itemData) glyph = GLYPH_CHECKMARK;

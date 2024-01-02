@@ -235,7 +235,7 @@ int CAssignment::ShowModal(const std::wstring& long_short_text,
     // and this popup closing.
     MainWindow.BlurPanels(true);
 
-    AfxCenterWindow(hwnd, MainWindow.hWindow);
+    AfxCenterWindowMonitorAware(hwnd, MainWindow.hWindow);
 
     EnableWindow(MainWindow.hWindow, false);
 

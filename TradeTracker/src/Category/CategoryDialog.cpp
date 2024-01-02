@@ -292,7 +292,7 @@ int CategoryDialog_Show(HWND hWndParent) {
     HANDLE hIconSmall = LoadImage(CategoryDialog.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
     SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
-    AfxCenterWindow(hwnd, hWndParent);
+    AfxCenterWindowMonitorAware(hwnd, hWndParent);
 
     EnableWindow(hWndParent, false);
 
