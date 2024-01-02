@@ -39,7 +39,7 @@ SOFTWARE.
 
 enum class Controls {
     None = 0,
-    Button, OptionButton, CheckBox, Label, Custom, Frame, Line, TextBox,
+    Button, OptionButton, CheckBox, Label, IconLabel, Custom, Frame, Line, TextBox,
     MultilineTextBox, ComboBox, ListBox, ProgressBar, TreeView, ListView,
     Header, DateTimePicker, MonthCalendar, TabControl, StatusBar, SizeGrip,
     HScrollBar, CustomVScrollBar, Slider, UpDown, RichEdit
@@ -292,6 +292,15 @@ public:
 
         case Controls::Label: {
             if (dwStyle == -1) dwStyle = WS_VISIBLE | SS_LEFT | WS_GROUP | SS_NOTIFY;
+            class_name_text = L"Static";
+            hCtl = CreateControl(class_name_text, hParent, cID, wszTitle, x, y, width, height, dwStyle, dwExStyle, lpParam);
+            break;
+        }
+
+        case Controls::IconLabel: {
+            bSetFont = false;
+            if (dwStyle == -1) dwStyle = WS_VISIBLE | WS_GROUP | SS_ICON;
+            if (dwExStyle == -1) dwExStyle = WS_EX_TRANSPARENT;
             class_name_text = L"Static";
             hCtl = CreateControl(class_name_text, hParent, cID, wszTitle, x, y, width, height, dwStyle, dwExStyle, lpParam);
             break;

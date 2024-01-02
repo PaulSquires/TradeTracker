@@ -31,6 +31,7 @@
     <ClInclude Include="src\ClosedTrades\ClosedTrades.h" />
     <ClInclude Include="src\Config\Config.h" />
     <ClInclude Include="src\CustomLabel\CustomLabel.h" />
+    <ClInclude Include="src\CustomMessageBox\CustomMessageBox.h" />
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
     <ClInclude Include="src\CustomVScrollBar\CustomVScrollBar.h" />
     <ClInclude Include="src\Database\database.h" />
@@ -123,6 +124,7 @@
     <ClCompile Include="src\ClosedTrades\ClosedTrades.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\CustomLabel\CustomLabel.cpp" />
+    <ClCompile Include="src\CustomMessageBox\CustomMessageBox.cpp" />
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
     <ClCompile Include="src\CustomVScrollBar\CustomVScrollBar.cpp" />
     <ClCompile Include="src\Database\database.cpp" />

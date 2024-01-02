@@ -349,6 +349,11 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 		return (LRESULT)hBackBrush;
 	}
 
+	case WM_NCDESTROY: {
+		if (hBackBrush) DeleteBrush(hBackBrush);
+		break;
+	}
+
 	case WM_SHOWWINDOW:	{
 		// Workaround for the Windows 11 (The cloaking solution seems to work only
 		// on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work

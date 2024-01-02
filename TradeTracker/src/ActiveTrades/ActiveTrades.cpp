@@ -27,9 +27,10 @@ SOFTWARE.
 #include "pch.h"
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomMessageBox/CustomMessageBox.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
-#include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeDialog/TradeDialog.h"
 #include "TradeHistory/TradeHistory.h"
 #include "TabPanel/TabPanel.h"
@@ -693,7 +694,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
     // be that the user select SHARES or other non-options underlyings only.
     if (tdd.legs.size() == 0) {
         MessageBox(
-            ActiveTrades.hWindow,
+            hWindow,
             (LPCWSTR)(L"No valid option legs have been selected for expiration."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -707,6 +708,26 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
 
     if (res != IDYES) return;
+
+/*
+    // 65 chars
+    int res = MessageBox(
+        ActiveTrades.hWindow,
+        (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
+        (LPCWSTR)L"Confirm",
+        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+
+
+    CCustomMessageBox msgbox;
+    res = msgbox.Show(
+        hWindow,
+        L"Are you sure you wish to EXPIRE the selected legs?\nThis is the second line\nFinally, this is the third line and is the longest line by far!!!",
+        L"Confirm",
+        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
+
+    return;
+*/
+
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
 
@@ -1006,7 +1027,7 @@ void CActiveTrades::OptionAssignment(auto trade) {
     // Do a check to ensure that there is actually a leg selected for assignment. 
     if (tdd.legs.size() == 0) {
         MessageBox(
-            ActiveTrades.hWindow,
+            hWindow,
             (LPCWSTR)(L"No valid option leg has been selected for assignment."),
             (LPCWSTR)L"Warning",
             MB_ICONWARNING | MB_OK);

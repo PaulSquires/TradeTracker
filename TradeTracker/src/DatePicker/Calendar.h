@@ -29,8 +29,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CCalendar: public CWindowBase<CCalendar>
-{
+class CCalendar: public CWindowBase<CCalendar> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -40,8 +39,7 @@ extern CCalendar Calendar;
 extern HWND HWND_CALENDAR;
 
 
-enum class CalendarPickerReturnType
-{
+enum class CalendarPickerReturnType {
     short_date,    // Mar 1
     long_date,     // Mar 1, 2023
     ISO_date       // 2023-03-01
