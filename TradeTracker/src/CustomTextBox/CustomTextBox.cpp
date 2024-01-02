@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 
 #include "CustomTextBox.h"
 
@@ -316,6 +317,52 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
         PostMessage(hwnd, MSG_RECALCULATE_VSCROLLBAR, 0, 0);
         PostMessage(pData->hParent, WM_COMMAND, MAKEWPARAM(pData->ctrl_id, EN_CHANGE), (LPARAM)pData->hWindow);
         return 0;
+    }
+
+    case WM_CONTEXTMENU: {
+        // Create and show our own custom popup menu and prevent the default Windows system
+        // popup menu from displaying.
+        std::vector<CCustomPopupMenuItem> items;
+        items.push_back({ L"Undo", 100, false });
+        items.push_back({ L"", -1, true });
+        items.push_back({ L"Cut", 101, false });
+        items.push_back({ L"Copy", 102, false });
+        items.push_back({ L"Paste", 103, false });
+        items.push_back({ L"Delete", 104, false });
+        items.push_back({ L"", -1, true });
+        items.push_back({ L"Select All", 105, false });
+
+        POINT pt; GetCursorPos(&pt);
+        int selected = CustomPopupMenu.Show(hwnd, items, -1, pt.x, pt.y);
+
+        switch (selected) {
+        case 100: {   // Undo
+            SendMessage(hwnd, EM_UNDO, 0, 0);
+            break;
+        }
+        case 101: {   // Cut
+            SendMessage(hwnd, WM_CUT, 0, 0);
+            break;
+        }
+        case 102: {   // Copy
+            SendMessage(hwnd, WM_COPY, 0, 0);
+            break;
+        }
+        case 103: {   // Paste
+            SendMessage(hwnd, WM_PASTE, 0, 0);
+            break;
+        }
+        case 104: {   // Delete
+            SendMessage(hwnd, WM_CLEAR, 0, 0);
+            break;
+        }
+        case 105: {   // Select All
+            SendMessage(hwnd, EM_SETSEL, 0, -1);
+            break;
+        }
+        }
+
+        return true;
     }
 
     case MSG_RECALCULATE_VSCROLLBAR: {

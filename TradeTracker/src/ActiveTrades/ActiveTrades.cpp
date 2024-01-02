@@ -29,6 +29,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomMessageBox/CustomMessageBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
 #include "TradeDialog/TradeDialog.h"
@@ -1083,6 +1084,120 @@ void CActiveTrades::PopulateLegsEditVector(HWND hListBox) {
 // Handle the right-click popup menu on the ListBox's selected lines.
 // ========================================================================================
 void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
+    std::wstring text;
+    std::wstring plural_text;
+    int sel_count = ListBox_GetSelCount(hListBox);
+
+    std::shared_ptr<Trade> trade = nullptr;
+
+    bool is_tickerLine = false;
+
+    // Clear the tdd module global trade variable
+    tdd.ResetDefaults();
+
+    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
+    if (ld->trade == nullptr) return;
+
+    trade = ld->trade;
+    tdd.trade = ld->trade;
+    tdd.trans = ld->trans;
+    tdd.shares_aggregate_edit = ld->aggregate_shares;
+
+    if (sel_count == 1) {
+        // Is this the Trade header line
+        if (ld != nullptr) {
+            if (ld->line_type == LineType::ticker_line) {
+                is_tickerLine = true;
+            }
+        }
+    }
+    else {
+        plural_text = L"s";
+    }
+
+
+    std::vector<CCustomPopupMenuItem> items;
+
+    if (ld->line_type == LineType::options_leg) {
+        text = L"Roll Leg" + plural_text;
+        items.push_back({ text, (int)TradeAction::roll_leg, false });
+
+        text = L"Close Leg" + plural_text;
+        items.push_back({ text, (int)TradeAction::close_leg, false });
+
+        text = L"Expire Leg" + plural_text;
+        items.push_back({ text, (int)TradeAction::expire_leg, false });
+
+        if (sel_count == 1) {
+            items.push_back({ L"", (int)TradeAction::no_action , true});
+            items.push_back({ L"Option Assignment", (int)TradeAction::assignment, false });
+        }
+        items.push_back({ L"", (int)TradeAction::no_action, true });
+    }
+
+    if (ld->line_type == LineType::shares) {
+        text = L"Manage Shares";
+        items.push_back({ text, (int)TradeAction::manage_shares, false });
+        items.push_back({ L"", (int)TradeAction::no_action, true });
+    }
+
+    if (ld->line_type == LineType::futures) {
+        text = L"Manage Futures";
+        items.push_back({ text, (int)TradeAction::manage_futures, false });
+        items.push_back({ L"", (int)TradeAction::no_action, true });
+    }
+
+    items.push_back({ L"Add Options to Trade", (int)TradeAction::add_options_to_trade, false });
+    items.push_back({ L"Add Put to Trade", (int)TradeAction::add_put_to_trade, false });
+    items.push_back({ L"Add Call to Trade", (int)TradeAction::add_call_to_trade, false });
+    items.push_back({ L"", (int)TradeAction::no_action, true });
+
+    if (config.IsFuturesTicker(trade->ticker_symbol)) {
+        items.push_back({ L"Add Futures to Trade", (int)TradeAction::add_futures_to_trade, false });
+    }
+    else {
+        items.push_back({ L"Add Shares to Trade", (int)TradeAction::add_shares_to_trade, false });
+        items.push_back({ L"Add Dividend to Trade", (int)TradeAction::add_dividend_to_trade, false });
+    }
+
+
+    POINT pt; GetCursorPos(&pt);
+    TradeAction selected = (TradeAction)CustomPopupMenu.Show(hListBox, items, -1, pt.x, pt.y);
+
+    switch (selected) {
+    case TradeAction::manage_shares:
+    case TradeAction::manage_futures:
+    case TradeAction::add_shares_to_trade:
+    case TradeAction::add_dividend_to_trade:
+    case TradeAction::add_futures_to_trade:
+    case TradeAction::add_options_to_trade:
+    case TradeAction::add_put_to_trade:
+    case TradeAction::add_call_to_trade:
+        TradeDialog_Show(selected);
+        break;
+
+    case TradeAction::roll_leg:
+    case TradeAction::close_leg:
+        PopulateLegsEditVector(hListBox);
+        TradeDialog_Show(selected);
+        break;
+
+    case TradeAction::expire_leg:
+        PopulateLegsEditVector(hListBox);
+        ExpireSelectedLegs(trade);
+        break;
+
+    case TradeAction::assignment:
+        PopulateLegsEditVector(hListBox);
+        OptionAssignment(trade);
+        break;
+    }
+
+
+
+
+    /*
+
     HMENU hMenu = CreatePopupMenu();
 
     std::wstring text;
@@ -1189,6 +1304,8 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
         OptionAssignment(trade);
         break;
     }
+    
+    */
 }
 
 
