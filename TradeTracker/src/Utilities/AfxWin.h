@@ -60,6 +60,7 @@ int AfxGetWindowWidth(HWND hwnd);
 int AfxGetWindowHeight(HWND hwnd);
 
 void AfxCenterWindow(HWND hwnd = NULL, HWND hwndParent = NULL);
+void AfxCenterWindowMonitorAware(HWND hwnd = NULL, HWND hwndParent = NULL);
 
 int AfxGetWorkAreaWidth();
 int AfxGetWorkAreaHeight();

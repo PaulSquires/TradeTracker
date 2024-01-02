@@ -352,7 +352,7 @@ int CCustomMessageBox::Show(
 	
 	MainWindow.BlurPanels(true);
 
-	AfxCenterWindow(hwnd, HWND_DESKTOP);
+	AfxCenterWindowMonitorAware(hwnd, hParent);  
 
 	EnableWindow(MainWindow.hWindow, false);
 
@@ -384,6 +384,8 @@ int CCustomMessageBox::Show(
 	MSG msg{};
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
+		if (!IsWindow(MainWindow.hWindow)) break;
+
 		if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
 			result_code = IDCANCEL;
 			SendMessage(hwnd, WM_CLOSE, 0, 0);

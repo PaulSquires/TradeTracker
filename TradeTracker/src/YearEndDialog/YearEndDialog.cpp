@@ -323,7 +323,7 @@ int YearEndDialog_Show() {
     // and this popup closing.
     MainWindow.BlurPanels(true);
 
-    AfxCenterWindow(hwnd, MainWindow.hWindow);
+    AfxCenterWindowMonitorAware(hwnd, MainWindow.hWindow);
 
     EnableWindow(MainWindow.hWindow, false);
 

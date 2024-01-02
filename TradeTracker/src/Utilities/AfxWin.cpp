@@ -306,6 +306,88 @@ int AfxGetWindowHeight(HWND hwnd) {
 }
 
 
+#define MONITOR_CENTER     0x0001        // center rect to monitor 
+#define MONITOR_CLIP     0x0000        // clip rect to monitor 
+#define MONITOR_WORKAREA 0x0002        // use monitor work area 
+#define MONITOR_AREA     0x0000        // use monitor entire area 
+
+// 
+//  ClipOrCenterRectToMonitor 
+// 
+//  The most common problem apps have when running on a 
+//  multimonitor system is that they "clip" or "pin" windows 
+//  based on the SM_CXSCREEN and SM_CYSCREEN system metrics. 
+//  Because of app compatibility reasons these system metrics 
+//  return the size of the primary monitor. 
+// 
+//  This shows how you use the multi-monitor functions 
+//  to do the same thing. 
+// 
+void ClipOrCenterRectToMonitor(LPRECT prc, UINT flags)
+{
+    HMONITOR hMonitor;
+    MONITORINFO mi;
+    RECT        rc;
+    int         w = prc->right - prc->left;
+    int         h = prc->bottom - prc->top;
+
+    // 
+    // get the nearest monitor to the passed rect. 
+    // 
+    hMonitor = MonitorFromRect(prc, MONITOR_DEFAULTTONEAREST);
+
+    // 
+    // get the work area or entire monitor rect. 
+    // 
+    mi.cbSize = sizeof(mi);
+    GetMonitorInfo(hMonitor, &mi);
+
+    if (flags & MONITOR_WORKAREA)
+        rc = mi.rcWork;
+    else
+        rc = mi.rcMonitor;
+
+    // 
+    // center or clip the passed rect to the monitor rect 
+    // 
+    if (flags & MONITOR_CENTER)
+    {
+        prc->left = rc.left + (rc.right - rc.left - w) / 2;
+        prc->top = rc.top + (rc.bottom - rc.top - h) / 2;
+        prc->right = prc->left + w;
+        prc->bottom = prc->top + h;
+    }
+    else
+    {
+        prc->left = max(rc.left, min(rc.right - w, prc->left));
+        prc->top = max(rc.top, min(rc.bottom - h, prc->top));
+        prc->right = prc->left + w;
+        prc->bottom = prc->top + h;
+    }
+}
+
+void AfxCenterWindowMonitorAware(HWND hwnd, HWND hwndParent)
+{
+    // Monitor aware code to center child popup window in its parent.
+    // Do not use this for centering on the desktop,
+    RECT rc;
+    GetWindowRect(hwndParent, &rc);
+    ClipOrCenterRectToMonitor(&rc, 0);
+    int parent_left = rc.left;
+    int parent_top = rc.top;
+    int parent_width = (rc.right - rc.left);
+    int parent_height = (rc.bottom - rc.top);
+
+    // The values returned
+    GetWindowRect(hwnd, &rc);
+    int child_width = (rc.right - rc.left);
+    int child_height = (rc.bottom - rc.top);
+    int left = parent_left + ((parent_width - child_width) / 2);
+    int top = parent_top + ((parent_height - child_height) / 2);
+    SetWindowPos(hwnd, NULL, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
+
 // ========================================================================================
 // Centers a window on the screen or over another window.
 // It also ensures that the placement is done within the work area.
