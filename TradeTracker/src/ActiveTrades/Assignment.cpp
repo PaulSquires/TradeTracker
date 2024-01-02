@@ -28,6 +28,7 @@ SOFTWARE.
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "MainWindow/MainWindow.h"
 
 #include "Assignment.h"
@@ -72,7 +73,7 @@ void CAssignment::OnClose(HWND hwnd) {
         int max_quantity_allowed = AfxValInteger(max_quantity_allowed_text);
 
         if (quantity_text.length() == 0 || quantity_assigned <= 0 || quantity_assigned > max_quantity_allowed) {
-            MessageBox(hwnd, (LPCWSTR)L"Invalid quantity amount.", (LPCWSTR)L"Error", MB_ICONWARNING | MB_OK);
+            CustomMessageBox.Show(hwnd, L"Invalid quantity amount.", L"Error", MB_ICONWARNING | MB_OK);
             CustomTextBox_SetText(QuantityTextBox(), max_quantity_allowed_text);
             SetFocus(QuantityTextBox());
             dialog_return_code = DIALOG_RETURN_CANCEL;

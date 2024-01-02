@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/MainWindow.h"
 #include "Transactions/TransPanel.h"
@@ -108,10 +109,10 @@ void CTransDetail::DeleteTransaction(HWND hwnd) {
     if (!tradeEditDelete) return;
     if (!transEditDelete) return;
 
-    int res = MessageBox(
+    int res = CustomMessageBox.Show(
         hWindow,
-        (LPCWSTR)(L"Are you sure you wish to DELETE this Transaction?"),
-        (LPCWSTR)L"Confirm",
+        L"Are you sure you wish to DELETE this Transaction?",
+        L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
 
     if (res != IDYES) return;

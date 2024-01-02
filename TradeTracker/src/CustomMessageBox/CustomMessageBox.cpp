@@ -29,6 +29,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "CustomMessageBox.h"
 
+CCustomMessageBox CustomMessageBox;
 
 
 // ========================================================================================
@@ -81,7 +82,7 @@ void CCustomMessageBox::OnPaint(HWND hwnd) {
 	ps.rcPaint.top = ps.rcPaint.bottom - button_area_height;
 
 	// Set the background brush
-	bk_clr.SetValue(back_color_button_area);
+	bk_clr.SetValue(button_area_back_color);
 	back_brush.SetColor(bk_clr);
 	height = (ps.rcPaint.bottom - ps.rcPaint.top);
 	graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
@@ -94,9 +95,16 @@ void CCustomMessageBox::OnPaint(HWND hwnd) {
 // Calculate the RECT needed to hold the message text.
 // ========================================================================================
 SIZEL CCustomMessageBox::CalculateMessageBoxSize(HWND hwnd) {
-	int cx = GetSystemMetrics(SM_CXBORDER) * 2;
-	int cy = GetSystemMetrics(SM_CYCAPTION) + (GetSystemMetrics(SM_CYBORDER) * 2);
-	
+	// The GetThemeSysSize values are already high dpi sized.
+	int system_margins_x = GetThemeSysSize(NULL, SM_CXBORDER) * 2;
+	int system_margins_y = GetThemeSysSize(NULL, SM_CYCAPTION) + (GetThemeSysSize(NULL, SM_CYBORDER) * 2);
+
+	// Determine the number of buttons. There will always be at least 1 (MB_OK).
+	button_count = 1;
+	int mb_type = (flags & MB_TYPEMASK);
+	if (mb_type == MB_OKCANCEL || mb_type == MB_YESNO) button_count = 2;
+	if (mb_type == MB_YESNOCANCEL) button_count = 3;
+		
 	HDC hdc = GetDC(hwnd);
 	SelectFont(hdc, m_hFont);
 
@@ -104,15 +112,27 @@ SIZEL CCustomMessageBox::CalculateMessageBoxSize(HWND hwnd) {
 	DrawText(hdc, message_text.c_str(), -1, &rc, DT_CALCRECT);
 	text_width = rc.right;
 	text_height = rc.bottom;
+	if (text_width > AfxScaleX(350)) {
+		auto num_lines = count(message_text.begin(), message_text.end(), '\n') - 1;
+		text_width = AfxScaleX(350);
+		text_height += (AfxScaleY(24) * (int)num_lines);
+	}
 	
 	// Check if icon is being used
-	if (flags & MB_ICONMASK) {
-		text_width = max(text_width, icon_width + image_text_margin);
-		text_height = max(text_height, icon_height);
+	if ((flags & MB_ICONMASK) == 0) {
+		icon_width = 0;
+		icon_height = 0;
+		icon_text_margin = 0;
 	}
 
-	cx += (left_margin + text_width + right_margin);
-	cy += (text_height +image_top_margin + image_bottom_margin + button_area_height);
+	int cx = (system_margins_x + left_margin + icon_width + icon_text_margin + text_width + right_margin);
+	int cy = (system_margins_y + icon_top_margin + max(text_height, icon_height) + icon_bottom_margin + button_area_height);
+
+	// Calculate the width needed if there are only buttons and no text and/or icon
+	int only_buttons_width = system_margins_x + (button_count * button_width) +
+		((button_count - 1) * button_margin) + left_margin + button_right_margin;
+
+	if (only_buttons_width > cx) cx = only_buttons_width;
 
 	ReleaseDC(hwnd, hdc);
 
@@ -124,28 +144,22 @@ SIZEL CCustomMessageBox::CalculateMessageBoxSize(HWND hwnd) {
 // Process WM_SIZE message for window/dialog: CustomMessageBox
 // ========================================================================================
 void CCustomMessageBox::OnSize(HWND hwnd, UINT state, int cx, int cy) {
-
-	// Calculate the message box width and height based on the values set by the user.
-	// Minimum width is the number of buttons + margins (will always have at least MB_OK)
-	// Maximum message text width will be 350.
-
-	
-	int message_height = AfxScaleY(50);
-	int message_width_max = AfxScaleY(350);
-
 	int left = left_margin;
-	int top = AfxScaleX(32);
 
 	if (hStaticIcon) {
-		SetWindowPos(hStaticIcon, 0, left, top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
-		left += (icon_width + AfxScaleX(10));
+		SetWindowPos(hStaticIcon, 0, left, icon_top_margin, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+		left += (icon_width + icon_text_margin);
 	}
+	
+	SetWindowPos(hStaticMessage, 0, left, text_top_margin, text_width, text_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-	int button_left = 0;
-	int button_top = 0;
-	int button_width = 80;
-	int button_height = 23;
+	int button_left = cx - button_right_margin - (button_width * button_count) - ((button_count - 1) * button_margin);
+	int button_top = cy - button_area_height + button_margin;
 
+	for (int i = 0; i < button_count; ++i) {
+		SetWindowPos(hButton[i], 0, button_left, button_top, button_width, button_height, SWP_NOZORDER | SWP_SHOWWINDOW);
+		button_left += (button_width + button_margin);
+	}
 }
 
 
@@ -161,50 +175,51 @@ bool CCustomMessageBox::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
 	
 	// CREATE AND DISPLAY BUTTONS
-	// Buttons are created from right to left
-	//    {Button3} {Button2} {Button1}
-
 	int mb_type = (flags & MB_TYPEMASK);
 	
 	switch (mb_type) {
 	case MB_OK:
-		hButton1 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_OK, L"OK",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		hButton[0] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_OK, L"OK",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		button_count = 1;
+		CustomLabel_SetBorder(hButton[0], border_width, border_color, focus_border_color);
 		break;
 
 	case MB_OKCANCEL:
-		hButton2 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_OK, L"OK",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		hButton[0] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_OK, L"OK",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		hButton1 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_CANCEL, L"Cancel",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		CustomLabel_SetBorder(hButton[0], border_width, border_color, focus_border_color);
+		hButton[1] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_CANCEL, L"Cancel",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		button_count = 2;
+		CustomLabel_SetBorder(hButton[1], border_width, border_color, focus_border_color);
 		break;
 
 	case MB_YESNO:
-		hButton2 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_YES, L"Yes",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		hButton[0] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_YES, L"Yes",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		hButton1 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_NO, L"No",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		CustomLabel_SetBorder(hButton[0], border_width, border_color, focus_border_color);
+		hButton[1] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_NO, L"No",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		button_count = 2;
+		CustomLabel_SetBorder(hButton[1], border_width, border_color, focus_border_color);
 		break;
 
 	case MB_YESNOCANCEL:
-		hButton3 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_CANCEL, L"Cancel",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		hButton[0] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_YES, L"Yes",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		hButton2 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_YES, L"Yes",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		CustomLabel_SetBorder(hButton[0], border_width, border_color, focus_border_color);
+		hButton[1] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_NO, L"No",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		hButton1 = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_NO, L"No",
-			text_color, back_color, back_color, back_color_down, focus_border_color,
+		CustomLabel_SetBorder(hButton[1], border_width, border_color, focus_border_color);
+		hButton[2] = CustomLabel_ButtonLabel(hwnd, IDC_MESSAGEBOX_CANCEL, L"Cancel",
+			button_text_color, button_back_color, button_back_color, button_back_color_down, focus_border_color,
 			CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-		button_count = 3;
+		CustomLabel_SetBorder(hButton[2], border_width, border_color, focus_border_color);
 		break;
 	}
 
@@ -288,6 +303,20 @@ LRESULT CCustomMessageBox::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(m_hwnd, msg, wParam, lParam);
 	}
 
+	case MSG_CUSTOMLABEL_CLICK: {
+		HWND hCtl = (HWND)lParam;
+		int ctrl_id = (int)wParam;
+
+		if (!hCtl) return 0;
+
+		if (ctrl_id == IDC_MESSAGEBOX_OK) result_code = IDOK;
+		if (ctrl_id == IDC_MESSAGEBOX_YES) result_code = IDYES;
+		if (ctrl_id == IDC_MESSAGEBOX_NO) result_code = IDNO;
+		if (ctrl_id == IDC_MESSAGEBOX_CANCEL) result_code = IDCANCEL;
+
+		SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+	}
+
 	}
 	return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
@@ -308,8 +337,6 @@ int CCustomMessageBox::Show(
 	// buttons and if an icon will be displayed.
 	SIZEL size = CalculateMessageBoxSize(hwndParent);
 
-std::cout << "calc: " << size.cx << " " << size.cy << std::endl;
-	
 	HWND hwnd = Create(hParent, caption_text, 0, 0, size.cx, size.cy,
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		WS_EX_DLGMODALFRAME | WS_EX_LEFT | WS_EX_LTRREADING | 
@@ -343,20 +370,13 @@ std::cout << "calc: " << size.cx << " " << size.cy << std::endl;
 
 
 	// SET FOCUS TO ANY DEFINED DEFAULT BUTTON
+	HWND hFocus = hButton[0];
 	int mb_default = (flags & MB_DEFMASK);
-
-	switch (mb_default) {
-	case MB_DEFBUTTON1: 
-		SetFocus(hButton3); 
-		break;
-	case MB_DEFBUTTON2: 
-		SetFocus(hButton2); 
-		break;
-	case MB_DEFBUTTON3: 
-		SetFocus(hButton1); 
-		break;
-	default: SetFocus(hButton1);
-	}
+	if (mb_default == MB_DEFBUTTON1) hFocus = hButton[0];
+	if (mb_default == MB_DEFBUTTON2) hFocus = hButton[1];
+	if (mb_default == MB_DEFBUTTON3) hFocus = hButton[2];
+	hButtonDefault = hFocus;
+	SetFocus(hFocus);
 
 		
 	// Call modal message pump and wait for it to end.
@@ -366,6 +386,10 @@ std::cout << "calc: " << size.cx << " " << size.cy << std::endl;
 		if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
 			result_code = IDCANCEL;
 			SendMessage(hwnd, WM_CLOSE, 0, 0);
+		}
+
+		if (msg.message == WM_KEYUP && msg.wParam == VK_RETURN) {
+			SendMessage(hwnd, MSG_CUSTOMLABEL_CLICK, (WPARAM)GetDlgCtrlID(hButtonDefault), (LPARAM)hButtonDefault);
 		}
 
 		// Determines whether a message is intended for the specified

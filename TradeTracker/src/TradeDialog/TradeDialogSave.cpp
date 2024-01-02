@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Database/database.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "TradeGrid/TradeGrid.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/tws-client.h"
@@ -198,7 +199,7 @@ bool TradeDialog_ValidateSharesTradeData(HWND hwnd)
     if (guiData.quantity == 0) error_message += L"- Missing Quantity.\n";
 
     if (error_message.length()) {
-        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        CustomMessageBox.Show(hwnd, error_message, L"Warning", MB_ICONWARNING);
         return false;
     }
 
@@ -319,7 +320,7 @@ bool TradeDialog_ValidateOtherIncomeData(HWND hwnd)
     if (guiData.price == 0) error_message += L"- Amount can not be Zero.\n";
 
     if (error_message.length()) {
-        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        CustomMessageBox.Show(hwnd, error_message, L"Warning", MB_ICONWARNING);
         return false;
     }
 
@@ -396,7 +397,7 @@ bool TradeDialog_ValidateDividendTradeData(HWND hwnd)
     if (guiData.price == 0) error_message += L"- Dividend Amount is Zero.\n";
 
     if (error_message.length()) {
-        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        CustomMessageBox.Show(hwnd, error_message, L"Warning", MB_ICONWARNING);
         return false;
     }
 
@@ -535,7 +536,7 @@ bool TradeDialog_ValidateOptionsTradeData(HWND hwnd)
     }
 
     if (error_message.length()) {
-        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        CustomMessageBox.Show(hwnd, error_message, L"Warning", MB_ICONWARNING);
         return false;
     }
 
@@ -748,7 +749,7 @@ bool TradeDialog_ValidateEditTradeData(HWND hwnd)
     }
 
     if (error_message.length()) {
-        MessageBox(hwnd, error_message.c_str(), (LPCWSTR)L"Warning", MB_ICONWARNING);
+        CustomMessageBox.Show(hwnd, error_message, L"Warning", MB_ICONWARNING);
         return false;
     }
 

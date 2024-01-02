@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "pch.h"
 
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "Utilities/AfxWin.h"
 #include "Config/Config.h"
 
@@ -210,10 +211,10 @@ void CDatabase::SetJournalNotesText(const std::wstring& text) {
     db.open(dbJournalNotes, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        MessageBox(
+        CustomMessageBox.Show(
             NULL,
-            (LPCWSTR)(L"Could not save JournalNotes text to file"),
-            (LPCWSTR)L"Warning",
+            L"Could not save JournalNotes text to file",
+            L"Warning",
             MB_ICONWARNING
         );
         return;
@@ -268,10 +269,10 @@ void CDatabase::SetTradePlanText(const std::wstring& text) {
     db.open(dbTradePlan, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        MessageBox(
+        CustomMessageBox.Show(
             NULL,
-            (LPCWSTR)(L"Could not save TradePlan text to file"),
-            (LPCWSTR)L"Warning",
+            L"Could not save TradePlan text to file",
+            L"Warning",
             MB_ICONWARNING
         );
         return;
@@ -290,10 +291,10 @@ bool CDatabase::SaveDatabase() {
     db.open(dbFilename, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        MessageBox(
+        CustomMessageBox.Show(
             NULL,
-            (LPCWSTR)(L"Could not save trades database"),
-            (LPCWSTR)L"Warning",
+            L"Could not save trades database",
+            L"Warning",
             MB_ICONWARNING
         );
         return false;

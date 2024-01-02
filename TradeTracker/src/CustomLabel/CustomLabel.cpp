@@ -269,10 +269,15 @@ void CustomLabel::DrawBordersInBuffer() {
         //    graphics.DrawRectangle(&pen, rectF);
         //}
         if (allow_tab_stop) {
-            ARGB clrPen = (GetFocus() == hWindow ? border_color_hot : back_color);
-            Pen pen(clrPen, 1);
-            int width = (m_rcClient.right - m_rcClient.left) - 1;
-            int height = (m_rcClient.bottom - m_rcClient.top) - 1;
+            REAL rect_border_width = border_width;
+            ARGB clrPen = border_color;
+            if (GetFocus() == hWindow) {
+                rect_border_width = (REAL)AfxScaleX(GetSystemMetrics(SM_CXFOCUSBORDER));
+                clrPen = border_color_focus;
+            }
+            Pen pen(clrPen, (REAL)rect_border_width);
+            int width = (m_rcClient.right - m_rcClient.left) - (int)rect_border_width;
+            int height = (m_rcClient.bottom - m_rcClient.top) - (int)rect_border_width;
             Graphics graphics(m_memDC);
             graphics.DrawRectangle(&pen, 0, 0, width, height);
         }
@@ -679,10 +684,10 @@ void CustomLabel_SetBorderColor(HWND hCtrl, DWORD border_color) {
 // ========================================================================================
 // Set the border hot color for the custom control.
 // ========================================================================================
-void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD border_color_hot) {
+void CustomLabel_SetBorderColorFocus(HWND hCtrl, DWORD color_focus) {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData) {
-        pData->border_color_hot = border_color_hot;
+        pData->border_color_focus = color_focus;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -727,13 +732,13 @@ std::wstring CustomLabel_GetText(HWND hCtrl) {
 // ========================================================================================
 // Set the border (width and colors)  for the custom control.
 // ========================================================================================
-void CustomLabel_SetBorder(HWND hCtrl, REAL border_width, DWORD border_color, DWORD border_color_hot) {
+void CustomLabel_SetBorder(HWND hCtrl, REAL border_width, DWORD border_color, DWORD color_focus) {
     CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
     if (pData) {
         pData->border_visible = true;
         pData->border_width = border_width;
         pData->border_color = border_color;
-        pData->border_color_hot = border_color_hot;
+        pData->border_color_focus = color_focus;
         CustomLabel_SetOptions(hCtrl, pData);
     }
 }
@@ -929,7 +934,7 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int ctrl_id, std::wstring text,
         pData->text_color_hot = text_color;
         pData->text_alignment = alignment;
         pData->allow_tab_stop = true;
-        pData->border_color_hot = focus_border_color;
+        pData->border_color_focus = focus_border_color;
         pData->border_color = back_color;
         CustomLabel_SetOptions(hCtl, pData);
     }

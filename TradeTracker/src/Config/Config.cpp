@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Utilities/AfxWin.h"
 
 #include "CustomLabel/CustomLabel.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "MainWindow/MainWindow.h"
 
 #include "Config.h"
@@ -290,10 +291,10 @@ bool CConfig::SaveConfig() {
     db.open(dbConfig, std::ios::out | std::ios::trunc);
 
     if (!db.is_open()) {
-        MessageBox(
+        CustomMessageBox.Show(
             NULL,
-            (LPCWSTR)(L"Could not save configuration file"),
-            (LPCWSTR)L"Warning",
+            L"Could not save configuration file",
+            L"Warning",
             MB_ICONWARNING
         );
         return false;

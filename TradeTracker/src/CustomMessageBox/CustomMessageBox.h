@@ -53,32 +53,43 @@ private:
     int flags = 0;
 
     int result_code = 0;
+
     DWORD back_color = COLOR_WHITE;
-    DWORD back_color_button_area = (DWORD) Color::MakeARGB(255, 240, 240, 240);
     DWORD text_color = COLOR_BLACK;
-    DWORD back_color_down = COLOR_GRAYLIGHT;
-    DWORD focus_border_color = COLOR_BLACK;
+    DWORD border_color = (DWORD)Color::MakeARGB(255, 171, 171, 172);
+    DWORD focus_border_color = COLOR_BLUE;
+    REAL border_width = (REAL)AfxScaleX(GetSystemMetrics(SM_CXBORDER));
 
 	HWND hWindow = NULL;
 
-    HWND hButton1 = NULL;
-    HWND hButton2 = NULL;
-    HWND hButton3 = NULL;
-    int button_count = 0;
-    int button_area_height = AfxScaleY(50);
+    HWND hButton[3]{};
+    HWND hButtonDefault = NULL;
+
+    int button_count = 1;
+    int button_area_height = AfxScaleY(52);
+    int button_margin = AfxScaleX(8);
+    int button_width = AfxScaleX(80);
+    int button_height = AfxScaleY(28);
+    int button_right_margin = AfxScaleY(22);
+
+    DWORD button_area_back_color = (DWORD) Color::MakeARGB(255, 240, 240, 240);
+    DWORD button_back_color = COLOR_WHITE;
+    DWORD button_text_color = COLOR_BLACK;
+    DWORD button_back_color_down = COLOR_GRAYLIGHT;
 
     HWND hStaticMessage = NULL;
     HWND hStaticIcon = NULL;
 
     int text_height = 0;
     int text_width = 0;
+    int text_top_margin = AfxScaleY(34);
 
-    int left_margin = AfxScaleX(20);
-    int right_margin = AfxScaleX(30);
+    int left_margin = AfxScaleX(24);
+    int right_margin = AfxScaleX(32);
 
-    int image_text_margin = AfxScaleX(10);
-    int image_top_margin = AfxScaleY(32);
-    int image_bottom_margin = AfxScaleY(24);
+    int icon_text_margin = AfxScaleX(10);
+    int icon_top_margin = AfxScaleY(32);
+    int icon_bottom_margin = AfxScaleY(38);
 
     int icon_width = AfxScaleX(32);
     int icon_height = AfxScaleY(32);
@@ -92,4 +103,5 @@ constexpr int IDC_MESSAGEBOX_NO = 103;
 constexpr int IDC_MESSAGEBOX_STATIC = 104;
 constexpr int IDC_MESSAGEBOX_ICON = 105;
 
+extern CCustomMessageBox CustomMessageBox;
 

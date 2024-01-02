@@ -90,7 +90,7 @@ public:
 	bool border_visible = false;
 	REAL border_width = 0;
 	DWORD border_color{};
-	DWORD border_color_hot{};
+	DWORD border_color_focus{};
 
 	// Images
 	Bitmap* pImage = nullptr;
@@ -157,8 +157,9 @@ void CustomLabel_SetTextColorHot(HWND hCtrl, DWORD text_colorHot);
 void CustomLabel_SetBackColor(HWND hCtrl, DWORD back_color);
 void CustomLabel_SetBackColorHot(HWND hCtrl, DWORD back_color_hot);
 void CustomLabel_SetBackColorSelected(HWND hCtrl, DWORD back_color_selected);
+void CustomLabel_SetBorder(HWND hCtrl, REAL border_width, DWORD border_color, DWORD color_focus);
 void CustomLabel_SetBorderColor(HWND hCtrl, DWORD border_color);
-void CustomLabel_SetBorderColorHot(HWND hCtrl, DWORD border_color_hot);
+void CustomLabel_SetBorderColorFocus(HWND hCtrl, DWORD color_focus);
 DWORD CustomLabel_GetBackColor(HWND hCtrl);
 void CustomLabel_SetFont(HWND hCtrl, std::wstring font_name, int font_size, bool font_bold);
 void CustomLabel_SetFontHot(HWND hCtrl, std::wstring font_name, int font_size, bool font_bold);
@@ -166,7 +167,6 @@ void CustomLabel_SetUserData(HWND hCtrl, std::wstring text);
 std::wstring CustomLabel_GetUserData(HWND hCtrl);
 void CustomLabel_SetUserDataInt(HWND hCtrl, int value);
 int CustomLabel_GetUserDataInt(HWND hCtrl);
-void CustomLabel_SetBorder(HWND hCtrl, REAL border_width, DWORD border_color, DWORD border_color_hot);
 void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetImageOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer normal_pointer, CustomLabelPointer hot_pointer);

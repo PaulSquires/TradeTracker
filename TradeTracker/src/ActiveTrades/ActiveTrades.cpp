@@ -692,41 +692,23 @@ bool CActiveTrades::SelectListBoxItem(HWND hListBox, int idx) {
 void CActiveTrades::ExpireSelectedLegs(auto trade) {
     // Do a check to ensure that there is actually legs selected to expire. It could
     // be that the user select SHARES or other non-options underlyings only.
+
     if (tdd.legs.size() == 0) {
-        MessageBox(
+        CustomMessageBox.Show(
             hWindow,
-            (LPCWSTR)(L"No valid option legs have been selected for expiration."),
-            (LPCWSTR)L"Warning",
+            L"No valid option legs have been selected for expiration.",
+            L"Warning",
             MB_ICONWARNING | MB_OK);
         return;
     }
         
-    int res = MessageBox(
-        ActiveTrades.hWindow,
-        (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
-        (LPCWSTR)L"Confirm",
-        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
-
-    if (res != IDYES) return;
-
-/*
-    // 65 chars
-    int res = MessageBox(
-        ActiveTrades.hWindow,
-        (LPCWSTR)(L"Are you sure you wish to EXPIRE the selected legs?"),
-        (LPCWSTR)L"Confirm",
-        MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
-
-
-    CCustomMessageBox msgbox;
-    res = msgbox.Show(
+    int res = CustomMessageBox.Show(
         hWindow,
-        L"Are you sure you wish to EXPIRE the selected legs?\nThis is the second line\nFinally, this is the third line and is the longest line by far!!!",
+        L"Are you sure you wish to EXPIRE the selected legs?",
         L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
 
-    return;
-*/
+    if (res != IDYES) return;
 
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
@@ -1026,10 +1008,10 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
 void CActiveTrades::OptionAssignment(auto trade) {
     // Do a check to ensure that there is actually a leg selected for assignment. 
     if (tdd.legs.size() == 0) {
-        MessageBox(
+        CustomMessageBox.Show(
             hWindow,
-            (LPCWSTR)(L"No valid option leg has been selected for assignment."),
-            (LPCWSTR)L"Warning",
+            L"No valid option leg has been selected for assignment.",
+            L"Warning",
             MB_ICONWARNING | MB_OK);
         return;
     }

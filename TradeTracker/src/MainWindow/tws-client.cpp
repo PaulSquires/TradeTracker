@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 #include "Utilities/ListBoxData.h"
 #include "Utilities/AfxWin.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "Config/Config.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "TabPanel/TabPanel.h"
@@ -117,9 +118,9 @@ void UpdateTickersWithScrapedData() {
 	bool is_internet_available = InternetCheckConnection(url.c_str(), FLAG_ICC_FORCE_CONNECTION, 0);
 	
 	if (!is_internet_available) {
-		MessageBox(ActiveTrades.hWindow,
-			(LPCWSTR)(L"No Internet connection exists.\n\nCan not retrieve scraped ticker data."),
-			(LPCWSTR)L"Connection", MB_ICONWARNING);
+		CustomMessageBox.Show(ActiveTrades.hWindow,
+			L"No Internet connection exists.\n\nCan not retrieve scraped ticker data.",
+			L"Connection", MB_ICONWARNING);
 		return;
 	}
 
@@ -370,7 +371,7 @@ bool tws_Connect() {
 		SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
-		MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		CustomMessageBox.Show(ActiveTrades.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 	
@@ -380,7 +381,11 @@ bool tws_Connect() {
 			L"Could not connect to TWS.\n\n" \
 			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
 			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
-		if (MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
+		
+		MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2);
+
+		if (CustomMessageBox.Show(ActiveTrades.hWindow, text, 
+			L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
 			UpdateTickersWithScrapedData();
 		}
 		return false;
@@ -459,10 +464,10 @@ void tws_RequestWshEventData(int req_id, const WshEventData& wshEventData)
 
 void tws_PerformReconciliation() {
 	if (!tws_IsConnected()) {
-		MessageBox(
+		CustomMessageBox.Show(
 			ActiveTrades.hWindow,
-			(LPCWSTR)L"Must be connected to TWS to perform a reconciliation.",
-			(LPCWSTR)L"Error",
+			L"Must be connected to TWS to perform a reconciliation.",
+			L"Error",
 			MB_ICONINFORMATION);
 		return;
 	}
@@ -767,7 +772,7 @@ void TwsClient::error(int id, int error_code,
 		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
 			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nTradeTracker will resume automatically when TWS reconnects to IBKR.";
-		//MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		//CustomMessageBox.Show(ActiveTrades.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;
 

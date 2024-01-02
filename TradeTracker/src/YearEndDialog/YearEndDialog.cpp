@@ -32,6 +32,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "ClosedTrades/ClosedTrades.h"
 #include "Utilities/UserMessages.h"
 
@@ -53,7 +54,7 @@ bool YearEndDialog_Process(HWND hwnd) {
     std::wstring text = L"Remove closed Trades on or before December 31, " + year_text 
         + L"? \n\nDo not continue if you have not made a database backup.";
     
-    if (MessageBox(hwnd, text.c_str(), L"Remove Closed Trades", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) != IDYES) {
+    if (CustomMessageBox.Show(hwnd, text, L"Remove Closed Trades", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) != IDYES) {
         return false;
     }
 
