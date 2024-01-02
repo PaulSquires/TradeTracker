@@ -54,11 +54,12 @@ private:
 
     int result_code = 0;
 
-    DWORD back_color = COLOR_WHITE;
-    DWORD text_color = COLOR_BLACK;
-    DWORD border_color = (DWORD)Color::MakeARGB(255, 171, 171, 172);
+    DWORD back_color = COLOR_GRAYDARK;  
+    DWORD text_color = COLOR_WHITELIGHT;
+    DWORD border_color = COLOR_GRAYLIGHT;  
     DWORD focus_border_color = COLOR_BLUE;
     REAL border_width = (REAL)AfxScaleX(GetSystemMetrics(SM_CXBORDER));
+    HBRUSH hBackBrush = NULL; 
 
 	HWND hWindow = NULL;
 
@@ -72,9 +73,9 @@ private:
     int button_height = AfxScaleY(28);
     int button_right_margin = AfxScaleY(22);
 
-    DWORD button_area_back_color = (DWORD) Color::MakeARGB(255, 240, 240, 240);
-    DWORD button_back_color = COLOR_WHITE;
-    DWORD button_text_color = COLOR_BLACK;
+    DWORD button_area_back_color = COLOR_GRAYMEDIUM;
+    DWORD button_back_color = COLOR_GRAYDARK;  
+    DWORD button_text_color = COLOR_WHITELIGHT;
     DWORD button_back_color_down = COLOR_GRAYLIGHT;
 
     HWND hStaticMessage = NULL;

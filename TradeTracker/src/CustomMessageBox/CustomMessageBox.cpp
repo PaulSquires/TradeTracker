@@ -254,7 +254,6 @@ bool CCustomMessageBox::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // Windows callback function.
 // ========================================================================================
 LRESULT CCustomMessageBox::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
-	static HBRUSH hBackBrush = CreateSolidBrush(Color(back_color).ToCOLORREF());
 
 	switch (msg) {
 		HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
@@ -348,7 +347,9 @@ int CCustomMessageBox::Show(
 
 	HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
 	SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
-
+	
+	hBackBrush = CreateSolidBrush(Color(back_color).ToCOLORREF());
+	
 	MainWindow.BlurPanels(true);
 
 	AfxCenterWindow(hwnd, HWND_DESKTOP);
