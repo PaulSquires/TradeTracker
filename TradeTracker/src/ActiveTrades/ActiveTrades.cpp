@@ -696,7 +696,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
 
     if (tdd.legs.size() == 0) {
         CustomMessageBox.Show(
-            hWindow,
+            MainWindow.hWindow,
             L"No valid option legs have been selected for expiration.",
             L"Warning",
             MB_ICONWARNING | MB_OK);
@@ -704,7 +704,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
     }
         
     int res = CustomMessageBox.Show(
-        hWindow,
+        MainWindow.hWindow,
         L"Are you sure you wish to EXPIRE the selected legs?",
         L"Confirm",
         MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON2);
@@ -1010,7 +1010,7 @@ void CActiveTrades::OptionAssignment(auto trade) {
     // Do a check to ensure that there is actually a leg selected for assignment. 
     if (tdd.legs.size() == 0) {
         CustomMessageBox.Show(
-            hWindow,
+            MainWindow.hWindow,
             L"No valid option leg has been selected for assignment.",
             L"Warning",
             MB_ICONWARNING | MB_OK);

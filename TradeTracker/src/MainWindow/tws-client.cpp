@@ -35,6 +35,7 @@ SOFTWARE.
 #include "CustomMessageBox/CustomMessageBox.h"
 #include "Config/Config.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "MainWindow/MainWindow.h"
 #include "TabPanel/TabPanel.h"
 #include "Reconcile/Reconcile.h"
 #include "tws-api/IntelDecimal/IntelDecimal.h"
@@ -118,7 +119,7 @@ void UpdateTickersWithScrapedData() {
 	bool is_internet_available = InternetCheckConnection(url.c_str(), FLAG_ICC_FORCE_CONNECTION, 0);
 	
 	if (!is_internet_available) {
-		CustomMessageBox.Show(ActiveTrades.hWindow,
+		CustomMessageBox.Show(MainWindow.hWindow,
 			L"No Internet connection exists.\n\nCan not retrieve scraped ticker data.",
 			L"Connection", MB_ICONWARNING);
 		return;
@@ -371,7 +372,7 @@ bool tws_Connect() {
 		SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Socket exception error trying to connect to TWS.\n\nPlease try to connect again or restart the application if the problem persists.";
-		CustomMessageBox.Show(ActiveTrades.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		CustomMessageBox.Show(MainWindow.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 	
@@ -384,7 +385,7 @@ bool tws_Connect() {
 		
 		MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2);
 
-		if (CustomMessageBox.Show(ActiveTrades.hWindow, text, 
+		if (CustomMessageBox.Show(MainWindow.hWindow, text, 
 			L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
 			UpdateTickersWithScrapedData();
 		}
@@ -465,7 +466,7 @@ void tws_RequestWshEventData(int req_id, const WshEventData& wshEventData)
 void tws_PerformReconciliation() {
 	if (!tws_IsConnected()) {
 		CustomMessageBox.Show(
-			ActiveTrades.hWindow,
+			MainWindow.hWindow,
 			L"Must be connected to TWS to perform a reconciliation.",
 			L"Error",
 			MB_ICONINFORMATION);
