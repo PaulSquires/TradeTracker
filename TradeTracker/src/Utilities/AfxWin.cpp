@@ -370,6 +370,11 @@ void AfxCenterWindowMonitorAware(HWND hwnd, HWND hwndParent)
 {
     // Monitor aware code to center child popup window in its parent.
     // Do not use this for centering on the desktop,
+    if (hwndParent == NULL) {
+        AfxCenterWindow(hwnd, hwndParent);
+        return;
+    }
+
     RECT rc;
     GetWindowRect(hwndParent, &rc);
     ClipOrCenterRectToMonitor(&rc, 0);
