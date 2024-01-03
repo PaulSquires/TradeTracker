@@ -403,9 +403,9 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // Create FilterPanel child control 
 // ========================================================================================
 HWND CFilterPanel::CreateFilterPanel(HWND hParent) {
-    HWND hCtl = Create(hParent, L"", 0, 0, 0, 0,
+    HWND hCtl = Create(hParent, L"", 0, 0, 500, 80,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
+        WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
     return hCtl;
 }

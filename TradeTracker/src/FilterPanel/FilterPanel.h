@@ -52,6 +52,8 @@ public:
     std::wstring end_date;
     std::wstring ticker_symbol;
 
+    int fixed_height = AfxScaleY(80);
+
     void SetStartEndDates(HWND hwnd);
 
     HWND CreateFilterPanel(HWND hParent);

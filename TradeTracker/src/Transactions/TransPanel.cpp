@@ -397,21 +397,26 @@ void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 
     int margin = AfxScaleY(TRANSPANEL_MARGIN);
     int left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
-    int top = margin;
+    int top = 0;
     int width = cx;
     int height = 0;
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
+//    std::cout << FilterPanel.hWindow << std::endl;
+
+    hdwp = DeferWindowPos(hdwp, FilterPanel.hWindow, 0, left, top, width, FilterPanel.fixed_height, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    top = margin;
     height = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
     hdwp = DeferWindowPos(hdwp, TradesHeader(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    top = top + height + AfxScaleY(1);
+    top += (height + AfxScaleY(1));
 
     width = cx - left - custom_scrollbar_width;
     height = cy - top;
     hdwp = DeferWindowPos(hdwp, TradesListBox(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    left = left + width;   // right edge of ListBox
+    left += width;   // right edge of ListBox
     width = custom_scrollbar_width;
     hdwp = DeferWindowPos(hdwp, VScrollBar(), 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
@@ -425,8 +430,11 @@ void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 bool CTransPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
+
+    // Add the top Filter Panel
+    HWND hCtl = FilterPanel.CreateFilterPanel(hwnd);
        
-    HWND hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
+    hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)Header_SubclassProc,
         IDC_TRANS_HEADER, NULL);
     Header_InsertNewItem(hCtl, 0, AfxScaleX(nTransMinColWidth[0]), L"", HDF_CENTER);

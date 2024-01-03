@@ -220,8 +220,8 @@ void CCustomPopupMenu::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
         Graphics graphics(memDC);
         graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
 
-        DWORD back_color = (is_hot) ? COLOR_SELECTION : COLOR_GRAYMEDIUM;
-        DWORD ntext_color = (is_hot) ? COLOR_WHITELIGHT : COLOR_WHITEDARK;
+        DWORD back_color = (is_hot) ? COLOR_GRAYDARK: COLOR_GRAYMEDIUM;
+        DWORD ntext_color = (is_hot) ? COLOR_WHITELIGHT : COLOR_WHITELIGHT; 
 
         std::wstring font_name = AfxGetDefaultFont();
         FontFamily   fontFamily(font_name.c_str());
