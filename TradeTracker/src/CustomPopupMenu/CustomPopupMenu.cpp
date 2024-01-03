@@ -88,6 +88,7 @@ LRESULT CALLBACK CustomPopupMenu_ListBox_SubclassProc(
         // that won't be displayed at the bottom of the list.
         RECT rc; GetClientRect(hwnd, &rc);
 
+
         RECT rcItem{};
         SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
         int item_height = (rcItem.bottom - rcItem.top);
@@ -112,11 +113,12 @@ LRESULT CALLBACK CustomPopupMenu_ListBox_SubclassProc(
             height = (rc.bottom - rc.top);
             HDC hDC = (HDC)wParam;
             Graphics graphics(hDC);
-            SolidBrush back_brush(COLOR_GRAYDARK);
+            SolidBrush back_brush(COLOR_GRAYLIGHT);
             graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
         }
 
         ValidateRect(hwnd, &rc);
+
         return true;
     }
 
@@ -165,7 +167,7 @@ void CCustomPopupMenu::OnPaint(HWND hwnd) {
     Graphics graphics(hdc);
 
     // Create the background brush
-    SolidBrush back_brush(COLOR_BLACK);
+    SolidBrush back_brush(COLOR_GRAYLIGHT);
 
     // Paint the background using brush.
     int width = (ps.rcPaint.right - ps.rcPaint.left);
@@ -398,6 +400,9 @@ int CCustomPopupMenu::Show(HWND hwndParent, std::vector<CCustomPopupMenuItem> po
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
         WS_EX_NOACTIVATE);
     
+    HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+    SetClassLongPtr(hWindow, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
+
     int text_length = 0;
     SIZEL size{};
 
@@ -411,7 +416,7 @@ int CCustomPopupMenu::Show(HWND hwndParent, std::vector<CCustomPopupMenuItem> po
     row_width = glyph_width + text_length + AfxScaleX(24);
     ReleaseDC(hWindow, hdc);
 
-    int height = (row_count * row_height) + (sep_count * row_height_separator) + AfxScaleY(4);
+    int height = (row_count * row_height) + (sep_count * row_height_separator);
 
     SetWindowPos(hWindow, 0, left, top, row_width, height,
         SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
