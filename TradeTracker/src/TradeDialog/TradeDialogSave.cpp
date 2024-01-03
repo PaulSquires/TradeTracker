@@ -79,8 +79,6 @@ public:
         trans_date    = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
         description   = RemovePipeChar(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
         
-        if (tdd.trade_action == TradeAction::roll_leg) description = L"Roll";
-        if (tdd.trade_action == TradeAction::close_leg) description = L"Close";
         if (tdd.trade_action == TradeAction::new_shares_trade ||
             tdd.trade_action == TradeAction::manage_shares ||
             tdd.trade_action == TradeAction::add_shares_to_trade) {

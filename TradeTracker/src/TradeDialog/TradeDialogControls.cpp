@@ -813,6 +813,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         }
     }
 
+    if (tdd.trade_action == TradeAction::roll_leg) CustomTextBox_SetText(hCtl, L"Roll");
+    if (tdd.trade_action == TradeAction::close_leg) CustomTextBox_SetText(hCtl, L"Close");
+
+
     // We create the Strategy button and label but we only show it for New options
     // However we do need the window for other tradeAction cases for example "Add To"
     // because the tradeAction into the Strategy button and then InvokeStrategy.
