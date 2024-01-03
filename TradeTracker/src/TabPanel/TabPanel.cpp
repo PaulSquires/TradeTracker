@@ -32,6 +32,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "TradePlan/TradePlan.h"
 #include "JournalNotes/JournalNotes.h"
+#include "Settings/SettingsDialog.h"
 #include "MainWindow/MainWindow.h"
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
@@ -45,7 +46,8 @@ HWND HWND_TABPANEL = NULL;
 
 const int panel_count = 6;
 static int panel_ids[panel_count] =
-{ IDC_TABPANEL_ACTIVETRADES,
+{ 
+    IDC_TABPANEL_ACTIVETRADES,
     IDC_TABPANEL_CLOSEDTRADES,
     IDC_TABPANEL_TRANSACTIONS,
     IDC_TABPANEL_TICKERTOTALS,
@@ -180,8 +182,18 @@ bool TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     CustomLabel_SetImageOffset(hCtl, 2, 2);
     CustomLabel_SetToolTip(hCtl, tooltip_text);
     CustomLabel_SetBackColorHot(hCtl, COLOR_SELECTION);
+
+    item_left += item_width + 3;
+    hCtl = CustomLabel_SimpleImageLabel(
+        hwnd, IDC_TABPANEL_SETTINGS, 
+        IDB_SETTINGS, IDB_SETTINGS,
+        18, 18, item_left, item_top, item_width, item_height);
+    tooltip_text = L"Settings";
+    CustomLabel_SetImageOffset(hCtl, 4, 4);
+    CustomLabel_SetToolTip(hCtl, tooltip_text);
+    CustomLabel_SetBackColorHot(hCtl, COLOR_SELECTION);
     
-    item_left = 74;
+    item_left = 100;
     item_top = 0;
     item_width = 90;
     item_height = TABPANEL_HEIGHT - 2;
@@ -331,6 +343,11 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_TABPANEL_RECONCILE) {
             tws_PerformReconciliation();
+            break;
+        }
+
+        if (ctrl_id == IDC_TABPANEL_SETTINGS) {
+            SettingsDialog_Show(MainWindow.hWindow);
             break;
         }
 

@@ -27,28 +27,23 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "FilterPanel/TransDateFilter.h"
 
-
-class CTabPanel : public CWindowBase<CTabPanel> {
+class CFilterPanel : public CWindowBase<CFilterPanel> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    HWND hWindow = NULL;
+
+    HWND CreateFilterPanel(HWND hParent, HWND hParentCtl);
+
+private:
+    bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
+    void OnSize(HWND hwnd, UINT state, int cx, int cy);
+    void OnPaint(HWND hwnd);
+    bool OnEraseBkgnd(HWND hwnd, HDC hdc);
 };
 
-extern CTabPanel TabPanel;
-extern HWND HWND_TABPANEL;
 
 
-constexpr int TABPANEL_HEIGHT = 36;
-
-constexpr int IDC_TABPANEL_CONNECT      = 100;
-constexpr int IDC_TABPANEL_RECONCILE    = 101;
-constexpr int IDC_TABPANEL_SETTINGS     = 102;
-constexpr int IDC_TABPANEL_SEPARATOR    = 103;
-constexpr int IDC_TABPANEL_ACTIVETRADES = 104;
-constexpr int IDC_TABPANEL_CLOSEDTRADES = 105;
-constexpr int IDC_TABPANEL_TRANSACTIONS = 106;
-constexpr int IDC_TABPANEL_TICKERTOTALS = 107;
-constexpr int IDC_TABPANEL_JOURNALNOTES = 108;
-constexpr int IDC_TABPANEL_TRADEPLAN    = 109;
-
-void TabPanel_SelectPanelItem(HWND hwnd, int ctrl_id);
+extern CTransDateFilter TransDateFilter;

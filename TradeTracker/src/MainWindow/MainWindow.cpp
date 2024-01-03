@@ -49,7 +49,7 @@ SOFTWARE.
 #include "Utilities/UpdateCheck.h"
 #include "DatePicker/Calendar.h"
 #include "CustomCombo/CustomComboPopup.h"
-#include "Transactions/TransDateFilter.h"
+#include "FilterPanel/FilterPanel.h"
 #include "Strategy/StrategyPopup.h"
 
 

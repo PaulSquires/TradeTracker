@@ -34,7 +34,6 @@ SOFTWARE.
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "TabPanel/TabPanel.h"
-#include "YearEndDialog/YearEndDialog.h"
 #include "Database/trade.h"
 #include "ClosedTrades.h"
 
@@ -61,9 +60,6 @@ inline HWND CClosedTrades::CategoryCombo() {
 }
 inline HWND CClosedTrades::TradesHeader() {
     return GetDlgItem(hWindow, IDC_CLOSEDTRADES_HEADER);
-}
-inline HWND CClosedTrades::YearEndButton() {
-    return GetDlgItem(hWindow, IDC_CLOSEDTRADES_CMDYEAREND);
 }
 inline HWND CClosedTrades::FilterLabel() {
     return GetDlgItem(hWindow, IDC_CLOSEDTRADES_LBLTICKERFILTER);
@@ -514,11 +510,6 @@ void CClosedTrades::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     top = top + height;
     hdwp = DeferWindowPos(hdwp, CategoryCombo(), 0, left, top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
 
-    width = AfxScaleX(100);
-    left = cx - width - custom_scrollbar_width;
-    height = AfxScaleY(CATEGORYCONTROL_HEIGHT);
-    hdwp = DeferWindowPos(hdwp, YearEndButton(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-
     left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     top = margin;
     width = cx - left;
@@ -582,14 +573,6 @@ bool CClosedTrades::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     // CATEGORY SELECTOR
     hCtl = CreateCategoryControl(hwnd, IDC_CLOSEDTRADES_CATEGORY, 0, 0, CATEGORY_ALL, true);
     
-    // YEAR END CLOSE
-    font_size = 9;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_CLOSEDTRADES_CMDYEAREND, L"Year End",
-        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various closed trades.
     hCtl =
@@ -692,9 +675,6 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             ShowClosedTrades();
         }
 
-        if (ctrl_id == IDC_CLOSEDTRADES_CMDYEAREND) {
-            YearEndDialog_Show();
-        }
         return 0;
     }
 

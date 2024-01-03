@@ -31,8 +31,6 @@ SOFTWARE.
 #include "TransDateFilter.h"
 
 
-CTransDateFilter TransDateFilter;
-
 
 // Control on parent window that new selected date will be stored in and displayed.
 // That control must be a CustomLabel because we store the full ISO date in that
@@ -309,7 +307,7 @@ bool CTransDateFilter::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
 
     HWND hCtl =
-        TransDateFilter.AddControl(Controls::ListBox, hwnd, IDC_TRANSDATEFILTER_LISTBOX, L"",
+        AddControl(Controls::ListBox, hwnd, IDC_TRANSDATEFILTER_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
             LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY | LBS_HASSTRINGS,
@@ -393,7 +391,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
 // specified incoming control.
 // ========================================================================================
 HWND CTransDateFilter::CreatePicker(HWND hParent, HWND hParentCtl) {
-    TransDateFilter.Create(hParent, L"", 0, 0, 0, 0,
+    Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
         WS_EX_NOACTIVATE);
@@ -418,4 +416,5 @@ HWND CTransDateFilter::CreatePicker(HWND hParent, HWND hParentCtl) {
 
     return TransDateFilter.WindowHandle();
 }
+
 

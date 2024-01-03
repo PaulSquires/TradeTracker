@@ -34,7 +34,8 @@ SOFTWARE.
 #include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
 
-#include "TransDateFilter.h"
+#include "FilterPanel/FilterPanel.h"
+
 #include "TransDetail.h"
 #include "TransPanel.h"
 

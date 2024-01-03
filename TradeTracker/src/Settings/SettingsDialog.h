@@ -29,26 +29,15 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CTabPanel : public CWindowBase<CTabPanel> {
+class CSettingsDialog : public CWindowBase<CSettingsDialog> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
-extern CTabPanel TabPanel;
-extern HWND HWND_TABPANEL;
 
+constexpr int IDC_SETTINGSDIALOG_SAVE = 100;
+constexpr int IDC_SETTINGSDIALOG_CANCEL = 101;
+constexpr int IDC_SETTINGSDIALOG_CMDYEAREND = 102;
 
-constexpr int TABPANEL_HEIGHT = 36;
-
-constexpr int IDC_TABPANEL_CONNECT      = 100;
-constexpr int IDC_TABPANEL_RECONCILE    = 101;
-constexpr int IDC_TABPANEL_SETTINGS     = 102;
-constexpr int IDC_TABPANEL_SEPARATOR    = 103;
-constexpr int IDC_TABPANEL_ACTIVETRADES = 104;
-constexpr int IDC_TABPANEL_CLOSEDTRADES = 105;
-constexpr int IDC_TABPANEL_TRANSACTIONS = 106;
-constexpr int IDC_TABPANEL_TICKERTOTALS = 107;
-constexpr int IDC_TABPANEL_JOURNALNOTES = 108;
-constexpr int IDC_TABPANEL_TRADEPLAN    = 109;
-
-void TabPanel_SelectPanelItem(HWND hwnd, int ctrl_id);
+int SettingsDialog_Show(HWND hWndParent);
