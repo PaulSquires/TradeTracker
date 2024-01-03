@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "CustomLabel/CustomLabel.h"
 #include "Utilities/ListBoxData.h"
-#include "TransDateFilter.h"
+#include "TransDatePopup.h"
 
 
 
@@ -44,7 +44,7 @@ HHOOK hTransDatePopupMouseHook = nullptr;
 // ========================================================================================
 // Get the HWND's of the the controls on the form.
 // ========================================================================================
-inline HWND CTransDateFilter::PopupListBox() {
+inline HWND CTransDatePopup::PopupListBox() {
     return GetDlgItem(hWindow, IDC_TRANSDATEFILTER_LISTBOX);
 }
 
@@ -52,7 +52,7 @@ inline HWND CTransDateFilter::PopupListBox() {
 // ========================================================================================
 // Return string based on TransDateFilterType
 // ========================================================================================
-std::wstring CTransDateFilter::GetFilterDescription(int idx) {
+std::wstring CTransDatePopup::GetFilterDescription(int idx) {
     switch ((TransDateFilterType)idx) {
     case TransDateFilterType::Today: return L"Today";
     case TransDateFilterType::Yesterday: return L"Yesterday";
@@ -72,7 +72,7 @@ std::wstring CTransDateFilter::GetFilterDescription(int idx) {
 // Handle selecting an item in the listview. This will set the parent label window, update
 // its CustomDataInt, and set its text label. Finally, it will close the popup dialog.
 // ========================================================================================
-void CTransDateFilter::DoSelected(int idx) {
+void CTransDatePopup::DoSelected(int idx) {
     CustomLabel_SetUserDataInt(hDateUpdateParentCtl, idx);
     CustomLabel_SetText(hDateUpdateParentCtl, GetFilterDescription(idx));
     PostMessage(GetParent(hDateUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
@@ -84,7 +84,7 @@ void CTransDateFilter::DoSelected(int idx) {
 // ========================================================================================
 // Listbox subclass Window procedure
 // ========================================================================================
-LRESULT CALLBACK CTransDateFilter::ListBox_SubclassProc(
+LRESULT CALLBACK CTransDatePopup::ListBox_SubclassProc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
@@ -118,7 +118,7 @@ LRESULT CALLBACK CTransDateFilter::ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        SendMessage(GetParent(hwnd), MSG_TRANSDATEFILTER_DOSELECTED, LOWORD(idx), 0);
+        SendMessage(GetParent(hwnd), MSG_TRANSDATEPOPUP_DOSELECTED, LOWORD(idx), 0);
         return 0;
     }
 
@@ -177,7 +177,7 @@ LRESULT CALLBACK CTransDateFilter::ListBox_SubclassProc(
 // ========================================================================================
 // Process WM_SIZE message for window/dialog: TransDateFilter
 // ========================================================================================
-void CTransDateFilter::OnSize(HWND hwnd, UINT state, int cx, int cy) {
+void CTransDatePopup::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     int margin = AfxScaleX(1);
     SetWindowPos(PopupListBox(), 0, margin, margin, 
         cx-(margin*2), cy-(margin*2), SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -188,7 +188,7 @@ void CTransDateFilter::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 // Process WM_ERASEBKGND message for window/dialog: TransDateFilter
 // ========================================================================================
-bool CTransDateFilter::OnEraseBkgnd(HWND hwnd, HDC hdc) {
+bool CTransDatePopup::OnEraseBkgnd(HWND hwnd, HDC hdc) {
     // Handle all of the painting in WM_PAINT
     return true;
 }
@@ -197,7 +197,7 @@ bool CTransDateFilter::OnEraseBkgnd(HWND hwnd, HDC hdc) {
 // ========================================================================================
 // Process WM_PAINT message for window/dialog: TransDateFilter
 // ========================================================================================
-void CTransDateFilter::OnPaint(HWND hwnd) {
+void CTransDatePopup::OnPaint(HWND hwnd) {
     PAINTSTRUCT ps;
 
     HDC hdc = BeginPaint(hwnd, &ps);
@@ -219,7 +219,7 @@ void CTransDateFilter::OnPaint(HWND hwnd) {
 // ========================================================================================
 // Process WM_DRAWITEM message for window/dialog: TransDateFilter
 // ========================================================================================
-void CTransDateFilter::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
+void CTransDatePopup::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
     if (lpDrawItem->itemID == -1) return;
 
     if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
@@ -295,7 +295,7 @@ void CTransDateFilter::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
 // ========================================================================================
 // Process WM_MEASUREITEM message for window/dialog: TransDateFilter
 // ========================================================================================
-void CTransDateFilter::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
+void CTransDatePopup::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
     lpMeasureItem->itemHeight = AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT);
 }
 
@@ -303,7 +303,7 @@ void CTransDateFilter::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem
 // ========================================================================================
 // Process WM_CREATE message for window/dialog: TransDateFilter
 // ========================================================================================
-bool CTransDateFilter::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+bool CTransDatePopup::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
 
     HWND hCtl =
@@ -334,13 +334,14 @@ LRESULT CALLBACK TransDateFilter_TransDatePopupHook(int Code, WPARAM wParam, LPA
     // at the point this hook is called).
 
     if (wParam == WM_LBUTTONDOWN) {
-        if (TransDateFilter.hWindow) {
+        HWND hWindow = TransDatePopup.hWindow;
+        if (hWindow) {
             POINT pt;       GetCursorPos(&pt);
-            RECT rcWindow;  GetWindowRect(TransDateFilter.hWindow, &rcWindow);
+            RECT rcWindow;  GetWindowRect(hWindow, &rcWindow);
 
             // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
             if (!PtInRect(&rcWindow, pt)) {
-                DestroyWindow(TransDateFilter.hWindow);
+                DestroyWindow(hWindow);
             }
         }
     }
@@ -352,7 +353,7 @@ LRESULT CALLBACK TransDateFilter_TransDatePopupHook(int Code, WPARAM wParam, LPA
 // ========================================================================================
 // Windows callback function.
 // ========================================================================================
-LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT CTransDatePopup::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, OnCreate);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, OnEraseBkgnd);
@@ -375,7 +376,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
         return MA_NOACTIVATE;
     }
 
-    case MSG_TRANSDATEFILTER_DOSELECTED: {
+    case MSG_TRANSDATEPOPUP_DOSELECTED: {
         DoSelected((int)wParam);
         return 0;
     }
@@ -390,7 +391,7 @@ LRESULT CTransDateFilter::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
 // Create TransDateFilter picker control and move it into position under the 
 // specified incoming control.
 // ========================================================================================
-HWND CTransDateFilter::CreatePicker(HWND hParent, HWND hParentCtl) {
+HWND CTransDatePopup::CreatePicker(HWND hParent, HWND hParentCtl) {
     Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
@@ -398,7 +399,7 @@ HWND CTransDateFilter::CreatePicker(HWND hParent, HWND hParentCtl) {
 
     int margin = AfxScaleX(1);
     RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(TransDateFilter.WindowHandle(), 0,
+    SetWindowPos(WindowHandle(), 0,
         rc.left-margin, rc.bottom,
         AfxScaleX(TRANSDATEFILTER_WIDTH) + (margin * 2),
         AfxScaleY(TRANSDATEFILTER_LISTBOX_ROWHEIGHT * 9),
@@ -414,7 +415,7 @@ HWND CTransDateFilter::CreatePicker(HWND hParent, HWND hParentCtl) {
     // Set our hook and store the handle in the global variable
     hTransDatePopupMouseHook = SetWindowsHookEx(WH_MOUSE, TransDateFilter_TransDatePopupHook, 0, GetCurrentThreadId());
 
-    return TransDateFilter.WindowHandle();
+    return WindowHandle();
 }
 
 

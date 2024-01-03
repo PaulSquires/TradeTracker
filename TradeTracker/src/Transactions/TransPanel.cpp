@@ -31,7 +31,6 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Category/Category.h"
 #include "TabPanel/TabPanel.h"
-#include "DatePicker/Calendar.h"
 #include "Utilities/ListBoxData.h"
 
 #include "FilterPanel/FilterPanel.h"
@@ -55,84 +54,7 @@ inline HWND CTransPanel::VScrollBar() {
 inline HWND CTransPanel::TradesHeader() {
     return GetDlgItem(hWindow, IDC_TRANS_HEADER);
 }
-inline HWND CTransPanel::TickerFilterLabel() {
-    return GetDlgItem(hWindow, IDC_TRANS_LBLTICKERFILTER);
-}
-inline HWND CTransPanel::TickerTextBox() {
-    return GetDlgItem(hWindow, IDC_TRANS_TXTTICKER);
-}
-inline HWND CTransPanel::TickerGoButton() {
-    return GetDlgItem(hWindow, IDC_TRANS_CMDTICKERGO);
-}
-inline HWND CTransPanel::DateFilterLabel() {
-    return GetDlgItem(hWindow, IDC_TRANS_LBLDATEFILTER);
-}
-inline HWND CTransPanel::TransDateCombo() {
-    return GetDlgItem(hWindow, IDC_TRANS_TRANSDATE);
-}
-inline HWND CTransPanel::TransDateButton() {
-    return GetDlgItem(hWindow, IDC_TRANS_CMDTRANSDATE);
-}
-inline HWND CTransPanel::StartDateLabel() {
-    return GetDlgItem(hWindow, IDC_TRANS_LBLSTARTDATE);
-}
-inline HWND CTransPanel::StartDateCombo() {
-    return GetDlgItem(hWindow, IDC_TRANS_STARTDATE);
-}
-inline HWND CTransPanel::StartDateButton() {
-    return GetDlgItem(hWindow, IDC_TRANS_CMDSTARTDATE);
-}
-inline HWND CTransPanel::EndDateLabel() {
-    return GetDlgItem(hWindow, IDC_TRANS_LBLENDDATE);
-}
-inline HWND CTransPanel::EndDateCombo() {
-    return GetDlgItem(hWindow, IDC_TRANS_ENDDATE);
-}
-inline HWND CTransPanel::EndDateButton() {
-    return GetDlgItem(hWindow, IDC_TRANS_CMDENDDATE);
-}
 
-
-// ========================================================================================
-// Set the StartDate and EndDate based on the current value of the Date Filter.
-// ========================================================================================
-void CTransPanel::SetStartEndDates(HWND hwnd) {
-    int idx = CustomLabel_GetUserDataInt(TransDateCombo());
-
-    // Do not modify dates if Custom has been set.
-    if ((TransDateFilterType)idx == TransDateFilterType::Custom) return;
-
-    std::wstring end_date = AfxCurrentDate();   // ISO format
-    std::wstring start_date = end_date;       // ISO format
-    int adjust_days = 0;
-
-    if ((TransDateFilterType)idx == TransDateFilterType::YearToDate) {
-        start_date = end_date.substr(0, 4)+ L"-01-01";
-    }
-    else if ((TransDateFilterType)idx == TransDateFilterType::Yesterday) {
-        start_date = AfxDateAddDays(end_date, -1);
-        end_date = start_date;
-    }
-    else if ((TransDateFilterType)idx == TransDateFilterType::Today) {
-        // Dates are already set to current date
-    }
-    else {
-        switch ((TransDateFilterType)idx) {
-        case TransDateFilterType::Days7: adjust_days = 7; break;
-        case TransDateFilterType::Days14: adjust_days = 14; break;
-        case TransDateFilterType::Days30: adjust_days = 30; break;
-        case TransDateFilterType::Days60: adjust_days = 60; break;
-        case TransDateFilterType::Days120: adjust_days = 120; break;
-        }
-        start_date = AfxDateAddDays(end_date, -(adjust_days));
-    }
-
-    CustomLabel_SetUserData(StartDateCombo(), start_date);
-    CustomLabel_SetText(StartDateCombo(), AfxLongDate(start_date));
-
-    CustomLabel_SetUserData(EndDateCombo(), end_date);
-    CustomLabel_SetText(EndDateCombo(), AfxLongDate(end_date));
-}
 
 
 // ========================================================================================
@@ -171,6 +93,10 @@ void CTransPanel::ShowTransactions() {
     MainWindow.SetLeftPanel(hWindow);
     MainWindow.SetRightPanel(TransDetail.hWindow);
 
+    std::wstring start_date = FilterPanel.start_date;
+    std::wstring end_date = FilterPanel.end_date;
+    std::wstring ticker = FilterPanel.ticker_symbol;
+
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);
 
@@ -180,12 +106,6 @@ void CTransPanel::ShowTransactions() {
     };
     std::vector<TransData> tdata;
     tdata.reserve(2000);    // reserve space for 2000 Transactions
-
-    std::wstring start_date = CustomLabel_GetUserData(StartDateCombo());
-    std::wstring end_date = CustomLabel_GetUserData(EndDateCombo());
-
-    std::wstring ticker = CustomTextBox_GetText(TickerTextBox());
-    ticker = AfxTrim(ticker);
 
     for (auto& trade : trades) {
         for (auto& trans : trade->transactions) {
@@ -459,6 +379,7 @@ void CTransPanel::OnPaint(HWND hwnd) {
 // Process WM_SIZE message for window/dialog: TransPanel
 // ========================================================================================
 void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
+
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
@@ -474,69 +395,15 @@ void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     }
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
-    HDWP hdwp = BeginDeferWindowPos(15);
-
     int margin = AfxScaleY(TRANSPANEL_MARGIN);
-    int left = AfxScaleY(APP_LEFTMARGIN_WIDTH);
-    int top = 0;
-    int width = 0;
-    int height = AfxScaleY(23);
-    int start_top = top;
+    int left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
+    int top = margin;
+    int width = cx;
+    int height = 0;
 
-    start_top = height;
+    HDWP hdwp = BeginDeferWindowPos(5);
 
-    top = start_top;
-    width = AfxScaleX(75);
-    hdwp = DeferWindowPos(hdwp, TickerFilterLabel(), 0,
-        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, TickerTextBox(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    left += width;
-    width = AfxScaleX(23);
-    hdwp = DeferWindowPos(hdwp, TickerGoButton(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    top = start_top;
-    left += width + AfxScaleX(18);
-    width = AfxScaleX(90);
-    hdwp = DeferWindowPos(hdwp, DateFilterLabel(), 0,
-        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, TransDateCombo(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    left += width;
-    width = AfxScaleX(23);
-    hdwp = DeferWindowPos(hdwp, TransDateButton(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    top = start_top;
-    left += width + AfxScaleX(18);
-    width = AfxScaleX(90);
-    hdwp = DeferWindowPos(hdwp, StartDateLabel(), 0,
-        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, StartDateCombo(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    left += width;
-    width = AfxScaleX(23);
-    hdwp = DeferWindowPos(hdwp, StartDateButton(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    top = start_top;
-    left += width + AfxScaleX(18);
-    width = AfxScaleX(90);
-    hdwp = DeferWindowPos(hdwp, EndDateLabel(), 0,
-        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    hdwp = DeferWindowPos(hdwp, EndDateCombo(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-    left += width;
-    width = AfxScaleX(23);
-    hdwp = DeferWindowPos(hdwp, EndDateButton(), 0,
-        left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-    left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
-    top = margin;
-    width = cx;
     height = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
-
     hdwp = DeferWindowPos(hdwp, TradesHeader(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     top = top + height + AfxScaleY(1);
 
@@ -558,72 +425,8 @@ void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 // ========================================================================================
 bool CTransPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
-
-    int horiz_text_margin = 0;
-    int vert_text_margin = 3;
-
-    DWORD light_text_color = COLOR_WHITEDARK;
-    DWORD dark_back_color = COLOR_GRAYMEDIUM;
-    std::wstring font_name = AfxGetDefaultFont();
-    int font_size = 8;
-
-    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLTICKERFILTER, L"Ticker Filter",
-        COLOR_WHITEDARK, COLOR_BLACK);
-    HWND hCtl = CreateCustomTextBox(hwnd, IDC_TRANS_TXTTICKER, false, ES_LEFT | ES_UPPERCASE, L"", 0, 0, 0, 0);
-    CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
-    CustomTextBox_SetColors(hCtl, light_text_color, dark_back_color);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTICKERGO, L"GO",
-        COLOR_BLACK, COLOR_BLUE, COLOR_BLUE, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
-    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLDATEFILTER, L"Date Filter",
-        COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_TRANSDATE, L"7 days",
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_left, 0, 0, 0, 0);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-    CustomLabel_SetUserDataInt(hCtl, (int)TransDateFilterType::Days7);
-
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDTRANSDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
-    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLSTARTDATE, L"Start Date",
-        COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_STARTDATE, L"",
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_left, 0, 0, 0, 0);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDSTARTDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
-    CustomLabel_SimpleLabel(hwnd, IDC_TRANS_LBLENDDATE, L"End Date",
-        COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_ENDDATE, L"",
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_left, 0, 0, 0, 0);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRANS_CMDENDDATE, GLYPH_DROPDOWN,
-        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
-    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
-
-    // Set the Start & End dates based on the filter type.
-    SetStartEndDates(hwnd);
-
-    hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
+       
+    HWND hCtl = TransPanel.AddControl(Controls::Header, hwnd, IDC_TRANS_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)Header_SubclassProc,
         IDC_TRANS_HEADER, NULL);
     Header_InsertNewItem(hCtl, 0, AfxScaleX(nTransMinColWidth[0]), L"", HDF_CENTER);
@@ -650,8 +453,6 @@ bool CTransPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_TRANS_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
-
-    SetFocus(TickerTextBox());
 
     return true;
 }
@@ -690,84 +491,6 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         HANDLE_MSG(m_hwnd, WM_SIZE, OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
-
-    case WM_KEYDOWN: {
-        // We are handling the TAB naviagation ourselves.
-        if (wParam == VK_TAB) {
-            HWND hFocus = GetFocus();
-            HWND hNextCtrl = NULL;
-            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, true);
-            }
-            else {
-                hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, false);
-            }
-            SetFocus(hNextCtrl);
-            return true;
-        }
-        return 0;
-    }
-
-    case WM_KEYUP: {
-        // Handle ENTER key if pressed in the Ticker textbox.
-        if (GetFocus() == GetDlgItem(TickerTextBox(), 100)) {
-            if (wParam == 13) {
-                ShowTransactions();
-                return true;
-            }
-        }
-        return 0;
-    }
-
-    case MSG_TRANSPANEL_SHOWLISTBOXITEM: {
-        ShowListBoxItem((int)wParam);
-        return 0;
-    }
-
-    case MSG_DATEPICKER_DATECHANGED: {
-        // If the StartDate or EndDate is changed then we set the DateFilter to Custom.
-        HWND hCombo = (HWND)lParam;
-        if (hCombo == StartDateCombo() || hCombo == EndDateCombo()) {
-            CustomLabel_SetUserDataInt(TransDateCombo(), (int)TransDateFilterType::Custom);
-            CustomLabel_SetText(TransDateCombo(),
-                TransDateFilter.GetFilterDescription((int)TransDateFilterType::Custom).c_str());
-        }
-
-        SetStartEndDates(m_hwnd);
-        ShowTransactions();
-        return 0;
-    }
-
-    case MSG_CUSTOMLABEL_CLICK: {
-        HWND hCtl = (HWND)lParam;
-        int ctrl_id = (int)wParam;
-
-        if (!hCtl) return 0;
-
-        if (ctrl_id == IDC_TRANS_CMDTICKERGO) {
-            ShowTransactions();
-        }
-
-        if (ctrl_id == IDC_TRANS_CMDTRANSDATE || ctrl_id == IDC_TRANS_TRANSDATE) {
-            // Clicked on the Date Filter dropdown or label itself
-            TransDateFilter.CreatePicker(m_hwnd, TransDateCombo());
-        }
-
-        if (ctrl_id == IDC_TRANS_CMDSTARTDATE || ctrl_id == IDC_TRANS_STARTDATE) {
-            // Clicked on the Start Date dropdown or label itself
-            std::wstring date_text = CustomLabel_GetUserData(StartDateCombo());
-            Calendar_CreateDatePicker(m_hwnd, StartDateCombo(), date_text, CalendarPickerReturnType::long_date, 1);
-        }
-
-        if (ctrl_id == IDC_TRANS_CMDENDDATE || ctrl_id == IDC_TRANS_ENDDATE) {
-            // Clicked on the End Date dropdown or label itself
-            std::wstring date_text = CustomLabel_GetUserData(EndDateCombo());
-            Calendar_CreateDatePicker(m_hwnd, EndDateCombo(), date_text, CalendarPickerReturnType::long_date, 1);
-        }
-
-        return 0;
-    }
-
     }
     
     return DefWindowProc(m_hwnd, msg, wParam, lParam);

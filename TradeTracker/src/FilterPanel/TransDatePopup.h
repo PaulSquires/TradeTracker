@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 
-class CTransDateFilter : public CWindowBase<CTransDateFilter> {
+class CTransDatePopup : public CWindowBase<CTransDatePopup> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -76,4 +76,4 @@ constexpr int TRANSDATEFILTER_LISTBOX_ROWHEIGHT = 24;
 constexpr int TRANSDATEFILTER_WIDTH = 113;
 
 
-extern CTransDateFilter TransDateFilter;
+extern CTransDatePopup TransDatePopup;

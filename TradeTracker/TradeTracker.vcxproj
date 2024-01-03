@@ -56,7 +56,7 @@
     <ClInclude Include="src\TradeGrid\TradeGrid.h" />
     <ClInclude Include="src\TradeHistory\TradeHistory.h" />
     <ClInclude Include="src\TradePlan\TradePlan.h" />
-    <ClInclude Include="src\FilterPanel\TransDateFilter.h" />
+    <ClInclude Include="src\FilterPanel\TransDatePopup.h" />
     <ClInclude Include="src\Transactions\TransDetail.h" />
     <ClInclude Include="src\Transactions\TransPanel.h" />
     <ClInclude Include="src\tws-api\CommonDefs.h" />
@@ -158,7 +158,7 @@
     <ClCompile Include="src\TradeGrid\TradeGrid.cpp" />
     <ClCompile Include="src\TradeHistory\TradeHistory.cpp" />
     <ClCompile Include="src\TradePlan\TradePlan.cpp" />
-    <ClCompile Include="src\FilterPanel\TransDateFilter.cpp" />
+    <ClCompile Include="src\FilterPanel\TransDatePopup.cpp" />
     <ClCompile Include="src\Transactions\TransDetail.cpp" />
     <ClCompile Include="src\Transactions\TransPanel.cpp" />
     <ClCompile Include="src\tws-api\DefaultEWrapper.cpp" />

@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "FilterPanel/FilterPanel.h"
 
 
 class CTransPanel : public CWindowBase<CTransPanel> {
@@ -38,18 +39,6 @@ public:
     HWND TradesListBox();
     HWND TradesHeader();
     HWND VScrollBar();
-    HWND TickerFilterLabel();
-    HWND TickerTextBox();
-    HWND TickerGoButton();
-    HWND DateFilterLabel();
-    HWND TransDateCombo();
-    HWND TransDateButton();
-    HWND StartDateLabel();
-    HWND StartDateCombo();
-    HWND StartDateButton();
-    HWND EndDateLabel();
-    HWND EndDateCombo();
-    HWND EndDateButton();
 
     void ShowTransactions();
 
@@ -61,8 +50,9 @@ private:
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
     void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
 
-    void SetStartEndDates(HWND hwnd);
     void ShowListBoxItem(int index);
+
+    CFilterPanel FilterPanel;
 
     static LRESULT CALLBACK ListBox_SubclassProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
@@ -76,22 +66,6 @@ private:
 constexpr int IDC_TRANS_LISTBOX = 100;
 constexpr int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_TRANS_HEADER = 103;
-
-constexpr int IDC_TRANS_LBLTICKERFILTER = 110;
-constexpr int IDC_TRANS_TXTTICKER = 111;
-constexpr int IDC_TRANS_CMDTICKERGO = 112;
-
-constexpr int IDC_TRANS_LBLDATEFILTER = 115;
-constexpr int IDC_TRANS_TRANSDATE = 116;
-constexpr int IDC_TRANS_CMDTRANSDATE = 117;
-
-constexpr int IDC_TRANS_LBLSTARTDATE = 120;
-constexpr int IDC_TRANS_STARTDATE = 121;
-constexpr int IDC_TRANS_CMDSTARTDATE = 122;
-
-constexpr int IDC_TRANS_LBLENDDATE = 125;
-constexpr int IDC_TRANS_ENDDATE = 126;
-constexpr int IDC_TRANS_CMDENDDATE = 127;
 
 
 constexpr int TRANSPANEL_LISTBOX_ROWHEIGHT = 18;

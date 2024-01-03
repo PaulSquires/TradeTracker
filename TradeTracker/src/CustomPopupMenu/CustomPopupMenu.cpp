@@ -237,8 +237,8 @@ void CCustomPopupMenu::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
 
         if (items.at(lpDrawItem->itemID).is_separator) {
             // Draw the horizontal line
-            int margin = AfxScaleX(6);
-            ARGB clrPen = ntext_color;
+            int margin = AfxScaleX(12);
+            ARGB clrPen = COLOR_GRAYLIGHT;
             Pen pen(clrPen, 1);
             graphics.DrawLine(&pen, margin, height / 2, width - margin, height / 2);
         }

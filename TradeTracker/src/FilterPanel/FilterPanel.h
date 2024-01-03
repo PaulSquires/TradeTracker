@@ -27,7 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "FilterPanel/TransDateFilter.h"
+#include "FilterPanel/TransDatePopup.h"
 
 class CFilterPanel : public CWindowBase<CFilterPanel> {
 public:
@@ -35,7 +35,26 @@ public:
 
     HWND hWindow = NULL;
 
-    HWND CreateFilterPanel(HWND hParent, HWND hParentCtl);
+    HWND TickerFilterLabel();
+    HWND TickerTextBox();
+    HWND TickerGoButton();
+    HWND DateFilterLabel();
+    HWND TransDateCombo();
+    HWND TransDateButton();
+    HWND StartDateLabel();
+    HWND StartDateCombo();
+    HWND StartDateButton();
+    HWND EndDateLabel();
+    HWND EndDateCombo();
+    HWND EndDateButton();
+
+    std::wstring start_date;
+    std::wstring end_date;
+    std::wstring ticker_symbol;
+
+    void SetStartEndDates(HWND hwnd);
+
+    HWND CreateFilterPanel(HWND hParent);
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
@@ -45,5 +64,21 @@ private:
 };
 
 
+constexpr int IDC_FILTER_LBLTICKERFILTER = 110;
+constexpr int IDC_FILTER_TXTTICKER = 111;
+constexpr int IDC_FILTER_CMDTICKERGO = 112;
 
-extern CTransDateFilter TransDateFilter;
+constexpr int IDC_FILTER_LBLDATEFILTER = 115;
+constexpr int IDC_FILTER_TRANSDATE = 116;
+constexpr int IDC_FILTER_CMDTRANSDATE = 117;
+
+constexpr int IDC_FILTER_LBLSTARTDATE = 120;
+constexpr int IDC_FILTER_STARTDATE = 121;
+constexpr int IDC_FILTER_CMDSTARTDATE = 122;
+
+constexpr int IDC_FILTER_LBLENDDATE = 125;
+constexpr int IDC_FILTER_ENDDATE = 126;
+constexpr int IDC_FILTER_CMDENDDATE = 127;
+
+
+extern CTransDatePopup TransDatePopup;
