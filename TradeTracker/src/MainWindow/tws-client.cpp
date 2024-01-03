@@ -383,8 +383,6 @@ bool tws_Connect() {
 			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
 			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
 		
-		MessageBox(ActiveTrades.hWindow, text.c_str(), L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2);
-
 		if (CustomMessageBox.Show(MainWindow.hWindow, text, 
 			L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
 			UpdateTickersWithScrapedData();
