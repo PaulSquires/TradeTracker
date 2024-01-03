@@ -315,6 +315,36 @@ void Reconcile_OnDestroy(HWND hwnd) {
 
 
 // ========================================================================================
+// Process WM_ERASEBKGND message for window/dialog: Reconcile
+// ========================================================================================
+bool Reconcile_OnEraseBkgnd(HWND hwnd, HDC hdc) {
+	// Handle all of the painting in WM_PAINT
+	return true;
+}
+
+
+// ========================================================================================
+// Process WM_PAINT message for window/dialog: Reconcile
+// ========================================================================================
+void Reconcile_OnPaint(HWND hwnd) {
+	PAINTSTRUCT ps;
+
+	HDC hdc = BeginPaint(hwnd, &ps);
+
+	Graphics graphics(hdc);
+
+	// Create the background brush
+	SolidBrush back_brush(COLOR_GRAYDARK);
+
+	// Paint the background using brush.
+	int width = (ps.rcPaint.right - ps.rcPaint.left);
+	int height = (ps.rcPaint.bottom - ps.rcPaint.top);
+	graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
+
+	EndPaint(hwnd, &ps);
+}
+
+// ========================================================================================
 // Process WM_CREATE message for window/dialog: Reconcile
 // ========================================================================================
 bool Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
@@ -340,6 +370,8 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 		HANDLE_MSG(m_hwnd, WM_DESTROY, Reconcile_OnDestroy);
 		HANDLE_MSG(m_hwnd, WM_CLOSE, Reconcile_OnClose);
         HANDLE_MSG(m_hwnd, WM_SIZE, Reconcile_OnSize);
+        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, Reconcile_OnEraseBkgnd);
+        HANDLE_MSG(m_hwnd, WM_PAINT, Reconcile_OnPaint);
 
 	case WM_CTLCOLOREDIT: {
 		HDC hdc = (HDC)wParam;
