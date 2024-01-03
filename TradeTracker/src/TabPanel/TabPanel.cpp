@@ -193,7 +193,7 @@ bool TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     CustomLabel_SetToolTip(hCtl, tooltip_text);
     CustomLabel_SetBackColorHot(hCtl, COLOR_SELECTION);
     
-    item_left = 100;
+    item_left = 110;
     item_top = 0;
     item_width = 90;
     item_height = TABPANEL_HEIGHT - 2;
