@@ -49,7 +49,6 @@ SOFTWARE.
 #include "Utilities/UpdateCheck.h"
 #include "DatePicker/Calendar.h"
 #include "CustomCombo/CustomComboPopup.h"
-#include "FilterPanel/FilterPanel.h"
 #include "Strategy/StrategyPopup.h"
 
 
@@ -472,10 +471,7 @@ bool CMainWindow::OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT
 // Close combobox popup menus when ESCAPE is pressed or application loses focus.
 // ========================================================================================
 void CMainWindow::CloseComboPopups() {
-    if (IsWindowVisible(TransDatePopup.hWindow)) {
-        DestroyWindow(TransDatePopup.hWindow);
-    }
-    else if (IsWindowVisible(HWND_CALENDAR)) {
+    if (IsWindowVisible(HWND_CALENDAR)) {
         DestroyWindow(HWND_CALENDAR);
     }
     else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {

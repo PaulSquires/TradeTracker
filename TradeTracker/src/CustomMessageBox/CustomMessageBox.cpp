@@ -154,7 +154,7 @@ void CCustomMessageBox::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 	SetWindowPos(hStaticMessage, 0, left, text_top_margin, text_width, text_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 	int button_left = cx - button_right_margin - (button_width * button_count) - ((button_count - 1) * button_margin);
-	int button_top = cy - button_area_height + button_margin;
+	int button_top = cy - button_area_height + (button_height / 2);
 
 	for (int i = 0; i < button_count; ++i) {
 		SetWindowPos(hButton[i], 0, button_left, button_top, button_width, button_height, SWP_NOZORDER | SWP_SHOWWINDOW);

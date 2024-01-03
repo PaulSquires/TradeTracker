@@ -403,8 +403,6 @@ void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 
     HDWP hdwp = BeginDeferWindowPos(5);
 
-//    std::cout << FilterPanel.hWindow << std::endl;
-
     hdwp = DeferWindowPos(hdwp, FilterPanel.hWindow, 0, left, top, width, FilterPanel.fixed_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top = margin;

@@ -38,10 +38,6 @@ public:
     HWND TradesListBox();
     HWND TradesHeader();
     HWND VScrollBar();
-    HWND TickerTextBox();
-    HWND CategoryCombo();
-    HWND FilterLabel();
-    HWND TickerGoButton();
 
     void ShowClosedTrades();
     void SetShowTradeDetail(bool enable);
@@ -68,11 +64,6 @@ private:
 constexpr int IDC_CLOSEDTRADES_LISTBOX = 100;
 constexpr int IDC_CLOSEDTRADES_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_CLOSEDTRADES_HEADER = 103;
-constexpr int IDC_CLOSEDTRADES_LBLCATEGORYFILTER = 104;
-constexpr int IDC_CLOSEDTRADES_CATEGORY = 105;
-constexpr int IDC_CLOSEDTRADES_LBLTICKERFILTER = 106;
-constexpr int IDC_CLOSEDTRADES_TXTTICKER = 107;
-constexpr int IDC_CLOSEDTRADES_CMDTICKERGO = 108;
 
 constexpr int CLOSED_TRADES_LISTBOX_ROWHEIGHT = 18;
 constexpr int CLOSEDTRADES_MARGIN = 80;

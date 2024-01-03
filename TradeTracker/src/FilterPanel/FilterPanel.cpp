@@ -29,14 +29,12 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "DatePicker/Calendar.h"
+#include "Category/Category.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
-#include "TransDatePopup.h"
 
 #include "FilterPanel.h"
 
-
-CTransDatePopup TransDatePopup;
 
 
 // ========================================================================================
@@ -77,6 +75,63 @@ inline HWND CFilterPanel::EndDateCombo() {
 }
 inline HWND CFilterPanel::EndDateButton() {
     return GetDlgItem(hWindow, IDC_FILTER_CMDENDDATE);
+}
+inline HWND CFilterPanel::CategoryFilterLabel() {
+    return GetDlgItem(hWindow, IDC_FILTER_LBLCATEGORYFILTER);
+}
+inline HWND CFilterPanel::CategoryCombo() {
+    return GetDlgItem(hWindow, IDC_FILTER_CATEGORY);
+}
+
+
+// ========================================================================================
+// Handle selecting an item in the listview. This will set the parent label window, update
+// its CustomDataInt, and set its text label. Finally, it will close the popup dialog.
+// ========================================================================================
+
+// Control on parent window that new selected date will be stored in and displayed.
+// That control must be a CustomLabel because we store the full ISO date in that
+// control's UserData string.
+//HWND hDateUpdateParentCtl = NULL;
+//TransDateFilterType SelectedFilterType = TransDateFilterType::Today;
+// 
+//     for (int i = (int)TransDateFilterType::Today; i <= (int)TransDateFilterType::Custom; ++i) {
+//int idx = ListBox_AddString(hCtl, GetFilterDescription(i).c_str());
+//ListBox_SetItemData(hCtl, idx, i);
+//    }
+
+//    // Get the current selected filter and apply it to the popup
+//SelectedFilterType = (TransDateFilterType)CustomLabel_GetUserDataInt(hParentCtl);
+//
+//// Set the module global hUpdateParentCtl after the above is created in
+//// to ensure the variable address is correct.
+//hDateUpdateParentCtl = hParentCtl;
+
+//void CTransDatePopup::DoSelected(int idx) {
+//    CustomLabel_SetUserDataInt(hDateUpdateParentCtl, idx);
+//    CustomLabel_SetText(hDateUpdateParentCtl, GetFilterDescription(idx));
+//    PostMessage(GetParent(hDateUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
+//        GetDlgCtrlID(hDateUpdateParentCtl), (LPARAM)hDateUpdateParentCtl);
+//    DestroyWindow(hWindow);
+//}
+
+
+// ========================================================================================
+// Return string based on TransDateFilterType
+// ========================================================================================
+std::wstring CFilterPanel::GetFilterDescription(int idx) {
+    switch ((TransDateFilterType)idx) {
+    case TransDateFilterType::Today: return L"Today";
+    case TransDateFilterType::Yesterday: return L"Yesterday";
+    case TransDateFilterType::Days7: return L"7 days";
+    case TransDateFilterType::Days14: return L"14 days";
+    case TransDateFilterType::Days30: return L"30 days";
+    case TransDateFilterType::Days60: return L"60 days";
+    case TransDateFilterType::Days120: return L"120 days";
+    case TransDateFilterType::YearToDate: return L"Year to Date";
+    case TransDateFilterType::Custom: return L"Custom";
+    default: return L"";
+    }
 }
 
 
@@ -158,15 +213,16 @@ void CFilterPanel::OnPaint(HWND hwnd) {
 // ========================================================================================
 void CFilterPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 
-    HDWP hdwp = BeginDeferWindowPos(15);
 
-    int left = AfxScaleY(APP_LEFTMARGIN_WIDTH);
+    int left = 0;
     int top = 0;
     int width = 0;
     int height = AfxScaleY(23);
     int start_top = top;
 
     start_top = height;
+
+    HDWP hdwp = BeginDeferWindowPos(15);
 
     top = start_top;
     width = AfxScaleX(75);
@@ -215,6 +271,15 @@ void CFilterPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     hdwp = DeferWindowPos(hdwp, EndDateButton(), 0,
         left, top + height, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
+    top = start_top;
+    left += width + AfxScaleX(18);
+    width = AfxScaleX(90);
+    hdwp = DeferWindowPos(hdwp, CategoryFilterLabel(), 0,
+        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, CategoryCombo(), 0,
+        left, top + height, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+    EndDeferWindowPos(hdwp);
 
     return;
 }
@@ -287,6 +352,11 @@ bool CFilterPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
+    CustomLabel_SimpleLabel(hwnd, IDC_FILTER_LBLCATEGORYFILTER, L"Category Filter",
+        COLOR_WHITEDARK, COLOR_BLACK);
+    hCtl = CreateCategoryControl(hwnd, IDC_FILTER_CATEGORY, 0, 0, CATEGORY_ALL, true);
+
+
     // Set the Start & End dates based on the filter type.
     SetStartEndDates(hwnd);
 
@@ -353,9 +423,10 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         // If the StartDate or EndDate is changed then we set the DateFilter to Custom.
         HWND hCombo = (HWND)lParam;
         if (hCombo == StartDateCombo() || hCombo == EndDateCombo()) {
-            CustomLabel_SetUserDataInt(TransDateCombo(), (int)TransDateFilterType::Custom);
-            CustomLabel_SetText(TransDateCombo(),
-                TransDatePopup.GetFilterDescription((int)TransDateFilterType::Custom).c_str());
+            //CTransDatePopup TransDatePopup;
+            //CustomLabel_SetUserDataInt(TransDateCombo(), (int)TransDateFilterType::Custom);
+            //CustomLabel_SetText(TransDateCombo(),
+            //    TransDatePopup.GetFilterDescription((int)TransDateFilterType::Custom).c_str());
         }
 
         SetStartEndDates(m_hwnd);
@@ -375,7 +446,8 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_FILTER_CMDTRANSDATE || ctrl_id == IDC_FILTER_TRANSDATE) {
             // Clicked on the Date Filter dropdown or label itself
-            TransDatePopup.CreatePicker(m_hwnd, TransDateCombo());
+            //CTransDatePopup TransDatePopup;
+            //TransDatePopup.CreatePicker(m_hwnd, TransDateCombo());
         }
 
         if (ctrl_id == IDC_FILTER_CMDSTARTDATE || ctrl_id == IDC_FILTER_STARTDATE) {

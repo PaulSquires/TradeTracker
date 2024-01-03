@@ -27,7 +27,6 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "FilterPanel/TransDatePopup.h"
 
 class CFilterPanel : public CWindowBase<CFilterPanel> {
 public:
@@ -47,6 +46,9 @@ public:
     HWND EndDateLabel();
     HWND EndDateCombo();
     HWND EndDateButton();
+    HWND CategoryFilterLabel();
+    HWND CategoryCombo();
+
 
     std::wstring start_date;
     std::wstring end_date;
@@ -54,6 +56,7 @@ public:
 
     int fixed_height = AfxScaleY(80);
 
+    std::wstring GetFilterDescription(int idx); 
     void SetStartEndDates(HWND hwnd);
 
     HWND CreateFilterPanel(HWND hParent);
@@ -63,6 +66,19 @@ private:
     void OnSize(HWND hwnd, UINT state, int cx, int cy);
     void OnPaint(HWND hwnd);
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
+};
+
+
+enum class TransDateFilterType {
+    Today,
+    Yesterday,
+    Days7,
+    Days14,
+    Days30,
+    Days60,
+    Days120,
+    YearToDate,
+    Custom
 };
 
 
@@ -82,5 +98,6 @@ constexpr int IDC_FILTER_LBLENDDATE = 125;
 constexpr int IDC_FILTER_ENDDATE = 126;
 constexpr int IDC_FILTER_CMDENDDATE = 127;
 
+constexpr int IDC_FILTER_LBLCATEGORYFILTER = 130;
+constexpr int IDC_FILTER_CATEGORY = 131;
 
-extern CTransDatePopup TransDatePopup;
