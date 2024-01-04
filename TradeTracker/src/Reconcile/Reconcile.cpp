@@ -363,7 +363,7 @@ bool Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 // Windows callback function.
 // ========================================================================================
 LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
-	static HBRUSH hBackBrush = CreateSolidBrush(Color(COLOR_GRAYDARK).ToCOLORREF());
+	static HBRUSH hBackBrush = NULL;
 
     switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, Reconcile_OnCreate);
@@ -374,6 +374,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         HANDLE_MSG(m_hwnd, WM_PAINT, Reconcile_OnPaint);
 
 	case WM_CTLCOLOREDIT: {
+		if (hBackBrush == NULL) hBackBrush = CreateSolidBrush(Color(COLOR_GRAYDARK).ToCOLORREF());
 		HDC hdc = (HDC)wParam;
 		SetTextColor(hdc, Color(COLOR_WHITELIGHT).ToCOLORREF());
 		SetBkColor(hdc, Color(COLOR_GRAYDARK).ToCOLORREF());
@@ -383,6 +384,7 @@ LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
 	case WM_NCDESTROY: {
 		if (hBackBrush) DeleteBrush(hBackBrush);
+		hBackBrush = NULL;
 		break;
 	}
 
@@ -442,17 +444,17 @@ void Reconcile_Show() {
 	EnableWindow(MainWindow.hWindow, false);
 
 	// Apply fixed width font for better readability
-	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);
+	HWND hTextBox = GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX);
+	HFONT hFont = (HFONT)SendMessage(hTextBox, WM_GETFONT, 0, 0);
 	DeleteFont(hFont);
 	hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, false, false, false, DEFAULT_CHARSET);
-	SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_SETFONT, (WPARAM)hFont, 0);
-	AfxSetWindowText(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), L"Hold on a second. Waiting for reconciliation data...");
+	SendMessage(hTextBox, WM_SETFONT, (WPARAM)hFont, 0);
+	AfxSetWindowText(hTextBox, L"Hold on a second. Waiting for reconciliation data...");
 
 	// Do the reconciliation
-	HWND hTextBox = GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX);
 	Reconcile_LoadAllLocalPositions();   // in case some have been closed/expired/rolled since last time
 	Reconcile_doReconciliation();
-	AfxSetWindowText(hTextBox, results_text.c_str());
+	AfxSetWindowText(hTextBox, results_text);
 	
 	// Hide the vertical scrollbar if < 25 lines
 	if (Edit_GetLineCount(hTextBox) <= 25) {
