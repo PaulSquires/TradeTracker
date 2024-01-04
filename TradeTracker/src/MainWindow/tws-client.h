@@ -104,6 +104,7 @@ void tws_StartMonitorThread();
 void tws_EndMonitorThread();
 void tws_StartTickerUpdateThread();
 void tws_EndTickerUpdateThread();
+void tws_UpdateTickersWithScrapedData();
 bool tws_Connect();
 bool tws_Disconnect();
 bool tws_IsConnected();

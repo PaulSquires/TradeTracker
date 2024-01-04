@@ -36,6 +36,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 
 #include "TabPanel.h"
 
@@ -279,6 +280,19 @@ bool TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 }
 
 
+std::wstring TabPanel_GetConnectionTypeDescription(int idx) {
+    switch ((ConnectionType)idx) {
+    case ConnectionType::tws_data:
+        return L"Connect to TWS";
+    case ConnectionType::scraped_data:
+        return L"Retrieve Yahoo Finance Scrapped Data";
+    case ConnectionType::disconnect:
+        return L"Disconnect";
+    }
+    return L"";
+}
+
+
 // ========================================================================================
 // TabPanel Window procedure
 // ========================================================================================
@@ -329,13 +343,43 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_TABPANEL_CONNECT) {
             // If already connected then don't try to connect again
-            if (!tws_IsConnected()) {
-                // Prevent multiple clicks of the connect button by waiting until
-                // the first click is finished.
+            std::vector<CCustomPopupMenuItem> items;
+            if (tws_IsConnected()) {
+                items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::disconnect), (int)ConnectionType::disconnect, false });
+            }
+            else {
+                items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::tws_data), (int)ConnectionType::tws_data, false });
+                items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::scraped_data), (int)ConnectionType::scraped_data, false });
+            }
+
+            // Position the popup menu immediately to the right of the connection icon
+            int right_offset = AfxScaleY(1);
+            RECT rc{}; GetWindowRect(hCtl, &rc);
+            POINT pt{ rc.right + right_offset, rc.top };
+            int selected = CustomPopupMenu.Show(HWND_TABPANEL, items, -1, pt.x, pt.y);
+
+            if (selected != -1) {
                 static bool processing_connect_click = false;
                 if (processing_connect_click) break;
                 processing_connect_click = true;
-                tws_Connect();
+             
+                switch ((ConnectionType)selected) {
+                case ConnectionType::tws_data: {
+                    // Prevent multiple clicks of the connect button by waiting until
+                    // the first click is finished.
+                    tws_Connect();
+                    break;
+                }
+                case ConnectionType::scraped_data: {
+                    tws_UpdateTickersWithScrapedData();
+                    break;
+                }
+                case ConnectionType::disconnect: {
+                    tws_Disconnect();
+                    break;
+                }
+
+                }
                 processing_connect_click = false;
             }
             break;

@@ -28,6 +28,12 @@ SOFTWARE.
 
 #include "Utilities/CWindowBase.h"
 
+enum class ConnectionType {
+    tws_data,
+    scraped_data,
+    disconnect
+};
+
 
 class CTabPanel : public CWindowBase<CTabPanel> {
 public:

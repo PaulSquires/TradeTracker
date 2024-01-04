@@ -112,7 +112,7 @@ double GetScrapedClosingPrice(std::wstring ticker_symbol) {
 //
 #include <wininet.h>
 #pragma comment(lib,"Wininet.lib")
-void UpdateTickersWithScrapedData() {
+void tws_UpdateTickersWithScrapedData() {
 	// Do a simple check to see if connected to internet. If fail then simply
 	// advise the user via a messgebox.
 	std::wstring url = L"https://www.google.com";
@@ -380,13 +380,9 @@ bool tws_Connect() {
         //SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Could not connect to TWS.\n\n" \
-			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n\n" \
-			"Do you wish to retrieve closing price quotes from scraped Yahoo Finance data?";
+			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).";
 		
-		if (CustomMessageBox.Show(MainWindow.hWindow, text, 
-			L"Connection Failed", MB_YESNOCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2) == IDYES) {
-			UpdateTickersWithScrapedData();
-		}
+		CustomMessageBox.Show(MainWindow.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;
     }
 
@@ -811,7 +807,7 @@ void TwsClient::positionEnd() {
 	// subscriptions to access the data.
 	// Check global variable for the market subscription error and then attempt scraping from yahoo finance.
 	if (market_data_subscription_error) {
-		UpdateTickersWithScrapedData();
+		tws_UpdateTickersWithScrapedData();
 		market_data_subscription_error = false;
 	}
 }
