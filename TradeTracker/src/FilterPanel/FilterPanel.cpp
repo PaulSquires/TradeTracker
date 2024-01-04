@@ -427,9 +427,9 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             int top_offset = AfxScaleY(1);
             RECT rc{}; GetWindowRect(TransDateCombo(), &rc);
             POINT pt{ rc.left, rc.bottom + top_offset};
-            int selected = CustomPopupMenu.Show(hWindow, items, -1, pt.x, pt.y);
+            int selected = CustomPopupMenu.Show(hWindow, items, (int)selected_transdate, pt.x, pt.y);
 
-            if (selected != -1) {
+            if (selected != -1 && selected != (int)selected_transdate) {
                 // Set selected_transdate prior to calling SetStartEndDates()
                 selected_transdate = (TransDateFilterType)selected;  
                 SetStartEndDates(m_hwnd);

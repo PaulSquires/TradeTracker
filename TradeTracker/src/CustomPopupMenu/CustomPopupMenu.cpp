@@ -326,7 +326,7 @@ LRESULT CALLBACK CustomPopupMenuHook(int Code, WPARAM wParam, LPARAM lParam) {
 
             // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
             if (!PtInRect(&rcWindow, pt)) {
-                DestroyWindow(HWND_CUSTOMPOPUPMENU);
+                SendMessage(HWND_CUSTOMPOPUPMENU, MSG_CUSTOMPOPUPMENU_CANCEL, 0, 0);
             }
         }
     }
@@ -354,6 +354,12 @@ LRESULT CCustomPopupMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
             selected_item = items.at(cursel).id;
             DestroyWindow(hWindow);
         }
+        return 0;
+    }
+
+    case MSG_CUSTOMPOPUPMENU_CANCEL: {
+        selected_item = -1;
+        DestroyWindow(hWindow);
         return 0;
     }
 

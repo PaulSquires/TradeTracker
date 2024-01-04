@@ -1649,8 +1649,7 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             POINT pt{ rc.left, rc.bottom + top_offset };
             int selected = CustomPopupMenu.Show(hWindow, items, (int)filter_type, pt.x, pt.y, AfxScaleX(223));
 
-            if (selected != -1) {
-                // Set selected_transdate prior to calling SetStartEndDates()
+            if (selected != -1 && selected != (int)filter_type) {
                 filter_type = (ActiveTradesFilterType)selected;
                 CustomLabel_SetText(hCombo, GetSortFilterDescription(selected));
                 ShowActiveTrades();
@@ -1670,8 +1669,7 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             POINT pt{ rc.left, rc.bottom + top_offset };
             int selected = CustomPopupMenu.Show(hWindow, items, (int)new_trade_type, pt.x, pt.y, AfxScaleX(223));
 
-            if (selected != -1) {
-                // Set selected_transdate prior to calling SetStartEndDates()
+            if (selected != -1 && selected != (int)new_trade_type) {
                 new_trade_type = (NewTradeType)selected;
                 CustomLabel_SetText(hCombo, GetNewTradeDescription(selected));
 
