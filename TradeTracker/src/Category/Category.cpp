@@ -25,18 +25,18 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities/AfxWin.h"
 #include "Utilities/ListBoxData.h"
-#include "Utilities/Colors.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 #include "Utilities/UserMessages.h"
 #include "ClosedTrades/ClosedTrades.h"
+#include "Transactions/TransPanel.h"
+
 #include "MainWindow/MainWindow.h"
 #include "Config/Config.h"
 
 #include "Category.h"
 #include "CategoryDialog.h"
-#include "CategoryPopup.h"
 
 
 
@@ -123,12 +123,35 @@ LRESULT CALLBACK CategoryControl_CategoryControlProc(HWND hwnd, UINT uMsg, WPARA
 
         if (ctrl_id == IDC_CATEGORYCONTROL_COMBOBOX || ctrl_id == IDC_CATEGORYCONTROL_COMMAND) {
             // Clicked on the combobox dropdown or label itself
-            CategoryPopup_CreatePopup(hwnd, GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX));
+            std::vector<CCustomPopupMenuItem> items;
+
+            for (int i = CATEGORY_START; i <= CATEGORY_END; ++i) {
+                items.push_back({ config.GetCategoryDescription(i), i, false });
+            }
+
+            if (CategoryControl_Getallow_all_categories(hwnd)) {
+                items.insert(items.begin(), { config.GetCategoryDescription(CATEGORY_OTHER), CATEGORY_OTHER, false });
+                items.insert(items.begin(), { config.GetCategoryDescription(CATEGORY_ALL), CATEGORY_ALL, false });
+            }
+
+            // Position the popup menu immediately under the control that was clicked on
+            HWND hComboBox = GetDlgItem(hwnd, IDC_CATEGORYCONTROL_COMBOBOX);
+            int top_offset = AfxScaleY(1);
+            RECT rc{}; GetWindowRect(hComboBox, &rc);
+            POINT pt{ rc.left, rc.bottom + top_offset };
+            int initial_selected_category = CategoryControl_GetSelectedIndex(hwnd);
+            int selected = CustomPopupMenu.Show(hComboBox, items, initial_selected_category, pt.x, pt.y);
+
+            if (selected != -1 &&  selected != initial_selected_category) {
+                CategoryControl_SetSelectedIndex(hwnd, selected);
+                SendMessage(GetParent(hwnd), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
+            }
         }
 
         if (ctrl_id == IDC_CATEGORYCONTROL_SETUP) {
             HWND hWndParent = GetParent(hwnd);
-            if (hWndParent == ClosedTrades.hWindow) hWndParent = MainWindow.hWindow;
+            if (hWndParent == ClosedTrades.FilterPanel.hWindow) hWndParent = MainWindow.hWindow;
+            if (hWndParent == TransPanel.FilterPanel.hWindow) hWndParent = MainWindow.hWindow;
             if (CategoryDialog_Show(hWndParent) == DIALOG_RETURN_OK) {
                 int selected_category = CategoryControl_GetSelectedIndex(hwnd);   // Update the label in case text has changed
                 CategoryControl_SetSelectedIndex(hwnd, selected_category);

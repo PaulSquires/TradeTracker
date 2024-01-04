@@ -36,9 +36,11 @@ public:
     
     HWND hWindow = NULL;
 
-    HWND TradesListBox();
-    HWND TradesHeader();
+    HWND TransListBox();
+    HWND TransHeader();
     HWND VScrollBar();
+
+    CFilterPanel FilterPanel;
 
     void ShowTransactions();
 
@@ -52,7 +54,6 @@ private:
 
     void ShowListBoxItem(int index);
 
-    CFilterPanel FilterPanel;
 
     static LRESULT CALLBACK ListBox_SubclassProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
@@ -64,8 +65,8 @@ private:
 
 
 constexpr int IDC_TRANS_LISTBOX = 100;
-constexpr int IDC_TRANS_CUSTOMVSCROLLBAR = 102;
-constexpr int IDC_TRANS_HEADER = 103;
+constexpr int IDC_TRANS_CUSTOMVSCROLLBAR = 101;
+constexpr int IDC_TRANS_HEADER = 102;
 
 
 constexpr int TRANSPANEL_LISTBOX_ROWHEIGHT = 18;

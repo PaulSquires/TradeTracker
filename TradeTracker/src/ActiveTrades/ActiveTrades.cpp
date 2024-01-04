@@ -40,8 +40,6 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "Config/Config.h"
 
-#include "CustomCombo/CustomCombo.h"
-
 #include "Assignment.h"
 #include "ActiveTrades.h"
 
@@ -60,8 +58,11 @@ inline HWND CActiveTrades::TradesListBox() {
 inline HWND CActiveTrades::SortFilterLabel() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_LBLSORTFILTER);
 }
-inline HWND CActiveTrades::SortFilterTextBox() {
+inline HWND CActiveTrades::SortFilterCombo() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_SORTFILTER);
+}
+inline HWND CActiveTrades::SortFilterButton() {
+    return GetDlgItem(hWindow, IDC_ACTIVETRADES_CMDSORTFILTER);
 }
 inline HWND CActiveTrades::VScrollBar() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_CUSTOMVSCROLLBAR);
@@ -69,8 +70,11 @@ inline HWND CActiveTrades::VScrollBar() {
 inline HWND CActiveTrades::NewTradeLabel() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_LBLNEWTRADE);
 }
-inline HWND CActiveTrades::NewTradeTextBox() {
+inline HWND CActiveTrades::NewTradeCombo() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_NEWTRADE);
+}
+inline HWND CActiveTrades::NewTradeButton() {
+    return GetDlgItem(hWindow, IDC_ACTIVETRADES_CMDNEWTRADE);
 }
 inline HWND CActiveTrades::NetLiquidationLabel() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_NETLIQUIDATION);
@@ -481,7 +485,7 @@ void CActiveTrades::ShowActiveTrades() {
 
         // In case of newly added/deleted data ensure data is sorted.
         
-        if (sort_order == SortOrder::Category) {
+        if (filter_type == ActiveTradesFilterType::Category) {
             // Sort based on Category and then TickerSymbol
             std::sort(trades.begin(), trades.end(),
                 [](const auto& trade1, const auto& trade2) {
@@ -498,7 +502,7 @@ void CActiveTrades::ShowActiveTrades() {
                 });
         }
 
-        if (sort_order == SortOrder::TickerSymbol) {
+        if (filter_type == ActiveTradesFilterType::TickerSymbol) {
             // Sort based on TickerSymbol and Expiration
             std::sort(trades.begin(), trades.end(),
                 [](const auto& trade1, const auto& trade2) {
@@ -515,7 +519,7 @@ void CActiveTrades::ShowActiveTrades() {
                 });
         }
 
-        if (sort_order == SortOrder::Expiration) {
+        if (filter_type == ActiveTradesFilterType::Expiration) {
             // Sort based on Expiration and TickerSymbol
             std::sort(trades.begin(), trades.end(),
                 [](const auto& trade1, const auto& trade2) {
@@ -543,7 +547,7 @@ void CActiveTrades::ShowActiveTrades() {
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
                 trade->ticker_decimals = config.GetTickerDecimals(trade->ticker_symbol);
 
-                if (sort_order == SortOrder::Category) {
+                if (filter_type == ActiveTradesFilterType::Category) {
                     if (trade->category != category_header) {
 
                         // Count the number of open trades in this category
@@ -604,7 +608,7 @@ void CActiveTrades::ShowActiveTrades() {
 
     current_sel = ListBox_GetCurSel(TradesListBox());
     if (current_sel <= 1) {
-        current_sel = (sort_order == SortOrder::Category) ? 1 : 0;
+        current_sel = (filter_type == ActiveTradesFilterType::Category) ? 1 : 0;
     }
 
     // If trades exist then select the first trade so that its history will show
@@ -1192,120 +1196,6 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
         OptionAssignment(trade);
         break;
     }
-
-
-
-
-    /*
-
-    HMENU hMenu = CreatePopupMenu();
-
-    std::wstring text;
-    std::wstring plural_text;
-    int sel_count = ListBox_GetSelCount(hListBox);
-
-    std::shared_ptr<Trade> trade = nullptr;
-
-    bool is_tickerLine = false;
-
-    // Clear the tdd module global trade variable
-    tdd.ResetDefaults();
-
-    ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hListBox, idx);
-    if (ld->trade == nullptr) return;
-
-    trade = ld->trade;
-    tdd.trade = ld->trade;
-    tdd.trans = ld->trans;
-    tdd.shares_aggregate_edit = ld->aggregate_shares;
-
-    if (sel_count == 1) {
-        // Is this the Trade header line
-        if (ld != nullptr) {
-            if (ld->line_type == LineType::ticker_line) {
-                is_tickerLine = true;
-            }
-        }
-    }
-    else {
-        plural_text = L"s";
-    }
-
-    if (ld->line_type == LineType::options_leg) {
-        text = L"Roll Leg" + plural_text;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::roll_leg, text.c_str());
-
-        text = L"Close Leg" + plural_text;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::close_leg, text.c_str());
-
-        text = L"Expire Leg" + plural_text;
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::expire_leg, text.c_str());
-
-        if (sel_count == 1) {
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 1, L"");
-            InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::assignment, L"Option Assignment");
-        }
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
-    }
-
-    if (ld->line_type == LineType::shares) {
-        text = L"Manage Shares";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::manage_shares, text.c_str());
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
-    }
-
-    if (ld->line_type == LineType::futures) {
-        text = L"Manage Futures";
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::manage_futures, text.c_str());
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 2, L"");
-    }
-
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_options_to_trade, L"Add Options to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_put_to_trade, L"Add Put to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_call_to_trade, L"Add Call to Trade");
-    InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_SEPARATOR | MF_ENABLED, (int)TradeAction::no_action + 3, L"");
-
-    if (config.IsFuturesTicker(trade->ticker_symbol)) {
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_futures_to_trade, L"Add Futures to Trade");
-    } else {
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_shares_to_trade, L"Add Shares to Trade");
-        InsertMenu(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_ENABLED, (int)TradeAction::add_dividend_to_trade, L"Add Dividend to Trade");
-    }
-
-    POINT pt; GetCursorPos(&pt);
-    TradeAction selected =
-        (TradeAction) TrackPopupMenu(hMenu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, pt.x, pt.y, 0, hListBox, NULL);
-
-    switch (selected) {
-    case TradeAction::manage_shares:
-    case TradeAction::manage_futures:
-    case TradeAction::add_shares_to_trade:
-    case TradeAction::add_dividend_to_trade:
-    case TradeAction::add_futures_to_trade:
-    case TradeAction::add_options_to_trade:
-    case TradeAction::add_put_to_trade:
-    case TradeAction::add_call_to_trade:
-        TradeDialog_Show(selected);
-        break;
-
-    case TradeAction::roll_leg:
-    case TradeAction::close_leg:
-        PopulateLegsEditVector(hListBox);
-        TradeDialog_Show(selected);
-        break;
-
-    case TradeAction::expire_leg:
-        PopulateLegsEditVector(hListBox);
-        ExpireSelectedLegs(trade);
-        break;
-
-    case TradeAction::assignment:
-        PopulateLegsEditVector(hListBox);
-        OptionAssignment(trade);
-        break;
-    }
-    
-    */
 }
 
 
@@ -1501,23 +1391,18 @@ int CActiveTrades::ShowHideLiquidityLabels(HWND hwnd) {
 // Process WM_SIZE message for window/dialog: ActiveTrades
 // ========================================================================================
 void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
-    HWND hListBox = GetDlgItem(hwnd, IDC_ACTIVETRADES_LISTBOX);
-    HWND hSortFilter = GetDlgItem(hwnd, IDC_ACTIVETRADES_SORTFILTER);
-    HWND hNewTrade = GetDlgItem(hwnd, IDC_ACTIVETRADES_NEWTRADE);
-    HWND hCustomVScrollBar = GetDlgItem(hwnd, IDC_ACTIVETRADES_CUSTOMVSCROLLBAR);
         
     int margin = AfxScaleY(ACTIVETRADES_MARGIN);
 
     // If no entries exist for the ListBox then don't show any child controls
-    int show_flag = (ListBox_GetCount(hListBox) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
+    int show_flag = (ListBox_GetCount(TradesListBox()) <= 1) ? SWP_HIDEWINDOW : SWP_SHOWWINDOW;
 
-    HDWP hdwp = BeginDeferWindowPos(12);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calculation then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool show_scrollbar = false;
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hCustomVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(VScrollBar());
     if (pData) {
         if (pData->drag_active) {
             show_scrollbar = true;
@@ -1533,51 +1418,59 @@ void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
     int width = AfxScaleX(120);
     int height = AfxScaleY(23);
 
+    HDWP hdwp = BeginDeferWindowPos(12);
+
     top = height;
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_ACTIVETRADES_LBLSORTFILTER), 0,
-        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, SortFilterLabel(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top += height;
-    hdwp = DeferWindowPos(hdwp, hSortFilter, 0, left, top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+    width = AfxScaleX(200);
+    hdwp = DeferWindowPos(hdwp, SortFilterCombo(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    left += width;
+    width = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, SortFilterButton(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top = height + AfxScaleY(17);
     height = AfxScaleY(16);
     left = AfxScaleX(280);
     width = AfxScaleX(60);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION), 0, left, top, width, height, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, NetLiquidationLabel(), 0, left, top, width, height, SWP_NOZORDER);
     
     left = AfxScaleX(350);
     width = AfxScaleX(60);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE), 0, left, top, width, height, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, NetLiquidationValueLabel(), 0, left, top, width, height, SWP_NOZORDER);
     
     top += height;
     left = AfxScaleX(280);
     width = AfxScaleX(65);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY), 0, left, top, width, height, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, ExcessLiquidityLabel(), 0, left, top, width, height, SWP_NOZORDER);
 
     left = AfxScaleX(350);
     width = AfxScaleX(60);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), 0, left, top, width, height, SWP_NOZORDER);
+    hdwp = DeferWindowPos(hdwp, ExcessLiquidityValueLabel(), 0, left, top, width, height, SWP_NOZORDER);
 
     height = AfxScaleY(23);
     top = height;
     left = AfxScaleY(470);
     width = AfxScaleX(120);
-    hdwp = DeferWindowPos(hdwp, GetDlgItem(hwnd, IDC_ACTIVETRADES_LBLNEWTRADE), 0,
-        left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, NewTradeLabel(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     top += height;
-    hdwp = DeferWindowPos(hdwp, hNewTrade, 0, left, top, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
-    
+    width = AfxScaleX(200);
+    hdwp = DeferWindowPos(hdwp, NewTradeCombo(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    left += width;
+    width = AfxScaleX(23);
+    hdwp = DeferWindowPos(hdwp, NewTradeButton(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+
     top = margin;
     left = AfxScaleY(APP_LEFTMARGIN_WIDTH);
     height = cy - top;
     width = cx - left - custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | show_flag);
+    hdwp = DeferWindowPos(hdwp, TradesListBox(), 0, left, top, width, height, SWP_NOZORDER | show_flag);
     
     left += width;   // right edge of ListBox
     width = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hCustomVScrollBar, 0, left, top, width, height, SWP_NOZORDER | show_flag);
+    hdwp = DeferWindowPos(hdwp, VScrollBar(), 0, left, top, width, height, SWP_NOZORDER | show_flag);
 
     EndDeferWindowPos(hdwp);
 
@@ -1588,32 +1481,31 @@ void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
 // ========================================================================================
 // Get the text for the specified SortFilter index.
 // ========================================================================================
-std::wstring CActiveTrades::GetSortFilterDescription(const int index) {
-    switch (index) {
-    case IDC_SORTFILTER_CATEGORY: return L"By Category";
-    case IDC_SORTFILTER_EXPIRATION: return L"By Days to Expiration (DTE)";
-    case IDC_SORTFILTER_TICKERSYMBOL: return L"By Ticker Symbol and DTE";
+std::wstring CActiveTrades::GetSortFilterDescription(int idx) {
+    switch ((ActiveTradesFilterType)idx) {
+    case ActiveTradesFilterType::Category: return L"By Category";
+    case ActiveTradesFilterType::Expiration: return L"By Days to Expiration (DTE)";
+    case ActiveTradesFilterType::TickerSymbol: return L"By Ticker Symbol and DTE";
     default: return L"";
     }
 }
 
-
 // ========================================================================================
 // Get the text for the specified NewTrade index.
 // ========================================================================================
-std::wstring CActiveTrades::GetNewTradeDescription(const int index) {
-    switch (index) {
-    case IDC_NEWTRADE_CUSTOMOPTIONS: return L"Custom Options Trade";
-    case IDC_NEWTRADE_IRONCONDOR: return L"Iron Condor";
-    case IDC_NEWTRADE_SHORTSTRANGLE: return L"Short Strangle";
-    case IDC_NEWTRADE_SHORTPUT: return L"Short Put";
-    case IDC_NEWTRADE_SHORTPUTVERTICAL: return L"Short Put Vertical";
-    case IDC_NEWTRADE_SHORTCALL: return L"Short Call";
-    case IDC_NEWTRADE_SHORTCALLVERTICAL: return L"Short Call Vertical";
-    case IDC_NEWTRADE_SHORTPUTLT112: return L"Short Put 112";
-    case IDC_NEWTRADE_SHARESTRADE: return L"Shares Trade";
-    case IDC_NEWTRADE_FUTURESTRADE: return L"Futures Trade";
-    case IDC_NEWTRADE_OTHERINCOME: return L"Other Income/Expense";
+std::wstring CActiveTrades::GetNewTradeDescription(int idx) {
+    switch ((NewTradeType)idx) {
+    case NewTradeType::Custom: return L"Custom Options Trade";
+    case NewTradeType::IronCondor: return L"Iron Condor";
+    case NewTradeType::ShortStrangle: return L"Short Strangle";
+    case NewTradeType::ShortPut: return L"Short Put";
+    case NewTradeType::ShortPutVertical: return L"Short Put Vertical";
+    case NewTradeType::ShortCall: return L"Short Call";
+    case NewTradeType::ShortCallVertical: return L"Short Call Vertical";
+    case NewTradeType::ShortPut112: return L"Short Put 112";
+    case NewTradeType::SharesTrade: return L"Shares Trade";
+    case NewTradeType::FuturesTrade: return L"Futures Trade";
+    case NewTradeType::OtherIncomeExpense: return L"Other Income/Expense";
     default: return L"";
     }
 }
@@ -1625,55 +1517,46 @@ std::wstring CActiveTrades::GetNewTradeDescription(const int index) {
 bool CActiveTrades::OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
 
+    std::wstring font_name = AfxGetDefaultFont();
+    int font_size = 8;
+
     // SORTFILTER SELECTOR
     CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_LBLSORTFILTER, L"Sort Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
-    int num_items = (IDC_SORTFILTER_LAST - IDC_SORTFILTER_FIRST + 1);
-    HWND hCtl = CreateCustomComboControl(hwnd, IDC_ACTIVETRADES_SORTFILTER, 0, 0, 3);
-    
-    CustomComboControl* pData = CustomComboControl_GetOptions(hCtl);
-    if (pData) {
-        CustomComboItemData data{};
-        for (int i = IDC_SORTFILTER_FIRST; i <= IDC_SORTFILTER_LAST; ++i) {
-            data.item_text = GetSortFilterDescription(i);
-            data.item_data = i;
-            pData->items.push_back(data);
-        }
-        CustomComboControl_SetSelectedIndex(hCtl, IDC_SORTFILTER_FIRST);
-        CustomLabel_SetText(GetDlgItem(hCtl, IDC_CUSTOMCOMBOCONTROL_COMBOBOX), 
-            GetSortFilterDescription(IDC_SORTFILTER_FIRST));
-    }
-        
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION, L"Net Liq:",
-        COLOR_WHITEDARK, COLOR_BLACK);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE, L"",
-        COLOR_WHITELIGHT, COLOR_BLACK);
+    HWND hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ACTIVETRADES_SORTFILTER, GetSortFilterDescription((int)ActiveTradesFilterType::Category),
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_left, 0, 0, 0, 0);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ACTIVETRADES_CMDSORTFILTER, GLYPH_DROPDOWN,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY, L"Excess Liq:",
-        COLOR_WHITEDARK, COLOR_BLACK);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE, L"",
-        COLOR_WHITELIGHT, COLOR_BLACK);
+    // PORTFOLIO LIQUIDATION VALUES
+    CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION, L"Net Liq:", COLOR_WHITEDARK, COLOR_BLACK);
+    CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE, L"", COLOR_WHITELIGHT, COLOR_BLACK);
+    CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY, L"Excess Liq:", COLOR_WHITEDARK, COLOR_BLACK);
+    CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE, L"", COLOR_WHITELIGHT, COLOR_BLACK);
+
 
     // NEW TRADE SELECTOR
     CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_LBLNEWTRADE, L"New Trade",
         COLOR_WHITEDARK, COLOR_BLACK);
-    num_items = (IDC_NEWTRADE_LAST - IDC_NEWTRADE_FIRST + 1);
-    hCtl = CreateCustomComboControl(hwnd, IDC_ACTIVETRADES_NEWTRADE, 0, 0, num_items);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ACTIVETRADES_NEWTRADE, GetNewTradeDescription((int)NewTradeType::Custom),
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_left, 0, 0, 0, 0);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+    CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ACTIVETRADES_CMDNEWTRADE, GLYPH_DROPDOWN,
+        COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    pData = CustomComboControl_GetOptions(hCtl);
-    if (pData) {
-        CustomComboItemData data{};
-        for (int i = IDC_NEWTRADE_FIRST; i <= IDC_NEWTRADE_LAST; ++i) {
-            data.item_text = GetNewTradeDescription(i);
-            data.item_data = i;
-            pData->items.push_back(data);
-        }
-        CustomComboControl_SetSelectedIndex(hCtl, IDC_NEWTRADE_FIRST);
-        CustomLabel_SetText(GetDlgItem(hCtl, IDC_CUSTOMCOMBOCONTROL_COMBOBOX), 
-            GetNewTradeDescription(IDC_NEWTRADE_FIRST));
-    }
 
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various open trades.
@@ -1747,65 +1630,93 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
 
-    case MSG_CUSTOMCOMBO_ITEMCHANGED: {
-        // The SortFilter or NewTrade popup has been clicked.
-        int item_data = (int)wParam;
+    case MSG_CUSTOMLABEL_CLICK: {
+        HWND hCtl = (HWND)lParam;
+        int ctrl_id = (int)wParam;
 
-        switch (item_data) {
-        case IDC_SORTFILTER_CATEGORY:
-            sort_order = SortOrder::Category;
-            ShowActiveTrades();
-            break;
-        case IDC_SORTFILTER_EXPIRATION:
-            sort_order = SortOrder::Expiration;
-            ShowActiveTrades();
-            break;
-        case IDC_SORTFILTER_TICKERSYMBOL:
-            sort_order = SortOrder::TickerSymbol;
-            ShowActiveTrades();
-            break;
-        case IDC_NEWTRADE_CUSTOMOPTIONS: 
-            TradeDialog_Show(TradeAction::new_options_trade);
-            break;
-        case IDC_NEWTRADE_IRONCONDOR:
-            TradeDialog_Show(TradeAction::new_iron_condor);
-            break;
-        case IDC_NEWTRADE_SHORTSTRANGLE:
-            TradeDialog_Show(TradeAction::new_short_strangle);
-            break;
-        case IDC_NEWTRADE_SHORTPUT: 
-            TradeDialog_Show(TradeAction::new_short_put);
-            break;
-        case IDC_NEWTRADE_SHORTCALL:
-            TradeDialog_Show(TradeAction::new_short_call);
-            break;
-        case IDC_NEWTRADE_SHORTPUTVERTICAL:
-            TradeDialog_Show(TradeAction::new_short_put_vertical);
-            break;
-        case IDC_NEWTRADE_SHORTCALLVERTICAL:
-            TradeDialog_Show(TradeAction::new_short_call_vertical);
-            break;
-        case IDC_NEWTRADE_SHORTPUTLT112:
-            TradeDialog_Show(TradeAction::new_short_put_LT112);
-            break;
-        case IDC_NEWTRADE_SHARESTRADE:
-            TradeDialog_Show(TradeAction::new_shares_trade);
-            break;
-        case IDC_NEWTRADE_FUTURESTRADE:
-            TradeDialog_Show(TradeAction::new_futures_trade);
-            break;
-        case IDC_NEWTRADE_OTHERINCOME:
-            TradeDialog_Show(TradeAction::other_income_expense);
-            break;
-        default:
-            ActiveTrades.sort_order = SortOrder::Category;
-            break;
+        if (!hCtl) return 0;
+
+        if (ctrl_id == IDC_ACTIVETRADES_CMDSORTFILTER || ctrl_id == IDC_ACTIVETRADES_SORTFILTER) {
+            std::vector<CCustomPopupMenuItem> items;
+            for (int i = (int)ActiveTradesFilterType::Category; i <= (int)ActiveTradesFilterType::TickerSymbol; ++i) {
+                items.push_back({ GetSortFilterDescription(i), i, false });
+            }
+
+            // Position the popup menu immediately under the control that was clicked on
+            HWND hCombo = SortFilterCombo();
+            int top_offset = AfxScaleY(1);
+            RECT rc{}; GetWindowRect(hCombo, &rc);
+            POINT pt{ rc.left, rc.bottom + top_offset };
+            int selected = CustomPopupMenu.Show(hWindow, items, (int)filter_type, pt.x, pt.y, AfxScaleX(223));
+
+            if (selected != -1) {
+                // Set selected_transdate prior to calling SetStartEndDates()
+                filter_type = (ActiveTradesFilterType)selected;
+                CustomLabel_SetText(hCombo, GetSortFilterDescription(selected));
+                ShowActiveTrades();
+            }
         }
 
+        if (ctrl_id == IDC_ACTIVETRADES_CMDNEWTRADE || ctrl_id == IDC_ACTIVETRADES_NEWTRADE) {
+            std::vector<CCustomPopupMenuItem> items;
+            for (int i = (int)NewTradeType::Custom; i <= (int)NewTradeType::OtherIncomeExpense; ++i) {
+                items.push_back({ GetNewTradeDescription(i), i, false });
+            }
+
+            // Position the popup menu immediately under the control that was clicked on
+            HWND hCombo = NewTradeCombo();
+            int top_offset = AfxScaleY(1);
+            RECT rc{}; GetWindowRect(hCombo, &rc);
+            POINT pt{ rc.left, rc.bottom + top_offset };
+            int selected = CustomPopupMenu.Show(hWindow, items, (int)new_trade_type, pt.x, pt.y, AfxScaleX(223));
+
+            if (selected != -1) {
+                // Set selected_transdate prior to calling SetStartEndDates()
+                new_trade_type = (NewTradeType)selected;
+                CustomLabel_SetText(hCombo, GetNewTradeDescription(selected));
+
+                switch (new_trade_type) {
+                case NewTradeType::Custom:
+                    TradeDialog_Show(TradeAction::new_options_trade);
+                    break;
+                case NewTradeType::IronCondor:
+                    TradeDialog_Show(TradeAction::new_iron_condor);
+                    break;
+                case NewTradeType::ShortStrangle:
+                    TradeDialog_Show(TradeAction::new_short_strangle);
+                    break;
+                case NewTradeType::ShortPut:
+                    TradeDialog_Show(TradeAction::new_short_put);
+                    break;
+                case NewTradeType::ShortCall:
+                    TradeDialog_Show(TradeAction::new_short_call);
+                    break;
+                case NewTradeType::ShortPutVertical:
+                    TradeDialog_Show(TradeAction::new_short_put_vertical);
+                    break;
+                case NewTradeType::ShortCallVertical:
+                    TradeDialog_Show(TradeAction::new_short_call_vertical);
+                    break;
+                case NewTradeType::ShortPut112:
+                    TradeDialog_Show(TradeAction::new_short_put_LT112);
+                    break;
+                case NewTradeType::SharesTrade:
+                    TradeDialog_Show(TradeAction::new_shares_trade);
+                    break;
+                case NewTradeType::FuturesTrade:
+                    TradeDialog_Show(TradeAction::new_futures_trade);
+                    break;
+                case NewTradeType::OtherIncomeExpense:
+                    TradeDialog_Show(TradeAction::other_income_expense);
+                    break;
+                }
+            }
+        }
         return 0;
     }
 
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 

@@ -86,8 +86,8 @@ bool StrategyPopup_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
     std::wstring font_name = AfxGetDefaultFont();
     std::wstring text;
-    int font_size = 8;
-    bool bold = true;
+    int font_size = 9;
+    bool bold = false;  // true;
 
     for (int i = 0; i < (int)Strategy::Count; ++i) {
         hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYPOPUP_LONGSHORT + i, L"",

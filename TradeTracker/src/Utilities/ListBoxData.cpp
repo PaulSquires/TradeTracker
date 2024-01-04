@@ -161,7 +161,7 @@ bool ListBoxData_ResizeColumnWidths(HWND hListBox, TableType tabletype) {
     HWND hHeader = NULL;
     if (tabletype == TableType::closed_trades) hHeader = ClosedTrades.TradesHeader();
     if (tabletype == TableType::ticker_totals) hHeader = TickerPanel.TickersHeader();
-    if (tabletype == TableType::trans_panel) hHeader = TransPanel.TradesHeader();
+    if (tabletype == TableType::trans_panel) hHeader = TransPanel.TransHeader();
     
     if (hHeader) {
         int item_width = 0;
@@ -1000,6 +1000,11 @@ void ListBoxData_OutputTransaction(
     DWORD clr = (trans->total >= 0) ? COLOR_GREEN : COLOR_RED;
     ld->SetData(7, trade, ticker_id, AfxMoney(trans->total), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
+
+    // col 8 is a "spacer" column
+
+    ld->SetData(9, trade, ticker_id, config.GetCategoryDescription(trade->category), StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYDARK, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }

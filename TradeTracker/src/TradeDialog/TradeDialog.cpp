@@ -38,7 +38,6 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "DatePicker/Calendar.h"
 #include "Strategy/StrategyPopup.h"
-#include "Category/CategoryPopup.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 #include "Reconcile/Reconcile.h"
@@ -483,9 +482,6 @@ int TradeDialog_Show(TradeAction inTradeAction) {
             }
             else if (IsWindowVisible(HWND_STRATEGYPOPUP)) {
                 DestroyWindow(HWND_STRATEGYPOPUP);
-            }
-            else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {
-                DestroyWindow(HWND_CATEGORYPOPUP);
             }
             else {
                 SendMessage(hwnd, WM_CLOSE, 0, 0);

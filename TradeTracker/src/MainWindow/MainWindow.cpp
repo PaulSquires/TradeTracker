@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "MainWindow.h"
 #include "tws-client.h"
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
@@ -40,20 +39,14 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "JournalNotes/JournalNotes.h"
 #include "TradePlan/TradePlan.h"
-#include "Category/Category.h"
-#include "Category/CategoryDialog.h"
-#include "Category/CategoryPopup.h"
 #include "TabPanel/TabPanel.h"
 #include "CustomLabel/CustomLabel.h"
-#include "CustomVScrollBar/CustomVScrollBar.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 #include "Utilities/UpdateCheck.h"
-#include "DatePicker/Calendar.h"
-#include "CustomCombo/CustomComboPopup.h"
-#include "Strategy/StrategyPopup.h"
-
-
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
+
+#include "MainWindow.h"
 
 
 CMainWindowShadow Shadow;
@@ -488,8 +481,8 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         // combobox popups.
         if (wParam == false) {
             PostMessage(m_hwnd, WM_USER, NULL, NULL);
-            if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
-                DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
+            if (IsWindowVisible(HWND_CUSTOMPOPUPMENU)) {
+                DestroyWindow(HWND_CUSTOMPOPUPMENU);
             }
         }
         return 0;

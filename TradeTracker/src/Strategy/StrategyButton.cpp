@@ -142,8 +142,8 @@ bool StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND hCtl = NULL;
     std::wstring font_name = AfxGetDefaultFont();
     std::wstring text;
-    int font_size = 8;
-    bool bold = true;
+    int font_size = 9;
+    bool bold = false; // true;
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_LONGSHORT, L"",
         COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
@@ -154,6 +154,7 @@ bool StrategyButton_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
     StrategyButton_SetLongShortBackColor(hCtl);
     text = AfxUpper(StrategyButton_GetLongShortEnumText(LongShort::Short));
+    text = StrategyButton_GetLongShortEnumText(LongShort::Short);
     CustomLabel_SetText(hCtl, text);
 
     hCtl = CustomLabel_SimpleLabel(hwnd, IDC_STRATEGYBUTTON_PUTCALL, L"",

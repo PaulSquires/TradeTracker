@@ -66,7 +66,7 @@ private:
     int selected_item = -1;
 };
 
-extern HWND HWND_POPUPMENU;
+extern HWND HWND_CUSTOMPOPUPMENU;
 
 constexpr int IDC_CUSTOMPOPUPMENU_LISTBOX = 100;
 

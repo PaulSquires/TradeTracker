@@ -286,7 +286,6 @@ bool CFilterPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         CustomLabelAlignment::middle_left, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
-
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_FILTER_CMDTRANSDATE, GLYPH_DROPDOWN,
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
@@ -337,10 +336,22 @@ bool CFilterPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 void CFilterPanel::SendDateChangedMessageToParent() {
     // The SetStartEndDates() function will have already set the filter dates so
     // no need to do it again here.
-    // selected_category is automatically set whenever the Category dropdown is accessed.
-
+    selected_category = CategoryControl_GetSelectedIndex(CategoryCombo());
     ticker_symbol = AfxTrim(CustomTextBox_GetText(TickerTextBox()));
     SendMessage(GetParent(hWindow), MSG_DATEPICKER_DATECHANGED, 0, 0);
+}
+
+
+// ========================================================================================
+// Assemble the filter data and send message to parent window notifying that the data
+// has changed and the grids will need to be updated.
+// ========================================================================================
+void CFilterPanel::SendCategoryChangedMessageToParent() {
+    // The SetStartEndDates() function will have already set the filter dates so
+    // no need to do it again here.
+    selected_category = CategoryControl_GetSelectedIndex(CategoryCombo());
+    ticker_symbol = AfxTrim(CustomTextBox_GetText(TickerTextBox()));
+    SendMessage(GetParent(hWindow), MSG_CATEGORY_CATEGORYCHANGED, 0, 0);
 }
 
 
@@ -389,12 +400,8 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     }
 
     case MSG_CATEGORY_CATEGORYCHANGED: {
-        // Categories have change so update the Closed Trades list.
-        //SetShowTradeDetail(true);
-        //ShowClosedTrades();
-
-        // Also need to update Active Trades list because Category headers have changed.
-        //AfxRedrawWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
+        // Show underlying Transactions or ClosedTrades 
+        SendCategoryChangedMessageToParent();
         return 0;
     }
 
@@ -433,7 +440,6 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_FILTER_CMDSTARTDATE || ctrl_id == IDC_FILTER_STARTDATE) {
             // Clicked on the Start Date dropdown or label itself
-            // Will send MSG_DATEPICKER_DATECHANGED to this window when selection made
             CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, StartDateCombo(), filter_start_date, 1);
 
             if (calendar_result.exit_code != -1) {
@@ -448,7 +454,6 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_FILTER_CMDENDDATE || ctrl_id == IDC_FILTER_ENDDATE) {
             // Clicked on the End Date dropdown or label itself
-            // Will send MSG_DATEPICKER_DATECHANGED to this window when selection made
             CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, EndDateCombo(), filter_end_date, 1);
 
             if (calendar_result.exit_code != -1) {

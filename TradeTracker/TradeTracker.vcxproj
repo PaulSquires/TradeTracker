@@ -23,11 +23,8 @@
     <ClInclude Include="src\ActiveTrades\ActiveTrades.h" />
     <ClInclude Include="src\ActiveTrades\Assignment.h" />
     <ClInclude Include="src\codetimer.h" />
-    <ClInclude Include="src\CustomCombo\CustomCombo.h" />
-    <ClInclude Include="src\CustomCombo\CustomComboPopup.h" />
     <ClInclude Include="src\Category\Category.h" />
     <ClInclude Include="src\Category\CategoryDialog.h" />
-    <ClInclude Include="src\Category\CategoryPopup.h" />
     <ClInclude Include="src\ClosedTrades\ClosedTrades.h" />
     <ClInclude Include="src\Config\Config.h" />
     <ClInclude Include="src\CustomLabel\CustomLabel.h" />
@@ -119,11 +116,8 @@
   <ItemGroup>
     <ClCompile Include="src\ActiveTrades\ActiveTrades.cpp" />
     <ClCompile Include="src\ActiveTrades\Assignment.cpp" />
-    <ClCompile Include="src\CustomCombo\CustomCombo.cpp" />
-    <ClCompile Include="src\CustomCombo\CustomComboPopup.cpp" />
     <ClCompile Include="src\Category\Category.cpp" />
     <ClCompile Include="src\Category\CategoryDialog.cpp" />
-    <ClCompile Include="src\Category\CategoryPopup.cpp" />
     <ClCompile Include="src\ClosedTrades\ClosedTrades.cpp" />
     <ClCompile Include="src\Config\Config.cpp" />
     <ClCompile Include="src\CustomLabel\CustomLabel.cpp" />

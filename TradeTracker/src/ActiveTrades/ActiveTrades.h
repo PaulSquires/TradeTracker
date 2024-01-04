@@ -33,30 +33,48 @@ SOFTWARE.
 
 typedef long TickerId;
 
-enum class SortOrder {
+enum class ActiveTradesFilterType {
     Category,
     Expiration,
     TickerSymbol
+};
+
+enum class NewTradeType {
+    Custom,
+    IronCondor,
+    ShortStrangle,
+    ShortPut,
+    ShortPutVertical,
+    ShortCall,
+    ShortCallVertical,
+    ShortPut112,
+    SharesTrade,
+    FuturesTrade,
+    OtherIncomeExpense
 };
 
 
 class CActiveTrades : public CWindowBase<CActiveTrades> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-    SortOrder sort_order = SortOrder::Category;
 
     HWND hWindow = NULL;
 
     HWND TradesListBox();
     HWND SortFilterLabel();
-    HWND SortFilterTextBox();
+    HWND SortFilterCombo();
+    HWND SortFilterButton();
     HWND NewTradeLabel();
-    HWND NewTradeTextBox();
+    HWND NewTradeCombo();
+    HWND NewTradeButton();
     HWND NetLiquidationLabel();
     HWND NetLiquidationValueLabel();
     HWND ExcessLiquidityLabel();
     HWND ExcessLiquidityValueLabel();
     HWND VScrollBar();
+
+    ActiveTradesFilterType filter_type = ActiveTradesFilterType::Category;
+    NewTradeType new_trade_type = NewTradeType::Custom;
 
     void ShowActiveTrades();
     void PerformITMcalculation(std::shared_ptr<Trade>& trade);
@@ -75,8 +93,8 @@ private:
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
     void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
 
-    std::wstring GetSortFilterDescription(const int index);
-    std::wstring GetNewTradeDescription(const int index);
+    std::wstring GetSortFilterDescription(int index);
+    std::wstring GetNewTradeDescription(int index);
     void UpdateTickerPricesLine(int index, ListBoxData* ld);
     void UpdateTickerPortfolioLine(int index, int index_trade, ListBoxData* ld);
     void UpdateLegPortfolioLine(int index, ListBoxData* ld);
@@ -101,35 +119,17 @@ constexpr int IDC_ACTIVETRADES_LISTBOX = 100;
 constexpr int IDC_ACTIVETRADES_CUSTOMVSCROLLBAR = 102;
 constexpr int IDC_ACTIVETRADES_LBLSORTFILTER = 104;
 constexpr int IDC_ACTIVETRADES_SORTFILTER = 105;
-constexpr int IDC_ACTIVETRADES_LBLNEWTRADE = 106;
-constexpr int IDC_ACTIVETRADES_NEWTRADE = 107;
-constexpr int IDC_ACTIVETRADES_NETLIQUIDATION = 108;
-constexpr int IDC_ACTIVETRADES_NETLIQUIDATION_VALUE = 109;
-constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY = 110;
-constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE = 111;
+constexpr int IDC_ACTIVETRADES_CMDSORTFILTER = 106;
+constexpr int IDC_ACTIVETRADES_LBLNEWTRADE = 107;
+constexpr int IDC_ACTIVETRADES_NEWTRADE = 108;
+constexpr int IDC_ACTIVETRADES_CMDNEWTRADE = 109;
+constexpr int IDC_ACTIVETRADES_NETLIQUIDATION = 110;
+constexpr int IDC_ACTIVETRADES_NETLIQUIDATION_VALUE = 111;
+constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY = 112;
+constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE = 113;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 80;
-
-constexpr int IDC_SORTFILTER_FIRST = 140;
-constexpr int IDC_SORTFILTER_CATEGORY = 140;
-constexpr int IDC_SORTFILTER_EXPIRATION = 141;
-constexpr int IDC_SORTFILTER_TICKERSYMBOL = 142;
-constexpr int IDC_SORTFILTER_LAST = 142;
-
-constexpr int IDC_NEWTRADE_FIRST = 150;
-constexpr int IDC_NEWTRADE_CUSTOMOPTIONS = 150;
-constexpr int IDC_NEWTRADE_IRONCONDOR = 151;
-constexpr int IDC_NEWTRADE_SHORTSTRANGLE = 152;
-constexpr int IDC_NEWTRADE_SHORTPUT = 153;
-constexpr int IDC_NEWTRADE_SHORTPUTVERTICAL = 154;
-constexpr int IDC_NEWTRADE_SHORTCALL = 155;
-constexpr int IDC_NEWTRADE_SHORTCALLVERTICAL = 156;
-constexpr int IDC_NEWTRADE_SHORTPUTLT112 = 157;
-constexpr int IDC_NEWTRADE_SHARESTRADE = 158;
-constexpr int IDC_NEWTRADE_FUTURESTRADE = 159;
-constexpr int IDC_NEWTRADE_OTHERINCOME = 160;
-constexpr int IDC_NEWTRADE_LAST = 160;
 
 
 // These columns in the table are updated in real time when connected

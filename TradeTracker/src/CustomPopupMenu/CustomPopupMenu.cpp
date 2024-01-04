@@ -32,7 +32,7 @@ SOFTWARE.
 #include "CustomPopupMenu.h"
 
 
-HWND HWND_POPUPMENU = NULL;   // needed for the global hook
+HWND HWND_CUSTOMPOPUPMENU = NULL;   // needed for the global hook
 
 CCustomPopupMenu CustomPopupMenu;
 
@@ -245,7 +245,7 @@ void CCustomPopupMenu::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
             graphics.DrawLine(&pen, margin, height / 2, width - margin, height / 2);
         }
         else {
-            if (selected_item == lpDrawItem->itemData) glyph = GLYPH_CHECKMARK;
+            if (selected_item == items.at(lpDrawItem->itemID).id) glyph = GLYPH_CHECKMARK;
             RectF rcText1((REAL)0, (REAL)0, (REAL)glyph_width, (REAL)height);
             stringF.SetAlignment(StringAlignment::StringAlignmentCenter);
             graphics.DrawString(glyph.c_str(), -1, &font, rcText1, &stringF, &text_brush);
@@ -281,7 +281,7 @@ void CCustomPopupMenu::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem
 bool CCustomPopupMenu::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     hWindow = hwnd;
-    HWND_POPUPMENU = hwnd;
+    HWND_CUSTOMPOPUPMENU = hwnd;
 
     HWND hCtl =
         AddControl(Controls::ListBox, hwnd, IDC_CUSTOMPOPUPMENU_LISTBOX, L"",
@@ -320,13 +320,13 @@ LRESULT CALLBACK CustomPopupMenuHook(int Code, WPARAM wParam, LPARAM lParam) {
     // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
     // at the point this hook is called).
     if (wParam == WM_LBUTTONDOWN) {
-        if (HWND_POPUPMENU) {
+        if (HWND_CUSTOMPOPUPMENU) {
             POINT pt;       GetCursorPos(&pt);
-            RECT rcWindow;  GetWindowRect(HWND_POPUPMENU, &rcWindow);
+            RECT rcWindow;  GetWindowRect(HWND_CUSTOMPOPUPMENU, &rcWindow);
 
             // if the mouse action is outside the menu, hide it. the window procedure will also unset this hook 
             if (!PtInRect(&rcWindow, pt)) {
-                DestroyWindow(HWND_POPUPMENU);
+                DestroyWindow(HWND_CUSTOMPOPUPMENU);
             }
         }
     }
@@ -363,7 +363,7 @@ LRESULT CCustomPopupMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
         hCustomPopupMouseHook = nullptr;
 
         // Reset our destroyed variable for future use of the popup
-        HWND_POPUPMENU = NULL;
+        HWND_CUSTOMPOPUPMENU = NULL;
         items.clear();
 
         PostQuitMessage(0);

@@ -201,8 +201,8 @@ const int nTransMinColWidth[MAX_COLUMNS] =
     60,     /* Price */
     60,     /* Fees */
     70,     /* Total */
-    0,
-    0,
+    5,      /* spacer */
+    150,    /* Category Description */
     0,
     0,
     0

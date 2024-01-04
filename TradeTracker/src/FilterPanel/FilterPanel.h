@@ -85,6 +85,7 @@ private:
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
 
     void SendDateChangedMessageToParent();
+    void SendCategoryChangedMessageToParent();
 };
 
 

@@ -40,6 +40,8 @@ public:
     HWND TradesHeader();
     HWND VScrollBar();
 
+    CFilterPanel FilterPanel;
+
     void ShowClosedTrades();
     void SetShowTradeDetail(bool enable);
 
@@ -53,7 +55,6 @@ private:
 
     void ShowListBoxItem(int index);
  
-    CFilterPanel FilterPanel;
 
     static LRESULT CALLBACK ListBox_SubclassProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,

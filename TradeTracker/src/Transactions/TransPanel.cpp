@@ -29,6 +29,7 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
+#include "ActiveTrades/ActiveTrades.h"
 #include "Category/Category.h"
 #include "TabPanel/TabPanel.h"
 #include "Utilities/ListBoxData.h"
@@ -45,14 +46,14 @@ CTransPanel TransPanel;
 // ========================================================================================
 // Get the HWND's of the the controls on the form.
 // ========================================================================================
-inline HWND CTransPanel::TradesListBox() {
+inline HWND CTransPanel::TransListBox() {
     return GetDlgItem(hWindow, IDC_TRANS_LISTBOX);
+}
+inline HWND CTransPanel::TransHeader() {
+    return GetDlgItem(hWindow, IDC_TRANS_HEADER);
 }
 inline HWND CTransPanel::VScrollBar() {
     return GetDlgItem(hWindow, IDC_TRANS_CUSTOMVSCROLLBAR);
-}
-inline HWND CTransPanel::TradesHeader() {
-    return GetDlgItem(hWindow, IDC_TRANS_HEADER);
 }
 
 
@@ -61,7 +62,7 @@ inline HWND CTransPanel::TradesHeader() {
 // Central function that actually selects and displays the incoming ListBox index item.
 // ========================================================================================
 void CTransPanel::ShowListBoxItem(int index) {
-    ListBox_SetCurSel(TradesListBox(), index);
+    ListBox_SetCurSel(TransListBox(), index);
 
     // Ensure that the Transactions menu item is selected
     TabPanel_SelectPanelItem(HWND_TABPANEL, IDC_TABPANEL_TRANSACTIONS);
@@ -72,12 +73,12 @@ void CTransPanel::ShowListBoxItem(int index) {
     // Get the current line to determine if a valid Trade pointer exists so that we
     // can show the transaction detail.
     if (index > -1) {
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(TradesListBox(), index);
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(TransListBox(), index);
         if (ld)
             TransDetail.ShowTransDetail(ld->trade, ld->trans);
     }
 
-    SetFocus(TradesListBox());
+    SetFocus(TransListBox());
 }
 
 
@@ -100,7 +101,7 @@ void CTransPanel::ShowTransactions() {
 
 
     // Prevent ListBox redrawing until all calculations are completed
-    SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);
+    SendMessage(TransListBox(), WM_SETREDRAW, false, 0);
 
     struct TransData {
         std::shared_ptr<Trade> trade;
@@ -113,6 +114,10 @@ void CTransPanel::ShowTransactions() {
         for (auto& trans : trade->transactions) {
             if (ticker.length() > 0) {
                 if (ticker != trade->ticker_symbol) continue;
+            }
+
+            if (selected_category != CATEGORY_ALL) {
+                if (trade->category != selected_category) continue;
             }
 
             if (trans->trans_date < start_date || trans->trans_date > end_date) continue;
@@ -141,7 +146,7 @@ void CTransPanel::ShowTransactions() {
 
 
     // Clear the current table
-    ListBoxData_DestroyItemData(TradesListBox());
+    ListBoxData_DestroyItemData(TransListBox());
 
     // Create the new Listbox data that will display for the Transactions
     double running_gross_total = 0;
@@ -149,35 +154,35 @@ void CTransPanel::ShowTransactions() {
     double running_net_total = 0;
 
     for (const auto& td : tdata) {
-        ListBoxData_OutputTransaction(TradesListBox(), td.trade, td.trans);
+        ListBoxData_OutputTransaction(TransListBox(), td.trade, td.trans);
         running_net_total += td.trans->total;
         running_fees_total += td.trans->fees;
         running_gross_total += (td.trans->total + td.trans->fees);
     }
-    ListBoxData_OutputTransactionRunningTotal(TradesListBox(), running_gross_total, running_fees_total, running_net_total);
+    ListBoxData_OutputTransactionRunningTotal(TransListBox(), running_gross_total, running_fees_total, running_net_total);
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
-    ListBoxData_ResizeColumnWidths(TradesListBox(), TableType::trans_panel);
+    ListBoxData_ResizeColumnWidths(TransListBox(), TableType::trans_panel);
 
     // Set the ListBox to the topline.
-    ListBox_SetTopIndex(TradesListBox(), 0);
+    ListBox_SetTopIndex(TransListBox(), 0);
 
     // If no transactions then add at least one line
-    if (ListBox_GetCount(TradesListBox())) {
-        ListBoxData_AddBlankLine(TradesListBox());
+    if (ListBox_GetCount(TransListBox())) {
+        ListBoxData_AddBlankLine(TransListBox());
     }
 
     CustomVScrollBar_Recalculate(VScrollBar());
 
     // Select row past the YTD total line if possible
-    int curSel = min(ListBox_GetCount(TradesListBox()) - 1, 2);
+    int curSel = min(ListBox_GetCount(TransListBox()) - 1, 2);
     ShowListBoxItem(curSel);
 
     // Redraw the ListBox to ensure that any recalculated columns are 
     // displayed correctly. Re-enable redraw.
-    SendMessage(TradesListBox(), WM_SETREDRAW, true, 0);
-    AfxRedrawWindow(TradesListBox());
+    SendMessage(TransListBox(), WM_SETREDRAW, true, 0);
+    AfxRedrawWindow(TransListBox());
 }
 
 
@@ -409,12 +414,12 @@ void CTransPanel::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 
     top = margin;
     height = AfxScaleY(TRANSPANEL_LISTBOX_ROWHEIGHT);
-    hdwp = DeferWindowPos(hdwp, TradesHeader(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, TransHeader(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     top += (height + AfxScaleY(1));
 
     width = cx - left - custom_scrollbar_width;
     height = cy - top;
-    hdwp = DeferWindowPos(hdwp, TradesListBox(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, TransListBox(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left += width;   // right edge of ListBox
     width = custom_scrollbar_width;
@@ -503,6 +508,20 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     case MSG_DATEPICKER_DATECHANGED: {
         // Received from FilterPanel to indicate that we need to refresh our Transaction grid.
         ShowTransactions();
+        return 0;
+    }
+
+    case MSG_CATEGORY_CATEGORYCHANGED: {
+        // Categories have change so update the Transactions list.
+        ShowTransactions();
+
+        // Also need to update Active Trades list because Category headers have changed.
+        AfxRedrawWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
+        return 0;
+    }
+
+    case MSG_TRANSPANEL_SHOWLISTBOXITEM: {
+        ShowListBoxItem((int)wParam);
         return 0;
     }
 

@@ -584,6 +584,16 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
 
+    case MSG_CATEGORY_CATEGORYCHANGED: {
+        // Categories have change so update the Closed Trades list.
+        SetShowTradeDetail(true);
+        ShowClosedTrades();
+
+        // Also need to update Active Trades list because Category headers have changed.
+        AfxRedrawWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
+        return 0;
+    }
+
     case MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL: {
         SetShowTradeDetail((bool)wParam);
         return 0;
