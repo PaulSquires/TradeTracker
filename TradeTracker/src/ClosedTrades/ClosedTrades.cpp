@@ -28,6 +28,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "Utilities/ListBoxData.h"
+#include "Category/Category.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeHistory/TradeHistory.h"
@@ -106,20 +107,19 @@ void CClosedTrades::ShowClosedTrades() {
     // Prevent ListBox redrawing until all calculations are completed.
     SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);
 
+    std::wstring start_date = FilterPanel.filter_start_date;
+    std::wstring end_date = FilterPanel.filter_end_date;
+    std::wstring ticker = FilterPanel.ticker_symbol;
+    int selected_category = FilterPanel.selected_category;
+    
     struct ClosedData {
         std::wstring closed_date;
         std::shared_ptr<Trade> trade;
     };
 
-    /*
     std::vector<ClosedData> vectorClosed;
     vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
     
-    int selected_category = CategoryControl_GetSelectedIndex(CategoryCombo());
-
-    std::wstring ticker = CustomTextBox_GetText(TickerTextBox());
-    ticker = AfxTrim(ticker);
-
     for (auto& trade : trades) {
         if (!trade->is_open) {
 
@@ -131,15 +131,19 @@ void CClosedTrades::ShowClosedTrades() {
                 if (trade->category != selected_category) continue;
             }
 
-            ClosedData data;
-
             // Iterate to find the latest closed date
+            std::wstring latest_closed_date;
             for (auto& trans : trade->transactions) {
-                if (trans->trans_date > data.closed_date) {
-                    data.closed_date = trans->trans_date;
+                if (trans->trans_date > latest_closed_date) {
+                    latest_closed_date = trans->trans_date;
                 }
             }
+
+            if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
+            
+            ClosedData data;
             data.trade = trade;
+            data.closed_date = latest_closed_date;
             vectorClosed.push_back(data);
         }
     }
@@ -237,7 +241,6 @@ void CClosedTrades::ShowClosedTrades() {
     ListBoxData_OutputClosedWeekTotal(TradesListBox(), weekly_amount, week_win, week_loss);
     ListBoxData_OutputClosedDayTotal(TradesListBox(), daily_amount, day_win, day_loss);
 
-    */
 
     // Calculate the actual column widths based on the size of the strings in
     // ListBoxData while respecting the minimum values as defined in nMinColWidth[].
@@ -472,16 +475,14 @@ void CClosedTrades::OnSize(HWND hwnd, UINT state, int cx, int cy) {
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
     int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
-    int left = AfxScaleY(APP_LEFTMARGIN_WIDTH);
+    int left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     int top = 0;
     int width = cx;
-    int height = AfxScaleY(23);
-
-    int start_top = height;
-
-    top = start_top;
+    int height = 0;
 
     HDWP hdwp = BeginDeferWindowPos(10);
+
+    hdwp = DeferWindowPos(hdwp, FilterPanel.hWindow, 0, left, top, width, FilterPanel.fixed_height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     top = margin;
@@ -509,7 +510,10 @@ void CClosedTrades::OnSize(HWND hwnd, UINT state, int cx, int cy) {
 bool CClosedTrades::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hWindow = hwnd;
 
-    HWND hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSEDTRADES_HEADER, L"",
+    // Add the top Filter Panel
+    HWND hCtl = FilterPanel.CreateFilterPanel(hwnd);
+
+    hCtl = ClosedTrades.AddControl(Controls::Header, hwnd, IDC_CLOSEDTRADES_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)Header_SubclassProc,
         IDC_CLOSEDTRADES_HEADER, NULL);
     Header_InsertNewItem(hCtl, 0, AfxScaleX(nClosedMinColWidth[0]), L"", HDF_CENTER);
@@ -574,13 +578,9 @@ LRESULT CClosedTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
 
-    case MSG_CATEGORY_CATEGORYCHANGED: {
-        // Categories have change so update the Closed Trades list.
-        SetShowTradeDetail(true);
+    case MSG_DATEPICKER_DATECHANGED: {
+        // Received from FilterPanel to indicate that we need to refresh our ClosedTrades grid.
         ShowClosedTrades();
-
-        // Also need to update Active Trades list because Category headers have changed.
-        AfxRedrawWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_LISTBOX));
         return 0;
     }
 

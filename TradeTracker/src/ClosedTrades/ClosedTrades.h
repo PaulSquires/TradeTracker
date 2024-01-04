@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "FilterPanel/FilterPanel.h"
 
 
 class CClosedTrades : public CWindowBase<CClosedTrades> {
@@ -51,7 +52,9 @@ private:
     void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
 
     void ShowListBoxItem(int index);
-        
+ 
+    CFilterPanel FilterPanel;
+
     static LRESULT CALLBACK ListBox_SubclassProc(
         HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
         UINT_PTR uIdSubclass, DWORD_PTR dwRefData);

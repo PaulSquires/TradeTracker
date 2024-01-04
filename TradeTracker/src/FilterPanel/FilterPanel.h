@@ -27,6 +27,21 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "Category/Category.h"
+
+
+enum class TransDateFilterType {
+    Today,
+    Yesterday,
+    Days7,
+    Days14,
+    Days30,
+    Days60,
+    Days120,
+    YearToDate,
+    Custom
+};
+
 
 class CFilterPanel : public CWindowBase<CFilterPanel> {
 public:
@@ -50,15 +65,17 @@ public:
     HWND CategoryCombo();
 
 
-    std::wstring start_date;
-    std::wstring end_date;
+    TransDateFilterType selected_transdate = TransDateFilterType::Days7;
+    int selected_category = CATEGORY_ALL;
+    std::wstring filter_start_date;
+    std::wstring filter_end_date;
     std::wstring ticker_symbol;
 
     int fixed_height = AfxScaleY(80);
 
     std::wstring GetFilterDescription(int idx); 
     void SetStartEndDates(HWND hwnd);
-
+    
     HWND CreateFilterPanel(HWND hParent);
 
 private:
@@ -66,19 +83,8 @@ private:
     void OnSize(HWND hwnd, UINT state, int cx, int cy);
     void OnPaint(HWND hwnd);
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
-};
 
-
-enum class TransDateFilterType {
-    Today,
-    Yesterday,
-    Days7,
-    Days14,
-    Days30,
-    Days60,
-    Days120,
-    YearToDate,
-    Custom
+    void SendDateChangedMessageToParent();
 };
 
 

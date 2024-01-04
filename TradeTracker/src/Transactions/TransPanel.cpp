@@ -93,9 +93,11 @@ void CTransPanel::ShowTransactions() {
     MainWindow.SetLeftPanel(hWindow);
     MainWindow.SetRightPanel(TransDetail.hWindow);
 
-    std::wstring start_date = FilterPanel.start_date;
-    std::wstring end_date = FilterPanel.end_date;
+    std::wstring start_date = FilterPanel.filter_start_date;
+    std::wstring end_date = FilterPanel.filter_end_date;
     std::wstring ticker = FilterPanel.ticker_symbol;
+    int selected_category = FilterPanel.selected_category;
+
 
     // Prevent ListBox redrawing until all calculations are completed
     SendMessage(TradesListBox(), WM_SETREDRAW, false, 0);
@@ -497,8 +499,15 @@ LRESULT CTransPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         HANDLE_MSG(m_hwnd, WM_SIZE, OnSize);
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
-    }
     
+    case MSG_DATEPICKER_DATECHANGED: {
+        // Received from FilterPanel to indicate that we need to refresh our Transaction grid.
+        ShowTransactions();
+        return 0;
+    }
+
+    }
+
     return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 

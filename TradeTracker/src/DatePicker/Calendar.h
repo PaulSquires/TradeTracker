@@ -39,15 +39,12 @@ extern CCalendar Calendar;
 extern HWND HWND_CALENDAR;
 
 
-enum class CalendarPickerReturnType {
-    short_date,    // Mar 1
-    long_date,     // Mar 1, 2023
-    ISO_date       // 2023-03-01
+struct CalendarReturn {
+    std::wstring iso_date;
+    int exit_code = -1;
 };
 
 constexpr int IDC_CALENDAR_CALENDAR = 100;
 
-HWND Calendar_CreateDatePicker(
-    HWND hParent, HWND hParentCtl, std::wstring date, 
-    CalendarPickerReturnType date_return_type, int calendar_count);
+CalendarReturn Calendar_CreateDatePicker(HWND hParent, HWND hParentCtl, std::wstring initial_selected_date, int calendar_count);
 

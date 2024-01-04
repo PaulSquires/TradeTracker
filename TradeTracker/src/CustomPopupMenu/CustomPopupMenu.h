@@ -40,7 +40,8 @@ class CCustomPopupMenu: public CWindowBase<CCustomPopupMenu> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    int Show(HWND hwnd, std::vector< CCustomPopupMenuItem> items, int initial_selected_item, int left, int top);
+    int Show(HWND hwnd, std::vector< CCustomPopupMenuItem> items, int initial_selected_item, 
+        int left, int top, int width_override = -1);
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);

@@ -383,7 +383,7 @@ LRESULT CCustomPopupMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
 // Create popup control 
 // ========================================================================================
 int CCustomPopupMenu::Show(HWND hwndParent, std::vector<CCustomPopupMenuItem> popup_items, 
-    int initial_selected_item, int left, int top) {
+    int initial_selected_item, int left, int top, int width_override) {
     // If a popup menu is already active and showing then destroy it
     // before showing the new popup menu.
     if (IsWindow(hWindow)) {
@@ -406,15 +406,20 @@ int CCustomPopupMenu::Show(HWND hwndParent, std::vector<CCustomPopupMenuItem> po
     int text_length = 0;
     SIZEL size{};
 
-    HDC hdc = GetDC(hWindow);
-    SelectFont(hdc, m_hFont);
-    for (const auto& item : items) {
-        GetTextExtentPoint(hdc, item.text.c_str(), (int)item.text.length(), &size);
-        text_length = max(text_length, size.cx);
+    if (width_override != -1) {
+        row_width = width_override;
     }
-    // Add some trailing right margin
-    row_width = glyph_width + text_length + AfxScaleX(24);
-    ReleaseDC(hWindow, hdc);
+    else {
+        HDC hdc = GetDC(hWindow);
+        SelectFont(hdc, m_hFont);
+        for (const auto& item : items) {
+            GetTextExtentPoint(hdc, item.text.c_str(), (int)item.text.length(), &size);
+            text_length = max(text_length, size.cx);
+        }
+        // Add some trailing right margin
+        row_width = glyph_width + text_length + AfxScaleX(32);
+        ReleaseDC(hWindow, hdc);
+    }
 
     int height = (row_count * row_height) + (sep_count * row_height_separator);
 

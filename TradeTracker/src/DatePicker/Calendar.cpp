@@ -26,21 +26,17 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "CustomLabel/CustomLabel.h"
+#include "MainWindow/MainWindow.h"
+#include "Utilities/UserMessages.h"
+
 #include "Calendar.h"
 
 
 HWND HWND_CALENDAR = NULL;
 
+CalendarReturn calendar_result{};
+
 CCalendar Calendar;
-
-std::wstring the_selected_date;
-
-// Control on parent window that new selected date will be stored in and displayed.
-// That control must be a CustomLabel because we store the full ISO date in that
-// control's UserData string.
-HWND hTheUpdateParentCtl = NULL;
-CalendarPickerReturnType the_update_date_return_type = CalendarPickerReturnType::ISO_date;
 
 HHOOK hCalanderPopupMouseHook = nullptr;
 
@@ -93,18 +89,6 @@ bool Calendar_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         Calendar.hInst(),
         NULL);
 
-    if (hCtl != NULL) {
-        // If visual styles are active, this message has no effect except when wParam is MCSC_BACKGROUND.
-        MonthCal_SetColor(hCtl, MCSC_BACKGROUND, Color(COLOR_GRAYMEDIUM).ToCOLORREF());
-
-        SYSTEMTIME st{};
-        st.wYear = (WORD)AfxGetYear(the_selected_date);
-        st.wMonth = (WORD)AfxGetMonth(the_selected_date);
-        st.wDay = (WORD)AfxGetDay(the_selected_date);
-
-        MonthCal_SetCurSel(hCtl, &st);
-    }
-
     return true;
 }
 
@@ -148,30 +132,14 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             if (((LPNMHDR)lParam)->idFrom == IDC_CALENDAR_CALENDAR) {
                 LPNMSELCHANGE lpNMSelChange = (LPNMSELCHANGE)lParam;
 
-                the_selected_date = AfxMakeISODate(
+                calendar_result.iso_date = AfxMakeISODate(
                     lpNMSelChange->stSelStart.wYear,
                     lpNMSelChange->stSelStart.wMonth,
                     lpNMSelChange->stSelStart.wDay);
+                
+                calendar_result.exit_code = 0;
 
-                std::wstring text;
-                switch (the_update_date_return_type) {
-                case CalendarPickerReturnType::short_date:
-                    text = AfxShortDate(the_selected_date);
-                    break;
-                case CalendarPickerReturnType::long_date:
-                    text = AfxLongDate(the_selected_date);
-                    break;
-                case CalendarPickerReturnType::ISO_date:
-                    text = the_selected_date;
-                    break;
-                }
-
-                CustomLabel_SetUserData(hTheUpdateParentCtl, the_selected_date);
-                CustomLabel_SetText(hTheUpdateParentCtl, text);
-                SendMessage(GetParent(hTheUpdateParentCtl), MSG_DATEPICKER_DATECHANGED,
-                    GetDlgCtrlID(hTheUpdateParentCtl), (LPARAM)hTheUpdateParentCtl);
                 DestroyWindow(m_hwnd);
-
                 return true;
             }
             break;
@@ -186,6 +154,7 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         // Reset our destroyed variable for future use of the popup
         HWND_CALENDAR = NULL;
+        PostQuitMessage(0);
         return 0;
     }
 
@@ -202,47 +171,72 @@ LRESULT CCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 // Create Calendar control and move it into position under the specified incoming control.
 // ========================================================================================
-HWND Calendar_CreateDatePicker(
-    HWND hParent, HWND hParentCtl, std::wstring date_text, 
-    CalendarPickerReturnType DateReturnType, int NumCalendars)
+CalendarReturn Calendar_CreateDatePicker(
+    HWND hParent, HWND hParentCtl, std::wstring initial_selected_date, int NumCalendars)
 {
-    if (date_text.length() == 0)
-        date_text = AfxCurrentDate();
+    if (initial_selected_date.length() == 0) initial_selected_date = AfxCurrentDate();
 
-    the_selected_date = date_text;
+    calendar_result.iso_date = L"";
+    calendar_result.exit_code = -1;
 
-    Calendar.Create(hParent, L"", 0, 0, 0, 0,
+    HWND hWindow = Calendar.Create(hParent, L"", 0, 0, 0, 0,
         WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR |
         WS_EX_NOACTIVATE);
 
-    int calendar_width = AfxScaleX(200);
-    int calendar_height = AfxScaleY(164);
+    HWND hCtl = GetDlgItem(hWindow, IDC_CALENDAR_CALENDAR);
+    if (hCtl) {
+        // If visual styles are active, this message has no effect except when wParam is MCSC_BACKGROUND.
+        MonthCal_SetColor(hCtl, MCSC_BACKGROUND, Color(COLOR_GRAYMEDIUM).ToCOLORREF());
 
-    if (NumCalendars == 2) {
-        calendar_height = AfxScaleY(310);
+        SYSTEMTIME st{};
+        st.wYear = (WORD)AfxGetYear(initial_selected_date);
+        st.wMonth = (WORD)AfxGetMonth(initial_selected_date);
+        st.wDay = (WORD)AfxGetDay(initial_selected_date);
+
+        MonthCal_SetCurSel(hCtl, &st);
+
+        int calendar_width = AfxScaleX(200);
+        int calendar_height = AfxScaleY(164);
+
+        if (NumCalendars == 2) calendar_height = AfxScaleY(310);
+
+        int margin = AfxScaleX(1);
+        RECT rc; GetWindowRect(hParentCtl, &rc);
+        SetWindowPos(hWindow, 0,
+            rc.left, rc.bottom + margin,
+            calendar_width, calendar_height,
+            SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+
+        // Size the Calendar control to fit the full size of the window.
+        GetClientRect(hWindow, &rc);
+        SetWindowPos(hCtl, 0, 0, 0, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
     }
-
-    int margin = AfxScaleX(1);
-    RECT rc; GetWindowRect(hParentCtl, &rc);
-    SetWindowPos(Calendar.WindowHandle(), 0,
-        rc.left, rc.bottom + margin,
-        calendar_width, calendar_height,
-        SWP_NOZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
-
-    HWND hCtl = GetDlgItem(Calendar.WindowHandle(), IDC_CALENDAR_CALENDAR);
-    GetClientRect(Calendar.WindowHandle(), &rc);
-    SetWindowPos(hCtl, 0, 0, 0, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-
-    // Set the module global hUpdateParentCtl after the above Calendar is created in
-    // to ensure the variable address is correct.
-    hTheUpdateParentCtl = hParentCtl;
-    the_update_date_return_type = DateReturnType;
 
     // Set our hook and store the handle in the global variable
     hCalanderPopupMouseHook = SetWindowsHookEx(WH_MOUSE, CalanderPopupHook, 0, GetCurrentThreadId());
 
-    return Calendar.WindowHandle();
+    // Call modal message pump and wait for it to end.
+    MSG msg{};
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        if (!IsWindow(MainWindow.hWindow)) break;
+
+        if (msg.message == WM_KEYUP &&  msg.wParam == VK_ESCAPE) {
+            calendar_result.exit_code = -1;
+            DestroyWindow(hWindow);
+        }
+
+        // Determines whether a message is intended for the specified
+        // dialog box and, if it is, processes the message.
+        if (!IsDialogMessage(hWindow, &msg)) {
+            // Translates virtual-key messages into character messages.
+            TranslateMessage(&msg);
+            // Dispatches a message to a window procedure.
+            DispatchMessage(&msg);
+        }
+    }
+
+    return calendar_result;
 }
 

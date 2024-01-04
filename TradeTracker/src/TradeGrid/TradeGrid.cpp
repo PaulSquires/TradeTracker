@@ -397,14 +397,57 @@ void TradeGrid_OnClickLineReset(TradeGrid* pData, GridColInfo* col) {
 
 
 // ========================================================================================
+// Some trade grid cells are designated as "trigger cells" meaning that when their values
+// change then that change will be populated to the other cells in the grid. For example, 
+// when the first row leg quantity or leg expiry date changes then those changes get 
+// populated to the other three rows in the trade grid.
+// ========================================================================================
+void TradeGrid_PopulateTriggerCells(HWND hwnd, auto col) {
+    TradeGrid* pData = TradeGrid_GetOptions(hwnd);
+    if (!pData) return;
+
+    std::wstring wszCellText = TradeGrid_GetText(hwnd, 0, 0);
+
+    int offset = (pData->show_original_quantity) ? 1 : 0;
+
+    std::wstring iso_date = CustomLabel_GetUserData(pData->gridCols.at(1 + offset)->hCtl);
+    std::wstring text;
+
+    for (int i = 1; i < 4; ++i) {
+        if (col->colType == GridColType::DatePicker) {
+            text = TradeGrid_GetText(hwnd, i, 1);
+            if (text.length() != 0) {
+                TradeGrid_SetColData(hwnd, i, 1, iso_date);
+            }
+        }
+    }
+}
+
+
+// ========================================================================================
 // Handle when the Date Picker (Calendar) grid cell is clicked.
 // ========================================================================================
 void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col) {
     if (!pData) return;
     if (!col) return;
 
-    std::wstring date_text = CustomLabel_GetUserData(col->hCtl);
-    Calendar_CreateDatePicker(pData->hParent, col->hCtl, date_text, CalendarPickerReturnType::short_date, 2);
+    HWND hDateLabel = col->hCtl;
+    std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
+    CalendarReturn calendar_result = Calendar_CreateDatePicker(pData->hParent, hDateLabel, initial_date_text, 2);
+
+    if (calendar_result.exit_code != -1) {
+        CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);
+        CustomLabel_SetText(hDateLabel, AfxShortDate(calendar_result.iso_date));
+
+        // If this date cell has the isTriggerCell then populate the other rows 
+        // in the grid with this new date data.
+        if (col->isTriggerCell == true) {
+            TradeGrid_PopulateTriggerCells(pData->hWindow, col);
+        }
+
+        TradeGrid_CalculateDTE(pData->hWindow);
+    }
+
 }
 
 
@@ -440,34 +483,6 @@ std::wstring TradeGrid_GetText(HWND hCtl, int row, int col) {
 
 
 // ========================================================================================
-// Some trade grid cells are designated as "trigger cells" meaning that when their values
-// change then that change will be populated to the other cells in the grid. For example, 
-// when the first row leg quantity or leg expiry date changes then those changes get 
-// populated to the other three rows in the trade grid.
-// ========================================================================================
-void TradeGrid_PopulateTriggerCells(HWND hwnd, auto col) {
-    TradeGrid* pData = TradeGrid_GetOptions(hwnd);
-    if (!pData) return;
-
-    std::wstring wszCellText = TradeGrid_GetText(hwnd, 0, 0);
-    
-    int offset = (pData->show_original_quantity) ? 1 : 0;
-
-    std::wstring iso_date = CustomLabel_GetUserData(pData->gridCols.at(1+offset)->hCtl);
-    std::wstring text;
-
-    for (int i = 1; i < 4; ++i) {
-        if (col->colType == GridColType::DatePicker) {
-            text = TradeGrid_GetText(hwnd, i, 1);
-            if (text.length() != 0) {
-                TradeGrid_SetColData(hwnd, i, 1, iso_date);
-            }
-        }
-    }
-}
-
-
-// ========================================================================================
 // Windows callback function.
 // ========================================================================================
 LRESULT CALLBACK TradeGridProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -496,27 +511,6 @@ LRESULT CALLBACK TradeGridProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             return 0;
         }
         break;
-    }
-
-    case MSG_DATEPICKER_DATECHANGED: {
-        HWND hCtl = (HWND)lParam;
-        int ctrl_id = (int)wParam;
-
-        if (!hCtl) return 0;
-
-        // If this date cell has the isTriggerCell then send a message to the parent to
-        // populate the other rows in the grid with this new date data.
-        for (const auto& col : pData->gridCols) {
-            if (col->ctrl_id == ctrl_id) {
-                if (col->isTriggerCell == true) {
-                    TradeGrid_PopulateTriggerCells(hwnd, col);
-                }
-                break;
-            }
-        }
-
-        TradeGrid_CalculateDTE(hwnd);
-        return 0;
     }
 
     case MSG_CUSTOMLABEL_CLICK: {

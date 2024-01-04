@@ -159,10 +159,6 @@ int APIENTRY wWinMain(
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {            
-        if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
-            MainWindow.CloseComboPopups();
-        }
-
         // Processes accelerator keys for menu commands
         if (MainWindow.hAccel() == NULL || (!TranslateAccelerator(hWndMain, MainWindow.hAccel(), &msg))) {
             // Translates virtual-key messages into character messages.

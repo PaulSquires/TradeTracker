@@ -468,25 +468,6 @@ bool CMainWindow::OnSetCursor(HWND hwnd, HWND hwndCursor, UINT codeHitTest, UINT
 
 
 // ========================================================================================
-// Close combobox popup menus when ESCAPE is pressed or application loses focus.
-// ========================================================================================
-void CMainWindow::CloseComboPopups() {
-    if (IsWindowVisible(HWND_CALENDAR)) {
-        DestroyWindow(HWND_CALENDAR);
-    }
-    else if (IsWindowVisible(HWND_CATEGORYPOPUP)) {
-        DestroyWindow(HWND_CATEGORYPOPUP);
-    }
-    else if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
-        DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
-    }
-    else if (IsWindowVisible(HWND_STRATEGYPOPUP)) {
-        DestroyWindow(HWND_STRATEGYPOPUP);
-    }
-}
-
-
-// ========================================================================================
 // Windows callback function (MainWindow).
 // ========================================================================================
 LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -507,7 +488,9 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         // combobox popups.
         if (wParam == false) {
             PostMessage(m_hwnd, WM_USER, NULL, NULL);
-            CloseComboPopups();
+            if (IsWindowVisible(HWND_CUSTOMCOMBOPOPUP)) {
+                DestroyWindow(HWND_CUSTOMCOMBOPOPUP);
+            }
         }
         return 0;
     }

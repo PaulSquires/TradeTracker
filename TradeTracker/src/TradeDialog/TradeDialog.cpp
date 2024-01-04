@@ -329,18 +329,26 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_TRADEDIALOG_CMDTRANSDATE || ctrl_id == IDC_TRADEDIALOG_LBLTRANSDATE) {
             // Clicked on the Transaction Date dropdown or label itself
-            std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
-            Calendar_CreateDatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE), date_text, 
-                CalendarPickerReturnType::long_date, 1);
+            HWND hDateLabel = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE);
+            std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
+            CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, hDateLabel, initial_date_text, 1);
+
+            if (calendar_result.exit_code != -1) {
+                CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);
+                CustomLabel_SetText(hDateLabel, AfxLongDate(calendar_result.iso_date));
+            }
         }
 
         if (ctrl_id == IDC_TRADEDIALOG_CMDCONTRACTDATE || ctrl_id == IDC_TRADEDIALOG_LBLCONTRACTDATE) {
             // Clicked on the Futures Contract Date dropdown or label itself
-            std::wstring date_text = CustomLabel_GetUserData(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE));
-            Calendar_CreateDatePicker(
-                m_hwnd, GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE), date_text, 
-                CalendarPickerReturnType::long_date, 2);
+            HWND hDateLabel = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE);
+            std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
+            CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, hDateLabel, initial_date_text, 1);
+
+            if (calendar_result.exit_code != -1) {
+                CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);
+                CustomLabel_SetText(hDateLabel, AfxLongDate(calendar_result.iso_date));
+            }
         }
 
         if (ctrl_id == IDC_TRADEDIALOG_SAVE) {
