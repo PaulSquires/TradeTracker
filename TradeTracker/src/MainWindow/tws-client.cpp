@@ -766,6 +766,8 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 void TwsClient::connectionClosed() {
 	printf("Connection Closed\n");
+	// TWS must have shut down while our application was still running.
+	had_previous_socket_exception = true;
 }
 
 void TwsClient::error(int id, int error_code, 
