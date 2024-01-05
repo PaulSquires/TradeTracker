@@ -357,7 +357,9 @@ void TradeHistory_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     case IDC_HISTORY_TXTNOTES: {
         if (codeNotify == EN_KILLFOCUS) {
             if (is_notes_dirty == true) {
-                if (trade != nullptr) trade->notes = notes;
+                // Clean the notes to ensure that there are no embedded "|" pipe characters
+                // that would cause the loading routine to incorrectly parse.
+                if (trade) trade->notes = AfxReplace(notes, L"|", L" ");
 
                 // Save the database because the Notes for this Trade has been updated.
                 db.SaveDatabase();
