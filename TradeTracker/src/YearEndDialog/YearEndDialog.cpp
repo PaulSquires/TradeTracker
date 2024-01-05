@@ -105,7 +105,7 @@ bool YearEndDialog_Process(HWND hwnd) {
 // ========================================================================================
 void YearEndDialog_OnClose(HWND hwnd) {
     MainWindow.BlurPanels(false);
-    EnableWindow(MainWindow.hWindow, true);
+    EnableWindow(YearEndDialog.hParent, true);
     DestroyWindow(hwnd);
 }
 
@@ -298,11 +298,13 @@ LRESULT CYearEndDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 // Create and show the YearEnd Close modal dialog.
 // ========================================================================================
-int YearEndDialog_Show() {
+int YearEndDialog_Show(HWND hwndParent) {
     int width = 715;
     int height = 500;
+    
+    YearEndDialog.hParent = hwndParent;
 
-    HWND hwnd = YearEndDialog.Create(MainWindow.hWindow, L"Year End Close", 0, 0, width, height,
+    HWND hwnd = YearEndDialog.Create(hwndParent, L"Year End Close", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
@@ -325,7 +327,7 @@ int YearEndDialog_Show() {
 
     AfxCenterWindowMonitorAware(hwnd, MainWindow.hWindow);
 
-    EnableWindow(MainWindow.hWindow, false);
+    EnableWindow(hwndParent, false);
 
     // Fix Windows 10 white flashing
     BOOL cloak = TRUE;

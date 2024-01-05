@@ -113,43 +113,68 @@ void SettingsDialog_OnPaint(HWND hwnd) {
 bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_SETTINGSDIALOG = hwnd;
 
-    DWORD light_text_color = COLOR_WHITELIGHT;
-    DWORD dark_back_color = COLOR_GRAYMEDIUM;
-    DWORD dark_text_color = COLOR_WHITEDARK;
-
     DWORD text_color = COLOR_WHITELIGHT;
     DWORD text_color_dim = COLOR_WHITEDARK;
     DWORD back_color = COLOR_GRAYDARK;
 
-    int horiz_text_margin = 0;
-    int vert_text_margin = 3;
-
-    HWND hCtl = NULL;
-
-    // SAVE button
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
+    HWND hCtl = NULL;
+
+    int left = 75;
+    int top = 50;
+    int width = 400;
+    int height = 23;
+    int vert_spacing = height + 10;
+
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_UPDATECHECK, L"Check for newer available TradeTracker versions",
+        text_color, back_color,CustomLabelAlignment::middle_left, left, top, width, height);
+
+    top += vert_spacing;
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_PORTFOLIOVALUE, L"Display Net and Excess portfolio liquidity amounts",
+        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+
+    top += vert_spacing;
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"Use American (US) number format.  1,234.00",
+        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+
+    top += vert_spacing;
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"Use European (EU) number format.  1.234,00",
+        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+
+    top += vert_spacing;
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE, L"Use Average Cost Basis method for stock cost calculation",
+        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+
+    top += vert_spacing;
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"Use First-In, First-Out (FIFO) method for stock cost calculation",
+        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+
 
     // YEAR END CLOSE
-    font_size = 9;
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SETTINGSDIALOG_CMDYEAREND, L"Year End",
+    top += (vert_spacing * 2);
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SETTINGSDIALOG_CMDYEAREND, L"Year End Procedure",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 0, 0, 100, 23);
+        CustomLabelAlignment::middle_center, left, top, 150, height);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    left = 440;
+    width = 80;
 
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SETTINGSDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 720, 390, 80, 23);
+        CustomLabelAlignment::middle_center, left, top, width, height);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // CANCEL button
+    top += vert_spacing;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SETTINGSDIALOG_CANCEL, L"Cancel",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 720, 423, 80, 23);
+        CustomLabelAlignment::middle_center, left, top, width, height);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
@@ -218,7 +243,7 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         if (hCtl == NULL) return 0;
 
         if (ctrl_id == IDC_SETTINGSDIALOG_CMDYEAREND) {
-            YearEndDialog_Show();
+            YearEndDialog_Show(m_hwnd);
         }
 
 
@@ -245,8 +270,8 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // Create and show the Settings modal dialog.
 // ========================================================================================
 int SettingsDialog_Show(HWND hWndParent) {
-    int width = 840;
-    int height = 500;
+    int width = 570;
+    int height = 400;
 
     HWND hwnd = SettingsDialog.Create(hWndParent, L"Settings", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

@@ -34,7 +34,7 @@ SOFTWARE.
 class CYearEndDialog : public CWindowBase<CYearEndDialog> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
+    HWND hParent = NULL;
 };
 
 
@@ -45,5 +45,5 @@ constexpr int IDC_YEARENDDIALOG_TXTDATE = 100;
 constexpr int IDC_YEARENDDIALOG_PROCESS = 101;
 constexpr int IDC_YEARENDDIALOG_CANCEL = 102;
 
-int YearEndDialog_Show();
+int YearEndDialog_Show(HWND hwndParent);
 
