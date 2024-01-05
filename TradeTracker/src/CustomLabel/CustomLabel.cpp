@@ -142,7 +142,10 @@ void CustomLabel::DrawImageInBuffer() {
 
         Graphics graphics(m_memDC);
         graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-        graphics.DrawImage(is_hot ? pImageHot : pImage, rcImage);
+
+        Bitmap* p = pImage;
+        if (is_hot || is_selected) p = pImageHot;
+        graphics.DrawImage(p, rcImage);
     }
 }
 

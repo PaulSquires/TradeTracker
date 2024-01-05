@@ -110,7 +110,9 @@
     <Image Include="src\Images\disconnect.png" />
     <Image Include="src\Images\mainicon.ico" />
     <Image Include="src\images\png1.png" />
+    <Image Include="src\images\png2.png" />
     <Image Include="src\Images\reconcile.png" />
+    <Image Include="src\Images\settings-white.png" />
     <Image Include="src\Images\settings.png" />
   </ItemGroup>
   <ItemGroup>

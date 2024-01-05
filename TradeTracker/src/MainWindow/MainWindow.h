@@ -71,6 +71,7 @@ public:
 #define IDB_DISCONNECT 111
 #define IDB_RECONCILE 114
 #define IDB_SETTINGS 115
+#define IDB_SETTINGS_WHITE 116
 
 
 constexpr int IDC_MAINWINDOW_WARNING = 100;

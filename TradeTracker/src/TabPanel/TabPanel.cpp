@@ -188,7 +188,7 @@ bool TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     item_left += item_width + 3;
     hCtl = CustomLabel_SimpleImageLabel(
         hwnd, IDC_TABPANEL_SETTINGS, 
-        IDB_SETTINGS, IDB_SETTINGS,
+        IDB_SETTINGS, IDB_SETTINGS_WHITE,
         18, 18, item_left, item_top, item_width, item_height);
     tooltip_text = L"Settings";
     CustomLabel_SetImageOffset(hCtl, 4, 4);
@@ -401,7 +401,9 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         if (ctrl_id == IDC_TABPANEL_SETTINGS) {
+            CustomLabel_SetSelected(hCtl, true);
             SettingsDialog_Show(MainWindow.hWindow);
+            CustomLabel_SetSelected(hCtl, false);
             break;
         }
 
