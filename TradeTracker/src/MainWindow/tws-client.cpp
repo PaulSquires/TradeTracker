@@ -41,6 +41,8 @@ SOFTWARE.
 #include "tws-api/IntelDecimal/IntelDecimal.h"
 #include "CustomLabel/CustomLabel.h"
 #include "Database/trade.h"
+#include "Utilities/ListBoxData.h"
+#include "Reconcile/Reconcile.h"
 
 #include "tws-api/EClientSocket.h"
 #include "tws-api/EPosixClientSocketPlatform.h"
@@ -348,7 +350,10 @@ bool tws_Connect() {
     if (tws_IsConnected()) return false;
 
     const char* host = "";
-	int port = config.GetStartupPort();  // 7496;   // 7497 is paper trading account
+
+	int port = 0;
+	if (client.connection_type == ConnectionType::tws_data_live) port = 7496;
+	if (client.connection_type == ConnectionType::tws_data_paper) port = 7497;
 	
 	SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_START, 0, 0);
 
@@ -381,6 +386,12 @@ bool tws_Connect() {
 			// and poll if TWS remains connected. Also start thread
 			// that updates the ActiveTrades list every defined interval.
 			SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+
+			// Display message if Paper Trading is enabled.
+			if (client.connection_type == ConnectionType::tws_data_paper) {
+				MainWindow.DisplayPaperTradingWarning();
+			}
+
 			tws_StartMonitorThread();
 			tws_StartTickerUpdateThread();
 			tws_StartPingThread();
@@ -400,7 +411,7 @@ bool tws_Connect() {
         //SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_FAILURE, 0, 0);
 		std::wstring text =
 			L"Could not connect to TWS.\n\n" \
-			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).";
+			"Confirm in TWS, File->Global Configuration->API->Settings menu that 'Enable ActiveX and Client Sockets' is enabled and connection port is set to 7496. (Paper Trading connection port is 7497).\n";
 		
 		CustomMessageBox.Show(MainWindow.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 		return false;

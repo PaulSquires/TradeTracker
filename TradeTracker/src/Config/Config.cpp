@@ -81,14 +81,6 @@ bool CConfig::Version4UpgradeConfig() {
 
 
 // ========================================================================================
-// Determine if paper trading mode is active.
-// ========================================================================================
-bool CConfig::IsPaperTradingActive() {
-    return startup_paper_trading;
-}
-
-
-// ========================================================================================
 // Determine if show/hide the Portfolio dollar value on the main screen.
 // ========================================================================================
 bool CConfig::IsShowPortfolioValueActive() {
@@ -101,15 +93,6 @@ bool CConfig::IsShowPortfolioValueActive() {
 // ========================================================================================
 bool CConfig::IsUpdateCheckActive() {
     return allow_update_check;
-}
-
-
-// ========================================================================================
-// Return the TWS connect Port. 
-// Normal Trading 7496;   7497 is paper trading account.
-// ========================================================================================
-int CConfig::GetStartupPort() {
-    return (startup_paper_trading ? 7497 : 7496);   // paper trading port is 7497
 }
 
 
@@ -300,8 +283,6 @@ bool CConfig::SaveConfig() {
         return false;
     }
 
-    db << "ENABLEPAPERTRADING|" << (startup_paper_trading ? L"true" : L"false") << "\n";
-    
     db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
     
     db << "ALLOWUPDATECHECK|" << (allow_update_check ? L"true" : L"false") << "\n";
@@ -373,17 +354,6 @@ bool CConfig::LoadConfig() {
         if (st.empty()) continue;
 
         std::wstring arg = AfxTrim(st.at(0));
-
-        // Check for paper trading
-        if (arg == L"ENABLEPAPERTRADING") {
-            std::wstring paper;
-            
-            try {paper = AfxTrim(st.at(1)); }
-            catch (...) { continue; }
-        
-            startup_paper_trading = AfxWStringCompareI(paper, L"true");
-            continue;
-        }
 
         // Check if should show/hide Total Portfolio dollar amount on main screen
         if (arg == L"SHOWPORTFOLIOVALUE") {

@@ -37,6 +37,7 @@ SOFTWARE.
 #include "MainWindow/tws-client.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomPopupMenu/CustomPopupMenu.h"
+#include "MainWindow/tws-client.h"
 
 #include "TabPanel.h"
 
@@ -282,8 +283,10 @@ bool TabPanel_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
 std::wstring TabPanel_GetConnectionTypeDescription(int idx) {
     switch ((ConnectionType)idx) {
-    case ConnectionType::tws_data:
-        return L"Connect to TWS";
+    case ConnectionType::tws_data_live:
+        return L"Connect to TWS (live trading)";
+    case ConnectionType::tws_data_paper:
+        return L"Connect to TWS (paper trading)";
     case ConnectionType::scraped_data:
         return L"Retrieve Yahoo Finance Scrapped Data";
     case ConnectionType::disconnect:
@@ -348,7 +351,8 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
                 items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::disconnect), (int)ConnectionType::disconnect, false });
             }
             else {
-                items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::tws_data), (int)ConnectionType::tws_data, false });
+                items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::tws_data_live), (int)ConnectionType::tws_data_live, false });
+                items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::tws_data_paper), (int)ConnectionType::tws_data_paper, false });
                 items.push_back({ TabPanel_GetConnectionTypeDescription((int)ConnectionType::scraped_data), (int)ConnectionType::scraped_data, false });
             }
 
@@ -359,18 +363,24 @@ LRESULT CTabPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             int selected = CustomPopupMenu.Show(HWND_TABPANEL, items, -1, pt.x, pt.y);
 
             if (selected != -1) {
+                // Prevent multiple clicks of the connect button by waiting until the first click is finished.
                 static bool processing_connect_click = false;
                 if (processing_connect_click) break;
                 processing_connect_click = true;
              
                 switch ((ConnectionType)selected) {
-                case ConnectionType::tws_data: {
-                    // Prevent multiple clicks of the connect button by waiting until
-                    // the first click is finished.
+                case ConnectionType::tws_data_live: {
+                    client.connection_type = ConnectionType::tws_data_live;
+                    tws_Connect();
+                    break;
+                }
+                case ConnectionType::tws_data_paper: {
+                    client.connection_type = ConnectionType::tws_data_paper;
                     tws_Connect();
                     break;
                 }
                 case ConnectionType::scraped_data: {
+                    client.connection_type = ConnectionType::scraped_data;
                     tws_UpdateTickersWithScrapedData();
                     break;
                 }

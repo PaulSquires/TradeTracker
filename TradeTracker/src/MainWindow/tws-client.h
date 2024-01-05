@@ -31,7 +31,8 @@ SOFTWARE.
 #include "tws-api/EReader.h"
 
 #include "Utilities/ListBoxData.h"
-#include "Reconcile/Reconcile.h"
+//#include "Reconcile/Reconcile.h"
+#include "TabPanel/TabPanel.h"
 
 
 class EClientSocket;
@@ -69,6 +70,7 @@ public:
 
 	int client_id = 0;
 	bool had_previous_socket_exception = false;
+	ConnectionType connection_type = ConnectionType::tws_data_live;
 
 //private:
 	//! [socket_declare]

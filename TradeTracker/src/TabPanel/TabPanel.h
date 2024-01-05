@@ -29,7 +29,8 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 
 enum class ConnectionType {
-    tws_data,
+    tws_data_live,
+    tws_data_paper,
     scraped_data,
     disconnect
 };

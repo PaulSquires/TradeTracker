@@ -62,8 +62,6 @@ POINT prev_pt{};            // for tracking current splitter drag
 // Normal Trading 7496;   7497 is paper trading account.
 // ========================================================================================
 void CMainWindow::DisplayPaperTradingWarning() {
-    if (!config.IsPaperTradingActive()) return;
-
     CustomLabel_SetText(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING),
         L"*** USING PAPER TRADING ACCOUNT ***");
     ShowWindow(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);

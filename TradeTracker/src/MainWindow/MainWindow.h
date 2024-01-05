@@ -43,7 +43,6 @@ public:
     HWND GetLeftPanel();
     void SetLeftPanel(HWND hPanel);
     void SetRightPanel(HWND hPanel);
-    void CloseComboPopups();
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);

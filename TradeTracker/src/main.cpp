@@ -148,9 +148,6 @@ int APIENTRY wWinMain(
     // Show the current list of active trades
     ActiveTrades.ShowActiveTrades();
 
-    // Display message if Paper Trading is enabled.
-    MainWindow.DisplayPaperTradingWarning();
-
     // Start thread to check for internet connection and determine if an updated
     // version of the program is available.
     MainWindow.DisplayUpdateAvailableMessage();

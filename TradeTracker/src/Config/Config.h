@@ -48,7 +48,6 @@ private:
     int startup_height = 0;
     int startup_right_panel_width = 0;
 
-    bool startup_paper_trading = false;
     bool show_portfolio_value = true;
     bool allow_update_check = true;
 
@@ -124,7 +123,6 @@ public:
 	bool LoadConfig();
 
     std::wstring GetDataFilesFolder();
-    bool IsPaperTradingActive();
 	bool IsUpdateCheckActive();
 	bool IsShowPortfolioValueActive();
 	int GetTickerDecimals(const std::wstring& underlying);
@@ -135,7 +133,6 @@ public:
 	void SetFuturesExchange(const std::string& underlying, const std::string& exchange);
 	std::wstring GetCategoryDescription(int index);
 	void SetCategoryDescription(int index, const std::wstring& description);
-	int GetStartupPort();
 	bool IsFuturesTicker(const std::wstring& ticker);
 	int GetStartupWidth();
 	int GetStartupHeight();
