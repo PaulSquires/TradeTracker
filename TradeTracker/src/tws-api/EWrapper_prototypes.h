@@ -15,7 +15,6 @@ virtual void error(int id, int errorCode, const std::string& errorString, const 
 virtual void position( const std::string& account, const Contract& contract, Decimal position, double avgCost) EWRAPPER_VIRTUAL_IMPL;
 virtual void positionEnd() EWRAPPER_VIRTUAL_IMPL;
 
-
 virtual void tickSize(TickerId ticker_id, TickType field, Decimal size) EWRAPPER_VIRTUAL_IMPL;
 virtual void tickGeneric(TickerId ticker_id, TickType tickType, double value) EWRAPPER_VIRTUAL_IMPL;
 virtual void tickString(TickerId ticker_id, TickType tickType, const std::string& value) EWRAPPER_VIRTUAL_IMPL;

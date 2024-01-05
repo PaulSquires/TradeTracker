@@ -67,17 +67,19 @@ public:
 	// events
 #include "tws-api/EWrapper_prototypes.h"
 
+	int client_id = 0;
+	bool had_previous_socket_exception = false;
 
-private:
+//private:
 	//! [socket_declare]
-	EReaderOSSignal m_osSignal;
-	EClientSocket* const m_pClient;
+	EReaderOSSignal m_osSignal{};
+	//EClientSocket* const m_pClient{};
+	EClientSocket* m_pClient{};
 	//! [socket_declare]
 
-	std::unique_ptr<EReader> m_pReader;
+	std::unique_ptr<EReader> m_pReader{};
 	bool m_extraAuth;
 	std::string m_bboExchange;
-
 };
 
 

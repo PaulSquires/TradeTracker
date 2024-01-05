@@ -314,7 +314,6 @@ void tws_StartTickerUpdateThread() {
 	ticker_update_thread = std::jthread(TickerUpdateFunction);
 }
 
-
 void tws_EndTickerUpdateThread() {
 	if (is_ticker_update_thread_active) {
 		std::cout << "TickerUpdate thread will be stopped soon...." << std::endl;
@@ -356,7 +355,27 @@ bool tws_Connect() {
 	bool res = false;
 
 	try {
-		res = client.Connect(host, port, 0);
+
+		if (client.had_previous_socket_exception) {
+			// Try to recover from a previous socket exception when client disconnected.
+			// The client class elements below were changed from Private to Public and a const
+			// removed so that the elements could be deleted and re-instantiated.
+			
+			// destroy the reader before the client
+			if (client.m_pReader)
+				client.m_pReader.reset();
+
+			delete client.m_pClient;
+
+			client.m_pClient = new EClientSocket(&client, &client.m_osSignal);
+		}
+
+		res = client.Connect(host, port, client.client_id);
+		
+		is_monitor_thread_active = false;
+		is_ticker_update_thread_active = false;
+		is_ping_thread_active = false;
+
 		if (res) {
 			// Start thread that will start messaging polling
 			// and poll if TWS remains connected. Also start thread
@@ -365,6 +384,7 @@ bool tws_Connect() {
 			tws_StartMonitorThread();
 			tws_StartTickerUpdateThread();
 			tws_StartPingThread();
+			client.had_previous_socket_exception = false;
 		}
 
 	}
@@ -741,6 +761,26 @@ void TwsClient::error(int id, int error_code,
 	const std::string& error_string, const std::string& advanced_order_reject_json)
 {
 	switch (error_code) {
+	case 509:
+		if (id == -1) {   // socket error
+			// Increment the client_id so that next connection will succeed.
+
+			printf("Error. Id: %d, Code: %d, Msg: %s\n", id, error_code, error_string.c_str());
+			
+			std::cout << error_string << std::endl;
+			
+			//client_id++;
+			Disconnect();
+
+			had_previous_socket_exception = true;
+
+			std::cout << "Exception caught and client_id set to: " << client_id << std::endl;
+
+			return;
+		}
+	}
+
+	switch (error_code) {
 	case 2104:
 	case 2106:
 	case 2158:
@@ -767,13 +807,13 @@ void TwsClient::error(int id, int error_code,
 		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
 			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nTradeTracker will resume automatically when TWS reconnects to IBKR.";
-		//CustomMessageBox.Show(ActiveTrades.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
+		CustomMessageBox.Show(MainWindow.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;
 
 	case 1102:   // 'Connectivity between IB and Trader Workstation reestablished.'
 	{
-		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_SUCCESS, 0, 0);
+		SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 	}
 	break;
 	
