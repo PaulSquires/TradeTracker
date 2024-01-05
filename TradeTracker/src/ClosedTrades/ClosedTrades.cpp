@@ -33,6 +33,7 @@ SOFTWARE.
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "TickerTotals/TickerTotals.h"
 #include "TabPanel/TabPanel.h"
 #include "Database/trade.h"
 #include "ClosedTrades.h"
@@ -71,7 +72,7 @@ void CClosedTrades::SetShowTradeDetail(bool enable) {
 // Central function that actually selects and displays the incoming ListBox index item.
 // ========================================================================================
 void CClosedTrades::ShowListBoxItem(int index) {
-    if (!show_trade_detail) return;
+    if (!show_trade_detail && (MainWindow.hRightPanel == TickerPanel.hWindow)) return;
 
     ListBox_SetCurSel(TradesListBox(), index);
 
