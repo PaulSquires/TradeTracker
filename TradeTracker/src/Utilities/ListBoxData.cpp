@@ -389,12 +389,16 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITEDARK, font8, FontStyleRegular);   
 
         text = (trade->column_ticker_portfolio_3.length()) ? trade->column_ticker_portfolio_3 : L"";
-        clr = (trade->column_ticker_portfolio_3_color != COLOR_WHITEDARK) ? trade->column_ticker_portfolio_3_color : COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_PORTFOLIO_3, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   
 
         text = (trade->column_ticker_portfolio_4.length()) ? trade->column_ticker_portfolio_4 : L"";
+        clr = (trade->column_ticker_portfolio_4_color != COLOR_WHITEDARK) ? trade->column_ticker_portfolio_4_color : COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            COLOR_WHITEDARK, font8, FontStyleRegular);   
+
+        text = (trade->column_ticker_portfolio_5.length()) ? trade->column_ticker_portfolio_5 : L"";
+        ld->SetData(COLUMN_TICKER_PORTFOLIO_5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   
     }
     ListBox_AddString(hListBox, ld);
@@ -548,21 +552,27 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             col++;
 
             if (!is_history) {
-                text = (leg->market_value_text.length()) ? leg->market_value_text : L"";
+                text = (leg->position_cost_text.length()) ? leg->position_cost_text : L"";
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    COLOR_WHITEDARK, font8, FontStyleRegular);   
-                col++;
+                    clr, font8, FontStyleRegular);
 
-                text = L"";
+                text = (leg->market_value_text.length()) ? leg->market_value_text : L"";
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_2, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);   
                 col++;
 
+                text = (leg->unrealized_pnl_text.length()) ? leg->unrealized_pnl_text : L"";
+                clr = (leg->unrealized_pnl_color != COLOR_WHITEDARK) ? leg->unrealized_pnl_color : COLOR_WHITEDARK;
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_3, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                    COLOR_WHITEDARK, font8, FontStyleRegular);   
+                col++;
+
+                text = (leg->percentage_text.length()) ? leg->percentage_text : L"";
+                ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     clr, font8, FontStyleRegular);   
                 col++;
 
-                ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                ld->SetData(COLUMN_TICKER_PORTFOLIO_5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     clr, font8, FontStyleRegular);   
             }
 

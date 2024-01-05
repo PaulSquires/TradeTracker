@@ -90,7 +90,11 @@ public:
     // so that the Active Trades lists gets visually updated immediately after a new Trade or close trade.
     // There is a delay from the time portfolio values are cancelled and when the new request data arrives
     // therefore the user will always see the most recent data until the new data arrives.
+    std::wstring position_cost_text = L"";
     std::wstring market_value_text = L"";
+    std::wstring percentage_text = L"";
+    std::wstring unrealized_pnl_text = L"";
+    DWORD unrealized_pnl_color = COLOR_WHITEDARK;
 };
 
 
@@ -146,10 +150,11 @@ public:
     std::wstring column_ticker_portfolio_2 = L"";
     std::wstring column_ticker_portfolio_3 = L"";
     std::wstring column_ticker_portfolio_4 = L"";
+    std::wstring column_ticker_portfolio_5 = L"";
     DWORD itm_color = COLOR_WHITELIGHT;
     DWORD ticker_change_color = COLOR_WHITELIGHT;
     DWORD ticker_percent_change_color = COLOR_WHITELIGHT;
-    DWORD column_ticker_portfolio_3_color = COLOR_WHITEDARK;
+    DWORD column_ticker_portfolio_4_color = COLOR_WHITEDARK;
 
     // Dates used to calculate ROI on TradeBP.
     std::wstring  bp_start_date = L"99999999";            // YYYYMMDD  First transaction date
