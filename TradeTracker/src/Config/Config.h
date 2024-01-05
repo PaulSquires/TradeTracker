@@ -32,6 +32,17 @@ SOFTWARE.
 
 constexpr std::wstring version = L"4.0.0";
 
+enum class NumberFormatType {
+    American,
+    European
+};
+
+enum class CostingMethod{
+    AverageCost,
+    fifo
+};
+
+
 class CConfig {
 private:
     // Filenames used on and after Version 4.0.0
@@ -50,7 +61,8 @@ private:
 
     bool show_portfolio_value = true;
     bool allow_update_check = true;
-
+    NumberFormatType number_format_type = NumberFormatType::American;
+    CostingMethod costing_method = CostingMethod::AverageCost;
 
     std::unordered_map<int, std::wstring> mapCategoryDescriptions{
         { 0, L"Category 0"},
@@ -123,8 +135,14 @@ public:
 	bool LoadConfig();
 
     std::wstring GetDataFilesFolder();
-	bool IsUpdateCheckActive();
-	bool IsShowPortfolioValueActive();
+    CostingMethod GetCostingMethod();
+	void SetCostingMethod(CostingMethod value);
+    NumberFormatType GetNumberFormatType();
+	void SetNumberFormatType(NumberFormatType value);
+	bool GetAllowUpdateCheck();
+	void SetAllowUpdateCheck(bool value);
+	bool GetAllowPortfolioDisplay();
+	void SetAllowPortfolioDisplay(bool value);
 	int GetTickerDecimals(const std::wstring& underlying);
 	void SetTickerDecimals(const std::wstring& underlying, int decimals);
 	std::wstring GetMultiplier(const std::wstring& wunderlying);

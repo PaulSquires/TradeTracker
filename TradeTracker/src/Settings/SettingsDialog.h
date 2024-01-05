@@ -27,12 +27,16 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
+#include "Config/Config.h"
 
 
 class CSettingsDialog : public CWindowBase<CSettingsDialog> {
 public:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    // Settings that require a restart
+    NumberFormatType orig_number_format_type = NumberFormatType::American;
+    CostingMethod orig_costing_method = CostingMethod::AverageCost;
 };
 
 

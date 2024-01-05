@@ -31,6 +31,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomMessageBox/CustomMessageBox.h"
 #include "MainWindow/MainWindow.h"
+#include "ActiveTrades/ActiveTrades.h"
 
 #include "Config.h"
 
@@ -81,18 +82,50 @@ bool CConfig::Version4UpgradeConfig() {
 
 
 // ========================================================================================
+// Determine the Costing Method to be used.
+// ========================================================================================
+CostingMethod CConfig::GetCostingMethod() {
+    return costing_method;
+}
+
+void CConfig::SetCostingMethod(CostingMethod value) {
+    costing_method = value;
+}
+
+
+// ========================================================================================
+// Determine the NumberFormatting to be used.
+// ========================================================================================
+NumberFormatType CConfig::GetNumberFormatType() {
+    return number_format_type;
+}
+
+void CConfig::SetNumberFormatType(NumberFormatType value) {
+    number_format_type = value;
+}
+
+
+// ========================================================================================
 // Determine if show/hide the Portfolio dollar value on the main screen.
 // ========================================================================================
-bool CConfig::IsShowPortfolioValueActive() {
+bool CConfig::GetAllowPortfolioDisplay() {
     return show_portfolio_value;
+}
+
+void CConfig::SetAllowPortfolioDisplay(bool value) {
+    show_portfolio_value = value;
+    ActiveTrades.ShowHideLiquidityLabels();
 }
 
 
 // ========================================================================================
 // Determine if allow to check for available program update.
 // ========================================================================================
-bool CConfig::IsUpdateCheckActive() {
+bool CConfig::GetAllowUpdateCheck() {
     return allow_update_check;
+}
+void CConfig::SetAllowUpdateCheck(bool value) {
+    allow_update_check = value;
 }
 
 
@@ -283,6 +316,10 @@ bool CConfig::SaveConfig() {
         return false;
     }
 
+    db << "NUMBERFORMAT|" << (number_format_type == NumberFormatType::European ? L"European" : L"American") << "\n";
+
+    db << "COSTINGMETHOD|" << (costing_method == CostingMethod::fifo ? L"fifo" : L"AverageCost") << "\n";
+        
     db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
     
     db << "ALLOWUPDATECHECK|" << (allow_update_check ? L"true" : L"false") << "\n";
@@ -354,6 +391,28 @@ bool CConfig::LoadConfig() {
         if (st.empty()) continue;
 
         std::wstring arg = AfxTrim(st.at(0));
+
+        // Determine the Number Format to use
+        if (arg == L"NUMBERFORMAT") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+            number_format_type = NumberFormatType::American;
+            if (AfxWStringCompareI(value, L"European")) number_format_type = NumberFormatType::European;
+            continue;
+        }
+
+        // Determine the Costing Method to use for stocks
+        if (arg == L"COSTINGMETHOD") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+            costing_method = CostingMethod::AverageCost;
+            if (AfxWStringCompareI(value, L"fifo")) costing_method = CostingMethod::fifo;
+            continue;
+        }
 
         // Check if should show/hide Total Portfolio dollar amount on main screen
         if (arg == L"SHOWPORTFOLIOVALUE") {

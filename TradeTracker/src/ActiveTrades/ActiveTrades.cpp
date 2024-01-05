@@ -352,6 +352,8 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         ld->leg->percentage_text = text;
         if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
+        
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_5, L"", COLOR_WHITEDARK);  // Percentage values for the previous two columns data
     }
 
     RECT rc{};
@@ -1419,14 +1421,14 @@ void CActiveTrades::OnPaint(HWND hwnd) {
 // ========================================================================================
 // Show/Hide the Net and Excess liquidity labels and values.
 // ========================================================================================
-int CActiveTrades::ShowHideLiquidityLabels(HWND hwnd) {
-    int nShow = (config.IsShowPortfolioValueActive()) ? SW_SHOW : SW_HIDE;
+int CActiveTrades::ShowHideLiquidityLabels() {
+    int nShow = (config.GetAllowPortfolioDisplay()) ? SW_SHOW : SW_HIDE;
     if (!tws_IsConnected()) nShow = SW_HIDE;
 
-    ShowWindow(GetDlgItem(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION), nShow);
-    ShowWindow(GetDlgItem(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE), nShow);
-    ShowWindow(GetDlgItem(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY), nShow);
-    ShowWindow(GetDlgItem(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), nShow);
+    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_NETLIQUIDATION), nShow);
+    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE), nShow);
+    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY), nShow);
+    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), nShow);
 
     return nShow;
 }
@@ -1519,7 +1521,7 @@ void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
 
     EndDeferWindowPos(hdwp);
 
-    ShowHideLiquidityLabels(hwnd);
+    ShowHideLiquidityLabels();
 }
 
 

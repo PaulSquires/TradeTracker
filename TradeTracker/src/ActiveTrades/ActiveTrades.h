@@ -84,6 +84,7 @@ public:
     bool IsNewSharesTradeAction(TradeAction action);
     bool IsManageSharesTradeAction(TradeAction action);
     void UpdateTickerPrices();
+    int ShowHideLiquidityLabels();
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
@@ -103,7 +104,6 @@ private:
     void CreateAssignment(auto trade, auto leg);
     void OptionAssignment(auto trade);
     void PopulateLegsEditVector(HWND hListBox);
-    int ShowHideLiquidityLabels(HWND hwnd);
     
     void ShowListBoxItem(int index);
     void RightClickMenu(HWND hListBox, int idx);

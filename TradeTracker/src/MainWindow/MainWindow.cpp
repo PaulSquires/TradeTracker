@@ -72,8 +72,9 @@ void CMainWindow::DisplayPaperTradingWarning() {
 // Check the server to determine if an update is available to be downloaded.
 // ========================================================================================
 void CMainWindow::DisplayUpdateAvailableMessage() {
-    if (!config.IsUpdateCheckActive()) return;
+    if (!config.GetAllowUpdateCheck()) return;
     PerformUpdateCheck();
+    
 }
 
 

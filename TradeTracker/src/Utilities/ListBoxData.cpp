@@ -554,7 +554,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             if (!is_history) {
                 text = (leg->position_cost_text.length()) ? leg->position_cost_text : L"";
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    clr, font8, FontStyleRegular);
+                    COLOR_WHITEDARK, font8, FontStyleRegular);
 
                 text = (leg->market_value_text.length()) ? leg->market_value_text : L"";
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_2, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -573,7 +573,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
                 col++;
 
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-                    clr, font8, FontStyleRegular);   
+                    COLOR_WHITEDARK, font8, FontStyleRegular);
             }
 
             ListBox_AddString(hListBox, ld);

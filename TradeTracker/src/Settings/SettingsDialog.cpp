@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "CustomMessageBox/CustomMessageBox.h"
 #include "YearEndDialog/YearEndDialog.h"
 
 #include "SettingsDialog.h"
@@ -123,6 +124,11 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
+    // Save the original config values that require a restart. These are checked when SAVE
+    // is pressed to see if the original value was changed.
+    SettingsDialog.orig_number_format_type = config.GetNumberFormatType();
+    SettingsDialog.orig_costing_method = config.GetCostingMethod();
+
     HWND hCtl = NULL;
 
     int left = 75;
@@ -132,36 +138,42 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     int vert_spacing = 8;
     int left_indent = 30;
 
-    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_UPDATECHECK, L"Check for newer available TradeTracker versions",
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_UPDATECHECK, L"Check for newer available TradeTracker versions",
         text_color, back_color, check_color, check_back_color, border_focus_color, left, top, width, height);
+    CustomLabel_SetCheckState(hCtl, config.GetAllowUpdateCheck());
 
     top += height;
-    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_PORTFOLIOVALUE, L"Display Net and Excess portfolio liquidity amounts",
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_PORTFOLIOVALUE, L"Display Net and Excess portfolio liquidity amounts",
         text_color, back_color, check_color, check_back_color, border_focus_color, left, top, width, height);
+    CustomLabel_SetCheckState(hCtl, config.GetAllowPortfolioDisplay());
 
     top += (height + vert_spacing);
     CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT, L"Number format:",
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
     top += height;
-    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"American (US):  1,234.00",
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"American (US):  1,234.00",
         text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    if (config.GetNumberFormatType() == NumberFormatType::American) CustomLabel_SetCheckState(hCtl, true);
 
     top += height;
-    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"European (EU):  1.234,00",
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"European (EU):  1.234,00",
         text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    if (config.GetNumberFormatType() == NumberFormatType::European) CustomLabel_SetCheckState(hCtl, true);
 
     top += (height + vert_spacing);
     CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_COSTBASIS, L"Stock costing method:",
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
     top += height;
-    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE, L"Average Cost Basis",
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE, L"Average Cost Basis",
         text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    if (config.GetCostingMethod() == CostingMethod::AverageCost) CustomLabel_SetCheckState(hCtl, true);
 
     top += height;
-    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"First-In, First-Out (FIFO)",
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"First-In, First-Out (FIFO)",
         text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    if (config.GetCostingMethod() == CostingMethod::fifo) CustomLabel_SetCheckState(hCtl, true);
 
 
     // YEAR END CLOSE
@@ -316,7 +328,34 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         if (ctrl_id == IDC_SETTINGSDIALOG_SAVE) {
+
+            bool bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_UPDATECHECK));
+            config.SetAllowUpdateCheck(bool_value);
+
+            bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_PORTFOLIOVALUE));
+            config.SetAllowPortfolioDisplay(bool_value);
+
+            bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA));
+            config.SetNumberFormatType((bool_value) ? NumberFormatType::American : NumberFormatType::European);
+
+            bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO));
+            config.SetCostingMethod((bool_value) ? CostingMethod::fifo : CostingMethod::AverageCost);
+
             config.SaveConfig();
+
+
+            bool restart_required = false;
+            if (orig_number_format_type != config.GetNumberFormatType()) restart_required = true;
+            if (orig_costing_method != config.GetCostingMethod()) restart_required = true;
+
+            if (restart_required) {
+                CustomMessageBox.Show(
+                    MainWindow.hWindow,
+                    L"A setting has changed that requires a restart to take effect.\nPlease close and restart the application.\n",
+                    L"Settings",
+                    MB_ICONWARNING | MB_OK);
+            }
+
             dialog_return_code = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
             

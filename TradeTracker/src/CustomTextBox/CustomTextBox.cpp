@@ -33,6 +33,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "CustomPopupMenu/CustomPopupMenu.h"
+#include "Config/Config.h"
 
 #include "CustomTextBox.h"
 
@@ -154,18 +155,26 @@ void CustomTextBox_FormatDisplayDecimalPlaces(CustomTextBox* pData) {
     if (pData->allow_formatting == CustomTextBoxFormatting::disallow) return;
 
     if (pData->decimal_count) {
-        static std::wstring decimal_sep = L".";
-        static std::wstring thousand_sep = L",";
+        std::wstring decimal_sep = L".";
+        std::wstring thousand_sep = L",";
 
-        static NUMBERFMTW num{};
+        if (config.GetNumberFormatType() == NumberFormatType::European) {
+            decimal_sep = L",";
+            thousand_sep = L".";
+        }
+
+        NUMBERFMTW num{};
         num.NumDigits = pData->decimal_count;
         num.LeadingZero = true;
-        num.Grouping = 0;
         num.lpDecimalSep = (LPWSTR)decimal_sep.c_str();
         num.lpThousandSep = (LPWSTR)thousand_sep.c_str();
+        num.Grouping = 0;
         num.NegativeOrder = 1;   // Negative sign, number; for example, -1.1
 
         std::wstring money = CustomTextBox_GetText(pData->hTextBox);
+        if (config.GetNumberFormatType() == NumberFormatType::European) {
+            money = AfxReplace(money, L",", L".");
+        }
 
         std::wstring buffer(256, 0);
         size_t j = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, money.c_str(), &num, (LPWSTR)buffer.c_str(), 256);
@@ -238,13 +247,20 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
 
         if (wParam == VK_BACK) break;   // Allow normal backspace
 
+        std::wstring period = L".";
+        WPARAM wparam_period = '.';
+        if (config.GetNumberFormatType() == NumberFormatType::European) {
+            period = L",";
+            wparam_period = ',';
+        }
+
         // Handle Numeric textboxes
         // Allow 0 to 9 and Decimal
-        if (wParam >= '0' && wParam <= '9' || wParam == '.') {
+        if (wParam >= '0' && wParam <= '9' || wParam == wparam_period) {
             // If decimal places are allowed then only allow the digit
             // if room exists after the decimal point.
             if (pData->decimal_count == 0) {
-                if (wParam == 46) return 0;
+                if (wParam == wparam_period) return 0;
             }
             
             int pos = (int)SendMessage(hwnd, EM_GETSEL, 0, 0);
@@ -258,10 +274,10 @@ LRESULT CALLBACK CustomTextBox_SubclassProc(
                 text.erase(start_position, (end_position - start_position + 1));
             }
 
-            size_t fountat= text.find(L".");
+            size_t fountat= text.find(period);
             if (fountat != std::wstring::npos) {
                 // Period already exists then don't allow another one.
-                if (wParam == '.') {
+                if (wParam == wparam_period) {
                     return 0;   // do not allow
                 }
                 else {

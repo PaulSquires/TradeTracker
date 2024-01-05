@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 
 #include "AfxWin.h"
+#include "Config/Config.h"
 
 
 //
@@ -1163,8 +1164,15 @@ std::wstring AfxMoney(double value, bool use_minus_sign, int num_decimal_places)
     num.NumDigits = num_decimal_places;
     num.LeadingZero = true;
     num.Grouping = 3;
-    num.lpDecimalSep = (LPWSTR)decimal_sep.c_str();
-    num.lpThousandSep = (LPWSTR)thousand_sep.c_str();
+
+    if (config.GetNumberFormatType() == NumberFormatType::American) {
+        num.lpDecimalSep = (LPWSTR)decimal_sep.c_str();
+        num.lpThousandSep = (LPWSTR)thousand_sep.c_str();
+    }
+    if (config.GetNumberFormatType() == NumberFormatType::European) {
+        num.lpDecimalSep = (LPWSTR)thousand_sep.c_str();
+        num.lpThousandSep = (LPWSTR)decimal_sep.c_str(); 
+    }
 
     num.NegativeOrder = 0;   // Left parenthesis, number, right parenthesis; for example, (1.1)
 

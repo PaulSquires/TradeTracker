@@ -889,7 +889,7 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 	// Values will return immediately when first requested and then everytime they change or 3 minutes.
 
 	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
-	
+
 	std::wstring account_value = ansi2unicode(value);
 
 	// Get the value and convert it into Million(M) or Thousands(K) amounts
@@ -906,14 +906,16 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 		account_value = AfxMoney(amount, false);
 	}
 
+	int nShow = (config.GetAllowPortfolioDisplay()) ? SW_SHOW : SW_HIDE;
+
 	if (AfxStringCompareI(tag, "NetLiquidation")) {
 		CustomLabel_SetText(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE), account_value);
-		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), nShow);
 	}
 
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
 		CustomLabel_SetText(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), account_value);
-		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), SW_SHOW);
+		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), nShow);
 	}
 }
 
