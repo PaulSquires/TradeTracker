@@ -136,11 +136,11 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
     top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"Use American (US) number format.  1,234.00",
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"Use American (US) number format:  1,234.00",
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
     top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"Use European (EU) number format.  1.234,00",
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"Use European (EU) number format:  1.234,00",
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
     top += vert_spacing;
