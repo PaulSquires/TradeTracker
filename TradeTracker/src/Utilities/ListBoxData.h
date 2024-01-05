@@ -171,7 +171,7 @@ const int nTradesMinColWidth[MAX_COLUMNS] =
     50,     /* Market Value */
     50,     /* Unrealized PNL */
     50,     /* Percentages */
-    0
+    50      /* Percentages */
 };
 
 const int nClosedMinColWidth[MAX_COLUMNS] =
