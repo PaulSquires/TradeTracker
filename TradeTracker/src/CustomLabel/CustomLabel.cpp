@@ -148,10 +148,53 @@ void CustomLabel::DrawImageInBuffer() {
 
 
 // ========================================================================================
+// Draw the checkbox in graphic buffer if required.
+// ========================================================================================
+void CustomLabel::DrawCheckBoxInBuffer() {
+    font_name = L"Segoe UI Symbol";
+
+    FontFamily fontFamily(font_name.c_str());
+
+    REAL font_size = 10;
+    int font_style = FontStyleRegular;
+
+    Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
+    SolidBrush   text_brush(text_color);
+
+    StringFormat stringF(StringFormatFlagsNoWrap);
+    stringF.SetTrimming(StringTrimmingEllipsisWord);
+    SetTextAlignment(&stringF);
+    
+    // Left-justify the checkmark.
+    stringF.SetAlignment(StringAlignmentNear);
+
+    // Center the checkmark (top to bottom) in the rectangle.
+    stringF.SetLineAlignment(StringAlignmentCenter);
+
+    REAL left = 0;
+    REAL top = 0;
+    REAL right = left + (14 * m_rx);
+    REAL bottom = (REAL)m_rcClient.bottom;
+
+    RectF rcText(left, top, right - left, bottom - top);
+
+    std::wstring check_text = (is_checked) ? L"\u2611" : L"\u2610";
+    text_offset_left = (int)right;
+
+    Graphics graphics(m_memDC);
+    graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+    graphics.DrawString(check_text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+}
+
+// ========================================================================================
 // Draw the text in graphic buffer if required.
 // ========================================================================================
 void CustomLabel::DrawTextInBuffer() {
     switch (ctrl_type) {
+    case CustomLabelType::checkbox:
+        DrawCheckBoxInBuffer();
+        // fallthrough to draw the text
+        [[fallthrough]];
     case CustomLabelType::text_only:
     case CustomLabelType::image_and_text:
 
@@ -260,7 +303,8 @@ void CustomLabel::DrawBordersInBuffer() {
     switch (ctrl_type) {
     case CustomLabelType::image_only:
     case CustomLabelType::image_and_text:
-    case CustomLabelType::text_only: {
+    case CustomLabelType::text_only: 
+    case CustomLabelType::checkbox: {
         //if (BorderVisible == true) {
         //    ARGB clrPen = (is_hot ? border_color_hot : border_color);
         //    Pen pen(back_color, border_width);
@@ -276,6 +320,11 @@ void CustomLabel::DrawBordersInBuffer() {
                 clrPen = border_color_focus;
             }
             Pen pen(clrPen, (REAL)rect_border_width);
+
+            if (ctrl_type == CustomLabelType::checkbox) {
+                pen.SetDashStyle(DashStyleDash);
+            }
+
             int width = (m_rcClient.right - m_rcClient.left) - (int)rect_border_width;
             int height = (m_rcClient.bottom - m_rcClient.top) - (int)rect_border_width;
             Graphics graphics(m_memDC);
@@ -374,7 +423,7 @@ LRESULT CALLBACK CustomLabelProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     case WM_KEYDOWN: {
         // Parent to handle the TAB navigation key to move amongst constrols.
-        if (wParam == VK_TAB) {
+        if (wParam == VK_TAB || wParam == VK_UP || wParam == VK_DOWN) {
             if (SendMessage(pData->hParent, uMsg, wParam, lParam))
                 return 0;
         }
@@ -906,6 +955,65 @@ HWND CustomLabel_SimpleLabel(HWND hParent, int ctrl_id, std::wstring text,
     }
 
     return hCtl;
+}
+
+
+// ========================================================================================
+// Creates a simple checkbox button. 
+// ========================================================================================
+HWND CustomLabel_SimpleCheckBox(HWND hParent, int ctrl_id, std::wstring text,
+    DWORD text_color, DWORD back_color, DWORD check_color, DWORD check_back_color, DWORD border_focus_color,
+    int left, int top, int width, int height)
+{
+    CustomLabel* pData = nullptr;
+
+    HWND hCtl = CreateCustomLabel(
+        hParent, ctrl_id, CustomLabelType::checkbox,
+        left, top, width, height);
+    pData = CustomLabel_GetOptions(hCtl);
+    if (pData) {
+        pData->text = text;
+        pData->hot_test_enable = false;
+        pData->back_color = back_color;
+        pData->text_color = text_color;
+        pData->check_color = text_color;
+        pData->check_back_color = back_color;
+        pData->back_color_button_down = back_color;
+        pData->border_visible = true;
+        pData->border_width = 1;
+        pData->border_color = back_color;
+        pData->border_color_focus = border_focus_color;
+        pData->is_checked = false;
+        pData->text_alignment = CustomLabelAlignment::middle_left;
+        pData->allow_tab_stop = true;
+        CustomLabel_SetOptions(hCtl, pData);
+    }
+
+    return hCtl;
+}
+
+
+// ========================================================================================
+// Set the checkbox state to selected (true) or unselected (false).
+// ========================================================================================
+void CustomLabel_SetCheckState(HWND hCtrl, bool check_state) {
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData) {
+        pData->is_checked = check_state;
+        CustomLabel_SetOptions(hCtrl, pData);
+    }
+}
+
+
+// ========================================================================================
+// Set the checkbox state to selected (true) or unselected (false).
+// ========================================================================================
+bool CustomLabel_GetCheckState(HWND hCtrl) {
+    CustomLabel* pData = CustomLabel_GetOptions(hCtrl);
+    if (pData) {
+        return pData->is_checked;
+    }
+    return false;
 }
 
 

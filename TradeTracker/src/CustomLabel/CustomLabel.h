@@ -35,7 +35,8 @@ enum class CustomLabelType {
 	image_only,
 	image_and_text,
 	line_horizontal,
-	line_vertical
+	line_vertical,
+	checkbox
 };
 
 enum class CustomLabelAlignment {
@@ -86,6 +87,11 @@ public:
 	REAL line_width = 1;
 	DWORD line_color{};
 
+	// Checkbox
+	DWORD check_color{};
+	DWORD check_back_color{};
+	bool is_checked = false;
+
 	// Border
 	bool border_visible = false;
 	REAL border_width = 0;
@@ -128,6 +134,7 @@ public:
 	void SetTextAlignment(StringFormat* stringF);
 	void StartDoubleBuffering(HDC hdc);
 	void DrawImageInBuffer();
+	void DrawCheckBoxInBuffer();
 	void DrawTextInBuffer();
 	void DrawLabelInBuffer();
 	void DrawBordersInBuffer();
@@ -171,6 +178,8 @@ void CustomLabel_SetTextOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetImageOffset(HWND hCtrl, int OffsetLeft, int OffsetTop);
 void CustomLabel_SetMousePointer(HWND hCtrl, CustomLabelPointer normal_pointer, CustomLabelPointer hot_pointer);
 void CustomLabel_SetImages(HWND hCtrl, int image_id, int image_hot_id);
+void CustomLabel_SetCheckState(HWND hCtrl, bool check_state);
+bool CustomLabel_GetCheckState(HWND hCtrl);
 
 HWND CustomLabel_SimpleLabel(HWND hParent, int ctrl_id, std::wstring text,
 	DWORD text_color, DWORD back_color, CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
@@ -187,7 +196,10 @@ HWND CustomLabel_ButtonLabel(HWND hParent, int ctrl_id, std::wstring text,
 	CustomLabelAlignment alignment = CustomLabelAlignment::middle_left,
 	int left = 0, int top = 0, int width = 0, int height = 0);
 
-	
+HWND CustomLabel_SimpleCheckBox(HWND hParent, int ctrl_id, std::wstring text,
+	DWORD text_color, DWORD back_color, DWORD check_color, DWORD check_back_color, DWORD border_focus_color,
+	int left, int top, int width, int height);
+
 HWND CustomLabel_SimpleImageLabel(HWND hParent, int ctrl_id,
 	int image_id, int image_hot_id,
 	int image_width, int image_height,

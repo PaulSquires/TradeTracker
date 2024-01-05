@@ -116,6 +116,9 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     DWORD text_color = COLOR_WHITELIGHT;
     DWORD text_color_dim = COLOR_WHITEDARK;
     DWORD back_color = COLOR_GRAYDARK;
+    DWORD check_color = COLOR_WHITELIGHT;
+    DWORD check_back_color = COLOR_GRAYDARK;
+    DWORD border_focus_color = COLOR_GRAYLIGHT;
 
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
@@ -123,37 +126,46 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND hCtl = NULL;
 
     int left = 75;
-    int top = 50;
+    int top = 40;
     int width = 400;
     int height = 23;
-    int vert_spacing = height + 10;
+    int vert_spacing = 8;
+    int left_indent = 30;
 
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_UPDATECHECK, L"Check for newer available TradeTracker versions",
-        text_color, back_color,CustomLabelAlignment::middle_left, left, top, width, height);
+    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_UPDATECHECK, L"Check for newer available TradeTracker versions",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left, top, width, height);
 
-    top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_PORTFOLIOVALUE, L"Display Net and Excess portfolio liquidity amounts",
+    top += height;
+    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_PORTFOLIOVALUE, L"Display Net and Excess portfolio liquidity amounts",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left, top, width, height);
+
+    top += (height + vert_spacing);
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT, L"Number format:",
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
-    top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"Use American (US) number format:  1,234.00",
+    top += height;
+    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA, L"American (US):  1,234.00",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+
+    top += height;
+    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"European (EU):  1.234,00",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+
+    top += (height + vert_spacing);
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_COSTBASIS, L"Stock costing method:",
         text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
 
-    top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU, L"Use European (EU) number format:  1.234,00",
-        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+    top += height;
+    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE, L"Average Cost Basis",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
 
-    top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE, L"Use Average Cost Basis method for stock cost calculation",
-        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
-
-    top += vert_spacing;
-    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"Use First-In, First-Out (FIFO) method for stock cost calculation",
-        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+    top += height;
+    CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"First-In, First-Out (FIFO)",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
 
 
     // YEAR END CLOSE
-    top += (vert_spacing * 2);
+    top += (height * 2);
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SETTINGSDIALOG_CMDYEAREND, L"Year End Procedure",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, left, top, 150, height);
@@ -171,7 +183,7 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // CANCEL button
-    top += vert_spacing;
+    top += height + 10;
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_SETTINGSDIALOG_CANCEL, L"Cancel",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, left, top, width, height);
@@ -221,13 +233,13 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
     case WM_KEYDOWN: {
         // We are handling the TAB naviagation ourselves.
-        if (wParam == VK_TAB) {
+        if (wParam == VK_TAB || wParam == VK_UP || wParam == VK_DOWN) {
             HWND hFocus = GetFocus();
             HWND hNextCtrl = NULL;
-            if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+            if (((GetAsyncKeyState(VK_SHIFT) & 0x8000) && wParam == VK_TAB) || wParam == VK_UP) {
                 hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, true);
-            }
-            else {
+            } 
+            else if (wParam == VK_TAB || wParam == VK_DOWN) {
                 hNextCtrl = GetNextDlgTabItem(m_hwnd, hFocus, false);
             }
             SetFocus(hNextCtrl);
@@ -239,13 +251,64 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
         int ctrl_id = (int)wParam;
+        bool check_state = false;
 
         if (hCtl == NULL) return 0;
 
-        if (ctrl_id == IDC_SETTINGSDIALOG_CMDYEAREND) {
-            YearEndDialog_Show(m_hwnd);
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_UPDATECHECK) {
+            check_state = !CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, check_state);
+            SetFocus(hCtl);
         }
 
+        if (ctrl_id == IDC_SETTINGSDIALOG_PORTFOLIOVALUE) {
+            check_state = !CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, check_state);
+            SetFocus(hCtl);
+        }
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_NUMBERFORMAT_USA) {
+            check_state = CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, !check_state);
+            if (!check_state) {
+                CustomLabel_SetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_EU), false);
+            }
+            SetFocus(hCtl);
+        }
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_NUMBERFORMAT_EU) {
+            check_state = CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, !check_state);
+            if (!check_state) {
+                CustomLabel_SetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_NUMBERFORMAT_USA), false);
+            }
+            SetFocus(hCtl);
+        }
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE) {
+            check_state = CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, !check_state);
+            if (!check_state) {
+                CustomLabel_SetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO), false);
+            }
+            SetFocus(hCtl);
+        }
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_COSTBASIS_FIFO) {
+            check_state = CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, !check_state);
+            if (!check_state) {
+                CustomLabel_SetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE), false);
+            }
+            SetFocus(hCtl);
+        }
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_CMDYEAREND) {
+            HWND hFocus = GetFocus();
+            YearEndDialog_Show(m_hwnd);
+            SetFocus(hFocus);
+        }
 
         if (ctrl_id == IDC_SETTINGSDIALOG_CANCEL) {
             dialog_return_code = DIALOG_RETURN_CANCEL;
@@ -256,6 +319,7 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             config.SaveConfig();
             dialog_return_code = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+            
         }
 
         return 0;
@@ -271,7 +335,7 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 int SettingsDialog_Show(HWND hWndParent) {
     int width = 570;
-    int height = 400;
+    int height = 380;
 
     HWND hwnd = SettingsDialog.Create(hWndParent, L"Settings", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -302,6 +366,8 @@ int SettingsDialog_Show(HWND hWndParent) {
     DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
     SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+    SetFocus(GetDlgItem(hwnd, IDC_SETTINGSDIALOG_SAVE));
 
     dialog_return_code = DIALOG_RETURN_CANCEL;
 
