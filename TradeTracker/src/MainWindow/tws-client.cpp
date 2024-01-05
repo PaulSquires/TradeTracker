@@ -761,21 +761,17 @@ void TwsClient::error(int id, int error_code,
 	const std::string& error_string, const std::string& advanced_order_reject_json)
 {
 	switch (error_code) {
-	case 509:
-		if (id == -1) {   // socket error
-			// Increment the client_id so that next connection will succeed.
+	case 509:  // socket exception error
+		if (id == -1) {   
 
 			printf("Error. Id: %d, Code: %d, Msg: %s\n", id, error_code, error_string.c_str());
 			
-			std::cout << error_string << std::endl;
-			
-			//client_id++;
+			// Ensure that threads that I created get terminated.
 			Disconnect();
 
+			// Set flag so that the class socket and reader can be recreated if the user attempts
+			// to re-connect again. See tws_connect() function for that code.
 			had_previous_socket_exception = true;
-
-			std::cout << "Exception caught and client_id set to: " << client_id << std::endl;
-
 			return;
 		}
 	}
