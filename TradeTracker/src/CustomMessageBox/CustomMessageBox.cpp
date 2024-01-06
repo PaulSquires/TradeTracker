@@ -322,7 +322,7 @@ LRESULT CCustomMessageBox::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 // ========================================================================================
-// Create and show the Reconcile modal dialog.
+// Create and show the modal dialog.
 // ========================================================================================
 int CCustomMessageBox::Show(
 	HWND hwndParent, const std::wstring& message, const std::wstring& caption, int option_flags)

@@ -211,6 +211,9 @@ int AfxScaleX(float cx) {
 int AfxScaleX(int cx) {
     return (int)round((cx * AfxScaleRatioX()));
 }
+int AfxScaleX(long cx) {
+    return (int)round((cx * AfxScaleRatioX()));
+}
 
 
 // ========================================================================================
@@ -220,6 +223,9 @@ int AfxScaleY(float cy) {
     return (int)round((cy * AfxScaleRatioX()));
 }
 int AfxScaleY(int cy) {
+    return (int)round((cy * AfxScaleRatioX()));
+}
+int AfxScaleY(long cy) {
     return (int)round((cy * AfxScaleRatioX()));
 }
 
@@ -233,6 +239,9 @@ int AfxUnScaleX(float cx) {
 int AfxUnScaleX(int cx) {
     return (int)round((cx / AfxScaleRatioX()));
 }
+int AfxUnScaleX(long cx) {
+    return (int)round((cx / AfxScaleRatioX()));
+}
 
 
 // ========================================================================================
@@ -242,6 +251,9 @@ int AfxUnScaleY(float cy) {
     return (int)round((cy / AfxScaleRatioY()));
 }
 int AfxUnScaleY(int cy) {
+    return (int)round((cy / AfxScaleRatioY()));
+}
+int AfxUnScaleY(long cy) {
     return (int)round((cy / AfxScaleRatioY()));
 }
 
@@ -748,6 +760,23 @@ int AfxDaysInMonth(int month, int year) {
     }
 }
 
+// ========================================================================================
+// Return weekday number of the specified date. (0 based)
+// ========================================================================================
+int AfxDateWeekday(int day, int month, int year) {
+    static int t[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
+    year -= month < 3;
+    return (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
+}
+
+int day(int d, int m, int y)
+{
+    // The following, invented by Mike Keith and published in Journal of Recreational Mathematics,
+    // Vol. 22, No. 4, 1990, p. 280, is conjectured to be the shortest expression of a 
+    // day-of-the-week algorithm: 
+
+    return  (d += m < 3 ? y-- : y - 2, 23 * m / 9 + d + 4 + y / 4 - y / 100 + y / 400) % 7;
+}
 
 // ========================================================================================
 // Return the days in month from an ISO specified date.

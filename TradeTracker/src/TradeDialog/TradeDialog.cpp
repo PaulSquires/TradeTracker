@@ -36,7 +36,7 @@ SOFTWARE.
 #include "ClosedTrades/ClosedTrades.h"
 #include "Transactions/TransPanel.h"
 #include "CustomLabel/CustomLabel.h"
-#include "DatePicker/Calendar.h"
+#include "CustomCalendar/CustomCalendar.h"
 #include "Strategy/StrategyPopup.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -330,7 +330,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             // Clicked on the Transaction Date dropdown or label itself
             HWND hDateLabel = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLTRANSDATE);
             std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
-            CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, hDateLabel, initial_date_text, 1);
+            CalendarReturn calendar_result = CustomCalendar.Show(m_hwnd, hDateLabel, initial_date_text, 1);
 
             if (calendar_result.exit_code != -1) {
                 CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);
@@ -342,7 +342,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             // Clicked on the Futures Contract Date dropdown or label itself
             HWND hDateLabel = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE);
             std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
-            CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, hDateLabel, initial_date_text, 1);
+            CalendarReturn calendar_result = CustomCalendar.Show(m_hwnd, hDateLabel, initial_date_text, 1);
 
             if (calendar_result.exit_code != -1) {
                 CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);
@@ -477,8 +477,8 @@ int TradeDialog_Show(TradeAction inTradeAction) {
     while (GetMessage(&msg, NULL, 0, 0))
     {
         if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
-            if (IsWindowVisible(HWND_CALENDAR)) {
-                DestroyWindow(HWND_CALENDAR);
+            if (IsWindowVisible(HWND_CUSTOMCALENDAR)) {
+                DestroyWindow(HWND_CUSTOMCALENDAR);
             }
             else if (IsWindowVisible(HWND_STRATEGYPOPUP)) {
                 DestroyWindow(HWND_STRATEGYPOPUP);

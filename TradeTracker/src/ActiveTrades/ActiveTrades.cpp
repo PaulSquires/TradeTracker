@@ -1716,7 +1716,7 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             POINT pt{ rc.left, rc.bottom + top_offset };
             int selected = CustomPopupMenu.Show(hWindow, items, (int)new_trade_type, pt.x, pt.y, AfxScaleX(223));
 
-            if (selected != -1 && selected != (int)new_trade_type) {
+            if (selected != -1) {
                 new_trade_type = (NewTradeType)selected;
                 CustomLabel_SetText(hCombo, GetNewTradeDescription(selected));
 

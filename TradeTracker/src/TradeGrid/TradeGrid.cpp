@@ -28,7 +28,7 @@ SOFTWARE.
 #include "Utilities/CWindowBase.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
-#include "DatePicker/Calendar.h"
+#include "CustomCalendar/CustomCalendar.h"
 #include "TradeDialog/TradeDialog.h"
 #include "TradeGrid.h"
 
@@ -433,7 +433,7 @@ void TradeGrid_OnClickDatePicker(TradeGrid* pData, GridColInfo* col) {
 
     HWND hDateLabel = col->hCtl;
     std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
-    CalendarReturn calendar_result = Calendar_CreateDatePicker(pData->hParent, hDateLabel, initial_date_text, 2);
+    CalendarReturn calendar_result = CustomCalendar.Show(pData->hParent, hDateLabel, initial_date_text, 2);
 
     if (calendar_result.exit_code != -1) {
         CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);

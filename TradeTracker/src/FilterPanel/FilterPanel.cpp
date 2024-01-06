@@ -29,7 +29,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomPopupMenu/CustomPopupMenu.h"
-#include "DatePicker/Calendar.h"
+#include "CustomCalendar/CustomCalendar.h"
 #include "Category/Category.h"
 #include "Utilities/ListBoxData.h"
 #include "MainWindow/MainWindow.h"
@@ -440,7 +440,7 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_FILTER_CMDSTARTDATE || ctrl_id == IDC_FILTER_STARTDATE) {
             // Clicked on the Start Date dropdown or label itself
-            CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, StartDateCombo(), filter_start_date, 1);
+            CalendarReturn calendar_result = CustomCalendar.Show(m_hwnd, StartDateCombo(), filter_start_date, 1);
 
             if (calendar_result.exit_code != -1) {
                 // Set selected_transdate prior to calling SetStartEndDates()
@@ -454,7 +454,7 @@ LRESULT CFilterPanel::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_FILTER_CMDENDDATE || ctrl_id == IDC_FILTER_ENDDATE) {
             // Clicked on the End Date dropdown or label itself
-            CalendarReturn calendar_result = Calendar_CreateDatePicker(m_hwnd, EndDateCombo(), filter_end_date, 1);
+            CalendarReturn calendar_result = CustomCalendar.Show(m_hwnd, EndDateCombo(), filter_end_date, 1);
 
             if (calendar_result.exit_code != -1) {
                 // Set selected_transdate prior to calling SetStartEndDates()
