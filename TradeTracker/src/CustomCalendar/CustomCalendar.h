@@ -108,7 +108,6 @@ private:
     RectF right_arrow_rect;
     RectF today_iso_text_rect;
 
-    void SetCalendarData();
     void IncrementDate();
     void DecrementDate();
     void SetMonthDataVector(std::vector<MonthData>& m);

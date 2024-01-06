@@ -41,14 +41,6 @@ CCustomCalendar CustomCalendar;
 HHOOK hCalanderPopupMouseHook = nullptr;
 
 
-// ========================================================================================
-// Set the Calendar's data properties based on the calculated date
-// ========================================================================================
-void CCustomCalendar::SetCalendarData() {
-
-    AfxRedrawWindow(hWindow);
-}
-
 
 // ========================================================================================
 // Increment the Calendar's date
@@ -60,7 +52,7 @@ void CCustomCalendar::IncrementDate() {
         current_year++;
         current_month = 1;
     }
-    SetCalendarData();
+    AfxRedrawWindow(hWindow);
 }
 
 
@@ -74,7 +66,7 @@ void CCustomCalendar::DecrementDate() {
         current_year--;
         current_month = 12;
     }
-    SetCalendarData();
+    AfxRedrawWindow(hWindow);
 }
 
 
@@ -91,7 +83,7 @@ bool CCustomCalendar::OnEraseBkgnd(HWND hwnd, HDC hdc) {
 
 // ========================================================================================
 // Load the MonthData vector to contain all of the necessary data to create
-// and display the curent, previous, next, and current+2 calendar data.
+// and display the current, previous, next, and current+2 calendar data.
 // ========================================================================================
 void CCustomCalendar::SetMonthDataVector(std::vector<MonthData>& m) {
     
@@ -101,7 +93,7 @@ void CCustomCalendar::SetMonthDataVector(std::vector<MonthData>& m) {
         mdata.month = current_month + i;
         mdata.year = current_year;
         if (mdata.month < 1) { mdata.month = 12; mdata.year--; }
-        if (mdata.month > 12) { mdata.month = 1; mdata.year++; }
+        if (mdata.month > 12) { mdata.month -= 12; mdata.year++; }
 
         mdata.num_days_in_month = AfxDaysInMonth(mdata.month, mdata.year);
         mdata.first_weekday_of_month = AfxDateWeekday(1, mdata.month, mdata.year);
@@ -340,8 +332,6 @@ void CCustomCalendar::OnPaint(HWND hwnd) {
 bool CCustomCalendar::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_CUSTOMCALENDAR = hwnd;
     hWindow = hwnd;
-
-    SetCalendarData();
 
     return true;
 }
