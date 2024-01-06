@@ -779,7 +779,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
 
         newleg->underlying = trans->underlying;
 
-        trans->trans_date = AfxCurrentDate();
+        trans->trans_date = leg->expiry_date;
         newleg->original_quantity = leg->open_quantity * -1;
         newleg->open_quantity = 0;
         newleg->leg_back_pointer_id = leg->leg_id;
