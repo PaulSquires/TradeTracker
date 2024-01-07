@@ -26,8 +26,6 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "TradeDialog.h"
-#include "TradeDialogControls.h"
 #include "Database/trade.h"
 #include "Database/database.h"
 #include "MainWindow/MainWindow.h"
@@ -41,7 +39,10 @@ SOFTWARE.
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 #include "Reconcile/Reconcile.h"
-#include "TradeGrid/TradeGrid.h"
+
+#include "TradeDialog.h"
+#include "TradeGrid.h"
+#include "TradeDialogControls.h"
 
 
 HWND HWND_TRADEDIALOG = NULL;
@@ -335,6 +336,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             if (calendar_result.exit_code != -1) {
                 CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);
                 CustomLabel_SetText(hDateLabel, AfxLongDate(calendar_result.iso_date));
+                TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN));
+                TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL));
             }
         }
 

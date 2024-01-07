@@ -50,7 +50,7 @@
     <ClInclude Include="src\TradeDialog\TradeDialog.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogControls.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogSave.h" />
-    <ClInclude Include="src\TradeGrid\TradeGrid.h" />
+    <ClInclude Include="src\TradeDialog\TradeGrid.h" />
     <ClInclude Include="src\TradeHistory\TradeHistory.h" />
     <ClInclude Include="src\TradePlan\TradePlan.h" />
     <ClInclude Include="src\Transactions\TransDetail.h" />
@@ -150,7 +150,7 @@
     <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogSave.cpp" />
-    <ClCompile Include="src\TradeGrid\TradeGrid.cpp" />
+    <ClCompile Include="src\TradeDialog\TradeGrid.cpp" />
     <ClCompile Include="src\TradeHistory\TradeHistory.cpp" />
     <ClCompile Include="src\TradePlan\TradePlan.cpp" />
     <ClCompile Include="src\Transactions\TransDetail.cpp" />

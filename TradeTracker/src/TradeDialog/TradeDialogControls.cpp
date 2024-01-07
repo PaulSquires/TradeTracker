@@ -26,11 +26,9 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "TradeDialog.h"
 #include "Utilities/AfxWin.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
-#include "TradeGrid/TradeGrid.h"
 #include "Strategy/StrategyButton.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/tws-client.h"
@@ -38,6 +36,8 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "Config/Config.h"
 
+#include "TradeDialog.h"
+#include "TradeGrid.h"
 
 int most_recently_used_category = 0;
 

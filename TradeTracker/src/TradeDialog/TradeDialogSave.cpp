@@ -26,21 +26,21 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "TradeDialog.h"
 #include "Utilities/AfxWin.h"
 #include "Database/database.h"
 #include "CustomLabel/CustomLabel.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomMessageBox/CustomMessageBox.h"
-#include "TradeGrid/TradeGrid.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/tws-client.h"
 #include "Category/Category.h"
 #include "Strategy/StrategyButton.h"
 
+#include "TradeDialog.h"
+#include "TradeGrid.h"
 
-class CGuiData
-{
+
+class CGuiData {
 public:
     std::wstring ticker_symbol;
     std::wstring ticker_name;
