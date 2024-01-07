@@ -215,9 +215,12 @@ void CCustomCalendar::OnPaint(HWND hwnd) {
     std::wstring text;
 
     // Left and Right Arrows
+    stringF.SetAlignment(StringAlignmentFar);
     left_arrow_rect = { rc.GetLeft(), rc.GetTop(), cell_width, line_height_top };
-    right_arrow_rect = { rc.GetRight() - cell_width, rc.GetTop(), cell_width, line_height_top };
     graphics.DrawString(L"\u23F4", -1, &font, left_arrow_rect, &stringF, &text_brush);
+    
+    stringF.SetAlignment(StringAlignmentNear);
+    right_arrow_rect = { rc.GetRight() - cell_width, rc.GetTop(), cell_width, line_height_top };
     graphics.DrawString(L"\u23F5", -1, &font, right_arrow_rect, &stringF, &text_brush);
 
 
