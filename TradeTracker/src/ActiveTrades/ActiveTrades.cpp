@@ -976,7 +976,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
 
     // Close the Option. Save this transaction's leg quantities
     trans = std::make_shared<Transaction>();
-    trans->trans_date = AfxCurrentDate();
+    trans->trans_date = leg->expiry_date;
     trans->description = L"Assignment";
     trans->underlying = Underlying::Options;
     trade->transactions.push_back(trans);
@@ -1001,14 +1001,14 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     if (leg->action == Action::STO) newleg->action = Action::BTC;
     if (leg->action == Action::BTO) newleg->action = Action::STC;
 
-    newleg->expiry_date = AfxCurrentDate();;
+    newleg->expiry_date = leg->expiry_date; 
     newleg->strike_price = leg->strike_price;
     newleg->put_call = leg->put_call;
     trans->legs.push_back(newleg);
 
     // Make the SHARES/FUTURES that have been assigned.
     trans = std::make_shared<Transaction>();
-    trans->trans_date = AfxCurrentDate();
+    trans->trans_date = leg->expiry_date;
     trans->description = L"Assignment";
     trans->underlying = (is_shares) ? Underlying::Shares : Underlying::Futures;
     trans->quantity = quantity_assigned;
