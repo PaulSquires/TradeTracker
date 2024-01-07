@@ -59,7 +59,7 @@ void CConfig::Version4UpgradeExe() {
     exe_new = AfxGetExePath() + exe_new;
 
     // Delete pre-Version4 exe
-    if (AfxFileExists(exe_new)) {
+    if (AfxFileExists(exe_new) && AfxFileExists(exe_old)) {
         DeleteFile(exe_old.c_str());
     }
 }
@@ -69,13 +69,15 @@ bool CConfig::Version4UpgradeConfig() {
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbConfig_filename)) {
+    if (AfxFileExists(dbConfig_filename) || !AfxFileExists(dbConfig_old)) {
         dbConfig = dbConfig_filename;
         return false;
     }
     else {
         // Old files will be renamed after they are first loaded into memory.
-        dbConfig = dbConfig_old;
+        if (AfxFileExists(dbConfig_old)) {
+            dbConfig = dbConfig_old;
+        }
         return true;
     }
 }

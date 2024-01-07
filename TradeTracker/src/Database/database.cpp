@@ -44,7 +44,7 @@ bool CDatabase::Version4UpgradeDatabase() {
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbFilename_filename)) {
+    if (AfxFileExists(dbFilename_filename) || !AfxFileExists(dbFilename_old)) {
         dbFilename = dbFilename_filename;
         return false;
     }
@@ -61,7 +61,7 @@ bool CDatabase::Version4UpgradeJournalNotes() {
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbJournalNotes_filename)) {
+    if (AfxFileExists(dbJournalNotes_filename) || !AfxFileExists(dbJournalNotes_old)) {
         dbJournalNotes = dbJournalNotes_filename;
         return false;
     }
@@ -77,7 +77,7 @@ bool CDatabase::Version4UpgradeTradePlan() {
 
     // If version 4 filenames already exist then we would have already upgraded the
     // files previously,
-    if (AfxFileExists(dbTradePlan_filename)) {
+    if (AfxFileExists(dbTradePlan_filename) || !AfxFileExists(dbTradePlan_old)) {
         dbTradePlan = dbTradePlan_filename;
         return false;
     }
