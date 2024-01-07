@@ -588,6 +588,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
 
     // Add the new transaction legs
     for (int row = 0; row < 4; ++row) {
+        int intQuantity   = guiData.legs.at(row).original_quantity * trans->quantity;
+        if (intQuantity == 0) continue;
+        
         std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
         trade->nextleg_id += 1;
@@ -598,8 +601,6 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         leg->put_call     = guiData.legs.at(row).put_call;
         leg->action       = guiData.legs.at(row).action;
         leg->trans        = trans;
-        int intQuantity   = guiData.legs.at(row).original_quantity * trans->quantity;
-        if (intQuantity == 0) continue;
 
         std::wstring expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
         if (AfxValDouble(expiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = expiry_date;
@@ -639,6 +640,9 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     if (tdd.trade_action == TradeAction::roll_leg) {
 
         for (int row = 0; row < 4; ++row) {
+            int intQuantity   = guiData.legsRoll.at(row).original_quantity;
+            if (intQuantity == 0) continue;
+
             std::shared_ptr<Leg> leg = std::make_shared<Leg>();
 
             trade->nextleg_id += 1;
@@ -649,8 +653,6 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->put_call     = guiData.legsRoll.at(row).put_call;
             leg->action       = guiData.legsRoll.at(row).action;
             leg->trans        = trans;
-            int intQuantity   = guiData.legsRoll.at(row).original_quantity;
-            if (intQuantity == 0) continue;
 
             std::wstring expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
             if (AfxValDouble(expiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = expiry_date;

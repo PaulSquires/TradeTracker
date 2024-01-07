@@ -40,6 +40,7 @@ enum class ActiveTradesFilterType {
 };
 
 enum class NewTradeType {
+    no_action,
     Custom,
     IronCondor,
     ShortStrangle,

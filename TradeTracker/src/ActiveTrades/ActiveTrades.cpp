@@ -1705,9 +1705,22 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_ACTIVETRADES_CMDNEWTRADE || ctrl_id == IDC_ACTIVETRADES_NEWTRADE) {
             std::vector<CCustomPopupMenuItem> items;
-            for (int i = (int)NewTradeType::Custom; i <= (int)NewTradeType::OtherIncomeExpense; ++i) {
-                items.push_back({ GetNewTradeDescription(i), i, false });
-            }
+            int i = 0;
+            i = (int)NewTradeType::Custom;             items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::no_action;          items.push_back({ L"", i, true });
+            i = (int)NewTradeType::IronCondor;         items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::ShortStrangle;      items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::ShortPut;           items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::ShortPutVertical;   items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::ShortCall;          items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::ShortCallVertical;  items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::ShortPut112;        items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::no_action;          items.push_back({ L"", i, true });
+            i = (int)NewTradeType::SharesTrade;        items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::FuturesTrade;       items.push_back({ GetNewTradeDescription(i), i, false });
+            i = (int)NewTradeType::no_action;          items.push_back({ L"", i, true });
+            i = (int)NewTradeType::OtherIncomeExpense; items.push_back({ GetNewTradeDescription(i), i, false });
+
 
             // Position the popup menu immediately under the control that was clicked on
             HWND hCombo = NewTradeCombo();
