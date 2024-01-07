@@ -106,6 +106,18 @@ void CConfig::SetNumberFormatType(NumberFormatType value) {
 
 
 // ========================================================================================
+// Determine the week starting day (Sunday or Monday).
+// ========================================================================================
+StartWeekdayType CConfig::GetStartWeekday() {
+    return start_weekday;
+}
+
+void CConfig::SetStartWeekday(StartWeekdayType value) {
+    start_weekday = value;
+}
+
+
+// ========================================================================================
 // Determine if show/hide the Portfolio dollar value on the main screen.
 // ========================================================================================
 bool CConfig::GetAllowPortfolioDisplay() {
@@ -316,6 +328,8 @@ bool CConfig::SaveConfig() {
         return false;
     }
 
+    db << "STARTWEEKDAY|" << (start_weekday == StartWeekdayType::Sunday? L"Sunday" : L"Monday") << "\n";
+
     db << "NUMBERFORMAT|" << (number_format_type == NumberFormatType::European ? L"European" : L"American") << "\n";
 
     db << "COSTINGMETHOD|" << (costing_method == CostingMethod::fifo ? L"fifo" : L"AverageCost") << "\n";
@@ -391,6 +405,17 @@ bool CConfig::LoadConfig() {
         if (st.empty()) continue;
 
         std::wstring arg = AfxTrim(st.at(0));
+
+        // Determine the Starting day of th week
+        if (arg == L"STARTWEEKDAY") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+            start_weekday = StartWeekdayType::Sunday;
+            if (AfxWStringCompareI(value, L"Monday")) start_weekday = StartWeekdayType::Monday;
+            continue;
+        }
 
         // Determine the Number Format to use
         if (arg == L"NUMBERFORMAT") {

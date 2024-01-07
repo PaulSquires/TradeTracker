@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "MainWindow/MainWindow.h"
 #include "Utilities/UserMessages.h"
+#include "Config/Config.h"
 
 #include "CustomCalendar.h"
 
@@ -97,6 +98,9 @@ void CCustomCalendar::SetMonthDataVector(std::vector<MonthData>& m) {
 
         mdata.num_days_in_month = AfxDaysInMonth(mdata.month, mdata.year);
         mdata.first_weekday_of_month = AfxDateWeekday(1, mdata.month, mdata.year);
+
+        // Adjust the starting weekday based on configuration setting.
+        mdata.first_weekday_of_month -= (int)config.GetStartWeekday();    // 0,1
 
         m.push_back(mdata);
     }
@@ -257,7 +261,11 @@ void CCustomCalendar::OnPaint(HWND hwnd) {
         top += line_height_top;
 
         // Weekday Names
-        static const std::wstring day_name_string = L"  Sun  Mon  Tue  Wed  Thu   Fri    Sat";
+        std::wstring day_name_string;
+        if (config.GetStartWeekday() == StartWeekdayType::Sunday) 
+            day_name_string = L"  Sun  Mon  Tue  Wed  Thu   Fri    Sat";
+        if (config.GetStartWeekday() == StartWeekdayType::Monday) 
+            day_name_string = day_name_string = L"  Mon  Tue  Wed  Thu   Fri    Sat  Sun";
         stringF.SetAlignment(StringAlignmentNear);
         RectF weekday_name_rect(rc.GetLeft(), top, rc.Width, weekday_height);
         graphics.DrawString(day_name_string.c_str(), -1, &font, weekday_name_rect, &stringF, &text_brush);

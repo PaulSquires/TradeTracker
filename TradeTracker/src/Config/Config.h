@@ -42,6 +42,11 @@ enum class CostingMethod{
     fifo
 };
 
+enum class StartWeekdayType {
+    Sunday,
+    Monday
+};
+
 
 class CConfig {
 private:
@@ -53,6 +58,7 @@ private:
     const std::wstring dbConfig_old = AfxGetExePath() + L"\\IB-Tracker-config.txt";
     const std::wstring exe_old = AfxGetExePath() + L"\\IB-Tracker.exe";
 
+
     std::wstring dbConfig;
 
     int startup_width = 0;
@@ -63,6 +69,7 @@ private:
     bool allow_update_check = true;
     NumberFormatType number_format_type = NumberFormatType::American;
     CostingMethod costing_method = CostingMethod::AverageCost;
+    StartWeekdayType start_weekday = StartWeekdayType::Monday;
 
     std::unordered_map<int, std::wstring> mapCategoryDescriptions{
         { 0, L"Category 0"},
@@ -135,6 +142,8 @@ public:
 	bool LoadConfig();
 
     std::wstring GetDataFilesFolder();
+    StartWeekdayType GetStartWeekday();
+    void SetStartWeekday(StartWeekdayType value);
     CostingMethod GetCostingMethod();
 	void SetCostingMethod(CostingMethod value);
     NumberFormatType GetNumberFormatType();

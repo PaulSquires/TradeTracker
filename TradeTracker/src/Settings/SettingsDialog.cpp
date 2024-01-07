@@ -132,7 +132,7 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND hCtl = NULL;
 
     int left = 75;
-    int top = 40;
+    int top = 20;
     int width = 400;
     int height = 23;
     int vert_spacing = 8;
@@ -174,6 +174,20 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"First-In, First-Out (FIFO)",
         text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
     if (config.GetCostingMethod() == CostingMethod::fifo) CustomLabel_SetCheckState(hCtl, true);
+
+    top += (height + vert_spacing);
+    CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY, L"First day of the week:",
+        text_color, back_color, CustomLabelAlignment::middle_left, left, top, width, height);
+
+    top += height;
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY, L"Sunday",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    if (config.GetStartWeekday() == StartWeekdayType::Sunday) CustomLabel_SetCheckState(hCtl, true);
+
+    top += height;
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY_MONDAY, L"Monday",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    if (config.GetStartWeekday() == StartWeekdayType::Monday) CustomLabel_SetCheckState(hCtl, true);
 
 
     // YEAR END CLOSE
@@ -316,6 +330,24 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             SetFocus(hCtl);
         }
 
+        if (ctrl_id == IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY) {
+            check_state = CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, !check_state);
+            if (!check_state) {
+                CustomLabel_SetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY_MONDAY), false);
+            }
+            SetFocus(hCtl);
+        }
+
+        if (ctrl_id == IDC_SETTINGSDIALOG_STARTWEEKDAY_MONDAY) {
+            check_state = CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, !check_state);
+            if (!check_state) {
+                CustomLabel_SetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY), false);
+            }
+            SetFocus(hCtl);
+        }
+
         if (ctrl_id == IDC_SETTINGSDIALOG_CMDYEAREND) {
             HWND hFocus = GetFocus();
             YearEndDialog_Show(m_hwnd);
@@ -340,6 +372,9 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
             bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO));
             config.SetCostingMethod((bool_value) ? CostingMethod::fifo : CostingMethod::AverageCost);
+
+            bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY));
+            config.SetStartWeekday((bool_value) ? StartWeekdayType::Sunday: StartWeekdayType::Monday);
 
             config.SaveConfig();
 
@@ -374,7 +409,7 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 int SettingsDialog_Show(HWND hWndParent) {
     int width = 570;
-    int height = 380;
+    int height = 445;
 
     HWND hwnd = SettingsDialog.Create(hWndParent, L"Settings", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
