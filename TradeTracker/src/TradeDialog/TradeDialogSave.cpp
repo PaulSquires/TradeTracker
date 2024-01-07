@@ -104,13 +104,13 @@ public:
         if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = Underlying::Dividend;
         if (tdd.trans) underlying = tdd.trans->underlying;
 
-        quantity   = (int)AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-        price      = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
-        multiplier = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
-        fees       = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
-        trade_bp   = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP)));
+        quantity   = (int)AfxValDouble(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY))));
+        price      = AfxValDouble(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE))));
+        multiplier = AfxValDouble(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER))));
+        fees       = AfxValDouble(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES))));
+        trade_bp   = AfxValDouble(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP))));
         DRCR       = CustomLabel_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_COMBODRCR));
-        total      = AfxValDouble(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL)));
+        total      = AfxValDouble(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTOTAL))));
         
         if (DRCR == L"DR") { total = total * -1; }
         ACB = ACB + total;

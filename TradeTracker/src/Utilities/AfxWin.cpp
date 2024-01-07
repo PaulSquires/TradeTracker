@@ -31,6 +31,20 @@ SOFTWARE.
 
 
 //
+// Clean a numeric string from European to American format so that regular
+// library functions can operate on them.
+//
+std::wstring AfxClean(const std::wstring& text) {
+    std::wstring temp = text;
+    if (config.GetNumberFormatType() == NumberFormatType::European) {
+        // convert commas to periods
+        temp = AfxReplace(temp, L",", L".");
+    }
+    return temp;
+}
+
+
+//
 // Create a nested folder structure if it does not already exist.
 //
 bool AfxCreateNestedFolder(const std::wstring& folderPath) {

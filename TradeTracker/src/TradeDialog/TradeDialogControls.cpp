@@ -156,10 +156,10 @@ void TradeDialogControls_ShowFuturesContractDate(HWND hwnd)
 void TradeDialog_CalculateTradeTotal(HWND hwnd)
 {
     double total = 0;
-    double quantity = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY)));
-    double multiplier = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER)));
-    double price = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE)));
-    double fees = stod(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES)));
+    double quantity   = stod(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY))));
+    double multiplier = stod(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER))));
+    double price      = stod(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTPRICE))));
+    double fees       = stod(AfxClean(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTFEES))));
 
     DWORD text_color = COLOR_RED;
     DWORD back_color = COLOR_GRAYMEDIUM;

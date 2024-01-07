@@ -34,6 +34,8 @@ SOFTWARE.
 #include <shlobj.h>
 
 
+std::wstring AfxClean(const std::wstring& text);
+
 bool AfxCreateNestedFolder(const std::wstring& folderPath);
 std::wstring AfxGetProgramFilesFolder();
 std::wstring AfxGetLocalAppDataFolder();
