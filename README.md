@@ -29,7 +29,6 @@ This program exists because tracking trades and their corresponding transactions
 
 
 **VERSION 4, PREVIEW OF NEW USER INTERFACE** 
-You can try this preview version for yourself by [downloading it from here](https://github.com/PaulSquires/TradeTracker/releases/tag/4.0.0-preview2)
 
 ![screenshot](/TradeTracker/assets/TradeTracker-version4-preview.png?raw=true "New TradeTracker Version4 User Interface")
 
