@@ -283,6 +283,11 @@ void CCustomCalendar::OnPaint(HWND hwnd) {
             cell.day = j;
             cell.month = m.at(calnum + 1).month;
             cell.year = m.at(calnum + 1).year;
+
+            // If the day is a Sat or Sun then also paint it gray
+            int day_of_week = AfxDateWeekday(cell.day, cell.month, cell.year);
+            if (day_of_week == 0 || day_of_week == 6) cell.is_gray = true;
+
             cell.rc = { left + (col * cell_width), top, cell_width, cell_height };
             DrawCell(cell, graphics, font, stringF);
             cells.push_back(cell);

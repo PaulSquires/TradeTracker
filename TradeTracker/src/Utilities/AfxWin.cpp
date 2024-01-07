@@ -783,14 +783,14 @@ int AfxDateWeekday(int day, int month, int year) {
     return (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
 }
 
-int day(int d, int m, int y)
-{
-    // The following, invented by Mike Keith and published in Journal of Recreational Mathematics,
-    // Vol. 22, No. 4, 1990, p. 280, is conjectured to be the shortest expression of a 
-    // day-of-the-week algorithm: 
-
-    return  (d += m < 3 ? y-- : y - 2, 23 * m / 9 + d + 4 + y / 4 - y / 100 + y / 400) % 7;
-}
+//int day(int d, int m, int y)
+//{
+//    // The following, invented by Mike Keith and published in Journal of Recreational Mathematics,
+//    // Vol. 22, No. 4, 1990, p. 280, is conjectured to be the shortest expression of a 
+//    // day-of-the-week algorithm: 
+//
+//    return  (d += m < 3 ? y-- : y - 2, 23 * m / 9 + d + 4 + y / 4 - y / 100 + y / 400) % 7;
+//}
 
 // ========================================================================================
 // Return the days in month from an ISO specified date.
