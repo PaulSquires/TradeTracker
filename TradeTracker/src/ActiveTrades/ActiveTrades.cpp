@@ -230,7 +230,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
 
         theme_color = COLOR_WHITEDARK;
 
-        text = L"";  
+        text = AfxMoney(trade_acb, true, ld->trade->ticker_decimals);
         ld->trade->column_ticker_portfolio_1 = text;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
 
@@ -238,16 +238,12 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         ld->trade->column_ticker_portfolio_2 = text;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
 
-        text = AfxMoney(trade_acb, true, ld->trade->ticker_decimals);
-        ld->trade->column_ticker_portfolio_3 = text;
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);
-
         double difference = trade_acb + total_cost;
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
         text = AfxMoney(difference, false, 2);
-        ld->trade->column_ticker_portfolio_4 = text;
-        ld->trade->column_ticker_portfolio_4_color = theme_color;
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);    
+        ld->trade->column_ticker_portfolio_3 = text;
+        ld->trade->column_ticker_portfolio_3_color = theme_color;
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
 
         double percentage = difference / trade_acb * 100;
         if (difference < 0) {
@@ -258,8 +254,8 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         } 
         text = AfxMoney(percentage, false, 2) + L"%";
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
-        ld->trade->column_ticker_portfolio_5 = text;
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_5, text, theme_color);  
+        ld->trade->column_ticker_portfolio_4 = text;
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  
 
         RECT rc{};
         ListBox_GetItemRect(TradesListBox(), index_trade, &rc);
@@ -288,10 +284,35 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
             if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
 
+            double shares_cost = ld->trade->acb;
+            if (shares_cost == 0) shares_cost = 1;
+            text = AfxMoney(shares_cost, true, ld->trade->ticker_decimals);
+            ld->trade->column_ticker_portfolio_1 = text;
+            ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
+
             double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
             text = AfxMoney(shares_market_value, true, ld->trade->ticker_decimals);
-            ld->trade->column_ticker_portfolio_1 = text;
+            ld->trade->column_ticker_portfolio_2 = text;
             ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
+
+            // UNREALIZED PNL
+            double unrealized_pnl = (shares_cost + shares_market_value);
+            theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
+            text = AfxMoney(unrealized_pnl, false, ld->trade->ticker_decimals);
+            ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
+
+            // UNREALIZED PNL PERCENTAGE
+            double percentage = (unrealized_pnl / shares_cost * 100);
+            if (unrealized_pnl >= 0) {
+                percentage = abs(percentage);
+            }
+            else {
+                // percentage must also be negative
+                if (percentage > 0) percentage *= -1;
+            }
+            theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
+            text = AfxMoney(percentage, false, 2) + L"%";
+            ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
         }
     }
 
@@ -325,7 +346,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
     
         // UNREALIZED PNL
-        double unrealized_pnl = (market_value - position_cost);
+        double unrealized_pnl = (position_cost + market_value);
         ld->leg->unrealized_pnl = unrealized_pnl;
         theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
         text = AfxMoney(unrealized_pnl, false, ld->trade->ticker_decimals);

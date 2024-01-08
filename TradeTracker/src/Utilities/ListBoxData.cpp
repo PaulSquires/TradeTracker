@@ -389,15 +389,15 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITEDARK, font8, FontStyleRegular);   
 
         text = (trade->column_ticker_portfolio_3.length()) ? trade->column_ticker_portfolio_3 : L"";
-        ld->SetData(COLUMN_TICKER_PORTFOLIO_3, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITEDARK, font8, FontStyleRegular);   
-
-        text = (trade->column_ticker_portfolio_4.length()) ? trade->column_ticker_portfolio_4 : L"";
-        clr = (trade->column_ticker_portfolio_4_color != COLOR_WHITEDARK) ? trade->column_ticker_portfolio_4_color : COLOR_WHITEDARK;
+        clr = (trade->column_ticker_portfolio_3_color != COLOR_WHITEDARK) ? trade->column_ticker_portfolio_3_color : COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   
 
-        text = (trade->column_ticker_portfolio_5.length()) ? trade->column_ticker_portfolio_5 : L"";
+        text = (trade->column_ticker_portfolio_4.length()) ? trade->column_ticker_portfolio_4 : L"";
+        ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            clr, font8, FontStyleRegular);   
+
+        text = L"";
         ld->SetData(COLUMN_TICKER_PORTFOLIO_5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   
     }
@@ -451,16 +451,16 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;
 
-        ld->SetData(col, trade, ticker_id, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
+        ld->SetData(col, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;
 
-        ld->SetData(col, trade, ticker_id, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
+        ld->SetData(col, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;
 
         if (is_history) {
-            ld->SetData(col, trade, ticker_id, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYMEDIUM,
+            ld->SetData(col, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYMEDIUM,
                 COLOR_WHITEDARK, font8, FontStyleRegular);
             col++;
         }

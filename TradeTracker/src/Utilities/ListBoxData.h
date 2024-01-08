@@ -49,7 +49,7 @@ typedef long TickerId;
 class ColumnData {
 public:
     std::wstring        text;
-    StringAlignment     HAlignment = StringAlignmentNear;  
+    StringAlignment     HAlignment = StringAlignmentFar;  
     StringAlignment     VAlignment = StringAlignmentCenter;
     DWORD               back_theme = COLOR_GRAYDARK;
     DWORD               text_theme = COLOR_WHITELIGHT;;

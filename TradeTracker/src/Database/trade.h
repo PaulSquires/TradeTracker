@@ -156,7 +156,7 @@ public:
     DWORD itm_color = COLOR_WHITELIGHT;
     DWORD ticker_change_color = COLOR_WHITELIGHT;
     DWORD ticker_percent_change_color = COLOR_WHITELIGHT;
-    DWORD column_ticker_portfolio_4_color = COLOR_WHITEDARK;
+    DWORD column_ticker_portfolio_3_color = COLOR_WHITEDARK;
 
     // Dates used to calculate ROI on TradeBP.
     std::wstring  bp_start_date = L"99999999";            // YYYYMMDD  First transaction date
