@@ -315,7 +315,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);   // Book Value and average Price
 
         // MARKET VALUE
-        double market_value = (pd.market_price * ld->leg->open_quantity);
+        double market_value = (pd.market_price * ld->leg->open_quantity * ld->trans->multiplier);
         ld->leg->market_value = market_value;
         text = AfxMoney(market_value, true, ld->trade->ticker_decimals);
         ld->leg->market_value_text = text;
