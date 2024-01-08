@@ -757,8 +757,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	}
 
 	pd.average_cost = average_cost;
-	pd.market_value = market_value;
-	pd.unrealized_PNL = unrealized_PNL;
+	pd.market_price = market_price;
 
 	mapPortfolioData[contract.conId] = pd;
 }

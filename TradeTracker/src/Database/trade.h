@@ -83,7 +83,7 @@ public:
 
     double calculated_leg_cost = 0;        // refer to CalculateLegCosting(). Alternative for position_cost.
 
-    double position_cost = 0;              // real time data receive via updatePortfolio
+    double position_cost = 0;              // ACB as calculated CalculateLegCosting()
     double market_value = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                 // real time data receive via updatePortfolio
     double unrealized_pnl = 0;             // real time data receive via updatePortfolio

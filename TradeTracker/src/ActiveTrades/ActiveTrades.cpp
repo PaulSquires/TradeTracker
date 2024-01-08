@@ -305,17 +305,9 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             found = true;
         }
 
-        //double position_cost = (pd.average_cost * ld->leg->open_quantity);
-        double position_cost = ld->leg->calculated_leg_cost;
-
-        // If the Portfolio values has not changed since last update then skip
-        if (ld->leg->position_cost == position_cost &&
-            ld->leg->market_value == pd.market_value &&
-            ld->leg->unrealized_pnl == pd.unrealized_PNL) {
-            return;
-        }
 
         // POSITION COST BASIS
+        double position_cost = ld->leg->calculated_leg_cost;
         ld->leg->position_cost = position_cost;
         text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
         ld->leg->position_cost_text = text;
@@ -323,24 +315,26 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);   // Book Value and average Price
 
         // MARKET VALUE
-        ld->leg->market_value = pd.market_value;
-        text = AfxMoney(pd.market_value, true, ld->trade->ticker_decimals);
+        double market_value = (pd.market_price * ld->leg->open_quantity);
+        ld->leg->market_value = market_value;
+        text = AfxMoney(market_value, true, ld->trade->ticker_decimals);
         ld->leg->market_value_text = text;
         if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
     
         // UNREALIZED PNL
-        ld->leg->unrealized_pnl = pd.unrealized_PNL;
-        theme_color = (pd.unrealized_PNL < 0) ? COLOR_RED : COLOR_GREEN;
-        text = AfxMoney(pd.unrealized_PNL, false, ld->trade->ticker_decimals);
+        double unrealized_pnl = (market_value - position_cost);
+        ld->leg->unrealized_pnl = unrealized_pnl;
+        theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
+        text = AfxMoney(unrealized_pnl, false, ld->trade->ticker_decimals);
         ld->leg->unrealized_pnl_text = text;
         ld->leg->unrealized_pnl_color = theme_color;
         if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
 
         // UNREALIZED PNL PERCENTAGE
-        double percentage = ((pd.market_value - position_cost) / position_cost) * 100;
-        if (pd.unrealized_PNL >= 0) {
+        double percentage = (unrealized_pnl / position_cost * 100);
+        if (unrealized_pnl >= 0) {
             percentage = abs(percentage);
         }
         else {
