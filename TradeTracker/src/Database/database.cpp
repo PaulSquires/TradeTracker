@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include "trade.h"
 #include "database.h"
+#include "databaseV3upgrade.h"
 
 
 // Pointer list for all trades (initially loaded from database)
@@ -49,6 +50,9 @@ bool CDatabase::Version4UpgradeDatabase() {
         return false;
     }
     else {
+        // Try to upgrade the old database that has rolled leg's without leg backpointers
+        DatabaseV3upgrade();
+
         // Old files will be renamed after they are first loaded into memory.
         dbFilename = dbFilename_old;
         return true;

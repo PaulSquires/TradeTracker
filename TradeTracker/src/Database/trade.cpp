@@ -137,7 +137,7 @@ void Trade::CreateOpenLegsVector() {
 
 
 // ========================================================================================
-// Calculate the running cost for each leg in the Trad. Open legs will display in the 
+// Calculate the running cost for each leg in the Trade. Open legs will display in the 
 // Active Trades grid. When connected to TWS, the Leg cost will be displayed and compared
 // against the current market price.
 // ========================================================================================

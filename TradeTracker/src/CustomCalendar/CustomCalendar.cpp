@@ -44,28 +44,32 @@ HHOOK hCalanderPopupMouseHook = nullptr;
 
 
 // ========================================================================================
-// Increment the Calendar's date
+// Increment the Calendar's date (based on number of calendars shown)
 // ========================================================================================
 void CCustomCalendar::IncrementDate() {
-    current_month++;
-    current_day = 1;
-    if (current_month > 12) {
-        current_year++;
-        current_month = 1;
+    for (int i = 0; i < num_calendars; ++i) {
+        current_month++;
+        current_day = 1;
+        if (current_month > 12) {
+            current_year++;
+            current_month = 1;
+        }
     }
     AfxRedrawWindow(hWindow);
 }
 
 
 // ========================================================================================
-// Decrement the Calendar's date
+// Decrement the Calendar's date (based on number of calendars shown)
 // ========================================================================================
 void CCustomCalendar::DecrementDate() {
-    current_month--;
-    current_day = 1;
-    if (current_month < 1) {
-        current_year--;
-        current_month = 12;
+    for (int i = 0; i < num_calendars; ++i) {
+        current_month--;
+        current_day = 1;
+        if (current_month < 1) {
+            current_year--;
+            current_month = 12;
+        }
     }
     AfxRedrawWindow(hWindow);
 }
@@ -408,12 +412,12 @@ LRESULT CCustomCalendar::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
         accum_delta += zdelta;
         if (accum_delta >= 120) {     // scroll up
-            IncrementDate();
+            DecrementDate();   // two months
             accum_delta = 0;
         }
         else {
             if (accum_delta <= -120) {     // scroll down 
-                DecrementDate();
+                IncrementDate();  // two months
                 accum_delta = 0;
             }
         }
