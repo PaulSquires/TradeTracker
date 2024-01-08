@@ -305,7 +305,8 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             found = true;
         }
 
-        double position_cost = (pd.average_cost * ld->leg->open_quantity);
+        //double position_cost = (pd.average_cost * ld->leg->open_quantity);
+        double position_cost = ld->leg->calculated_leg_cost;
 
         // If the Portfolio values has not changed since last update then skip
         if (ld->leg->position_cost == position_cost &&
@@ -780,6 +781,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
         newleg->underlying = trans->underlying;
 
         trans->trans_date = leg->expiry_date;
+        trans->quantity = 1;   // must have something > 0 otherwise "Quantity error" if saving an Edit
         newleg->original_quantity = leg->open_quantity * -1;
         newleg->open_quantity = 0;
         newleg->leg_back_pointer_id = leg->leg_id;
@@ -977,6 +979,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     // Close the Option. Save this transaction's leg quantities
     trans = std::make_shared<Transaction>();
     trans->trans_date = leg->expiry_date;
+    trans->quantity = 1;   // must have something > 0 otherwise "Quantity error" if saving an Edit
     trans->description = L"Assignment";
     trans->underlying = Underlying::Options;
     trade->transactions.push_back(trans);

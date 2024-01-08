@@ -25,8 +25,10 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "trade.h"
+
 #include "Utilities/AfxWin.h"
+
+#include "trade.h"
 
 
 bool Leg::isOpen() {
@@ -133,4 +135,74 @@ void Trade::CreateOpenLegsVector() {
         });
 }
 
+
+// ========================================================================================
+// Calculate the running cost for each leg in the Trad. Open legs will display in the 
+// Active Trades grid. When connected to TWS, the Leg cost will be displayed and compared
+// against the current market price.
+// ========================================================================================
+void Trade::CalculateLegCosting() {
+
+    std::unordered_map<int, std::shared_ptr<Leg>> map;
+
+    for (const auto& trans : transactions) {
+        if (trans->underlying != Underlying::Options) continue;
+
+        int trans_contract_count = 0;
+
+        // Get the total number of quantity of contracts for the transaction. Only
+        // count the legs that generate money on an open.
+        for (const auto& lleg : trans->legs) {
+            if ((lleg->action == Action::STO || lleg->action == Action::BTO) ||
+               (lleg->action == Action::BTC || lleg->action == Action::STC && lleg->open_quantity != 0)) {
+                trans_contract_count += abs(lleg->original_quantity);
+            }
+        }
+        if (trans_contract_count == 0) continue;
+
+
+        for (auto& leg : trans->legs) {
+
+            // Only process BTC or STC legs if they were not competely closed. Calculate
+            // the income/cost from the leg and update the back_pointer with the value.
+            if (leg->action == Action::BTC || leg->action == Action::STC && leg->open_quantity != 0) {
+                double closing_leg_cost =
+                    (trans->total / trans_contract_count) * abs(leg->original_quantity);
+
+                auto it = map.find(leg->leg_back_pointer_id);
+                if (it != map.end()) {
+                    it->second->calculated_leg_cost += closing_leg_cost;
+                }
+                continue;
+            }
+
+            // Process a normal STO/BTO leg
+            // Calculate the cost of the leg based on this transaction
+            double current_leg_cost = 
+                (trans->total / trans_contract_count) * abs(leg->original_quantity);
+            
+            // Get the running cost from the leg referenced in the back pointer
+            double leg_cost_from_back_pointer = 0;
+            if (leg->leg_back_pointer_id) {
+                auto it = map.find(leg->leg_back_pointer_id);
+                if (it != map.end()) {
+                    leg_cost_from_back_pointer = it->second->calculated_leg_cost;
+                } 
+            }
+
+            leg->calculated_leg_cost = current_leg_cost + leg_cost_from_back_pointer;
+            
+            // Save cost in case a later back pointer needs it
+            map.insert({ leg->leg_id, leg });
+        }
+
+    }
+
+    // Display Results
+    //std::cout << "TRADE: " << std::endl;
+    //for (auto& leg : open_legs) {
+    //    std::cout << "  Leg cost: " << leg->calculated_leg_cost << std::endl;
+    //}
+
+}
 

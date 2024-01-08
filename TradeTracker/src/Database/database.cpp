@@ -486,6 +486,9 @@ bool CDatabase::LoadDatabase() {
     for (auto& trade : trades) {
         if (trade->is_open) {
             trade->CreateOpenLegsVector();
+
+            trade->CalculateLegCosting();
+
         }
         else {
             // Trade is closed so set the BPendDate to be the oldest transaction in the Trade

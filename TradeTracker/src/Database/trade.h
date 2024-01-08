@@ -81,6 +81,8 @@ public:
     Underlying   underlying    = Underlying::Nothing;      // OPTIONS, STOCKS, FUTURES, DIVIDEND, OTHER
     std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
 
+    double calculated_leg_cost = 0;        // refer to CalculateLegCosting(). Alternative for position_cost.
+
     double position_cost = 0;              // real time data receive via updatePortfolio
     double market_value = 0;               // real time data receive via updatePortfolio
     double percentage = 0;                 // real time data receive via updatePortfolio
@@ -167,6 +169,7 @@ public:
     void SetTradeOpenStatus();
     void CalculateAdjustedCostBase();
     void CreateOpenLegsVector();
+    void CalculateLegCosting();
 };
 
 

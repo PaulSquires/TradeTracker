@@ -77,6 +77,9 @@ void TradeDialog_OnClose(HWND hwnd) {
             // Recalculate the ACB for the trade
             tdd.trade->CalculateAdjustedCostBase();
 
+            // Recalculate the ACB for each open leg
+            tdd.trade->CalculateLegCosting();
+
             // Save the new data
             db.SaveDatabase();
         }
