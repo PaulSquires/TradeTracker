@@ -153,13 +153,11 @@ void Trade::CalculateLegCosting() {
 
         // Get the total number of quantity of contracts for the transaction. Only
         // count the legs that generate money on an open.
-        trans_contract_count = trans->quantity;
-        //for (const auto& lleg : trans->legs) {
-        //    if ((lleg->action == Action::STO || lleg->action == Action::BTO) ||
-        //       (lleg->action == Action::BTC || lleg->action == Action::STC)) {
-        //        trans_contract_count += abs(lleg->original_quantity);
-        //    }
-        //}
+        for (const auto& lleg : trans->legs) {
+            if (lleg->action == Action::STO || lleg->action == Action::BTO) {
+                trans_contract_count += abs(lleg->original_quantity);
+            }
+        }
         if (trans_contract_count == 0) continue;
 
 
