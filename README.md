@@ -30,7 +30,7 @@ This program exists because tracking trades and their corresponding transactions
 
 **VERSION 4, PREVIEW OF NEW USER INTERFACE** 
 
-![screenshot](/TradeTracker/assets/TradeTracker-version4-preview.png?raw=true "New TradeTracker Version4 User Interface")
+![screenshot](/TradeTracker/assets/TradeTracker-version4-preview-2.png?raw=true "New TradeTracker Version4 User Interface")
 
 
 ## Goals
