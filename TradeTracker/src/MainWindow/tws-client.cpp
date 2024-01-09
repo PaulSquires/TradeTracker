@@ -750,6 +750,12 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	//	Utils::doubleMaxString(market_price).c_str(), Utils::doubleMaxString(market_value).c_str(), Utils::doubleMaxString(average_cost).c_str(),
 	//	Utils::doubleMaxString(unrealized_PNL).c_str(), Utils::doubleMaxString(realized_PNL).c_str(), account_name.c_str());
 
+	std::cout << "Data: " << contract.symbol << "  " << contract.secType << " @ " << contract.primaryExchange << "\n" <<
+		"   MarketPrice: " << Utils::doubleMaxString(market_price) << "\n" <<
+		"   MarketValue: " << Utils::doubleMaxString(market_value) << "\n" <<
+		"   AverageCost: " << Utils::doubleMaxString(average_cost) <<
+		std::endl;
+
 	PortfolioData pd{};
 
 	if (mapPortfolioData.count(contract.conId)) {
