@@ -648,7 +648,7 @@ void TwsClient::RequestWshEventData(int req_id, const WshEventData& wshEventData
 }
 
 void TwsClient::RequestAccountSummary() {
-	m_pClient->reqAccountSummary(1000, "All", "NetLiquidation,ExcessLiquidity");
+	m_pClient->reqAccountSummary(1000, "All", "NetLiquidation,ExcessLiquidity,MaintMarginReq ");
 }
 
 
@@ -893,6 +893,7 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 {
 	// Values will return immediately when first requested and then everytime they change or 3 minutes.
 
+	std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 
 	std::wstring account_value = ansi2unicode(value);
@@ -921,6 +922,11 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 	if (AfxStringCompareI(tag, "ExcessLiquidity")) {
 		CustomLabel_SetText(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), account_value);
 		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), nShow);
+	}
+
+	if (AfxStringCompareI(tag, "MaintMarginReq")) {
+		CustomLabel_SetText(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_MAINTENANCE_VALUE), account_value);
+		ShowWindow(GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_MAINTENANCE_VALUE), nShow);
 	}
 }
 

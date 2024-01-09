@@ -72,6 +72,8 @@ public:
     HWND NetLiquidationValueLabel();
     HWND ExcessLiquidityLabel();
     HWND ExcessLiquidityValueLabel();
+    HWND MaintenanceLabel();
+    HWND MaintenanceValueLabel();
     HWND VScrollBar();
 
     ActiveTradesFilterType filter_type = ActiveTradesFilterType::Category;
@@ -128,6 +130,8 @@ constexpr int IDC_ACTIVETRADES_NETLIQUIDATION = 110;
 constexpr int IDC_ACTIVETRADES_NETLIQUIDATION_VALUE = 111;
 constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY = 112;
 constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE = 113;
+constexpr int IDC_ACTIVETRADES_MAINTENANCE = 114;
+constexpr int IDC_ACTIVETRADES_MAINTENANCE_VALUE = 115;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 80;

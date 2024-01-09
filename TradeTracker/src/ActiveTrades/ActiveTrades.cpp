@@ -88,6 +88,12 @@ inline HWND CActiveTrades::ExcessLiquidityLabel() {
 inline HWND CActiveTrades::ExcessLiquidityValueLabel() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE);
 }
+inline HWND CActiveTrades::MaintenanceLabel() {
+    return GetDlgItem(hWindow, IDC_ACTIVETRADES_MAINTENANCE);
+}
+inline HWND CActiveTrades::MaintenanceValueLabel() {
+    return GetDlgItem(hWindow, IDC_ACTIVETRADES_MAINTENANCE_VALUE);
+}
 
 
 // ========================================================================================
@@ -1444,10 +1450,12 @@ int CActiveTrades::ShowHideLiquidityLabels() {
     int nShow = (config.GetAllowPortfolioDisplay()) ? SW_SHOW : SW_HIDE;
     if (!tws_IsConnected()) nShow = SW_HIDE;
 
-    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_NETLIQUIDATION), nShow);
-    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE), nShow);
-    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY), nShow);
-    ShowWindow(GetDlgItem(hWindow, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE), nShow);
+    ShowWindow(NetLiquidationLabel(), nShow);
+    ShowWindow(NetLiquidationValueLabel(), nShow);
+    ShowWindow(ExcessLiquidityLabel(), nShow);
+    ShowWindow(ExcessLiquidityValueLabel(), nShow);
+    ShowWindow(MaintenanceLabel(), nShow);
+    ShowWindow(MaintenanceValueLabel(), nShow);
 
     return nShow;
 }
@@ -1496,24 +1504,35 @@ void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
     width = AfxScaleX(23);
     hdwp = DeferWindowPos(hdwp, SortFilterButton(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    top = height + AfxScaleY(17);
+    top = height;
     height = AfxScaleY(16);
     left = AfxScaleX(280);
-    width = AfxScaleX(60);
+    width = AfxScaleX(80);
     hdwp = DeferWindowPos(hdwp, NetLiquidationLabel(), 0, left, top, width, height, SWP_NOZORDER);
-    
-    left = AfxScaleX(350);
+
+    left = AfxScaleX(360);
     width = AfxScaleX(60);
     hdwp = DeferWindowPos(hdwp, NetLiquidationValueLabel(), 0, left, top, width, height, SWP_NOZORDER);
-    
-    top += height;
+
+    top = top + AfxScaleY(17);
     left = AfxScaleX(280);
-    width = AfxScaleX(65);
+    width = AfxScaleX(80);
     hdwp = DeferWindowPos(hdwp, ExcessLiquidityLabel(), 0, left, top, width, height, SWP_NOZORDER);
 
-    left = AfxScaleX(350);
+    left = AfxScaleX(360);
     width = AfxScaleX(60);
     hdwp = DeferWindowPos(hdwp, ExcessLiquidityValueLabel(), 0, left, top, width, height, SWP_NOZORDER);
+
+    top = top + AfxScaleY(17);
+    height = AfxScaleY(16);
+    left = AfxScaleX(280);
+    width = AfxScaleX(80);
+    hdwp = DeferWindowPos(hdwp, MaintenanceLabel(), 0, left, top, width, height, SWP_NOZORDER);
+
+    left = AfxScaleX(360);
+    width = AfxScaleX(60);
+    hdwp = DeferWindowPos(hdwp, MaintenanceValueLabel(), 0, left, top, width, height, SWP_NOZORDER);
+    
 
     height = AfxScaleY(23);
     top = height;
@@ -1607,6 +1626,8 @@ bool CActiveTrades::OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct) {
     CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_NETLIQUIDATION_VALUE, L"", COLOR_WHITELIGHT, COLOR_BLACK);
     CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY, L"Excess Liq:", COLOR_WHITEDARK, COLOR_BLACK);
     CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE, L"", COLOR_WHITELIGHT, COLOR_BLACK);
+    CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_MAINTENANCE, L"Maintenance:", COLOR_WHITEDARK, COLOR_BLACK);
+    CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_MAINTENANCE_VALUE, L"", COLOR_WHITELIGHT, COLOR_BLACK);
 
 
     // NEW TRADE SELECTOR
