@@ -53,6 +53,7 @@ void Trade::SetTradeOpenStatus() {
                     this->is_open = true;
                     return;
                 }
+                break;
             case Underlying::Shares:
             case Underlying::Futures:
                aggregate += leg->open_quantity;
@@ -152,26 +153,29 @@ void Trade::CalculateLegCosting() {
 
         // Get the total number of quantity of contracts for the transaction. Only
         // count the legs that generate money on an open.
-        for (const auto& lleg : trans->legs) {
-            if ((lleg->action == Action::STO || lleg->action == Action::BTO) ||
-               (lleg->action == Action::BTC || lleg->action == Action::STC && lleg->open_quantity != 0)) {
-                trans_contract_count += abs(lleg->original_quantity);
-            }
-        }
+        trans_contract_count = trans->quantity;
+        //for (const auto& lleg : trans->legs) {
+        //    if ((lleg->action == Action::STO || lleg->action == Action::BTO) ||
+        //       (lleg->action == Action::BTC || lleg->action == Action::STC)) {
+        //        trans_contract_count += abs(lleg->original_quantity);
+        //    }
+        //}
         if (trans_contract_count == 0) continue;
 
 
         for (auto& leg : trans->legs) {
 
-            // Only process BTC or STC legs if they were not competely closed. Calculate
+            // Only process BTC or STC legs if they were not completely closed. Calculate
             // the income/cost from the leg and update the back_pointer with the value.
-            if (leg->action == Action::BTC || leg->action == Action::STC && leg->open_quantity != 0) {
-                double closing_leg_cost =
-                    (trans->total / trans_contract_count) * abs(leg->original_quantity);
+            if (leg->action == Action::BTC || leg->action == Action::STC) {
+                if (leg->open_quantity) {
+                    double closing_leg_cost =
+                        (trans->total / trans_contract_count) * abs(leg->original_quantity);
 
-                auto it = map.find(leg->leg_back_pointer_id);
-                if (it != map.end()) {
-                    it->second->calculated_leg_cost += closing_leg_cost;
+                    auto it = map.find(leg->leg_back_pointer_id);
+                    if (it != map.end()) {
+                        it->second->calculated_leg_cost += closing_leg_cost;
+                    }
                 }
                 continue;
             }

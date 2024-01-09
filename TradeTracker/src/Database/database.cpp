@@ -32,7 +32,7 @@ SOFTWARE.
 
 #include "trade.h"
 #include "database.h"
-#include "databaseV3upgrade.h"
+#include "databaseV4upgrade.h"
 
 
 // Pointer list for all trades (initially loaded from database)
@@ -51,7 +51,7 @@ bool CDatabase::Version4UpgradeDatabase() {
     }
     else {
         // Try to upgrade the old database that has rolled leg's without leg backpointers
-        DatabaseV3upgrade();
+        DatabaseV4upgrade();
 
         // Old files will be renamed after they are first loaded into memory.
         dbFilename = dbFilename_old;
@@ -481,6 +481,7 @@ bool CDatabase::LoadDatabase() {
     }
 
     db.close();
+
 
     // Now that the trades have been constructed, create the open position vector based
     // on a sorted list of open legs. We also calculate the ACB for the entire Trade

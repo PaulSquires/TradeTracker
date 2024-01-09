@@ -185,7 +185,7 @@ void CActiveTrades::UpdateTickerPricesLine(int index, ListBoxData* ld) {
     ld->trade->ticker_change_color = theme_color;
     ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
 
-    text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
+    text = AfxMoney(ld->trade->ticker_last_price, true, ld->trade->ticker_decimals);
     ld->trade->ticker_last_price_text = text;
     ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
@@ -240,7 +240,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
 
         double difference = trade_acb + total_cost;
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
-        text = AfxMoney(difference, false, 2);
+        text = AfxMoney(difference, true, 2);
         ld->trade->column_ticker_portfolio_3 = text;
         ld->trade->column_ticker_portfolio_3_color = theme_color;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
@@ -252,7 +252,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         else {
             if (percentage <= 0) percentage *= -1;
         } 
-        text = AfxMoney(percentage, false, 2) + L"%";
+        text = AfxMoney(percentage, true, 0) + L" %";
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
         ld->trade->column_ticker_portfolio_4 = text;
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  
@@ -298,7 +298,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             // UNREALIZED PNL
             double unrealized_pnl = (shares_cost + shares_market_value);
             theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
-            text = AfxMoney(unrealized_pnl, false, ld->trade->ticker_decimals);
+            text = AfxMoney(unrealized_pnl, true, ld->trade->ticker_decimals);
             ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
 
             // UNREALIZED PNL PERCENTAGE
@@ -311,7 +311,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
                 if (percentage > 0) percentage *= -1;
             }
             theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
-            text = AfxMoney(percentage, false, 2) + L"%";
+            text = AfxMoney(percentage, true, 0) + L" %";
             ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
         }
     }
@@ -349,7 +349,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         double unrealized_pnl = (position_cost + market_value);
         ld->leg->unrealized_pnl = unrealized_pnl;
         theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
-        text = AfxMoney(unrealized_pnl, false, ld->trade->ticker_decimals);
+        text = AfxMoney(unrealized_pnl, true, ld->trade->ticker_decimals);
         ld->leg->unrealized_pnl_text = text;
         ld->leg->unrealized_pnl_color = theme_color;
         if (!found) text = L"";
@@ -366,7 +366,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         }
         theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
         ld->leg->percentage = percentage;
-        text = AfxMoney(percentage, false, 2) + L"%";
+        text = AfxMoney(percentage, true, 0) + L" %";
         ld->leg->percentage_text = text;
         if (!found) text = L"";
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data

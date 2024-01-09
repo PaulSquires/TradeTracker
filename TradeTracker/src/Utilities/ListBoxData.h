@@ -168,8 +168,8 @@ const int nTradesMinColWidth[MAX_COLUMNS] =
     60,     /* strike price / current price */
     45,     /* put/call */
     75,     /* Adjusted Cost Basis*/
-    50,     /* Market Value */
-    50,     /* Unrealized PNL */
+    60,     /* Market Value */
+    60,     /* Unrealized PNL */
     50,     /* Percentages */
     50      /* Percentages */
 };

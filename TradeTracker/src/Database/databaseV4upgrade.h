@@ -27,4 +27,4 @@ SOFTWARE.
 #pragma once
 
 
-void DatabaseV3upgrade();
+void DatabaseV4upgrade();
