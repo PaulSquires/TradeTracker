@@ -26,26 +26,18 @@ SOFTWARE.
 
 #pragma once
 
-#include "tws-api/Contract.h"
+#include "Utilities/CWindowBase.h"
 
 
-// Structure & vector to hold all positions returned from connection to IBKR (TWS).
-// These are used for the reconciliation between TradeTracker and IBKR.
-struct positionStruct {
-	int contract_id = 0;
-	std::vector<std::shared_ptr<Leg>> legs;    // pointer list for all legs that make up the position
-	int open_quantity = 0;
-	std::wstring ticker_symbol;
-	std::wstring underlying;
-	std::wstring expiry_date;
-	double strike_price = 0;
-	std::wstring put_call;
+class CTextBoxDialog : public CWindowBase<CTextBoxDialog> {
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 };
 
+extern HWND HWND_TEXTBOXDIALOG;
 
-void Reconcile_position(const Contract& contract, Decimal position);
-void Reconcile_doPositionMatching();
-void Reconcile_doReconciliation();
-void Reconcile_LoadAllLocalPositions();
-void Reconcile_Show();
+constexpr int IDC_TEXTBOXDIALOG_TEXTBOX = 100;
+
+void TextBoxDialog_Show(HWND hParent, const std::wstring& caption, const std::wstring& text, int width, int height);
 

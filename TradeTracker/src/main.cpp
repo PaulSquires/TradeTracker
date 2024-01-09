@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Utilities/AfxWin.h"
 #include "Database/database.h"
 #include "Config/Config.h"
+#include "TextBoxDialog/TextBoxDialog.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "Utilities/UpdateCheck.h"
@@ -145,6 +146,11 @@ int APIENTRY wWinMain(
     ShowWindow(hWndMain, (nCmdShow == 0) ? SW_SHOW : nCmdShow);
     UpdateWindow(hWndMain);
 
+    // Determine if we should show the MIT open source license. 
+    if (config.GetDisplayLicense()) {
+        PostMessage(hWndMain, MSG_DISPLAY_LICENSE, 0, 0);
+    }
+
     // Show the current list of active trades
     ActiveTrades.ShowActiveTrades();
 
@@ -152,10 +158,16 @@ int APIENTRY wWinMain(
     // version of the program is available.
     MainWindow.DisplayUpdateAvailableMessage();
 
+
     // Call the main modal message pump and wait for it to end.
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {            
+
+        if (msg.message == MSG_DISPLAY_LICENSE) {
+            config.DisplayLicense();
+        }
+
         // Processes accelerator keys for menu commands
         if (MainWindow.hAccel() == NULL || (!TranslateAccelerator(hWndMain, MainWindow.hAccel(), &msg))) {
             // Translates virtual-key messages into character messages.

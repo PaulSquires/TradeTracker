@@ -36,6 +36,7 @@ SOFTWARE.
 
 std::wstring AfxClean(const std::wstring& text);
 
+std::wstring AfxGetExePath();
 bool AfxCreateNestedFolder(const std::wstring& folderPath);
 std::wstring AfxGetProgramFilesFolder();
 std::wstring AfxGetLocalAppDataFolder();
@@ -79,12 +80,10 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text);
 
 std::wstring AfxGetListBoxText(HWND hListBox, int index);
 
-std::wstring AfxGetExePath();
-std::wstring AfxCurrentDate();
-
 int AfxValInteger(const std::wstring& st);
 double AfxValDouble(const std::wstring& st);
 
+std::wstring AfxCurrentDate();
 std::wstring AfxInsertDateHyphens(const std::wstring& date_string);
 std::wstring AfxRemoveDateHyphens(const std::wstring& date_string);
 bool AfxIsLeapYear(int year);

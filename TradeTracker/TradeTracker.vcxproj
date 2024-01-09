@@ -47,6 +47,7 @@
     <ClInclude Include="src\Strategy\StrategyButton.h" />
     <ClInclude Include="src\Strategy\StrategyPopup.h" />
     <ClInclude Include="src\TabPanel\TabPanel.h" />
+    <ClInclude Include="src\TextBoxDialog\TextBoxDialog.h" />
     <ClInclude Include="src\TickerTotals\TickerTotals.h" />
     <ClInclude Include="src\TradeDialog\TradeDialog.h" />
     <ClInclude Include="src\TradeDialog\TradeDialogControls.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="src\Strategy\StrategyButton.cpp" />
     <ClCompile Include="src\Strategy\StrategyPopup.cpp" />
     <ClCompile Include="src\TabPanel\TabPanel.cpp" />
+    <ClCompile Include="src\TextBoxDialog\TextBoxDialog.cpp" />
     <ClCompile Include="src\TickerTotals\TickerTotals.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialog.cpp" />
     <ClCompile Include="src\TradeDialog\TradeDialogControls.cpp" />

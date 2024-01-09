@@ -29,20 +29,15 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Database/trade.h"
 #include "Database/database.h"
-#include "ActiveTrades/ActiveTrades.h"
 #include "tws-api/IntelDecimal/IntelDecimal.h"
-#include "Utilities/UserMessages.h"
 #include "Config/Config.h"
+#include "TextBoxDialog/TextBoxDialog.h"
+
 #include "Reconcile.h"
 
 
 std::vector<positionStruct> ibkr_positions;    // persistent 
 std::vector<positionStruct> local_positions;   // persistent 
-
-
-HWND HWND_RECONCILE = NULL;
-
-CReconcile Reconcile;
 
 std::wstring results_text;
 
@@ -284,215 +279,16 @@ void Reconcile_doReconciliation() {
 
 
 // ========================================================================================
-// Process WM_SIZE message for window/dialog: Reconcile
-// ========================================================================================
-void Reconcile_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    // Move and size the TextBox into place
-    SetWindowPos(
-        GetDlgItem(HWND_RECONCILE, IDC_RECONCILE_TEXTBOX), 
-        0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
-}
-
-
-// ========================================================================================
-// Process WM_CLOSE message for window/dialog: Reconcile
-// ========================================================================================
-void Reconcile_OnClose(HWND hwnd) {
-	MainWindow.BlurPanels(false);
-	EnableWindow(MainWindow.hWindow, true);
-	DestroyWindow(hwnd);
-}
-
-
-// ========================================================================================
-// Process WM_DESTROY message for window/dialog: Reconcile
-// ========================================================================================
-void Reconcile_OnDestroy(HWND hwnd) {
-	HFONT hFont = (HFONT)SendMessage(GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX), WM_GETFONT, 0, 0);
-	DeleteFont(hFont);
-	PostQuitMessage(0);
-}
-
-
-// ========================================================================================
-// Process WM_ERASEBKGND message for window/dialog: Reconcile
-// ========================================================================================
-bool Reconcile_OnEraseBkgnd(HWND hwnd, HDC hdc) {
-	// Handle all of the painting in WM_PAINT
-	return true;
-}
-
-
-// ========================================================================================
-// Process WM_PAINT message for window/dialog: Reconcile
-// ========================================================================================
-void Reconcile_OnPaint(HWND hwnd) {
-	PAINTSTRUCT ps;
-
-	HDC hdc = BeginPaint(hwnd, &ps);
-
-	Graphics graphics(hdc);
-
-	// Create the background brush
-	SolidBrush back_brush(COLOR_GRAYDARK);
-
-	// Paint the background using brush.
-	int width = (ps.rcPaint.right - ps.rcPaint.left);
-	int height = (ps.rcPaint.bottom - ps.rcPaint.top);
-	graphics.FillRectangle(&back_brush, ps.rcPaint.left, ps.rcPaint.top, width, height);
-
-	EndPaint(hwnd, &ps);
-}
-
-// ========================================================================================
-// Process WM_CREATE message for window/dialog: Reconcile
-// ========================================================================================
-bool Reconcile_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
-    HWND_RECONCILE = hwnd;
-
-    Reconcile.AddControl(Controls::MultilineTextBox, hwnd, IDC_RECONCILE_TEXTBOX, 
-		L"", 0, 0 ,0 ,0,
-		WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN, 
-		0);
-
-	return true;
-}
-
-
-// ========================================================================================
-// Windows callback function.
-// ========================================================================================
-LRESULT CReconcile::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
-	static HBRUSH hBackBrush = NULL;
-
-    switch (msg) {
-        HANDLE_MSG(m_hwnd, WM_CREATE, Reconcile_OnCreate);
-		HANDLE_MSG(m_hwnd, WM_DESTROY, Reconcile_OnDestroy);
-		HANDLE_MSG(m_hwnd, WM_CLOSE, Reconcile_OnClose);
-        HANDLE_MSG(m_hwnd, WM_SIZE, Reconcile_OnSize);
-        HANDLE_MSG(m_hwnd, WM_ERASEBKGND, Reconcile_OnEraseBkgnd);
-        HANDLE_MSG(m_hwnd, WM_PAINT, Reconcile_OnPaint);
-
-	case WM_CTLCOLOREDIT: {
-		if (hBackBrush == NULL) hBackBrush = CreateSolidBrush(Color(COLOR_GRAYDARK).ToCOLORREF());
-		HDC hdc = (HDC)wParam;
-		SetTextColor(hdc, Color(COLOR_WHITELIGHT).ToCOLORREF());
-		SetBkColor(hdc, Color(COLOR_GRAYDARK).ToCOLORREF());
-		SetBkMode(hdc, OPAQUE);
-		return (LRESULT)hBackBrush;
-	}
-
-	case WM_NCDESTROY: {
-		if (hBackBrush) DeleteBrush(hBackBrush);
-		hBackBrush = NULL;
-		break;
-	}
-
-	case WM_SHOWWINDOW:	{
-		// Workaround for the Windows 11 (The cloaking solution seems to work only
-		// on Windows 10 whereas this WM_SHOWWINDOW workaround seems to only work
-		// on Windows 11).
-		// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-
-		SetWindowLongPtr(m_hwnd,
-			GWL_EXSTYLE,
-			GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-
-		if (!GetLayeredWindowAttributes(m_hwnd, NULL, NULL, NULL)) {
-			HDC hdc = GetDC(m_hwnd);
-			SetLayeredWindowAttributes(m_hwnd, 0, 0, LWA_ALPHA);
-			DefWindowProc(m_hwnd, WM_ERASEBKGND, (WPARAM)hdc, lParam);
-			SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
-			AnimateWindow(m_hwnd, 1, AW_ACTIVATE | AW_BLEND);
-			ReleaseDC(m_hwnd, hdc);
-			return 0;
-		}
-		SetWindowLongPtr(m_hwnd,
-			GWL_EXSTYLE,
-			GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
-
-		return DefWindowProc(m_hwnd, msg, wParam, lParam);
-	}
-
-    }
-	return DefWindowProc(m_hwnd, msg, wParam, lParam);
-}
-
-
-// ========================================================================================
 // Create and show the Reconcile modal dialog.
 // ========================================================================================
 void Reconcile_Show() {
-	HWND hwnd = Reconcile.Create(MainWindow.hWindow, L"Reconcile Local Data to IBKR TWS", 0, 0, 600, 390,
-		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-		WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
-
-	// Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
-	BOOL value = TRUE;
-	::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-
-	HBRUSH hbrBackground = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
-	SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hbrBackground);
-
-	HANDLE hIconSmall = LoadImage(Reconcile.hInst(), MAKEINTRESOURCE(IDI_MAINICON), IMAGE_ICON, 16, 16, LR_SHARED);
-	SendMessage(hwnd, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
-
-	MainWindow.BlurPanels(true);
-
-	AfxCenterWindowMonitorAware(hwnd, MainWindow.hWindow);
-
-	EnableWindow(MainWindow.hWindow, false);
-
-	// Apply fixed width font for better readability
-	HWND hTextBox = GetDlgItem(hwnd, IDC_RECONCILE_TEXTBOX);
-	HFONT hFont = (HFONT)SendMessage(hTextBox, WM_GETFONT, 0, 0);
-	DeleteFont(hFont);
-	hFont = Reconcile.CreateFont(L"Courier New", 10, FW_NORMAL, false, false, false, DEFAULT_CHARSET);
-	SendMessage(hTextBox, WM_SETFONT, (WPARAM)hFont, 0);
-	AfxSetWindowText(hTextBox, L"Hold on a second. Waiting for reconciliation data...");
 
 	// Do the reconciliation
 	Reconcile_LoadAllLocalPositions();   // in case some have been closed/expired/rolled since last time
 	Reconcile_doReconciliation();
-	AfxSetWindowText(hTextBox, results_text);
 	
-	// Hide the vertical scrollbar if < 25 lines
-	if (Edit_GetLineCount(hTextBox) <= 25) {
-		ShowScrollBar(hTextBox, SB_VERT, false);
-	}
-
-	// Fix Windows 10 white flashing
-	BOOL cloak = TRUE;
-	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
-
-	ShowWindow(HWND_RECONCILE, SW_SHOWNORMAL);
-	UpdateWindow(HWND_RECONCILE);
-
-	cloak = FALSE;
-	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
-
-	SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
-	// Call modal message pump and wait for it to end.
-	MSG msg{};
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (msg.message == WM_KEYUP && msg.wParam == VK_ESCAPE) {
-			SendMessage(hwnd, WM_CLOSE, 0, 0);
-		}
-
-		// Determines whether a message is intended for the specified
-		// dialog box and, if it is, processes the message.
-		if (!IsDialogMessage(hwnd, &msg)) {
-			// Translates virtual-key messages into character messages.
-			TranslateMessage(&msg);
-			// Dispatches a message to a window procedure.
-			DispatchMessage(&msg);
-		}
-	}
+	TextBoxDialog_Show(MainWindow.hWindow, L"Reconcile Local Data to IBKR TWS", results_text, 600, 390);
 
 	results_text = L"";
-
-	DeleteFont(hFont);
 }
 

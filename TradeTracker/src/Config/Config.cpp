@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "CustomLabel/CustomLabel.h"
 #include "CustomMessageBox/CustomMessageBox.h"
+#include "TextBoxDialog/TextBoxDialog.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
 
@@ -129,6 +130,48 @@ bool CConfig::GetAllowPortfolioDisplay() {
 void CConfig::SetAllowPortfolioDisplay(bool value) {
     show_portfolio_value = value;
     ActiveTrades.ShowHideLiquidityLabels();
+}
+
+
+// ========================================================================================
+// Determine if should display the MIT open source license.
+// ========================================================================================
+bool CConfig::GetDisplayLicense() {
+    return display_open_source_license;
+}
+void CConfig::SetDisplayLicense(bool value) {
+    display_open_source_license = value;
+}
+
+void CConfig::DisplayLicense() {
+    std::wstring license_text = L"  \
+\r\n \
+ MIT License\r\n  \
+\r\n \
+ Copyright(c) 2023 - 2024 Paul Squires\r\n  \
+\r\n  \
+Permission is hereby granted, free of charge, to any person obtaining a copy\r\n  \
+of this software and associated documentation files(the 'Software'), to deal\r\n  \
+in the Software without restriction, including without limitation the rights\r\n  \
+to use, copy, modify, merge, publish, distribute, sublicense, and /or sell\r\n  \
+copies of the Software, and to permit persons to whom the Software is\r\n  \
+furnished to do so, subject to the following conditions :\r\n  \
+\r\n  \
+The above copyright notice and this permission notice shall be included in all\r\n  \
+copies or substantial portions of the Software.\r\n  \
+\r\n  \
+\
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\r\n  \
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\r\n  \
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE\r\n  \
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\r\n  \
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\n  \
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\r\n  \
+SOFTWARE.\r\n  \
+";
+
+    TextBoxDialog_Show(MainWindow.hWindow, L"MIT License", license_text, 680, 390);
+    SetDisplayLicense(false);
 }
 
 
@@ -339,6 +382,8 @@ bool CConfig::SaveConfig() {
     db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
     
     db << "ALLOWUPDATECHECK|" << (allow_update_check ? L"true" : L"false") << "\n";
+   
+    db << "DISPLAYLICENSE|" << (display_open_source_license ? L"true" : L"false") << "\n";
 
     db << "STARTUPWIDTH" << "|" << startup_width << "\n";
 
@@ -460,6 +505,17 @@ bool CConfig::LoadConfig() {
             catch (...) { continue; }
         
             allow_update_check = AfxWStringCompareI(value, L"true");
+            continue;
+        }
+
+        // Check if should allow checking for available program update
+        if (arg == L"DISPLAYLICENSE") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+        
+            display_open_source_license = AfxWStringCompareI(value, L"true");
             continue;
         }
 

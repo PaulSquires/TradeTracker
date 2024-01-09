@@ -65,6 +65,7 @@ private:
     int startup_height = 0;
     int startup_right_panel_width = 0;
 
+    bool display_open_source_license = true;
     bool show_portfolio_value = true;
     bool allow_update_check = true;
     NumberFormatType number_format_type = NumberFormatType::American;
@@ -148,6 +149,9 @@ public:
 	void SetCostingMethod(CostingMethod value);
     NumberFormatType GetNumberFormatType();
 	void SetNumberFormatType(NumberFormatType value);
+	bool GetDisplayLicense();
+	void SetDisplayLicense(bool value);
+    void DisplayLicense();
 	bool GetAllowUpdateCheck();
 	void SetAllowUpdateCheck(bool value);
 	bool GetAllowPortfolioDisplay();
