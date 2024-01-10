@@ -40,10 +40,19 @@ CTextBoxDialog TextBoxDialog;
 // Process WM_SIZE message for window/dialog: TextBoxDialog
 // ========================================================================================
 void TextBoxDialog_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    // Move and size the TextBox into place
-    SetWindowPos(
+    
+	// Move and size the TextBox into place
+	HWND hTextBox = GetDlgItem(hwnd, IDC_TEXTBOXDIALOG_TEXTBOX);
+
+	SetWindowPos(
         GetDlgItem(hwnd, IDC_TEXTBOXDIALOG_TEXTBOX), 
         0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+	// Hide the vertical scrollbar if < 25 lines
+	if (Edit_GetLineCount(hTextBox) <= 25) {
+		ShowScrollBar(hTextBox, SB_VERT, false);
+	}
+
 }
 
 
@@ -207,11 +216,6 @@ void TextBoxDialog_Show(HWND hParent, const std::wstring& caption, const std::ws
 	// Do the reconciliation
 	AfxSetWindowText(hTextBox, text);
 	
-	// Hide the vertical scrollbar if < 25 lines
-	if (Edit_GetLineCount(hTextBox) <= 25) {
-		ShowScrollBar(hTextBox, SB_VERT, false);
-	}
-
 	// Fix Windows 10 white flashing
 	BOOL cloak = TRUE;
 	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
