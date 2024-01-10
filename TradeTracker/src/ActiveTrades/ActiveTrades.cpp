@@ -1493,13 +1493,14 @@ void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
     int left = AfxScaleY(APP_LEFTMARGIN_WIDTH);
     int top = 0;
     int width = AfxScaleX(120);
-    int height = AfxScaleY(23);
+    int height = AfxScaleY(16);
 
     HDWP hdwp = BeginDeferWindowPos(12);
 
     // Position the Warning label
     DeferWindowPos(hdwp, PaperTradingLabel(), 0, 0, top, cx, height, SWP_NOZORDER);
 
+    height = AfxScaleY(23);
     top = height;
     hdwp = DeferWindowPos(hdwp, SortFilterLabel(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -1622,7 +1623,7 @@ bool CActiveTrades::OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
 
-    // Create a Warning label at bottom of the MainWindow to display warning messages.
+    // Create a Warning label at top of the window to display paper trading warning message.
     HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_PAPERWARNING, L"", COLOR_YELLOW, COLOR_RED,
         CustomLabelAlignment::middle_center, 0, 0, 0, 0);
     ShowWindow(hCtl, SW_HIDE);

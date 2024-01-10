@@ -124,10 +124,11 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
-    // Save the original config values that require a restart. These are checked when SAVE
-    // is pressed to see if the original value was changed.
+    // Save the original config values that require a restart or action on dialog close. 
+    // These are checked when SAVE is pressed to see if the original value was changed.
     SettingsDialog.orig_number_format_type = config.GetNumberFormatType();
     SettingsDialog.orig_costing_method = config.GetCostingMethod();
+    SettingsDialog.orig_allow_update_check = config.GetAllowUpdateCheck();
 
     HWND hCtl = NULL;
 
@@ -389,6 +390,13 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
                     L"A setting has changed that requires a restart to take effect.\nPlease close and restart the application.\n",
                     L"Settings",
                     MB_ICONWARNING | MB_OK);
+            }
+
+            if (orig_allow_update_check != config.GetAllowUpdateCheck() &&
+                config.GetAllowUpdateCheck() == true) {
+                // Start thread to check for internet connection and determine if an updated
+                // version of the program is available.
+                MainWindow.DisplayUpdateAvailableMessage();
             }
 
             dialog_return_code = DIALOG_RETURN_OK;

@@ -103,11 +103,10 @@ void TextBoxDialog_OnPaint(HWND hwnd) {
 bool TextBoxDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TEXTBOXDIALOG = hwnd;
 
-	HWND hCtl = CreateCustomTextBox(hwnd, IDC_TEXTBOXDIALOG_TEXTBOX, true, ES_LEFT,
-		L"", 0, 0, 0, 0);
-	CustomTextBox_SetMargins(hCtl, 3, 3);
-	CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
-	CustomTextBox_SetSelectOnFocus(hCtl, false);
+	TextBoxDialog.AddControl(Controls::MultilineTextBox, hwnd, IDC_TEXTBOXDIALOG_TEXTBOX,
+		L"", 0, 0, 0, 0,
+		WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN,
+		0);
 
 	return true;
 }
