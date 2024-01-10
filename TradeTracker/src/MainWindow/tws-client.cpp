@@ -456,6 +456,76 @@ void tws_RequestMarketData(ListBoxData* ld) {
 	if (!tws_IsConnected()) return;
 	if (!ld->trade) return;
 	client.RequestMarketData(ld);
+
+
+
+
+// TODO: Remove this test code
+
+	// Convert the unicode symbol to regular string type
+	//std::string symbol = unicode2ansi(ld->trade->ticker_symbol);
+
+	//	struct Contract;
+	//Contract contract;
+
+	//contract.symbol = "GOOG";
+	//contract.secType = "OPT";
+	//contract.exchange = "SMART";
+	//contract.currency = "USD";
+	////contract.primaryExchange = "NASDAQ";   
+	// Jan 26, 2024   132 PUT
+	//contract.lastTradeDateOrContractMonth = "20240126";   // YYYYMMDD
+	//contract.strike = 132;
+	//contract.right = "P";
+	//contract.multiplier = 100;
+
+
+	//contract.symbol = "ES";
+	//contract.secType = "FOP";
+	//contract.exchange = "CME";
+	//contract.currency = "USD";
+	//contract.lastTradeDateOrContractMonth = "20230224";  // March 15, 2024
+	//contract.strike = 4400;
+	//contract.right = "P";
+	//contract.multiplier = "50";
+
+	//contract.symbol = "ES";
+	//contract.secType = "FUT";
+	//contract.exchange = "CME";
+	//contract.currency = "USD";
+	//contract.lastTradeDateOrContractMonth = "202303";   
+
+	//client.m_pClient->reqMktData(99, contract, "", false, false, TagValueListSPtr());
+
+	//if (symbol == "SPX" || symbol == "DJX" || symbol == "VIX") {
+	//	contract.symbol = symbol;
+	//	contract.secType = "IND";
+	//	contract.currency = "USD";
+	//	contract.exchange = "CBOE";
+	//	contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
+	//}
+	//else {
+	//	if (symbol.substr(0, 1) == "/") {
+	//		contract.symbol = symbol.substr(1);
+	//		contract.secType = "FUT";
+	//		contract.currency = "USD";
+	//		contract.lastTradeDateOrContractMonth = AfxFormatFuturesDateMarketData(ld->trade->future_expiry);   // YYYYMMDD
+
+	//		std::string futExchange = config.GetFuturesExchange(symbol);
+	//		if (futExchange.length() == 0) futExchange = "CME";
+
+	//		contract.exchange = futExchange;
+	//		contract.primaryExchange = futExchange;
+	//	}
+	//	else {
+	//		contract.symbol = symbol;
+	//		contract.secType = "STK";
+	//		contract.currency = "USD";
+	//		contract.exchange = "SMART";
+	//		contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
+	//	}
+	//}
+
 }
 
 
@@ -719,9 +789,9 @@ void TwsClient::tickPrice(TickerId ticker_id, TickType field, double price, cons
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
 
-		//if (field == LAST) std::cout << "tickPrice LAST " << ticker_id << " " << price << std::endl;
-		//if (field == OPEN) std::cout << "tickPrice OPEN " << ticker_id << " " << price << std::endl;
-		//if (field == CLOSE) std::cout << "tickPrice CLOSE " << ticker_id << " " << price << std::endl;
+		if (field == LAST) std::cout << "tickPrice LAST " << ticker_id << " " << price << std::endl;
+		if (field == OPEN) std::cout << "tickPrice OPEN " << ticker_id << " " << price << std::endl;
+		if (field == CLOSE) std::cout << "tickPrice CLOSE " << ticker_id << " " << price << std::endl;
 
 		TickerData td{};
 
@@ -750,11 +820,11 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	//	Utils::doubleMaxString(market_price).c_str(), Utils::doubleMaxString(market_value).c_str(), Utils::doubleMaxString(average_cost).c_str(),
 	//	Utils::doubleMaxString(unrealized_PNL).c_str(), Utils::doubleMaxString(realized_PNL).c_str(), account_name.c_str());
 
-	std::cout << "Data: " << contract.symbol << "  " << contract.secType << " @ " << contract.primaryExchange << "\n" <<
-		"   MarketPrice: " << Utils::doubleMaxString(market_price) << "\n" <<
-		"   MarketValue: " << Utils::doubleMaxString(market_value) << "\n" <<
-		"   AverageCost: " << Utils::doubleMaxString(average_cost) <<
-		std::endl;
+	//std::cout << "Data: " << contract.symbol << "  " << contract.secType << " @ " << contract.primaryExchange << "\n" <<
+	//	"   MarketPrice: " << Utils::doubleMaxString(market_price) << "\n" <<
+	//	"   MarketValue: " << Utils::doubleMaxString(market_value) << "\n" <<
+	//	"   AverageCost: " << Utils::doubleMaxString(average_cost) <<
+	//	std::endl;
 
 	PortfolioData pd{};
 
@@ -893,7 +963,6 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 {
 	// Values will return immediately when first requested and then everytime they change or 3 minutes.
 
-	std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 	//std::cout << "Account Summary  reqId: " << reqId << "  account: " << account << "  tag: " << tag << "  value: " << value << "  currency: " << currency << std::endl;
 
 	std::wstring account_value = ansi2unicode(value);
