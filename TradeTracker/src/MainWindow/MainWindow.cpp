@@ -57,16 +57,6 @@ bool is_dragging = false;    // If dragging our splitter
 POINT prev_pt{};            // for tracking current splitter drag
 
 
-// ========================================================================================
-// Display Paper Trading warning message if port is enabled. 
-// Normal Trading 7496;   7497 is paper trading account.
-// ========================================================================================
-void CMainWindow::DisplayPaperTradingWarning() {
-    CustomLabel_SetText(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING),
-        L"*** USING PAPER TRADING ACCOUNT ***");
-    ShowWindow(GetDlgItem(MainWindow.hWindow, IDC_MAINWINDOW_WARNING), SW_SHOWNORMAL);
-}
-
 
 // ========================================================================================
 // Check the server to determine if an update is available to be downloaded.
@@ -254,22 +244,14 @@ void CMainWindow::OnSize(HWND hwnd, UINT state, int cx, int cy) {
                 0, 0, left_panel_width, cy - MARGIN,
                 SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
-    // Position the Warning label
-    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_WARNING);
-    int top = AfxScaleY(20);
-    int height = AfxScaleY(16);
-    int width = left_panel_width; 
-    DeferWindowPos(hdwp, hCtl, 0, 0, cy - top, width, height, SWP_NOZORDER);
-
     // Move the bottom TabPanel into place
-    height = AfxScaleY(TABPANEL_HEIGHT);
-    top = height;
-    width = left_panel_width; 
+    int height = AfxScaleY(TABPANEL_HEIGHT);
+    int top = height;
+    int width = left_panel_width; 
     DeferWindowPos(hdwp, HWND_TABPANEL, 0, 0, cy - top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     // Position the Update Available label
-    hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
+    HWND hCtl = GetDlgItem(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE);
     width = right_panel_width; 
     DeferWindowPos(hdwp, hCtl, 0, cx - right_panel_width, cy - top, width - SPLITTER_WIDTH, height, SWP_NOZORDER);
 
@@ -325,13 +307,8 @@ bool CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         WS_EX_CONTROLPARENT | WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR);
 
-    // Create a Warning label at bottom of the MainWindow to display warning messages.
-    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_MAINWINDOW_WARNING, L"", COLOR_YELLOW, COLOR_RED,
-        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
-    ShowWindow(hCtl, SW_HIDE);
-
     // Create an Update Available label at bottom of the MainWindow to display new version available message.
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE, L"",
+    HWND hCtl = CustomLabel_ButtonLabel(hwnd, IDC_MAINWINDOW_UPDATEAVAILABLE, L"",
         COLOR_YELLOW, COLOR_BLACK, COLOR_BLACK, COLOR_BLACK, COLOR_YELLOW,
         CustomLabelAlignment::middle_right, 0, 0, 0, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);

@@ -40,10 +40,19 @@ CTextBoxDialog TextBoxDialog;
 // Process WM_SIZE message for window/dialog: TextBoxDialog
 // ========================================================================================
 void TextBoxDialog_OnSize(HWND hwnd, UINT state, int cx, int cy) {
-    // Move and size the TextBox into place
-    SetWindowPos(
+    
+	// Move and size the TextBox into place
+	HWND hTextBox = GetDlgItem(hwnd, IDC_TEXTBOXDIALOG_TEXTBOX);
+
+	SetWindowPos(
         GetDlgItem(hwnd, IDC_TEXTBOXDIALOG_TEXTBOX), 
         0, 0, 0, cx, cy, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+	// Hide the vertical scrollbar if < 25 lines
+	if (Edit_GetLineCount(hTextBox) <= 25) {
+		ShowScrollBar(hTextBox, SB_VERT, false);
+	}
+
 }
 
 
@@ -103,11 +112,10 @@ void TextBoxDialog_OnPaint(HWND hwnd) {
 bool TextBoxDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     HWND_TEXTBOXDIALOG = hwnd;
 
-	HWND hCtl = CreateCustomTextBox(hwnd, IDC_TEXTBOXDIALOG_TEXTBOX, true, ES_LEFT,
-		L"", 0, 0, 0, 0);
-	CustomTextBox_SetMargins(hCtl, 3, 3);
-	CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYDARK);
-	CustomTextBox_SetSelectOnFocus(hCtl, false);
+	TextBoxDialog.AddControl(Controls::MultilineTextBox, hwnd, IDC_TEXTBOXDIALOG_TEXTBOX,
+		L"", 0, 0, 0, 0,
+		WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_AUTOHSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN,
+		0);
 
 	return true;
 }
@@ -208,11 +216,6 @@ void TextBoxDialog_Show(HWND hParent, const std::wstring& caption, const std::ws
 	// Do the reconciliation
 	AfxSetWindowText(hTextBox, text);
 	
-	// Hide the vertical scrollbar if < 25 lines
-	if (Edit_GetLineCount(hTextBox) <= 25) {
-		ShowScrollBar(hTextBox, SB_VERT, false);
-	}
-
 	// Fix Windows 10 white flashing
 	BOOL cloak = TRUE;
 	DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));

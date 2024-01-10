@@ -389,7 +389,7 @@ bool tws_Connect() {
 
 			// Display message if Paper Trading is enabled.
 			if (client.connection_type == ConnectionType::tws_data_paper) {
-				MainWindow.DisplayPaperTradingWarning();
+				ActiveTrades.DisplayPaperTradingWarning();
 			}
 
 			tws_StartMonitorThread();

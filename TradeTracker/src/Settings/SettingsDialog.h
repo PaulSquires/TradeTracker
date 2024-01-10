@@ -37,6 +37,8 @@ public:
     // Settings that require a restart
     NumberFormatType orig_number_format_type = NumberFormatType::American;
     CostingMethod orig_costing_method = CostingMethod::AverageCost;
+    // Settings that trigger an immediate action when Settings dialog is closed
+    bool orig_allow_update_check = true;
 };
 
 
