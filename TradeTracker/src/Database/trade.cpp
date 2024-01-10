@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 
 #include "Utilities/AfxWin.h"
+#include "Config/Config.h"
 
 #include "trade.h"
 
@@ -73,11 +74,99 @@ void Trade::SetTradeOpenStatus() {
 }
 
 
+#include <queue>
+
 void Trade::CalculateAdjustedCostBase() {
-    this->acb = 0;
-    for (const auto& trans : this->transactions) {
-        this->acb += trans->total;
+
+    if (config.GetCostingMethod() == CostingMethod::AverageCost) {
+        this->acb = 0;
+        for (const auto& trans : this->transactions) {
+            this->acb += trans->total;
+        }
+        return;
     }
+
+    if (config.GetCostingMethod() == CostingMethod::fifo) {
+        this->acb = 0;
+
+        struct Shares {
+            std::wstring trans_date{};
+            int quantity_remaining{};
+            double cost_per_share{};
+        };
+        
+        // Load the vector and then sort based on earliest date of shares purchase.
+        std::vector<Shares> vec;
+        for (const auto& trans : this->transactions) {
+            bool is_share_transaction = (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
+            if (is_share_transaction && trans->total < 0) {   // bought shares
+                double cost_per_share = (trans->total / trans->quantity);
+                Shares share{ trans->trans_date, trans->quantity, cost_per_share };
+                vec.push_back(share);
+            }
+        }
+        // Sort based on date
+        std::sort(vec.begin(), vec.end(),
+            [](const auto& lhs, const auto& rhs) {
+                {
+                    if (lhs.trans_date < rhs.trans_date) return true;
+                    if (rhs.trans_date < lhs.trans_date) return false;
+                    return false;
+                }
+            });
+
+        // Add the sorted vector to the queue (doesn't look like we can sort a queue directly)
+        std::queue<Shares> q;
+        for (const auto& shares : vec) {
+
+           // std::wcout << L"Buy: " << shares.trans_date << L" " << shares.quantity_remaining << L" " << shares.cost_per_share << std::endl;
+
+            q.push(shares);
+        }
+
+
+        for (const auto& trans : this->transactions) {
+            bool is_share_transaction = (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
+            if (is_share_transaction && trans->total >= 0) {  // sold shares
+
+                int shares_sold = trans->quantity;
+            
+            //std::cout << "---------" << std::endl;
+            //std::wcout << L" Start: shares_sold: " << shares_sold << std::endl;
+
+                while (shares_sold > 0) {
+
+              //      std::cout << "Remaining to process: " << shares_sold << std::endl;
+               //     std::cout << "queue size: " << q.size() << std::endl;
+
+                    // See if we can take all the need shares being sold from this purchase
+                    if (q.front().quantity_remaining - shares_sold >= 0) {
+           // std::wcout << L"Took " << shares_sold << L" from " << q.front().trans_date << L" at " << q.front().cost_per_share << L"  loop done." << std::endl;
+                        this->acb -= shares_sold * q.front().cost_per_share;
+                        shares_sold -= q.front().quantity_remaining;
+                        //q.front().quantity_remaining += shares_sold;
+                        // All shares being sold have been costed by this leg
+                        q.pop();
+                        continue;
+                    }
+
+                    // Take all shares from this leg and continue looping because more remain to be costed.
+           // std::wcout << L"Took " << q.front().quantity_remaining << L" from " << q.front().trans_date << L" at " << q.front().cost_per_share <<  L"  keep looping." << std::endl;
+                    this->acb -= q.front().quantity_remaining * q.front().cost_per_share;
+                    shares_sold -= q.front().quantity_remaining;
+                    q.pop();
+                }
+            //std::wcout << L"While loop done. shares_sold value: " << shares_sold << std::endl;
+            }
+            else {
+                this->acb += trans->total;
+            }
+        }
+
+        return;
+
+    }
+
 }
 
 
