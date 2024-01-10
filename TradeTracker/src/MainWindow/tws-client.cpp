@@ -176,7 +176,6 @@ void tws_UpdateTickersWithScrapedData() {
 				ld->trade->ticker_last_price = ld->trade->ticker_close_price;
 
 				std::wstring text = AfxMoney(ld->trade->ticker_last_price, false, ld->trade->ticker_decimals);
-				ld->trade->ticker_last_price_text = text; 
 				ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
 				ActiveTrades.PerformITMcalculation(ld->trade);
