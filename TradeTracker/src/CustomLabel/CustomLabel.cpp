@@ -162,7 +162,7 @@ void CustomLabel::DrawCheckBoxInBuffer() {
     int font_style = FontStyleRegular;
 
     Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
-    SolidBrush   text_brush(text_color);
+    SolidBrush   text_brush(check_color);
 
     StringFormat stringF(StringFormatFlagsNoWrap);
     stringF.SetTrimming(StringTrimmingEllipsisWord);
@@ -182,7 +182,7 @@ void CustomLabel::DrawCheckBoxInBuffer() {
     RectF rcText(left, top, right - left, bottom - top);
 
     std::wstring check_text = (is_checked) ? L"\u2611" : L"\u2610";
-    text_offset_left = (int)right;
+    text_offset_left = 20; 
 
     Graphics graphics(m_memDC);
     graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
@@ -979,8 +979,8 @@ HWND CustomLabel_SimpleCheckBox(HWND hParent, int ctrl_id, std::wstring text,
         pData->hot_test_enable = false;
         pData->back_color = back_color;
         pData->text_color = text_color;
-        pData->check_color = text_color;
-        pData->check_back_color = back_color;
+        pData->check_color = check_color;
+        pData->check_back_color = check_back_color;
         pData->back_color_button_down = back_color;
         pData->border_visible = true;
         pData->border_width = 1;

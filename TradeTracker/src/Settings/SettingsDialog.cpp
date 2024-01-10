@@ -117,7 +117,7 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     DWORD text_color = COLOR_WHITELIGHT;
     DWORD text_color_dim = COLOR_WHITEDARK;
     DWORD back_color = COLOR_GRAYDARK;
-    DWORD check_color = COLOR_WHITELIGHT;
+    DWORD check_color = COLOR_WHITEMEDIUM;
     DWORD check_back_color = COLOR_GRAYDARK;
     DWORD border_focus_color = COLOR_GRAYLIGHT;
 
