@@ -62,6 +62,7 @@ public:
     HWND hWindow = NULL;
 
     HWND TradesListBox();
+    HWND PaperTradingLabel();
     HWND SortFilterLabel();
     HWND SortFilterCombo();
     HWND SortFilterButton();
@@ -88,6 +89,7 @@ public:
     bool IsManageSharesTradeAction(TradeAction action);
     void UpdateTickerPrices();
     int ShowHideLiquidityLabels();
+    void DisplayPaperTradingWarning();
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
@@ -132,6 +134,7 @@ constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY = 112;
 constexpr int IDC_ACTIVETRADES_EXCESSLIQUIDITY_VALUE = 113;
 constexpr int IDC_ACTIVETRADES_MAINTENANCE = 114;
 constexpr int IDC_ACTIVETRADES_MAINTENANCE_VALUE = 115;
+constexpr int IDC_ACTIVETRADES_PAPERWARNING = 116;
 
 constexpr int ACTIVETRADES_LISTBOX_ROWHEIGHT = 24;
 constexpr int ACTIVETRADES_MARGIN = 80;

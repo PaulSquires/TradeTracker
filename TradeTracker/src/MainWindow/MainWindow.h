@@ -37,7 +37,6 @@ public:
     HWND hLeftPanel = NULL;
     HWND hRightPanel = NULL;
 
-    void DisplayPaperTradingWarning();
     void DisplayUpdateAvailableMessage();
     void BlurPanels(bool active);
     HWND GetLeftPanel();
@@ -74,7 +73,6 @@ public:
 #define IDB_SETTINGS_WHITE 116
 
 
-constexpr int IDC_MAINWINDOW_WARNING = 100;
 constexpr int IDC_MAINWINDOW_UPDATEAVAILABLE = 101;
 
 constexpr int APP_LEFTMARGIN_WIDTH = 24;

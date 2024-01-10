@@ -55,6 +55,9 @@ std::wstring quantity_set_from_assignment_modal;
 inline HWND CActiveTrades::TradesListBox() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_LISTBOX);
 }
+inline HWND CActiveTrades::PaperTradingLabel() {
+    return GetDlgItem(hWindow, IDC_ACTIVETRADES_PAPERWARNING);
+}
 inline HWND CActiveTrades::SortFilterLabel() {
     return GetDlgItem(hWindow, IDC_ACTIVETRADES_LBLSORTFILTER);
 }
@@ -1494,6 +1497,9 @@ void CActiveTrades::OnSize(HWND hwnd,  UINT state, int cx, int cy) {
 
     HDWP hdwp = BeginDeferWindowPos(12);
 
+    // Position the Warning label
+    DeferWindowPos(hdwp, PaperTradingLabel(), 0, 0, top, cx, height, SWP_NOZORDER);
+
     top = height;
     hdwp = DeferWindowPos(hdwp, SortFilterLabel(), 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
@@ -1597,6 +1603,17 @@ std::wstring CActiveTrades::GetNewTradeDescription(int idx) {
 
 
 // ========================================================================================
+// Display Paper Trading warning message if port is enabled. 
+// Normal Trading 7496;   7497 is paper trading account.
+// ========================================================================================
+void CActiveTrades::DisplayPaperTradingWarning() {
+    HWND hCtrl = GetDlgItem(ActiveTrades.hWindow, IDC_ACTIVETRADES_PAPERWARNING);
+    CustomLabel_SetText(hCtrl, L"*** USING PAPER TRADING ACCOUNT ***");
+    ShowWindow(hCtrl, SW_SHOWNORMAL);
+}
+
+
+// ========================================================================================
 // Process WM_CREATE message for window/dialog: ActiveTrades
 // ========================================================================================
 bool CActiveTrades::OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct) {
@@ -1605,11 +1622,16 @@ bool CActiveTrades::OnCreate(HWND hwnd,  LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 8;
 
+    // Create a Warning label at bottom of the MainWindow to display warning messages.
+    HWND hCtl = CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_PAPERWARNING, L"", COLOR_YELLOW, COLOR_RED,
+        CustomLabelAlignment::middle_center, 0, 0, 0, 0);
+    ShowWindow(hCtl, SW_HIDE);
+
     // SORTFILTER SELECTOR
     CustomLabel_SimpleLabel(hwnd, IDC_ACTIVETRADES_LBLSORTFILTER, L"Sort Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
 
-    HWND hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ACTIVETRADES_SORTFILTER, GetSortFilterDescription((int)ActiveTradesFilterType::Category),
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_ACTIVETRADES_SORTFILTER, GetSortFilterDescription((int)ActiveTradesFilterType::Category),
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_left, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
