@@ -788,9 +788,9 @@ void TwsClient::tickPrice(TickerId ticker_id, TickType field, double price, cons
 	// Just dealing with these 3 fields cuts out a **LOT** of tickPrice notifications.
 	if (field == LAST || field == OPEN || field == CLOSE) {
 
-		if (field == LAST) std::cout << "tickPrice LAST " << ticker_id << " " << price << std::endl;
-		if (field == OPEN) std::cout << "tickPrice OPEN " << ticker_id << " " << price << std::endl;
-		if (field == CLOSE) std::cout << "tickPrice CLOSE " << ticker_id << " " << price << std::endl;
+		//if (field == LAST) std::cout << "tickPrice LAST " << ticker_id << " " << price << std::endl;
+		//if (field == OPEN) std::cout << "tickPrice OPEN " << ticker_id << " " << price << std::endl;
+		//if (field == CLOSE) std::cout << "tickPrice CLOSE " << ticker_id << " " << price << std::endl;
 
 		TickerData td{};
 

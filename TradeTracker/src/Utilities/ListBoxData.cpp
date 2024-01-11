@@ -744,10 +744,10 @@ void ListBoxData_OutputClosedYearTotal(HWND hListBox, int year, double subtotal,
 
     std::wstring text = std::to_wstring(year) + L" TOTAL";
     ld->SetData(3, nullptr, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(4, nullptr, ticker_id, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column
 
@@ -774,10 +774,10 @@ void ListBoxData_OutputClosedMonthTotal(HWND hListBox, double monthly_total, int
     
     std::wstring text = L"THIS MONTH";
     ld->SetData(3, nullptr, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(4, nullptr, ticker_id, AfxMoney(monthly_total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column
 
@@ -804,10 +804,10 @@ void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int w
     
     std::wstring text = L"THIS WEEK";
     ld->SetData(3, nullptr, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(4, nullptr, ticker_id, AfxMoney(weekly_total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column
 
@@ -834,10 +834,10 @@ void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day
     
     std::wstring text = L"TODAY";
     ld->SetData(3, nullptr, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(4, nullptr, ticker_id, AfxMoney(daily_total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column
 
@@ -871,10 +871,10 @@ void ListBoxData_OutputClosedMonthSubtotal(
     
     std::wstring text = AfxUpper(AfxGetLongMonthName(closed_date)) + L" " + std::to_wstring(AfxGetYear(closed_date));
     ld->SetData(3, nullptr, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(4, nullptr, ticker_id, AfxMoney(subtotal), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column
 
@@ -943,13 +943,13 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(5, nullptr, ticker_id, AfxMoney(running_gross_total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(6, nullptr, ticker_id, AfxMoney(running_fees_total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ld->SetData(7, nullptr, ticker_id, AfxMoney(running_net_total), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYDARK, clr, font8, FontStyleBold);
+        COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     ListBox_InsertString(hListBox, 0, ld);
     // *** BLANK SEPARATION LINE AFTER THE TOTAL ***
