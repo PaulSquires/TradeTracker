@@ -254,7 +254,7 @@ void Trade::CalculateLegCosting() {
                 double closing_leg_cost =
                     (trans->total / trans_contract_count) * abs(leg->original_quantity);
 
-                std::cout << closing_leg_cost << std::endl;
+              //  std::cout << closing_leg_cost << std::endl;
 
                 auto it = map.find(leg->leg_back_pointer_id);
                 if (it != map.end()) {
@@ -284,5 +284,16 @@ void Trade::CalculateLegCosting() {
         }
 
     }
+
+    
+    
+    
+    for (const auto& trans : transactions) {
+        if (trans->underlying != Underlying::Options) continue;
+        for (auto& leg : trans->legs) {
+            std::cout << leg->calculated_leg_cost << std::endl;
+        }
+    }
+
 }
 

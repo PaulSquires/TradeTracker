@@ -343,7 +343,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(1, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_ORANGE, font8, FontStyleRegular);   // orange
 
-        text = AfxMoney(std::abs(trade->acb));
+        text = AfxMoney(std::abs(trade->acb), true);
         clr = (trade->acb >= 0) ? COLOR_GREEN : COLOR_RED;
         ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);

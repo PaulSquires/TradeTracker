@@ -114,7 +114,7 @@ std::wstring AfxLongDate(const std::wstring& date_text);
 std::wstring AfxGetDefaultFont();
 std::string unicode2ansi(const std::wstring& wstr);
 std::wstring ansi2unicode(const std::string& str);
-std::wstring AfxMoney(double value, bool use_minus_sign = false, int num_decimal_places = 2);
+std::wstring AfxMoney(double value, bool use_minus_sign = true, int num_decimal_places = 2);
 int Listbox_ItemFromPoint(HWND hListBox, SHORT x, SHORT y);
 bool AfxStringCompareI(const std::string& s1, const std::string& s2);
 bool AfxWStringCompareI(const std::wstring& s1, const std::wstring& s2);
