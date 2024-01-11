@@ -937,6 +937,7 @@ void ListBoxData_OutputTransactionRunningTotal(HWND hListBox,
     REAL font8 = 8;
 
     DWORD clr = (running_net_total >= 0) ? COLOR_GREEN : COLOR_RED;
+    if (running_fees_total >= 0) running_fees_total = running_fees_total * -1;
 
     std::wstring text = L"TOTAL";
     ld->SetData(3, nullptr, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
