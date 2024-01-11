@@ -970,14 +970,14 @@ void TwsClient::accountSummary(int reqId, const std::string& account,
 	double amount = AfxValDouble(account_value);
 	if (amount > 1000000) {
 		amount = amount / 1000000;
-		account_value = AfxMoney(amount, false, 2) + L"M";
+		account_value = AfxMoney(amount, true, 2) + L"M";
 	}
 	else if (amount > 1000) {
 		amount = amount / 1000;
-		account_value = AfxMoney(amount, false, 1) + L"K";
+		account_value = AfxMoney(amount, true, 1) + L"K";
 	}
 	else {
-		account_value = AfxMoney(amount, false);
+		account_value = AfxMoney(amount, true, 2);
 	}
 
 	int nShow = (config.GetAllowPortfolioDisplay()) ? SW_SHOW : SW_HIDE;
