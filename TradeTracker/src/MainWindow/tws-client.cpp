@@ -814,15 +814,13 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	double market_price, double market_value, double average_cost,
 	double unrealized_PNL, double realized_PNL, const std::string& account_name) 
 {
-	//printf("UpdatePortfolio. %s, %s @ %s: Position: %s, MarketPrice: %s, MarketValue: %s, AverageCost: %s, UnrealizedPNL: %s, RealizedPNL: %s, AccountName: %s\n",
-	//	(contract.symbol).c_str(), (contract.secType).c_str(), (contract.primaryExchange).c_str(), decimalStringToDisplay(position).c_str(),
-	//	Utils::doubleMaxString(market_price).c_str(), Utils::doubleMaxString(market_value).c_str(), Utils::doubleMaxString(average_cost).c_str(),
-	//	Utils::doubleMaxString(unrealized_PNL).c_str(), Utils::doubleMaxString(realized_PNL).c_str(), account_name.c_str());
 
 	//std::cout << "Data: " << contract.symbol << "  " << contract.secType << " @ " << contract.primaryExchange << "\n" <<
 	//	"   MarketPrice: " << Utils::doubleMaxString(market_price) << "\n" <<
 	//	"   MarketValue: " << Utils::doubleMaxString(market_value) << "\n" <<
-	//	"   AverageCost: " << Utils::doubleMaxString(average_cost) <<
+	//	"   AverageCost: " << Utils::doubleMaxString(average_cost) << "\n" <<
+	//	"   Unrealized:  " << Utils::doubleMaxString(unrealized_PNL) << "\n" <<
+	//	"   RealizedL:   " << Utils::doubleMaxString(realized_PNL) <<
 	//	std::endl;
 
 	PortfolioData pd{};
