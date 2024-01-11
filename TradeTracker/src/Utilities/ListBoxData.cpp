@@ -366,16 +366,22 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(4, trade, ticker_id, L"", StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-        text = L"";
+        text = trade->ticker_column_1;
+        clr = trade->ticker_column_1_clr;
         ld->SetData(COLUMN_TICKER_CHANGE, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITELIGHT, font8, FontStyleRegular);   // price change
+            clr, font8, FontStyleRegular);   // price change
 
+        text = trade->ticker_column_2;
+        clr = trade->ticker_column_2_clr;
         ld->SetData(COLUMN_TICKER_CURRENTPRICE, trade, ticker_id, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITELIGHT, font9, FontStyleRegular | FontStyleBold);   // current price
+            clr, font9, FontStyleRegular | FontStyleBold);   // current price
 
+        text = trade->ticker_column_3;
+        clr = trade->ticker_column_3_clr;
         ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
-            COLOR_WHITELIGHT, font8, FontStyleRegular);   // price percentage change
+            clr, font8, FontStyleRegular);   // price percentage change
 
+        clr = COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   
 

@@ -160,12 +160,6 @@ void CActiveTrades::UpdateTickerPricesLine(int index, ListBoxData* ld) {
         td = mapTickerData.at(ld->ticker_id);
     }
 
-    // If the price has not changed since last update then skip
-    if (ld->trade->ticker_last_price == td.last_price &&
-        ld->trade->ticker_close_price == td.close_price) {
-        return;
-    }
-
     ld->trade->ticker_last_price = td.last_price;
     ld->trade->ticker_close_price = td.close_price;
     if (ld->trade->ticker_last_price == 0) {
@@ -190,14 +184,20 @@ void CActiveTrades::UpdateTickerPricesLine(int index, ListBoxData* ld) {
 
     text = AfxMoney(delta, true, ld->trade->ticker_decimals);
     theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+    ld->trade->ticker_column_1 = text;
+    ld->trade->ticker_column_1_clr = theme_color;
     ld->SetTextData(COLUMN_TICKER_CHANGE, text, theme_color);  // price change
 
     text = AfxMoney(ld->trade->ticker_last_price, true, ld->trade->ticker_decimals);
+    ld->trade->ticker_column_2 = text;
+    ld->trade->ticker_column_1_clr = COLOR_WHITELIGHT;
     ld->SetTextData(COLUMN_TICKER_CURRENTPRICE, text, COLOR_WHITELIGHT);  // current price
 
     text = AfxMoney((delta / ld->trade->ticker_last_price) * 100, true) + L"%";
     if (delta > 0) text = L"+" + text;
     theme_color = (delta >= 0) ? COLOR_GREEN : COLOR_RED;
+    ld->trade->ticker_column_3 = text;
+    ld->trade->ticker_column_3_clr = theme_color;
     ld->SetTextData(COLUMN_TICKER_PERCENTCHANGE, text, theme_color);  // price percentage change
 
     RECT rc{};
