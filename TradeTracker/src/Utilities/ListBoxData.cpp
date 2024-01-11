@@ -381,6 +381,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(COLUMN_TICKER_PERCENTCHANGE, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);   // price percentage change
 
+        text = L"";
         clr = COLOR_WHITEDARK;
         ld->SetData(COLUMN_TICKER_PORTFOLIO_1, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);   
@@ -393,7 +394,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
         ld->SetData(COLUMN_TICKER_PORTFOLIO_4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);
-
+        
         ld->SetData(COLUMN_TICKER_PORTFOLIO_5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_WHITEDARK, font8, FontStyleRegular);
     }
@@ -564,6 +565,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
                     COLOR_WHITEDARK, font8, FontStyleRegular);
                 col++;
 
+                text = L"";
                 ld->SetData(COLUMN_TICKER_PORTFOLIO_5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                     COLOR_WHITEDARK, font8, FontStyleRegular);
             }
