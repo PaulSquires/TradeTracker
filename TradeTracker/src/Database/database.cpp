@@ -51,7 +51,8 @@ bool CDatabase::Version4UpgradeDatabase() {
     }
     else {
         // Try to upgrade the old database that has rolled leg's without leg backpointers
-        DatabaseV4upgrade();
+        // TODO: Based on our kethod of calculating leg cost basis we may not have to upgrade database
+        // DatabaseV4upgrade();
 
         // Old files will be renamed after they are first loaded into memory.
         dbFilename = dbFilename_old;

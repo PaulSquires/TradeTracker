@@ -224,7 +224,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
         if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
 
-        double trade_acb = ld->trade->acb;
+        double trade_acb = ld->trade->acb * -1;
         double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
         double total_cost = shares_market_value;
 
@@ -240,7 +240,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         text = AfxMoney(total_cost, true, ld->trade->ticker_decimals);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
 
-        double difference = trade_acb + total_cost;
+        double difference = total_cost - trade_acb;
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
         text = AfxMoney(difference, true, 2);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
@@ -315,6 +315,8 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
 
     if (ld->line_type == LineType::options_leg && ld->leg) {
 
+        ld->leg->listbox_index = index;
+
         // Lookup the most recent Portfolio position data
         PortfolioData pd{};
         bool found = false;
@@ -323,52 +325,136 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             found = true;
         }
 
+        // CALCULATE THE RATIO BASED LEG COST
+        // Use the incoming IB data costs for the legs in order to create a ratio for each leg
+        // to multiple against the total ACB for the trade.
+        double position_cost_all_legs = 0;
+        double trade_acb = ld->trade->acb * -1;
+        if (found) {
+            ld->leg->position_cost_tws = pd.average_cost * ld->leg->open_quantity;
+            for (const auto& leg : ld->trade->open_legs) {
+                // Accummulate the costs of all the open legs
+                position_cost_all_legs += leg->position_cost_tws;
+            }
+        }
 
         // POSITION COST BASIS
-        double position_cost = ld->leg->calculated_leg_cost;
-        ld->leg->position_cost = position_cost;
-        text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
-        if (!found) text = L"";
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);   // Book Value and average Price
-
-        // MARKET VALUE
-        double multiplier = AfxValDouble(config.GetMultiplier(ld->trade->ticker_symbol));
-        double market_value = (pd.market_price * ld->leg->open_quantity * multiplier);
-        ld->leg->market_value = market_value;
-        text = AfxMoney(market_value, true, ld->trade->ticker_decimals);
-        if (!found) text = L"";
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
-    
-        // UNREALIZED PNL
-        double unrealized_pnl = (position_cost + market_value);
-        ld->leg->unrealized_pnl = unrealized_pnl;
-        theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
-        text = AfxMoney(unrealized_pnl, true, ld->trade->ticker_decimals);
-        if (!found) text = L"";
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
-
-        // UNREALIZED PNL PERCENTAGE
-        double percentage = (unrealized_pnl / position_cost * 100);
-        if (unrealized_pnl >= 0) {
-            percentage = abs(percentage);
-        }
-        else {
-            // percentage must also be negative
-            if (percentage > 0) percentage *= -1;
-        }
-        theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
-        ld->leg->percentage = percentage;
-        text = AfxMoney(percentage, true, 0) + L" %";
-        if (!found) text = L"";
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
+        //double position_cost = ld->leg->calculated_leg_cost;
         
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_5, L"", COLOR_WHITEDARK);  // Percentage values for the previous two columns data
+        // Update all of the open legs in the Trade based on the newly acquired leg cost data
+        for (const auto& leg : ld->trade->open_legs) {
+
+            index = leg->listbox_index;
+            ListBoxData* ldleg = (ListBoxData*)ListBox_GetItemData(TradesListBox(), index);
+
+            if (ldleg == (void*)-1) continue;
+            if (ldleg == nullptr) continue;
+            
+            //std::cout << leg->listbox_index << "  " << ldleg->leg->contract_id << std::endl;
+
+            found = false;
+            if (mapPortfolioData.count(ldleg->leg->contract_id)) {
+                pd = mapPortfolioData.at(ldleg->leg->contract_id);
+                found = true;
+            }
+
+            ldleg->leg->position_cost_ratio = (ldleg->leg->position_cost_tws / position_cost_all_legs);
+
+            double position_cost = 0;
+            position_cost = (ldleg->leg->position_cost_ratio * trade_acb);
+
+            theme_color = COLOR_WHITEDARK;
+            text = AfxMoney(position_cost, true, ldleg->trade->ticker_decimals);
+            if (!found) text = L"";
+            ldleg->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);   // Book Value and average Price
+
+            // MARKET VALUE
+            theme_color = COLOR_WHITEDARK;
+            double multiplier = AfxValDouble(config.GetMultiplier(ldleg->trade->ticker_symbol));
+            double market_value = (pd.market_price * ldleg->leg->open_quantity * multiplier);
+            ldleg->leg->market_value = market_value;
+            text = AfxMoney(market_value, true, ldleg->trade->ticker_decimals);
+            if (!found) text = L"";
+            ldleg->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
+
+            // UNREALIZED PNL
+            double unrealized_pnl = (market_value - position_cost);
+            ldleg->leg->unrealized_pnl = unrealized_pnl;
+            theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
+            text = AfxMoney(unrealized_pnl, true, ldleg->trade->ticker_decimals);
+            if (!found) text = L"";
+            ldleg->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
+
+            // UNREALIZED PNL PERCENTAGE
+            double percentage = (unrealized_pnl / position_cost * 100);
+            if (unrealized_pnl >= 0) {
+                percentage = abs(percentage);
+            }
+            else {
+                // percentage must also be negative
+                if (percentage > 0) percentage *= -1;
+            }
+            theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
+            ldleg->leg->percentage = percentage;
+            text = AfxMoney(percentage, true, 0) + L" %";
+            if (!found) text = L"";
+            ldleg->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
+
+            ldleg->SetTextData(COLUMN_TICKER_PORTFOLIO_5, L"", COLOR_WHITEDARK); 
+
+            RECT rc{};
+            ListBox_GetItemRect(TradesListBox(), index, &rc);
+            InvalidateRect(TradesListBox(), &rc, true);
+        }
+        UpdateWindow(TradesListBox());
+
+
+
+        //double position_cost = 0;
+        //position_cost = (ld->leg->position_cost_ratio * trade_acb);
+
+        //text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
+        //if (!found) text = L"";
+        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);   // Book Value and average Price
+
+        //// MARKET VALUE
+        //double multiplier = AfxValDouble(config.GetMultiplier(ld->trade->ticker_symbol));
+        //double market_value = (pd.market_price * ld->leg->open_quantity * multiplier);
+        //ld->leg->market_value = market_value;
+        //text = AfxMoney(market_value, true, ld->trade->ticker_decimals);
+        //if (!found) text = L"";
+        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
+    
+        //// UNREALIZED PNL
+        //double unrealized_pnl = (market_value - position_cost);
+        //ld->leg->unrealized_pnl = unrealized_pnl;
+        //theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
+        //text = AfxMoney(unrealized_pnl, true, ld->trade->ticker_decimals);
+        //if (!found) text = L"";
+        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
+
+        //// UNREALIZED PNL PERCENTAGE
+        //double percentage = (unrealized_pnl / position_cost * 100);
+        //if (unrealized_pnl >= 0) {
+        //    percentage = abs(percentage);
+        //}
+        //else {
+        //    // percentage must also be negative
+        //    if (percentage > 0) percentage *= -1;
+        //}
+        //theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
+        //ld->leg->percentage = percentage;
+        //text = AfxMoney(percentage, true, 0) + L" %";
+        //if (!found) text = L"";
+        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
+        //
+        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_5, L"", COLOR_WHITEDARK);  
     }
 
-    RECT rc{};
-    ListBox_GetItemRect(TradesListBox(), index, &rc);
-    InvalidateRect(TradesListBox(), &rc, true);
-    UpdateWindow(TradesListBox());
+    //RECT rc{};
+    //ListBox_GetItemRect(TradesListBox(), index, &rc);
+    //InvalidateRect(TradesListBox(), &rc, true);
+    //UpdateWindow(TradesListBox());
 }
 
 

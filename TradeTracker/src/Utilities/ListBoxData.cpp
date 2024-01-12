@@ -487,7 +487,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
 
 
     // *** OPTION LEGS ***
-    for (const auto& leg : trade->open_legs) {
+    for (auto& leg : trade->open_legs) {
         if (leg->underlying == Underlying::Options) {
             ld = new ListBoxData;
 

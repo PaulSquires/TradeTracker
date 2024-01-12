@@ -78,7 +78,6 @@ public:
     std::shared_ptr<Leg> leg = nullptr;
     ColumnData      col[MAX_COLUMNS];
 
-
     void SetData(
         int index, const std::shared_ptr<Trade>& tradeptr, TickerId tickerid,
         const std::wstring& text, StringAlignment HAlignment, StringAlignment VAlignment, 

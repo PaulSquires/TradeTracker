@@ -126,7 +126,8 @@ void Trade::CalculateAdjustedCostBase() {
 
 
         for (const auto& trans : this->transactions) {
-            bool is_share_transaction = (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
+            bool is_share_transaction = (trans->underlying == Underlying::Shares || 
+                trans->underlying == Underlying::Futures) ? true : false;
             if (is_share_transaction && trans->total >= 0) {  // sold shares
 
                 int shares_sold = trans->quantity;
@@ -233,6 +234,10 @@ void Trade::CreateOpenLegsVector() {
 // ========================================================================================
 void Trade::CalculateLegCosting() {
 
+    // TODO: We will remove this costing code if we continue to use the ratio costing approach
+    return;
+
+
     std::unordered_map<int, std::shared_ptr<Leg>> map;
 
     for (const auto& trans : transactions) {
@@ -286,14 +291,12 @@ void Trade::CalculateLegCosting() {
     }
 
     
-    
-    
-    for (const auto& trans : transactions) {
-        if (trans->underlying != Underlying::Options) continue;
-        for (auto& leg : trans->legs) {
-            std::cout << leg->calculated_leg_cost << std::endl;
-        }
-    }
+    //for (const auto& trans : transactions) {
+    //    if (trans->underlying != Underlying::Options) continue;
+    //    for (auto& leg : trans->legs) {
+    //        std::cout << leg->calculated_leg_cost << std::endl;
+    //    }
+    //}
 
 }
 

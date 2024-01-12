@@ -37,6 +37,7 @@ SOFTWARE.
 
 #include "Utilities/Colors.h"
 
+
 typedef long TickerId;
 
 class Transaction;   // forward declare
@@ -88,6 +89,9 @@ public:
     double percentage = 0;                 // real time data receive via updatePortfolio
     double unrealized_pnl = 0;             // real time data receive via updatePortfolio
 
+    double position_cost_tws = 0;          // position cost received from incoming IB/TWS data
+    double position_cost_ratio = 0;        // position cost ratio to overall trade acb
+    int    listbox_index = -1;             // index of the ownerdraw listbox
 };
 
 
