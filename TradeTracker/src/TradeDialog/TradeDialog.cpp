@@ -377,7 +377,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
                 }
                 SetFocus(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SAVE));
             }
-            else if (tdd.trade_action == TradeAction::other_income_expense) {
+            else if (tdd.trade_action == TradeAction::other_income_expense ||
+                     tdd.trade_action == TradeAction::add_income_expense_to_trade) {
                 if (TradeDialog_ValidateOtherIncomeData(m_hwnd) == true) {
                     TradeDialog_CreateOtherIncomeData(m_hwnd);
                     dialog_return_code = DIALOG_RETURN_OK;
@@ -443,7 +444,7 @@ int TradeDialog_Show(TradeAction inTradeAction) {
     // Show the legsEdit legs (if any) based on the incoming action and set the
     // Ticker and Company Name labels.
     TradeDialog_LoadEditLegsInTradeTable(hwnd);
-    
+
     TradeDialog_CalculateTradeTotal(hwnd);
 
     // Blur the underlying MainWindow panels in order to reduce "visual noise" while
@@ -470,7 +471,8 @@ int TradeDialog_Show(TradeAction inTradeAction) {
         ActiveTrades.IsNewSharesTradeAction(tdd.trade_action)) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTICKER));
     }
-    else if (tdd.trade_action == TradeAction::other_income_expense) {
+    else if (tdd.trade_action == TradeAction::other_income_expense ||
+             tdd.trade_action == TradeAction::add_income_expense_to_trade) {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE));
     } else {
         SetFocus(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTQUANTITY));

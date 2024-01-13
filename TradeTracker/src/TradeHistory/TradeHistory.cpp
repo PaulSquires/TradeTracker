@@ -118,6 +118,9 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
             case Underlying::Dividend:
                 ListBoxData_HistoryDividendLeg(hListBox, trade, trans, leg);
                 break;
+            case Underlying::Other:
+                ListBoxData_OtherIncomeLeg(hListBox, trade, trans, leg);
+                break;
             }
         }
     }

@@ -690,6 +690,34 @@ void ListBoxData_HistoryDividendLeg(
 
 
 // ========================================================================================
+// Create the display data for a Other Income (for a Trade).
+// ========================================================================================
+void ListBoxData_OtherIncomeLeg(
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg)
+{
+    ListBoxData* ld = new ListBoxData;
+
+    TickerId ticker_id = -1;
+    REAL font8 = 8;
+
+    std::wstring text = L"OTHER";
+    ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
+        COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+    for (int i = 3; i < 8; i++) {
+        ld->SetData(i, trade, ticker_id, L"", StringAlignmentNear, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+    }
+    
+    text = AfxMoney(trans->price);  // , false, trade->ticker_decimals);
+    ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+        COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+    ListBox_AddString(hListBox, ld);
+}
+
+
+// ========================================================================================
 // Create the display data for a History OPTIONS leg.
 // ========================================================================================
 void ListBoxData_HistoryOptionsLeg(

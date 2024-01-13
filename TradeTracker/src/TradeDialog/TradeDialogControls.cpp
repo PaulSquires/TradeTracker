@@ -290,6 +290,7 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             if (config.IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
         if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
+            tdd.trade_action == TradeAction::add_income_expense_to_trade ||
             tdd.trade_action == TradeAction::add_shares_to_trade ||
             tdd.trade_action == TradeAction::manage_shares ||
             tdd.trade_action == TradeAction::other_income_expense) {
@@ -628,6 +629,9 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
     case TradeAction::add_dividend_to_trade:
         description = L"Add Dividend";
         break;
+    case TradeAction::add_income_expense_to_trade:
+        description = L"Add Income/Expense";
+        break;
     case TradeAction::add_futures_to_trade:
         description = L"Add Futures";
         grid_main = L"New Transaction";
@@ -865,7 +869,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     } else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
 
-    } else if (tdd.trade_action == TradeAction::other_income_expense) {
+    } else if (tdd.trade_action == TradeAction::other_income_expense ||
+        tdd.trade_action == TradeAction::add_income_expense_to_trade) {
         // Increase the size of the label because the description is quite long
         hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLEDITACTION);
         SetWindowPos(hCtl, 0, AfxScaleX(300), AfxScaleY(10),
@@ -943,6 +948,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
     }
     if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
+        tdd.trade_action == TradeAction::add_income_expense_to_trade ||
         tdd.trade_action == TradeAction::other_income_expense) {
         CustomTextBox_SetText(hCtl, L"1"); 
     }
@@ -971,6 +977,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
+        tdd.trade_action == TradeAction::add_income_expense_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         CustomTextBox_SetText(hCtl, L"1");
     }
@@ -1025,6 +1032,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::manage_shares ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
+        tdd.trade_action == TradeAction::add_income_expense_to_trade ||
         tdd.trade_action == TradeAction::new_futures_trade ||
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::other_income_expense ||
@@ -1076,6 +1084,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     if (tdd.trade_action != TradeAction::new_shares_trade &&
         tdd.trade_action != TradeAction::add_shares_to_trade &&
         tdd.trade_action != TradeAction::add_dividend_to_trade &&
+        tdd.trade_action != TradeAction::add_income_expense_to_trade &&
         tdd.trade_action != TradeAction::add_futures_to_trade &&
         tdd.trade_action != TradeAction::add_call_to_trade && 
         tdd.trade_action != TradeAction::add_put_to_trade && 

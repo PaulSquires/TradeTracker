@@ -620,6 +620,7 @@ void CActiveTrades::ShowActiveTrades() {
     MainWindow.SetLeftPanel(hWindow);
 
     // Determine if we need to initialize the listbox
+    int num_open_trades = 0;
     if (trades.size()) {
 
         // Prevent ListBox redrawing until all calculations are completed
@@ -686,6 +687,8 @@ void CActiveTrades::ShowActiveTrades() {
         for (auto& trade : trades) {
             // We are displaying only open trades 
             if (trade->is_open) {
+                num_open_trades++;
+
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
                 trade->ticker_decimals = config.GetTickerDecimals(trade->ticker_symbol);
 
@@ -735,7 +738,7 @@ void CActiveTrades::ShowActiveTrades() {
         AfxRedrawWindow(TradesListBox());
     }
 
-    // If no Trades exist then add simple message to user to add Trade
+    // If no Trades at all exist then display simple message to user to add a Trade.
     if (trades.size() == 0) {
         ListBox_ResetContent(TradesListBox());
         ListBoxData_NoTradesExistMessage(TradesListBox());
@@ -1306,6 +1309,7 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     else {
         items.push_back({ L"Add Shares to Trade", (int)TradeAction::add_shares_to_trade, false });
         items.push_back({ L"Add Dividend to Trade", (int)TradeAction::add_dividend_to_trade, false });
+        items.push_back({ L"Add Income/Expense to Trade", (int)TradeAction::add_income_expense_to_trade, false });
     }
 
 
@@ -1318,6 +1322,7 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     case TradeAction::add_shares_to_trade:
     case TradeAction::add_dividend_to_trade:
     case TradeAction::add_futures_to_trade:
+    case TradeAction::add_income_expense_to_trade:
     case TradeAction::add_options_to_trade:
     case TradeAction::add_put_to_trade:
     case TradeAction::add_call_to_trade:

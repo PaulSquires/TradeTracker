@@ -28,8 +28,9 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "CustomMessageBox/CustomMessageBox.h"
-#include "ActiveTrades/ActiveTrades.h"
 #include "MainWindow/MainWindow.h"
+#include "ActiveTrades/ActiveTrades.h"
+#include "ClosedTrades/ClosedTrades.h"
 #include "Transactions/TransPanel.h"
 #include "MainWindow/tws-client.h"
 #include "Database/database.h"
@@ -166,8 +167,11 @@ void CTransDetail::DeleteTransaction(HWND hwnd) {
     tradeEditDelete = nullptr;
     transEditDelete = nullptr;
 
-    // Reset the Active Trades
-    ActiveTrades.ShowActiveTrades();
+    // Show our new list of trades depending on what is showing in the active pane.
+    HWND hLeftPanel = MainWindow.GetLeftPanel();
+    if (hLeftPanel == ActiveTrades.hWindow) ActiveTrades.ShowActiveTrades();
+    if (hLeftPanel == ClosedTrades.hWindow) ClosedTrades.ShowClosedTrades();
+    if (hLeftPanel == TransPanel.hWindow) TransPanel.ShowTransactions();
 }
 
 
@@ -232,6 +236,9 @@ void CTransDetail::ShowTransDetail(const std::shared_ptr<Trade> trade, const std
             break;
         case Underlying::Dividend:
             ListBoxData_HistoryDividendLeg(TransListBox(), trade, trans, leg);
+            break;
+        case Underlying::Other:
+            ListBoxData_OtherIncomeLeg(TransListBox(), trade, trans, leg);
             break;
         }
     }
@@ -522,6 +529,7 @@ LRESULT CTransDetail::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_TRANSDETAIL_CMDDELETE) {
             DeleteTransaction(m_hwnd);
+            return 0;
         }
         return 0;
     }

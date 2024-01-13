@@ -101,6 +101,7 @@ public:
         if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = Underlying::Shares;
         if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = Underlying::Futures;
         if (tdd.trade_action == TradeAction::other_income_expense) underlying = Underlying::Other;
+        if (tdd.trade_action == TradeAction::add_income_expense_to_trade) underlying = Underlying::Other;
         if (tdd.trade_action == TradeAction::add_dividend_to_trade) underlying = Underlying::Dividend;
         if (tdd.trans) underlying = tdd.trans->underlying;
 
@@ -338,11 +339,16 @@ void TradeDialog_CreateOtherIncomeData(HWND hwnd)
 
     std::shared_ptr<Trade> trade;
 
-    trade = std::make_shared<Trade>();
-    trades.push_back(trade);
+    if (tdd.trade_action == TradeAction::add_income_expense_to_trade) {
+        trade = tdd.trade;
+    }
+    else {
+        trade = std::make_shared<Trade>();
+        trades.push_back(trade);
+        trade->ticker_symbol = L"OTHER";
+        trade->ticker_name = L"Other Income/Expense";
+    }
 
-    trade->ticker_symbol = L"OTHER";
-    trade->ticker_name = L"Other Income/Expense";
     trade->future_expiry = guiData.future_expiry;
     trade->category = CATEGORY_OTHER;
     trade->trade_bp = guiData.trade_bp;
