@@ -121,6 +121,7 @@ public:
     std::wstring  notes         = L"";     
     int           category      = 0;       // Category number
     int           nextleg_id    = 0;       // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
+
     int           aggregate_shares = 0;    // Calculated from all transactions roll-up
     int           aggregate_futures = 0;   // Calculated from all transactions roll-up
     double        acb           = 0;       // adjusted cost base

@@ -80,11 +80,58 @@ void Trade::CalculateAdjustedCostBase() {
 
     if (config.GetCostingMethod() == CostingMethod::AverageCost) {
         this->acb = 0;
-        for (const auto& trans : this->transactions) {
+        double total_shares = 0;
+
+        for (auto& trans : this->transactions) {
+            bool is_share_transaction = 
+                (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
+
+            if (is_share_transaction) {
+
+                if (trans->total > 0) {
+                    // Sold shares
+                    double shares_acb = (this->acb / total_shares);
+                    double share_sale_cost = (trans->quantity * shares_acb);
+
+                    total_shares -= trans->quantity;
+                    this->acb -= share_sale_cost;
+
+                    //std::cout
+                    //    << " SOLD: " << trans->quantity
+                    //    << " trans->total: " << trans->total
+                    //    << " this->acb: " << this->acb
+                    //    << " total_shares: " << total_shares
+                    //    << " shares_acb: " << shares_acb
+                    //    << " share_sale_cost: " << share_sale_cost
+                    //    << std::endl;
+
+                    continue;
+                }
+                else {
+                    // Bought shares
+                    this->acb += trans->total;
+                    total_shares += trans->quantity;
+                    double shares_acb = (this->acb / total_shares);
+
+                    //std::cout 
+                    //    << " BOUGHT: " << trans->quantity
+                    //    << " trans->total: " << trans->total
+                    //    << " this->acb: " << this->acb
+                    //    << " total_shares: " << total_shares 
+                    //    << " shares_acb: " << shares_acb 
+                    //    << std::endl;
+
+                    continue;
+                }
+            }
+
+
+            // bought shares or other items eg. options/dividends/other
             this->acb += trans->total;
         }
         return;
     }
+
 
     if (config.GetCostingMethod() == CostingMethod::fifo) {
         this->acb = 0;
@@ -98,7 +145,8 @@ void Trade::CalculateAdjustedCostBase() {
         // Load the vector and then sort based on earliest date of shares purchase.
         std::vector<Shares> vec;
         for (const auto& trans : this->transactions) {
-            bool is_share_transaction = (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
+            bool is_share_transaction = 
+                (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
             if (is_share_transaction && trans->total < 0) {   // bought shares
                 double cost_per_share = (trans->total / trans->quantity);
                 Shares share{ trans->trans_date, trans->quantity, cost_per_share };
