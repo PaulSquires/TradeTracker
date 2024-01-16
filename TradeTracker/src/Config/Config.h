@@ -68,6 +68,8 @@ private:
     bool display_open_source_license = true;
     bool show_portfolio_value = true;
     bool allow_update_check = true;
+    bool exclude_nonstock_costs = false;
+
     NumberFormatType number_format_type = NumberFormatType::American;
     CostingMethod costing_method = CostingMethod::AverageCost;
     StartWeekdayType start_weekday = StartWeekdayType::Monday;
@@ -147,6 +149,8 @@ public:
     void SetStartWeekday(StartWeekdayType value);
     CostingMethod GetCostingMethod();
 	void SetCostingMethod(CostingMethod value);
+    bool GetExcludeNonStockCosts(); 
+    void SetExcludeNonStockCosts(bool value);
     NumberFormatType GetNumberFormatType();
 	void SetNumberFormatType(NumberFormatType value);
 	bool GetDisplayLicense();

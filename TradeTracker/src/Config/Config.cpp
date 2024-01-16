@@ -97,6 +97,17 @@ void CConfig::SetCostingMethod(CostingMethod value) {
 
 
 // ========================================================================================
+// Determine if include/exclude non stock costs in cost basis calculation. (eg dividends)
+// ========================================================================================
+bool CConfig::GetExcludeNonStockCosts() {
+    return exclude_nonstock_costs;
+}
+void CConfig::SetExcludeNonStockCosts(bool value) {
+    exclude_nonstock_costs = value;
+}
+
+
+// ========================================================================================
 // Determine the NumberFormatting to be used.
 // ========================================================================================
 NumberFormatType CConfig::GetNumberFormatType() {
@@ -378,6 +389,8 @@ bool CConfig::SaveConfig() {
     db << "NUMBERFORMAT|" << (number_format_type == NumberFormatType::European ? L"European" : L"American") << "\n";
 
     db << "COSTINGMETHOD|" << (costing_method == CostingMethod::fifo ? L"fifo" : L"AverageCost") << "\n";
+    
+    db << "EXCLUDENONSTOCKCOSTS|" << (exclude_nonstock_costs ? L"true" : L"false") << "\n";
         
     db << "SHOWPORTFOLIOVALUE|" << (show_portfolio_value ? L"true" : L"false") << "\n";
     
@@ -483,6 +496,17 @@ bool CConfig::LoadConfig() {
             catch (...) { continue; }
             costing_method = CostingMethod::AverageCost;
             if (AfxWStringCompareI(value, L"fifo")) costing_method = CostingMethod::fifo;
+            continue;
+        }
+
+        // Check if should include/exclude non stock costs in cost calculation (e.g dividends)
+        if (arg == L"EXCLUDENONSTOCKCOSTS") {
+            std::wstring value;
+            
+            try {value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+        
+            exclude_nonstock_costs = AfxWStringCompareI(value, L"true");
             continue;
         }
 

@@ -129,6 +129,7 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     SettingsDialog.orig_number_format_type = config.GetNumberFormatType();
     SettingsDialog.orig_costing_method = config.GetCostingMethod();
     SettingsDialog.orig_allow_update_check = config.GetAllowUpdateCheck();
+    SettingsDialog.orig_exclude_nonstock_costs = config.GetExcludeNonStockCosts();
 
     HWND hCtl = NULL;
 
@@ -175,6 +176,12 @@ bool SettingsDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_COSTBASIS_FIFO, L"First-In, First-Out (FIFO)",
         text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
     if (config.GetCostingMethod() == CostingMethod::fifo) CustomLabel_SetCheckState(hCtl, true);
+
+    top += height;
+    hCtl = CustomLabel_SimpleCheckBox(hwnd, IDC_SETTINGSDIALOG_EXCLUDE_NONSTOCK_COSTS,
+        L"Exclude non-stock costs (eg. dividends, options premium)",
+        text_color, back_color, check_color, check_back_color, border_focus_color, left + left_indent, top, width, height);
+    CustomLabel_SetCheckState(hCtl, config.GetExcludeNonStockCosts());
 
     top += (height + vert_spacing);
     CustomLabel_SimpleLabel(hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY, L"First day of the week:",
@@ -331,6 +338,12 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             SetFocus(hCtl);
         }
 
+        if (ctrl_id == IDC_SETTINGSDIALOG_EXCLUDE_NONSTOCK_COSTS) {
+            check_state = !CustomLabel_GetCheckState(hCtl);
+            CustomLabel_SetCheckState(hCtl, check_state);
+            SetFocus(hCtl);
+        }
+
         if (ctrl_id == IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY) {
             check_state = CustomLabel_GetCheckState(hCtl);
             CustomLabel_SetCheckState(hCtl, !check_state);
@@ -377,12 +390,16 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY));
             config.SetStartWeekday((bool_value) ? StartWeekdayType::Sunday: StartWeekdayType::Monday);
 
+            bool_value = CustomLabel_GetCheckState(GetDlgItem(m_hwnd, IDC_SETTINGSDIALOG_EXCLUDE_NONSTOCK_COSTS));
+            config.SetExcludeNonStockCosts(bool_value);
+
             config.SaveConfig();
 
 
             bool restart_required = false;
             if (orig_number_format_type != config.GetNumberFormatType()) restart_required = true;
             if (orig_costing_method != config.GetCostingMethod()) restart_required = true;
+            if (orig_exclude_nonstock_costs != config.GetExcludeNonStockCosts()) restart_required = true;
 
             if (restart_required) {
                 CustomMessageBox.Show(
@@ -417,7 +434,7 @@ LRESULT CSettingsDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 int SettingsDialog_Show(HWND hWndParent) {
     int width = 570;
-    int height = 445;
+    int height = 470;
 
     HWND hwnd = SettingsDialog.Create(hWndParent, L"Settings", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

@@ -78,8 +78,11 @@ void Trade::SetTradeOpenStatus() {
 
 void Trade::CalculateAdjustedCostBase() {
 
+    bool exclude_nonstock_costs = config.GetExcludeNonStockCosts();
+
     if (config.GetCostingMethod() == CostingMethod::AverageCost) {
         this->acb = 0;
+        this->shares_acb = 0;
         double total_shares = 0;
 
         for (auto& trans : this->transactions) {
@@ -90,37 +93,19 @@ void Trade::CalculateAdjustedCostBase() {
 
                 if (trans->total > 0) {
                     // Sold shares
-                    double shares_acb = (this->acb / total_shares);
-                    double share_sale_cost = (trans->quantity * shares_acb);
+                    double local_shares_acb = (this->shares_acb / total_shares);
+                    double share_sale_cost = (trans->quantity * local_shares_acb);
 
                     total_shares -= trans->quantity;
                     this->acb -= share_sale_cost;
-
-                    //std::cout
-                    //    << " SOLD: " << trans->quantity
-                    //    << " trans->total: " << trans->total
-                    //    << " this->acb: " << this->acb
-                    //    << " total_shares: " << total_shares
-                    //    << " shares_acb: " << shares_acb
-                    //    << " share_sale_cost: " << share_sale_cost
-                    //    << std::endl;
-
+                    this->shares_acb -= share_sale_cost;
                     continue;
                 }
                 else {
                     // Bought shares
                     this->acb += trans->total;
+                    this->shares_acb += trans->total;
                     total_shares += trans->quantity;
-                    double shares_acb = (this->acb / total_shares);
-
-                    //std::cout 
-                    //    << " BOUGHT: " << trans->quantity
-                    //    << " trans->total: " << trans->total
-                    //    << " this->acb: " << this->acb
-                    //    << " total_shares: " << total_shares 
-                    //    << " shares_acb: " << shares_acb 
-                    //    << std::endl;
-
                     continue;
                 }
             }
@@ -128,6 +113,9 @@ void Trade::CalculateAdjustedCostBase() {
 
             // bought shares or other items eg. options/dividends/other
             this->acb += trans->total;
+            if (!exclude_nonstock_costs) {
+                this->shares_acb += trans->total;
+            }
         }
         return;
     }
@@ -135,6 +123,7 @@ void Trade::CalculateAdjustedCostBase() {
 
     if (config.GetCostingMethod() == CostingMethod::fifo) {
         this->acb = 0;
+        this->shares_acb = 0;
 
         struct Shares {
             std::wstring trans_date{};
@@ -166,9 +155,6 @@ void Trade::CalculateAdjustedCostBase() {
         // Add the sorted vector to the queue (doesn't look like we can sort a queue directly)
         std::queue<Shares> q;
         for (const auto& shares : vec) {
-
-           // std::wcout << L"Buy: " << shares.trans_date << L" " << shares.quantity_remaining << L" " << shares.cost_per_share << std::endl;
-
             q.push(shares);
         }
 
@@ -179,36 +165,35 @@ void Trade::CalculateAdjustedCostBase() {
             if (is_share_transaction && trans->total >= 0) {  // sold shares
 
                 int shares_sold = trans->quantity;
-            
-            //std::cout << "---------" << std::endl;
-            //std::wcout << L" Start: shares_sold: " << shares_sold << std::endl;
 
                 while (shares_sold > 0) {
 
-              //      std::cout << "Remaining to process: " << shares_sold << std::endl;
-               //     std::cout << "queue size: " << q.size() << std::endl;
-
                     // See if we can take all the need shares being sold from this purchase
                     if (q.front().quantity_remaining - shares_sold >= 0) {
-           // std::wcout << L"Took " << shares_sold << L" from " << q.front().trans_date << L" at " << q.front().cost_per_share << L"  loop done." << std::endl;
                         this->acb -= shares_sold * q.front().cost_per_share;
+                        this->shares_acb -= shares_sold * q.front().cost_per_share;
                         shares_sold -= q.front().quantity_remaining;
-                        //q.front().quantity_remaining += shares_sold;
+
                         // All shares being sold have been costed by this leg
                         q.pop();
                         continue;
                     }
 
                     // Take all shares from this leg and continue looping because more remain to be costed.
-           // std::wcout << L"Took " << q.front().quantity_remaining << L" from " << q.front().trans_date << L" at " << q.front().cost_per_share <<  L"  keep looping." << std::endl;
                     this->acb -= q.front().quantity_remaining * q.front().cost_per_share;
+                    this->shares_acb -= q.front().quantity_remaining * q.front().cost_per_share;
                     shares_sold -= q.front().quantity_remaining;
                     q.pop();
                 }
-            //std::wcout << L"While loop done. shares_sold value: " << shares_sold << std::endl;
             }
-            else {
-                this->acb += trans->total;
+            else if (is_share_transaction && trans->total < 0) {  // buy shares
+                this->shares_acb += trans->total;
+                continue;
+            }
+
+            this->acb += trans->total;
+            if (!exclude_nonstock_costs) {
+                this->shares_acb += trans->total;
             }
         }
 

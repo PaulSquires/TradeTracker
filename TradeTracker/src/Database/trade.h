@@ -124,7 +124,8 @@ public:
 
     int           aggregate_shares = 0;    // Calculated from all transactions roll-up
     int           aggregate_futures = 0;   // Calculated from all transactions roll-up
-    double        acb           = 0;       // adjusted cost base
+    double        acb           = 0;       // adjusted cost base of entire trade
+    double        shares_acb    = 0;       // adjusted cost base of shares/futures (may include/exclude costs like dividends)
     double        trade_bp      = 0;       // Buying Power for the entire trade 
     double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
 

@@ -462,7 +462,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             col++;
         }
 
-        text = AfxMoney(std::abs(trade->acb / value_aggregate));
+        text = AfxMoney(std::abs(trade->shares_acb / value_aggregate));
         ld->SetData(col, trade, ticker_id, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;

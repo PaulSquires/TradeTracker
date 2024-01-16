@@ -37,6 +37,8 @@ public:
     // Settings that require a restart
     NumberFormatType orig_number_format_type = NumberFormatType::American;
     CostingMethod orig_costing_method = CostingMethod::AverageCost;
+    bool orig_exclude_nonstock_costs = false;
+
     // Settings that trigger an immediate action when Settings dialog is closed
     bool orig_allow_update_check = true;
 };
@@ -53,9 +55,10 @@ constexpr int IDC_SETTINGSDIALOG_NUMBERFORMAT_EU = 107;
 constexpr int IDC_SETTINGSDIALOG_COSTBASIS = 108;
 constexpr int IDC_SETTINGSDIALOG_COSTBASIS_AVERAGE = 109;
 constexpr int IDC_SETTINGSDIALOG_COSTBASIS_FIFO = 110;
-constexpr int IDC_SETTINGSDIALOG_STARTWEEKDAY = 111;
-constexpr int IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY = 112;
-constexpr int IDC_SETTINGSDIALOG_STARTWEEKDAY_MONDAY = 113;
+constexpr int IDC_SETTINGSDIALOG_EXCLUDE_NONSTOCK_COSTS = 111;
+constexpr int IDC_SETTINGSDIALOG_STARTWEEKDAY = 112;
+constexpr int IDC_SETTINGSDIALOG_STARTWEEKDAY_SUNDAY = 113;
+constexpr int IDC_SETTINGSDIALOG_STARTWEEKDAY_MONDAY = 114;
 
 
 int SettingsDialog_Show(HWND hWndParent);
