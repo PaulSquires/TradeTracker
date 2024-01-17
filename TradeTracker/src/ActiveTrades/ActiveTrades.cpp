@@ -1287,14 +1287,12 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     }
 
     if (ld->line_type == LineType::shares) {
-        text = L"Manage Shares";
-        items.push_back({ text, (int)TradeAction::manage_shares, false });
+        items.push_back({ L"Manage Shares", (int)TradeAction::manage_shares, false });
         items.push_back({ L"", (int)TradeAction::no_action, true });
     }
 
     if (ld->line_type == LineType::futures) {
-        text = L"Manage Futures";
-        items.push_back({ text, (int)TradeAction::manage_futures, false });
+        items.push_back({ L"Manage Futures", (int)TradeAction::manage_futures, false });
         items.push_back({ L"", (int)TradeAction::no_action, true });
     }
 
@@ -1312,6 +1310,60 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
         items.push_back({ L"Add Income/Expense to Trade", (int)TradeAction::add_income_expense_to_trade, false });
     }
 
+    int num_shares = 0;
+    int num_futures = 0;
+
+    if (is_tickerLine) {
+        // Determine what menu options to show based on what underlyings exist in the Trade
+        bool exist_shares = false;
+        bool exist_futures = false;
+        bool exist_options = false;
+        for (const auto& trans : tdd.trade->transactions) {
+            for (const auto& leg : trans->legs) {
+                if (!leg->isOpen()) continue;
+                switch (leg->underlying) {
+                case Underlying::Options:
+                    exist_options = true;
+                    break;
+                case Underlying::Shares:
+                    exist_shares = true;
+                    num_shares += leg->open_quantity;
+                    break;
+                case Underlying::Futures:
+                    exist_futures = true;
+                    num_futures += leg->open_quantity;
+                    break;
+                }
+            }
+        }
+
+        items.push_back({ L"", (int)TradeAction::no_action, true });
+        if (exist_shares) {
+            if (!exist_futures && !exist_options) {
+                items.push_back({ L"Close Trade", (int)TradeAction::close_all_shares, false });
+            }
+            else {
+                items.push_back({ L"Close All Shares", (int)TradeAction::close_all_shares, false });
+            }
+        }
+        if (exist_futures) {
+            if (!exist_shares && !exist_options) {
+                items.push_back({ L"Close Trade", (int)TradeAction::close_all_futures, false });
+            }
+            else {
+                items.push_back({ L"Close All Futures", (int)TradeAction::close_all_futures, false });
+            }
+        }
+        if (exist_options) {
+            if (!exist_shares && !exist_futures) {
+                items.push_back({ L"Close Trade", (int)TradeAction::close_all_legs, false });
+            }
+            else {
+                items.push_back({ L"Close All Option Legs", (int)TradeAction::close_all_legs, false });
+            }
+        }
+
+    }
 
     POINT pt; GetCursorPos(&pt);
     TradeAction selected = (TradeAction)CustomPopupMenu.Show(hListBox, items, -1, pt.x, pt.y);
@@ -1326,6 +1378,29 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     case TradeAction::add_options_to_trade:
     case TradeAction::add_put_to_trade:
     case TradeAction::add_call_to_trade:
+        TradeDialog_Show(selected);
+        break;
+
+
+    case TradeAction::close_all_shares:
+        tdd.shares_aggregate_edit = std::to_wstring(num_shares);
+        TradeDialog_Show(selected);
+        break;
+
+    case TradeAction::close_all_futures:
+        tdd.shares_aggregate_edit = std::to_wstring(num_futures);
+        TradeDialog_Show(selected);
+        break;
+
+    case TradeAction::close_all_legs:
+        tdd.legs.clear();
+        for (const auto& trans : tdd.trade->transactions) {
+            for (const auto& leg : trans->legs) {
+                if (leg->isOpen() && leg->underlying == Underlying::Options) {
+                    tdd.legs.push_back(leg);
+                }
+            }
+        }
         TradeDialog_Show(selected);
         break;
 

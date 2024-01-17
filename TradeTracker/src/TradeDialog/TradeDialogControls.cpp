@@ -119,8 +119,10 @@ void TradeDialog_ToggleSellLongShortText(HWND hCtl)
         text = L"";
     }
 
-    if (tdd.trade_action == TradeAction::manage_shares) text += L"SHARES";
-    if (tdd.trade_action == TradeAction::manage_futures) text += L"FUTURES";
+    if (tdd.trade_action == TradeAction::manage_shares ||
+        tdd.trade_action == TradeAction::close_all_shares) text += L"SHARES";
+    if (tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::close_all_futures) text += L"FUTURES";
     CustomLabel_SetText(hCtl, text);
 }
 
@@ -293,15 +295,18 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
             tdd.trade_action == TradeAction::add_income_expense_to_trade ||
             tdd.trade_action == TradeAction::add_shares_to_trade ||
             tdd.trade_action == TradeAction::manage_shares ||
+            tdd.trade_action == TradeAction::close_all_shares ||
             tdd.trade_action == TradeAction::other_income_expense) {
             multiplier = 1;
         }
         if (tdd.trade_action == TradeAction::add_futures_to_trade ||
-            tdd.trade_action == TradeAction::manage_futures) {
+            tdd.trade_action == TradeAction::manage_futures ||
+            tdd.trade_action == TradeAction::close_all_futures) {
             multiplier = AfxValDouble(config.GetMultiplier(tdd.trade->ticker_symbol));
         }
         if (tdd.trade_action == TradeAction::roll_leg ||
-            tdd.trade_action == TradeAction::close_leg) {
+            tdd.trade_action == TradeAction::close_leg ||
+            tdd.trade_action == TradeAction::close_all_legs) {
             if (config.IsFuturesTicker(tdd.trade->ticker_symbol) == false) multiplier = 100;
         }
             
@@ -547,7 +552,8 @@ void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd)
 
     }
     // Set the DR/CR to debit if this is a closetrade
-    if (tdd.trade_action == TradeAction::close_leg) {
+    if (tdd.trade_action == TradeAction::close_leg ||
+        tdd.trade_action == TradeAction::close_all_legs) {
         TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
     }
 }
@@ -586,16 +592,19 @@ std::wstring TradeDialogControls_GetTradeDescription(HWND hwnd)
         grid_main = L"New Transaction";
         break;
     case TradeAction::new_shares_trade:
+    case TradeAction::close_all_shares:
     case TradeAction::manage_shares:
         description = L"Shares";
         grid_main = L"New Transaction";
         break;
     case TradeAction::new_futures_trade:
+    case TradeAction::close_all_futures:
     case TradeAction::manage_futures:
         description = L"Futures";
         grid_main = L"New Transaction";
         break;
     case TradeAction::close_leg:
+    case TradeAction::close_all_legs:
         description = L"Close";
         grid_main = L"Close Transaction";
         break;
@@ -819,6 +828,7 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     if (tdd.trade_action == TradeAction::roll_leg) CustomTextBox_SetText(hCtl, L"Roll");
     if (tdd.trade_action == TradeAction::close_leg) CustomTextBox_SetText(hCtl, L"Close");
+    if (tdd.trade_action == TradeAction::close_all_legs) CustomTextBox_SetText(hCtl, L"Close");
 
 
     // We create the Strategy button and label but we only show it for New options
@@ -876,7 +886,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         SetWindowPos(hCtl, 0, AfxScaleX(300), AfxScaleY(10),
             AfxScaleX(362), AfxScaleY(20), SWP_NOZORDER | SWP_SHOWWINDOW);
 
-    } else if (tdd.trade_action == TradeAction::manage_shares || tdd.trade_action == TradeAction::manage_futures) {
+    } else if (tdd.trade_action == TradeAction::manage_shares || 
+               tdd.trade_action == TradeAction::manage_futures ||
+               tdd.trade_action == TradeAction::close_all_shares ||
+               tdd.trade_action == TradeAction::close_all_futures) {
         std::wstring font_name = AfxGetDefaultFont();
         std::wstring text;
         int font_size = 8;
@@ -890,8 +903,10 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         TradeDialog_SetLongShortback_color(hCtl);
         CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
         text = L"SELL LONG ";
-        if (tdd.trade_action == TradeAction::manage_shares) text += L"SHARES";
-        if (tdd.trade_action == TradeAction::manage_futures) text += L"FUTURES";
+        if (tdd.trade_action == TradeAction::manage_shares ||
+            tdd.trade_action == TradeAction::close_all_shares) text += L"SHARES";
+        if (tdd.trade_action == TradeAction::manage_futures ||
+            tdd.trade_action == TradeAction::close_all_futures) text += L"FUTURES";
         CustomLabel_SetText(hCtl, text);
 
         hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SELLSHARES_DROPDOWN, GLYPH_DROPDOWN,
@@ -942,7 +957,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
     if (tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures) {
+        tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::close_all_shares ||
+        tdd.trade_action == TradeAction::close_all_futures) {
         // If the aggregate shares are negative then toggle the sell to buy in order to close the trade
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
@@ -974,6 +991,8 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action == TradeAction::new_futures_trade ||
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::manage_shares ||
+        tdd.trade_action == TradeAction::close_all_shares ||
+        tdd.trade_action == TradeAction::close_all_futures ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
@@ -1030,11 +1049,13 @@ void TradeDialogControls_CreateControls(HWND hwnd)
 
     if (tdd.trade_action == TradeAction::new_shares_trade ||
         tdd.trade_action == TradeAction::manage_shares ||
+        tdd.trade_action == TradeAction::close_all_shares ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::add_income_expense_to_trade ||
         tdd.trade_action == TradeAction::new_futures_trade ||
         tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::close_all_futures ||
         tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_futures_to_trade ||
         (tdd.trade && tdd.trade->category == CATEGORY_OTHER)) {
@@ -1064,7 +1085,9 @@ void TradeDialogControls_CreateControls(HWND hwnd)
     // Must do this after the quantity, multiplier, etc have been set otherwise we'll get a GPF
     // when the calculate totals eventually gets called during the DR/CR toggle.
     if (tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures) {
+        tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::close_all_shares ||
+        tdd.trade_action == TradeAction::close_all_futures) {
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         if (aggregate < 0) {
             TradeDialog_ToggleSellLongShortText(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
@@ -1091,8 +1114,11 @@ void TradeDialogControls_CreateControls(HWND hwnd)
         tdd.trade_action != TradeAction::add_options_to_trade &&
         tdd.trade_action != TradeAction::other_income_expense &&
         tdd.trade_action != TradeAction::close_leg &&
+        tdd.trade_action != TradeAction::close_all_legs &&
         tdd.trade_action != TradeAction::manage_shares &&
+        tdd.trade_action != TradeAction::close_all_shares &&
         tdd.trade_action != TradeAction::manage_futures &&
+        tdd.trade_action != TradeAction::close_all_futures &&
         tdd.trade_action != TradeAction::edit_transaction &&
         tdd.trade_action != TradeAction::roll_leg) {
         std::wstring text1 = L"NOTE:";

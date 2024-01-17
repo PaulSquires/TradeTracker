@@ -81,11 +81,13 @@ public:
         
         if (tdd.trade_action == TradeAction::new_shares_trade ||
             tdd.trade_action == TradeAction::manage_shares ||
+            tdd.trade_action == TradeAction::close_all_shares ||
             tdd.trade_action == TradeAction::add_shares_to_trade) {
             description = L"Shares";
         }
         if (tdd.trade_action == TradeAction::new_futures_trade ||
             tdd.trade_action == TradeAction::manage_futures ||
+            tdd.trade_action == TradeAction::close_all_futures ||
             tdd.trade_action == TradeAction::add_futures_to_trade) {
             description = L"Futures";
         }
@@ -98,6 +100,8 @@ public:
         if (tdd.trade_action == TradeAction::new_futures_trade) underlying = Underlying::Futures;
         if (tdd.trade_action == TradeAction::manage_shares) underlying = Underlying::Shares;
         if (tdd.trade_action == TradeAction::manage_futures) underlying = Underlying::Futures;
+        if (tdd.trade_action == TradeAction::close_all_shares) underlying = Underlying::Shares;
+        if (tdd.trade_action == TradeAction::close_all_futures) underlying = Underlying::Futures;
         if (tdd.trade_action == TradeAction::add_shares_to_trade) underlying = Underlying::Shares;
         if (tdd.trade_action == TradeAction::add_futures_to_trade) underlying = Underlying::Futures;
         if (tdd.trade_action == TradeAction::other_income_expense) underlying = Underlying::Other;
@@ -277,7 +281,9 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     }
     
     if (tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures) {
+        tdd.trade_action == TradeAction::manage_futures ||
+        tdd.trade_action == TradeAction::close_all_shares ||
+        tdd.trade_action == TradeAction::close_all_futures) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
         if (sel == (int)LongShort::Long) {
             leg->original_quantity = trans->quantity;
@@ -627,6 +633,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             break;
 
         case TradeAction::close_leg:
+        case TradeAction::close_all_legs:
         case TradeAction::roll_leg:
             leg->original_quantity = guiData.legs.at(row).original_quantity;
             leg->open_quantity = 0;
