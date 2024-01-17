@@ -33,7 +33,6 @@
     <ClInclude Include="src\CustomTextBox\CustomTextBox.h" />
     <ClInclude Include="src\CustomVScrollBar\CustomVScrollBar.h" />
     <ClInclude Include="src\Database\database.h" />
-    <ClInclude Include="src\Database\databaseV4upgrade.h" />
     <ClInclude Include="src\Database\trade.h" />
     <ClInclude Include="src\CustomCalendar\CustomCalendar.h" />
     <ClInclude Include="src\FilterPanel\FilterPanel.h" />
@@ -130,7 +129,6 @@
     <ClCompile Include="src\CustomTextBox\CustomTextBox.cpp" />
     <ClCompile Include="src\CustomVScrollBar\CustomVScrollBar.cpp" />
     <ClCompile Include="src\Database\database.cpp" />
-    <ClCompile Include="src\Database\databaseV4upgrade.cpp" />
     <ClCompile Include="src\Database\trade.cpp" />
     <ClCompile Include="src\CustomCalendar\CustomCalendar.cpp" />
     <ClCompile Include="src\FilterPanel\FilterPanel.cpp" />
