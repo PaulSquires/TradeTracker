@@ -80,6 +80,8 @@ public:
     ActiveTradesFilterType filter_type = ActiveTradesFilterType::Category;
     NewTradeType new_trade_type = NewTradeType::Custom;
 
+    bool pause_live_updates = false;
+
     void ShowActiveTrades();
     void PerformITMcalculation(std::shared_ptr<Trade>& trade);
     bool IsAddOptionToTradeAction(TradeAction action);

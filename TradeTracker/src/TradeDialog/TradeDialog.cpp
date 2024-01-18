@@ -59,6 +59,8 @@ int dialog_return_code = DIALOG_RETURN_CANCEL;
 void TradeDialog_OnClose(HWND hwnd) {
     if (dialog_return_code == DIALOG_RETURN_OK) {
 
+        ActiveTrades.pause_live_updates = true;
+
         // If this was an EDIT then we will Save and Load in order to correctly calculate
         // the BP dates. We need to do this because an EDIT could have changed the closing
         // date of the Trade.
@@ -77,9 +79,6 @@ void TradeDialog_OnClose(HWND hwnd) {
             // Recalculate the ACB for the trade
             tdd.trade->CalculateAdjustedCostBase();
 
-            // Recalculate the ACB for each open leg
-            tdd.trade->CalculateLegCosting();
-
             // Save the new data
             db.SaveDatabase();
         }
@@ -92,6 +91,8 @@ void TradeDialog_OnClose(HWND hwnd) {
         if (hLeftPanel == ActiveTrades.hWindow) ActiveTrades.ShowActiveTrades();
         if (hLeftPanel == ClosedTrades.hWindow) ClosedTrades.ShowClosedTrades();
         if (hLeftPanel == TransPanel.hWindow) TransPanel.ShowTransactions();
+
+        ActiveTrades.pause_live_updates = false;
     }
 
     MainWindow.BlurPanels(false);

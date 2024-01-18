@@ -487,15 +487,14 @@ bool CDatabase::LoadDatabase() {
     for (auto& trade : trades) {
         if (trade->is_open) {
             trade->CreateOpenLegsVector();
-
-            trade->CalculateLegCosting();
-
         }
         else {
             // Trade is closed so set the BPendDate to be the oldest transaction in the Trade
             trade->bp_end_date = trade->oldest_trade_trans_date;
         }
 
+        // Calculate the full trade ACB and also the Shares ACB depending on what costing
+        // method has been chosen.
         trade->CalculateAdjustedCostBase();
     }
 

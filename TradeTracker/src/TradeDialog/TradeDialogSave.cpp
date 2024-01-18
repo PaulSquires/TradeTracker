@@ -235,7 +235,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trade->future_expiry = guiData.future_expiry;
     trade->category      = guiData.category;
     trade->trade_bp      = guiData.trade_bp;
-    trade->acb           = guiData.ACB;
+    trade->acb_total           = guiData.ACB;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
     trans->trans_date    = guiData.trans_date;
@@ -358,7 +358,7 @@ void TradeDialog_CreateOtherIncomeData(HWND hwnd)
     trade->future_expiry = guiData.future_expiry;
     trade->category = CATEGORY_OTHER;
     trade->trade_bp = guiData.trade_bp;
-    trade->acb = guiData.ACB;
+    trade->acb_total = guiData.ACB;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
     trans->trans_date = guiData.trans_date;
@@ -435,7 +435,7 @@ void TradeDialog_CreateDividendTradeData(HWND hwnd)
     trade->future_expiry = guiData.future_expiry;
     trade->category = guiData.category;
     trade->trade_bp = guiData.trade_bp;
-    trade->acb = guiData.ACB;
+    trade->acb_total = guiData.ACB;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
     trans->trans_date = guiData.trans_date;
@@ -578,7 +578,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trade->ticker_name   = guiData.ticker_name;
     trade->future_expiry = guiData.future_expiry;
     trade->category      = guiData.category;
-    trade->acb           = guiData.ACB;
+    trade->acb_total           = guiData.ACB;
     trade->trade_bp      = guiData.trade_bp;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();

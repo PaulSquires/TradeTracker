@@ -224,7 +224,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
         if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
 
-        double trade_acb = ld->trade->acb * -1;
+        double trade_acb = ld->trade->acb_total * -1;
         double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
         double total_cost = shares_market_value;
 
@@ -283,7 +283,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
             if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
 
-            double shares_cost = ld->trade->acb;
+            double shares_cost = ld->trade->acb_total;
             if (shares_cost == 0) shares_cost = 1;
             text = AfxMoney(shares_cost, true, ld->trade->ticker_decimals);
             ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
@@ -324,12 +324,13 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             pd = mapPortfolioData.at(ld->leg->contract_id);
             found = true;
         }
-
+        if (!found) return;
+ 
         // CALCULATE THE RATIO BASED LEG COST
         // Use the incoming IB data costs for the legs in order to create a ratio for each leg
         // to multiple against the total ACB for the trade.
         double position_cost_all_legs = 0;
-        double trade_acb = ld->trade->acb * -1;
+        double trade_acb = ld->trade->acb_total * -1;
         if (found) {
             ld->leg->position_cost_tws = pd.average_cost * ld->leg->open_quantity;
             for (const auto& leg : ld->trade->open_legs) {
@@ -339,8 +340,6 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         }
 
         // POSITION COST BASIS
-        //double position_cost = ld->leg->calculated_leg_cost;
-        
         // Update all of the open legs in the Trade based on the newly acquired leg cost data
         for (const auto& leg : ld->trade->open_legs) {
 
@@ -348,9 +347,8 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             ListBoxData* ldleg = (ListBoxData*)ListBox_GetItemData(TradesListBox(), index);
 
             if (ldleg == (void*)-1) continue;
-            if (ldleg == nullptr) continue;
-            
-            //std::cout << leg->listbox_index << "  " << ldleg->leg->contract_id << std::endl;
+            if (!ldleg) continue;
+            if (!ldleg->leg) continue;
 
             found = false;
             if (mapPortfolioData.count(ldleg->leg->contract_id)) {
@@ -407,54 +405,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             InvalidateRect(TradesListBox(), &rc, true);
         }
         UpdateWindow(TradesListBox());
-
-
-
-        //double position_cost = 0;
-        //position_cost = (ld->leg->position_cost_ratio * trade_acb);
-
-        //text = AfxMoney(position_cost, true, ld->trade->ticker_decimals);
-        //if (!found) text = L"";
-        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);   // Book Value and average Price
-
-        //// MARKET VALUE
-        //double multiplier = AfxValDouble(config.GetMultiplier(ld->trade->ticker_symbol));
-        //double market_value = (pd.market_price * ld->leg->open_quantity * multiplier);
-        //ld->leg->market_value = market_value;
-        //text = AfxMoney(market_value, true, ld->trade->ticker_decimals);
-        //if (!found) text = L"";
-        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
-    
-        //// UNREALIZED PNL
-        //double unrealized_pnl = (market_value - position_cost);
-        //ld->leg->unrealized_pnl = unrealized_pnl;
-        //theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
-        //text = AfxMoney(unrealized_pnl, true, ld->trade->ticker_decimals);
-        //if (!found) text = L"";
-        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    // Unrealized profit or loss
-
-        //// UNREALIZED PNL PERCENTAGE
-        //double percentage = (unrealized_pnl / position_cost * 100);
-        //if (unrealized_pnl >= 0) {
-        //    percentage = abs(percentage);
-        //}
-        //else {
-        //    // percentage must also be negative
-        //    if (percentage > 0) percentage *= -1;
-        //}
-        //theme_color = (percentage < 0) ? COLOR_RED : COLOR_GREEN;
-        //ld->leg->percentage = percentage;
-        //text = AfxMoney(percentage, true, 0) + L" %";
-        //if (!found) text = L"";
-        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  // Percentage values for the previous two columns data
-        //
-        //ld->SetTextData(COLUMN_TICKER_PORTFOLIO_5, L"", COLOR_WHITEDARK);  
     }
-
-    //RECT rc{};
-    //ListBox_GetItemRect(TradesListBox(), index, &rc);
-    //InvalidateRect(TradesListBox(), &rc, true);
-    //UpdateWindow(TradesListBox());
 }
 
 
@@ -464,6 +415,8 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
 // This function is called from the TickerUpdateFunction() thread.
 // ========================================================================================
 void CActiveTrades::UpdateTickerPrices() {
+    if (pause_live_updates) return;
+
     // Guard to prevent re-entry of update should the thread fire the update
     // prior to this function finishing.
     static std::atomic<bool> is_processing = false;
@@ -860,6 +813,7 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
 
     if (res != IDYES) return;
 
+    pause_live_updates = true;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
 
@@ -899,11 +853,17 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
     // Rebuild the openLegs position vector
     trade->CreateOpenLegsVector();
 
+    // Calculate the full trade ACB and also the Shares ACB depending on what costing
+    // method has been chosen.
+    trade->CalculateAdjustedCostBase();
+
     // Save the new data to the database
     db.SaveDatabase();
 
     // Reload the trade list
     ShowActiveTrades();
+
+    pause_live_updates = false;
 }
 
 
@@ -913,6 +873,9 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
 void CActiveTrades::CalledAwayAssignment(
     auto trade, auto leg, int aggregate_shares, int aggregate_futures)
 {
+
+    pause_live_updates = true;
+        
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
@@ -1008,14 +971,14 @@ void CActiveTrades::CalledAwayAssignment(
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
         trans->total = trans->quantity * multiplier * trans->price * -1;  // DR
-        trade->acb = trade->acb + trans->total;
+        trade->acb_total = trade->acb_total + trans->total;
     }
     else {
         newleg->action = Action::STC;
         newleg->original_quantity = quantity_assigned * -1;
         newleg->open_quantity = quantity_assigned * -1;
         trans->total = trans->quantity * multiplier * trans->price;  // CR
-        trade->acb = trade->acb + trans->total;
+        trade->acb_total = trade->acb_total + trans->total;
     }
 
     trans->legs.push_back(newleg);
@@ -1026,11 +989,17 @@ void CActiveTrades::CalledAwayAssignment(
     // Rebuild the openLegs position vector
     trade->CreateOpenLegsVector();
 
+    // Calculate the full trade ACB and also the Shares ACB depending on what costing
+    // method has been chosen.
+    trade->CalculateAdjustedCostBase();
+
     // Save the new data to the database
     db.SaveDatabase();
 
     // Reload the trade list
     ShowActiveTrades();
+
+    pause_live_updates = false;
 }
 
 
@@ -1038,6 +1007,9 @@ void CActiveTrades::CalledAwayAssignment(
 // Create Transaction for option assignment for the selected leg.
 // ========================================================================================
 void CActiveTrades::CreateAssignment(auto trade, auto leg) {
+
+    pause_live_updates = true;
+
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
@@ -1128,14 +1100,14 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
         newleg->original_quantity = quantity_assigned;
         newleg->open_quantity = quantity_assigned;
         trans->total = trans->quantity * multiplier * trans->price * -1;  // DR
-        trade->acb = trade->acb + trans->total;
+        trade->acb_total = trade->acb_total + trans->total;
     }
     else {
         newleg->action = Action::STO;
         newleg->original_quantity = quantity_assigned * -1;
         newleg->open_quantity = quantity_assigned * -1;
         trans->total = trans->quantity * multiplier * trans->price;  // CR
-        trade->acb = trade->acb + trans->total;
+        trade->acb_total = trade->acb_total + trans->total;
     }
 
     trans->legs.push_back(newleg);
@@ -1146,11 +1118,17 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     // Rebuild the openLegs position vector
     trade->CreateOpenLegsVector();
 
+    // Calculate the full trade ACB and also the Shares ACB depending on what costing
+    // method has been chosen.
+    trade->CalculateAdjustedCostBase();
+
     // Save the new data to the database
     db.SaveDatabase();
 
     // Reload the trade list
     ShowActiveTrades();
+
+    pause_live_updates = false;
 }
 
 

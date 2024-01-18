@@ -307,7 +307,7 @@ void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, Ti
     text = AfxMoney(0, true, 1) + L"%";
     if (days_total == 0) days_total = 1;
     if (trade->trade_bp != 0 && days_total != 0) {
-        text = AfxMoney((trade->acb / trade->trade_bp * 100 / days_total * 30), true, 1) + L"%";
+        text = AfxMoney((trade->acb_total / trade->trade_bp * 100 / days_total * 30), true, 1) + L"%";
     }
     ld->SetData(4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
@@ -343,8 +343,8 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(1, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_ORANGE, font8, FontStyleRegular);   // orange
 
-        text = AfxMoney(std::abs(trade->acb), true);
-        clr = (trade->acb >= 0) ? COLOR_GREEN : COLOR_RED;
+        text = AfxMoney(std::abs(trade->acb_total), true);
+        clr = (trade->acb_total >= 0) ? COLOR_GREEN : COLOR_RED;
         ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);
 
@@ -948,8 +948,8 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
     ld->SetData(3, trade, ticker_id, ticker_name, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    DWORD clr = (trade->acb >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(4, trade, ticker_id, AfxMoney(trade->acb), StringAlignmentFar, StringAlignmentCenter,
+    DWORD clr = (trade->acb_total >= 0) ? COLOR_GREEN : COLOR_RED;
+    ld->SetData(4, trade, ticker_id, AfxMoney(trade->acb_total), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column

@@ -72,7 +72,7 @@ void CTickerPanel::ShowTickerTotals() {
     for (const auto& trade : trades) {
         if (trade->ticker_symbol == L"OPENBAL") continue;
         if (trade->is_open == true) continue;
-        double total = mapTicker[trade->ticker_symbol] + trade->acb;
+        double total = mapTicker[trade->ticker_symbol] + trade->acb_total;
         mapTicker[trade->ticker_symbol] = total;
     }
 

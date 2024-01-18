@@ -203,33 +203,33 @@ void CClosedTrades::ShowClosedTrades() {
         }
         current_date = ClosedData.closed_date;
         subtotal_month = current_month;
-        subtotal_amount += ClosedData.trade->acb;
-        if (ClosedData.trade->acb >= 0) ++current_month_win;
-        if (ClosedData.trade->acb < 0) ++current_month_loss;
+        subtotal_amount += ClosedData.trade->acb_total;
+        if (ClosedData.trade->acb_total >= 0) ++current_month_win;
+        if (ClosedData.trade->acb_total < 0) ++current_month_loss;
 
         if (current_month == AfxGetMonth(today_date) &&
             current_year == AfxGetYear(today_date)) {
-            monthly_amount += ClosedData.trade->acb;
-            if (ClosedData.trade->acb >= 0) ++month_win;
-            if (ClosedData.trade->acb < 0) ++month_loss;
+            monthly_amount += ClosedData.trade->acb_total;
+            if (ClosedData.trade->acb_total >= 0) ++month_win;
+            if (ClosedData.trade->acb_total < 0) ++month_loss;
         }
 
         if (current_date >= week_start_date && current_date <= week_end_date) {
-            weekly_amount += ClosedData.trade->acb;
-            if (ClosedData.trade->acb >= 0) ++week_win;
-            if (ClosedData.trade->acb < 0) ++week_loss;
+            weekly_amount += ClosedData.trade->acb_total;
+            if (ClosedData.trade->acb_total >= 0) ++week_win;
+            if (ClosedData.trade->acb_total < 0) ++week_loss;
         }
 
         if (current_date == today_date) {
-            daily_amount += ClosedData.trade->acb;
-            if (ClosedData.trade->acb >= 0) ++day_win;
-            if (ClosedData.trade->acb < 0) ++day_loss;
+            daily_amount += ClosedData.trade->acb_total;
+            if (ClosedData.trade->acb_total >= 0) ++day_win;
+            if (ClosedData.trade->acb_total < 0) ++day_loss;
         }
 
         if (today_year == AfxGetYear(current_date)) {
-            if (ClosedData.trade->acb >= 0) ++year_win;
-            if (ClosedData.trade->acb < 0) ++year_loss;
-            YTD += ClosedData.trade->acb;
+            if (ClosedData.trade->acb_total >= 0) ++year_win;
+            if (ClosedData.trade->acb_total < 0) ++year_loss;
+            YTD += ClosedData.trade->acb_total;
         }
         ListBoxData_OutputClosedPosition(TradesListBox(), ClosedData.trade, ClosedData.closed_date);
     }

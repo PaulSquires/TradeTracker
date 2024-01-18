@@ -81,7 +81,7 @@ void Trade::CalculateAdjustedCostBase() {
     bool exclude_nonstock_costs = config.GetExcludeNonStockCosts();
 
     if (config.GetCostingMethod() == CostingMethod::AverageCost) {
-        this->acb = 0;
+        this->acb_total = 0;
         this->shares_acb = 0;
         double total_shares = 0;
 
@@ -97,22 +97,21 @@ void Trade::CalculateAdjustedCostBase() {
                     double share_sale_cost = (trans->quantity * local_shares_acb);
 
                     total_shares -= trans->quantity;
-                    this->acb -= share_sale_cost;
+                    this->acb_total -= share_sale_cost;
                     this->shares_acb -= share_sale_cost;
                     continue;
                 }
                 else {
                     // Bought shares
-                    this->acb += trans->total;
+                    this->acb_total += trans->total;
                     this->shares_acb += trans->total;
                     total_shares += trans->quantity;
                     continue;
                 }
             }
 
-
             // bought shares or other items eg. options/dividends/other
-            this->acb += trans->total;
+            this->acb_total += trans->total;
             if (!exclude_nonstock_costs) {
                 this->shares_acb += trans->total;
             }
@@ -122,7 +121,7 @@ void Trade::CalculateAdjustedCostBase() {
 
 
     if (config.GetCostingMethod() == CostingMethod::fifo) {
-        this->acb = 0;
+        this->acb_total = 0;
         this->shares_acb = 0;
 
         struct Shares {
@@ -158,7 +157,6 @@ void Trade::CalculateAdjustedCostBase() {
             q.push(shares);
         }
 
-
         for (const auto& trans : this->transactions) {
             bool is_share_transaction = (trans->underlying == Underlying::Shares || 
                 trans->underlying == Underlying::Futures) ? true : false;
@@ -170,7 +168,7 @@ void Trade::CalculateAdjustedCostBase() {
 
                     // See if we can take all the need shares being sold from this purchase
                     if (q.front().quantity_remaining - shares_sold >= 0) {
-                        this->acb -= shares_sold * q.front().cost_per_share;
+                        this->acb_total -= shares_sold * q.front().cost_per_share;
                         this->shares_acb -= shares_sold * q.front().cost_per_share;
                         shares_sold -= q.front().quantity_remaining;
 
@@ -180,7 +178,7 @@ void Trade::CalculateAdjustedCostBase() {
                     }
 
                     // Take all shares from this leg and continue looping because more remain to be costed.
-                    this->acb -= q.front().quantity_remaining * q.front().cost_per_share;
+                    this->acb_total -= q.front().quantity_remaining * q.front().cost_per_share;
                     this->shares_acb -= q.front().quantity_remaining * q.front().cost_per_share;
                     shares_sold -= q.front().quantity_remaining;
                     q.pop();
@@ -191,16 +189,14 @@ void Trade::CalculateAdjustedCostBase() {
                 continue;
             }
 
-            this->acb += trans->total;
+            this->acb_total += trans->total;
             if (!exclude_nonstock_costs) {
                 this->shares_acb += trans->total;
             }
         }
 
         return;
-
     }
-
 }
 
 
@@ -259,77 +255,4 @@ void Trade::CreateOpenLegsVector() {
         });
 }
 
-
-// ========================================================================================
-// Calculate the running cost for each leg in the Trade. Open legs will display in the 
-// Active Trades grid. When connected to TWS, the Leg cost will be displayed and compared
-// against the current market price.
-// ========================================================================================
-void Trade::CalculateLegCosting() {
-
-    // TODO: We will remove this costing code if we continue to use the ratio costing approach
-    return;
-
-
-    std::unordered_map<int, std::shared_ptr<Leg>> map;
-
-    for (const auto& trans : transactions) {
-        if (trans->underlying != Underlying::Options) continue;
-
-        int trans_contract_count = 0;
-
-        // Get the total number of quantity of contracts for the transaction. Only
-        // count the legs that generate money on an open.
-        for (const auto& lleg : trans->legs) {
-            trans_contract_count += abs(lleg->original_quantity);
-        }
-        if (trans_contract_count == 0) continue;
-
-        for (auto& leg : trans->legs) {
-
-            // Process BTC or STC legs and update their back pointers with the costs paid
-            if (leg->action == Action::BTC || leg->action == Action::STC) {
-                double closing_leg_cost =
-                    (trans->total / trans_contract_count) * abs(leg->original_quantity);
-
-              //  std::cout << closing_leg_cost << std::endl;
-
-                auto it = map.find(leg->leg_back_pointer_id);
-                if (it != map.end()) {
-                    it->second->calculated_leg_cost += closing_leg_cost;
-                }
-                continue;
-            }
-
-            // Process a normal STO/BTO leg
-            // Calculate the cost of the leg based on this transaction
-            double current_leg_cost = 
-                (trans->total / trans_contract_count) * abs(leg->original_quantity);
-            
-            // Get the running cost from the leg referenced in the back pointer
-            double leg_cost_from_back_pointer = 0;
-            if (leg->leg_back_pointer_id) {
-                auto it = map.find(leg->leg_back_pointer_id);
-                if (it != map.end()) {
-                    leg_cost_from_back_pointer = it->second->calculated_leg_cost;
-                } 
-            }
-
-            leg->calculated_leg_cost = current_leg_cost + leg_cost_from_back_pointer;
-            
-            // Save cost in case a later back pointer needs it
-            map.insert({ leg->leg_id, leg });
-        }
-
-    }
-
-    
-    //for (const auto& trans : transactions) {
-    //    if (trans->underlying != Underlying::Options) continue;
-    //    for (auto& leg : trans->legs) {
-    //        std::cout << leg->calculated_leg_cost << std::endl;
-    //    }
-    //}
-
-}
 
