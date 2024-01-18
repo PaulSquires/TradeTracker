@@ -224,8 +224,15 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
         if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
 
-        double trade_acb = ld->trade->acb_total * -1;
-        double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
+        double multiplier = 1;
+        if (config.IsFuturesTicker(ld->trade->ticker_symbol)) {
+            multiplier = AfxValDouble(config.GetMultiplier(ld->trade->ticker_symbol));
+        }
+
+        double acb = (value_aggregate) ? ld->trade->shares_acb : ld->trade->acb_total;
+
+        double trade_acb = acb * -1;
+        double shares_market_value = value_aggregate * ld->trade->ticker_last_price * multiplier;
         double total_cost = shares_market_value;
 
         for (const auto& leg : ld->trade->open_legs) {
@@ -283,12 +290,17 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             if (ld->trade->aggregate_shares) value_aggregate = ld->trade->aggregate_shares;
             if (ld->trade->aggregate_futures) value_aggregate = ld->trade->aggregate_futures;
 
-            double shares_cost = ld->trade->acb_total;
+            double shares_cost = ld->trade->shares_acb;
             if (shares_cost == 0) shares_cost = 1;
             text = AfxMoney(shares_cost, true, ld->trade->ticker_decimals);
             ld->SetTextData(COLUMN_TICKER_PORTFOLIO_1, text, theme_color);
 
-            double shares_market_value = value_aggregate * ld->trade->ticker_last_price;
+            double multiplier = 1;
+            if (config.IsFuturesTicker(ld->trade->ticker_symbol)) {
+                multiplier = AfxValDouble(config.GetMultiplier(ld->trade->ticker_symbol));
+            }
+
+            double shares_market_value = value_aggregate * ld->trade->ticker_last_price * multiplier;
             text = AfxMoney(shares_market_value, true, ld->trade->ticker_decimals);
             ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
 
