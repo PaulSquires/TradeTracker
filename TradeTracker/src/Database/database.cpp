@@ -213,7 +213,7 @@ void CDatabase::SetJournalNotesText(const std::wstring& text) {
     if (!db.is_open()) {
         CustomMessageBox.Show(
             NULL,
-            L"Could not save JournalNotes text to file",
+            L"Could not save Journal Notes text to file",
             L"Warning",
             MB_ICONWARNING
         );
@@ -271,7 +271,7 @@ void CDatabase::SetTradePlanText(const std::wstring& text) {
     if (!db.is_open()) {
         CustomMessageBox.Show(
             NULL,
-            L"Could not save TradePlan text to file",
+            L"Could not save Trade Plan text to file",
             L"Warning",
             MB_ICONWARNING
         );
@@ -310,7 +310,13 @@ bool CDatabase::SaveDatabase() {
         << "// action:        0:STO, 1:BTO, 2:STC, 3:BTC\n"
         << "// Dates are all in YYYYMMDD format with no embedded separators.\n";
 
+    bool prev_trade_was_open = false;
+
     for (const auto& trade : trades) {
+        // Insert a blank line if the trade is open in order to give some visual breathing room
+        if (trade->is_open || prev_trade_was_open) db << "\n";
+        prev_trade_was_open = trade->is_open;
+
         db << "T|"
             << std::wstring(trade->is_open ? L"1|" : L"0|")
             << trade->nextleg_id << "|"
@@ -322,8 +328,12 @@ bool CDatabase::SaveDatabase() {
             << AfxReplace(trade->notes, L"\r\n", L"~~") 
             << "\n";
 
+        static std::wstring p0 = L"";
+        static std::wstring p2 = L"  ";
+        static std::wstring p4 = L"    ";
+
         for (const auto& trans : trade->transactions) {
-            db << "X|"
+            db << (trade->is_open ? p2 : p0) << "X|" 
                 << AfxRemoveDateHyphens(trans->trans_date) << "|"
                 << trans->description << "|"
                 << UnderlyingToString(trans->underlying) << "|"
@@ -335,7 +345,7 @@ bool CDatabase::SaveDatabase() {
                 << "\n";
 
             for (const auto& leg : trans->legs) {
-                db << "L|"
+                 db << (trade->is_open ? p4 : p0) << "L|"
                     << leg->leg_id << "|"
                     << leg->leg_back_pointer_id << "|"
                     << leg->original_quantity << "|"
@@ -406,6 +416,9 @@ bool CDatabase::LoadDatabase() {
 
         // If this is a Comment line then simply iterate to next line.
         if (line.compare(1, 3, L"// ") == 0) continue;
+
+        // Trim leading white space
+        line = AfxLTrim(line);
 
         // Tokenize the line into a vector based on the pipe delimiter
         st = AfxSplit(line, L'|');
