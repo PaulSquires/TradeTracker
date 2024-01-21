@@ -27,7 +27,6 @@ SOFTWARE.
 #include "pch.h"
 
 #include "MainWindow/MainWindow.h"
-#include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 
 #include "CustomCalendar.h"

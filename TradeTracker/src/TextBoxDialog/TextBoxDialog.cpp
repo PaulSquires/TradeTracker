@@ -26,8 +26,8 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "CustomTextBox/CustomTextBox.h"
 #include "MainWindow/MainWindow.h"
+#include "Utilities/Colors.h"
 #include "TextBoxDialog.h"
 
 

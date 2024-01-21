@@ -25,8 +25,6 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "CustomLabel/CustomLabel.h"
-#include "CustomTextBox/CustomTextBox.h"
 #include "Utilities/ListBoxData.h"
 #include "Category/Category.h"
 #include "MainWindow/MainWindow.h"

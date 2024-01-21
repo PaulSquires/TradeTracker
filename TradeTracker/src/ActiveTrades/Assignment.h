@@ -27,7 +27,6 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "Utilities/UserMessages.h"
 
 
 class CAssignment: public CWindowBase<CAssignment> {

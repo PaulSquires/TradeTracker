@@ -43,7 +43,6 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomPopupMenu/CustomPopupMenu.h"
 #include "Utilities/UpdateCheck.h"
-#include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 
 #include "MainWindow.h"

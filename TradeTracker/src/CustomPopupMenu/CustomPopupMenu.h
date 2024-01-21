@@ -71,3 +71,7 @@ extern HWND HWND_CUSTOMPOPUPMENU;
 constexpr int IDC_CUSTOMPOPUPMENU_LISTBOX = 100;
 
 extern CCustomPopupMenu CustomPopupMenu;
+
+constexpr int MSG_CUSTOMPOPUPMENU_DOSELECTED = WM_USER + 1020;
+constexpr int MSG_CUSTOMPOPUPMENU_CANCEL = WM_USER + 1021;
+

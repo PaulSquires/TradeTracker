@@ -95,3 +95,5 @@ constexpr int IDC_CATEGORYCONTROL_15     = 155;
 constexpr int IDC_CATEGORYCONTROL_LAST   = 155;
 
 
+constexpr int MSG_CATEGORY_CATEGORYCHANGED = WM_USER + 1011;
+

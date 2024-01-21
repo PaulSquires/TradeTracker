@@ -25,16 +25,12 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "CustomLabel/CustomLabel.h"
-#include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "Category/Category.h"
 #include "TabPanel/TabPanel.h"
 #include "Utilities/ListBoxData.h"
-
-#include "FilterPanel/FilterPanel.h"
 
 #include "TransDetail.h"
 #include "TransPanel.h"

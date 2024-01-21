@@ -32,9 +32,7 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomMessageBox/CustomMessageBox.h"
 #include "ActiveTrades/ActiveTrades.h"
-#include "MainWindow/tws-client.h"
 #include "Category/Category.h"
-#include "Strategy/StrategyButton.h"
 
 #include "TradeDialog.h"
 #include "TradeGrid.h"

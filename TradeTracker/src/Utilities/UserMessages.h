@@ -63,9 +63,6 @@ enum class TradeAction {
 
 
 // User defined messages
-constexpr int MSG_CUSTOMLABEL_CLICK			     = WM_USER + 1000;
-constexpr int MSG_CUSTOMLABEL_MOUSEMOVE		     = WM_USER + 1001;
-constexpr int MSG_CUSTOMLABEL_MOUSELEAVE	     = WM_USER + 1002;
 constexpr int MSG_TWS_CONNECT_START			     = WM_USER + 1003;
 constexpr int MSG_TWS_CONNECT_SUCCESS		     = WM_USER + 1004;
 constexpr int MSG_TWS_CONNECT_FAILURE	    	 = WM_USER + 1005;
@@ -74,18 +71,10 @@ constexpr int MSG_TWS_WARNING_EXCEPTION          = WM_USER + 1007;
 constexpr int MSG_TWS_CONNECT_WAIT_RECONNECTION  = WM_USER + 1008;
 constexpr int MSG_DATEPICKER_DATECHANGED         = WM_USER + 1009;
 constexpr int MSG_RECONCILIATION_READY           = WM_USER + 1010;
-constexpr int MSG_CATEGORY_CATEGORYCHANGED       = WM_USER + 1011;
 constexpr int MSG_POSITIONS_READY                = WM_USER + 1013;
-constexpr int MSG_ACTIVETRADES_SELECTLISTBOXITEM = WM_USER + 1014;
-constexpr int MSG_ACTIVETRADES_RIGHTCLICKMENU    = WM_USER + 1015;
-constexpr int MSG_TICKERTOTALS_SHOWTICKERCLOSEDTRADES = WM_USER + 1016;
 constexpr int MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL = WM_USER + 1017;
 constexpr int MSG_CLOSEDTRADES_SHOWLISTBOXITEM   = WM_USER + 1018;
 constexpr int MSG_TRANSPANEL_SHOWLISTBOXITEM     = WM_USER + 1019;
-constexpr int MSG_CUSTOMPOPUPMENU_DOSELECTED     = WM_USER + 1020;
-constexpr int MSG_CUSTOMPOPUPMENU_CANCEL         = WM_USER + 1021;
-constexpr int MSG_CUSTOMCALENDAR_DOSELECTED      = WM_USER + 1022;
-constexpr int MSG_CUSTOMCALENDAR_CANCEL          = WM_USER + 1023;
 constexpr int MSG_DISPLAY_LICENSE                = WM_USER + 1024;
 
 constexpr int DIALOG_RETURN_OK = 0;

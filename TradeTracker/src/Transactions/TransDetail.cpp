@@ -32,7 +32,6 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "ClosedTrades/ClosedTrades.h"
 #include "Transactions/TransPanel.h"
-#include "MainWindow/tws-client.h"
 #include "Database/database.h"
 #include "Database/trade.h"
 #include "TradeDialog/TradeDialog.h"

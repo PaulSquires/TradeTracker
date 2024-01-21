@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Utilities/AfxWin.h"
 
-#include "CustomLabel/CustomLabel.h"
 #include "CustomMessageBox/CustomMessageBox.h"
 #include "TextBoxDialog/TextBoxDialog.h"
 #include "MainWindow/MainWindow.h"

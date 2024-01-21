@@ -121,3 +121,6 @@ constexpr int IDC_CUSTOMCALENDAR_CALENDAR = 100;
 
 extern CCustomCalendar CustomCalendar;
 extern HWND HWND_CUSTOMCALENDAR;
+
+constexpr int MSG_CUSTOMCALENDAR_DOSELECTED = WM_USER + 1022;
+constexpr int MSG_CUSTOMCALENDAR_CANCEL = WM_USER + 1023;

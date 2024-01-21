@@ -27,11 +27,7 @@ SOFTWARE.
 #pragma once
 #include <Windows.h>
 #include <commctrl.h>
-#include <versionhelpers.h>
 #include <string>
-#include <winver.h>
-#include <cwctype>
-#include <shlobj.h>
 
 
 std::wstring AfxClean(const std::wstring& text);

@@ -31,9 +31,9 @@ SOFTWARE.
 #include "ActiveTrades/ActiveTrades.h"
 #include "ClosedTrades/ClosedTrades.h"
 #include "TradeHistory/TradeHistory.h"
-#include "TradeDialog/TradeDialog.h"
 #include "TickerTotals/TickerTotals.h"
 #include "Transactions/TransPanel.h"
+#include "Database/database.h"
 #include "Config/Config.h"
 #include "Utilities/Colors.h"
 

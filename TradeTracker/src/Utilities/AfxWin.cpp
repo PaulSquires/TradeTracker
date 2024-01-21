@@ -26,8 +26,13 @@ SOFTWARE.
 
 #include "pch.h"
 
-#include "AfxWin.h"
+#include <versionhelpers.h>
+#include <winver.h>
+#include <cwctype>
+#include <shlobj.h>
+
 #include "Config/Config.h"
+#include "AfxWin.h"
 
 
 //

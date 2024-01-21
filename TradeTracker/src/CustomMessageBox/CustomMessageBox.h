@@ -27,7 +27,6 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "CustomLabel/CustomLabel.h"
 #include "Utilities/Colors.h"
 
 

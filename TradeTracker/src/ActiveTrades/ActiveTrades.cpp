@@ -37,8 +37,9 @@ SOFTWARE.
 #include "TabPanel/TabPanel.h"
 #include "Database/trade.h"
 #include "Database/database.h"
-#include "Category/Category.h"
 #include "Config/Config.h"
+
+#include "Utilities/UserMessages.h"
 
 #include "Assignment.h"
 #include "ActiveTrades.h"

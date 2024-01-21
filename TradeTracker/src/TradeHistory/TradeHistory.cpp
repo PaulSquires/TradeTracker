@@ -32,6 +32,7 @@ SOFTWARE.
 #include "MainWindow/MainWindow.h"
 #include "Transactions/TransDetail.h"
 #include "Database/trade.h"
+#include "Database/database.h"
 #include "Utilities/AfxWin.h"
 #include "Config/Config.h"
 #include "TradeHistory.h"

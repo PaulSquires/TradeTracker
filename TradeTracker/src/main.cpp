@@ -29,10 +29,8 @@ SOFTWARE.
 #include "Utilities/AfxWin.h"
 #include "Database/database.h"
 #include "Config/Config.h"
-#include "TextBoxDialog/TextBoxDialog.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
-#include "Utilities/UpdateCheck.h"
 
 CConfig config;
 CDatabase db;

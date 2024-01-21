@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Utilities/ListBoxData.h"
 #include "Database/trade.h"
 
+
 typedef long TickerId;
 
 enum class ActiveTradesFilterType {
@@ -164,3 +165,6 @@ constexpr int COLUMN_TICKER_PORTFOLIO_4 = 11;
 constexpr int COLUMN_TICKER_PORTFOLIO_5 = 12;
 
 extern CActiveTrades ActiveTrades;
+
+constexpr int MSG_ACTIVETRADES_SELECTLISTBOXITEM = WM_USER + 1014;
+constexpr int MSG_ACTIVETRADES_RIGHTCLICKMENU = WM_USER + 1015;

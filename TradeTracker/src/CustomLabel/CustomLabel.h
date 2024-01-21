@@ -26,9 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Utilities/AfxWin.h"
-#include "Utilities/UserMessages.h"
-
 
 enum class CustomLabelType {
 	text_only,
@@ -210,3 +207,6 @@ HWND CreateCustomLabel(HWND hWndParent, LONG_PTR ctrl_id, CustomLabelType ctrl_t
 
 Gdiplus::Bitmap* LoadImageFromResource(HMODULE hMod, const wchar_t* resid, const wchar_t* restype);
 
+constexpr int MSG_CUSTOMLABEL_CLICK = WM_USER + 1000;
+constexpr int MSG_CUSTOMLABEL_MOUSEMOVE = WM_USER + 1001;
+constexpr int MSG_CUSTOMLABEL_MOUSELEAVE = WM_USER + 1002;

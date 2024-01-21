@@ -31,7 +31,6 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "Strategy/StrategyButton.h"
 #include "ActiveTrades/ActiveTrades.h"
-#include "MainWindow/tws-client.h"
 #include "Database/database.h"
 #include "Category/Category.h"
 #include "Config/Config.h"

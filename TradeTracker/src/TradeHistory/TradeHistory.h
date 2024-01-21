@@ -27,7 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "Database/database.h"
+#include "Database/trade.h"
 
 
 class CTradeHistory : public CWindowBase<CTradeHistory>

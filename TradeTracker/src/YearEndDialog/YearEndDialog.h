@@ -27,8 +27,6 @@ SOFTWARE.
 #pragma once
 
 #include "Utilities/CWindowBase.h"
-#include "Utilities/UserMessages.h"
-#include "Database/trade.h"
 
 
 class CYearEndDialog : public CWindowBase<CYearEndDialog> {

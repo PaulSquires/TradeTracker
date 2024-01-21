@@ -25,8 +25,8 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities/CWindowBase.h"
 #include "CustomLabel/CustomLabel.h"
+#include "CustomTextBox/CustomTextBox.h"
 #include "TradeDialog/TradeGrid.h"
 #include "TradeDialog/TradeDialog.h"
 #include "Utilities/ListBoxData.h"

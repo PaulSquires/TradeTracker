@@ -70,3 +70,6 @@ constexpr int TICKERTOTALS_WIDTH = 400;
 constexpr int TICKERTOTALS_MARGIN = 24;
 
 extern CTickerPanel TickerPanel;
+
+constexpr int MSG_TICKERTOTALS_SHOWTICKERCLOSEDTRADES = WM_USER + 1016;
+

@@ -25,10 +25,12 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities/CWindowBase.h"
+
 #include "Utilities/ListBoxData.h"
-#include "MainWindow/MainWindow.h"
 #include "CustomCalendar/CustomCalendar.h"
+#include "CustomTextBox/CustomTextBox.h"
+#include "CustomLabel/CustomLabel.h"
+
 #include "TradeDialog/TradeDialog.h"
 #include "TradeGrid.h"
 

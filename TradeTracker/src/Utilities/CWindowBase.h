@@ -28,8 +28,6 @@ SOFTWARE.
 
 #include "AfxWin.h"
 
-#include "Utilities/Colors.h"
-
 #include <dwmapi.h>
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE

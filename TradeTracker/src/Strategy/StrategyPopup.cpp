@@ -25,7 +25,6 @@ SOFTWARE.
 */
 
 #include "pch.h"
-#include "Utilities/CWindowBase.h"
 #include "CustomLabel/CustomLabel.h"
 
 #include "StrategyButton.h"

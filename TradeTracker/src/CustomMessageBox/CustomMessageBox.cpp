@@ -27,6 +27,7 @@ SOFTWARE.
 #include "pch.h"
 
 #include "MainWindow/MainWindow.h"
+#include "CustomLabel/CustomLabel.h"
 #include "CustomMessageBox.h"
 
 CCustomMessageBox CustomMessageBox;

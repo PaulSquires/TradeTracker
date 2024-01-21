@@ -27,12 +27,6 @@ SOFTWARE.
 #pragma once
 
 
-#include "Utilities/AfxWin.h"
-#include "Utilities/UserMessages.h"
-#include "CustomTextBox/CustomTextBox.h"
-#include "CustomLabel/CustomLabel.h"
-
-
 enum class GridColType {
 	Label,
 	TextBox,

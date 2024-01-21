@@ -32,7 +32,7 @@ SOFTWARE.
 #include "CustomCalendar/CustomCalendar.h"
 #include "Category/Category.h"
 #include "Utilities/ListBoxData.h"
-#include "MainWindow/MainWindow.h"
+#include "Utilities/UserMessages.h"
 
 #include "FilterPanel.h"
 
