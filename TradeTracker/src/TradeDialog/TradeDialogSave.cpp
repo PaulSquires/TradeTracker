@@ -665,7 +665,6 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
             leg->put_call     = guiData.legsRoll.at(row).put_call;
             leg->action       = guiData.legsRoll.at(row).action;
             leg->trans        = trans;
-            //leg->leg_back_pointer_id = tdd.legs.at(row)->leg_id;
 
             std::wstring expiry_date = AfxRemoveDateHyphens(leg->expiry_date);
             if (AfxValDouble(expiry_date) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = expiry_date;

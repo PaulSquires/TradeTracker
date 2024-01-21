@@ -91,21 +91,26 @@ void Trade::CalculateAdjustedCostBase() {
 
             if (is_share_transaction) {
 
-                if (trans->share_longshort == LongShort::Short) {
-                    // Sold shares
+                if (trans->legs.at(0)->action == Action::BTO ||
+                    trans->legs.at(0)->action == Action::STO) {
+                    // Buy Long shares
+                    // Sell Short shares
+                    this->acb_total += trans->total;
+                    this->shares_acb += trans->total;
+                    total_shares += trans->quantity;
+                    continue;
+                }
+
+                if (trans->legs.at(0)->action == Action::STC ||
+                    trans->legs.at(0)->action == Action::BTC) {
+                    // Sell Long shares
+                    // Buy Short shares
                     trans->share_average_cost = (total_shares == 0) ? 0 : (this->shares_acb / total_shares);
                     double share_sale_cost = (trans->quantity * trans->share_average_cost);
 
                     total_shares -= trans->quantity;
                     this->acb_total -= share_sale_cost;
                     this->shares_acb -= share_sale_cost;
-                    continue;
-                }
-                else {
-                    // Bought shares
-                    this->acb_total += trans->total;
-                    this->shares_acb += trans->total;
-                    total_shares += trans->quantity;
                     continue;
                 }
             }
@@ -135,12 +140,16 @@ void Trade::CalculateAdjustedCostBase() {
         for (const auto& trans : this->transactions) {
             bool is_share_transaction = 
                 (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
-            if (is_share_transaction && (trans->share_longshort == LongShort::Long)) {   // bought shares
-                double cost_per_share = (trans->total / trans->quantity);
-                Shares share{ trans->trans_date, trans->quantity, cost_per_share };
-                vec.push_back(share);
+
+            if (is_share_transaction &&      // bought shares
+                (trans->legs.at(0)->action == Action::BTO ||
+                 trans->legs.at(0)->action == Action::STO)) {
+                    double cost_per_share = (trans->total / trans->quantity);
+                    Shares share{ trans->trans_date, trans->quantity, cost_per_share };
+                    vec.push_back(share);
             }
         }
+
         // Sort based on date
         std::sort(vec.begin(), vec.end(),
             [](const auto& lhs, const auto& rhs) {
@@ -160,35 +169,45 @@ void Trade::CalculateAdjustedCostBase() {
         for (const auto& trans : this->transactions) {
             bool is_share_transaction = (trans->underlying == Underlying::Shares || 
                 trans->underlying == Underlying::Futures) ? true : false;
-            if (is_share_transaction && (trans->share_longshort == LongShort::Short)) {  // sold shares
+            
+            if (is_share_transaction) {       // sold shares
+                if (trans->legs.at(0)->action == Action::STC ||
+                    trans->legs.at(0)->action == Action::BTC) {
+                    // Sell Long shares
+                    // Buy Short shares
 
-                int shares_sold = trans->quantity;
+                    int shares_sold = trans->quantity;
 
-                while (shares_sold > 0) {
+                    while (shares_sold > 0) {
 
-                    // See if we can take all the need shares being sold from this purchase
-                    if (q.front().quantity_remaining - shares_sold >= 0) {
-                        this->acb_total -= shares_sold * q.front().cost_per_share;
-                        this->shares_acb -= shares_sold * q.front().cost_per_share;
-                        trans->share_average_cost = q.front().cost_per_share;
+                        // See if we can take all the need shares being sold from this purchase
+                        if (q.front().quantity_remaining - shares_sold >= 0) {
+                            this->acb_total -= shares_sold * q.front().cost_per_share;
+                            this->shares_acb -= shares_sold * q.front().cost_per_share;
+                            trans->share_average_cost = q.front().cost_per_share;
 
+                            shares_sold -= q.front().quantity_remaining;
+
+                            // All shares being sold have been costed by this leg
+                            q.pop();
+                            continue;
+                        }
+
+                        // Take all shares from this leg and continue looping because more remain to be costed.
+                        this->acb_total -= q.front().quantity_remaining * q.front().cost_per_share;
+                        this->shares_acb -= q.front().quantity_remaining * q.front().cost_per_share;
                         shares_sold -= q.front().quantity_remaining;
-
-                        // All shares being sold have been costed by this leg
                         q.pop();
-                        continue;
                     }
-
-                    // Take all shares from this leg and continue looping because more remain to be costed.
-                    this->acb_total -= q.front().quantity_remaining * q.front().cost_per_share;
-                    this->shares_acb -= q.front().quantity_remaining * q.front().cost_per_share;
-                    shares_sold -= q.front().quantity_remaining;
-                    q.pop();
                 }
-            }
-            else if (is_share_transaction && (trans->share_longshort == LongShort::Long)) {  // buy shares
-                this->shares_acb += trans->total;
-                continue;
+
+                if (trans->legs.at(0)->action == Action::BTO ||
+                    trans->legs.at(0)->action == Action::STO) {
+                    // Buy Long shares
+                    // Sell Short shares
+                    this->shares_acb += trans->total;
+                    continue;
+                }
             }
 
             this->acb_total += trans->total;

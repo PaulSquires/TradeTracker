@@ -624,7 +624,9 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     if (trans->underlying == Underlying::Shares ||
         trans->underlying == Underlying::Futures) {
 
-        if (trans->share_longshort == LongShort::Short) {
+        if (trans->legs.at(0)->action == Action::STC ||
+            trans->legs.at(0)->action == Action::BTC) {
+
             double quantity = trans->quantity;
             double total = quantity * trans->price;
             double cost = (quantity * trans->share_average_cost);
@@ -653,7 +655,9 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
             ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                 clr, font8, FontStyleRegular);
         }
-        else {
+
+        if (trans->legs.at(0)->action == Action::BTO ||
+            trans->legs.at(0)->action == Action::STO) {
             text = AfxMoney(trans->total);
             clr = (trans->total >= 0) ? COLOR_GREEN : COLOR_RED;
             ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
@@ -687,8 +691,11 @@ void ListBoxData_HistorySharesLeg(
 
     std::wstring text;
 
-    if (trans->share_longshort == LongShort::Short) {
+    if (trans->legs.at(0)->action == Action::STC ||
+        trans->legs.at(0)->action == Action::BTC) {
+
         text = L"SELL";
+        if (trans->share_longshort == LongShort::Long) text = L"BUY";
         ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
@@ -715,8 +722,12 @@ void ListBoxData_HistorySharesLeg(
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     }
-    else {
+
+    if (trans->legs.at(0)->action == Action::BTO ||
+        trans->legs.at(0)->action == Action::STO) {
+
         text = L"BUY";
+        if (trans->share_longshort == LongShort::Short) text = L"SELL";
         ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 

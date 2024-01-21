@@ -1100,6 +1100,7 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     trans->price = AfxValDouble(leg->strike_price);
     trans->multiplier = multiplier;
     trans->fees = 0;
+    trans->share_longshort = (leg->put_call == PutCall::Put) ? LongShort::Long : LongShort::Short;
     trade->transactions.push_back(trans);
 
     newleg = std::make_shared<Leg>();
