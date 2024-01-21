@@ -119,33 +119,30 @@ void CTransDetail::DeleteTransaction(HWND hwnd) {
 
     // Iterate the trades and look into each TransDetail vector to match the 
     // transaction that we need to delete.
-    for (auto& trade : trades) {
-        auto iter = trade->transactions.begin();
-        while (iter != trade->transactions.end()) {
-            // If element matches the element to be deleted then delete it
-            if (*iter == transEditDelete) {
-                // Cycle through the legs being deleted to see if any contains a leg backpointer.
-                // If yes, then retrieve the leg related to that pointer and update its open
-                // quantity amount. Backpointers exist for Transactions that modify quantity
-                // amounts like CLOSE, EXPIRE, ROLL.
-                for (auto& leg : transEditDelete->legs) {
-                    if (leg->leg_back_pointer_id != 0) {
-                        // Get the backpointer leg.
-                        std::shared_ptr<Leg> LegBackPointer = nullptr;
-                        LegBackPointer = GetLegBackPointer(trade, leg->leg_back_pointer_id);
-                        if (LegBackPointer != nullptr) {
-                            LegBackPointer->open_quantity = LegBackPointer->open_quantity - leg->original_quantity;
-                        }
+    auto iter = tradeEditDelete->transactions.begin();
+    while (iter != tradeEditDelete->transactions.end()) {
+        // If element matches the element to be deleted then delete it
+        if (*iter == transEditDelete) {
+            // Cycle through the legs being deleted to see if any contains a leg backpointer.
+            // If yes, then retrieve the leg related to that pointer and update its open
+            // quantity amount. Backpointers exist for Transactions that modify quantity
+            // amounts like CLOSE, EXPIRE, ROLL.
+            for (auto& leg : transEditDelete->legs) {
+                if (leg->leg_back_pointer_id != 0) {
+                    // Get the backpointer leg.
+                    std::shared_ptr<Leg> LegBackPointer = nullptr;
+                    LegBackPointer = GetLegBackPointer(tradeEditDelete, leg->leg_back_pointer_id);
+                    if (LegBackPointer != nullptr) {
+                        LegBackPointer->open_quantity = LegBackPointer->open_quantity - leg->original_quantity;
                     }
                 }
-                iter = trade->transactions.erase(iter);
             }
-            else
-            {
-                iter++;
-            }
+            iter = tradeEditDelete->transactions.erase(iter);
         }
-
+        else
+        {
+            iter++;
+        }
     }
 
     // If no more Transactions exist in the Trade then delete the Trade itself
