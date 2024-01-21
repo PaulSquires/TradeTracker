@@ -630,7 +630,7 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
             double cost = (quantity * trans->share_average_cost);
             double fees = trans->fees * -1;
             double diff = (total + cost + fees);
-            
+
             text = L"";
 
             clr = (total >= 0) ? COLOR_GREEN : COLOR_RED;

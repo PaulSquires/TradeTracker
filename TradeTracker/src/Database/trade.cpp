@@ -91,9 +91,9 @@ void Trade::CalculateAdjustedCostBase() {
 
             if (is_share_transaction) {
 
-                if (trans->total > 0) {
+                if (trans->share_longshort == LongShort::Short) {
                     // Sold shares
-                    trans->share_average_cost = (this->shares_acb / total_shares);
+                    trans->share_average_cost = (total_shares == 0) ? 0 : (this->shares_acb / total_shares);
                     double share_sale_cost = (trans->quantity * trans->share_average_cost);
 
                     total_shares -= trans->quantity;
@@ -135,7 +135,7 @@ void Trade::CalculateAdjustedCostBase() {
         for (const auto& trans : this->transactions) {
             bool is_share_transaction = 
                 (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
-            if (is_share_transaction && trans->total < 0) {   // bought shares
+            if (is_share_transaction && (trans->share_longshort == LongShort::Long)) {   // bought shares
                 double cost_per_share = (trans->total / trans->quantity);
                 Shares share{ trans->trans_date, trans->quantity, cost_per_share };
                 vec.push_back(share);
@@ -160,7 +160,7 @@ void Trade::CalculateAdjustedCostBase() {
         for (const auto& trans : this->transactions) {
             bool is_share_transaction = (trans->underlying == Underlying::Shares || 
                 trans->underlying == Underlying::Futures) ? true : false;
-            if (is_share_transaction && trans->total >= 0) {  // sold shares
+            if (is_share_transaction && (trans->share_longshort == LongShort::Short)) {  // sold shares
 
                 int shares_sold = trans->quantity;
 
@@ -186,7 +186,7 @@ void Trade::CalculateAdjustedCostBase() {
                     q.pop();
                 }
             }
-            else if (is_share_transaction && trans->total < 0) {  // buy shares
+            else if (is_share_transaction && (trans->share_longshort == LongShort::Long)) {  // buy shares
                 this->shares_acb += trans->total;
                 continue;
             }
