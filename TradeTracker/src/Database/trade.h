@@ -105,6 +105,7 @@ public:
     double        multiplier  = 0;
     double        fees        = 0;
     double        total       = 0;
+    double        share_average_cost = 0;
 
     std::vector<std::shared_ptr<Leg>> legs;            // pointer list for all legs in the transaction
 };

@@ -93,8 +93,8 @@ void Trade::CalculateAdjustedCostBase() {
 
                 if (trans->total > 0) {
                     // Sold shares
-                    double local_shares_acb = (this->shares_acb / total_shares);
-                    double share_sale_cost = (trans->quantity * local_shares_acb);
+                    trans->share_average_cost = (this->shares_acb / total_shares);
+                    double share_sale_cost = (trans->quantity * trans->share_average_cost);
 
                     total_shares -= trans->quantity;
                     this->acb_total -= share_sale_cost;
@@ -170,6 +170,8 @@ void Trade::CalculateAdjustedCostBase() {
                     if (q.front().quantity_remaining - shares_sold >= 0) {
                         this->acb_total -= shares_sold * q.front().cost_per_share;
                         this->shares_acb -= shares_sold * q.front().cost_per_share;
+                        trans->share_average_cost = q.front().cost_per_share;
+
                         shares_sold -= q.front().quantity_remaining;
 
                         // All shares being sold have been costed by this leg

@@ -333,6 +333,9 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     DWORD clr = COLOR_WHITELIGHT;
     std::wstring text;
 
+    bool has_shares = (trade->aggregate_shares || trade->aggregate_futures) ? true : false;
+    double acb = (has_shares) ? trade->shares_acb : trade->acb_total;
+
     if (is_history) {
         ticker_id = -1;
 
@@ -343,8 +346,8 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
         ld->SetData(1, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
             COLOR_ORANGE, font8, FontStyleRegular);   // orange
 
-        text = AfxMoney(std::abs(trade->acb_total), true);
-        clr = (trade->acb_total >= 0) ? COLOR_GREEN : COLOR_RED;
+        text = AfxMoney(acb, true);
+        clr = (acb >= 0) ? COLOR_GREEN : COLOR_RED;
         ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
             clr, font8, FontStyleRegular);
 
@@ -410,7 +413,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     DWORD yellow = COLOR_MAGENTA;
 
     // *** SHARES/FUTURES ***
-    if (trade->aggregate_shares || trade->aggregate_futures) {
+    if (has_shares) {
 
         ld = new ListBoxData;
 
@@ -600,6 +603,8 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     std::wstring text;
     REAL font8 = 8;
 
+    DWORD clr = COLOR_WHITEDARK;
+        
     TickerId ticker_id = -1;
 
     ld->line_type = LineType::transaction_header;
@@ -616,10 +621,53 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    text = AfxMoney(std::abs(trans->total));
-    DWORD clr = (trans->total >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
-        clr, font8, FontStyleRegular);   // green/red
+    if (trans->underlying == Underlying::Shares ||
+        trans->underlying == Underlying::Futures) {
+
+        bool is_sell = (trans->total >= 0);
+
+        if (is_sell) {
+            double quantity = trans->quantity;
+            double total = trans->quantity * trans->price;
+            double cost = (quantity * trans->share_average_cost);
+            double fees = trans->fees * -1;
+            double diff = (total + cost + fees);
+            
+            text = L"";
+
+            clr = (total >= 0) ? COLOR_GREEN : COLOR_RED;
+            text = AfxMoney(total, true, 2);
+            ld->SetData(4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                clr, font8, FontStyleRegular);
+
+            clr = (cost >= 0) ? COLOR_GREEN : COLOR_RED;
+            text = AfxMoney(cost, true, 2);
+            ld->SetData(5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                clr, font8, FontStyleRegular);
+
+            clr = (fees >= 0) ? COLOR_GREEN : COLOR_RED;
+            text = AfxMoney(fees, true, 2);
+            ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                clr, font8, FontStyleRegular);
+
+            clr = (diff >= 0) ? COLOR_GREEN : COLOR_RED;
+            text = AfxMoney(diff, true, 2);
+            ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                clr, font8, FontStyleRegular);
+        }
+        else {
+            text = AfxMoney(trans->total);
+            clr = (trans->total >= 0) ? COLOR_GREEN : COLOR_RED;
+            ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+                clr, font8, FontStyleRegular);   // green/red
+        }
+    }
+    else {
+        text = AfxMoney(trans->total);
+        clr = (trans->total >= 0) ? COLOR_GREEN : COLOR_RED;
+        ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
+            clr, font8, FontStyleRegular);   // green/red
+    }
 
     ld->SetData(8, trade, ticker_id, GLYPH_MAGNIFYGLASS, StringAlignmentCenter, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_GRAYDARK, font8, FontStyleRegular);
@@ -639,23 +687,54 @@ void ListBoxData_HistorySharesLeg(
     TickerId ticker_id = -1;
     REAL font8 = 8;
 
-    std::wstring text = L"SHARES";
-    if (trans->underlying == Underlying::Futures) text = L"FUTURES";
+    bool is_sell = (trans->total >= 0);
+    std::wstring text = (is_sell) ? L"SELL" : L"BUY";
 
     ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-    for (int i = 3; i < 6; i++) {
-        ld->SetData(i, trade, ticker_id, L"", StringAlignmentNear, StringAlignmentCenter,
+    if (is_sell) {
+        text = AfxMoney(leg->open_quantity, true, 0);
+        ld->SetData(3, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        text = AfxMoney(trans->price, true, trade->ticker_decimals);
+        ld->SetData(4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        text = AfxMoney(trans->share_average_cost, true, trade->ticker_decimals);
+        ld->SetData(5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        double diff = (trans->price + trans->share_average_cost);
+        text = AfxMoney(diff, true, trade->ticker_decimals);
+        ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        double total = (abs(leg->open_quantity) * diff);
+        text = AfxMoney(total, true, trade->ticker_decimals);
+        ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+    }
+    else {
+        ld->SetData(3, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        ld->SetData(4, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        ld->SetData(5, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        text = AfxMoney(leg->open_quantity, true, 0);
+        ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
+        text = AfxMoney(trans->price, true, trade->ticker_decimals);
+        ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
     }
-    
-    text = AfxMoney(trans->price, false, trade->ticker_decimals);
-    ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
-
-    ld->SetData(7, trade, ticker_id, std::to_wstring(leg->open_quantity), StringAlignmentFar, StringAlignmentCenter,
-        COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
     ListBox_AddString(hListBox, ld);
 }

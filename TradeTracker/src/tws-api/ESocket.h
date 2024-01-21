@@ -11,7 +11,7 @@
 class ESocket :
     public ETransport
 {
-    int m_fd;
+    int m_fd = 0;
 	std::vector<char> m_outBuffer;
 
     int bufferedSend(const char* buf, size_t sz);
