@@ -96,10 +96,8 @@ constexpr int IDC_TRADEDIALOG_CANCEL         = 141;
 
 constexpr int IDC_TRADEDIALOG_TABLEGRIDMAIN  = 150;
 constexpr int IDC_TRADEDIALOG_TABLEGRIDROLL  = 151;
-constexpr int IDC_TRADEDIALOG_BUYSHARES      = 152;
-constexpr int IDC_TRADEDIALOG_BUYSHARES_DROPDOWN = 153;
-constexpr int IDC_TRADEDIALOG_SELLSHARES     = 154;
-constexpr int IDC_TRADEDIALOG_SELLSHARES_DROPDOWN = 155;
+constexpr int IDC_TRADEDIALOG_LONGSHORTSHARES = 152;
+constexpr int IDC_TRADEDIALOG_LONGSHORTSHARES_DROPDOWN = 153;
 
 constexpr int IDC_TRADEDIALOG_CATEGORY       = 160;
 
@@ -109,8 +107,8 @@ void TradeDialog_CalculateTradeTotal(HWND hwnd);
 void TradeDialog_LoadEditLegsInTradeTable(HWND hwnd);
 void TradeDialog_SetComboDRCR(HWND hCtl, std::wstring text);
 void TradeDialog_SetLongShortback_color(HWND hCtl);
-void TradeDialog_ToggleBuyLongShortText(HWND hCtl);
-void TradeDialog_ToggleSellLongShortText(HWND hCtl);
+void TradeDialog_SetLongShortText(HWND hCtl);
+void TradeDialog_ToggleLongShort(HWND hCtl);
 bool TradeDialog_ValidateSharesTradeData(HWND hwnd);
 void TradeDialog_CreateSharesTradeData(HWND hwnd);
 bool TradeDialog_ValidateOptionsTradeData(HWND hwnd);

@@ -302,25 +302,10 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!hCtl) return 0;
 
-        if (ctrl_id == IDC_TRADEDIALOG_BUYSHARES) {
-            TradeDialog_ToggleBuyLongShortText(hCtl);
-            TradeDialog_SetLongShortback_color(hCtl);
-        }
-
-        if (ctrl_id == IDC_TRADEDIALOG_BUYSHARES_DROPDOWN) {
-            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_BUYSHARES);
-            TradeDialog_ToggleBuyLongShortText(hCtl);
-            TradeDialog_SetLongShortback_color(hCtl);
-        }
-
-        if (ctrl_id == IDC_TRADEDIALOG_SELLSHARES) {
-            TradeDialog_ToggleSellLongShortText(hCtl);
-            TradeDialog_SetLongShortback_color(hCtl);
-        }
-
-        if (ctrl_id == IDC_TRADEDIALOG_SELLSHARES_DROPDOWN) {
-            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SELLSHARES);
-            TradeDialog_ToggleSellLongShortText(hCtl);
+        if (ctrl_id == IDC_TRADEDIALOG_LONGSHORTSHARES ||
+            ctrl_id == IDC_TRADEDIALOG_LONGSHORTSHARES_DROPDOWN) {
+            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES);
+            TradeDialog_ToggleLongShort(hCtl);
             TradeDialog_SetLongShortback_color(hCtl);
         }
 

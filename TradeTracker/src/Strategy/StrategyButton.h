@@ -46,12 +46,6 @@ constexpr int IDC_STRATEGYBUTTON_STRATEGY  = 102;
 constexpr int IDC_STRATEGYBUTTON_GO        = 103;
 constexpr int IDC_STRATEGYBUTTON_DROPDOWN  = 104;
 
-enum class LongShort {
-    Long = 0,
-    Short,
-    Count 
-};
-
 enum class Strategy {
     Vertical = 0,
     Strangle,

@@ -57,6 +57,7 @@ public:
     std::wstring DRCR;
     double total = 0;
     double ACB = 0;
+    LongShort share_longshort = LongShort::Long;
 
     std::vector<Leg> legs;
     std::vector<Leg> legsRoll;
@@ -79,6 +80,8 @@ public:
         trans_date    = CustomLabel_GetUserData(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRANSDATE));
         description   = RemovePipeChar(CustomTextBox_GetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTDESCRIBE)));
         
+        share_longshort = (LongShort)CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES));
+
         if (tdd.trade_action == TradeAction::new_shares_trade ||
             tdd.trade_action == TradeAction::manage_shares ||
             tdd.trade_action == TradeAction::close_all_shares ||
@@ -235,7 +238,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trade->future_expiry = guiData.future_expiry;
     trade->category      = guiData.category;
     trade->trade_bp      = guiData.trade_bp;
-    trade->acb_total           = guiData.ACB;
+    trade->acb_total     = guiData.ACB;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
     trans->trans_date    = guiData.trans_date;
@@ -246,6 +249,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trans->multiplier    = guiData.multiplier;
     trans->fees          = guiData.fees;
     trans->total         = guiData.total;
+    trans->share_longshort = guiData.share_longshort;
     trade->transactions.push_back(trans);
 
     std::shared_ptr<Leg> leg = std::make_shared<Leg>();
@@ -257,13 +261,10 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     if (AfxValDouble(date_text) > AfxValDouble(trade->bp_end_date)) trade->bp_end_date = date_text;
     if (AfxValDouble(date_text) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = date_text;
 
-    // Set the Share/Futures quantity based on whether Long or Short based on 
-    // the IDC_TRADEDIALOG_BUYSHARES or IDC_TRADEDIALOG_SELLSHARES button.
-
     if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::add_futures_to_trade) {
-        int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_BUYSHARES));
+        int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES));
         if (sel == (int)LongShort::Long) {
             leg->original_quantity = trans->quantity;
             leg->open_quantity = trans->quantity;
@@ -284,7 +285,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
         tdd.trade_action == TradeAction::manage_futures ||
         tdd.trade_action == TradeAction::close_all_shares ||
         tdd.trade_action == TradeAction::close_all_futures) {
-        int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SELLSHARES));
+        int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES));
         if (sel == (int)LongShort::Long) {
             leg->original_quantity = trans->quantity;
             leg->open_quantity = trans->quantity;
@@ -802,77 +803,96 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trade->trade_bp    = guiData.trade_bp;
     tdd.trans->total       = guiData.total;
 
-    // Determine earliest and latest dates for BP ROI calculation.
-    std::wstring date_text = AfxRemoveDateHyphens(tdd.trans->trans_date);
-    if (AfxValDouble(date_text) < AfxValDouble(tdd.trade->bp_start_date)) tdd.trade->bp_start_date = date_text;
-    if (AfxValDouble(date_text) > AfxValDouble(tdd.trade->bp_end_date)) tdd.trade->bp_end_date = date_text;
-    if (AfxValDouble(date_text) > AfxValDouble(tdd.trade->oldest_trade_trans_date)) tdd.trade->oldest_trade_trans_date = date_text;
+    tdd.trans->share_longshort = guiData.share_longshort;
+    if (tdd.trans->underlying == Underlying::Shares ||
+        tdd.trans->underlying == Underlying::Futures) {
 
-    std::vector<int> legsToDelete;
-
-    // Cycle through both grids and add changes to the legs
-    for (int row = 0; row < 8; ++row) {
-        HWND hGrid = (row < 4)
-            ? GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN)
-            : GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL);
-
-        std::wstring leg_original_quantity = TradeGrid_GetText(hGrid, row, 0);
-        std::wstring leg_open_quantity = TradeGrid_GetText(hGrid, row, 1);
-        std::wstring leg_expiry = TradeGrid_GetText(hGrid, row, 2);
-        std::wstring leg_strike = TradeGrid_GetText(hGrid, row, 4);
-        PutCall leg_PutCall = db.StringToPutCall(TradeGrid_GetText(hGrid, row, 5));
-        Action  leg_action  = db.StringDescriptionToAction(TradeGrid_GetText(hGrid, row, 6));
-            
-        // Nothing new or changed to add? Just iterate to next line.
-        if (leg_original_quantity.length() == 0) {
-            // If row from original legs has been deleted then simply remove it from the 
-            // legs vector.
-            if (row < (int)tdd.trans->legs.size()) {
-                legsToDelete.push_back(row);
-            }
-            continue;
+        if (tdd.trans->share_longshort == LongShort::Long) {
+            tdd.trans->legs.at(0)->original_quantity = tdd.trans->quantity;
+            tdd.trans->legs.at(0)->open_quantity = tdd.trans->quantity;
+            tdd.trans->legs.at(0)->strike_price = std::to_wstring(tdd.trans->price);
+            tdd.trans->legs.at(0)->action = Action::BTO;
         }
-
-        int int_original_quantity = AfxValInteger(leg_original_quantity);   // will GPF if empty leg_original_quantity string
-        if (int_original_quantity == 0) continue;
-
-        int int_open_quantity = AfxValInteger(leg_open_quantity);   // will GPF if empty leg_open_quantity string
-        if (int_open_quantity == 0) continue;
-
-        // Determine if backpointers exist and if yes then re-use that leg instead
-        // of creating a new leg in order to preserve the integrity of the data.
-        std::shared_ptr<Leg> leg = nullptr;
-        
-        // Reuse existing leg
-        if (row < (int)tdd.trans->legs.size()) {
-            leg = tdd.trans->legs.at(row);
-        }
-        else {
-            leg = std::make_shared<Leg>();
-            tdd.trade->nextleg_id += 1;
-            leg->leg_id = tdd.trade->nextleg_id;
-        }
-
-        leg->original_quantity = int_original_quantity * tdd.trans->quantity;
-        leg->open_quantity = int_open_quantity * tdd.trans->quantity;
-
-        leg->underlying = tdd.trans->underlying;
-        leg->expiry_date = leg_expiry;
-        leg->strike_price = leg_strike;
-        leg->put_call = leg_PutCall;
-        leg->action = leg_action;
-
-        std::wstring expiry_date = AfxRemoveDateHyphens(leg_expiry);
-        if (AfxValDouble(expiry_date) > AfxValDouble(tdd.trade->bp_end_date)) tdd.trade->bp_end_date = expiry_date;
-
-        if (row >= (int)tdd.trans->legs.size()) {
-            tdd.trans->legs.push_back(leg);
+        if (tdd.trans->share_longshort == LongShort::Short) {
+            tdd.trans->legs.at(0)->original_quantity = tdd.trans->quantity * -1;
+            tdd.trans->legs.at(0)->open_quantity = tdd.trans->quantity * -1;
+            tdd.trans->legs.at(0)->strike_price = std::to_wstring(tdd.trans->price);
+            tdd.trans->legs.at(0)->action = Action::STO;
         }
     }
+    else {
+        // Determine earliest and latest dates for BP ROI calculation.
+        std::wstring date_text = AfxRemoveDateHyphens(tdd.trans->trans_date);
+        if (AfxValDouble(date_text) < AfxValDouble(tdd.trade->bp_start_date)) tdd.trade->bp_start_date = date_text;
+        if (AfxValDouble(date_text) > AfxValDouble(tdd.trade->bp_end_date)) tdd.trade->bp_end_date = date_text;
+        if (AfxValDouble(date_text) > AfxValDouble(tdd.trade->oldest_trade_trans_date)) tdd.trade->oldest_trade_trans_date = date_text;
 
-    // Remove any rows from the original legs that were deleted in full
-    for (auto idx : legsToDelete) {
-        tdd.trans->legs.erase(tdd.trans->legs.begin() + idx);
+        std::vector<int> legsToDelete;
+
+        // Cycle through both grids and add changes to the legs
+        for (int row = 0; row < 8; ++row) {
+            HWND hGrid = (row < 4)
+                ? GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN)
+                : GetDlgItem(hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL);
+
+            std::wstring leg_original_quantity = TradeGrid_GetText(hGrid, row, 0);
+            std::wstring leg_open_quantity = TradeGrid_GetText(hGrid, row, 1);
+            std::wstring leg_expiry = TradeGrid_GetText(hGrid, row, 2);
+            std::wstring leg_strike = TradeGrid_GetText(hGrid, row, 4);
+            PutCall leg_PutCall = db.StringToPutCall(TradeGrid_GetText(hGrid, row, 5));
+            Action  leg_action  = db.StringDescriptionToAction(TradeGrid_GetText(hGrid, row, 6));
+            
+            // Nothing new or changed to add? Just iterate to next line.
+            if (leg_original_quantity.length() == 0) {
+                // If row from original legs has been deleted then simply remove it from the 
+                // legs vector.
+                if (row < (int)tdd.trans->legs.size()) {
+                    legsToDelete.push_back(row);
+                }
+                continue;
+            }
+
+            int int_original_quantity = AfxValInteger(leg_original_quantity);   // will GPF if empty leg_original_quantity string
+            if (int_original_quantity == 0) continue;
+
+            int int_open_quantity = AfxValInteger(leg_open_quantity);   // will GPF if empty leg_open_quantity string
+            if (int_open_quantity == 0) continue;
+
+            // Determine if backpointers exist and if yes then re-use that leg instead
+            // of creating a new leg in order to preserve the integrity of the data.
+            std::shared_ptr<Leg> leg = nullptr;
+        
+            // Reuse existing leg
+            if (row < (int)tdd.trans->legs.size()) {
+                leg = tdd.trans->legs.at(row);
+            }
+            else {
+                leg = std::make_shared<Leg>();
+                tdd.trade->nextleg_id += 1;
+                leg->leg_id = tdd.trade->nextleg_id;
+            }
+
+            leg->original_quantity = int_original_quantity * tdd.trans->quantity;
+            leg->open_quantity = int_open_quantity * tdd.trans->quantity;
+
+            leg->underlying = tdd.trans->underlying;
+            leg->expiry_date = leg_expiry;
+            leg->strike_price = leg_strike;
+            leg->put_call = leg_PutCall;
+            leg->action = leg_action;
+
+            std::wstring expiry_date = AfxRemoveDateHyphens(leg_expiry);
+            if (AfxValDouble(expiry_date) > AfxValDouble(tdd.trade->bp_end_date)) tdd.trade->bp_end_date = expiry_date;
+
+            if (row >= (int)tdd.trans->legs.size()) {
+                tdd.trans->legs.push_back(leg);
+            }
+        }
+
+        // Remove any rows from the original legs that were deleted in full
+        for (auto idx : legsToDelete) {
+            tdd.trans->legs.erase(tdd.trans->legs.begin() + idx);
+        }
     }
 }
 

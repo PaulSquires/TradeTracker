@@ -624,11 +624,9 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     if (trans->underlying == Underlying::Shares ||
         trans->underlying == Underlying::Futures) {
 
-        bool is_sell = (trans->total >= 0);
-
-        if (is_sell) {
+        if (trans->share_longshort == LongShort::Short) {
             double quantity = trans->quantity;
-            double total = trans->quantity * trans->price;
+            double total = quantity * trans->price;
             double cost = (quantity * trans->share_average_cost);
             double fees = trans->fees * -1;
             double diff = (total + cost + fees);
@@ -687,13 +685,13 @@ void ListBoxData_HistorySharesLeg(
     TickerId ticker_id = -1;
     REAL font8 = 8;
 
-    bool is_sell = (trans->total >= 0);
-    std::wstring text = (is_sell) ? L"SELL" : L"BUY";
+    std::wstring text;
 
-    ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
-        COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+    if (trans->share_longshort == LongShort::Short) {
+        text = L"SELL";
+        ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-    if (is_sell) {
         text = AfxMoney(leg->open_quantity, true, 0);
         ld->SetData(3, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
@@ -718,6 +716,10 @@ void ListBoxData_HistorySharesLeg(
 
     }
     else {
+        text = L"BUY";
+        ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
+            COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
+
         ld->SetData(3, trade, ticker_id, L"", StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 

@@ -62,6 +62,9 @@ public:
 	std::wstring PutCallToString(const PutCall e);
 	PutCall StringToPutCall(const std::wstring& text);
 
+	std::wstring LongShortToString(const LongShort e);
+	LongShort StringToLongShort(const std::wstring& text);
+
 	Underlying StringToUnderlying(const std::wstring& underlying);
 	std::wstring UnderlyingToString(const Underlying e);
 

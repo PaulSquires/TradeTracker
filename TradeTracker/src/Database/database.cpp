@@ -104,6 +104,21 @@ PutCall CDatabase::StringToPutCall(const std::wstring& text) {
 }
 
 
+std::wstring CDatabase::LongShortToString(const LongShort e) {
+    if (e == LongShort::Long) return L"L";
+    if (e == LongShort::Short) return L"S";
+    return L"";
+}
+
+
+LongShort CDatabase::StringToLongShort(const std::wstring& text) {
+    if (text == L"L") return LongShort::Long;
+    if (text == L"S") return LongShort::Short;
+    if (text.length() == 0) return LongShort::Nothing;
+    return LongShort::Nothing;
+}
+
+
 Underlying CDatabase::StringToUnderlying(const std::wstring& text) {
     static const std::unordered_map<std::wstring, Underlying> map = {
         {L"0", Underlying::Options}, {L"1", Underlying::Shares}, 
@@ -301,7 +316,7 @@ bool CDatabase::SaveDatabase() {
     }
 
     db  << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes\n"
-        << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total\n"
+        << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total|SharesLongShort\n"
         << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|PutCall|action|underlying\n"
         << "// isOpen:        0:false, 1:true\n"
         << "// FutureExpiry:  YYYYMMDD (do not insert hyphens)\n"
@@ -341,7 +356,8 @@ bool CDatabase::SaveDatabase() {
                 << std::fixed << std::setprecision(4) << trans->price << "|"
                 << std::fixed << std::setprecision(4) << trans->multiplier << "|"
                 << std::fixed << std::setprecision(4) << trans->fees << "|"
-                << std::fixed << std::setprecision(4) << trans->total
+                << std::fixed << std::setprecision(4) << trans->total << "|"
+                << LongShortToString(trans->share_longshort) 
                 << "\n";
 
             for (const auto& leg : trans->legs) {
@@ -446,15 +462,20 @@ bool CDatabase::LoadDatabase() {
 
         if (try_catch_wstring(st, 0) == L"X") {
             trans = std::make_shared<Transaction>();
-            date_text          = try_catch_wstring(st, 1);
-            trans->trans_date  = AfxInsertDateHyphens(date_text);
-            trans->description = try_catch_wstring(st, 2);
-            trans->underlying  = StringToUnderlying(try_catch_wstring(st, 3));
-            trans->quantity    = try_catch_int(st, 4);
-            trans->price       = try_catch_double(st, 5);
-            trans->multiplier  = try_catch_double(st, 6);
-            trans->fees        = try_catch_double(st, 7);
-            trans->total       = try_catch_double(st, 8);
+            date_text            = try_catch_wstring(st, 1);
+            trans->trans_date    = AfxInsertDateHyphens(date_text);
+            trans->description   = try_catch_wstring(st, 2);
+            trans->underlying    = StringToUnderlying(try_catch_wstring(st, 3));
+            trans->quantity      = try_catch_int(st, 4);
+            trans->price         = try_catch_double(st, 5);
+            trans->multiplier    = try_catch_double(st, 6);
+            trans->fees          = try_catch_double(st, 7);
+            trans->total         = try_catch_double(st, 8);
+            trans->share_longshort = StringToLongShort(try_catch_wstring(st, 9));
+            if (trans->share_longshort == LongShort::Nothing) {
+                trans->share_longshort = (trans->total < 0) ? LongShort::Long : LongShort::Short;
+            }
+
             if (trade) {
                 // Determine earliest and latest dates for BP ROI calculation.
                 if (AfxValDouble(date_text) < AfxValDouble(trade->bp_start_date)) trade->bp_start_date = date_text;
@@ -477,6 +498,7 @@ bool CDatabase::LoadDatabase() {
             leg->put_call            = StringToPutCall(try_catch_wstring(st, 7)); 
             leg->action              = StringToAction(try_catch_wstring(st, 8));
             leg->underlying          = StringToUnderlying(try_catch_wstring(st, 9));
+            
             if (trans) {
                 leg->trans = trans;
                 if (trade) {

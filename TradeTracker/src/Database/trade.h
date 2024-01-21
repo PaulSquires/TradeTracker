@@ -49,6 +49,13 @@ enum class PutCall {
     Nothing     // always put last for historical reasons saving int to database
 };
 
+enum class LongShort {
+    Long = 0,
+    Short,
+    Count,
+    Nothing
+};
+
 enum class Underlying {
     Options,
     Shares,
@@ -106,6 +113,7 @@ public:
     double        fees        = 0;
     double        total       = 0;
     double        share_average_cost = 0;
+    LongShort     share_longshort = LongShort::Long;
 
     std::vector<std::shared_ptr<Leg>> legs;            // pointer list for all legs in the transaction
 };
