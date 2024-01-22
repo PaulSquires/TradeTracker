@@ -812,13 +812,15 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	double unrealized_PNL, double realized_PNL, const std::string& account_name) 
 {
 
-	//std::cout << "Data: " << contract.symbol << "  " << contract.secType << " @ " << contract.primaryExchange << "\n" <<
-	//	"   MarketPrice: " << Utils::doubleMaxString(market_price) << "\n" <<
-	//	"   MarketValue: " << Utils::doubleMaxString(market_value) << "\n" <<
-	//	"   AverageCost: " << Utils::doubleMaxString(average_cost) << "\n" <<
-	//	"   Unrealized:  " << Utils::doubleMaxString(unrealized_PNL) << "\n" <<
-	//	"   RealizedL:   " << Utils::doubleMaxString(realized_PNL) <<
-	//	std::endl;
+	//if (contract.symbol == "MRNA") {
+	//	std::cout << "Data: " << contract.symbol << "  " << contract.secType << " @ " << contract.primaryExchange << "\n" <<
+	//		"   MarketPrice: " << market_price << "\n" <<
+	//		"   MarketValue: " << market_value << "\n" <<
+	//		"   AverageCost: " << average_cost << "\n" <<
+	//		"   Unrealized:  " << unrealized_PNL << "\n" <<
+	//		"   Realized:    " << realized_PNL << "\n" <<
+	//		std::endl;
+	//}
 
 	PortfolioData pd{};
 
@@ -828,6 +830,7 @@ void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 
 	pd.average_cost = average_cost;
 	pd.market_price = market_price;
+	pd.unrealized_pnl = unrealized_PNL;
 
 	mapPortfolioData[contract.conId] = pd;
 }
@@ -838,6 +841,7 @@ void TwsClient::connectionClosed() {
 	// TWS must have shut down while our application was still running.
 	had_previous_socket_exception = true;
 }
+
 
 void TwsClient::error(int id, int error_code, 
 	const std::string& error_string, const std::string& advanced_order_reject_json)

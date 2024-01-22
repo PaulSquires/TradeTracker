@@ -334,7 +334,8 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     std::wstring text;
 
     bool has_shares = (trade->aggregate_shares || trade->aggregate_futures) ? true : false;
-    double acb = (has_shares) ? trade->shares_acb : trade->acb_total;
+    //double acb = (has_shares) ? trade->acb_shares : trade->acb_total;
+    double acb = trade->acb_total;
 
     if (is_history) {
         ticker_id = -1;
@@ -465,7 +466,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
             col++;
         }
 
-        text = AfxMoney(std::abs(trade->shares_acb / value_aggregate));
+        text = AfxMoney(std::abs(trade->acb_shares / value_aggregate));
         ld->SetData(col, trade, ticker_id, text, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYMEDIUM,
             COLOR_WHITEDARK, font8, FontStyleRegular);
         col++;

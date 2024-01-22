@@ -82,7 +82,8 @@ void Trade::CalculateAdjustedCostBase() {
 
     if (config.GetCostingMethod() == CostingMethod::AverageCost) {
         this->acb_total = 0;
-        this->shares_acb = 0;
+        this->acb_shares = 0;
+        this->acb_non_shares = 0;
         double total_shares = 0;
 
         for (auto& trans : this->transactions) {
@@ -96,7 +97,7 @@ void Trade::CalculateAdjustedCostBase() {
                     // Buy Long shares
                     // Sell Short shares
                     this->acb_total += trans->total;
-                    this->shares_acb += trans->total;
+                    this->acb_shares += trans->total;
                     total_shares += trans->quantity;
                     continue;
                 }
@@ -105,12 +106,12 @@ void Trade::CalculateAdjustedCostBase() {
                     trans->legs.at(0)->action == Action::BTC) {
                     // Sell Long shares
                     // Buy Short shares
-                    trans->share_average_cost = (total_shares == 0) ? 0 : (this->shares_acb / total_shares);
+                    trans->share_average_cost = (total_shares == 0) ? 0 : (this->acb_shares / total_shares);
                     double share_sale_cost = (trans->quantity * trans->share_average_cost);
 
                     total_shares -= trans->quantity;
                     this->acb_total -= share_sale_cost;
-                    this->shares_acb -= share_sale_cost;
+                    this->acb_shares -= share_sale_cost;
                     continue;
                 }
             }
@@ -118,7 +119,11 @@ void Trade::CalculateAdjustedCostBase() {
             // bought shares or other items eg. options/dividends/other
             this->acb_total += trans->total;
             if (!exclude_nonstock_costs) {
-                this->shares_acb += trans->total;
+                this->acb_shares += trans->total;
+            }
+
+            if (!is_share_transaction) {
+                this->acb_non_shares += trans->total;
             }
         }
         return;
@@ -127,7 +132,8 @@ void Trade::CalculateAdjustedCostBase() {
 
     if (config.GetCostingMethod() == CostingMethod::fifo) {
         this->acb_total = 0;
-        this->shares_acb = 0;
+        this->acb_shares = 0;
+        this->acb_non_shares = 0;
 
         struct Shares {
             std::wstring trans_date{};
@@ -183,7 +189,7 @@ void Trade::CalculateAdjustedCostBase() {
                         // See if we can take all the need shares being sold from this purchase
                         if (q.front().quantity_remaining - shares_sold >= 0) {
                             this->acb_total -= shares_sold * q.front().cost_per_share;
-                            this->shares_acb -= shares_sold * q.front().cost_per_share;
+                            this->acb_shares -= shares_sold * q.front().cost_per_share;
                             trans->share_average_cost = q.front().cost_per_share;
 
                             shares_sold -= q.front().quantity_remaining;
@@ -195,7 +201,7 @@ void Trade::CalculateAdjustedCostBase() {
 
                         // Take all shares from this leg and continue looping because more remain to be costed.
                         this->acb_total -= q.front().quantity_remaining * q.front().cost_per_share;
-                        this->shares_acb -= q.front().quantity_remaining * q.front().cost_per_share;
+                        this->acb_shares -= q.front().quantity_remaining * q.front().cost_per_share;
                         shares_sold -= q.front().quantity_remaining;
                         q.pop();
                     }
@@ -205,14 +211,18 @@ void Trade::CalculateAdjustedCostBase() {
                     trans->legs.at(0)->action == Action::STO) {
                     // Buy Long shares
                     // Sell Short shares
-                    this->shares_acb += trans->total;
+                    this->acb_shares += trans->total;
                     continue;
                 }
             }
 
             this->acb_total += trans->total;
             if (!exclude_nonstock_costs) {
-                this->shares_acb += trans->total;
+                this->acb_shares += trans->total;
+            }
+
+            if (!is_share_transaction) {
+                this->acb_non_shares += trans->total;
             }
         }
 
