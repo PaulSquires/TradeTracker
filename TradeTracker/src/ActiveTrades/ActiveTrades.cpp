@@ -232,7 +232,7 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
 
         double acb = (value_aggregate) ? ld->trade->shares_acb : ld->trade->acb_total;
 
-        double trade_acb = acb * -1;
+        double trade_acb = acb; // *-1;
         double shares_market_value = value_aggregate * ld->trade->ticker_last_price * multiplier;
         double total_cost = shares_market_value;
 
@@ -248,7 +248,8 @@ void CActiveTrades::UpdateTickerPortfolioLine(int index, int index_trade, ListBo
         text = AfxMoney(total_cost, true, ld->trade->ticker_decimals);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
 
-        double difference = total_cost - trade_acb;
+        //double difference = total_cost - trade_acb;
+        double difference = trade_acb + total_cost;
         theme_color = (difference < 0) ? COLOR_RED : COLOR_GREEN;
         text = AfxMoney(difference, true, 2);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
@@ -343,7 +344,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
         // Use the incoming IB data costs for the legs in order to create a ratio for each leg
         // to multiple against the total ACB for the trade.
         double position_cost_all_legs = 0;
-        double trade_acb = ld->trade->acb_total * -1;
+        double trade_acb = ld->trade->acb_total; // *-1;
         if (found) {
             ld->leg->position_cost_tws = pd.average_cost * ld->leg->open_quantity;
             for (const auto& leg : ld->trade->open_legs) {
@@ -389,7 +390,8 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
             ldleg->SetTextData(COLUMN_TICKER_PORTFOLIO_2, text, theme_color);
 
             // UNREALIZED PNL
-            double unrealized_pnl = (market_value - position_cost);
+            //double unrealized_pnl = (market_value - position_cost);
+            double unrealized_pnl = (position_cost + market_value);
             ldleg->leg->unrealized_pnl = unrealized_pnl;
             theme_color = (unrealized_pnl < 0) ? COLOR_RED : COLOR_GREEN;
             text = AfxMoney(unrealized_pnl, true, ldleg->trade->ticker_decimals);
