@@ -93,9 +93,12 @@ extern std::unordered_map<TickerId, TickerData> mapTickerData;
 
 
 struct PortfolioData {
+	Decimal position = 0;
 	double market_price = 0;
+	double market_value = 0;
 	double average_cost = 0;
 	double unrealized_pnl = 0;
+	double realized_pnl = 0;
 };
 extern std::unordered_map<int, PortfolioData> mapPortfolioData;
 
