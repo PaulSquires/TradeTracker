@@ -265,7 +265,8 @@ void ListBoxData_OutputClosedMonthTotal(HWND hListBox, double monthly_total, int
 void ListBoxData_OutputClosedWeekTotal(HWND hListBox, double weekly_total, int week_win, int week_loss);
 void ListBoxData_OutputClosedDayTotal(HWND hListBox, double daily_total, int day_win, int day_loss);
 void ListBoxData_OutputClosedMonthSubtotal(HWND hListBox, const std::wstring& closed_date, double subtotal, int month_win, int month_loss);
-void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::wstring& closed_date);
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade,
+    const std::wstring& closed_date, const std::wstring& ticker_symbol, const std::wstring& description, double closed_amount);
 void ListBoxData_OutputTickerTotals(HWND hListBox, const std::wstring& ticker, double amount);
 void ListBoxData_OutputTransactionRunningTotal(HWND hListBox, double running_gross_total, 
     double running_fees_total, double running_net_total);

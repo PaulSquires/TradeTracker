@@ -38,6 +38,7 @@ enum class TransDateFilterType {
     Days30,
     Days60,
     Days120,
+    MonthToDate,
     YearToDate,
     Custom
 };
@@ -65,7 +66,7 @@ public:
     HWND CategoryCombo();
 
 
-    TransDateFilterType selected_transdate = TransDateFilterType::Days7;
+    TransDateFilterType selected_transdate = TransDateFilterType::MonthToDate;
     int selected_category = CATEGORY_ALL;
     std::wstring filter_start_date;
     std::wstring filter_end_date;

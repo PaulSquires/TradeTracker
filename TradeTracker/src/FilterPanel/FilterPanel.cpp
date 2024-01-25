@@ -97,6 +97,7 @@ std::wstring CFilterPanel::GetFilterDescription(int idx) {
     case TransDateFilterType::Days30: return L"30 days";
     case TransDateFilterType::Days60: return L"60 days";
     case TransDateFilterType::Days120: return L"120 days";
+    case TransDateFilterType::MonthToDate: return L"Month to Date";
     case TransDateFilterType::YearToDate: return L"Year to Date";
     case TransDateFilterType::Custom: return L"Custom";
     default: return L"";
@@ -112,12 +113,15 @@ void CFilterPanel::SetStartEndDates(HWND hwnd) {
     // Do not modify dates if Custom has been set.
     if (selected_transdate == TransDateFilterType::Custom) return;
 
-    std::wstring end_date = AfxCurrentDate();   // ISO format
+    std::wstring end_date = AfxCurrentDate();   // ISO format YYYY-MM-DD
     std::wstring start_date = end_date;       // ISO format
     int adjust_days = 0;
 
     if (selected_transdate == TransDateFilterType::YearToDate) {
         start_date = end_date.substr(0, 4) + L"-01-01";
+    }
+    else if (selected_transdate == TransDateFilterType::MonthToDate) {
+        start_date = end_date.substr(0, 4) + L"-" + end_date.substr(5, 2) + L"-01";
     }
     else if (selected_transdate == TransDateFilterType::Yesterday) {
         start_date = AfxDateAddDays(end_date, -1);
@@ -281,7 +285,7 @@ bool CFilterPanel::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
     CustomLabel_SimpleLabel(hwnd, IDC_FILTER_LBLDATEFILTER, L"Date Filter",
         COLOR_WHITEDARK, COLOR_BLACK);
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_FILTER_TRANSDATE, L"7 days",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_FILTER_TRANSDATE, GetFilterDescription((int)selected_transdate),
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_left, 0, 0, 0, 0);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);

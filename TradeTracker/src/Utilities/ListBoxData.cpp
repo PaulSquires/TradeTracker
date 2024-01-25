@@ -1021,7 +1021,9 @@ void ListBoxData_OutputClosedMonthSubtotal(
 // ========================================================================================
 // Create the display data line for a closed position.
 // ========================================================================================
-void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::wstring& closed_date) {
+void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, 
+    const std::wstring& closed_date, const std::wstring& ticker_symbol, const std::wstring& description, double closed_amount) {
+
     ListBoxData* ld = new ListBoxData;
 
     TickerId ticker_id = -1;
@@ -1033,16 +1035,14 @@ void ListBoxData_OutputClosedPosition(HWND hListBox, const std::shared_ptr<Trade
     ld->SetData(1, trade, ticker_id, closed_date, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_ORANGE, font8, FontStyleRegular);
 
-    ld->SetData(2, trade, ticker_id, trade->ticker_symbol, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(2, trade, ticker_id, ticker_symbol, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    std::wstring ticker_name = trade->ticker_name;
-    if (config.IsFuturesTicker(trade->ticker_symbol)) ticker_name += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
-    ld->SetData(3, trade, ticker_id, ticker_name, StringAlignmentNear, StringAlignmentCenter,
+    ld->SetData(3, trade, ticker_id, description, StringAlignmentNear, StringAlignmentCenter,
         COLOR_GRAYDARK, COLOR_WHITELIGHT, font8, FontStyleRegular);
 
-    DWORD clr = (trade->acb_total >= 0) ? COLOR_GREEN : COLOR_RED;
-    ld->SetData(4, trade, ticker_id, AfxMoney(trade->acb_total), StringAlignmentFar, StringAlignmentCenter,
+    DWORD clr = (closed_amount >= 0) ? COLOR_GREEN : COLOR_RED;
+    ld->SetData(4, trade, ticker_id, AfxMoney(closed_amount), StringAlignmentFar, StringAlignmentCenter,
         COLOR_GRAYDARK, clr, font8, FontStyleRegular);
 
     // col 5 is a "spacer" column

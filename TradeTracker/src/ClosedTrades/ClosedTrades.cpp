@@ -34,6 +34,7 @@ SOFTWARE.
 #include "TickerTotals/TickerTotals.h"
 #include "TabPanel/TabPanel.h"
 #include "Database/trade.h"
+#include "Config/Config.h"
 #include "ClosedTrades.h"
 
 
@@ -112,8 +113,12 @@ void CClosedTrades::ShowClosedTrades() {
     int selected_category = FilterPanel.selected_category;
     
     struct ClosedData {
-        std::wstring closed_date;
         std::shared_ptr<Trade> trade;
+        std::shared_ptr<Transaction> trans;
+        std::wstring description;
+        std::wstring closed_date;
+        double close_amount = 0;
+
     };
 
     std::vector<ClosedData> vectorClosed;
@@ -142,12 +147,51 @@ void CClosedTrades::ShowClosedTrades() {
             
             ClosedData data;
             data.trade = trade;
+            data.trans = nullptr;
             data.closed_date = latest_closed_date;
+            data.close_amount = trade->acb_total;
+            data.description = trade->ticker_name;
+            if (config.IsFuturesTicker(trade->ticker_symbol)) data.description += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
             vectorClosed.push_back(data);
         }
     }
 
-    
+/*
+    for (auto& trade : trades) {
+        if (ticker.length() > 0) {
+            if (ticker != trade->ticker_symbol) continue;
+        }
+        if (selected_category != CATEGORY_ALL) {
+            if (trade->category != selected_category) continue;
+        }
+
+        for (auto& trans : trade->transactions) {
+
+            for (auto& leg : trans->legs) {
+                if (!leg->isOpen()) {
+                //    // Iterate to find the latest closed date
+                //    std::wstring latest_closed_date;
+                //    for (auto& trans : trade->transactions) {
+                //        if (trans->trans_date > latest_closed_date) {
+                //            latest_closed_date = trans->trans_date;
+                //        }
+                //    }
+
+                //    if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
+
+                    ClosedData data;
+                    data.trade = trade;
+                    data.trans = trans;
+                    data.closed_date = trans->trans_date;
+                    
+                    vectorClosed.push_back(data);
+                }
+            }
+
+        }
+    }
+*/
+
     // Destroy any existing ListBox line data
     ListBoxData_DestroyItemData(TradesListBox());
 
@@ -201,35 +245,36 @@ void CClosedTrades::ShowClosedTrades() {
         }
         current_date = ClosedData.closed_date;
         subtotal_month = current_month;
-        subtotal_amount += ClosedData.trade->acb_total;
-        if (ClosedData.trade->acb_total >= 0) ++current_month_win;
-        if (ClosedData.trade->acb_total < 0) ++current_month_loss;
+        subtotal_amount += ClosedData.close_amount;
+        if (ClosedData.close_amount >= 0) ++current_month_win;
+        if (ClosedData.close_amount < 0) ++current_month_loss;
 
         if (current_month == AfxGetMonth(today_date) &&
             current_year == AfxGetYear(today_date)) {
-            monthly_amount += ClosedData.trade->acb_total;
-            if (ClosedData.trade->acb_total >= 0) ++month_win;
-            if (ClosedData.trade->acb_total < 0) ++month_loss;
+            monthly_amount += ClosedData.close_amount;
+            if (ClosedData.close_amount >= 0) ++month_win;
+            if (ClosedData.close_amount < 0) ++month_loss;
         }
 
         if (current_date >= week_start_date && current_date <= week_end_date) {
-            weekly_amount += ClosedData.trade->acb_total;
-            if (ClosedData.trade->acb_total >= 0) ++week_win;
-            if (ClosedData.trade->acb_total < 0) ++week_loss;
+            weekly_amount += ClosedData.close_amount;
+            if (ClosedData.close_amount >= 0) ++week_win;
+            if (ClosedData.close_amount < 0) ++week_loss;
         }
 
         if (current_date == today_date) {
-            daily_amount += ClosedData.trade->acb_total;
-            if (ClosedData.trade->acb_total >= 0) ++day_win;
-            if (ClosedData.trade->acb_total < 0) ++day_loss;
+            daily_amount += ClosedData.close_amount;
+            if (ClosedData.close_amount >= 0) ++day_win;
+            if (ClosedData.close_amount < 0) ++day_loss;
         }
 
         if (today_year == AfxGetYear(current_date)) {
-            if (ClosedData.trade->acb_total >= 0) ++year_win;
-            if (ClosedData.trade->acb_total < 0) ++year_loss;
-            YTD += ClosedData.trade->acb_total;
+            if (ClosedData.close_amount >= 0) ++year_win;
+            if (ClosedData.close_amount < 0) ++year_loss;
+            YTD += ClosedData.close_amount;
         }
-        ListBoxData_OutputClosedPosition(TradesListBox(), ClosedData.trade, ClosedData.closed_date);
+        ListBoxData_OutputClosedPosition(TradesListBox(), ClosedData.trade, 
+            ClosedData.closed_date, ClosedData.trade->ticker_symbol, ClosedData.description, ClosedData.close_amount);
     }
     if (subtotal_amount != 0) {
         ListBoxData_OutputClosedMonthSubtotal(TradesListBox(), current_date, subtotal_amount, current_month_win, current_month_loss);

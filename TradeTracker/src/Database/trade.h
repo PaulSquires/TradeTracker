@@ -85,9 +85,9 @@ public:
     std::wstring expiry_date   = L"";
     std::wstring strike_price  = L"";
     PutCall      put_call      = PutCall::Nothing;
-    Action       action        = Action::Nothing;      // STO,BTO,STC,BTC
+    Action       action        = Action::Nothing;          // STO,BTO,STC,BTC
     Underlying   underlying    = Underlying::Nothing;      // OPTIONS, STOCKS, FUTURES, DIVIDEND, OTHER
-    std::shared_ptr<Transaction> trans = nullptr;   // back pointer to transaction that this leg belongs to
+    std::shared_ptr<Transaction> trans = nullptr;          // back pointer to transaction that this leg belongs to
 
     double calculated_leg_cost = 0;        // refer to CalculateLegCosting(). Alternative for position_cost.
 
