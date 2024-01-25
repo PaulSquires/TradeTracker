@@ -45,6 +45,7 @@ public:
     HWND DeleteButton();
 
     void ShowTransDetail(const std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans);
+    std::shared_ptr<Leg> GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id);
 
 private:
     bool OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
@@ -53,7 +54,6 @@ private:
     bool OnEraseBkgnd(HWND hwnd, HDC hdc);
     void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
 
-    std::shared_ptr<Leg> GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id);
     void EditTransaction(HWND hwnd);
     void DeleteTransaction(HWND hwnd);
 

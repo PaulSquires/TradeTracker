@@ -76,6 +76,7 @@ inline HWND CTransDetail::DeleteButton() {
 // Retrieve the Leg pointer based on a leg's backPointerID.
 // ========================================================================================
 std::shared_ptr<Leg> CTransDetail::GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id) {
+    if (back_pointer_id == 0) return nullptr;
     for (auto& trans : trade->transactions) {
         for (auto& leg : trans->legs) {
             if (leg->leg_id == back_pointer_id) {

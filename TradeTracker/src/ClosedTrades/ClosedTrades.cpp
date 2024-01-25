@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Category/Category.h"
 #include "MainWindow/MainWindow.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
+#include "Transactions/TransDetail.h"
 #include "TradeHistory/TradeHistory.h"
 #include "ActiveTrades/ActiveTrades.h"
 #include "TickerTotals/TickerTotals.h"
@@ -155,42 +156,6 @@ void CClosedTrades::ShowClosedTrades() {
             vectorClosed.push_back(data);
         }
     }
-
-/*
-    for (auto& trade : trades) {
-        if (ticker.length() > 0) {
-            if (ticker != trade->ticker_symbol) continue;
-        }
-        if (selected_category != CATEGORY_ALL) {
-            if (trade->category != selected_category) continue;
-        }
-
-        for (auto& trans : trade->transactions) {
-
-            for (auto& leg : trans->legs) {
-                if (!leg->isOpen()) {
-                //    // Iterate to find the latest closed date
-                //    std::wstring latest_closed_date;
-                //    for (auto& trans : trade->transactions) {
-                //        if (trans->trans_date > latest_closed_date) {
-                //            latest_closed_date = trans->trans_date;
-                //        }
-                //    }
-
-                //    if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
-
-                    ClosedData data;
-                    data.trade = trade;
-                    data.trans = trans;
-                    data.closed_date = trans->trans_date;
-                    
-                    vectorClosed.push_back(data);
-                }
-            }
-
-        }
-    }
-*/
 
     // Destroy any existing ListBox line data
     ListBoxData_DestroyItemData(TradesListBox());
