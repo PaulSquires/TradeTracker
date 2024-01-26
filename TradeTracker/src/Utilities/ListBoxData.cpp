@@ -628,11 +628,23 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
         if (trans->legs.at(0)->action == Action::STC ||
             trans->legs.at(0)->action == Action::BTC) {
 
+            double multiplier = 1;
+            if (trans->underlying == Underlying::Futures) {
+                multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
+            }
+
             double quantity = trans->quantity;
-            double total = quantity * trans->price;
+            double total = quantity * trans->price * multiplier;
             double cost = (quantity * trans->share_average_cost);
             double fees = trans->fees * -1;
-            double diff = (total + cost + fees);
+            double diff = 0;
+
+            if (trans->legs.at(0)->action == Action::STC) {
+                diff = (total + cost + fees);
+            }
+            if (trans->legs.at(0)->action == Action::BTC) {
+                diff = (cost - total + fees);
+            }
 
             text = L"";
 
@@ -708,16 +720,29 @@ void ListBoxData_HistorySharesLeg(
         ld->SetData(4, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-        text = AfxMoney(trans->share_average_cost, true, trade->ticker_decimals);
+        double multiplier = 1;
+        double average_cost = trans->share_average_cost;
+        if (leg->underlying == Underlying::Futures) {
+            multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
+            average_cost /= multiplier;
+        }
+
+        text = AfxMoney(average_cost, true, trade->ticker_decimals);
         ld->SetData(5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-        double diff = (trans->price + trans->share_average_cost);
+        double diff = 0; 
+        if (trans->legs.at(0)->action == Action::STC) {
+            diff = (trans->price + average_cost);
+        }
+        if (trans->legs.at(0)->action == Action::BTC) {
+            diff = (average_cost - trans->price);
+        }
         text = AfxMoney(diff, true, trade->ticker_decimals);
         ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-        double total = (abs(leg->open_quantity) * diff);
+        double total = (abs(leg->open_quantity) * (diff * multiplier));
         text = AfxMoney(total, true, trade->ticker_decimals);
         ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);

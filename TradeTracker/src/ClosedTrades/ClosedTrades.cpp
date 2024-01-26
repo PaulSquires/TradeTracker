@@ -125,27 +125,70 @@ void CClosedTrades::ShowClosedTrades() {
     std::vector<ClosedData> vectorClosed;
     vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
     
+    // Look at all the closed trades as well as open trades that have shares/futures
+
     for (auto& trade : trades) {
-        if (!trade->is_open) {
 
-            if (ticker.length() > 0) {
-                if (ticker != trade->ticker_symbol) continue;
+        if (ticker.length() > 0) {
+            if (ticker != trade->ticker_symbol) continue;
+        }
+
+        if (selected_category != CATEGORY_ALL) {
+            if (trade->category != selected_category) continue;
+        }
+
+        // Iterate to find the latest closed date
+        std::wstring latest_closed_date;
+        for (auto& trans : trade->transactions) {
+            if (trans->trans_date > latest_closed_date) {
+                latest_closed_date = trans->trans_date;
             }
+        }
 
-            if (selected_category != CATEGORY_ALL) {
-                if (trade->category != selected_category) continue;
-            }
+        if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
 
-            // Iterate to find the latest closed date
-            std::wstring latest_closed_date;
-            for (auto& trans : trade->transactions) {
-                if (trans->trans_date > latest_closed_date) {
-                    latest_closed_date = trans->trans_date;
+        for (const auto& trans : trade->transactions) {
+            if (trans->underlying == Underlying::Shares ||
+                trans->underlying == Underlying::Futures) {
+                if (trans->legs.at(0)->action == Action::STC ||
+                    trans->legs.at(0)->action == Action::BTC) {
+
+                    ClosedData data;
+                    data.trade = trade;
+                    data.trans = trans;
+                    data.closed_date = trans->trans_date;
+
+                    int quantity = abs(trans->legs.at(0)->open_quantity);
+                    double price = trans->price;
+                            
+                    if (config.IsFuturesTicker(trade->ticker_symbol)) {
+                        double multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
+                        price *= multiplier;
+                    }
+
+                    std::wstring diff_describe;
+                    double diff = 0;
+                    if (trans->legs.at(0)->action == Action::STC) {
+                        diff = (price + trans->share_average_cost);
+                        diff_describe = AfxMoney(price, true, 2) + L"-" + AfxMoney(abs(trans->share_average_cost), true, 2);
+                    }
+                    if (trans->legs.at(0)->action == Action::BTC) {
+                        diff = (trans->share_average_cost - price);
+                        diff_describe = AfxMoney(abs(trans->share_average_cost), true, 2) + L"-" + AfxMoney(price, true, 2);
+                    }
+
+                    data.close_amount = quantity * diff;
+
+                    std::wstring describe = (trans->underlying == Underlying::Shares) ? L" shares @ $" : L" futures @ $";
+                    data.description = std::to_wstring(quantity) + describe + AfxMoney(diff, true, 2) + 
+                        L" (" + diff_describe + L")";
+                            
+                    vectorClosed.push_back(data);
                 }
             }
+        }
 
-            if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
-            
+        if (!trade->is_open && trade->acb_total) {
             ClosedData data;
             data.trade = trade;
             data.trans = nullptr;

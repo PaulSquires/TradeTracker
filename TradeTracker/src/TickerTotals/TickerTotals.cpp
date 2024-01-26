@@ -29,6 +29,7 @@ SOFTWARE.
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/ListBoxData.h"
+#include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "ClosedTrades/ClosedTrades.h"
 
@@ -71,9 +72,44 @@ void CTickerPanel::ShowTickerTotals() {
 
     for (const auto& trade : trades) {
         if (trade->ticker_symbol == L"OPENBAL") continue;
-        if (trade->is_open == true) continue;
-        double total = mapTicker[trade->ticker_symbol] + trade->acb_total;
-        mapTicker[trade->ticker_symbol] = total;
+
+        double close_amount = 0;
+
+        for (const auto& trans : trade->transactions) {
+            if (trans->underlying == Underlying::Shares ||
+                trans->underlying == Underlying::Futures) {
+                if (trans->legs.at(0)->action == Action::STC ||
+                    trans->legs.at(0)->action == Action::BTC) {
+
+                    int quantity = abs(trans->legs.at(0)->open_quantity);
+                    double price = trans->price;
+
+                    if (config.IsFuturesTicker(trade->ticker_symbol)) {
+                        double multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
+                        price *= multiplier;
+                    }
+
+                    double diff = 0;
+                    if (trans->legs.at(0)->action == Action::STC) {
+                        diff = (price + trans->share_average_cost);
+                    }
+                    if (trans->legs.at(0)->action == Action::BTC) {
+                        diff = (trans->share_average_cost - price);
+                    }
+
+                    close_amount = quantity * diff;
+
+                    double total = mapTicker[trade->ticker_symbol] + close_amount;
+                    mapTicker[trade->ticker_symbol] = total;
+                }
+            }
+        }
+
+        if (!trade->is_open && trade->acb_total) {
+            close_amount = trade->acb_total;
+            double total = mapTicker[trade->ticker_symbol] + close_amount;
+            mapTicker[trade->ticker_symbol] = total;
+        }
     }
 
     struct VecData {
