@@ -577,7 +577,7 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
     trade->ticker_name   = guiData.ticker_name;
     trade->future_expiry = guiData.future_expiry;
     trade->category      = guiData.category;
-    trade->acb_total           = guiData.ACB;
+    trade->acb_total     = guiData.ACB;
     trade->trade_bp      = guiData.trade_bp;
 
     std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
@@ -624,6 +624,8 @@ void TradeDialog_CreateOptionsTradeData(HWND hwnd)
         case TradeAction::new_short_strangle:
         case TradeAction::new_short_put:
         case TradeAction::new_short_call:
+        case TradeAction::new_short_put_vertical:
+        case TradeAction::new_short_call_vertical:
         case TradeAction::add_options_to_trade:
         case TradeAction::add_put_to_trade:
         case TradeAction::add_call_to_trade:
