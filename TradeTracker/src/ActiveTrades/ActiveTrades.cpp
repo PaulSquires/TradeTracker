@@ -463,6 +463,18 @@ bool CActiveTrades::IsNewOptionsTradeAction(TradeAction action) {
 
 
 // ========================================================================================
+// Returns true/false if incoming Trade action is considered a "New" Futures type of action.
+// ========================================================================================
+bool CActiveTrades::IsNewFuturesTradeAction(TradeAction action) {
+    if (action == TradeAction::new_futures_trade ||
+        IsNewOptionsTradeAction(action)) {
+        return true;
+    }
+    return false;
+}
+
+
+// ========================================================================================
 // Returns true/false if incoming Trade action is considered an "Add Options To" action.
 // ========================================================================================
 bool CActiveTrades::IsAddOptionToTradeAction(TradeAction action) {
@@ -498,6 +510,8 @@ bool CActiveTrades::IsManageSharesTradeAction(TradeAction action) {
     switch (action) {
     case TradeAction::manage_shares:
     case TradeAction::manage_futures:
+    case TradeAction::close_all_shares:
+    case TradeAction::close_all_futures:
         return true;
     default:
         return false;

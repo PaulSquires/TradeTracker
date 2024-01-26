@@ -88,6 +88,7 @@ public:
     bool IsAddOptionToTradeAction(TradeAction action);
     bool IsAddSharesToTradeAction(TradeAction action);
     bool IsNewOptionsTradeAction(TradeAction action);
+    bool IsNewFuturesTradeAction(TradeAction action);
     bool IsNewSharesTradeAction(TradeAction action);
     bool IsManageSharesTradeAction(TradeAction action);
     void UpdateTickerPrices();

@@ -825,12 +825,8 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
 
     bool is_shares_action = false;
     if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
-        tdd.trade_action == TradeAction::add_shares_to_trade ||
-        tdd.trade_action == TradeAction::add_futures_to_trade ||
-        tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures ||
-        tdd.trade_action == TradeAction::close_all_shares ||
-        tdd.trade_action == TradeAction::close_all_futures) {
+        ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
         is_shares_action = true;
     }
         
@@ -852,20 +848,12 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
 
     if (is_shares_action) {
-        switch (tdd.trade_action) {
-        case TradeAction::new_shares_trade:
-        case TradeAction::new_futures_trade:
-        case TradeAction::add_shares_to_trade:
-        case TradeAction::add_futures_to_trade:
+        if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
+            ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action)) {
             CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Long);
-            break;
-
-        case TradeAction::manage_shares:
-        case TradeAction::manage_futures:
-        case TradeAction::close_all_shares:
-        case TradeAction::close_all_futures:
+        }
+        if (ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
             CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
-            break;
         }
         TradeDialog_SetLongShortText(hCtl);
         TradeDialog_SetLongShortback_color(hCtl);
@@ -938,10 +926,7 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
-    if (tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures ||
-        tdd.trade_action == TradeAction::close_all_shares ||
-        tdd.trade_action == TradeAction::close_all_futures) {
+    if (ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
         // If the aggregate shares are negative then toggle the sell to buy in order to close the trade
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
@@ -969,12 +954,8 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
-    if (tdd.trade_action == TradeAction::new_shares_trade ||
-        tdd.trade_action == TradeAction::new_futures_trade ||
-        tdd.trade_action == TradeAction::manage_futures ||
-        tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::close_all_shares ||
-        tdd.trade_action == TradeAction::close_all_futures ||
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsManageSharesTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_shares_to_trade ||
         tdd.trade_action == TradeAction::other_income_expense ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
@@ -1011,8 +992,7 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
-        tdd.trade_action == TradeAction::add_shares_to_trade ||
-        tdd.trade_action == TradeAction::add_futures_to_trade) {
+        ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action)) {
         TradeDialog_SetComboDRCR(hCtl, L"DR");
     } else {
         TradeDialog_SetComboDRCR(hCtl, L"CR");
@@ -1028,17 +1008,12 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 2, CustomTextBoxNegative::allow, CustomTextBoxFormatting::allow);
 
-    if (tdd.trade_action == TradeAction::new_shares_trade ||
-        tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::close_all_shares ||
-        tdd.trade_action == TradeAction::add_shares_to_trade ||
+    if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsManageSharesTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action) ||
         tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::add_income_expense_to_trade ||
-        tdd.trade_action == TradeAction::new_futures_trade ||
-        tdd.trade_action == TradeAction::manage_futures ||
-        tdd.trade_action == TradeAction::close_all_futures ||
         tdd.trade_action == TradeAction::other_income_expense ||
-        tdd.trade_action == TradeAction::add_futures_to_trade ||
         (tdd.trade && tdd.trade->category == CATEGORY_OTHER)) {
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LBLTRADEBP), SW_HIDE);
         ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTTRADEBP), SW_HIDE);
@@ -1065,10 +1040,7 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     // If the aggregate shares are negative then toggle the sell to buy in order to close the trade.
     // Must do this after the quantity, multiplier, etc have been set otherwise we'll get a GPF
     // when the calculate totals eventually gets called during the DR/CR toggle.
-    if (tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures ||
-        tdd.trade_action == TradeAction::close_all_shares ||
-        tdd.trade_action == TradeAction::close_all_futures) {
+    if (ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         if (aggregate < 0) {
             TradeDialog_ToggleLongShort(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES));
@@ -1085,23 +1057,7 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LBLEDITWARNING3, L"", COLOR_WHITEDARK, COLOR_GRAYDARK,
         CustomLabelAlignment::middle_left, 120, 412, 500, 16);
 
-    if (tdd.trade_action != TradeAction::new_shares_trade &&
-        tdd.trade_action != TradeAction::add_shares_to_trade &&
-        tdd.trade_action != TradeAction::add_dividend_to_trade &&
-        tdd.trade_action != TradeAction::add_income_expense_to_trade &&
-        tdd.trade_action != TradeAction::add_futures_to_trade &&
-        tdd.trade_action != TradeAction::add_call_to_trade && 
-        tdd.trade_action != TradeAction::add_put_to_trade && 
-        tdd.trade_action != TradeAction::add_options_to_trade &&
-        tdd.trade_action != TradeAction::other_income_expense &&
-        tdd.trade_action != TradeAction::close_leg &&
-        tdd.trade_action != TradeAction::close_all_legs &&
-        tdd.trade_action != TradeAction::manage_shares &&
-        tdd.trade_action != TradeAction::close_all_shares &&
-        tdd.trade_action != TradeAction::manage_futures &&
-        tdd.trade_action != TradeAction::close_all_futures &&
-        tdd.trade_action != TradeAction::edit_transaction &&
-        tdd.trade_action != TradeAction::roll_leg) {
+    if (ActiveTrades.IsNewFuturesTradeAction(tdd.trade_action)) {
         std::wstring text1 = L"NOTE:";
         std::wstring text2 = L"Future Ticker names must start with a forward slash.";
         std::wstring text3 = L"For example: /ES, /MES, /NQ, etc.";
