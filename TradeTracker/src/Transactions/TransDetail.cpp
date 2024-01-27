@@ -99,6 +99,7 @@ void CTransDetail::EditTransaction(HWND hwnd) {
     tdd.legs = transEditDelete->legs;
     tdd.trade = tradeEditDelete;
     tdd.trans = transEditDelete;
+
     TradeDialog_Show(TradeAction::edit_transaction);
 }
     
@@ -226,8 +227,6 @@ void CTransDetail::ShowTransDetail(const std::shared_ptr<Trade> trade, const std
             ListBoxData_HistoryOptionsLeg(TransListBox(), trade, trans, leg);
             break;
         case Underlying::Shares:
-            ListBoxData_HistorySharesLeg(TransListBox(), trade, trans, leg);
-            break;
         case Underlying::Futures:
             ListBoxData_HistorySharesLeg(TransListBox(), trade, trans, leg);
             break;

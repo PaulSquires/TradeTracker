@@ -73,40 +73,16 @@ void CTickerPanel::ShowTickerTotals() {
     for (const auto& trade : trades) {
         if (trade->ticker_symbol == L"OPENBAL") continue;
 
-        double close_amount = 0;
+        // Calculate the total gain/loss on any shares/futures
+        trade->CalculateTotalSharesProfit();
 
-        for (const auto& trans : trade->transactions) {
-            if (trans->underlying == Underlying::Shares ||
-                trans->underlying == Underlying::Futures) {
-                if (trans->legs.at(0)->action == Action::STC ||
-                    trans->legs.at(0)->action == Action::BTC) {
+        double close_amount = trade->total_share_profit;
 
-                    int quantity = abs(trans->legs.at(0)->open_quantity);
-                    double price = trans->price;
+        double total = mapTicker[trade->ticker_symbol] + close_amount;
+        mapTicker[trade->ticker_symbol] = total;
 
-                    if (config.IsFuturesTicker(trade->ticker_symbol)) {
-                        double multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
-                        price *= multiplier;
-                    }
-
-                    double diff = 0;
-                    if (trans->legs.at(0)->action == Action::STC) {
-                        diff = (price + trans->share_average_cost);
-                    }
-                    if (trans->legs.at(0)->action == Action::BTC) {
-                        diff = (trans->share_average_cost - price);
-                    }
-
-                    close_amount = quantity * diff;
-
-                    double total = mapTicker[trade->ticker_symbol] + close_amount;
-                    mapTicker[trade->ticker_symbol] = total;
-                }
-            }
-        }
-
-        if (!trade->is_open && trade->acb_total) {
-            close_amount = trade->acb_total;
+        if (!trade->is_open && trade->acb_non_shares) {
+            close_amount = trade->acb_non_shares;
             double total = mapTicker[trade->ticker_symbol] + close_amount;
             mapTicker[trade->ticker_symbol] = total;
         }

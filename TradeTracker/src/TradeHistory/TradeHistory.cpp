@@ -85,24 +85,62 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
     // Clear the current trade history table
     ListBoxData_DestroyItemData(hListBox);
 
+    // Calculate the total gain/loss on any shares/futures
+    trade->CalculateTotalSharesProfit();
+
     // Show the final rolled up Open position for this trade
     ListBoxData_OpenPosition(hListBox, trade, -1);
         
     // Output the BP, Days, ROI
     ListBoxData_TradeROI(hListBox, trade, -1);
 
-    // Sort transactions based on date
-    std::sort(trade->transactions.begin(), trade->transactions.end(),
+    // If this Trade has Shares/Futures transactions showing the costing would have been created
+    // during the CalculateAdjustedCostBase function. We combine the SharesHistory vector with
+    // all non-shares/futures transactions, sort them, and then display them.
+    std::vector<std::shared_ptr<Transaction>> trade_history;
+    trade_history.reserve(50);
+
+    for (const auto& share : trade->shares_history) {
+        std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
+        trans->underlying = share.trans->underlying;
+        trans->description = share.trans->description;
+        trans->trans_date = share.trans->trans_date;
+        trans->quantity = share.open_quantity;
+        trans->price = share.trans->price;
+        trans->multiplier = trade->multiplier;
+        trans->fees = share.trans->fees;
+        trans->total = share.trans->total;
+        trans->share_average_cost = share.average_cost;
+        trans->share_longshort = share.trans->share_longshort;
+
+        std::shared_ptr<Leg> leg = std::make_shared<Leg>();
+        leg->action = share.leg_action;
+        leg->open_quantity = share.open_quantity;
+        leg->underlying = trans->underlying;
+        trans->legs.push_back(leg);
+
+        trade_history.push_back(trans);
+    }
+
+    // Add all non-shares/futures transactions to the history
+    for (const auto& trans : trade->transactions) {
+        if (trans->underlying != Underlying::Shares &&
+            trans->underlying != Underlying::Futures) {
+            trade_history.push_back(trans);
+        }
+    }
+
+    // Sort transactions based on date (latest first)
+    std::sort(trade_history.begin(), trade_history.end(),
         [](const auto trans1, const auto trans2) {
             {
-                if (trans1->trans_date < trans2->trans_date) return true;
+                if (trans1->trans_date > trans2->trans_date) return true;
                 return false;
             }
         });
 
-    // Read the TransDetail in reverse so that the newest history TransDetail get displayed first
-    for (int i = (int)trade->transactions.size() - 1; i >= 0; --i) {
-        auto trans = trade->transactions.at(i);
+
+    for (auto& trans : trade_history) {
 
         ListBoxData_HistoryHeader(hListBox, trade, trans);
 
@@ -114,7 +152,7 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
                 break;
             case Underlying::Shares:
             case Underlying::Futures:
-                ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
+               ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
                 break;
             case Underlying::Dividend:
                 ListBoxData_HistoryDividendLeg(hListBox, trade, trans, leg);

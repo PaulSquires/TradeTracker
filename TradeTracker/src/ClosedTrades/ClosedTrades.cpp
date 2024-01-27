@@ -147,53 +147,52 @@ void CClosedTrades::ShowClosedTrades() {
 
         if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
 
-        for (const auto& trans : trade->transactions) {
-            if (trans->underlying == Underlying::Shares ||
-                trans->underlying == Underlying::Futures) {
-                if (trans->legs.at(0)->action == Action::STC ||
-                    trans->legs.at(0)->action == Action::BTC) {
+        // If this Trade has Shares/Futures transactions showing the costing would have been created
+        // during the CalculateAdjustedCostBase function. 
+        for (const auto& share : trade->shares_history) {
+            if (share.leg_action == Action::STC || share.leg_action == Action::BTC) {
 
-                    ClosedData data;
-                    data.trade = trade;
-                    data.trans = trans;
-                    data.closed_date = trans->trans_date;
+                ClosedData data;
+                data.trade = trade;
+                //data.trans = trans;
+                data.closed_date = share.trans->trans_date;
 
-                    int quantity = abs(trans->legs.at(0)->open_quantity);
-                    double price = trans->price;
-                            
-                    if (config.IsFuturesTicker(trade->ticker_symbol)) {
-                        double multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
-                        price *= multiplier;
-                    }
+                int quantity = abs(share.open_quantity);
+                double price = share.trans->price;
 
-                    std::wstring diff_describe;
-                    double diff = 0;
-                    if (trans->legs.at(0)->action == Action::STC) {
-                        diff = (price + trans->share_average_cost);
-                        diff_describe = AfxMoney(price, true, 2) + L"-" + AfxMoney(abs(trans->share_average_cost), true, 2);
-                    }
-                    if (trans->legs.at(0)->action == Action::BTC) {
-                        diff = (trans->share_average_cost - price);
-                        diff_describe = AfxMoney(abs(trans->share_average_cost), true, 2) + L"-" + AfxMoney(price, true, 2);
-                    }
-
-                    data.close_amount = quantity * diff;
-
-                    std::wstring describe = (trans->underlying == Underlying::Shares) ? L" shares @ $" : L" futures @ $";
-                    data.description = std::to_wstring(quantity) + describe + AfxMoney(diff, true, 2) + 
-                        L" (" + diff_describe + L")";
-                            
-                    vectorClosed.push_back(data);
+                if (config.IsFuturesTicker(trade->ticker_symbol)) {
+                    double multiplier = AfxValDouble(config.GetMultiplier(trade->ticker_symbol));
+                    price *= multiplier;
                 }
+
+                std::wstring diff_describe;
+                double diff = 0;
+                if (share.leg_action == Action::STC) {
+                    diff = (price + share.average_cost);
+                    diff_describe = AfxMoney(price, true, 2) + L"-" + AfxMoney(abs(share.average_cost), true, 2);
+                }
+                if (share.leg_action == Action::BTC) {
+                    diff = (share.average_cost - price);
+                    diff_describe = AfxMoney(abs(share.average_cost), true, 2) + L"-" + AfxMoney(price, true, 2);
+                }
+
+                data.close_amount = quantity * diff;
+
+                std::wstring describe = (share.trans->underlying == Underlying::Shares) ? L" shares @ $" : L" futures @ $";
+                data.description = std::to_wstring(quantity) + describe + AfxMoney(diff, true, 2) +
+                    L" (" + diff_describe + L")";
+
+                vectorClosed.push_back(data);
             }
+
         }
 
-        if (!trade->is_open && trade->acb_total) {
+        if (!trade->is_open && trade->acb_non_shares) {
             ClosedData data;
             data.trade = trade;
             data.trans = nullptr;
             data.closed_date = latest_closed_date;
-            data.close_amount = trade->acb_total;
+            data.close_amount = trade->acb_non_shares;
             data.description = trade->ticker_name;
             if (config.IsFuturesTicker(trade->ticker_symbol)) data.description += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
             vectorClosed.push_back(data);

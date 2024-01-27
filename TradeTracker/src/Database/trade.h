@@ -119,6 +119,15 @@ public:
 };
 
 
+class SharesHistory {
+public:
+    std::shared_ptr<Transaction> trans;
+    Action       leg_action = Action::Nothing;
+    int          open_quantity = 0;
+    double       average_cost  = 0;
+};
+
+
 class Trade {
 public:
     bool          is_open       = true;    // false if all legs are closed
@@ -136,12 +145,20 @@ public:
     double        acb_total     = 0;       // adjusted cost base of entire trade (shares + non-shares items)
     double        acb_shares    = 0;       // adjusted cost base for shares/futures (may include/exclude costs like dividends)
     double        acb_non_shares = 0;      // all non-shares items (dividends, options, etc)
+    double        total_share_profit = 0;  // total shares/futures profit/loss (total income less total average costs for all shares transactions in the trade)
     double        trade_bp      = 0;       // Buying Power for the entire trade 
     double        multiplier    = 0;       // Retrieved from Transaction and needed for updatePortfolio real time calculations
 
     double        ticker_last_price  = 0;
     double        ticker_close_price = 0;
     int           ticker_decimals    = 2;  // upated via data from Config. 
+
+    // Vector holding all the data related to how shares/futures are allocated during a buy/sell. This
+    // vector is created during the CalculateAdjustedCostBase method. We use this vector when displaying
+    // the Trade history.
+    std::vector<SharesHistory> shares_history;
+    void AddSharesHistory(std::shared_ptr<Transaction> trans, Action leg_action, int open_quantity, double average_cost);
+    void CalculateTotalSharesProfit();
 
     // The earliest DTE from the Legs of the Trade are calculated in the SetTradeOpenStatus() function
     // and is used when displaying ActiveTrades with the ExpiryDate filter set.
@@ -168,7 +185,7 @@ public:
     std::wstring  oldest_trade_trans_date = L"00000000";  // If Trade is closed then this trans will be the BPendDate
 
     std::vector<std::shared_ptr<Transaction>> transactions;     // pointer list for all transactions in the trade
-    std::vector<std::shared_ptr<Leg>> open_legs;                 // sorted list of open legs for this trade
+    std::vector<std::shared_ptr<Leg>> open_legs;                // sorted list of open legs for this trade
 
     void SetTradeOpenStatus();
     void CalculateAdjustedCostBase();

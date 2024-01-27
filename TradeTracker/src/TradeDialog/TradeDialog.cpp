@@ -334,7 +334,7 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             // Clicked on the Futures Contract Date dropdown or label itself
             HWND hDateLabel = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LBLCONTRACTDATE);
             std::wstring initial_date_text = CustomLabel_GetUserData(hDateLabel);
-            CalendarReturn calendar_result = CustomCalendar.Show(m_hwnd, hDateLabel, initial_date_text, 1);
+            CalendarReturn calendar_result = CustomCalendar.Show(m_hwnd, hDateLabel, initial_date_text, 2);
 
             if (calendar_result.exit_code != -1) {
                 CustomLabel_SetUserData(hDateLabel, calendar_result.iso_date);

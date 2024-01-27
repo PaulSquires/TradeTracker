@@ -963,6 +963,11 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
         tdd.trade_action == TradeAction::add_futures_to_trade) {
         CustomTextBox_SetText(hCtl, L"1");
     }
+    if (tdd.trade &&
+        tdd.trade_action == TradeAction::edit_transaction &&
+        (tdd.trans->underlying == Underlying::Options || tdd.trans->underlying == Underlying::Futures)) {
+        CustomTextBox_SetText(hCtl, L"1");
+    }
 
 
     CustomLabel_SimpleLabel(hwnd, -1, L"Fees", COLOR_WHITEDARK, COLOR_GRAYDARK,
