@@ -801,8 +801,8 @@ void TradeDialog_CreateEditTradeData(HWND hwnd)
     tdd.trans->fees        = guiData.fees;
     tdd.trade->trade_bp    = guiData.trade_bp;
     tdd.trans->total       = guiData.total;
-
     tdd.trans->share_longshort = guiData.share_longshort;
+
     if (tdd.trans->underlying == Underlying::Shares ||
         tdd.trans->underlying == Underlying::Futures) {
 

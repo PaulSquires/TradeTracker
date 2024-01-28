@@ -596,7 +596,7 @@ void ListBoxData_AddBlankLine(HWND hListBox) {
 // ========================================================================================
 // Create the display data a History Header line.
 // ========================================================================================
-void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans) {
+void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Transaction>& trans_orig) {
     // Display the transaction description, date, and total prior to showing the detail lines
     ListBoxData* ld = new ListBoxData;
 
@@ -608,7 +608,7 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
     TickerId ticker_id = -1;
 
     ld->line_type = LineType::transaction_header;
-    ld->trans = trans;
+    ld->trans = trans_orig;
 
     ld->SetData(0, trade, ticker_id, GLYPH_TREEOPEN, StringAlignmentCenter, StringAlignmentCenter, COLOR_GRAYDARK,
         COLOR_WHITEDARK, font8, FontStyleRegular);

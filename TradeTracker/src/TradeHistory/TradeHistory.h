@@ -37,6 +37,11 @@ public:
 
 };
 
+struct HistoryItem {
+    std::shared_ptr<Transaction> trans;
+    std::shared_ptr<Transaction> trans_orig;
+};
+
 extern CTradeHistory TradeHistory;
 extern HWND HWND_TRADEHISTORY;
 

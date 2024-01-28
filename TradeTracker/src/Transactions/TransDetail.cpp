@@ -200,7 +200,7 @@ void CTransDetail::ShowTransDetail(const std::shared_ptr<Trade> trade, const std
     ShowWindow(EditButton(), SW_SHOW);
     ShowWindow(DeleteButton(), SW_SHOW);
 
-    ListBoxData_HistoryHeader(TransListBox(), trade, trans);
+    ListBoxData_HistoryHeader(TransListBox(), trade, trans, trans);
 
     CustomLabel_SetText(Label1(), L"Transaction Details");
 

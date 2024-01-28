@@ -97,68 +97,74 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
     // If this Trade has Shares/Futures transactions showing the costing would have been created
     // during the CalculateAdjustedCostBase function. We combine the SharesHistory vector with
     // all non-shares/futures transactions, sort them, and then display them.
-    std::vector<std::shared_ptr<Transaction>> trade_history;
+    std::vector<HistoryItem> trade_history;
     trade_history.reserve(50);
 
     for (const auto& share : trade->shares_history) {
-        std::shared_ptr<Transaction> trans = std::make_shared<Transaction>();
-        trans->underlying = share.trans->underlying;
-        trans->description = share.trans->description;
-        trans->trans_date = share.trans->trans_date;
-        trans->quantity = share.open_quantity;
-        trans->price = share.trans->price;
-        trans->multiplier = trade->multiplier;
-        trans->fees = share.trans->fees;
-        trans->total = share.trans->total;
-        trans->share_average_cost = share.average_cost;
-        trans->share_longshort = share.trans->share_longshort;
+        HistoryItem item;
+        item.trans_orig = share.trans;
+        item.trans = std::make_shared<Transaction>();
+        item.trans->underlying = share.trans->underlying;
+        item.trans->description = share.trans->description;
+        item.trans->trans_date = share.trans->trans_date;
+        item.trans->quantity = share.open_quantity;
+        item.trans->price = share.trans->price;
+        item.trans->multiplier = trade->multiplier;
+        item.trans->fees = share.trans->fees;
+        item.trans->total = share.trans->total;
+        item.trans->share_average_cost = share.average_cost;
+        item.trans->share_longshort = share.trans->share_longshort;
 
         std::shared_ptr<Leg> leg = std::make_shared<Leg>();
         leg->action = share.leg_action;
         leg->open_quantity = share.open_quantity;
-        leg->underlying = trans->underlying;
-        trans->legs.push_back(leg);
+        leg->underlying = item.trans->underlying;
+        item.trans->legs.push_back(leg);
 
-        trade_history.push_back(trans);
+        trade_history.push_back(item);
     }
 
     // Add all non-shares/futures transactions to the history
     for (const auto& trans : trade->transactions) {
         if (trans->underlying != Underlying::Shares &&
             trans->underlying != Underlying::Futures) {
-            trade_history.push_back(trans);
+            HistoryItem item;
+            item.trans_orig = trans;
+            item.trans = std::make_shared<Transaction>();
+            item.trans = trans;
+            trade_history.push_back(item);
         }
     }
 
     // Sort transactions based on date (latest first)
     std::sort(trade_history.begin(), trade_history.end(),
-        [](const auto trans1, const auto trans2) {
+        [](const auto item1, const auto item2) {
             {
-                if (trans1->trans_date > trans2->trans_date) return true;
+                if (item1.trans->trans_date > item2.trans->trans_date) return true;
                 return false;
             }
         });
 
 
-    for (auto& trans : trade_history) {
+    for (auto& item : trade_history) {
 
-        ListBoxData_HistoryHeader(hListBox, trade, trans);
+        ListBoxData_HistoryHeader(hListBox, trade, item.trans, item.trans_orig);
 
         // Show the detail leg information for this transaction.
-        for (const auto& leg : trans->legs) {
+        for (const auto& leg : item.trans->legs) {
             switch (leg->underlying) {
             case Underlying::Options:
-                ListBoxData_HistoryOptionsLeg(hListBox, trade, trans, leg); 
+                ListBoxData_HistoryOptionsLeg(hListBox, trade, item.trans, leg); 
                 break;
             case Underlying::Shares:
             case Underlying::Futures:
-               ListBoxData_HistorySharesLeg(hListBox, trade, trans, leg);
+               ListBoxData_HistorySharesLeg(hListBox, trade, item.trans, leg);
                 break;
             case Underlying::Dividend:
-                ListBoxData_HistoryDividendLeg(hListBox, trade, trans, leg);
+                ListBoxData_HistoryDividendLeg(hListBox, trade, item.trans, leg);
                 break;
             case Underlying::Other:
-                ListBoxData_OtherIncomeLeg(hListBox, trade, trans, leg);
+                ListBoxData_OtherIncomeLeg(hListBox, trade, item.trans, leg);
                 break;
             }
         }

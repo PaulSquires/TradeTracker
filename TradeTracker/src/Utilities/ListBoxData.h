@@ -249,7 +249,7 @@ void ListBoxData_NoTradesExistMessage(HWND hListBox);
 void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId ticker_id);
 void ListBoxData_TradeROI(HWND hListBox, const std::shared_ptr<Trade>& trade, TickerId ticker_id);
 void ListBoxData_HistoryHeader(
-    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans);
+    HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Transaction>& trans_orig);
 void ListBoxData_HistoryOptionsLeg(
     HWND hListBox, const std::shared_ptr<Trade>& trade, const std::shared_ptr<Transaction>& trans, const std::shared_ptr<Leg>& leg);
 void ListBoxData_HistorySharesLeg(
