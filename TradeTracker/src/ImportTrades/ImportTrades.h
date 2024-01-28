@@ -29,24 +29,26 @@ SOFTWARE.
 #include "tws-api/Contract.h"
 
 
-// Structure & vector to hold all positions returned from connection to IBKR (TWS).
-// These are used for the reconciliation between TradeTracker and IBKR.
-struct positionStruct {
-	int contract_id = 0;
-	Contract contract;
-	std::vector<std::shared_ptr<Leg>> legs;    // pointer list for all legs that make up the position
-	int open_quantity = 0;
-	std::wstring ticker_symbol;
-	std::wstring underlying;
-	std::wstring expiry_date;
-	double strike_price = 0;
-	std::wstring put_call;
+class CImportDialog : public CWindowBase<CImportDialog> {
+public:
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 
-void Reconcile_position(const Contract& contract, Decimal position, double avg_cost);
-void Reconcile_doPositionMatching();
-void Reconcile_doReconciliation();
-void Reconcile_LoadAllLocalPositions();
-void Reconcile_Show();
+struct ImportStruct {
+    Contract contract;
+    Decimal  position = 0;
+    double   avg_cost = 0;
+};
+
+extern HWND HWND_IMPORTDIALOG;
+
+constexpr int IDC_IMPORTDIALOG_SAVE = 140;
+constexpr int IDC_IMPORTDIALOG_CANCEL = 141;
+
+void ImportTrades_position(const Contract& contract, Decimal position, double avg_cost);
+void ImportTrades_doPositionSorting();
+void ImportTrades_AskImportMessage();
+int ImportDialog_Show();
+
 

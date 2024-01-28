@@ -146,7 +146,7 @@ int APIENTRY wWinMain(
 
     // Determine if we should show the MIT open source license. 
     if (config.GetDisplayLicense()) {
-        PostMessage(hWndMain, MSG_DISPLAY_LICENSE, 0, 0);
+        config.DisplayLicense();
     }
 
     // Show the current list of active trades
@@ -161,11 +161,6 @@ int APIENTRY wWinMain(
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {            
-
-        if (msg.message == MSG_DISPLAY_LICENSE) {
-            config.DisplayLicense();
-        }
-
         // Processes accelerator keys for menu commands
         if (MainWindow.hAccel() == NULL || (!TranslateAccelerator(hWndMain, MainWindow.hAccel(), &msg))) {
             // Translates virtual-key messages into character messages.

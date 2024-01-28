@@ -119,7 +119,7 @@ void Reconcile_LoadAllLocalPositions() {
 // ========================================================================================
 // Information received from TwsClient::position callback
 // ========================================================================================
-void Reconcile_position(const Contract& contract, Decimal position) {
+void Reconcile_position(const Contract& contract, Decimal position, double avg_cost) {
 	// This callback is initiated by the reqPositions() call via the clicking on Reconcile button.
 	// This will receive every open position as reported by IBKR. We take these positions and
 	// store them in the IBKRPositions vector for later processing.
@@ -137,6 +137,7 @@ void Reconcile_position(const Contract& contract, Decimal position) {
 	// Add the position the vector
 	positionStruct p{};
 	p.contract_id   = contract.conId;
+	p.contract      = contract;
 	p.open_quantity = (int)intelDecimalToDouble(position);
 	p.ticker_symbol = ansi2unicode(contract.symbol);
 	p.underlying    = ansi2unicode(contract.secType);

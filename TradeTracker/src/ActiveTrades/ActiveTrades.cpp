@@ -38,12 +38,13 @@ SOFTWARE.
 #include "Database/trade.h"
 #include "Database/database.h"
 #include "Config/Config.h"
-
+#include "ImportTrades/ImportTrades.h"
 #include "Utilities/UserMessages.h"
 
 #include "Assignment.h"
 #include "ActiveTrades.h"
 
+extern bool show_import_dialog;
 
 CActiveTrades ActiveTrades;
 
@@ -700,6 +701,7 @@ void CActiveTrades::ShowActiveTrades() {
         auto t = std::make_shared<Trade>();
         t = nullptr;
         TradeHistory_ShowTradesHistoryTable(t);
+        PostMessage(ActiveTrades.hWindow, MSG_IMPORTTRADES_ASKIMPORT, 0, 0);
     }
 
     CustomVScrollBar_Recalculate(VScrollBar());
@@ -1849,12 +1851,24 @@ LRESULT CActiveTrades::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         HANDLE_MSG(m_hwnd, WM_MEASUREITEM, OnMeasureItem);
         HANDLE_MSG(m_hwnd, WM_DRAWITEM, ListBoxData_OnDrawItem);
             
+    case MSG_IMPORTTRADES_ASKIMPORT: {
+        static bool one_time_ask = true;
+        if (one_time_ask) {
+            ImportTrades_AskImportMessage();
+            one_time_ask = false;
+        }
+        return 0;
+    }
+
     case MSG_POSITIONS_READY: {
         // Request Positions has completed and has sent this notification so 
         // we can now start requesting the portfolio updates real time data.
         if (!portfolio_requested) {
             client.RequestPortfolioUpdates();
             portfolio_requested = true;
+        }
+        if (show_import_dialog) {
+            ImportDialog_Show();
         }
         return 0;
     }

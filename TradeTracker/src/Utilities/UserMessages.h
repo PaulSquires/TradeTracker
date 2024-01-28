@@ -75,7 +75,7 @@ constexpr int MSG_POSITIONS_READY                = WM_USER + 1013;
 constexpr int MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL = WM_USER + 1017;
 constexpr int MSG_CLOSEDTRADES_SHOWLISTBOXITEM   = WM_USER + 1018;
 constexpr int MSG_TRANSPANEL_SHOWLISTBOXITEM     = WM_USER + 1019;
-constexpr int MSG_DISPLAY_LICENSE                = WM_USER + 1024;
+constexpr int MSG_IMPORTTRADES_ASKIMPORT         = WM_USER + 1020;
 
 constexpr int DIALOG_RETURN_OK = 0;
 constexpr int DIALOG_RETURN_CANCEL = 1;

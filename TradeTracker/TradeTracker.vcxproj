@@ -36,6 +36,7 @@
     <ClInclude Include="src\Database\trade.h" />
     <ClInclude Include="src\CustomCalendar\CustomCalendar.h" />
     <ClInclude Include="src\FilterPanel\FilterPanel.h" />
+    <ClInclude Include="src\ImportTrades\ImportTrades.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\MainWindow\MainWindow.h" />
     <ClInclude Include="src\MainWindow\tws-client.h" />
@@ -132,6 +133,7 @@
     <ClCompile Include="src\Database\trade.cpp" />
     <ClCompile Include="src\CustomCalendar\CustomCalendar.cpp" />
     <ClCompile Include="src\FilterPanel\FilterPanel.cpp" />
+    <ClCompile Include="src\ImportTrades\ImportTrades.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow\MainWindow.cpp" />
     <ClCompile Include="src\MainWindow\tws-client.cpp" />
@@ -216,9 +218,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
+    <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -375,6 +377,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <CallingConvention>Cdecl</CallingConvention>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

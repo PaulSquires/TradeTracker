@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Database/trade.h"
 #include "Utilities/ListBoxData.h"
 #include "Reconcile/Reconcile.h"
+#include "ImportTrades/ImportTrades.h"
 
 #include "tws-api/EClientSocket.h"
 #include "tws-api/CommonDefs.h"
@@ -909,7 +910,9 @@ static bool positionEnd_fired = false;
 
 void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avg_cost) {
 	// This callback is initiated by the reqPositions().
-	Reconcile_position(contract, position);
+	Reconcile_position(contract, position, avg_cost);
+
+	ImportTrades_position(contract, position, avg_cost);
 	
 	if (positionEnd_fired) {
 		Reconcile_doPositionMatching();
