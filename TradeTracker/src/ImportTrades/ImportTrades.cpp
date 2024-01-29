@@ -48,9 +48,12 @@ CImportDialog ImportDialog;
 
 extern int dialog_return_code;
 
-bool show_import_dialog = true;
+bool show_import_dialog = false;
 
 std::vector<ImportStruct> ibkr;    // persistent 
+
+int column_count = 7;
+std::vector<int> column_widths{ 20,55,55,85,60,65,50 };
 
 
 
@@ -102,19 +105,6 @@ void ImportTrades_doPositionSorting(){
 				return false;
 			}
 		});
-
-	for (const auto& p : ibkr) {
-		std::cout <<
-		p.contract.conId << " " <<
-		p.contract.symbol << " " <<
-		p.contract.secType << " " <<
-		p.contract.lastTradeDateOrContractMonth << " " <<
-		p.contract.strike << " " <<
-		p.contract.right << " " <<
-		(int)intelDecimalToDouble(p.position) << " " <<
-		p.avg_cost << " " <<
-		std::endl;
-	}
 }
 
 
@@ -133,6 +123,8 @@ void ImportTrades_AskImportMessage() {
 
     if (res != IDYES) return;
 
+    show_import_dialog = true; 
+    
     client.connection_type = ConnectionType::tws_data_live;
     tws_Connect();
     
@@ -218,8 +210,10 @@ LRESULT CALLBACK ImportDialog_ListBox_SubclassProc(
         // client area.
         if (HIWORD(idx) == 1) break;
 
-        SendMessage(GetParent(hwnd), MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL, true, 0);
-        SendMessage(GetParent(hwnd), MSG_CLOSEDTRADES_SHOWLISTBOXITEM, idx, 0);
+        DisplayStruct* ds = (DisplayStruct*)ListBox_GetItemData(hwnd, idx);
+        if (ds) ds->is_checked = !ds->is_checked;
+        AfxRedrawWindow(hwnd);
+
         break;
     }
 
@@ -263,10 +257,13 @@ LRESULT CALLBACK ImportDialog_ListBox_SubclassProc(
     }
 
     case WM_DESTROY: {
-        // Destroy all manually allocated ListBox display data that is held
-        // in the LineData structures..
-        ListBoxData_DestroyItemData(hwnd);
-
+        // Destroy all manually allocated display structs
+        for (int i = 0; i < ListBox_GetCount(hwnd); ++i) {
+            DisplayStruct* vd = (DisplayStruct*)ListBox_GetItemData(hwnd, i);
+            if (vd) {
+                delete vd; vd = nullptr;
+            }
+        }
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hwnd, ImportDialog_ListBox_SubclassProc, uIdSubclass);
         break;
@@ -368,16 +365,17 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
-    ImportTrades_doPositionSorting();
 
     HWND hCtl = ImportDialog.AddControl(Controls::Header, hwnd, IDC_IMPORTDIALOG_HEADER, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ImportDialog_Header_SubclassProc,
         IDC_IMPORTDIALOG_HEADER, NULL);
-    Header_InsertNewItem(hCtl, 0, AfxScaleX(nClosedMinColWidth[0]), L"", HDF_CENTER);
-    Header_InsertNewItem(hCtl, 1, AfxScaleX(nClosedMinColWidth[1]), L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 2, AfxScaleX(nClosedMinColWidth[2]), L"Ticker", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 3, AfxScaleX(nClosedMinColWidth[3]), L"Description", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, AfxScaleX(nClosedMinColWidth[4]), L"Amount", HDF_RIGHT);
+    Header_InsertNewItem(hCtl, 0, AfxScaleX(column_widths.at(0)), L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(column_widths.at(1)), L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(column_widths.at(2)), L"Type", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(column_widths.at(3)), L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(column_widths.at(4)), L"Position", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 5, AfxScaleX(column_widths.at(5)), L"Strike", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 6, AfxScaleX(column_widths.at(6)), L"P/C", HDF_LEFT);
     // Must turn off Window Theming for the control in order to correctly apply colors
     SetWindowTheme(hCtl, L"", L"");
 
@@ -387,11 +385,34 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         ImportDialog.AddControl(Controls::ListBox, hwnd, IDC_IMPORTDIALOG_LISTBOX, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)ImportDialog_ListBox_SubclassProc,
             IDC_IMPORTDIALOG_LISTBOX, NULL);
-    ListBox_AddString(hCtl, NULL);
+    
+    ImportTrades_doPositionSorting();
+    
+    for (const auto& p : ibkr) {
+        DisplayStruct* ds = new DisplayStruct;
+        std::string str;
+
+        ds->text.push_back("");
+        ds->text.push_back(p.contract.symbol);
+        ds->text.push_back(p.contract.secType);
+        ds->text.push_back(AfxInsertDateHyphens(p.contract.lastTradeDateOrContractMonth));
+
+        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p.position)), 10);
+        ds->text.push_back(str);
+
+        str = (p.contract.strike) ? unicode2ansi(AfxMoney(p.contract.strike, true, 0)) : "";
+        ds->text.push_back(str);
+        ds->text.push_back(p.contract.right);
+
+        ds->is_checked = false;
+
+        ListBox_AddString(hCtl, ds);
+    }
+
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
@@ -468,12 +489,12 @@ void ImportDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
     case LBN_SELCHANGE: {
         int selected = ListBox_GetCurSel(hwndCtl);
         if (selected == -1) break;
-        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, selected);
-        if (ld) {
+        //ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, selected);
+        //if (ld) {
             // Show the trade history for the selected trade
             //SetShowTradeDetail(true);
             //ShowListBoxItem(selected);
-        }
+       // }
         break;
     }
 
@@ -519,9 +540,9 @@ void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
         DWORD back_color = (is_hot) ? COLOR_SELECTION : COLOR_GRAYDARK;
         DWORD text_color = COLOR_WHITELIGHT;
 
-        std::wstring font_name = AfxGetDefaultFont();
-        FontFamily   fontFamily(font_name.c_str());
-        REAL font_size = 10;
+        std::wstring font_name_normal = AfxGetDefaultFont();
+        std::wstring font_name_symbol = L"Segoe UI Symbol";
+        REAL font_size = 9;
         int font_style = FontStyleRegular;
 
         StringAlignment HAlignment = StringAlignmentNear;
@@ -533,56 +554,49 @@ void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
 
         // Get the current ListBox line data should a valid line exist
         // Paint the individual columns with the specific data.
-        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
+
         int left = 0;
         int column_width = 0;
         int column_start = 0;
-        int column_end = MAX_COLUMNS;
+        int column_end = column_count;
 
-        // If this is a Category separator line then we need to draw it differently
-        // then a regular that would be drawn (full line width)
-        if (ld) {
-            if (ld->line_type == LineType::category_header) {
-                column_start = 0;
-                column_end = 1;
+        DisplayStruct* vd = (DisplayStruct*)(lpDrawItem->itemData);
+        
+        if (vd) {
+
+            // Draw each of the columns
+            for (int i = column_start; i < column_end; ++i) {
+                if (!vd) break;
+
+                // Prepare and draw the text
+                text = ansi2unicode(vd->text.at(i));
+
+                column_width = AfxScaleX(column_widths.at(i));
+
+                back_brush.SetColor(back_color);
+                graphics.FillRectangle(&back_brush, left, 0, column_width, height);
+
+                std::wstring font_name = font_name_normal;
+
+                bool is_checked = vd->is_checked;
+                if (i == 0) {
+                    text = (is_checked) ? L"\u2611" : L"\u2610";
+                    font_name = font_name_symbol;
+                }
+
+                FontFamily fontFamily(font_name.c_str());
+
+                Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
+                SolidBrush   text_brush(text_color);
+                StringFormat stringF(StringFormatFlagsNoWrap);
+                stringF.SetAlignment(HAlignment);
+                stringF.SetLineAlignment(VAlignment);
+
+                RectF rcText((REAL)left, (REAL)0, (REAL)column_width, (REAL)height);
+                graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+
+                left += column_width;
             }
-        }
-
-        // Draw each of the columns
-        for (int i = column_start; i < column_end; ++i) {
-            if (ld == nullptr) break;
-            if (ld->col[i].column_width == 0) break;
-
-            // Prepare and draw the text
-            text = ld->col[i].text;
-
-            HAlignment = ld->col[i].HAlignment;
-            VAlignment = ld->col[i].VAlignment;
-            back_color = (is_hot) ? back_color : ld->col[i].back_theme;
-            text_color = ld->col[i].text_theme;
-            font_size = ld->col[i].font_size;
-            font_style = ld->col[i].font_style;
-
-            column_width = (ld->line_type == LineType::category_header) ? width : AfxScaleX((float)ld->col[i].column_width);
-
-            back_brush.SetColor(back_color);
-            graphics.FillRectangle(&back_brush, left, 0, column_width, height);
-
-            Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
-            SolidBrush   text_brush(text_color);
-            StringFormat stringF(StringFormatFlagsNoWrap);
-            stringF.SetAlignment(HAlignment);
-            stringF.SetLineAlignment(VAlignment);
-
-            // If right alignment then add a very small amount of right side
-            // padding so that text is not pushed up right against the right side.
-            int rightPadding = 0;
-            if (HAlignment == StringAlignmentFar) rightPadding = AfxScaleX(2);
-
-            RectF rcText((REAL)left, (REAL)0, (REAL)column_width - rightPadding, (REAL)height);
-            graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
-
-            left += column_width;
         }
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,

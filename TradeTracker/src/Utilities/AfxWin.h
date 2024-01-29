@@ -81,6 +81,7 @@ double AfxValDouble(const std::wstring& st);
 
 std::wstring AfxCurrentDate();
 std::wstring AfxInsertDateHyphens(const std::wstring& date_string);
+std::string AfxInsertDateHyphens(const std::string& date_string);
 std::wstring AfxRemoveDateHyphens(const std::wstring& date_string);
 bool AfxIsLeapYear(int year);
 int AfxDaysInMonth(int month, int year);
@@ -134,6 +135,7 @@ bool Header_InsertNewItem(HWND hwndHD, int iInsertAfter, int width, LPCWSTR ptex
 std::wstring AfxUpper(const std::wstring& text);
 std::wstring AfxLower(const std::wstring& text);
 std::wstring AfxRSet(const std::wstring& text, int width);
+std::string AfxRSet(const std::string& text, int width);
 std::wstring AfxLSet(const std::wstring& text, int width);
 bool isWineActive();
 

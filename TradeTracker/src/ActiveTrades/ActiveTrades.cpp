@@ -701,6 +701,7 @@ void CActiveTrades::ShowActiveTrades() {
         auto t = std::make_shared<Trade>();
         t = nullptr;
         TradeHistory_ShowTradesHistoryTable(t);
+        show_import_dialog = true;
         PostMessage(ActiveTrades.hWindow, MSG_IMPORTTRADES_ASKIMPORT, 0, 0);
     }
 

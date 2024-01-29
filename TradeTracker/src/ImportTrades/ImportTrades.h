@@ -41,6 +41,11 @@ struct ImportStruct {
     double   avg_cost = 0;
 };
 
+struct DisplayStruct {
+    std::vector<std::string> text;
+    bool is_checked = false;
+};
+
 extern HWND HWND_IMPORTDIALOG;
 
 constexpr int IMPORTDIALOG_LISTBOX_ROWHEIGHT = 18;

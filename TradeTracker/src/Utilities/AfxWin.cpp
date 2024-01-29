@@ -727,6 +727,24 @@ std::wstring AfxInsertDateHyphens(const std::wstring& date_string) {
     return new_date;
 }
 
+std::string AfxInsertDateHyphens(const std::string& date_string) {
+    if (date_string.length() != 8) return "";
+
+    std::string new_date = date_string;
+    // YYYYMMDD
+    // 01234567
+
+    new_date.insert(4, "-");
+    // YYYY-MMDD
+    // 012345678
+
+    new_date.insert(7, "-");
+    // YYYY-MM-DD
+    // 0123456789
+
+    return new_date;
+}
+
 
 // ========================================================================================
 // Remove any embedded hyphen "-" from a date string.
@@ -1407,7 +1425,9 @@ std::wstring AfxRSet(const std::wstring& text, int width) {
     std::wstring spaces_string(num_chars, L' ');
     return spaces_string + text;
 }
-
+std::string AfxRSet(const std::string& text, int width) {
+    return unicode2ansi(AfxRSet(ansi2unicode(text), width));
+}
 
 // ========================================================================================
 // Left align string in of string of size width
