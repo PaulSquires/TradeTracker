@@ -32,6 +32,7 @@ SOFTWARE.
 #include "CustomCalendar/CustomCalendar.h"
 #include "CustomTextBox/CustomTextBox.h"
 #include "CustomMessageBox/CustomMessageBox.h"
+#include "CustomVScrollBar/CustomVScrollBar.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
 #include "tws-api/IntelDecimal/IntelDecimal.h"
@@ -143,6 +144,150 @@ void ImportTrades_AskImportMessage() {
 
 
 // ========================================================================================
+// Header control subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK ImportDialog_Header_SubclassProc(
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg) {
+
+    case WM_ERASEBKGND: {
+        return true;
+    }
+
+    case WM_PAINT: {
+        Header_OnPaint(hwnd);
+        return 0;
+    }
+
+    case WM_DESTROY: {
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hwnd, ImportDialog_Header_SubclassProc, uIdSubclass);
+        break;
+    }
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+// ========================================================================================
+// Listbox subclass Window procedure
+// ========================================================================================
+LRESULT CALLBACK ImportDialog_ListBox_SubclassProc(
+    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    // Create static accumulation variable to collect the data from
+    // a series of middle mouse wheel scrolls.
+    static int accum_delta = 0;
+
+    switch (uMsg) {
+
+    case WM_MOUSEWHEEL: {
+        // Accumulate delta until scroll one line (up +120, down -120). 
+        // 120 is the Microsoft default delta
+        int zdelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
+        accum_delta += zdelta;
+        if (accum_delta >= 120) {     // scroll up 3 lines
+            top_index -= 3;
+            top_index = max(0, top_index);
+            SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+            accum_delta = 0;
+        }
+        else {
+            if (accum_delta <= -120) {     // scroll down 3 lines
+                top_index += +3;
+                SendMessage(hwnd, LB_SETTOPINDEX, top_index, 0);
+                accum_delta = 0;
+            }
+        }
+        HWND hCustomVScrollBar = GetDlgItem(GetParent(hwnd), IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR);
+        CustomVScrollBar_Recalculate(hCustomVScrollBar);
+        return 0;
+    }
+
+    case WM_LBUTTONDOWN: {
+        int idx = Listbox_ItemFromPoint(hwnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        // The return value contains the index of the nearest item in the LOWORD. The HIWORD is zero 
+        // if the specified point is in the client area of the list box, or one if it is outside the 
+        // client area.
+        if (HIWORD(idx) == 1) break;
+
+        SendMessage(GetParent(hwnd), MSG_CLOSEDTRADES_SETSHOWTRADEDETAIL, true, 0);
+        SendMessage(GetParent(hwnd), MSG_CLOSEDTRADES_SHOWLISTBOXITEM, idx, 0);
+        break;
+    }
+
+    case WM_ERASEBKGND: {
+        // If the number of lines in the listbox maybe less than the number per page then 
+        // calculate from last item to bottom of listbox, otherwise calculate based on
+        // the mod of the lineheight to listbox height so we can color the partial line
+        // that won't be displayed at the bottom of the list.
+        RECT rc; GetClientRect(hwnd, &rc);
+
+        RECT rcItem{};
+        SendMessage(hwnd, LB_GETITEMRECT, 0, (LPARAM)&rcItem);
+        int item_height = (rcItem.bottom - rcItem.top);
+        int items_count = ListBox_GetCount(hwnd);
+        int top_index = (int)SendMessage(hwnd, LB_GETTOPINDEX, 0, 0);
+        int visible_rows = 0;
+        int items_per_page = 0;
+        int bottom_index = 0;
+        int width = (rc.right - rc.left);
+        int height = (rc.bottom - rc.top);
+
+        if (items_count > 0) {
+            items_per_page = (height) / item_height;
+            bottom_index = (top_index + items_per_page);
+            if (bottom_index >= items_count)
+                bottom_index = items_count - 1;
+            visible_rows = (bottom_index - top_index) + 1;
+            rc.top = visible_rows * item_height;
+        }
+
+        if (rc.top < rc.bottom) {
+            height = (rc.bottom - rc.top);
+            HDC hDC = (HDC)wParam;
+            Graphics graphics(hDC);
+            SolidBrush back_brush(COLOR_GRAYDARK);
+            graphics.FillRectangle(&back_brush, rc.left, rc.top, width, height);
+        }
+
+        ValidateRect(hwnd, &rc);
+        return true;
+    }
+
+    case WM_DESTROY: {
+        // Destroy all manually allocated ListBox display data that is held
+        // in the LineData structures..
+        ListBoxData_DestroyItemData(hwnd);
+
+        // REQUIRED: Remove control subclassing
+        RemoveWindowSubclass(hwnd, ImportDialog_ListBox_SubclassProc, uIdSubclass);
+        break;
+    }
+
+    }   // end of switch statment
+
+    // For messages that we don't deal with
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+// ========================================================================================
+// Process WM_MEASUREITEM message for window/dialog: ImportDialog
+// ========================================================================================
+void ImportDialog_OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem) {
+    lpMeasureItem->itemHeight = AfxScaleY(IMPORTDIALOG_LISTBOX_ROWHEIGHT);
+}
+
+
+// ========================================================================================
 // Process WM_CLOSE message for window/dialog: ImportDialog
 // ========================================================================================
 void ImportDialog_OnClose(HWND hwnd) {
@@ -164,6 +309,57 @@ void ImportDialog_OnDestroy(HWND hwnd) {
 
 
 // ========================================================================================
+// Process WM_SIZE message for window/dialog: ImportDialog
+// ========================================================================================
+void ImportDialog_OnSize(HWND hwnd, UINT state, int cx, int cy) {
+
+    HWND hListBox = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX);
+    HWND hHeader = GetDlgItem(hwnd, IDC_IMPORTDIALOG_HEADER);
+    HWND hVScrollBar = GetDlgItem(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR);
+
+    // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
+    // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
+    // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
+    bool bshow_scrollbar = false;
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hVScrollBar);
+    if (pData) {
+        if (pData->drag_active) {
+            bshow_scrollbar = true;
+        }
+        else {
+            bshow_scrollbar = pData->calcVThumbRect();
+        }
+    }
+    int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
+
+    //int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
+    int left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
+    int top = 0;
+    int width = cx;
+    int height = 0;
+
+    HDWP hdwp = BeginDeferWindowPos(10);
+
+    left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
+    width = cx - left;
+    height = AfxScaleY(IMPORTDIALOG_LISTBOX_ROWHEIGHT);
+    hdwp = DeferWindowPos(hdwp, hHeader, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = top + height + AfxScaleY(1);
+
+    width = cx - left - custom_scrollbar_width;
+    height = cy - top;
+    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    left = left + width;   // right edge of ListBox
+    width = custom_scrollbar_width;
+    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, left, top, width, height,
+        SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
+    EndDeferWindowPos(hdwp);
+}
+
+
+// ========================================================================================
 // Process WM_CREATE message for window/dialog: ImportDialog
 // ========================================================================================
 bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
@@ -174,8 +370,34 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
     ImportTrades_doPositionSorting();
 
+    HWND hCtl = ImportDialog.AddControl(Controls::Header, hwnd, IDC_IMPORTDIALOG_HEADER, L"",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ImportDialog_Header_SubclassProc,
+        IDC_IMPORTDIALOG_HEADER, NULL);
+    Header_InsertNewItem(hCtl, 0, AfxScaleX(nClosedMinColWidth[0]), L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(nClosedMinColWidth[1]), L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(nClosedMinColWidth[2]), L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(nClosedMinColWidth[3]), L"Description", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(nClosedMinColWidth[4]), L"Amount", HDF_RIGHT);
+    // Must turn off Window Theming for the control in order to correctly apply colors
+    SetWindowTheme(hCtl, L"", L"");
+
+    // Create an Ownerdraw fixed row sized listbox that we will use to custom
+    // paint our various closed trades.
+    hCtl =
+        ImportDialog.AddControl(Controls::ListBox, hwnd, IDC_IMPORTDIALOG_LISTBOX, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)ImportDialog_ListBox_SubclassProc,
+            IDC_IMPORTDIALOG_LISTBOX, NULL);
+    ListBox_AddString(hCtl, NULL);
+
+    // Create our custom vertical scrollbar and attach the ListBox to it.
+    CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
+
     // SAVE button
-    HWND hCtl = CustomLabel_ButtonLabel(hwnd, IDC_IMPORTDIALOG_SAVE, L"SAVE",
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_IMPORTDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 580, 390, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
@@ -241,7 +463,136 @@ void ImportDialog_OnPaint(HWND hwnd) {
 // Process WM_COMMAND message for window/dialog: ImportDialog
 // ========================================================================================
 void ImportDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
-    
+    switch (codeNotify) {
+
+    case LBN_SELCHANGE: {
+        int selected = ListBox_GetCurSel(hwndCtl);
+        if (selected == -1) break;
+        ListBoxData* ld = (ListBoxData*)ListBox_GetItemData(hwndCtl, selected);
+        if (ld) {
+            // Show the trade history for the selected trade
+            //SetShowTradeDetail(true);
+            //ShowListBoxItem(selected);
+        }
+        break;
+    }
+
+    }
+}
+
+
+// ========================================================================================
+// Process WM_DRAWITEM message for window/dialog 
+// (common function for custom drawing listbox data)
+// ========================================================================================
+void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
+    if (lpDrawItem->itemID == -1) return;
+
+    if (lpDrawItem->itemAction == ODA_DRAWENTIRE ||
+        lpDrawItem->itemAction == ODA_SELECT) {
+
+        int width = (lpDrawItem->rcItem.right - lpDrawItem->rcItem.left);
+        int height = (lpDrawItem->rcItem.bottom - lpDrawItem->rcItem.top);
+
+        bool is_hot = false;
+
+        SaveDC(lpDrawItem->hDC);
+
+        HDC memDC = NULL;         // Double buffering
+        HBITMAP hbit = NULL;      // Double buffering
+
+        memDC = CreateCompatibleDC(lpDrawItem->hDC);
+        hbit = CreateCompatibleBitmap(lpDrawItem->hDC, width, height);
+        if (hbit) SelectObject(memDC, hbit);
+
+        if ((lpDrawItem->itemAction | ODA_SELECT) &&
+            (lpDrawItem->itemState & ODS_SELECTED)) {
+            is_hot = true;
+        }
+
+        Graphics graphics(memDC);
+        graphics.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
+
+        // Set some defaults in case there is no valid ListBox line number
+        std::wstring text;
+
+        DWORD back_color = (is_hot) ? COLOR_SELECTION : COLOR_GRAYDARK;
+        DWORD text_color = COLOR_WHITELIGHT;
+
+        std::wstring font_name = AfxGetDefaultFont();
+        FontFamily   fontFamily(font_name.c_str());
+        REAL font_size = 10;
+        int font_style = FontStyleRegular;
+
+        StringAlignment HAlignment = StringAlignmentNear;
+        StringAlignment VAlignment = StringAlignmentCenter;
+
+        // Paint the full width background using brush 
+        SolidBrush back_brush(back_color);
+        graphics.FillRectangle(&back_brush, 0, 0, width, height);
+
+        // Get the current ListBox line data should a valid line exist
+        // Paint the individual columns with the specific data.
+        ListBoxData* ld = (ListBoxData*)(lpDrawItem->itemData);
+        int left = 0;
+        int column_width = 0;
+        int column_start = 0;
+        int column_end = MAX_COLUMNS;
+
+        // If this is a Category separator line then we need to draw it differently
+        // then a regular that would be drawn (full line width)
+        if (ld) {
+            if (ld->line_type == LineType::category_header) {
+                column_start = 0;
+                column_end = 1;
+            }
+        }
+
+        // Draw each of the columns
+        for (int i = column_start; i < column_end; ++i) {
+            if (ld == nullptr) break;
+            if (ld->col[i].column_width == 0) break;
+
+            // Prepare and draw the text
+            text = ld->col[i].text;
+
+            HAlignment = ld->col[i].HAlignment;
+            VAlignment = ld->col[i].VAlignment;
+            back_color = (is_hot) ? back_color : ld->col[i].back_theme;
+            text_color = ld->col[i].text_theme;
+            font_size = ld->col[i].font_size;
+            font_style = ld->col[i].font_style;
+
+            column_width = (ld->line_type == LineType::category_header) ? width : AfxScaleX((float)ld->col[i].column_width);
+
+            back_brush.SetColor(back_color);
+            graphics.FillRectangle(&back_brush, left, 0, column_width, height);
+
+            Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
+            SolidBrush   text_brush(text_color);
+            StringFormat stringF(StringFormatFlagsNoWrap);
+            stringF.SetAlignment(HAlignment);
+            stringF.SetLineAlignment(VAlignment);
+
+            // If right alignment then add a very small amount of right side
+            // padding so that text is not pushed up right against the right side.
+            int rightPadding = 0;
+            if (HAlignment == StringAlignmentFar) rightPadding = AfxScaleX(2);
+
+            RectF rcText((REAL)left, (REAL)0, (REAL)column_width - rightPadding, (REAL)height);
+            graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+
+            left += column_width;
+        }
+
+        BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
+            lpDrawItem->rcItem.top, width, height, memDC, 0, 0, SRCCOPY);
+
+        // Cleanup
+        RestoreDC(lpDrawItem->hDC, -1);
+        if (hbit) DeleteObject(hbit);
+        if (memDC) DeleteDC(memDC);
+    }
 }
 
 
@@ -251,11 +602,14 @@ void ImportDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
 LRESULT CImportDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         HANDLE_MSG(m_hwnd, WM_CREATE, ImportDialog_OnCreate);
+        HANDLE_MSG(m_hwnd, WM_SIZE, ImportDialog_OnSize);
         HANDLE_MSG(m_hwnd, WM_COMMAND, ImportDialog_OnCommand);
         HANDLE_MSG(m_hwnd, WM_DESTROY, ImportDialog_OnDestroy);
         HANDLE_MSG(m_hwnd, WM_CLOSE, ImportDialog_OnClose);
         HANDLE_MSG(m_hwnd, WM_ERASEBKGND, ImportDialog_OnEraseBkgnd);
         HANDLE_MSG(m_hwnd, WM_PAINT, ImportDialog_OnPaint);
+        HANDLE_MSG(m_hwnd, WM_MEASUREITEM, ImportDialog_OnMeasureItem);
+        HANDLE_MSG(m_hwnd, WM_DRAWITEM, ImportDialog_OnDrawItem);
 
     case WM_SHOWWINDOW: {
         // Workaround for the Windows 11 (The cloaking solution seems to work only
