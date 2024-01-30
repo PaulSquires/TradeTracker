@@ -38,6 +38,8 @@ SOFTWARE.
 #include "tws-api/IntelDecimal/IntelDecimal.h"
 #include "MainWindow/MainWindow.h"
 #include "MainWindow/tws-client.h"
+#include "ActiveTrades/ActiveTrades.h"
+#include "Reconcile/Reconcile.h"
 
 #include "ImportTrades.h"
 
@@ -52,16 +54,144 @@ bool show_import_dialog = false;
 
 std::vector<ImportStruct> ibkr;    // persistent 
 
+int column_group_id = 7;
 int column_count = 8;
 std::vector<int> column_widths{ 20,55,45,80,50,55,40,55 };
 
 std::vector<DisplayStruct*> dsvector;
 
 
+
+
+// ========================================================================================
+// Create the grouped trades into actual Trade/Transactions
+// ========================================================================================
+void ImportDialog_CreateTradeTransactions() {
+
+    tws_CancelPositions();
+
+    // Sort the data based on group_id
+    std::sort(dsvector.begin(), dsvector.end(),
+        [](const auto& ds1, const auto& ds2) {
+            {
+                if (ds1->group_id < ds2->group_id) return true;
+                if (ds2->group_id < ds1->group_id) return false;
+                return false;
+            }
+        });
+
+    std::shared_ptr<Trade> trade;
+    std::shared_ptr<Transaction> trans;
+    std::shared_ptr<Leg> leg;
+
+    int current_group_id = 0;
+
+    for (const auto& ds : dsvector) {
+        if (ds->group_id == 0) continue;
+
+        if (ds->group_id != current_group_id) {
+            current_group_id = ds->group_id;
+
+            trade = std::make_shared<Trade>();
+            trades.push_back(trade);
+
+            trade->ticker_symbol = ansi2unicode(ds->ibkr_ptr->contract.symbol);
+            trade->ticker_name = trade->ticker_symbol;
+            trade->future_expiry = L""; // ansi2unicode(ds->ibkr_ptr->contract.lastTradeDateOrContractMonth);
+        }
+
+        int intQuantity = (int)intelDecimalToDouble(ds->ibkr_ptr->position);
+
+        if (trade) {
+            trans = std::make_shared<Transaction>();
+            trans->trans_date = AfxCurrentDate();
+            if (ds->ibkr_ptr->contract.secType == "OPT" ||
+                ds->ibkr_ptr->contract.secType == "FOP") {
+                trans->description = L"Options";
+                trans->underlying = Underlying::Options;
+            }
+            if (ds->ibkr_ptr->contract.secType == "STK") {
+                trans->description = L"Shares";
+                trans->underlying = Underlying::Shares;
+                trans->share_longshort = (intQuantity > 0) ? LongShort::Long : LongShort::Short;
+            }
+            if (ds->ibkr_ptr->contract.secType == "FUT") {
+                trans->description = L"Futures";
+                trans->underlying = Underlying::Futures;
+                trans->share_longshort = (intQuantity > 0) ? LongShort::Long : LongShort::Short;
+            }
+
+            trans->quantity = abs(intQuantity);
+            trans->multiplier = AfxValDouble(ansi2unicode(ds->ibkr_ptr->contract.multiplier));
+            trade->transactions.push_back(trans);
+
+            // Add the new transaction legs
+
+            leg = std::make_shared<Leg>();
+
+            trade->nextleg_id += 1;
+            leg->leg_id = trade->nextleg_id;
+            leg->underlying = trans->underlying;
+            leg->expiry_date = ansi2unicode(ds->ibkr_ptr->contract.lastTradeDateOrContractMonth);
+
+            if (ds->ibkr_ptr->contract.secType == "FOP") {
+                trade->future_expiry = leg->expiry_date;
+            }
+
+            std::string str = unicode2ansi(AfxMoney(ds->ibkr_ptr->contract.strike, true, 5));
+            // Remove trailing zeroes
+            str = str.substr(0, str.find_last_not_of('0') + 1);
+            // If the decimal point is now the last character, remove that as well
+            if (str.find('.') == str.size() - 1) {
+                str = str.substr(0, str.size() - 1);
+            }
+            leg->strike_price = ansi2unicode(str);
+            leg->strike_price = AfxRemove(leg->strike_price, L",");
+
+            leg->put_call = db.StringToPutCall(ansi2unicode(ds->ibkr_ptr->contract.right));
+            leg->trans = trans;
+            leg->original_quantity = intQuantity;
+            leg->open_quantity = intQuantity;
+            leg->action = (intQuantity < 0) ? Action::STO : Action::BTO;
+
+            trans->legs.push_back(leg);
+        }
+
+    }
+
+    db.SaveDatabase();
+    db.LoadDatabase();
+    Reconcile_LoadAllLocalPositions();
+    ActiveTrades.ShowActiveTrades();
+}
+
+
+// ========================================================================================
+// Create and format the GroupId display string
+// ========================================================================================
+std::string Make_GroupId_String(DisplayStruct* ds) {
+    std::string text = "00000" + std::to_string(ds->group_id);
+    return text.substr(text.size() - 5);
+}
+
+
+// ========================================================================================
+// Recalculate the ListBox scrollbars.
+// ========================================================================================
+void Calculate_ListBox_ScrollBars() {
+    HWND hVScrollBar1 = GetDlgItem(HWND_IMPORTDIALOG, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1);
+    HWND hVScrollBar2 = GetDlgItem(HWND_IMPORTDIALOG, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR2);
+
+    CustomVScrollBar_Recalculate(hVScrollBar1);
+    CustomVScrollBar_Recalculate(hVScrollBar2);
+}
+
+
 // ========================================================================================
 // Populate the UnGrouped ListBox
 // ========================================================================================
 void ImportTrades_Populate_UnGrouped_ListBox(HWND hListBox) {
+    int top_index = ListBox_GetTopIndex(hListBox);
     ListBox_ResetContent(hListBox);
 
     for (int i = 0; i < dsvector.size(); ++i) {
@@ -72,6 +202,10 @@ void ImportTrades_Populate_UnGrouped_ListBox(HWND hListBox) {
     }
 
     ListBox_AddString(hListBox, 0);
+    ListBox_SetTopIndex(hListBox, top_index);
+    Calculate_ListBox_ScrollBars();
+
+    AfxRedrawWindow(hListBox);
 }
 
 
@@ -79,16 +213,22 @@ void ImportTrades_Populate_UnGrouped_ListBox(HWND hListBox) {
 // Populate the Grouped ListBox
 // ========================================================================================
 void ImportTrades_Populate_Grouped_ListBox(HWND hListBox) {
+    int top_index = ListBox_GetTopIndex(hListBox);
     ListBox_ResetContent(hListBox);
 
     for (int i = 0; i < dsvector.size(); ++i) {
         DisplayStruct* ds = dsvector.at(i);
         if (ds && ds->group_id != 0) {
+            ds->text.at(column_group_id) = Make_GroupId_String(ds);
             ListBox_AddString(hListBox, ds);
         }
     }
 
     ListBox_AddString(hListBox, 0);
+    ListBox_SetTopIndex(hListBox, top_index);
+    Calculate_ListBox_ScrollBars();
+
+    AfxRedrawWindow(hListBox);
 }
 
 
@@ -107,10 +247,10 @@ void ImportTrades_Popuplate_ListBoxes() {
 void ImportTrades_doGroup() {
     // Loop through for is_checked == true and assign new group_id
     static int group_id = 0;
+    group_id++;
 
     for (auto& ds : dsvector) {
         if (ds->is_checked) {
-            group_id++;
             ds->is_checked = false;
             ds->group_id = group_id;
         }
@@ -537,6 +677,7 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
         }
         ds->text.push_back(str);
         ds->text.push_back(p->contract.right);
+        ds->text.push_back("");   // group_id
 
         ds->is_checked = false;
         ds->group_id = 0;
@@ -742,43 +883,40 @@ void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
 
         DisplayStruct* vd = (DisplayStruct*)(lpDrawItem->itemData);
         
-        if (vd) {
+        // Draw each of the columns
+        for (int i = column_start; i < column_end; ++i) {
+            if (!vd) break;
 
-            // Draw each of the columns
-            for (int i = column_start; i < column_end; ++i) {
-                if (!vd) break;
+            // Prepare and draw the text
+            text = ansi2unicode(vd->text.at(i));
 
-                // Prepare and draw the text
-                text = ansi2unicode(vd->text.at(i));
+            column_width = AfxScaleX(column_widths.at(i));
 
-                column_width = AfxScaleX(column_widths.at(i));
+            back_brush.SetColor(back_color);
+            graphics.FillRectangle(&back_brush, left, 0, column_width, height);
 
-                back_brush.SetColor(back_color);
-                graphics.FillRectangle(&back_brush, left, 0, column_width, height);
+            std::wstring font_name = font_name_normal;
+            DWORD text_color = text_color_text;
 
-                std::wstring font_name = font_name_normal;
-                DWORD text_color = text_color_text;
-
-                bool is_checked = vd->is_checked;
-                if (i == 0) {
-                    text = (is_checked) ? L"\u2611" : L"\u2610";
-                    font_name = font_name_symbol;
-                    text_color = (!is_checked) ? text_color_symbol : text_color_text;
-                }
-
-                FontFamily fontFamily(font_name.c_str());
-
-                Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
-                SolidBrush   text_brush(text_color);
-                StringFormat stringF(StringFormatFlagsNoWrap);
-                stringF.SetAlignment(HAlignment);
-                stringF.SetLineAlignment(VAlignment);
-
-                RectF rcText((REAL)left, (REAL)0, (REAL)column_width, (REAL)height);
-                graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
-
-                left += column_width;
+            bool is_checked = vd->is_checked;
+            if (i == 0) {
+                text = (is_checked) ? L"\u2611" : L"\u2610";
+                font_name = font_name_symbol;
+                text_color = (!is_checked) ? text_color_symbol : text_color_text;
             }
+
+            FontFamily fontFamily(font_name.c_str());
+
+            Font         font(&fontFamily, font_size, font_style, Unit::UnitPoint);
+            SolidBrush   text_brush(text_color);
+            StringFormat stringF(StringFormatFlagsNoWrap);
+            stringF.SetAlignment(HAlignment);
+            stringF.SetLineAlignment(VAlignment);
+
+            RectF rcText((REAL)left, (REAL)0, (REAL)column_width, (REAL)height);
+            graphics.DrawString(text.c_str(), -1, &font, rcText, &stringF, &text_brush);
+
+            left += column_width;
         }
 
         BitBlt(lpDrawItem->hDC, lpDrawItem->rcItem.left,
@@ -858,20 +996,25 @@ LRESULT CImportDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (ctrl_id == IDC_IMPORTDIALOG_GROUP) {
             ImportTrades_doGroup();
+            return 0;
         }
 
         if (ctrl_id == IDC_IMPORTDIALOG_UNGROUP) {
             ImportTrades_doUnGroup();
+            return 0;
         }
 
         if (ctrl_id == IDC_IMPORTDIALOG_SAVE) {
+            ImportDialog_CreateTradeTransactions();
             dialog_return_code = DIALOG_RETURN_OK;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+            return 0;
         }
 
         if (ctrl_id == IDC_IMPORTDIALOG_CANCEL) {
             dialog_return_code = DIALOG_RETURN_CANCEL;
             SendMessage(m_hwnd, WM_CLOSE, 0, 0);
+            return 0;
         }
 
         return 0;
@@ -928,6 +1071,8 @@ int ImportDialog_Show() {
     dialog_return_code = DIALOG_RETURN_CANCEL;
 
     show_import_dialog = false;
+
+    Calculate_ListBox_ScrollBars();
 
     // Call modal message pump and wait for it to end.
     MSG msg{};

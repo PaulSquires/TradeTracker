@@ -105,7 +105,6 @@ extern std::unordered_map<int, PortfolioData> mapPortfolioData;
 
 extern TwsClient client;
 
-
 void tws_StartMonitorThread();
 void tws_EndMonitorThread();
 void tws_StartTickerUpdateThread();

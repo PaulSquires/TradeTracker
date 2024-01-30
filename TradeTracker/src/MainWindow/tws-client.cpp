@@ -54,6 +54,7 @@ std::atomic<bool> is_ping_thread_active = false;
 std::atomic<bool> is_ticker_update_thread_active = false;
 
 bool market_data_subscription_error = false;
+bool positionEnd_fired = false;
 
 std::jthread monitoring_thread;
 std::jthread ticker_update_thread;
@@ -906,7 +907,6 @@ void TwsClient::error(int id, int error_code,
 	}
 }
 
-static bool positionEnd_fired = false;
 
 void TwsClient::position(const std::string& account, const Contract& contract, Decimal position, double avg_cost) {
 	// This callback is initiated by the reqPositions().
@@ -921,10 +921,8 @@ void TwsClient::position(const std::string& account, const Contract& contract, D
 
 
 void TwsClient::positionEnd() {
-	if (!positionEnd_fired) {
-		Reconcile_doPositionMatching();
-		positionEnd_fired = true;
-	}
+	Reconcile_doPositionMatching();
+	positionEnd_fired = true;
 
 	// Send notification to ActiveTrades window that positions have all been loaded
 	// thereby allowing the loading of portfolio values.

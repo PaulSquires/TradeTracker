@@ -82,6 +82,7 @@ public:
     NewTradeType new_trade_type = NewTradeType::Custom;
 
     bool pause_live_updates = false;
+    bool positions_requested = false;
 
     void ShowActiveTrades();
     void PerformITMcalculation(std::shared_ptr<Trade>& trade);

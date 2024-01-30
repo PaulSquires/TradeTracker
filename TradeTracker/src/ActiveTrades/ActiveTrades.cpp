@@ -563,7 +563,6 @@ void CActiveTrades::ShowListBoxItem(int index) {
 // ========================================================================================
 void CActiveTrades::ShowActiveTrades() {
 
-    static bool positions_requested = false;
     static int ticker_id = 100;
     int current_sel{0};
 
