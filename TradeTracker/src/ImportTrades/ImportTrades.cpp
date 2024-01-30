@@ -52,8 +52,8 @@ bool show_import_dialog = false;
 
 std::vector<ImportStruct> ibkr;    // persistent 
 
-int column_count = 7;
-std::vector<int> column_widths{ 20,55,55,85,60,65,50 };
+int column_count = 8;
+std::vector<int> column_widths{ 20,55,45,80,50,55,40,55 };
 
 
 
@@ -198,7 +198,10 @@ LRESULT CALLBACK ImportDialog_ListBox_SubclassProc(
                 accum_delta = 0;
             }
         }
-        HWND hCustomVScrollBar = GetDlgItem(GetParent(hwnd), IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR);
+        HWND hCustomVScrollBar = 
+            (GetDlgCtrlID(hwnd) == IDC_IMPORTDIALOG_LISTBOX1) ? 
+            GetDlgItem(GetParent(hwnd), IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1) :
+            GetDlgItem(GetParent(hwnd), IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR2);
         CustomVScrollBar_Recalculate(hCustomVScrollBar);
         return 0;
     }
@@ -310,15 +313,20 @@ void ImportDialog_OnDestroy(HWND hwnd) {
 // ========================================================================================
 void ImportDialog_OnSize(HWND hwnd, UINT state, int cx, int cy) {
 
-    HWND hListBox = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX);
-    HWND hHeader = GetDlgItem(hwnd, IDC_IMPORTDIALOG_HEADER);
-    HWND hVScrollBar = GetDlgItem(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR);
+    HWND hLabel1 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LBLUNGROUPED);
+    HWND hListBox1 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX1);
+    HWND hHeader1 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_HEADER1);
+    HWND hVScrollBar1 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1);
+    HWND hLabel2 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LBLGROUPED);
+    HWND hListBox2 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX2);
+    HWND hHeader2 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_HEADER2);
+    HWND hVScrollBar2 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR2);
 
     // Do not call the calcVThumbRect() function during a scrollbar move. This WM_SIZE
     // gets triggered when the ListBox WM_DRAWITEM fires. If we do another calcVThumbRect()
     // calcualtion then the scrollbar will appear "jumpy" under the user's mouse cursor.
     bool bshow_scrollbar = false;
-    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hVScrollBar);
+    CustomVScrollBar* pData = CustomVScrollBar_GetPointer(hVScrollBar1);
     if (pData) {
         if (pData->drag_active) {
             bshow_scrollbar = true;
@@ -329,28 +337,55 @@ void ImportDialog_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     }
     int custom_scrollbar_width = bshow_scrollbar ? AfxScaleX(CUSTOMVSCROLLBAR_WIDTH) : 0;
 
-    //int margin = AfxScaleY(CLOSEDTRADES_MARGIN);
     int left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
     int top = 0;
-    int width = cx;
+    int width = 0;
     int height = 0;
 
     HDWP hdwp = BeginDeferWindowPos(10);
 
     left = AfxScaleX(APP_LEFTMARGIN_WIDTH);
-    width = cx - left;
+    width = AfxScaleX(200);
+    height = AfxScaleY(23);
+    hdwp = DeferWindowPos(hdwp, hLabel1, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = top + height;
+
+    width = AfxScaleX(350);
     height = AfxScaleY(IMPORTDIALOG_LISTBOX_ROWHEIGHT);
-    hdwp = DeferWindowPos(hdwp, hHeader, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hHeader1, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
     top = top + height + AfxScaleY(1);
 
-    width = cx - left - custom_scrollbar_width;
+    width = width - custom_scrollbar_width;
     height = cy - top;
-    hdwp = DeferWindowPos(hdwp, hListBox, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    hdwp = DeferWindowPos(hdwp, hListBox1, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
 
     left = left + width;   // right edge of ListBox
     width = custom_scrollbar_width;
-    hdwp = DeferWindowPos(hdwp, hVScrollBar, 0, left, top, width, height,
+    hdwp = DeferWindowPos(hdwp, hVScrollBar1, 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
+
+    top = 0;
+    left = AfxScaleX(485);
+    width = AfxScaleX(200);
+    height = AfxScaleY(23);
+    hdwp = DeferWindowPos(hdwp, hLabel2, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = top + height;
+
+    width = AfxScaleX(400);
+    height = AfxScaleY(IMPORTDIALOG_LISTBOX_ROWHEIGHT);
+    hdwp = DeferWindowPos(hdwp, hHeader2, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+    top = top + height + AfxScaleY(1);
+
+    width = width - custom_scrollbar_width;
+    height = cy - top;
+    hdwp = DeferWindowPos(hdwp, hListBox2, 0, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+    left = left + width;   // right edge of ListBox
+    width = custom_scrollbar_width;
+    hdwp = DeferWindowPos(hdwp, hVScrollBar2, 0, left, top, width, height,
+        SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+
 
     EndDeferWindowPos(hdwp);
 }
@@ -365,15 +400,20 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     std::wstring font_name = AfxGetDefaultFont();
     int font_size = 9;
 
+    CustomLabel_SimpleLabel(hwnd, IDC_IMPORTDIALOG_LBLUNGROUPED, L"Ungrouped Trades",
+        COLOR_WHITEDARK, COLOR_GRAYDARK);
 
-    HWND hCtl = ImportDialog.AddControl(Controls::Header, hwnd, IDC_IMPORTDIALOG_HEADER, L"",
+    CustomLabel_SimpleLabel(hwnd, IDC_IMPORTDIALOG_LBLGROUPED, L"Grouped Trades",
+        COLOR_WHITEDARK, COLOR_GRAYDARK);
+
+    HWND hCtl = ImportDialog.AddControl(Controls::Header, hwnd, IDC_IMPORTDIALOG_HEADER1, L"",
         0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ImportDialog_Header_SubclassProc,
-        IDC_IMPORTDIALOG_HEADER, NULL);
+        IDC_IMPORTDIALOG_HEADER1, NULL);
     Header_InsertNewItem(hCtl, 0, AfxScaleX(column_widths.at(0)), L"", HDF_CENTER);
     Header_InsertNewItem(hCtl, 1, AfxScaleX(column_widths.at(1)), L"Ticker", HDF_LEFT);
     Header_InsertNewItem(hCtl, 2, AfxScaleX(column_widths.at(2)), L"Type", HDF_LEFT);
     Header_InsertNewItem(hCtl, 3, AfxScaleX(column_widths.at(3)), L"Date", HDF_LEFT);
-    Header_InsertNewItem(hCtl, 4, AfxScaleX(column_widths.at(4)), L"Position", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(column_widths.at(4)), L"Pos", HDF_LEFT);
     Header_InsertNewItem(hCtl, 5, AfxScaleX(column_widths.at(5)), L"Strike", HDF_LEFT);
     Header_InsertNewItem(hCtl, 6, AfxScaleX(column_widths.at(6)), L"P/C", HDF_LEFT);
     // Must turn off Window Theming for the control in order to correctly apply colors
@@ -382,52 +422,106 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     // Create an Ownerdraw fixed row sized listbox that we will use to custom
     // paint our various closed trades.
     hCtl =
-        ImportDialog.AddControl(Controls::ListBox, hwnd, IDC_IMPORTDIALOG_LISTBOX, L"",
+        ImportDialog.AddControl(Controls::ListBox, hwnd, IDC_IMPORTDIALOG_LISTBOX1, L"",
             0, 0, 0, 0,
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
-            LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)ImportDialog_ListBox_SubclassProc,
-            IDC_IMPORTDIALOG_LISTBOX, NULL);
+            IDC_IMPORTDIALOG_LISTBOX1, NULL);
     
     ImportTrades_doPositionSorting();
     
-    for (const auto& p : ibkr) {
+    for (int i = 0; i < ibkr.size(); ++i) {
         DisplayStruct* ds = new DisplayStruct;
+
+        ImportStruct* p = &ibkr.at(i);
+        ds->ibkr_ptr = p;
+
         std::string str;
 
         ds->text.push_back("");
-        ds->text.push_back(p.contract.symbol);
-        ds->text.push_back(p.contract.secType);
-        ds->text.push_back(AfxInsertDateHyphens(p.contract.lastTradeDateOrContractMonth));
+        ds->text.push_back(p->contract.symbol);
+        ds->text.push_back(p->contract.secType);
+        ds->text.push_back(AfxInsertDateHyphens(p->contract.lastTradeDateOrContractMonth));
 
-        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p.position)), 10);
+        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p->position)), 10);
         ds->text.push_back(str);
 
-        str = (p.contract.strike) ? unicode2ansi(AfxMoney(p.contract.strike, true, 0)) : "";
+        str = (p->contract.strike) ? unicode2ansi(AfxMoney(p->contract.strike, true, 5)) : "";
+        // Remove trailing zeroes
+        str = str.substr(0, str.find_last_not_of('0') + 1);
+        // If the decimal point is now the last character, remove that as well
+        if (str.find('.') == str.size() - 1) {
+            str = str.substr(0, str.size() - 1);
+        }
         ds->text.push_back(str);
-        ds->text.push_back(p.contract.right);
+        ds->text.push_back(p->contract.right);
 
         ds->is_checked = false;
 
         ListBox_AddString(hCtl, ds);
     }
-
+    ListBox_AddString(hCtl, 0);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
-    CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR, hCtl, Controls::ListBox);
+    CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1, hCtl, Controls::ListBox);
+
+    hCtl = ImportDialog.AddControl(Controls::Header, hwnd, IDC_IMPORTDIALOG_HEADER2, L"",
+        0, 0, 0, 0, -1, -1, NULL, (SUBCLASSPROC)ImportDialog_Header_SubclassProc,
+        IDC_IMPORTDIALOG_HEADER2, NULL);
+    Header_InsertNewItem(hCtl, 0, AfxScaleX(column_widths.at(0)), L"", HDF_CENTER);
+    Header_InsertNewItem(hCtl, 1, AfxScaleX(column_widths.at(1)), L"Ticker", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 2, AfxScaleX(column_widths.at(2)), L"Type", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 3, AfxScaleX(column_widths.at(3)), L"Date", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 4, AfxScaleX(column_widths.at(4)), L"Pos", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 5, AfxScaleX(column_widths.at(5)), L"Strike", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 6, AfxScaleX(column_widths.at(6)), L"P/C", HDF_LEFT);
+    Header_InsertNewItem(hCtl, 7, AfxScaleX(column_widths.at(7)), L"ID", HDF_LEFT);
+    // Must turn off Window Theming for the control in order to correctly apply colors
+    SetWindowTheme(hCtl, L"", L"");
+
+    // Create an Ownerdraw fixed row sized listbox that we will use to custom
+    // paint our various closed trades.
+    hCtl =
+        ImportDialog.AddControl(Controls::ListBox, hwnd, IDC_IMPORTDIALOG_LISTBOX2, L"",
+            0, 0, 0, 0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP |
+            LBS_NOINTEGRALHEIGHT | LBS_OWNERDRAWFIXED | LBS_NOTIFY,
+            WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
+            (SUBCLASSPROC)ImportDialog_ListBox_SubclassProc,
+            IDC_IMPORTDIALOG_LISTBOX2, NULL);
+    ListBox_AddString(hCtl, 0);
+
+    // Create our custom vertical scrollbar and attach the ListBox to it.
+    CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR2, hCtl, Controls::ListBox);
+
+
+    // GROUP button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_IMPORTDIALOG_GROUP, L"Group >>",
+        COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 390, 200, 80, 23);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
+
+    // UNGROUP button
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_IMPORTDIALOG_UNGROUP, L"<< UnGroup",
+        COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
+        CustomLabelAlignment::middle_center, 390, 240, 80, 23);
+    CustomLabel_SetFont(hCtl, font_name, font_size, true);
+    CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // SAVE button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_IMPORTDIALOG_SAVE, L"SAVE",
         COLOR_BLACK, COLOR_GREEN, COLOR_GREEN, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 580, 390, 80, 23);
+        CustomLabelAlignment::middle_center, 390, 490, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
     // CANCEL button
     hCtl = CustomLabel_ButtonLabel(hwnd, IDC_IMPORTDIALOG_CANCEL, L"Cancel",
         COLOR_BLACK, COLOR_RED, COLOR_RED, COLOR_GRAYMEDIUM, COLOR_WHITE,
-        CustomLabelAlignment::middle_center, 580, 423, 80, 23);
+        CustomLabelAlignment::middle_center, 390, 523, 80, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
@@ -538,7 +632,8 @@ void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
         std::wstring text;
 
         DWORD back_color = (is_hot) ? COLOR_SELECTION : COLOR_GRAYDARK;
-        DWORD text_color = COLOR_WHITELIGHT;
+        DWORD text_color_text = COLOR_WHITELIGHT;
+        DWORD text_color_symbol = COLOR_WHITEDARK;
 
         std::wstring font_name_normal = AfxGetDefaultFont();
         std::wstring font_name_symbol = L"Segoe UI Symbol";
@@ -560,6 +655,8 @@ void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
         int column_start = 0;
         int column_end = column_count;
 
+        if (lpDrawItem->CtlID == IDC_IMPORTDIALOG_LISTBOX1) column_end--;
+
         DisplayStruct* vd = (DisplayStruct*)(lpDrawItem->itemData);
         
         if (vd) {
@@ -577,11 +674,13 @@ void ImportDialog_OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem) {
                 graphics.FillRectangle(&back_brush, left, 0, column_width, height);
 
                 std::wstring font_name = font_name_normal;
+                DWORD text_color = text_color_text;
 
                 bool is_checked = vd->is_checked;
                 if (i == 0) {
                     text = (is_checked) ? L"\u2611" : L"\u2610";
                     font_name = font_name_symbol;
+                    text_color = (!is_checked) ? text_color_symbol : text_color_text;
                 }
 
                 FontFamily fontFamily(font_name.c_str());
@@ -668,20 +767,17 @@ LRESULT CImportDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         break;
     }
 
-    case MSG_DATEPICKER_DATECHANGED: {
-        //TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDMAIN));
-        //TradeGrid_CalculateDTE(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_TABLEGRIDROLL));
-        return 0;
-    }
-
     case MSG_CUSTOMLABEL_CLICK: {
         HWND hCtl = (HWND)lParam;
         int ctrl_id = (int)wParam;
 
         if (!hCtl) return 0;
 
-        //if (ctrl_id == IDC_TRADEDIALOG_COMBODRCR) {
-        //}
+        if (ctrl_id == IDC_IMPORTDIALOG_GROUP) {
+        }
+
+        if (ctrl_id == IDC_IMPORTDIALOG_UNGROUP) {
+        }
 
         if (ctrl_id == IDC_IMPORTDIALOG_SAVE) {
             dialog_return_code = DIALOG_RETURN_OK;
@@ -707,8 +803,8 @@ LRESULT CImportDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 // ========================================================================================
 int ImportDialog_Show() {
 
-    int width = 715;
-    int height = 500;
+    int width = 960;
+    int height = 600;
 
     HWND hwnd = ImportDialog.Create(MainWindow.hWindow, L"Import Trades", 0, 0, width, height,
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,

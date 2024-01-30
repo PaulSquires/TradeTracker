@@ -42,17 +42,29 @@ struct ImportStruct {
 };
 
 struct DisplayStruct {
+    ImportStruct* ibkr_ptr = nullptr;
     std::vector<std::string> text;
     bool is_checked = false;
+    int group_id = 0;
 };
 
 extern HWND HWND_IMPORTDIALOG;
 
 constexpr int IMPORTDIALOG_LISTBOX_ROWHEIGHT = 18;
 
-constexpr int IDC_IMPORTDIALOG_LISTBOX = 100;
-constexpr int IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR = 102;
-constexpr int IDC_IMPORTDIALOG_HEADER = 103;
+constexpr int IDC_IMPORTDIALOG_LBLUNGROUPED = 100;
+constexpr int IDC_IMPORTDIALOG_LISTBOX1 = 101;
+constexpr int IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1 = 102;
+constexpr int IDC_IMPORTDIALOG_HEADER1 = 103;
+
+constexpr int IDC_IMPORTDIALOG_LBLGROUPED = 104;
+constexpr int IDC_IMPORTDIALOG_LISTBOX2 = 105;
+constexpr int IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR2 = 106;
+constexpr int IDC_IMPORTDIALOG_HEADER2 = 107;
+
+constexpr int IDC_IMPORTDIALOG_GROUP = 130;
+constexpr int IDC_IMPORTDIALOG_UNGROUP = 131;
+
 constexpr int IDC_IMPORTDIALOG_SAVE = 140;
 constexpr int IDC_IMPORTDIALOG_CANCEL = 141;
 
