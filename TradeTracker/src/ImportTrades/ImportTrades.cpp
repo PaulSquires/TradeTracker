@@ -55,6 +55,83 @@ std::vector<ImportStruct> ibkr;    // persistent
 int column_count = 8;
 std::vector<int> column_widths{ 20,55,45,80,50,55,40,55 };
 
+std::vector<DisplayStruct*> dsvector;
+
+
+// ========================================================================================
+// Populate the UnGrouped ListBox
+// ========================================================================================
+void ImportTrades_Populate_UnGrouped_ListBox(HWND hListBox) {
+    ListBox_ResetContent(hListBox);
+
+    for (int i = 0; i < dsvector.size(); ++i) {
+        DisplayStruct* ds = dsvector.at(i);
+        if (ds && ds->group_id == 0) {
+            ListBox_AddString(hListBox, ds);
+        }
+    }
+
+    ListBox_AddString(hListBox, 0);
+}
+
+
+// ========================================================================================
+// Populate the Grouped ListBox
+// ========================================================================================
+void ImportTrades_Populate_Grouped_ListBox(HWND hListBox) {
+    ListBox_ResetContent(hListBox);
+
+    for (int i = 0; i < dsvector.size(); ++i) {
+        DisplayStruct* ds = dsvector.at(i);
+        if (ds && ds->group_id != 0) {
+            ListBox_AddString(hListBox, ds);
+        }
+    }
+
+    ListBox_AddString(hListBox, 0);
+}
+
+
+// ========================================================================================
+// Populate both UnGroup and Grouped ListBoxes
+// ========================================================================================
+void ImportTrades_Popuplate_ListBoxes() {
+    ImportTrades_Populate_UnGrouped_ListBox(GetDlgItem(HWND_IMPORTDIALOG, IDC_IMPORTDIALOG_LISTBOX1));
+    ImportTrades_Populate_Grouped_ListBox(GetDlgItem(HWND_IMPORTDIALOG, IDC_IMPORTDIALOG_LISTBOX2));
+}
+
+
+// ========================================================================================
+// Process all selected items in UnGrouped ListBox --> Grouped ListBox.
+// ========================================================================================
+void ImportTrades_doGroup() {
+    // Loop through for is_checked == true and assign new group_id
+    static int group_id = 0;
+
+    for (auto& ds : dsvector) {
+        if (ds->is_checked) {
+            group_id++;
+            ds->is_checked = false;
+            ds->group_id = group_id;
+        }
+    }
+    ImportTrades_Popuplate_ListBoxes();
+}
+
+
+// ========================================================================================
+// Process all selected items in Grouped ListBox --> UnGrouped ListBox.
+// ========================================================================================
+void ImportTrades_doUnGroup() {
+    // Loop through for is_checked == true and assign new group_id = 0
+    for (auto& ds : dsvector) {
+        if (ds->is_checked) {
+            ds->is_checked = false;
+            ds->group_id = 0;
+        }
+    }
+    ImportTrades_Popuplate_ListBoxes();
+}
 
 
 // ========================================================================================
@@ -108,49 +185,6 @@ void ImportTrades_doPositionSorting(){
 }
 
 
-// ========================================================================================
-// Populate the Grouped or UnGrouped ListBox
-// ========================================================================================
-void ImportTrades_PopuplateListBox(HWND hwnd, HWND hListBox) {
-    HWND hListBox1 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX1);
-    HWND hListBox2 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX2);
-
-    ListBox_ResetContent(hListBox);
-
-    for (int i = 0; i < ibkr.size(); ++i) {
-
-        DisplayStruct* ds = new DisplayStruct;
-
-        ImportStruct* p = &ibkr.at(i);
-        ds->ibkr_ptr = p;
-
-        std::string str;
-
-        ds->text.push_back("");
-        ds->text.push_back(p->contract.symbol);
-        ds->text.push_back(p->contract.secType);
-        ds->text.push_back(AfxInsertDateHyphens(p->contract.lastTradeDateOrContractMonth));
-
-        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p->position)), 10);
-        ds->text.push_back(str);
-
-        str = (p->contract.strike) ? unicode2ansi(AfxMoney(p->contract.strike, true, 5)) : "";
-        // Remove trailing zeroes
-        str = str.substr(0, str.find_last_not_of('0') + 1);
-        // If the decimal point is now the last character, remove that as well
-        if (str.find('.') == str.size() - 1) {
-            str = str.substr(0, str.size() - 1);
-        }
-        ds->text.push_back(str);
-        ds->text.push_back(p->contract.right);
-
-        ds->is_checked = false;
-
-        ListBox_AddString(hListBox, ds);
-    }
-
-    ListBox_AddString(hListBox, 0);
-}
 
 
 // ========================================================================================
@@ -305,13 +339,6 @@ LRESULT CALLBACK ImportDialog_ListBox_SubclassProc(
     }
 
     case WM_DESTROY: {
-        // Destroy all manually allocated display structs
-        for (int i = 0; i < ListBox_GetCount(hwnd); ++i) {
-            DisplayStruct* vd = (DisplayStruct*)ListBox_GetItemData(hwnd, i);
-            if (vd) {
-                delete vd; vd = nullptr;
-            }
-        }
         // REQUIRED: Remove control subclassing
         RemoveWindowSubclass(hwnd, ImportDialog_ListBox_SubclassProc, uIdSubclass);
         break;
@@ -349,6 +376,14 @@ void ImportDialog_OnClose(HWND hwnd) {
 // Process WM_DESTROY message for window/dialog: ImportDialog
 // ========================================================================================
 void ImportDialog_OnDestroy(HWND hwnd) {
+    // Destroy all manually allocated display structs
+    for (int i = 0; i < dsvector.size(); ++i) {
+        DisplayStruct* vd = dsvector.at(i);
+        if (vd) {
+            delete vd; vd = nullptr;
+        }
+    }
+
     PostQuitMessage(0);
 }
 
@@ -431,7 +466,6 @@ void ImportDialog_OnSize(HWND hwnd, UINT state, int cx, int cy) {
     hdwp = DeferWindowPos(hdwp, hVScrollBar2, 0, left, top, width, height,
         SWP_NOZORDER | (bshow_scrollbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
 
-
     EndDeferWindowPos(hdwp);
 }
 
@@ -477,7 +511,40 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
     
     ImportTrades_doPositionSorting();
 
-    ImportTrades_PopuplateListBox(hwnd, hCtl);
+    for (int i = 0; i < ibkr.size(); ++i) {
+
+        DisplayStruct* ds = new DisplayStruct;
+
+        ImportStruct* p = &ibkr.at(i);
+        ds->ibkr_ptr = p;
+
+        std::string str;
+
+        ds->text.push_back("");
+        ds->text.push_back(p->contract.symbol);
+        ds->text.push_back(p->contract.secType);
+        ds->text.push_back(AfxInsertDateHyphens(p->contract.lastTradeDateOrContractMonth));
+
+        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p->position)), 10);
+        ds->text.push_back(str);
+
+        str = (p->contract.strike) ? unicode2ansi(AfxMoney(p->contract.strike, true, 5)) : "";
+        // Remove trailing zeroes
+        str = str.substr(0, str.find_last_not_of('0') + 1);
+        // If the decimal point is now the last character, remove that as well
+        if (str.find('.') == str.size() - 1) {
+            str = str.substr(0, str.size() - 1);
+        }
+        ds->text.push_back(str);
+        ds->text.push_back(p->contract.right);
+
+        ds->is_checked = false;
+        ds->group_id = 0;
+
+        dsvector.push_back(ds);
+    }
+
+    ImportTrades_Populate_UnGrouped_ListBox(hCtl);
     
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1, hCtl, Controls::ListBox);
@@ -506,7 +573,8 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
             WS_EX_LEFT | WS_EX_RIGHTSCROLLBAR, NULL,
             (SUBCLASSPROC)ImportDialog_ListBox_SubclassProc,
             IDC_IMPORTDIALOG_LISTBOX2, NULL);
-    ListBox_AddString(hCtl, 0);
+
+    ImportTrades_Populate_Grouped_ListBox(hCtl);
 
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR2, hCtl, Controls::ListBox);
@@ -789,9 +857,11 @@ LRESULT CImportDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         if (!hCtl) return 0;
 
         if (ctrl_id == IDC_IMPORTDIALOG_GROUP) {
+            ImportTrades_doGroup();
         }
 
         if (ctrl_id == IDC_IMPORTDIALOG_UNGROUP) {
+            ImportTrades_doUnGroup();
         }
 
         if (ctrl_id == IDC_IMPORTDIALOG_SAVE) {
