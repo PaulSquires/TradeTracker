@@ -109,6 +109,51 @@ void ImportTrades_doPositionSorting(){
 
 
 // ========================================================================================
+// Populate the Grouped or UnGrouped ListBox
+// ========================================================================================
+void ImportTrades_PopuplateListBox(HWND hwnd, HWND hListBox) {
+    HWND hListBox1 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX1);
+    HWND hListBox2 = GetDlgItem(hwnd, IDC_IMPORTDIALOG_LISTBOX2);
+
+    ListBox_ResetContent(hListBox);
+
+    for (int i = 0; i < ibkr.size(); ++i) {
+
+        DisplayStruct* ds = new DisplayStruct;
+
+        ImportStruct* p = &ibkr.at(i);
+        ds->ibkr_ptr = p;
+
+        std::string str;
+
+        ds->text.push_back("");
+        ds->text.push_back(p->contract.symbol);
+        ds->text.push_back(p->contract.secType);
+        ds->text.push_back(AfxInsertDateHyphens(p->contract.lastTradeDateOrContractMonth));
+
+        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p->position)), 10);
+        ds->text.push_back(str);
+
+        str = (p->contract.strike) ? unicode2ansi(AfxMoney(p->contract.strike, true, 5)) : "";
+        // Remove trailing zeroes
+        str = str.substr(0, str.find_last_not_of('0') + 1);
+        // If the decimal point is now the last character, remove that as well
+        if (str.find('.') == str.size() - 1) {
+            str = str.substr(0, str.size() - 1);
+        }
+        ds->text.push_back(str);
+        ds->text.push_back(p->contract.right);
+
+        ds->is_checked = false;
+
+        ListBox_AddString(hListBox, ds);
+    }
+
+    ListBox_AddString(hListBox, 0);
+}
+
+
+// ========================================================================================
 // Ask to initiate importing trades from IBKR TWS.
 // ========================================================================================
 void ImportTrades_AskImportMessage() {
@@ -431,39 +476,9 @@ bool ImportDialog_OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
             IDC_IMPORTDIALOG_LISTBOX1, NULL);
     
     ImportTrades_doPositionSorting();
+
+    ImportTrades_PopuplateListBox(hwnd, hCtl);
     
-    for (int i = 0; i < ibkr.size(); ++i) {
-        DisplayStruct* ds = new DisplayStruct;
-
-        ImportStruct* p = &ibkr.at(i);
-        ds->ibkr_ptr = p;
-
-        std::string str;
-
-        ds->text.push_back("");
-        ds->text.push_back(p->contract.symbol);
-        ds->text.push_back(p->contract.secType);
-        ds->text.push_back(AfxInsertDateHyphens(p->contract.lastTradeDateOrContractMonth));
-
-        str = AfxRSet(std::to_string((int)intelDecimalToDouble(p->position)), 10);
-        ds->text.push_back(str);
-
-        str = (p->contract.strike) ? unicode2ansi(AfxMoney(p->contract.strike, true, 5)) : "";
-        // Remove trailing zeroes
-        str = str.substr(0, str.find_last_not_of('0') + 1);
-        // If the decimal point is now the last character, remove that as well
-        if (str.find('.') == str.size() - 1) {
-            str = str.substr(0, str.size() - 1);
-        }
-        ds->text.push_back(str);
-        ds->text.push_back(p->contract.right);
-
-        ds->is_checked = false;
-
-        ListBox_AddString(hCtl, ds);
-    }
-    ListBox_AddString(hCtl, 0);
-
     // Create our custom vertical scrollbar and attach the ListBox to it.
     CreateCustomVScrollBar(hwnd, IDC_IMPORTDIALOG_CUSTOMVSCROLLBAR1, hCtl, Controls::ListBox);
 
