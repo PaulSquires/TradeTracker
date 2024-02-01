@@ -334,7 +334,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     std::wstring text;
 
     bool has_shares = (trade->aggregate_shares || trade->aggregate_futures) ? true : false;
-    double acb = trade->total_share_profit + trade->acb_shares + trade->acb_non_shares;
+    double acb = trade->total_share_profit + trade->acb_total; 
 
     if (is_history) {
         ticker_id = -1;
