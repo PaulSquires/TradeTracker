@@ -334,7 +334,7 @@ void ListBoxData_OpenPosition(HWND hListBox, const std::shared_ptr<Trade>& trade
     std::wstring text;
 
     bool has_shares = (trade->aggregate_shares || trade->aggregate_futures) ? true : false;
-    double acb = trade->total_share_profit + trade->acb_non_shares;
+    double acb = trade->total_share_profit + trade->acb_shares + trade->acb_non_shares;
 
     if (is_history) {
         ticker_id = -1;
@@ -633,17 +633,10 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
             }
 
             double quantity = trans->quantity;
-            double total = quantity * trans->price * multiplier;
-            double cost = (quantity * trans->share_average_cost);
+            double total = trans->total;  // quantity* trans->price* multiplier;
+            double cost = (quantity * abs(trans->share_average_cost));
             double fees = trans->fees * -1;
-            double diff = 0;
-
-            if (trans->legs.at(0)->action == Action::STC) {
-                diff = (total + cost + fees);
-            }
-            if (trans->legs.at(0)->action == Action::BTC) {
-                diff = (cost - total + fees);
-            }
+            double diff = (total + cost + fees);
 
             text = L"";
 

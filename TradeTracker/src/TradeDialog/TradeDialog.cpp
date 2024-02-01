@@ -346,6 +346,8 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
                 tdd.trade_action == TradeAction::add_shares_to_trade||
                 tdd.trade_action == TradeAction::add_futures_to_trade||
+                tdd.trade_action == TradeAction::close_all_futures ||
+                tdd.trade_action == TradeAction::close_all_shares ||
                 tdd.trade_action == TradeAction::manage_shares ||
                 tdd.trade_action == TradeAction::manage_futures) {
                 if (TradeDialog_ValidateSharesTradeData(m_hwnd) == true) {
