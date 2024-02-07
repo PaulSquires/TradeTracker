@@ -402,6 +402,7 @@ void CActiveTrades::UpdateLegPortfolioLine(int index, ListBoxData* ld) {
 // This function is called from the TickerUpdateFunction() thread.
 // ========================================================================================
 void CActiveTrades::UpdateTickerPrices() {
+    
     if (pause_live_updates) return;
 
     // Guard to prevent re-entry of update should the thread fire the update
@@ -875,9 +876,6 @@ void CActiveTrades::ExpireSelectedLegs(auto trade) {
 void CActiveTrades::CalledAwayAssignment(
     auto trade, auto leg, int aggregate_shares, int aggregate_futures)
 {
-
-    pause_live_updates = true;
-        
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
@@ -915,6 +913,8 @@ void CActiveTrades::CalledAwayAssignment(
         strike_price_text) == DIALOG_RETURN_CANCEL) {
         return;
     }
+
+    pause_live_updates = true;
 
     // Retreive the Quantity amount that was set by the Assignment modal when OK was pressed.
     quantity_assigned = AfxValInteger(quantity_set_from_assignment_modal);
@@ -1010,8 +1010,6 @@ void CActiveTrades::CalledAwayAssignment(
 // ========================================================================================
 void CActiveTrades::CreateAssignment(auto trade, auto leg) {
 
-    pause_live_updates = true;
-
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
@@ -1043,6 +1041,8 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
         strike_price_text) == DIALOG_RETURN_CANCEL) {
         return;
     }
+
+    pause_live_updates = true;
 
     // Retreive the Quantity amount that was set by the Assignment modal when OK was pressed.
     quantity_assigned = AfxValInteger(quantity_set_from_assignment_modal);
