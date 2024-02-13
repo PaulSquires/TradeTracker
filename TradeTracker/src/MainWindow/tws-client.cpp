@@ -893,7 +893,7 @@ void TwsClient::error(int id, int error_code,
 		// IBKR servers (ie. TradeTrackers sockets remain open).
 		//SendMessage(HWND_SIDEMENU, MSG_TWS_CONNECT_WAIT_RECONNECTION, 0, 0);
 		std::wstring text =
-			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nTradeTracker will resume automatically when TWS reconnects to IBKR.";
+			L"TWS has lost connection to the IBKR servers (Internet connection down?).\n\nTradeTracker will resume automatically when TWS reconnects to IBKR.\n\n";
 		CustomMessageBox.Show(MainWindow.hWindow, text, L"Connection Failed", MB_OK | MB_ICONEXCLAMATION);
 	}
 	break;

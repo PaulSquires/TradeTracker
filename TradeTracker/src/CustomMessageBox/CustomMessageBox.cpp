@@ -37,6 +37,7 @@ CCustomMessageBox CustomMessageBox;
 // Process WM_CLOSE message for window/dialog: CustomMessageBox
 // ========================================================================================
 void CCustomMessageBox::OnClose(HWND hwnd) {
+	EnableWindow(hParent, false);
 	MainWindow.BlurPanels(false);
 	EnableWindow(MainWindow.hWindow, true);
 	DestroyWindow(hwnd);
