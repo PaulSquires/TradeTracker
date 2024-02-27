@@ -38,8 +38,10 @@ CCustomMessageBox CustomMessageBox;
 // ========================================================================================
 void CCustomMessageBox::OnClose(HWND hwnd) {
 	EnableWindow(hParent, false);
-	MainWindow.BlurPanels(false);
-	EnableWindow(MainWindow.hWindow, true);
+	if (hParent == MainWindow.hWindow) {
+		MainWindow.BlurPanels(false);
+	}
+	EnableWindow(hParent, true);
 	DestroyWindow(hwnd);
 }
 
@@ -352,11 +354,13 @@ int CCustomMessageBox::Show(
 	
 	hBackBrush = CreateSolidBrush(Color(back_color).ToCOLORREF());
 	
-	MainWindow.BlurPanels(true);
+	if (hParent == MainWindow.hWindow) {
+		MainWindow.BlurPanels(true);
+	}
 
 	AfxCenterWindowMonitorAware(hwnd, hParent);  
 
-	EnableWindow(MainWindow.hWindow, false);
+	EnableWindow(hParent, false);
 
 
 	// Fix Windows 10 white flashing
