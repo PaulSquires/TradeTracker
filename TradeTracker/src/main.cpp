@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Config/Config.h"
 #include "MainWindow/MainWindow.h"
 #include "ActiveTrades/ActiveTrades.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 
 CConfig config;
 CDatabase db;
@@ -159,8 +160,9 @@ int APIENTRY wWinMain(
 
     // Call the main modal message pump and wait for it to end.
     MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0))
-    {            
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        if (!IsWindow(MainWindow.hWindow)) break;
+
         // Processes accelerator keys for menu commands
         if (MainWindow.hAccel() == NULL || (!TranslateAccelerator(hWndMain, MainWindow.hAccel(), &msg))) {
             // Translates virtual-key messages into character messages.

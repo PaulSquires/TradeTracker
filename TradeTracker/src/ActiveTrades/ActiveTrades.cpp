@@ -1247,6 +1247,29 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
         plural_text = L"s";
     }
 
+    int num_shares = 0;
+    int num_futures = 0;
+    bool exist_shares = false;
+    bool exist_futures = false;
+    bool exist_options = false;
+    for (const auto& trans : tdd.trade->transactions) {
+        for (const auto& leg : trans->legs) {
+            if (!leg->isOpen()) continue;
+            switch (leg->underlying) {
+            case Underlying::Options:
+                exist_options = true;
+                break;
+            case Underlying::Shares:
+                exist_shares = true;
+                num_shares += leg->open_quantity;
+                break;
+            case Underlying::Futures:
+                exist_futures = true;
+                num_futures += leg->open_quantity;
+                break;
+            }
+        }
+    }
 
     std::vector<CCustomPopupMenuItem> items;
 
@@ -1267,12 +1290,12 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
         items.push_back({ L"", (int)TradeAction::no_action, true });
     }
 
-    if (ld->line_type == LineType::shares) {
+    if (ld->line_type == LineType::shares || exist_shares) {
         items.push_back({ L"Manage Shares", (int)TradeAction::manage_shares, false });
         items.push_back({ L"", (int)TradeAction::no_action, true });
     }
 
-    if (ld->line_type == LineType::futures) {
+    if (ld->line_type == LineType::futures || exist_futures) {
         items.push_back({ L"Manage Futures", (int)TradeAction::manage_futures, false });
         items.push_back({ L"", (int)TradeAction::no_action, true });
     }
@@ -1282,42 +1305,23 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     items.push_back({ L"Add Call to Trade", (int)TradeAction::add_call_to_trade, false });
     items.push_back({ L"", (int)TradeAction::no_action, true });
 
-    if (config.IsFuturesTicker(trade->ticker_symbol)) {
+    if (config.IsFuturesTicker(trade->ticker_symbol) && exist_futures == false) {
         items.push_back({ L"Add Futures to Trade", (int)TradeAction::add_futures_to_trade, false });
     }
     else {
-        items.push_back({ L"Add Shares to Trade", (int)TradeAction::add_shares_to_trade, false });
-        items.push_back({ L"Add Dividend to Trade", (int)TradeAction::add_dividend_to_trade, false });
-        items.push_back({ L"Add Income/Expense to Trade", (int)TradeAction::add_income_expense_to_trade, false });
+        if (exist_shares == false) {
+            items.push_back({ L"Add Shares to Trade", (int)TradeAction::add_shares_to_trade, false });
+        }
+        else {
+            items.push_back({ L"Add Dividend to Trade", (int)TradeAction::add_dividend_to_trade, false });
+        }
     }
 
-    int num_shares = 0;
-    int num_futures = 0;
+    items.push_back({ L"Add Income/Expense to Trade", (int)TradeAction::add_income_expense_to_trade, false });
+
 
     if (is_tickerLine) {
         // Determine what menu options to show based on what underlyings exist in the Trade
-        bool exist_shares = false;
-        bool exist_futures = false;
-        bool exist_options = false;
-        for (const auto& trans : tdd.trade->transactions) {
-            for (const auto& leg : trans->legs) {
-                if (!leg->isOpen()) continue;
-                switch (leg->underlying) {
-                case Underlying::Options:
-                    exist_options = true;
-                    break;
-                case Underlying::Shares:
-                    exist_shares = true;
-                    num_shares += leg->open_quantity;
-                    break;
-                case Underlying::Futures:
-                    exist_futures = true;
-                    num_futures += leg->open_quantity;
-                    break;
-                }
-            }
-        }
-
         items.push_back({ L"", (int)TradeAction::no_action, true });
         if (exist_shares) {
             if (!exist_futures && !exist_options) {

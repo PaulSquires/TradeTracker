@@ -318,7 +318,10 @@ LRESULT CALLBACK CustomPopupMenuHook(int Code, WPARAM wParam, LPARAM lParam) {
     // this subset does not include WM_MOUSEMOVE, WM_MOUSEWHEEL and a few others
     // (Don't handle WM_LBUTTONUP here because the mouse is most likely outside the menu popup
     // at the point this hook is called).
-    if (wParam == WM_LBUTTONDOWN) {
+    if (wParam == WM_LBUTTONDOWN ||
+        wParam == WM_NCLBUTTONDOWN) {
+
+
         if (HWND_CUSTOMPOPUPMENU) {
             POINT pt;       GetCursorPos(&pt);
             RECT rcWindow;  GetWindowRect(HWND_CUSTOMPOPUPMENU, &rcWindow);
@@ -379,8 +382,8 @@ LRESULT CCustomPopupMenu::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) 
         return MA_NOACTIVATE;
     }
 
-    default: return DefWindowProc(m_hwnd, msg, wParam, lParam);
     }
+    return DefWindowProc(m_hwnd, msg, wParam, lParam);
 }
 
 
@@ -438,7 +441,10 @@ int CCustomPopupMenu::Show(HWND hwndParent, std::vector<CCustomPopupMenuItem> po
     MSG msg{};
     while (GetMessage(&msg, NULL, 0, 0))
     {
-        if (!IsWindow(MainWindow.hWindow)) break;
+        if (!IsWindow(MainWindow.hWindow)) {
+            DestroyWindow(hWindow);
+            break;
+        }
 
         if (msg.message == WM_KEYUP) {
             if (msg.wParam == VK_ESCAPE) {

@@ -451,6 +451,7 @@ LRESULT CMainWindow::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
         HANDLE_MSG(m_hwnd, WM_LBUTTONUP, OnLButtonUp);
         HANDLE_MSG(m_hwnd, WM_SETCURSOR, OnSetCursor);
 
+
     case WM_ACTIVATEAPP: {
         // Application is losing focus so destroy any visible popup
         // combobox popups.
