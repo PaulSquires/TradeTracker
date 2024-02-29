@@ -43,71 +43,6 @@ int most_recently_used_category = 0;
 
 
 // ========================================================================================
-// Set the Short/Long background color.
-// ========================================================================================
-void TradeDialog_SetLongShortback_color(HWND hCtl) {
-    LongShort ls = (LongShort)CustomLabel_GetUserDataInt(hCtl);
-
-    if (ls == LongShort::Long) {
-        CustomLabel_SetBackColor(hCtl, COLOR_GREEN);
-    }
-    else if (ls == LongShort::Short) {
-        CustomLabel_SetBackColor(hCtl, COLOR_RED);
-    }
-}
-
-
-// ========================================================================================
-// Set the Short/Long Shares/Futures text.
-// ========================================================================================
-void TradeDialog_SetLongShortText(HWND hCtl) {
-
-    std::wstring text;
-    LongShort sel = (LongShort)CustomLabel_GetUserDataInt(hCtl);
-
-    if (sel == LongShort::Long) text = L"BUY LONG ";
-    if (sel == LongShort::Short) text = L"SELL SHORT ";
-
-    if (tdd.trade_action == TradeAction::edit_transaction) {
-        if (tdd.trans->underlying == Underlying::Shares) text += L"SHARES";
-        if (tdd.trans->underlying == Underlying::Futures) text += L"FUTURES";
-    }
-
-    if (tdd.trade_action == TradeAction::new_shares_trade) text += L"SHARES";
-    if (tdd.trade_action == TradeAction::add_shares_to_trade) text += L"SHARES";
-    if (tdd.trade_action == TradeAction::new_futures_trade) text += L"FUTURES";
-    if (tdd.trade_action == TradeAction::add_futures_to_trade) text += L"FUTURES";
-    if (tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::close_all_shares) text += L"SHARES";
-    if (tdd.trade_action == TradeAction::manage_futures ||
-        tdd.trade_action == TradeAction::close_all_futures) text += L"FUTURES";
-    CustomLabel_SetText(hCtl, text);
-}
-
-
-// ========================================================================================
-// Toggle the Short/Long Shares/Futures text.
-// ========================================================================================
-void TradeDialog_ToggleLongShort(HWND hCtl) {
-    int sel = CustomLabel_GetUserDataInt(hCtl) + 1;
-    if (sel == (int)LongShort::Count) sel = 0;
-
-    CustomLabel_SetUserDataInt(hCtl, sel);
-
-    switch ((LongShort)sel) {
-    case LongShort::Long:
-        TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"DR");
-        break;
-    case LongShort::Short:
-        TradeDialog_SetComboDRCR(GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_COMBODRCR), L"CR");
-        break;
-    }
-    
-    TradeDialog_SetLongShortText(hCtl);
-}
-
-
-// ========================================================================================
 // Display or hide the Futures Contract data picker
 // ========================================================================================
 void TradeDialogControls_ShowFuturesContractDate(HWND hwnd) {
@@ -834,29 +769,21 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     std::wstring text;
     int font_size = 8;
 
-    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES_DROPDOWN, GLYPH_DROPDOWN,
+    hCtl = CustomLabel_ButtonLabel(hwnd, IDC_TRADEDIALOG_SHARESACTION_DROPDOWN, GLYPH_DROPDOWN,
         COLOR_WHITEDARK, COLOR_GRAYMEDIUM, COLOR_GRAYLIGHT, COLOR_GRAYMEDIUM, COLOR_WHITE,
         CustomLabelAlignment::middle_center, 191, 180, 30, 23);
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
 
-    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES, L"",
+    hCtl = CustomLabel_SimpleLabel(hwnd, IDC_TRADEDIALOG_SHARESACTION, L"",
         COLOR_WHITELIGHT, COLOR_GRAYMEDIUM,
         CustomLabelAlignment::middle_left, 40, 180, 150, 23);
-    CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextOffset(hCtl, 5, 0);
     CustomLabel_SetMousePointer(hCtl, CustomLabelPointer::hand, CustomLabelPointer::hand);
 
     if (is_shares_action) {
-        if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
-            ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action)) {
-            CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Long);
-        }
-        if (ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
-            CustomLabel_SetUserDataInt(hCtl, (int)LongShort::Short);
-        }
-        TradeDialog_SetLongShortText(hCtl);
-        TradeDialog_SetLongShortback_color(hCtl);
+        CustomLabel_SetUserDataInt(hCtl, (int)Action::BTO);
+        CustomLabel_SetText(hCtl, GetActionDescription((int)Action::BTO));
 
     } else if (tdd.trade_action == TradeAction::add_dividend_to_trade) {
 
@@ -893,19 +820,17 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     // Hide the Long/Short buttons if this is an Edit Transaction but is not Shares/Futures.
     if (tdd.trade_action == TradeAction::edit_transaction) {
         if (tdd.trans->underlying == Underlying::Shares || tdd.trans->underlying == Underlying::Futures) {
-            hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES);
-            CustomLabel_SetUserDataInt(hCtl, (int)tdd.trans->share_longshort);
-            TradeDialog_SetLongShortText(hCtl);
-            TradeDialog_SetLongShortback_color(hCtl);
+            hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION);
+            CustomLabel_SetUserDataInt(hCtl, (int)tdd.trans->share_action);
         } else {
-            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES), SW_HIDE);
-            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES_DROPDOWN), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION_DROPDOWN), SW_HIDE);
         } 
     }
     else {
         if (!is_shares_action) {
-            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES), SW_HIDE);
-            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES_DROPDOWN), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION_DROPDOWN), SW_HIDE);
         }
     }
 
@@ -997,7 +922,8 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomLabel_SetFont(hCtl, font_name, font_size, true);
     CustomLabel_SetTextColorHot(hCtl, COLOR_WHITELIGHT);
     if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
-        ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action)) {
+        ActiveTrades.IsAddSharesToTradeAction(tdd.trade_action) ||
+        ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
         TradeDialog_SetComboDRCR(hCtl, L"DR");
     } else {
         TradeDialog_SetComboDRCR(hCtl, L"CR");
@@ -1048,8 +974,8 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     if (ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
         int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
         if (aggregate < 0) {
-            TradeDialog_ToggleLongShort(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES));
-            TradeDialog_SetLongShortback_color(GetDlgItem(hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES));
+            //TradeDialog_ToggleLongShort(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION));
+            //TradeDialog_SetLongShortback_color(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION));
         }
     }
 

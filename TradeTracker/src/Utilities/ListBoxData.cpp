@@ -699,8 +699,7 @@ void ListBoxData_HistorySharesLeg(
     if (trans->legs.at(0)->action == Action::STC ||
         trans->legs.at(0)->action == Action::BTC) {
 
-        text = L"SELL";
-        if (trans->share_longshort == LongShort::Long) text = L"BUY";
+        text = db.ActionToStringDescription(trans->share_action);
         ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
@@ -744,8 +743,7 @@ void ListBoxData_HistorySharesLeg(
     if (trans->legs.at(0)->action == Action::BTO ||
         trans->legs.at(0)->action == Action::STO) {
 
-        text = L"BUY";
-        if (trans->share_longshort == LongShort::Short) text = L"SELL";
+        text = db.ActionToStringDescription(trans->share_action);
         ld->SetData(2, trade, ticker_id, text, StringAlignmentNear, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 

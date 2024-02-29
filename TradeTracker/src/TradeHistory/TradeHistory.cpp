@@ -113,7 +113,7 @@ void TradeHistory_ShowTradesHistoryTable(std::shared_ptr<Trade>& trade) {
         item.trans->fees = share.trans->fees;
         item.trans->total = share.trans->total;
         item.trans->share_average_cost = share.average_cost;
-        item.trans->share_longshort = share.trans->share_longshort;
+        item.trans->share_action = share.trans->share_action;
 
         std::shared_ptr<Leg> leg = std::make_shared<Leg>();
         leg->action = share.leg_action;

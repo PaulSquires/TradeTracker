@@ -104,21 +104,6 @@ PutCall CDatabase::StringToPutCall(const std::wstring& text) {
 }
 
 
-std::wstring CDatabase::LongShortToString(const LongShort e) {
-    if (e == LongShort::Long) return L"L";
-    if (e == LongShort::Short) return L"S";
-    return L"";
-}
-
-
-LongShort CDatabase::StringToLongShort(const std::wstring& text) {
-    if (text == L"L") return LongShort::Long;
-    if (text == L"S") return LongShort::Short;
-    if (text.length() == 0) return LongShort::Nothing;
-    return LongShort::Nothing;
-}
-
-
 Underlying CDatabase::StringToUnderlying(const std::wstring& text) {
     static const std::unordered_map<std::wstring, Underlying> map = {
         {L"0", Underlying::Options}, {L"1", Underlying::Shares}, 
@@ -357,7 +342,7 @@ bool CDatabase::SaveDatabase() {
                 << std::fixed << std::setprecision(4) << trans->multiplier << "|"
                 << std::fixed << std::setprecision(4) << trans->fees << "|"
                 << std::fixed << std::setprecision(4) << trans->total << "|"
-                << LongShortToString(trans->share_longshort) 
+                << ActionToString(trans->share_action)
                 << "\n";
 
             for (const auto& leg : trans->legs) {
@@ -471,9 +456,9 @@ bool CDatabase::LoadDatabase() {
             trans->multiplier    = try_catch_double(st, 6);
             trans->fees          = try_catch_double(st, 7);
             trans->total         = try_catch_double(st, 8);
-            trans->share_longshort = StringToLongShort(try_catch_wstring(st, 9));
-            if (trans->share_longshort == LongShort::Nothing) {
-                trans->share_longshort = (trans->total < 0) ? LongShort::Long : LongShort::Short;
+            trans->share_action  = StringToAction(try_catch_wstring(st, 9));
+            if (trans->share_action == Action::Nothing) {
+                trans->share_action = (trans->total < 0) ? Action::BTO: Action::STO;
             }
 
             if (trade) {

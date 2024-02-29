@@ -1089,7 +1089,6 @@ void CActiveTrades::CreateAssignment(auto trade, auto leg) {
     trans->price = AfxValDouble(leg->strike_price);
     trans->multiplier = multiplier;
     trans->fees = 0;
-    trans->share_longshort = (leg->put_call == PutCall::Put) ? LongShort::Long : LongShort::Short;
     trade->transactions.push_back(trans);
 
     newleg = std::make_shared<Leg>();
@@ -1305,8 +1304,10 @@ void CActiveTrades::RightClickMenu(HWND hListBox, int idx) {
     items.push_back({ L"Add Call to Trade", (int)TradeAction::add_call_to_trade, false });
     items.push_back({ L"", (int)TradeAction::no_action, true });
 
-    if (config.IsFuturesTicker(trade->ticker_symbol) && exist_futures == false) {
-        items.push_back({ L"Add Futures to Trade", (int)TradeAction::add_futures_to_trade, false });
+    if (config.IsFuturesTicker(trade->ticker_symbol)) {
+        if (exist_futures == false) {
+            items.push_back({ L"Add Futures to Trade", (int)TradeAction::add_futures_to_trade, false });
+        }
     }
     else {
         if (exist_shares == false) {

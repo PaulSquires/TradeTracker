@@ -35,6 +35,7 @@ SOFTWARE.
 #include "CustomLabel/CustomLabel.h"
 #include "CustomCalendar/CustomCalendar.h"
 #include "CustomTextBox/CustomTextBox.h"
+#include "CustomPopupMenu/CustomPopupMenu.h"
 #include "Strategy/StrategyPopup.h"
 #include "Utilities/UserMessages.h"
 #include "Config/Config.h"
@@ -51,6 +52,20 @@ CTradeDialog TradeDialog;
 TradeDialogData tdd;
 
 int dialog_return_code = DIALOG_RETURN_CANCEL;
+
+
+// ========================================================================================
+// Return string based on Action type
+// ========================================================================================
+std::wstring GetActionDescription(int idx) {
+    switch ((Action)idx) {
+    case Action::BTO: return L"Buy to Open (BTO)";
+    case Action::STC: return L"Sell to Close (STC)";
+    case Action::STO: return L"Sell to Open (STO)";
+    case Action::BTC: return L"Buy to Close (BTC)";
+    default: return L"";
+    }
+}
 
 
 // ========================================================================================
@@ -199,11 +214,6 @@ void TradeDialog_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) {
                 multiplier = L"1";
             }
             CustomTextBox_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_TXTMULTIPLIER), multiplier);
-
-            // If this is a Stock then try to get the Earnings Date and (if applicable) Dividend Date.
-            if (!config.IsFuturesTicker(ticker_symbol)) {
-                // TODO: Scrape web data to get Earnings Date
-            }
         }
         break;
     }
@@ -302,11 +312,34 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!hCtl) return 0;
 
-        if (ctrl_id == IDC_TRADEDIALOG_LONGSHORTSHARES ||
-            ctrl_id == IDC_TRADEDIALOG_LONGSHORTSHARES_DROPDOWN) {
-            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_LONGSHORTSHARES);
-            TradeDialog_ToggleLongShort(hCtl);
-            TradeDialog_SetLongShortback_color(hCtl);
+        if (ctrl_id == IDC_TRADEDIALOG_SHARESACTION ||
+            ctrl_id == IDC_TRADEDIALOG_SHARESACTION_DROPDOWN) {
+            hCtl = GetDlgItem(m_hwnd, IDC_TRADEDIALOG_SHARESACTION);
+
+            std::vector<CCustomPopupMenuItem> items;
+            items.push_back({ GetActionDescription((int)Action::BTO), (int)Action::BTO, false});
+            items.push_back({ GetActionDescription((int)Action::STC), (int)Action::STC, false});
+            items.push_back({ GetActionDescription((int)Action::STO), (int)Action::STO, false});
+            items.push_back({ GetActionDescription((int)Action::BTC), (int)Action::BTC, false});
+
+            // Position the popup menu immediately under the control that was clicked on
+            int top_offset = AfxScaleY(1);
+            RECT rc{}; GetWindowRect(hCtl, &rc);
+            POINT pt{ rc.left, rc.bottom + top_offset };
+
+            int initial_selected = CustomLabel_GetUserDataInt(hCtl);
+            int selected = CustomPopupMenu.Show(m_hwnd, items, initial_selected, pt.x, pt.y);
+
+            if (selected != -1) {
+                CustomLabel_SetUserDataInt(hCtl, selected);
+                CustomLabel_SetText(hCtl, GetActionDescription(selected));
+                if ((Action)selected == Action::BTO || (Action)selected == Action::STC) {
+                    TradeDialog_SetComboDRCR(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_COMBODRCR), L"DR");
+                }
+                if ((Action)selected == Action::STO || (Action)selected == Action::BTC) {
+                    TradeDialog_SetComboDRCR(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_COMBODRCR), L"CR");
+                }
+            }
         }
 
         if (ctrl_id == IDC_TRADEDIALOG_COMBODRCR) {

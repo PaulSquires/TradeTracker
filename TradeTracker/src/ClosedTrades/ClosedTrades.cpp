@@ -145,10 +145,9 @@ void CClosedTrades::ShowClosedTrades() {
             }
         }
 
-        if (latest_closed_date < start_date || latest_closed_date > end_date) continue;
+        if (latest_closed_date > end_date) continue;
 
-        // If this Trade has Shares/Futures transactions showing the costing would have been created
-        // during the CalculateAdjustedCostBase function. 
+        // If this Trade has Shares/Futures transactions show the costing 
         for (const auto& share : trade->shares_history) {
             if (share.leg_action == Action::STC || share.leg_action == Action::BTC) {
 
@@ -243,6 +242,16 @@ void CClosedTrades::ShowClosedTrades() {
     for (const auto& ClosedData : vectorClosed) {
         current_month = AfxGetMonth(ClosedData.closed_date);
         current_year = AfxGetYear(ClosedData.closed_date);
+
+        if (ClosedData.closed_date < start_date) {
+            if (today_year == AfxGetYear(current_date)) {
+                if (ClosedData.close_amount >= 0) ++year_win;
+                if (ClosedData.close_amount < 0) ++year_loss;
+                YTD += ClosedData.close_amount;
+            }
+            continue;
+        }
+
         if (subtotal_month != current_month && subtotal_month != 0) {
             ListBoxData_OutputClosedMonthSubtotal(TradesListBox(), current_date, subtotal_amount, current_month_win, current_month_loss);
             current_date = ClosedData.closed_date;
@@ -250,6 +259,7 @@ void CClosedTrades::ShowClosedTrades() {
             current_month_win = 0;
             current_month_loss = 0;
         }
+
         current_date = ClosedData.closed_date;
         subtotal_month = current_month;
         subtotal_amount += ClosedData.close_amount;
@@ -280,7 +290,7 @@ void CClosedTrades::ShowClosedTrades() {
             if (ClosedData.close_amount < 0) ++year_loss;
             YTD += ClosedData.close_amount;
         }
-        ListBoxData_OutputClosedPosition(TradesListBox(), ClosedData.trade, 
+        ListBoxData_OutputClosedPosition(TradesListBox(), ClosedData.trade,
             ClosedData.closed_date, ClosedData.trade->ticker_symbol, ClosedData.description, ClosedData.close_amount);
     }
     if (subtotal_amount != 0) {

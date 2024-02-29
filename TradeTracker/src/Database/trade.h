@@ -46,7 +46,7 @@ enum class PutCall {
     Put,
     Call,
     Count,     // used in StrategyButton when toggling state
-    Nothing     // always put last for historical reasons saving int to database
+    Nothing     // always put last for historical reasons saving to database
 };
 
 enum class LongShort {
@@ -62,7 +62,7 @@ enum class Underlying {
     Futures,
     Dividend,
     Other,
-    Nothing     // always put last for historical reasons saving int to database
+    Nothing     // always put last for historical reasons saving to database
 };
 
 enum class Action {
@@ -70,7 +70,7 @@ enum class Action {
     BTO,
     STC,
     BTC,
-    Nothing     // always put last for historical reasons saving int to database
+    Nothing     // always put last for historical reasons saving to database
 };
 
 
@@ -113,7 +113,7 @@ public:
     double        fees        = 0;
     double        total       = 0;
     double        share_average_cost = 0;
-    LongShort     share_longshort = LongShort::Long;
+    Action        share_action = Action::BTO;
 
     std::vector<std::shared_ptr<Leg>> legs;            // pointer list for all legs in the transaction
 };

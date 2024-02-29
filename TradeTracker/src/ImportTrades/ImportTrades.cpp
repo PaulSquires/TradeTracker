@@ -113,12 +113,12 @@ void ImportDialog_CreateTradeTransactions() {
             if (ds->ibkr_ptr->contract.secType == "STK") {
                 trans->description = L"Shares";
                 trans->underlying = Underlying::Shares;
-                trans->share_longshort = (intQuantity > 0) ? LongShort::Long : LongShort::Short;
+                trans->share_action = (intQuantity > 0) ? Action::BTO : Action::STO;
             }
             if (ds->ibkr_ptr->contract.secType == "FUT") {
                 trans->description = L"Futures";
                 trans->underlying = Underlying::Futures;
-                trans->share_longshort = (intQuantity > 0) ? LongShort::Long : LongShort::Short;
+                trans->share_action = (intQuantity > 0) ? Action::BTO : Action::STO;
             }
 
             trans->quantity = abs(intQuantity);
