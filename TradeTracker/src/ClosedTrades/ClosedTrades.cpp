@@ -243,12 +243,13 @@ void CClosedTrades::ShowClosedTrades() {
         current_month = AfxGetMonth(ClosedData.closed_date);
         current_year = AfxGetYear(ClosedData.closed_date);
 
-        if (ClosedData.closed_date < start_date) {
-            if (today_year == AfxGetYear(current_date)) {
-                if (ClosedData.close_amount >= 0) ++year_win;
-                if (ClosedData.close_amount < 0) ++year_loss;
-                YTD += ClosedData.close_amount;
-            }
+        if (current_year != today_year) continue;
+
+        if (ClosedData.closed_date < start_date &&
+            current_year == today_year) {
+            if (ClosedData.close_amount >= 0) ++year_win;
+            if (ClosedData.close_amount < 0) ++year_loss;
+            YTD += ClosedData.close_amount;
             continue;
         }
 
