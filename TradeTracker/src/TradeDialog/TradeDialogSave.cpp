@@ -247,7 +247,7 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     trans->multiplier    = guiData.multiplier;
     trans->fees          = guiData.fees;
     trans->total         = guiData.total;
-    trans->share_action = guiData.share_action;
+    trans->share_action  = guiData.share_action;
     trade->transactions.push_back(trans);
 
     std::shared_ptr<Leg> leg = std::make_shared<Leg>();
@@ -260,46 +260,24 @@ void TradeDialog_CreateSharesTradeData(HWND hwnd)
     if (AfxValDouble(date_text) > AfxValDouble(trade->oldest_trade_trans_date)) trade->oldest_trade_trans_date = date_text;
 
     if (ActiveTrades.IsNewSharesTradeAction(tdd.trade_action) ||
-        tdd.trade_action == TradeAction::add_shares_to_trade ||
-        tdd.trade_action == TradeAction::add_futures_to_trade ||
-        tdd.trade_action == TradeAction::manage_shares ||
-        tdd.trade_action == TradeAction::manage_futures) {
+        ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
         int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION));
-        if (tdd.trans->share_action == Action::BTO ||
-            tdd.trans->share_action == Action::BTC) {
-            tdd.trans->legs.at(0)->original_quantity = tdd.trans->quantity;
-            tdd.trans->legs.at(0)->open_quantity = tdd.trans->quantity;
-            tdd.trans->legs.at(0)->strike_price = std::to_wstring(tdd.trans->price);
-            tdd.trans->legs.at(0)->action = tdd.trans->share_action;
+        if (trans->share_action == Action::BTO ||
+            trans->share_action == Action::BTC) {
+            leg->original_quantity = trans->quantity;
+            leg->open_quantity = trans->quantity;
+            leg->strike_price = std::to_wstring(trans->price);
+            leg->action = trans->share_action;
         }
-        if (tdd.trans->share_action == Action::STO ||
-            tdd.trans->share_action == Action::STC) {
-            tdd.trans->legs.at(0)->original_quantity = tdd.trans->quantity * -1;
-            tdd.trans->legs.at(0)->open_quantity = tdd.trans->quantity * -1;
-            tdd.trans->legs.at(0)->strike_price = std::to_wstring(tdd.trans->price);
-            tdd.trans->legs.at(0)->action = tdd.trans->share_action;
+        if (trans->share_action == Action::STO ||
+            trans->share_action == Action::STC) {
+            leg->original_quantity = trans->quantity * -1;
+            leg->open_quantity = trans->quantity * -1;
+            leg->strike_price = std::to_wstring(trans->price);
+            leg->action = trans->share_action;
         }
     }
     
-    //if (tdd.trade_action == TradeAction::manage_shares ||
-    //    tdd.trade_action == TradeAction::manage_futures ||
-    //    tdd.trade_action == TradeAction::close_all_shares ||
-    //    tdd.trade_action == TradeAction::close_all_futures) {
-    //    int sel = CustomLabel_GetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION));
-    //    if (sel == (int)LongShort::Long) {
-    //        leg->original_quantity = trans->quantity;
-    //        leg->open_quantity = trans->quantity;
-    //        leg->action = Action::BTC;
-    //    }
-    //    else {
-    //        if (sel == (int)LongShort::Short) {
-    //            leg->original_quantity = trans->quantity * -1;
-    //            leg->open_quantity = trans->quantity * -1;
-    //            leg->action = Action::STC;
-    //        }
-    //    }
-    //}
-
     trans->legs.push_back(leg);
 
     tdd.trade = trade;

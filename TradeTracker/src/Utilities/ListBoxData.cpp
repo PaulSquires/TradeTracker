@@ -633,10 +633,10 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
             }
 
             double quantity = trans->quantity;
-            double total = trans->total;  // quantity* trans->price* multiplier;
+            double total = trans->total + trans->fees;  
             double cost = (quantity * abs(trans->share_average_cost));
             double fees = trans->fees * -1;
-            double diff = (total + cost + fees);
+            double diff = (total + cost);
 
             text = L"";
 
@@ -650,8 +650,7 @@ void ListBoxData_HistoryHeader(HWND hListBox, const std::shared_ptr<Trade>& trad
             ld->SetData(5, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                 clr, font8, FontStyleRegular);
 
-            clr = (fees >= 0) ? COLOR_GREEN : COLOR_RED;
-            text = AfxMoney(fees, true, 2);
+            text = L"";   
             ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter, COLOR_GRAYDARK,
                 clr, font8, FontStyleRegular);
 
@@ -760,7 +759,8 @@ void ListBoxData_HistorySharesLeg(
         ld->SetData(6, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
 
-        text = AfxMoney(trans->price, true, trade->ticker_decimals);
+        double cost = trans->price + (trans->fees / leg->open_quantity);
+        text = AfxMoney(cost, true, trade->ticker_decimals);
         ld->SetData(7, trade, ticker_id, text, StringAlignmentFar, StringAlignmentCenter,
             COLOR_GRAYMEDIUM, COLOR_WHITEDARK, font8, FontStyleRegular);
     }

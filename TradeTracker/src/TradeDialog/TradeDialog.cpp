@@ -80,12 +80,15 @@ void TradeDialog_OnClose(HWND hwnd) {
         // the BP dates. We need to do this because an EDIT could have changed the closing
         // date of the Trade.
         if (tdd.trade_action == TradeAction::edit_transaction) {
+            // Set the open status of the entire trade based on the modified legs
+            tdd.trade->SetTradeOpenStatus();
+
             // Save/Load the new data
             db.SaveDatabase();
             db.LoadDatabase();
         }
         else {
-            // Set the open status of the entire trade based on the new modified legs
+            // Set the open status of the entire trade based on the legs
             tdd.trade->SetTradeOpenStatus();
 
             // Rebuild the openLegs position vector
@@ -333,10 +336,10 @@ LRESULT CTradeDialog::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
             if (selected != -1) {
                 CustomLabel_SetUserDataInt(hCtl, selected);
                 CustomLabel_SetText(hCtl, GetActionDescription(selected));
-                if ((Action)selected == Action::BTO || (Action)selected == Action::STC) {
+                if ((Action)selected == Action::BTO || (Action)selected == Action::BTC) {
                     TradeDialog_SetComboDRCR(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_COMBODRCR), L"DR");
                 }
-                if ((Action)selected == Action::STO || (Action)selected == Action::BTC) {
+                if ((Action)selected == Action::STO || (Action)selected == Action::STC) {
                     TradeDialog_SetComboDRCR(GetDlgItem(m_hwnd, IDC_TRADEDIALOG_COMBODRCR), L"CR");
                 }
             }

@@ -98,6 +98,11 @@ void TradeDialog_CalculateTradeTotal(HWND hwnd) {
 void TradeDialog_LoadEditTransactionInTradeTable(HWND hwnd) {
     if (tdd.legs.size() == 0) return;
 
+    if (tdd.trans) {
+        CustomLabel_SetUserDataInt(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION), (int)tdd.trans->share_action);
+        CustomLabel_SetText(GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION), GetActionDescription((int)tdd.trans->share_action));
+    }
+
     HWND hGridMain = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDMAIN);
     HWND hGridRoll = GetDlgItem(HWND_TRADEDIALOG, IDC_TRADEDIALOG_TABLEGRIDROLL);
     HWND hGrid = hGridMain;
@@ -817,7 +822,7 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
         }
     }
 
-    // Hide the Long/Short buttons if this is an Edit Transaction but is not Shares/Futures.
+    // Hide the Share Action buttons if this is an Edit Transaction but is not Shares/Futures.
     if (tdd.trade_action == TradeAction::edit_transaction) {
         if (tdd.trans->underlying == Underlying::Shares || tdd.trans->underlying == Underlying::Futures) {
             hCtl = GetDlgItem(hwnd, IDC_TRADEDIALOG_SHARESACTION);
@@ -851,11 +856,6 @@ void TradeDialogControls_CreateControls(HWND hwnd) {
     CustomTextBox_SetMargins(hCtl, horiz_text_margin, vert_text_margin);
     CustomTextBox_SetColors(hCtl, COLOR_WHITELIGHT, COLOR_GRAYMEDIUM);
     CustomTextBox_SetNumericAttributes(hCtl, 5, CustomTextBoxNegative::disallow, CustomTextBoxFormatting::allow);
-    if (ActiveTrades.IsManageSharesTradeAction(tdd.trade_action)) {
-        // If the aggregate shares are negative then toggle the sell to buy in order to close the trade
-        int aggregate = AfxValInteger(tdd.shares_aggregate_edit);
-        CustomTextBox_SetText(hCtl, std::to_wstring(abs(aggregate)));  // set quantity before doing the toggle
-    }
     if (tdd.trade_action == TradeAction::add_dividend_to_trade ||
         tdd.trade_action == TradeAction::add_income_expense_to_trade ||
         tdd.trade_action == TradeAction::other_income_expense) {
