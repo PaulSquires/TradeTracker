@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Utilities/AfxWin.h"
 
 
-constexpr std::wstring version = L"4.0.2";
+constexpr std::wstring version = L"4.1.0";
 
 enum class NumberFormatType {
     American,
