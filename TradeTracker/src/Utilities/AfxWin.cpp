@@ -281,11 +281,10 @@ int AfxUnScaleY(long cy) {
 // Retrieve text from the specified window
 // ========================================================================================
 std::wstring AfxGetWindowText(HWND hwnd) {
-    DWORD dwBufLen = GetWindowTextLength(hwnd) + 1; 
-    std::wstring buffer;
-    buffer.resize(dwBufLen);
-    GetWindowText(hwnd, &buffer[0], dwBufLen);
-    buffer.resize(dwBufLen - 1);
+    int length = GetWindowTextLength(hwnd);
+    if (length == 0) return L"";
+    std::wstring buffer(length, L'\0');
+    GetWindowText(hwnd, &buffer[0], length + 1);
     return buffer;
 }
 
@@ -638,21 +637,6 @@ void AfxSetTooltipText(HWND hTooltip, HWND hwnd, const std::wstring& text) {
     // Set the new tooltip text
     tti.lpszText = (LPWSTR)text.c_str();
     SendMessage(hTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&tti);
-}
-
-
-// ========================================================================================
-// Gets a string from a list box.
-// - hListBox: A handle to the list box.
-// - index: The zero-based index of the item.
-// ========================================================================================
-std::wstring AfxGetListBoxText(HWND hListBox, int index) {
-    DWORD dwBufLen = ListBox_GetTextLen(hListBox, index) + 1;
-    std::wstring buffer;
-    buffer.resize(dwBufLen);
-    ListBox_GetText(hListBox, index, &buffer[0]);
-    buffer.resize(dwBufLen - 1);
-    return buffer;
 }
 
 
