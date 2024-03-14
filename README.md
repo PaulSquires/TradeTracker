@@ -1,5 +1,6 @@
 # TradeTracker: Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 [![Release](https://img.shields.io/github/v/release/PaulSquires/TradeTracker?style=flat-square)](https://github.com/PaulSquires/TradeTracker/releases)
+![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square)
 [![License](https://img.shields.io/github/license/PaulSquires/TradeTracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square) -->
    
