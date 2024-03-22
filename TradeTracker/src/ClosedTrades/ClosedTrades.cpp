@@ -148,6 +148,8 @@ void CClosedTrades::ShowClosedTrades() {
         if (latest_closed_date > end_date) continue;
 
         // If this Trade has Shares/Futures transactions show the costing 
+        bool exclude_acb_non_shares = true;
+
         for (const auto& share : trade->shares_history) {
             if (share.leg_action == Action::STC || share.leg_action == Action::BTC) {
 
@@ -182,19 +184,26 @@ void CClosedTrades::ShowClosedTrades() {
                     L" (" + diff_describe + L")";
 
                 vectorClosed.push_back(data);
+
+                // If this closed Trade had shares/futures and average cost with options included then 
+                // we set the flag here to bypass outputting the acb_non_shares amount because that amount
+                // would have been factored into the average cost of the shares.
+                exclude_acb_non_shares = config.GetExcludeNonStockCosts();
             }
 
         }
 
-        if (!trade->is_open && trade->acb_non_shares) {
-            ClosedData data;
-            data.trade = trade;
-            data.trans = nullptr;
-            data.closed_date = latest_closed_date;
-            data.close_amount = trade->acb_non_shares;
-            data.description = trade->ticker_name;
-            if (config.IsFuturesTicker(trade->ticker_symbol)) data.description += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
-            vectorClosed.push_back(data);
+        if (trade->is_open == false && exclude_acb_non_shares == true) {
+            if (trade->acb_non_shares) {
+                ClosedData data;
+                data.trade = trade;
+                data.trans = nullptr;
+                data.closed_date = latest_closed_date;
+                data.close_amount = trade->acb_non_shares;
+                data.description = trade->ticker_name;
+                if (config.IsFuturesTicker(trade->ticker_symbol)) data.description += L" (" + AfxFormatFuturesDate(trade->future_expiry) + L")";
+                vectorClosed.push_back(data);
+            }
         }
     }
 
