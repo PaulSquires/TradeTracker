@@ -3,7 +3,10 @@
 ![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square)
 [![License](https://img.shields.io/github/license/PaulSquires/TradeTracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square) -->
-   
+
+### Update Announcement (Aug 20, 2024)
+Currently about 90% complete with the cross platform version of TradeTracker. Built using Dear ImGui and will be backward compatible with the current released version.
+
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
 **Let TradeTracker free you from the constraints of spreadsheets.**
 
