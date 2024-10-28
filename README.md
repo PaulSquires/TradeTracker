@@ -4,8 +4,12 @@
 [![License](https://img.shields.io/github/license/PaulSquires/TradeTracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square) -->
 
-### Update Announcement (Aug 20, 2024)
-Currently about 90% complete with the cross platform version of TradeTracker. Built using Dear ImGui and will be backward compatible with the current released version.
+### Update Announcement (October 27, 2024)
+Currently about 95% complete with the cross platform version of TradeTracker. Built using Dear ImGui and will be backward compatible with the current released version.
+- Import existing Trades from TWS is the only outstanding item needed to be implemented.
+- Currently cross platform for Windows, macOS, and Linux. All tested and working correctly.
+- Source code will be posted and superceed the Win32 api code that exists in this respository.
+
 
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
 **Let TradeTracker free you from the constraints of spreadsheets.**
