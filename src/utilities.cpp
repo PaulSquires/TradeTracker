@@ -240,12 +240,17 @@ std::string GetDataFilesFolder() {
         // Create the data files folder in Local App Data should it not exist.
         AfxCreateNestedFolder(data_files_folder);
     }
-#endif
 
-#if defined(__APPLE__)  // macOS
+#elif defined(__APPLE__)
     // Construct the path to Application Support
     std::string home = std::getenv("HOME");
     data_files_folder = home + "/Library/Application Support/TradeTracker";
+    AfxCreateNestedFolder(data_files_folder);
+
+#else
+    // Construct the path to Application Support
+    std::string home = std::getenv("HOME");
+    data_files_folder = home + "/.config/tradetracker";
     AfxCreateNestedFolder(data_files_folder);
 #endif
 
