@@ -1,0 +1,26 @@
+- The small gap between the left panel and the bottom grid buttons.
+
+- Disconnect and then reconnect does not reset state within the Client variable. It does restart the
+threads however.
+
+- MutilineTextBox word wrapping: https://github.com/ocornut/imgui/issues/3237
+
+- Center, left, or right align input text (need custom code for this)
+
+- RUT & VIX streaming market price. Review RequestMarketData.  NDX ??
+
+- Is the Exclude shares non-costs in Settings working correctly.
+
+- Light Theme needs a lot of work especially the Settings dialog.
+
+Changes from Original Win32 Version:
+  - Journal Notes is now much more detailed. Need to copy paste your old notes into new version.
+  - No connect option to download scraped stock price data.
+  - No option to change the starting day of the week in popup calendars to Monday rather than Sunday.
+  
+- Need to test all operation systems integrating TWS to create, save, roll, close Trades and also
+do reconciliations, etc.
+
+Import
+- Futures need contract date updated in addition to financial info.
+

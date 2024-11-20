@@ -4,11 +4,10 @@
 [![License](https://img.shields.io/github/license/PaulSquires/TradeTracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square) -->
 
-### Update Announcement (October 27, 2024)
-Currently about 95% complete with the cross platform version of TradeTracker. Built using Dear ImGui and will be backward compatible with the current released version.
-- Import existing Trades from TWS is the only outstanding item needed to be implemented.
-- Currently cross platform for Windows, macOS, and Linux. All tested and working correctly.
-- Source code will be posted and superceed the Win32 api code that exists in this respository.
+### ANNOUNCEMENT (November 20, 2024)
+TradeTracker is now fully cross-platform (Windows, Linux, MacOS).
+Built using Dear ImGui and backward compatible with the current released version.
+- Source code for the Windows only still available in the "archive_win32_version" folder.
 
 
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
@@ -21,11 +20,9 @@ Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR
 
 You do not need an Interactive Brokers account but if you have one then TradeTracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture. 
 
-If you are not using TWS integration, TradeTracker allows you to "scrape" stock and futures prices from Yahoo Finance (albeit, the prices will be at least 15 minutes delayed). You just need to attempt to connect to TWS and when that fails, you will get a popup asking if you would like to retrieve the scraped market prices.
-
 This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. TradeTracker aims to make the trade tracking process as enjoyable and painless as possible.
 
-![screenshot](/TradeTracker/assets/active_trades.png?raw=true "TradeTracker Version4 User Interface")
+![screenshot](/src/resources/active_trades.png?raw=true "TradeTracker Version5 User Interface")
 
 
 ## Goals
@@ -34,15 +31,12 @@ This program exists because tracking trades and their corresponding transactions
 * Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
 * Allow trades to be grouped and tracked by Category/Strategy.
 * Easy to learn and very intuitive with all information available on the main screen. 
-* Portable. You can easily run the program from a thumb drive. No intrusive install or uninstall procedures.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
-* Small and lightning fast (written in C++), and self-contained (no external dependencies).
+* Small and fast (written in C++).
 * Simple text file "database" that can easily be manually edited if needed. No additional database engine required.
-* Currently, only Windows compatible (Windows 10 and Windows 11).
 
 ## Download and Installation
 The latest package can be downloaded from the [RELEASES](https://github.com/PaulSquires/TradeTracker/releases/latest) page.
-If you wish to compile the source code yourself, it was created using Microsoft Visual Studio Community 2022 and you will find the necessary solution and project files bundled in the source code. It compiles using the C++20 standard.
 
 Documentation and instructions can be found at the [TradeTracker website](https://www.tradetracker.planetsquires.com/)
 
