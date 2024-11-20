@@ -7,7 +7,7 @@
 ### ANNOUNCEMENT (November 20, 2024)
 TradeTracker is now fully cross-platform (Windows, Linux, MacOS).
 Built using Dear ImGui and backward compatible with the current released version.
-- Source code for the Windows only still available in the "archive_win32_version" folder.
+- Source code for the Windows only version (4.2.0) still available in the "archive_win32_version" folder.
 
 
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
