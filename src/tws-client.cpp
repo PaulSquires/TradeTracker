@@ -499,7 +499,7 @@ void TwsClient::RequestMarketData(AppState& state, CListPanelData* ld) {
 
 	bool is_option_position = (ld->line_type == LineType::options_leg);
 
-	if (symbol == "SPX" || symbol == "DJX" || symbol == "VIX" || symbol == "RUT") {
+	if (state.config.IsIndexTicker(symbol)) {
 		contract.symbol = symbol;
 		contract.secType = (is_option_position) ? "OPT" : "IND";
 		contract.currency = "USD";
@@ -508,7 +508,7 @@ void TwsClient::RequestMarketData(AppState& state, CListPanelData* ld) {
 		contract.lastTradeDateOrContractMonth = (is_option_position) ? AfxRemoveDateHyphens(ld->leg->expiry_date) : "";
 	}
 	else {
-		if (symbol.substr(0,1) == "/") {
+		if (state.config.IsFuturesTicker(symbol)) {
 			contract.symbol = symbol.substr(1);
 			contract.secType =  (is_option_position) ? "FOP" : "FUT";
 			contract.currency = "USD";

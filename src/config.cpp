@@ -131,6 +131,23 @@ bool CConfig::IsFuturesTicker(const std::string& ticker) {
 
 
 // ========================================================================================
+// Determine if the incoming ticker symbol is an Index.
+// ========================================================================================
+bool CConfig::IsIndexTicker(const std::string& ticker) {
+    if (mapIndexTickers.count(ticker)) return true;
+    return false;
+}
+
+
+// ========================================================================================
+// Set the Ticker Decimals for the incoming underlying.
+// ========================================================================================
+void CConfig::SetIndexTicker(const std::string& ticker) {
+    mapIndexTickers[ticker] = true;
+}
+
+
+// ========================================================================================
 // Get the Ticker Decimals for the incoming underlying.
 // ========================================================================================
 int CConfig::GetTickerDecimals(const std::string& underlying) {
@@ -259,6 +276,10 @@ bool CConfig::SaveConfig(AppState& state) {
 
     for (auto item : mapTickerDecimals) {
         text << "TICKERDECIMALS|" << item.first << "|" << item.second << "\n";
+    }
+
+    for (auto item : mapIndexTickers) {
+        text << "INDEXTICKER|" << item.first << "\n";
     }
 
     db << text.str();
@@ -501,6 +522,18 @@ bool CConfig::LoadConfig(AppState& state) {
             catch (...) {continue;}
             
             SetTickerDecimals(underlying, decimals);
+
+            continue;
+        }
+
+        // Check for Index Ticker Symbols
+        if (arg == "INDEXTICKER") {
+            std::string underlying;
+
+            try {underlying = st.at(1);}
+            catch (...) {continue;}
+            
+            SetIndexTicker(underlying);
 
             continue;
         }

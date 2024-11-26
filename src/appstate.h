@@ -488,7 +488,7 @@ public:
     CostingMethodType costing_method = CostingMethodType::AverageCost;
     StartWeekdayType start_weekday = StartWeekdayType::Monday;
 
-    std::unordered_map<int, std::string> mapCategoryDescriptions{
+    std::unordered_map<int, std::string> mapCategoryDescriptions {
         { 0, "Category 0"},
         { 1, "Category 1" },
         { 2, "Category 2" },
@@ -509,7 +509,7 @@ public:
         {100, "Other Income/Expense" }
     };
 
-    std::unordered_map<std::string, std::string> mapFuturesExchanges{
+    std::unordered_map<std::string, std::string> mapFuturesExchanges {
         { "/AUD", "CME" },
         { "/EUR", "CME" },
         { "/GBP", "CME" },
@@ -528,7 +528,8 @@ public:
         { "/ZS",  "CBOT" }
     };
 
-    std::unordered_map<std::string, std::string> mapMultipliers{
+    std::unordered_map<std::string, std::string> mapMultipliers {
+        { "NANOS", "1" },
         { "/AUD", "100000" },
         { "/EUR", "125000" },
         { "/GBP", "62500" },
@@ -542,7 +543,7 @@ public:
         { "/ZB",  "1000" }
     };
 
-    std::unordered_map<std::string, int> mapTickerDecimals{
+    std::unordered_map<std::string, int> mapTickerDecimals {
         { "/AUD", 5 },
         { "/EUR", 5 },
         { "/GBP", 4 },
@@ -553,7 +554,15 @@ public:
         { "/ZB", 3 },
         { "/ZS", 4 }
     };
-    
+
+    std::unordered_map<std::string, bool> mapIndexTickers {
+        { "SPX", true },
+        { "DJX", true },
+        { "VIX", true },
+        { "RUT", true },
+        { "NANOS", true }
+    };
+
     bool SaveConfig(AppState& state);
     bool LoadConfig(AppState& state);
 
@@ -574,6 +583,8 @@ public:
     std::string GetCategoryDescription(int index);
     void SetCategoryDescription(int index, const std::string& description);
     bool IsFuturesTicker(const std::string& ticker);
+    bool IsIndexTicker(const std::string& ticker);
+    void SetIndexTicker(const std::string& ticker);
 
     CConfig();
 };
@@ -583,7 +594,7 @@ struct AppState {
     CDatabase db{};
     CConfig config{};
 
-    std::string version_current_display = "5.00";
+    std::string version_current_display = "5.01";
     std::string version_available_display = "";
 
     int ticker_id = 1;    // incrementing counter for requesting market data
