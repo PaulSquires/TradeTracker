@@ -211,6 +211,7 @@ public:
         while (!glfwWindowShouldClose(window)) {
             // Poll events like key presses, mouse movements etc.
             glfwPollEvents();
+            glfwSwapInterval(1);   // enables vsync
 
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
