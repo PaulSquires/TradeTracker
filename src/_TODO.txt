@@ -18,8 +18,8 @@ DEAR IMGUI QUIRKS
 
 
 FIXED FOR 5.02
+- Added Setting option change the program's font size (program must be restarted for the changes to take effect).
 - The 3rd panel width in "Journal Notes" was not stretching to fill available space on resize.
 - In Journal Notes, fixed the "+ Add New Note" button not repositioning when the panel was resized. 
 - The setting "Display Net and Excess portfolio liquidity amounts" would not correctly show/hide the labels and amounts on the main screen.
-- Added Setting option change the program's font size (program must be restarted for the changes to take effect).
 
