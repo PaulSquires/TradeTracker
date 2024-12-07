@@ -1,15 +1,8 @@
-- The small gap between the left panel and the bottom grid buttons.
 
 - Disconnect and then reconnect does not reset state within the Client variable. It does restart the
 threads however.
 
-- MutilineTextBox word wrapping: https://github.com/ocornut/imgui/issues/3237
-
-- Center, left, or right align input text (need custom code for this)
-
 - RUT & VIX streaming market price. Review RequestMarketData.  NDX ??
-
-- Is the Exclude shares non-costs in Settings working correctly.
 
 - Light Theme needs a lot of work especially the Settings dialog.
 
@@ -18,9 +11,15 @@ Changes from Original Win32 Version:
   - No connect option to download scraped stock price data.
   - No option to change the starting day of the week in popup calendars to Monday rather than Sunday.
   
-- Need to test all operation systems integrating TWS to create, save, roll, close Trades and also
-do reconciliations, etc.
 
-Import
-- Futures need contract date updated in addition to financial info.
+DEAR IMGUI QUIRKS
+- InputTextMultiline widget does not support horizontal scrollbar or word wrapping.
+- InputTextMultiline handles most languages with UTF8 but not ones like Hebrew.
+
+
+FIXED FOR 5.02
+- The 3rd panel width in "Journal Notes" was not stretching to fill available space on resize.
+- In Journal Notes, fixed the "+ Add New Note" button not repositioning when the panel was resized. 
+- The setting "Display Net and Excess portfolio liquidity amounts" would not correctly show/hide the labels and amounts on the main screen.
+- Added Setting option change the program's font size (program must be restarted for the changes to take effect).
 

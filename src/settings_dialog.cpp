@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "appstate.h"
 #include "active_trades_actions.h"
+#include "utilities.h"
 #include "settings_dialog.h"
 
 
@@ -48,7 +49,7 @@ void ShowSettingsDialogPopup(AppState& state) {
     
     // Trigger the popup
     if (!ImGui::IsPopupOpen(state.id_settingsdialog_popup.c_str())) {
-        ImVec2 size{state.dpi(570.0f),state.dpi(450.0f)};
+        ImVec2 size{state.dpi(570.0f),state.dpi(470.0f)};
         ImGui::SetNextWindowSize(size);
     	ImGui::OpenPopup(state.id_settingsdialog_popup.c_str(), ImGuiPopupFlags_NoOpenOverExistingPopup);
     }
@@ -96,6 +97,26 @@ void ShowSettingsDialogPopup(AppState& state) {
         ImGui::NewLine(); ImGui::SameLine(x_offset);
         ImGui::Checkbox("Exclude non-stock costs (eg. dividends, options premium)", &is_exclude_nonstock);
 
+        ImGui::Spacing();
+        static float gui_font_size = state.config.font_size;
+        const char* gui_font_sizes[] = {"12","13","14","15","16","17","18"};
+        std::string font_string = AfxDoubleToString(gui_font_size, 0);
+        ImGui::Text("Font size (requires program restart):");
+        ImGui::NewLine(); ImGui::SameLine(x_offset);
+        ImGui::PushItemWidth(state.dpi(100));
+        if (ImGui::BeginCombo("##FontSize", font_string.c_str(), ImGuiComboFlags_HeightLargest)) {
+            for (int i = 0; i < IM_ARRAYSIZE(gui_font_sizes); i++) {
+                // Change background color when the item is hot tracked
+                ImGui::PushStyleColor(ImGuiCol_HeaderHovered, clrSelection(state));
+                if (ImGui::Selectable(gui_font_sizes[i])) {
+                    gui_font_size = AfxValDouble(gui_font_sizes[i]);
+                }
+              ImGui::PopStyleColor();  // pop hot tracking
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+        
         ImGui::NewLine(); ImGui::NewLine();
         ImVec2 button_size{state.dpi(180.0f), 0};
         if (ColoredButton(state, "Year End Procedure", 40, button_size, clrTextBrightWhite(state), clrRed(state))) {
@@ -134,6 +155,7 @@ void ShowSettingsDialogPopup(AppState& state) {
             state.config.start_weekday = (StartWeekdayType)selected_start_weekday;
             state.config.show_45day_trade_date = is_show_45_trade_date;
             state.config.color_theme = (is_dark_theme ? ColorThemeType::Dark : ColorThemeType::Light);
+            state.config.font_size = gui_font_size;
 
             // Save the configuration/settings file to disk
             state.config.SaveConfig(state);

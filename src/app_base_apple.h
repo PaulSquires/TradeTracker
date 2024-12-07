@@ -8,7 +8,6 @@
 #include <string>
 
 #include "utilities.h"
-#include "icons_material_design.h"
 
 // #include <iostream>
 
@@ -153,37 +152,6 @@ public:
         // Setup Platform/Renderer backends
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);
-
-        // Add custom fonts (16px looks best on Mac)
-        float baseFontSize = 16.0f; 
-        float iconFontSize = 16.0f;
-
-        // Load the embedded font
-        //io.Fonts->AddFontFromMemoryCompressedTTF(segoeui_compressed_data, segoeui_compressed_size, baseFontSize * dpi_scale);
-
-        // Merging two memory compressed fonts does not seem to work so load the fonts from disk instead.
-        // ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(materialicons_compressed_data, materialicons_compressed_size, baseFontSize * dpi_scale);
-        // if (font == NULL) {
-        //     std::cerr << "Failed to load embedded font" << std::endl;
-        // }
-
-        std::string fontfile = AfxGetExePath() + "/gui-font.ttf";
-        gui_font = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), baseFontSize * dpi_scale);
-
-        // Define and merge into the base font the Unicode ranges for Material Design Icons
-        static const ImWchar icon_ranges[] = { ICON_MIN_MD, ICON_MAX_16_MD, 0 };
-        ImFontConfig config;
-        config.MergeMode = true;
-        config.PixelSnapH = true;
-        config.GlyphMinAdvanceX = iconFontSize; 
-        config.GlyphOffset.y = 3.0f * dpi_scale; 
-        fontfile = AfxGetExePath() + "/icon-font.ttf";
-        io.Fonts->AddFontFromFileTTF(fontfile.c_str(), iconFontSize * dpi_scale, &config, icon_ranges);
-
-        fontfile = AfxGetExePath() + "/gui-font-mono.ttf";
-        gui_font_mono = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), baseFontSize * dpi_scale);
-
-        ImGui::GetStyle().ScaleAllSizes(dpi_scale);
     }
 
 

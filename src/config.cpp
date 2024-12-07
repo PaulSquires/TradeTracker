@@ -33,6 +33,7 @@ SOFTWARE.
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "icons_material_design.h"
 
 
 CConfig::CConfig() {
@@ -261,6 +262,8 @@ bool CConfig::SaveConfig(AppState& state) {
     text << "STARTUPHEIGHT" << "|" << startup_height << "\n";
 
     text << "STARTUPRIGHTPANELWIDTH" << "|" << startup_right_panel_width << "\n";
+    
+    text << "GUIFONTSIZE" << "|" << AfxDoubleToString(font_size, 0) << "\n";
 
     for (auto item : mapCategoryDescriptions) {
         text << "CATEGORY|" << item.first << "|" << item.second << "\n";
@@ -444,6 +447,17 @@ bool CConfig::LoadConfig(AppState& state) {
             continue;
         }
 
+        // Get the main GUI font size
+        if (arg == "GUIFONTSIZE") {
+            std::string value;
+
+            try { value = AfxTrim(st.at(1)); }
+            catch (...) { continue; }
+
+            font_size = AfxValDouble(value);
+            continue;
+        }
+
         // Check for category descriptions
         if (arg == "CATEGORY") {
             int category_index{0};
@@ -543,4 +557,49 @@ bool CConfig::LoadConfig(AppState& state) {
     db.close();
 
     return true;
+}
+
+
+// ========================================================================================
+// Load the Config values from file.
+// ========================================================================================
+void CConfig::CreateAppFonts(AppState& state) {
+        ImFont* gui_font = nullptr;
+        ImFont* gui_font_mono = nullptr;
+
+        // Add custom fonts 
+        float baseFontSize = state.config.font_size; 
+        float iconFontSize = state.config.font_size;
+
+        // Load the embedded font
+        //io.Fonts->AddFontFromMemoryCompressedTTF(segoeui_compressed_data, segoeui_compressed_size, baseFontSize * dpi_scale);
+
+        // Merging two memory compressed fonts does not seem to work so load the fonts from disk instead.
+        // ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(materialicons_compressed_data, materialicons_compressed_size, baseFontSize * dpi_scale);
+        // if (font == NULL) {
+        //     std::cerr << "Failed to load embedded font" << std::endl;
+        // }
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        std::string fontfile = AfxGetExePath() + "/gui-font.ttf";
+        gui_font = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), state.dpi(baseFontSize));
+
+        // Define and merge into the base font the Unicode ranges for Material Design Icons
+        static const ImWchar icon_ranges[] = { ICON_MIN_MD, ICON_MAX_16_MD, 0 };
+        ImFontConfig config;
+        config.MergeMode = true;
+        config.PixelSnapH = true;
+        config.GlyphMinAdvanceX = iconFontSize; 
+        config.GlyphOffset.y = state.dpi(3.0f); 
+        fontfile = AfxGetExePath() + "/icon-font.ttf";
+        io.Fonts->AddFontFromFileTTF(fontfile.c_str(), state.dpi(iconFontSize), &config, icon_ranges);
+
+        fontfile = AfxGetExePath() + "/gui-font-mono.ttf";
+        gui_font_mono = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), state.dpi(baseFontSize));
+
+        state.gui_font = gui_font;
+        state.gui_font_mono = gui_font_mono;
+
+        ImGui::GetStyle().ScaleAllSizes(state.dpi_scale);
 }

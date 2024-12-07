@@ -7,7 +7,6 @@
 #include <stdio.h>
 
 #include "utilities.h"
-#include "icons_material_design.h"
 
 #define STB_IMAGE_IMPLEMENTATION  // This needs to be defined in **one** source file
 #include "stb_image.h"
@@ -27,8 +26,6 @@ public:
     float dpi_scale = 1;
     int display_width = 0;
     int display_height = 0;
-    ImFont* gui_font = nullptr;
-    ImFont* gui_font_mono = nullptr;
 
     AppBase() {
         glfwSetErrorCallback(ErrorCallback);
@@ -159,37 +156,6 @@ public:
         float xscale, yscale;
         glfwGetWindowContentScale(window, &xscale, &yscale);
         dpi_scale = (xscale + yscale) * 0.5f;
-
-        ImGui::GetStyle().ScaleAllSizes(dpi_scale);
-
-        // Add custom fonts (18px seems to look best on Linux)
-        float baseFontSize = 18.0f; 
-        float iconFontSize = 18.0f;
-
-        // Load the embedded font
-        //io.Fonts->AddFontFromMemoryCompressedTTF(segoeui_compressed_data, segoeui_compressed_size, baseFontSize * dpi_scale);
-
-        // Merging two memory compressed fonts does not seem to work so load the fonts from disk instead.
-        // ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(materialicons_compressed_data, materialicons_compressed_size, baseFontSize * dpi_scale);
-        // if (font == NULL) {
-        //     std::cerr << "Failed to load embedded font" << std::endl;
-        // }
-
-        std::string fontfile = AfxGetExePath() + "/gui-font.ttf";
-        gui_font = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), baseFontSize * dpi_scale);
-
-        // Define and merge into the base font the Unicode ranges for Material Design Icons
-        static const ImWchar icon_ranges[] = { ICON_MIN_MD, ICON_MAX_16_MD, 0 };
-        ImFontConfig config;
-        config.MergeMode = true;
-        config.PixelSnapH = true;
-        config.GlyphMinAdvanceX = iconFontSize; 
-        config.GlyphOffset.y = 3.0f * dpi_scale; 
-        fontfile = AfxGetExePath() + "/icon-font.ttf";
-        io.Fonts->AddFontFromFileTTF(fontfile.c_str(), iconFontSize * dpi_scale, &config, icon_ranges);
-
-        fontfile = AfxGetExePath() + "/gui-font-mono.ttf";
-        gui_font_mono = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), baseFontSize * dpi_scale);
     }
 
 

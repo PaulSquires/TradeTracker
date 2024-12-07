@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 #include "utilities.h"
-#include "icons_material_design.h"
+
 
 // Data
 static ID3D11Device*            g_pd3dDevice = nullptr;
@@ -162,28 +162,6 @@ public:
         // Setup Platform/Renderer backends
         ImGui_ImplWin32_Init(hwnd);
         ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-
-        ImGui::GetStyle().ScaleAllSizes(dpi_scale);
-
-        // Add custom fonts
-        float baseFontSize = 18.0f; 
-        float iconFontSize = 18.0f;
-
-        std::string fontfile = AfxGetExePath() + "/gui-font.ttf";
-        gui_font = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), baseFontSize * dpi_scale);
-
-        // Define and merge into the base font the Unicode ranges for Material Design Icons
-        static const ImWchar icon_ranges[] = { ICON_MIN_MD, ICON_MAX_16_MD, 0 };
-        ImFontConfig config;
-        config.MergeMode = true;
-        config.PixelSnapH = true;
-        config.GlyphMinAdvanceX = iconFontSize; 
-        config.GlyphOffset.y = 3.0f * dpi_scale; 
-        fontfile = AfxGetExePath() + "/icon-font.ttf";
-        io.Fonts->AddFontFromFileTTF(fontfile.c_str(), iconFontSize * dpi_scale, &config, icon_ranges);
-
-        fontfile = AfxGetExePath() + "/gui-font-mono.ttf";
-        gui_font_mono = io.Fonts->AddFontFromFileTTF(fontfile.c_str(), baseFontSize * dpi_scale);
     }
 
     virtual ~AppBase() {

@@ -698,7 +698,7 @@ void ShowJournalNotes(AppState& state) {
     float line_height = ImGui::CalcTextSize("Thing").y + state.dpi(2.0f);
     TextLabelCentered(state, folder_name.c_str(), 0.0f, ImVec2(panel2_size - state.dpi(48.0f), line_height), text_color_white, back_color);
     button_size = ImVec2{state.dpi(22.0f), state.dpi(22.0f)}; 
-    if (ColoredButton(state, ICON_MD_ADD, state.undpi(panel1_size) - 22.0f - left, button_size, clrTextDarkWhite(state), back_color)) {
+    if (ColoredButton(state, ICON_MD_ADD, state.undpi(panel2_size) - 22.0f - left, button_size, clrTextDarkWhite(state), back_color)) {
         AddJournalNote(state);
     }
     Tooltip(state, "Create New Note", clrTextLightWhite(state), clrBackMediumGray(state));
@@ -808,8 +808,8 @@ void ShowJournalNotes(AppState& state) {
         if (note_index != -1) {
             JournalNote& note = state.vector_notes.at(note_index);
             journal_notes_text = note.text;
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(state.dpi(15), state.dpi(15))); // Adjust padding
-            bool modified = ImGui::InputTextMultiline("##JournalNotesMultiLine", &journal_notes_text, ImVec2(panel3_size-state.dpi(30.0f), -1));
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(state.dpi(15), state.dpi(15)));
+            bool modified = ImGui::InputTextMultiline("##JournalNotesMultiLine", &journal_notes_text, ImVec2(panel3_size, -1));
             ImGui::PopStyleVar();
             if (modified) {
                 note.text = journal_notes_text;

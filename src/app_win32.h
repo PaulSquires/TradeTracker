@@ -21,8 +21,8 @@ public:
         state.dpi_scale = dpi_scale;
         state.display_width = display_width;
         state.display_height = display_height;
-        state.gui_font = gui_font;
-        state.gui_font_mono = gui_font_mono;
+
+        state.config.CreateAppFonts(state);
 
         // Attempt to apply the standard Windows dark theme to the non-client areas of the main form.
         if (state.config.color_theme == ColorThemeType::Dark) {

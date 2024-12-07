@@ -822,20 +822,24 @@ void ShowActiveTrades(AppState& state) {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(state.dpi(3), state.dpi(3)));
     ImGui::SameLine(state.dpi(290.0f));
     ImGui::BeginGroup();
-    ImGui::PushStyleColor(ImGuiCol_Text, clrTextDarkWhite(state));
-    ImGui::Text("Net Liq:"); 
-    ImGui::Text("Excess Liq:");
-    ImGui::Text("Maintenance:");
-    ImGui::PopStyleColor();
+    if (state.config.show_portfolio_value) {
+        ImGui::PushStyleColor(ImGuiCol_Text, clrTextDarkWhite(state));
+        ImGui::Text("Net Liq:"); 
+        ImGui::Text("Excess Liq:");
+        ImGui::Text("Maintenance:");
+        ImGui::PopStyleColor();
+    }
     ImGui::EndGroup();
 
     ImGui::SameLine(state.dpi(390.0f));
     ImGui::BeginGroup();
-    ImGui::PushStyleColor(ImGuiCol_Text, clrTextBrightWhite(state));
-    ImGui::Text("%s", FormatAccountValue(state, netliq_value).c_str()); 
-    ImGui::Text("%s", FormatAccountValue(state, excessliq_value).c_str()); 
-    ImGui::Text("%s", FormatAccountValue(state, maintenance_value).c_str()); 
-    ImGui::PopStyleColor();
+    if (state.config.show_portfolio_value) {
+        ImGui::PushStyleColor(ImGuiCol_Text, clrTextBrightWhite(state));
+        ImGui::Text("%s", FormatAccountValue(state, netliq_value).c_str()); 
+        ImGui::Text("%s", FormatAccountValue(state, excessliq_value).c_str()); 
+        ImGui::Text("%s", FormatAccountValue(state, maintenance_value).c_str()); 
+        ImGui::PopStyleColor();
+    }
     ImGui::EndGroup();
     ImGui::PopStyleVar();
 
