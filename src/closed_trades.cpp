@@ -17,15 +17,20 @@ void SetFirstLineClosedTrades(AppState& state, std::vector<CListPanelData>& vec)
     // selectable line in the list. 
     state.closedtrades_selected_trade = nullptr;
 
+    // ensure all other lines are not selected
+    for (auto& ld : vec) {
+        ld.is_selected = false;   
+    }
+
     // If this is the first selectable line in the grid then default to displaying
     // the TradeHistory for this item.
     for (auto& ld : vec) {
-        ld.is_selected = false;   // ensure all other lines are not selected
-        if (!state.closedtrades_selected_trade && ld.line_type == LineType::ticker_line) {
+        if (ld.line_type == LineType::ticker_line) {
             ld.is_selected = true;
             state.closedtrades_selected_trade = ld.trade;
             state.selected_tabpanelitem = TabPanelItem::ClosedTrades;
             SelectTabPanelItem(state);
+            break;
         }
     }
 }

@@ -42,15 +42,20 @@ void SetFirstLineTransactions(AppState& state, std::vector<CListPanelData>& vec)
     // selectable line in the list. 
     state.transactions_selected_trade = nullptr;
 
+    // ensure all other lines are not selected
+    for (auto& ld : vec) {
+        ld.is_selected = false;   
+    }
+
     // If this is the first selectable line in the grid then default to displaying
     // the TradeHistory for this item.
     for (auto& ld : vec) {
-        ld.is_selected = false;   // ensure all other lines are not selected
-        if (!state.transactions_selected_trade && ld.line_type == LineType::ticker_line) {
+        if (ld.line_type == LineType::ticker_line) {
             ld.is_selected = true;
             state.transactions_selected_trade = ld.trade;
             state.selected_tabpanelitem = TabPanelItem::Transactions;
             SelectTabPanelItem(state);
+            break;
         }
     }
 }
@@ -131,6 +136,7 @@ void LoadTransactionsData(AppState& state, std::vector<CListPanelData>& vec) {
 
     state.is_transactions_data_loaded = true;
 }
+
 
 void ShowTransPanel(AppState& state) {
     if (!state.show_transpanel) return;

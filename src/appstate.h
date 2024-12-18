@@ -597,7 +597,7 @@ struct AppState {
     CDatabase db{};
     CConfig config{};
 
-    std::string version_current_display = "5.02";
+    std::string version_current_display = "5.03";
     std::string version_available_display = "";
 
     int ticker_id = 1;    // incrementing counter for requesting market data

@@ -33,6 +33,8 @@ SOFTWARE.
 #include "transaction_edit.h"
 #include "utilities.h"
 
+#include <iostream>
+
 
 std::shared_ptr<Leg> GetLegBackPointer(std::shared_ptr<Trade> trade, int back_pointer_id) {
     if (back_pointer_id == 0) return nullptr;
@@ -165,13 +167,13 @@ void ShowTransEdit(AppState& state) {
 
     static CListPanel lp;
 
-    if (!state.is_transactions_data_loaded) {
+    if (!state.is_transedit_data_loaded) {
         lp.table_id = TableType::trans_edit;
         lp.is_left_panel = false;
         lp.table_flags = ImGuiTableFlags_ScrollY;
         lp.outer_size_x = 0.0f;
         lp.outer_size_y = 0.0f;
-        lp.column_count = MAX_COLUMNS;
+        lp.column_count = 9; 
         lp.vec = &vec;
         lp.vecHeader = nullptr;
         lp.header_backcolor = 0;
