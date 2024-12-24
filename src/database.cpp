@@ -59,7 +59,7 @@ PutCall CDatabase::StringToPutCall(const std::string& text) {
 
 Underlying CDatabase::StringToUnderlying(const std::string& text) {
     static const std::unordered_map<std::string, Underlying> map = {
-        {"0", Underlying::Options}, {"1", Underlying::Shares}, 
+        {"0", Underlying::Options}, {"1", Underlying::Shares},
         {"2", Underlying::Futures}, {"3", Underlying::Dividend},
         {"4", Underlying::Other}
     };
@@ -79,7 +79,7 @@ std::string CDatabase::UnderlyingToString(const Underlying e) {
 
 Action CDatabase::StringDescriptionToAction(const std::string& text) {
     static const std::unordered_map<std::string, Action> map = {
-        {"STO", Action::STO}, {"BTO", Action::BTO}, 
+        {"STO", Action::STO}, {"BTO", Action::BTO},
         {"STC", Action::STC}, {"BTC", Action::BTC},
         {"", Action::Nothing}
     };
@@ -93,7 +93,7 @@ Action CDatabase::StringDescriptionToAction(const std::string& text) {
 
 Action CDatabase::StringToAction(const std::string& text) {
     static const std::unordered_map<std::string, Action> map = {
-        {"0", Action::STO}, {"1", Action::BTO}, 
+        {"0", Action::STO}, {"1", Action::BTO},
         {"2", Action::STC}, {"3", Action::BTC},
         {"", Action::Nothing}
     };
@@ -118,7 +118,7 @@ std::string CDatabase::ActionToStringDescription(const Action e) {
     case Action::BTC: return "BTC";
     case Action::Nothing : return "";
     default: return "";
-    } 
+    }
 }
 
 
@@ -169,7 +169,7 @@ bool CDatabase::SaveDatabase(AppState& state) {
         static std::string p4 = "    ";
 
         for (const auto& trans : trade->transactions) {
-            text << (trade->is_open ? p2 : p0) << "X|" 
+            text << (trade->is_open ? p2 : p0) << "X|"
                  << AfxReplace(trans->trans_date, "-", "") << "|"
                  << trans->description << "|"
                  << UnderlyingToString(trans->underlying) << "|"
@@ -238,13 +238,13 @@ bool CDatabase::LoadDatabase(AppState& state) {
 
     std::shared_ptr<Trade> trade;
     std::shared_ptr<Transaction> trans;
-    std::shared_ptr<Leg> leg; 
+    std::shared_ptr<Leg> leg;
 
     std::string line;
     std::string text;
     std::string date_text;
     std::string expiry_date;
-    
+
     std::vector<std::string> st;
 
     while (getline(db, line)) {
@@ -279,7 +279,7 @@ bool CDatabase::LoadDatabase(AppState& state) {
             trade->warning_3_dte  = try_catch_int(st, 9);
             trade->warning_21_dte = try_catch_int(st, 10);
             trade->trade_completed_percentage = try_catch_double(st, 11);
-            
+
             trades.emplace_back(trade);
             continue;
         }
@@ -319,7 +319,7 @@ bool CDatabase::LoadDatabase(AppState& state) {
             expiry_date              = try_catch_string(st, 5);
             leg->expiry_date         = AfxInsertDateHyphens(expiry_date);
             leg->strike_price        = try_catch_string(st, 6);
-            leg->put_call            = StringToPutCall(try_catch_string(st, 7)); 
+            leg->put_call            = StringToPutCall(try_catch_string(st, 7));
             leg->action              = StringToAction(try_catch_string(st, 8));
             leg->underlying          = StringToUnderlying(try_catch_string(st, 9));
 
