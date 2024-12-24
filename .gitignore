@@ -8,4 +8,3 @@ cmake-build-debug-visual-studio
 .DS_Store
 *.sublime-*
 .cache
-
