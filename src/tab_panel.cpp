@@ -60,7 +60,7 @@ void ShowTabPanelConnectRightClickPopup(AppState& state) {
             state.is_paper_trading = true;
             tws_Connect(state);
         }
-            
+
         ImGui::PopStyleColor(2);
         ImGui::EndPopup();
     }
@@ -133,7 +133,7 @@ bool ShowTabPanelItem(AppState &state, TabPanelItem id, const char* label) {
     // Check if the button is hovered or pressed
     bool hovered, held;
     bool pressed = ImGui::ButtonBehavior(bb, ImGui::GetID(label), &hovered, &held, ImGuiButtonFlags_PressedOnClick);
-  
+
     // Choose the color based on the button's state
     ImU32 buttonColor = is_selected ? clrBackDarkGray(state) : clrBackDarkBlack(state);
     ImU32 textColor = hovered || is_selected ? clrTextBrightWhite(state) : clrTextMediumWhite(state);
@@ -150,15 +150,15 @@ bool ShowTabPanelItem(AppState &state, TabPanelItem id, const char* label) {
 
     // If this item is selected then draw the green underline
     if (is_selected) {
-        ImVec2 p1{pos.x, pos.y + text_size.y + state.dpi(3.0f)}; 
-        ImVec2 p2{pos.x + text_size.x, p1.y}; 
+        ImVec2 p1{pos.x, pos.y + text_size.y + state.dpi(3.0f)};
+        ImVec2 p2{pos.x + text_size.x, p1.y};
         draw_list->AddLine(p1, p2, clrGreen(state), state.dpi(1.0f));
     }
 
     ShowVerticalLine(state);
 
     if (pressed) {
-        state.selected_tabpanelitem = id; 
+        state.selected_tabpanelitem = id;
         SelectTabPanelItem(state);
     }
 
@@ -219,7 +219,7 @@ void DisplayIconButtons(AppState& state) {
     }
     ImGui::PopStyleColor();
     if (ImGui::IsItemHovered()) {
-        Tooltip(state, is_connected ? "Click to Disconnect" : "Click to Connect", 
+        Tooltip(state, is_connected ? "Click to Disconnect" : "Click to Connect",
             clrTextLightWhite(state), clrBackMediumGray(state));
     }
 
@@ -240,7 +240,7 @@ void DisplayIconButtons(AppState& state) {
     ImGui::PopStyleColor();
     if (ImGui::IsItemHovered()) {
         Tooltip(state, "Reconcile", clrTextLightWhite(state), clrBackMediumGray(state));
-    }    
+    }
 
     ImGui::SameLine(state.dpi(68.0f));
     ImGui::PushStyleColor(ImGuiCol_Text, clrTextMediumWhite(state));
@@ -248,7 +248,7 @@ void DisplayIconButtons(AppState& state) {
         state.show_settingsdialog_popup = true;
     }
     ImGui::PopStyleColor();
-    if (ImGui::IsItemHovered()) { 
+    if (ImGui::IsItemHovered()) {
         Tooltip(state, "Settings", clrTextLightWhite(state), clrBackMediumGray(state));
     }
 
@@ -305,5 +305,5 @@ void ShowTabPanel(AppState& state) {
     ImGui::EndChild();
     ImGui::PopStyleVar();
 }
- 
- 
+
+

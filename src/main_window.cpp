@@ -92,7 +92,7 @@ void ShowMainWindow(bool* p_open, AppState& state) {
 
     // Set window flags for full-screen ImGui window
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
-                                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | 
+                                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings |
                                     ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
                                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
@@ -185,10 +185,9 @@ void ShowMainWindow(bool* p_open, AppState& state) {
         ImGui::SameLine();
         ShowTradeHistory(state);
         ShowTransEdit(state);
-    } 
+    }
 
     ImGui::EndChild();  // top panel
-
 
     // Bottom panel
     ShowTabPanel(state);

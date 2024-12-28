@@ -888,6 +888,5 @@ void ShowActiveTrades(AppState& state) {
 
     ImGui::EndChild();
     ImGui::PopStyleColor();
-
 }
 
