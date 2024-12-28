@@ -43,7 +43,7 @@ SOFTWARE.
 #include <iostream>
 
 
-std::vector<ImportStruct> ibkr;    // persistent 
+std::vector<ImportStruct> ibkr;    // persistent
 
 // From tws-client.cpp signals when all position data has been received from the callback
 extern bool positionEnd_fired;
@@ -175,8 +175,8 @@ void ImportTrades_position(const Contract& contract, Decimal position, double av
     p.avg_cost = avg_cost;
     if (p.contract.secType == "FOP" ||
         p.contract.secType == "FUT") {
-        p.contract.symbol = "/" + p.contract.symbol;       
-    } 
+        p.contract.symbol = "/" + p.contract.symbol;
+    }
     ibkr.push_back(p);
 }
 
@@ -232,7 +232,7 @@ void LoadImportTableData(AppState& state, TableType table_id, std::vector<CListP
         auto* p = &ibkr.at(i);
         if (table_id == TableType::import_left && p->group_id != 0) continue;
         if (table_id == TableType::import_right && p->group_id == 0) continue;
-        
+
         std::string str;
         ld.SetImportData(0, p, p->contract.symbol, StringAlignment::left, clrBackDarkGray(state), clrTextLightWhite(state), font9);
         ld.SetImportData(1, p, p->contract.secType, StringAlignment::left, clrBackDarkGray(state), clrTextLightWhite(state), font9);
@@ -251,7 +251,7 @@ void LoadImportTableData(AppState& state, TableType table_id, std::vector<CListP
         ld.SetImportData(4, p, str, StringAlignment::left, clrBackDarkGray(state), clrTextLightWhite(state), font9);
 
         ld.SetImportData(5, p, p->contract.right, StringAlignment::left, clrBackDarkGray(state), clrTextLightWhite(state), font9);
-        
+
         if (table_id == TableType::import_right) {
             str = Make_GroupId_String(p->group_id);
             ld.SetImportData(6, p, str, StringAlignment::left, clrBackDarkGray(state), clrTextLightWhite(state), font9);
@@ -265,15 +265,13 @@ void SetupLeftImportTradesTable(AppState& state, CListPanel& lp, std::vector<CLi
     lp.table_id = TableType::import_left;
     lp.is_left_panel = true;
     lp.table_flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY;
-    lp.outer_size_x = 0.0f;
-    lp.outer_size_y = 0.0f;
-    lp.column_count = 6; 
+    lp.column_count = 6;
     lp.vec = &vec;
     lp.vecHeader = &vecHeader;
     lp.header_backcolor = 0;
     lp.header_height = 12;
     lp.row_height = 12;
-    lp.min_col_widths = nImportMinColWidth; 
+    lp.min_col_widths = nImportMinColWidth;
     LoadImportTableData(state, lp.table_id, vec, vecHeader);
 }
 
@@ -282,15 +280,13 @@ void SetupRightImportTradesTable(AppState& state, CListPanel& lp, std::vector<CL
     lp.table_id = TableType::import_right;
     lp.is_left_panel = true;
     lp.table_flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY;
-    lp.outer_size_x = 0.0f;
-    lp.outer_size_y = 0.0f;
-    lp.column_count = 7; 
+    lp.column_count = 7;
     lp.vec = &vec;
     lp.vecHeader = &vecHeader;
     lp.header_backcolor = 0;
     lp.header_height = 12;
     lp.row_height = 12;
-    lp.min_col_widths = nImportMinColWidth; 
+    lp.min_col_widths = nImportMinColWidth;
     LoadImportTableData(state, lp.table_id, vec, vecHeader);
 }
 
@@ -319,7 +315,7 @@ void ShowImportDialogPopup(AppState& state) {
     }
 
     if (!state.show_importdialog_popup) return;
-    
+
     static bool is_first_open = false;
     bool close_dialog = false;
 
@@ -359,13 +355,13 @@ void ShowImportDialogPopup(AppState& state) {
         DialogTitleBar(state, "IMPORT TRADES", state.show_importdialog_popup, close_dialog);
 
         // if (is_first_open) {
-        if (ImGui::IsWindowAppearing()) {    
+        if (ImGui::IsWindowAppearing()) {
             ImportTrades_doPositionSorting();
             SetupLeftImportTradesTable(state, lp_left, vec_left, vecHeader_left);
             SetupRightImportTradesTable(state, lp_right, vec_right, vecHeader_right);
         }
 
-        ImVec2 button_size{}; 
+        ImVec2 button_size{};
 
         ImVec2 child_size_left(state.dpi(480.0f), 0.0f);  // Width of 200, height set to auto-expand
         ImGui::BeginChild("ChildPanelLeft", child_size_left, true);
@@ -375,7 +371,7 @@ void ShowImportDialogPopup(AppState& state) {
         ImGui::SameLine();
         ImVec2 child_size_middle(state.dpi(140.0f), 0.0f);
         ImGui::BeginChild("ChildPanelMiddle", child_size_middle, true);
-        button_size = ImVec2{state.dpi(100.0f), 0}; 
+        button_size = ImVec2{state.dpi(100.0f), 0};
         ImGui::NewLine();
         ImGui::NewLine();
         if (ColoredButton(state, "Group >>", 20.0f, button_size, clrTextBrightWhite(state), clrGreen(state))) {
@@ -387,17 +383,17 @@ void ShowImportDialogPopup(AppState& state) {
                 if (item.is_selected) {
                     item.ibkr_pointer->group_id = left_group_id;
                     reload = true;
-                } 
+                }
             }
             // If multiple selected lines in the right table were selected then ensure that they
             // are all grouped using the same group_id number.
-            int right_group_id = 0; 
+            int right_group_id = 0;
             for (auto& item : *lp_right.vec) {
                 if (item.is_selected) {
                     if (right_group_id == 0) right_group_id = item.ibkr_pointer->group_id;
                     item.ibkr_pointer->group_id = right_group_id;
                     reload = true;
-                } 
+                }
             }
             if (reload) {
                 LoadImportTableData(state, lp_left.table_id, vec_left, vecHeader_left);
@@ -412,7 +408,7 @@ void ShowImportDialogPopup(AppState& state) {
                 if (item.is_selected) {
                     item.ibkr_pointer->group_id = 0;
                     reload = true;
-                } 
+                }
             }
             if (reload) {
                 LoadImportTableData(state, lp_left.table_id, vec_left, vecHeader_left);
@@ -448,7 +444,7 @@ void ShowImportDialogPopup(AppState& state) {
 
         ImGui::EndPopup();
     }
-    ImGui::PopStyleVar(); 
-    ImGui::PopStyleColor(); 
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
 }
- 
+

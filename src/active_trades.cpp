@@ -753,8 +753,6 @@ void ShowActiveTrades(AppState& state) {
         // If this table is filtered by Category then we need to turn off the
         // cell clipping so that the Category name will expand across multiple columns.
         if (state.activetrades_filter_type == ActiveTradesFilterType::Category) lp.table_flags = lp.table_flags | ImGuiTableFlags_NoClip;
-        lp.outer_size_x = 0.0f;
-        lp.outer_size_y = 0.0f;
         lp.column_count = MAX_COLUMNS - 1;
         lp.vec = &vec;
         lp.vecHeader = nullptr;

@@ -41,13 +41,11 @@ public:
     std::vector<CListPanelData>* vecHeader = nullptr;
     ImGuiTableFlags table_flags = ImGuiTableFlags_None;
     bool is_left_panel = false;
-    float outer_size_x = 0.0f;
-    float outer_size_y = 0.0f;
     ImU32 header_backcolor = 0;
     int header_height = 0;
     int row_height = 0;
     int column_count = 0;
-    int* min_col_widths = nullptr; 
+    int* min_col_widths = nullptr;
     float panel_width = 0;
     float panel_height = 0;
 };
@@ -55,4 +53,4 @@ public:
 void DrawListPanel(AppState& state, CListPanel& lp);
 
 #endif  //LISTPANEL_H
- 
+

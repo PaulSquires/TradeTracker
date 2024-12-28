@@ -17,10 +17,7 @@ DEAR IMGUI QUIRKS
 - InputTextMultiline handles most languages with UTF8 but not ones like Hebrew.
 
 
-FIXED FOR 5.03
-- Fixed application crash when selecting the "pencil" edit icon in the Transactions tab.
+FIXED FOR 5.04
+- For Closed and Transactions panels, fixed list positioning to return to the same line after an edit or delete is performed.
+- Better optimized displaying market and position real time data during initial load and after an edit or delete.
 
-
-
-- Display the Closed or Transacations panel tab if that is where the trade was edited from.
-Currently the ActiveTrades gets reloaded on edit.

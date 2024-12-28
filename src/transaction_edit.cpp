@@ -47,19 +47,19 @@ std::shared_ptr<Leg> GetLegBackPointer(std::shared_ptr<Trade> trade, int back_po
     }
     return nullptr;
 }
-    
-    
+
+
 void EditTransaction(AppState& state) {
     state.show_tradedialog_popup = true;
     state.trade_action = TradeAction::edit_transaction;
 }
-    
+
 
 void DeleteTransaction(AppState& state) {
     std::shared_ptr<Trade> trade = state.trans_edit_trade;
     std::shared_ptr<Transaction> trans = state.trans_edit_transaction;
 
-    // Iterate the trades and look into each TransDetail vector to match the 
+    // Iterate the trades and look into each TransDetail vector to match the
     // transaction that we need to delete.
     auto iter = trade->transactions.begin();
     while (iter != trade->transactions.end()) {
@@ -93,7 +93,7 @@ void DeleteTransaction(AppState& state) {
         if (it != state.db.trades.end()) state.db.trades.erase(it);
     }
     else {
-        // Calculate the Trade open status because we may have just deleted the 
+        // Calculate the Trade open status because we may have just deleted the
         // transaction that sets the trades open_quantity to zero.
         trade->SetTradeOpenStatus();
     }
@@ -121,14 +121,14 @@ std::string TransEditTransPrice(AppState& state, std::shared_ptr<Trade> trade, s
                 AfxMoney(trans->price, state.config.GetTickerDecimals(trade->ticker_symbol), state) + plus_minus +
                 AfxMoney(trans->fees, 2, state) + " = " +
                 AfxMoney(std::abs(trans->total), 2, state) + dr_cr;
-    return text;                
+    return text;
 }
 
-    
-void LoadTransEditData(AppState& state, std::vector<CListPanelData>& vec, 
+
+void LoadTransEditData(AppState& state, std::vector<CListPanelData>& vec,
             std::shared_ptr<Trade> trade, const std::shared_ptr<Transaction> trans) {
 
-    // Destroy any existing ListPanel line data 
+    // Destroy any existing ListPanel line data
     vec.clear();
     vec.reserve(128);
 
@@ -171,15 +171,13 @@ void ShowTransEdit(AppState& state) {
         lp.table_id = TableType::trans_edit;
         lp.is_left_panel = false;
         lp.table_flags = ImGuiTableFlags_ScrollY;
-        lp.outer_size_x = 0.0f;
-        lp.outer_size_y = 0.0f;
-        lp.column_count = 9; 
+        lp.column_count = 9;
         lp.vec = &vec;
         lp.vecHeader = nullptr;
         lp.header_backcolor = 0;
         lp.header_height = 0;
         lp.row_height = 12;
-        lp.min_col_widths = nHistoryMinColWidth; 
+        lp.min_col_widths = nHistoryMinColWidth;
         LoadTransEditData(state, vec, state.trans_edit_trade, state.trans_edit_transaction);
     }
 
@@ -196,7 +194,7 @@ void ShowTransEdit(AppState& state) {
     std::string trans_price = TransEditTransPrice(state, state.trans_edit_trade, state.trans_edit_transaction);
     TextLabel(state, trans_price.c_str(), 0, clrTextDarkWhite(state), clrBackDarkBlack(state));
 
-    ImVec2 button_size{state.dpi(80.0f), 0}; 
+    ImVec2 button_size{state.dpi(80.0f), 0};
     float x_position = 0;
 
     x_position = state.undpi(state.right_panel_width) - (80.0f * 3.0f) - 12.0f;
@@ -219,7 +217,7 @@ void ShowTransEdit(AppState& state) {
     ImGui::EndGroup();
 
     ImGui::BeginGroup();
-    lp.panel_width = ImGui::GetContentRegionAvail().x; 
+    lp.panel_width = ImGui::GetContentRegionAvail().x;
     lp.panel_height = ImGui::GetContentRegionAvail().y;
     DrawListPanel(state, lp);
     ImGui::EndGroup();

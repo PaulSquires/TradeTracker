@@ -39,23 +39,38 @@ SOFTWARE.
 
 void SetFirstLineTransactions(AppState& state, std::vector<CListPanelData>& vec) {
     // Reset the selected trade whose Trade History will be shown for the first
-    // selectable line in the list. 
+    // selectable line in the list.
     state.transactions_selected_trade = nullptr;
 
     // ensure all other lines are not selected
     for (auto& ld : vec) {
-        ld.is_selected = false;   
+        ld.is_selected = false;
     }
 
-    // If this is the first selectable line in the grid then default to displaying
-    // the TradeHistory for this item.
-    for (auto& ld : vec) {
-        if (ld.line_type == LineType::ticker_line) {
-            ld.is_selected = true;
-            state.transactions_selected_trade = ld.trade;
-            state.selected_tabpanelitem = TabPanelItem::Transactions;
-            SelectTabPanelItem(state);
-            break;
+    // If the database was reloaded then attempt to reposition to the row that
+    // selected prior tot he reload.
+    if (state.db.is_previously_loaded && (state.transactions_current_row_index != -1)) {
+        for (int i = 0; i < vec.size(); ++i) {
+            if (i == state.transactions_current_row_index) {
+                vec.at(i).is_selected = true;
+                state.transactions_selected_trade = vec.at(i).trade;
+                state.selected_tabpanelitem = TabPanelItem::Transactions;
+                SelectTabPanelItem(state);
+                break;
+            }
+        }
+    }
+
+    // Finally, if still no selection then use the first selectable line in the grid.
+    if (!state.transactions_selected_trade) {
+        for (auto& ld : vec) {
+            if (!state.transactions_selected_trade && ld.line_type == LineType::ticker_line) {
+                ld.is_selected = true;
+                state.transactions_selected_trade = ld.trade;
+                state.selected_tabpanelitem = TabPanelItem::Transactions;
+                SelectTabPanelItem(state);
+                break;
+            }
         }
     }
 }
@@ -112,7 +127,7 @@ void LoadTransactionsData(AppState& state, std::vector<CListPanelData>& vec) {
         });
 
 
-     // Destroy any existing ListPanel line data 
+     // Destroy any existing ListPanel line data
     vec.clear();
     vec.reserve(128);
 
@@ -148,7 +163,7 @@ void ShowTransPanel(AppState& state) {
     ImGui::BeginChild("TransPanel", ImVec2(state.left_panel_width, state.top_panel_height));
 
     // Must call ShowFilterPanel here prior to initializing the closed trades data because
-    // ShowFilterPanel makes a call to SetFilterPanelStartEndDates which sets the dates 
+    // ShowFilterPanel makes a call to SetFilterPanelStartEndDates which sets the dates
     // that the initialization code needs in order to properly filter the trades.
     ShowFilterPanel(state);
 
@@ -156,15 +171,13 @@ void ShowTransPanel(AppState& state) {
         lp.table_id = TableType::trans_panel;
         lp.is_left_panel = true;
         lp.table_flags = ImGuiTableFlags_ScrollY;
-        lp.outer_size_x = 0.0f;
-        lp.outer_size_y = 0.0f;
         lp.column_count = 10;
         lp.vec = &vec;
         lp.vecHeader = nullptr;
         lp.header_backcolor = 0;
         lp.header_height = 0;
         lp.row_height = 12;
-        lp.min_col_widths = nTransMinColWidth; 
+        lp.min_col_widths = nTransMinColWidth;
         LoadTransactionsData(state, vec);
 
         // Default to display the Trade History for the first entry in the list.
@@ -172,11 +185,11 @@ void ShowTransPanel(AppState& state) {
     }
 
     ImGui::BeginGroup();
-    lp.panel_width = ImGui::GetContentRegionAvail().x; 
+    lp.panel_width = ImGui::GetContentRegionAvail().x;
     lp.panel_height = ImGui::GetContentRegionAvail().y;
     DrawListPanel(state, lp);
     ImGui::EndGroup();
 
     ImGui::EndChild();
 }
- 
+

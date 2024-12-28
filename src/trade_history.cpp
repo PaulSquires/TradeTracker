@@ -32,7 +32,7 @@ void SetTradeHistoryTrade(AppState& state, std::shared_ptr<Trade> trade) {
 
 void LoadTradeHistory(AppState& state, std::vector<CListPanelData>& vec, std::shared_ptr<Trade> trade) {
 
-    // Destroy any existing ListPanel line data 
+    // Destroy any existing ListPanel line data
     vec.clear();
     vec.reserve(128);
 
@@ -113,7 +113,7 @@ void LoadTradeHistory(AppState& state, std::vector<CListPanelData>& vec, std::sh
         for (const auto& leg : item.trans->legs) {
             switch (leg->underlying) {
             case Underlying::Options:
-                ListPanelData_HistoryOptionsLeg(state, vec, trade, item.trans, leg); 
+                ListPanelData_HistoryOptionsLeg(state, vec, trade, item.trans, leg);
                 break;
             case Underlying::Shares:
             case Underlying::Futures:
@@ -154,8 +154,6 @@ void ShowTradeHistory(AppState& state) {
     if (!state.is_tradehistory_data_loaded) {
         lp.table_id = TableType::trade_history;
         lp.is_left_panel = false;
-        lp.outer_size_x = 0.0f;
-        lp.outer_size_y = 0.0f;
         lp.table_flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY;
         lp.column_count = 9;
         lp.vec = &vec;
@@ -163,7 +161,7 @@ void ShowTradeHistory(AppState& state) {
         lp.header_backcolor = 0;
         lp.header_height = 0;
         lp.row_height = 12;
-        lp.min_col_widths = nHistoryMinColWidth; 
+        lp.min_col_widths = nHistoryMinColWidth;
         LoadTradeHistory(state, vec, state.tradehistory_trade);
     }
 
@@ -182,7 +180,7 @@ void ShowTradeHistory(AppState& state) {
         ImGui::Text("%s", state.tradehistory_ticker.c_str());
         ImGui::PopStyleColor();
 
-        lp.panel_width = ImGui::GetContentRegionAvail().x;  
+        lp.panel_width = ImGui::GetContentRegionAvail().x;
         lp.panel_height = ImGui::GetContentRegionAvail().y - state.dpi(200);
         DrawListPanel(state, lp);
 
@@ -192,7 +190,7 @@ void ShowTradeHistory(AppState& state) {
 
         // Push custom background and foreground colors
         ImGui::PushStyleColor(ImGuiCol_Border, clrBackDarkGray(state));
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackDarkGray(state));    
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackDarkGray(state));
         ImGui::PushStyleColor(ImGuiCol_Text, clrTextLightWhite(state));
         ImGui::Indent(state.dpi(8));
         bool modified = ImGui::InputTextMultiline("##TradeHistoryMultiLine", &state.tradehistory_notes, ImVec2(-1, -1), ImGuiInputTextFlags_None);
@@ -206,4 +204,4 @@ void ShowTradeHistory(AppState& state) {
     ImGui::EndGroup();
     ImGui::EndChild();
 }
- 
+

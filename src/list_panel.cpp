@@ -38,9 +38,9 @@ SOFTWARE.
 
 void SetSelectedGridRow(AppState& state, CListPanel& lp, CListPanelData& ld) {
     // Save the selected row for ActiveTrades table in order to easily position it again after a database reload
-    if (lp.table_id == TableType::active_trades) {
-        state.activetrades_current_row_index = ImGui::TableGetRowIndex();
-    }
+    if (lp.table_id == TableType::active_trades) state.activetrades_current_row_index = ImGui::TableGetRowIndex();
+    if (lp.table_id == TableType::closed_trades) state.closedtrades_current_row_index = ImGui::TableGetRowIndex();
+    if (lp.table_id == TableType::trans_panel)   state.transactions_current_row_index = ImGui::TableGetRowIndex();
 
     // If CTRL (or SHIFT) is held then:
     // - Select the line -OR- toggle deselect an already selected line.
@@ -50,7 +50,7 @@ void SetSelectedGridRow(AppState& state, CListPanel& lp, CListPanelData& ld) {
 #else
     if ((io.KeyCtrl && io.MouseClicked[0]) || io.KeyShift && io.MouseClicked[0]) {
 #endif
-        // Deselect all selected rows of all other Trades 
+        // Deselect all selected rows of all other Trades
         for (auto& item : *lp.vec) {
             if (item.trade != ld.trade) item.is_selected = false;
         }
@@ -76,7 +76,7 @@ void DrawTableRow(AppState& state, CListPanel& lp, CListPanelData& ld) {
         ImGui::TableSetColumnIndex(colnum);
 
         ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ld.col[colnum].back_color);
-        
+
         std::string& text = ld.col[colnum].text;
 
         if (ld.line_type == LineType::category_header ||
@@ -184,7 +184,7 @@ void DrawTableRow(AppState& state, CListPanel& lp, CListPanelData& ld) {
                 state.activetrades_rightclickmenu_assignment_leg = ld.leg;
             }
 
-            // Create vector holding all of the selected lines. 
+            // Create vector holding all of the selected lines.
             // determine what exists within the trade such as shares, futures, options.
             state.activetrades_selected_legs.clear();
             int numselected = 0;
@@ -265,9 +265,7 @@ void DrawListPanel(AppState& state, CListPanel& lp) {
 
     ImGui::BeginChild(table_id.c_str(), ImVec2(lp.panel_width, lp.panel_height));
 
-    ImVec2 outer_size{state.dpi(lp.outer_size_x),state.dpi(lp.outer_size_y)};
-
-    if (ImGui::BeginTable("##TableWithFullRowSelection", lp.column_count, lp.table_flags, outer_size)) {
+    if (ImGui::BeginTable("##TableWithFullRowSelection", lp.column_count, lp.table_flags)) {
         SetupTableColumns(state, lp);
 
         // Fill table rows
@@ -290,4 +288,4 @@ void DrawListPanel(AppState& state, CListPanel& lp) {
     ImGui::PopStyleColor(1);
 }
 
- 
+

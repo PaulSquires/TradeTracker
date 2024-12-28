@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "imgui.h"
 #include <memory>
-#include <string> 
+#include <string>
 #include <thread>
 #include <unordered_map>
 #include <vector>
@@ -244,7 +244,7 @@ enum class TradeActionOptionType {
     short_call_LT112,
     long_call_LT112,
     none
-};    
+};
 
 enum class RightClickMenuLineType {
     none,
@@ -296,21 +296,21 @@ ImU32 clrCheckBoxHover(AppState& state);
 ImU32 clrPopupBg(AppState& state);
 ImU32 ColorConvertImVec4ToU32(const ImVec4& color);
 ImVec4 ColorConvertU32ToFloat4(ImU32 color);
-bool ColoredButton(AppState& state, const char* label, const float x_position, 
+bool ColoredButton(AppState& state, const char* label, const float x_position,
     const ImVec2& size, const ImU32& text_color, const ImU32& back_color);
-bool ColoredSmallButton(AppState& state, const char* label, const float x_position, 
+bool ColoredSmallButton(AppState& state, const char* label, const float x_position,
     const ImU32& text_color, const ImU32& back_color);
-void TextLabel(AppState& state, const char* label, const float x_position, 
+void TextLabel(AppState& state, const char* label, const float x_position,
     const ImU32& text_color, const ImU32& back_color);
-bool TextLabelCentered(AppState& state, const char* label, const float x_position, 
+bool TextLabelCentered(AppState& state, const char* label, const float x_position,
     const ImVec2& size, const ImU32& text_color, const ImU32& back_color);
-bool CheckBox(AppState& state, const char* label, bool* v, 
+bool CheckBox(AppState& state, const char* label, bool* v,
     const float x_position, const ImU32& text_color, const ImU32& back_color);
-bool TextInput(AppState& state, const char* id, std::string* str, ImGuiInputTextFlags flags, 
+bool TextInput(AppState& state, const char* id, std::string* str, ImGuiInputTextFlags flags,
     const float x_position, const float width, const ImU32& text_color, const ImU32& back_color, ImGuiInputTextCallback callback = NULL);
-bool DoubleInput(AppState& state, const char* id, double* v,  
+bool DoubleInput(AppState& state, const char* id, double* v,
     const float x_position, const float width, const ImU32& text_color, const ImU32& back_color);
-bool IntegerInput(AppState& state, const char* id, int* v, const float x_position, const float width, 
+bool IntegerInput(AppState& state, const char* id, int* v, const float x_position, const float width,
             const ImU32& text_color, const ImU32& back_color);
 void DialogTitleBar(AppState& state, const char* label, bool& show_dialog_popup, bool& is_popup_open);
 void Tooltip(AppState& state, const char* label, const ImU32& text_color, const ImU32& back_color);
@@ -321,8 +321,8 @@ public:
     bool         isOpen();                   // method to calc if leg quantity is not zero
     bool         option_data_requested = false;  // Option data already requested
     TickerId     ticker_id           = -1;   // Set when retrieving Option leg data
-    int          contract_id         = 0;    // Contract ID received from IBKR 
-    int          leg_id              = 0;    // Unique id for this leg within the Trade (see Trade nextleg_id) 
+    int          contract_id         = 0;    // Contract ID received from IBKR
+    int          leg_id              = 0;    // Unique id for this leg within the Trade (see Trade nextleg_id)
     int          leg_back_pointer_id = 0;    // If transaction is CLOSE, EXPIRE, ROLL this points back to leg where quantity modified
     int          original_quantity   = 0;
     int          open_quantity       = 0;
@@ -375,11 +375,11 @@ public:
     std::string   ticker_symbol      = "";
     std::string   ticker_name        = "";
     std::string   future_expiry      = "";   // YYYYMM of Futures contract expiry
-    std::string   notes              = "";     
+    std::string   notes              = "";
     int           category           = 0;    // Category number
-    int           nextleg_id         = 0;    // Incrementing counter that gets unique ID for legs being generated in TransDetail.    
-    bool          warning_3_dte      = true;      
-    bool          warning_21_dte     = false;      
+    int           nextleg_id         = 0;    // Incrementing counter that gets unique ID for legs being generated in TransDetail.
+    bool          warning_3_dte      = true;
+    bool          warning_21_dte     = false;
 
     int           aggregate_shares   = 0;    // Calculated from all transactions roll-up
     int           aggregate_futures  = 0;    // Calculated from all transactions roll-up
@@ -387,12 +387,12 @@ public:
     double        acb_shares         = 0;    // adjusted cost base for shares/futures (may include/exclude costs like dividends)
     double        acb_non_shares     = 0;    // all non-shares items (dividends, options, etc)
     double        total_share_profit = 0;    // total shares/futures profit/loss (total income less total average costs for all shares transactions in the trade)
-    double        trade_bp           = 0;    // Buying Power for the entire trade 
+    double        trade_bp           = 0;    // Buying Power for the entire trade
     double        multiplier         = 0;    // Retrieved from Transaction and needed for updatePortfolio real time calculations
 
     double        ticker_last_price  = 0;
     double        ticker_close_price = 0;
-    int           ticker_decimals    = 2;    // upated via data from Config. 
+    int           ticker_decimals    = 2;    // upated via data from Config.
 
     // Vector holding all the data related to how shares/futures are allocated during a buy/sell. This
     // vector is created during the CalculateAdjustedCostBase method. We use this vector when displaying
@@ -419,14 +419,14 @@ public:
     std::string ticker_column_1;
     std::string ticker_column_2;
     std::string ticker_column_3;
-    
+
     ImU32 ticker_column_1_clr{};
     ImU32 ticker_column_2_clr{};
     ImU32 ticker_column_3_clr{};
 
     // Dates used to calculate ROI on TradeBP.
     std::string  bp_start_date = "99999999";            // YYYYMMDD  First transaction date
-    std::string  bp_end_date = "00000000";              // YYYYMMDD  Last trans expiry date or trade close date if earlier) 
+    std::string  bp_end_date = "00000000";              // YYYYMMDD  Last trans expiry date or trade close date if earlier)
     std::string  oldest_trade_trans_date = "00000000";  // If Trade is closed then this trans will be the BPendDate
 
     std::vector<std::shared_ptr<Transaction>> transactions;     // pointer list for all transactions in the trade
@@ -471,7 +471,7 @@ class CConfig {
 public:
     std::string dbConfig;
 
-    int startup_width = 0;  
+    int startup_width = 0;
     int startup_height = 0;
     int startup_right_panel_width = 0;
 
@@ -629,7 +629,7 @@ struct AppState {
     bool show_journalfolders_rightclickmenu = false;
     bool show_journalnotes_rightclickmenu = false;
     bool show_connect_rightclickmenu = false;
-    
+
     bool is_activetrades_data_loaded = false;
     bool is_closedtrades_data_loaded = false;
     bool is_transactions_data_loaded = false;
@@ -667,6 +667,8 @@ struct AppState {
     bool activetrades_rightclickmenu_options_exist = false;
     std::shared_ptr<Leg> activetrades_rightclickmenu_assignment_leg = nullptr;
     int activetrades_current_row_index = -1;   // used when positioning selected row after a reload
+    int closedtrades_current_row_index = -1;   // used when positioning selected row after a reload
+    int transactions_current_row_index = -1;   // used when positioning selected row after a reload
 
     std::shared_ptr<Trade> activetrades_selected_trade = nullptr;
     std::shared_ptr<Trade> closedtrades_selected_trade = nullptr;

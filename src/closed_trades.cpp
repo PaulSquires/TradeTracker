@@ -8,29 +8,44 @@
 #include "tab_panel.h"
 #include "utilities.h"
 #include "filter_panel.h"
+#include "trade_history.h"
 #include "closed_trades.h"
 
 
 void SetFirstLineClosedTrades(AppState& state, std::vector<CListPanelData>& vec) {
-
     // Reset the selected trade whose Trade History will be shown for the first
-    // selectable line in the list. 
+    // selectable line in the list.
     state.closedtrades_selected_trade = nullptr;
 
     // ensure all other lines are not selected
     for (auto& ld : vec) {
-        ld.is_selected = false;   
+        ld.is_selected = false;
     }
 
-    // If this is the first selectable line in the grid then default to displaying
-    // the TradeHistory for this item.
-    for (auto& ld : vec) {
-        if (ld.line_type == LineType::ticker_line) {
-            ld.is_selected = true;
-            state.closedtrades_selected_trade = ld.trade;
-            state.selected_tabpanelitem = TabPanelItem::ClosedTrades;
-            SelectTabPanelItem(state);
-            break;
+    // If the database was reloaded then attempt to reposition to the row that
+    // selected prior tot he reload.
+    if (state.db.is_previously_loaded && (state.closedtrades_current_row_index != -1)) {
+        for (int i = 0; i < vec.size(); ++i) {
+            if (i == state.closedtrades_current_row_index) {
+                vec.at(i).is_selected = true;
+                state.closedtrades_selected_trade = vec.at(i).trade;
+                state.selected_tabpanelitem = TabPanelItem::ClosedTrades;
+                SelectTabPanelItem(state);
+                break;
+            }
+        }
+    }
+
+    // Finally, if still no selection then use the first selectable line in the grid.
+    if (!state.closedtrades_selected_trade) {
+        for (auto& ld : vec) {
+            if (!state.closedtrades_selected_trade && ld.line_type == LineType::ticker_line) {
+                ld.is_selected = true;
+                state.closedtrades_selected_trade = ld.trade;
+                state.selected_tabpanelitem = TabPanelItem::ClosedTrades;
+                SelectTabPanelItem(state);
+                break;
+            }
         }
     }
 }
@@ -56,7 +71,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
 
     std::vector<ClosedData> vectorClosed;
     vectorClosed.reserve(1000);         // reserve space for 1000 closed trades
-    
+
     // Look at all the closed trades as well as open trades that have shares/futures
 
     for (auto& trade : state.db.trades) {
@@ -79,7 +94,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
 
         if (latest_closed_date > end_date) continue;
 
-        // If this Trade has Shares/Futures transactions show the costing 
+        // If this Trade has Shares/Futures transactions show the costing
         bool exclude_acb_non_shares = true;
 
         for (const auto& share : trade->shares_history) {
@@ -117,7 +132,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
 
                 vectorClosed.push_back(data);
 
-                // If this closed Trade had shares/futures and average cost with options included then 
+                // If this closed Trade had shares/futures and average cost with options included then
                 // we set the flag here to bypass outputting the acb_non_shares amount because that amount
                 // would have been factored into the average cost of the shares.
                 exclude_acb_non_shares = state.config.exclude_nonstock_costs;
@@ -139,7 +154,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
         }
     }
 
-    // Destroy any existing ListPanel line data 
+    // Destroy any existing ListPanel line data
     vec.clear();
     vec.reserve(128);
 
@@ -155,9 +170,9 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
     double monthly_amount = 0;
     double weekly_amount = 0;
     double daily_amount = 0;
-    
+
     int subtotal_month = 0;
-    
+
     int current_month = 0;
     int current_year = 0;
     int current_month_win = 0;
@@ -265,7 +280,7 @@ void ShowClosedTrades(AppState& state) {
     ImGui::BeginChild("ClosedTrades", ImVec2(state.left_panel_width, state.top_panel_height));
 
     // Must call ShowFilterPanel here prior to initializing the closed trades data because
-    // ShowFilterPanel makes a call to SetFilterPanelStartEndDates which sets the dates 
+    // ShowFilterPanel makes a call to SetFilterPanelStartEndDates which sets the dates
     // that the initialization code needs in order to properly filter the trades.
     ShowFilterPanel(state);
 
@@ -273,22 +288,21 @@ void ShowClosedTrades(AppState& state) {
         lp.table_id = TableType::closed_trades;
         lp.is_left_panel = true;
         lp.table_flags = ImGuiTableFlags_ScrollY;
-        lp.outer_size_x = 0.0f;
-        lp.outer_size_y = 0.0f;
-        lp.column_count = 7; 
+        lp.column_count = 7;
         lp.vec = &vec;
         lp.vecHeader = nullptr;
         lp.header_backcolor = 0;
         lp.header_height = 0;
         lp.row_height = 12;
-        lp.min_col_widths = nClosedMinColWidth; 
+        lp.min_col_widths = nClosedMinColWidth;
         LoadClosedTradesData(state, vec);
 
         // Default to display the Trade History for the first entry in the list.
         SetFirstLineClosedTrades(state, vec);
 
         state.tradehistory_trade = state.closedtrades_selected_trade;
-    }
+        SetTradeHistoryTrade(state, state.closedtrades_selected_trade);
+}
 
     ImGui::BeginGroup();
     lp.panel_width = ImGui::GetContentRegionAvail().x;
@@ -298,4 +312,4 @@ void ShowClosedTrades(AppState& state) {
 
     ImGui::EndChild();
 }
- 
+

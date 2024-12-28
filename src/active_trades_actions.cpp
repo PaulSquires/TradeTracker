@@ -57,11 +57,24 @@ extern bool is_connection_ready_for_data;
 extern bool is_positions_ready_for_data;
 extern bool positionEnd_fired;
 
+enum class CurrentActivePanel {
+    ActiveTrades,
+    ClosedTrades,
+    Transactions
+};
+
 
 void ReloadAppState(AppState& state) {
     // Prevent any current active connection from updating pointers
     // while the program is in the process of resetting everything.
     state.is_pause_market_data = true;
+
+    // Save the active panel so that it can be reloaded after the database is reloaded.
+    CurrentActivePanel current_active_panel;
+    if (state.show_activetrades) current_active_panel = CurrentActivePanel::ActiveTrades;
+    if (state.show_closedtrades) current_active_panel = CurrentActivePanel::ClosedTrades;
+    if (state.show_transpanel) current_active_panel = CurrentActivePanel::Transactions;
+
 
     // Reset some state flags
     state.is_activetrades_data_loaded = false;
@@ -117,10 +130,12 @@ void ReloadAppState(AppState& state) {
     // Load the refeshed data
     state.db.LoadDatabase(state);
 
-    // Ensure that the ActiveTrades table gets reloaded
+    // Ensure that the previously selected panel gets reloaded
+    if (current_active_panel == CurrentActivePanel::ActiveTrades) state.show_activetrades = true;
+    if (current_active_panel == CurrentActivePanel::ClosedTrades) state.show_closedtrades = true ;
+    if (current_active_panel == CurrentActivePanel::Transactions) state.show_transpanel = true;
+
     state.db.is_previously_loaded = true;    // to allow reposition to previously selected row
-    state.show_activetrades = true;
-    state.is_activetrades_data_loaded = false;
     is_connection_ready_for_data = true;
     positionEnd_fired = false;
     is_positions_ready_for_data = false;
