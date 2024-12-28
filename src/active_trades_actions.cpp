@@ -43,9 +43,9 @@ SOFTWARE.
 #include <iostream>
 
 
-// Unfortunately these structures that have to 
+// Unfortunately these structures that have to
 // be made global because the data needs to be updated in the TwsClient::tickPrice
-// and TwsClient::updatePortfolio functions which are callbacks from the 
+// and TwsClient::updatePortfolio functions which are callbacks from the
 // Interactive Brokers library (therefore I can't pass AppState into it).
 // These maps are instantiated in tws-client.cpp
 extern std::unordered_map<TickerId, TickerData> mapTickerData;
@@ -102,7 +102,7 @@ void ReloadAppState(AppState& state) {
     // Save the new data
     state.db.SaveDatabase(state);
 
-    // Ensure that any previously requested Market Data is cancelled because the 
+    // Ensure that any previously requested Market Data is cancelled because the
     // ticker_id will have changed when the Trades are reloaded from the database.
     for (const auto& [key, value] : mapTickerData) {
         tws_CancelMarketData(state, key);
@@ -174,7 +174,7 @@ void UpdateTickerPortfolioLine(AppState& state, int index, int index_trade) {
         double difference = trade_acb + total_cost;
         theme_color = (difference < 0) ? clrRed(state) : clrGreen(state);
         text = AfxMoney(difference, 2, state);
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);    
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);
 
         double percentage = (trade_acb == 0) ? 0 : difference / trade_acb * 100;
         if (difference < 0) {
@@ -182,11 +182,11 @@ void UpdateTickerPortfolioLine(AppState& state, int index, int index_trade) {
         }
         else {
             if (percentage <= 0) percentage *= -1;
-        } 
+        }
         text = AfxMoney(percentage, 0, state) + " %";
         theme_color = (difference < 0) ? clrRed(state) : clrGreen(state);
-        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);  
-        
+        ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);
+
         // Save the Trade's percentage complete so that it can be used for sorting
         // when the application is connected to TWS.
         ld->trade->trade_completed_percentage = percentage;
@@ -226,7 +226,7 @@ void UpdateLegPortfolioLine(AppState& state, int index, CListPanelData* ld) {
             // DELTA
             theme_color = clrTextDarkWhite(state);
             text = "1.00";   // shares are always 1 delta
-            ld->SetTextData(COLUMN_OPTIONLEG_DELTA, text, theme_color);   
+            ld->SetTextData(COLUMN_OPTIONLEG_DELTA, text, theme_color);
 
             // UNREALIZED PNL
             double unrealized_pnl = (shares_cost + shares_market_value);
@@ -371,7 +371,7 @@ void UpdateTickerPricesLine(AppState& state, int index, CListPanelData* ld) {
     ImU32 theme_color = clrTextLightWhite(state);
 
     // Calculate if any of the option legs are ITM in a good (green) or bad (red) way.
-    // We use a separate function call because scrapped data will need acces to the 
+    // We use a separate function call because scrapped data will need acces to the
     // ITM calculation also.
     PerformITMcalculation(state, ld->trade);
 
@@ -437,7 +437,7 @@ void UpdateTickerPrices(AppState& state) {
 
 
 // ========================================================================================
-// Expire the selected legs. Basically, ask for confirmation via a messagebox and 
+// Expire the selected legs. Basically, ask for confirmation via a messagebox and
 // then take appropriate action.
 // ========================================================================================
 void ExpireSelectedLegs(AppState& state) {
@@ -467,7 +467,7 @@ void ExpireSelectedLegs(AppState& state) {
         leg->open_quantity = 0;
 
         if (leg->action == Action::STO) newleg->action = Action::BTC;
-        if (leg->action == Action::BTO) newleg->action = Action::STC; 
+        if (leg->action == Action::BTO) newleg->action = Action::STC;
 
         newleg->expiry_date = leg->expiry_date;
         newleg->strike_price = leg->strike_price;
@@ -490,6 +490,6 @@ void AskExpireSelectedLegs(AppState& state) {
         CustomQuestionBox(state, "Warning", "No valid option legs have been selected for expiration.", QuestionCallback::None, true);
         return;
     }
-        
+
     CustomQuestionBox(state, "Confirm", "Are you sure you wish to EXPIRE the selected legs?", QuestionCallback::ExpireSelectedLegs);
 }

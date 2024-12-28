@@ -10,7 +10,7 @@ Changes from Original Win32 Version:
   - Journal Notes is now much more detailed. Need to copy paste your old notes into new version.
   - No connect option to download scraped stock price data.
   - No option to change the starting day of the week in popup calendars to Monday rather than Sunday.
-  
+
 
 DEAR IMGUI QUIRKS
 - InputTextMultiline widget does not support horizontal scrollbar or word wrapping.
@@ -20,3 +20,7 @@ DEAR IMGUI QUIRKS
 FIXED FOR 5.03
 - Fixed application crash when selecting the "pencil" edit icon in the Transactions tab.
 
+
+
+- Display the Closed or Transacations panel tab if that is where the trade was edited from.
+Currently the ActiveTrades gets reloaded on edit.

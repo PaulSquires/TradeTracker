@@ -46,9 +46,9 @@ SOFTWARE.
 
 
 
-// Unfortunately these structures that have to 
+// Unfortunately these structures that have to
 // be made global because the data needs to be updated in the TwsClient::tickPrice
-// and TwsClient::updatePortfolio functions which are callbacks from the 
+// and TwsClient::updatePortfolio functions which are callbacks from the
 // Interactive Brokers library (therefore I can't pass AppState into it).
 // These maps are instantiated in tws-client.cpp
 extern std::unordered_map<TickerId, TickerData> mapTickerData;
@@ -80,15 +80,15 @@ std::string FormatAccountValue(AppState& state, double amount) {
 
 void SetFirstLineActiveTrades(AppState& state, std::vector<CListPanelData>& vec) {
     // Reset the selected trade whose Trade History will be shown for the first
-    // selectable line in the list. 
+    // selectable line in the list.
     state.activetrades_selected_trade = nullptr;
 
     // ensure all other lines are not selected
     for (auto& ld : vec) {
-        ld.is_selected = false;   
+        ld.is_selected = false;
     }
 
-    // If the database was reloaded then attempt to reposition to the row that 
+    // If the database was reloaded then attempt to reposition to the row that
     // selected prior tot he reload.
     if (state.db.is_previously_loaded && (state.activetrades_current_row_index != -1)) {
         for (int i = 0; i < vec.size(); ++i) {
@@ -240,7 +240,7 @@ void ShowActiveTradesRightClickPopup(AppState& state) {
                 if (ImGui::MenuItem("      Manage Shares"))         DoManageShares(state);
                 ImGui::Separator();
             }
-            
+
             if (state.activetrades_rightclickmenu_futures_exist) {
                 if (ImGui::MenuItem("      Manage Futures"))        DoManageFutures(state);
                 ImGui::Separator();
@@ -266,7 +266,7 @@ void ShowActiveTradesRightClickPopup(AppState& state) {
 
             // Determine what menu options to show based on what underlyings exist in the Trade
             if (state.activetrades_rightclickmenu_shares_exist) {
-                if (!state.activetrades_rightclickmenu_futures_exist && 
+                if (!state.activetrades_rightclickmenu_futures_exist &&
                     !state.activetrades_rightclickmenu_options_exist) {
                     if (ImGui::MenuItem("      Close Trade"))       DoCloseTrade(state);
                 }
@@ -275,7 +275,7 @@ void ShowActiveTradesRightClickPopup(AppState& state) {
                 }
             }
             if (state.activetrades_rightclickmenu_futures_exist) {
-                if (!state.activetrades_rightclickmenu_shares_exist && 
+                if (!state.activetrades_rightclickmenu_shares_exist &&
                     !state.activetrades_rightclickmenu_options_exist) {
                     if (ImGui::MenuItem("      Close Trade"))       DoCloseTrade(state);
                 }
@@ -284,7 +284,7 @@ void ShowActiveTradesRightClickPopup(AppState& state) {
                 }
             }
             if (state.activetrades_rightclickmenu_options_exist) {
-                if (!state.activetrades_rightclickmenu_shares_exist && 
+                if (!state.activetrades_rightclickmenu_shares_exist &&
                     !state.activetrades_rightclickmenu_futures_exist) {
                     if (ImGui::MenuItem("      Close Trade"))           DoCloseTrade(state);
                 }
@@ -344,14 +344,14 @@ void ShowActiveTradesRightClickPopup(AppState& state) {
             ImGui::Separator();
             if (state.activetrades_rightclickmenu_shares_exist) {
                 if (ImGui::MenuItem("      Add Dividend to Trade"))   DoAddDividendToTrade(state);
-            }    
+            }
             if (ImGui::MenuItem("      Add Income/Expense to Trade")) DoAddOtherIncomeExpenseToTrade(state);
         }
 
 
         if (state.activetrades_rightclickmenu_linetype == RightClickMenuLineType::shares_line ||
             state.activetrades_rightclickmenu_linetype == RightClickMenuLineType::futures_line) {
-            
+
             if (state.activetrades_rightclickmenu_shares_exist) {
                 if (ImGui::MenuItem("      Manage Shares"))         DoManageShares(state);
                 ImGui::Separator();
@@ -386,7 +386,7 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
 
     if (state.db.trades.size()) {
         // In case of newly added/deleted data ensure data is sorted.
-        
+
         if (state.activetrades_filter_type == ActiveTradesFilterType::Category) {
             // Sort based on Category and then TickerSymbol
             std::sort(state.db.trades.begin(), state.db.trades.end(),
@@ -400,7 +400,7 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                         if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
 
                         return false;
-                    } 
+                    }
                 });
         }
 
@@ -417,7 +417,7 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                         if (trade2->earliest_legs_DTE < trade1->earliest_legs_DTE) return false;
 
                         return false;
-                    } 
+                    }
                 });
         }
 
@@ -434,7 +434,7 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                         if (trade2->ticker_symbol < trade1->ticker_symbol) return false;
 
                         return false;
-                    } 
+                    }
                 });
         }
 
@@ -446,12 +446,12 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                         if (trade1->trade_completed_percentage > trade2->trade_completed_percentage) return true;
                         if (trade2->trade_completed_percentage < trade1->trade_completed_percentage) return false;
                         return false;
-                    } 
+                    }
                 });
         }
 
         if (state.activetrades_filter_type == ActiveTradesFilterType::SharesFuturesQuantity) {
-            // Sort based on Quantity of Shares/Futures 
+            // Sort based on Quantity of Shares/Futures
             std::sort(state.db.trades.begin(), state.db.trades.end(),
                 [](const auto& trade1, const auto& trade2) {
                     {
@@ -462,11 +462,11 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                         if (total_shares_futures_2 < total_shares_futures_1) return true;
 
                         return false;
-                    } 
+                    }
                 });
         }
 
-        // Destroy any existing ListPanel line data 
+        // Destroy any existing ListPanel line data
         vec.clear();
         vec.reserve(128);
 
@@ -474,7 +474,7 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
         int category_header = -1;
 
         for (auto& trade : state.db.trades) {
-            // We are displaying only open trades 
+            // We are displaying only open trades
             if (trade->is_open) {
 
                 // Set the decimals for this tickerSymbol. Most will be 2 but futures can have a lot more.
@@ -484,7 +484,7 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                     if (trade->category != category_header) {
 
                         // Count the number of open trades in this category
-                        auto num_trades_category{ std::ranges::count_if(state.db.trades, 
+                        auto num_trades_category{ std::ranges::count_if(state.db.trades,
                             [trade](auto t) {return (t->is_open && (t->category == trade->category)) ? true : false; })
                         };
 
@@ -514,7 +514,7 @@ void Create45DayTradeDateLabel(AppState& state) {
     for (int i = 0; i < 7; ++i) {
         calculated_day = AfxDateAddDays(closest_45_date, i);
         if (AfxDateWeekday(
-                AfxGetDay(calculated_day), 
+                AfxGetDay(calculated_day),
                 AfxGetMonth(calculated_day),
                 AfxGetYear(calculated_day)) == 5) {  // 5 = Friday
             closest_45_friday = calculated_day;
@@ -525,7 +525,7 @@ void Create45DayTradeDateLabel(AppState& state) {
 
     std::string place_trade_date = AfxDateAddDays(today_date, days_from_now);
 
-    std::string closest_45_friday_formatted =    
+    std::string closest_45_friday_formatted =
         AfxGetShortMonthName(closest_45_friday) + " " +
         std::to_string(AfxGetDay(closest_45_friday)) + ", " +
         std::to_string(AfxGetYear(closest_45_friday));
@@ -536,8 +536,8 @@ void Create45DayTradeDateLabel(AppState& state) {
         std::to_string(AfxGetDay(place_trade_date)) + ", " +
         std::to_string(AfxGetYear(place_trade_date));
 
-    std::string days_from_now_formatted = 
-        (days_from_now == 0) ? " (TODAY)" : " (" + std::to_string(days_from_now) + 
+    std::string days_from_now_formatted =
+        (days_from_now == 0) ? " (TODAY)" : " (" + std::to_string(days_from_now) +
         (days_from_now == 1 ? " day" : " days") + " from now)";
 
     // Calculate if the closest Friday is a regular 3rd Friday of the month expiration.
@@ -549,10 +549,10 @@ void Create45DayTradeDateLabel(AppState& state) {
         closest_45_friday_formatted += " (REGULAR)";
     } else {
         closest_45_friday_formatted += " (WEEKLY)";
-    } 
+    }
 
-    state.config.label_45day_trade_date = 
-        "Closest 45 day Friday expiration date is " + closest_45_friday_formatted + 
+    state.config.label_45day_trade_date =
+        "Closest 45 day Friday expiration date is " + closest_45_friday_formatted +
         ". Place trades on " + place_trade_date_formatted + days_from_now_formatted;
 }
 
@@ -565,9 +565,9 @@ void ShowTradeFilterComboBox(AppState& state) {
     ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackMediumGray(state));  // Custom popup background color
     ImGui::PushStyleColor(ImGuiCol_Text, text_color);
 
-    const char* tradefilter_items[] = { 
-        "By Category", 
-        "By Days to Expiration (DTE)", 
+    const char* tradefilter_items[] = {
+        "By Category",
+        "By Days to Expiration (DTE)",
         "By Ticker Symbol and DTE",
         "By Profit Percentage",
         "By Shares & Futures Quantity"
@@ -596,7 +596,7 @@ void ShowTradeFilterComboBox(AppState& state) {
                     state.is_activetrades_data_loaded = false;  // this will force the table reload
                 }
             }
-            
+
             ImGui::PopStyleColor();  // pop hot tracking
 
             // Set the initial focus when opening the combo box
@@ -622,7 +622,7 @@ void ShowNewTradeComboBox(AppState& state) {
     ImGui::PushStyleColor(ImGuiCol_Text, text_color);
 
     const char* newtrade_items[] = {
-        "Custom Options Trade", 
+        "Custom Options Trade",
         "-",
         "Iron Condor",
         "Short Strangle",
@@ -661,9 +661,9 @@ void ShowNewTradeComboBox(AppState& state) {
                 if (ImGui::Selectable(text.c_str(), is_selected)) {
                     state.newtrade_current_item = i; // Update current item if selected
                     state.show_tradedialog_popup = true;
-                    
+
                     switch ((int)state.newtrade_current_item) {
-                    case 0:   // "Custom Options Trade", 
+                    case 0:   // "Custom Options Trade",
                         state.trade_action = TradeAction::new_options_trade;
                         state.trade_action_option_type = TradeActionOptionType::none;
                         break;
@@ -716,7 +716,7 @@ void ShowNewTradeComboBox(AppState& state) {
 
                 ImGui::PopStyleColor();  // pop hot tracking
             }
-            
+
             // Set the initial focus when opening the combo box
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
@@ -727,7 +727,7 @@ void ShowNewTradeComboBox(AppState& state) {
     }
     ImGui::PopStyleColor(4);
 
-    text_color = (ImGui::IsItemHovered() || ImGui::IsPopupOpen("##NewTrade")) 
+    text_color = (ImGui::IsItemHovered() || ImGui::IsPopupOpen("##NewTrade"))
         ? clrTextLightWhite(state) : clrTextDarkWhite(state);
 }
 
@@ -761,12 +761,12 @@ void ShowActiveTrades(AppState& state) {
         lp.header_backcolor = 0;
         lp.header_height = 0;
         lp.row_height = 12;
-        lp.min_col_widths = nTradesMinColWidth; 
+        lp.min_col_widths = nTradesMinColWidth;
         LoadActiveTradesData(state, vec);
 
         // Calculate the closest 45 day trade expiration date. This is show at the top
         // of the grid (per Configuration setting). This creates the label that is shown.
-        Create45DayTradeDateLabel(state);        
+        Create45DayTradeDateLabel(state);
 
         // Default to display the Trade History for the first entry in the list.
         SetFirstLineActiveTrades(state, vec);
@@ -790,7 +790,7 @@ void ShowActiveTrades(AppState& state) {
 
     // Extern bool global set when positionEnd() callback fires in tws-client.cpp
     if (tws_IsConnected(state) && is_positions_ready_for_data) {
-        // Request Positions has completed and has sent this notification so 
+        // Request Positions has completed and has sent this notification so
         // we can now start requesting the portfolio updates real time data.
         client.RequestPortfolioUpdates();
 
@@ -802,6 +802,9 @@ void ShowActiveTrades(AppState& state) {
             }
         }
         is_positions_ready_for_data = false;
+
+		// Update the ticker prices and position information now rather than waiting for the thread to process
+        UpdateTickerPrices(state);
     }
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, clrBackDarkBlack(state));
@@ -824,7 +827,7 @@ void ShowActiveTrades(AppState& state) {
     ImGui::BeginGroup();
     if (state.config.show_portfolio_value) {
         ImGui::PushStyleColor(ImGuiCol_Text, clrTextDarkWhite(state));
-        ImGui::Text("Net Liq:"); 
+        ImGui::Text("Net Liq:");
         ImGui::Text("Excess Liq:");
         ImGui::Text("Maintenance:");
         ImGui::PopStyleColor();
@@ -835,9 +838,9 @@ void ShowActiveTrades(AppState& state) {
     ImGui::BeginGroup();
     if (state.config.show_portfolio_value) {
         ImGui::PushStyleColor(ImGuiCol_Text, clrTextBrightWhite(state));
-        ImGui::Text("%s", FormatAccountValue(state, netliq_value).c_str()); 
-        ImGui::Text("%s", FormatAccountValue(state, excessliq_value).c_str()); 
-        ImGui::Text("%s", FormatAccountValue(state, maintenance_value).c_str()); 
+        ImGui::Text("%s", FormatAccountValue(state, netliq_value).c_str());
+        ImGui::Text("%s", FormatAccountValue(state, excessliq_value).c_str());
+        ImGui::Text("%s", FormatAccountValue(state, maintenance_value).c_str());
         ImGui::PopStyleColor();
     }
     ImGui::EndGroup();
@@ -868,8 +871,8 @@ void ShowActiveTrades(AppState& state) {
 
     ImGui::BeginGroup();
     ImGui::Spacing();
-    lp.panel_height = ImGui::GetContentRegionAvail().y;  
-    
+    lp.panel_height = ImGui::GetContentRegionAvail().y;
+
     // Add a same color control to the left of the grid in order to give the
     // illusion that the grid has some left margin.
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -879,14 +882,14 @@ void ShowActiveTrades(AppState& state) {
     ImVec2 pos{state.dpi(28.0f), ImGui::GetCursorPos().y + state.dpi(8.0f)};
     ImGui::SetNextWindowPos(pos);
 
-    lp.panel_width = ImGui::GetContentRegionAvail().x - state.dpi(20.0f);   
+    lp.panel_width = ImGui::GetContentRegionAvail().x - state.dpi(20.0f);
 
     ImGui::SameLine();
     DrawListPanel(state, lp);
     ImGui::EndGroup();
-    
+
     ImGui::EndChild();
     ImGui::PopStyleColor();
 
 }
- 
+
