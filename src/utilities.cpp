@@ -33,7 +33,7 @@ SOFTWARE.
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <algorithm> 
+#include <algorithm>
 #include <cctype>
 #include <locale>
 #include <iomanip>
@@ -124,7 +124,7 @@ std::string AfxGetLocalAppDataFolder() {
 // Execute a command and get the results. (Only standard output)
 //
 std::string AfxExecCmd(const std::string& cmd) {
-    // [in] command to execute 
+    // [in] command to execute
     std::string strResult;
     HANDLE hPipeRead, hPipeWrite;
 
@@ -227,13 +227,18 @@ bool AfxCreateNestedFolder(const std::string& folder_path) {
 std::string GetDataFilesFolder() {
     std::string exe_folder = AfxGetExePath();  // no trailing backslash
     exe_folder = AfxReplace(exe_folder, "\\", "/");
-    std::string data_files_folder = exe_folder;   // default data files to same location as EXE
-    
+    std::string data_files_folder = exe_folder;
+
+    // default data files to same location as EXE. If the database exists in the
+    // current exe folder then automatically use this folder (Portable version).
+    std::string dbFilename = data_files_folder + "/tt-database.db";
+    if (AfxFileExists(dbFilename)) return data_files_folder;
+
 #if defined(_WIN32) // win32 and win64
     std::string program_files_folder = AfxGetProgramFilesFolder();   // no trailing backslash
     program_files_folder = AfxReplace(program_files_folder, "\\", "/");
     if (exe_folder.substr(0, program_files_folder.length()) == program_files_folder) {
-        // Program is installed in the Program Files folder so we need to 
+        // Program is installed in the Program Files folder so we need to
         // set the data folder to the AppData Local folder.
         data_files_folder = AfxGetLocalAppDataFolder() + "/TradeTracker";
         data_files_folder = AfxReplace(data_files_folder, "\\", "/");
@@ -282,7 +287,7 @@ bool AfxSaveStringToFile(const std::string& filename, const std::string& data) {
 
 
 // ========================================================================================
-// Load a text file into a string 
+// Load a text file into a string
 // ========================================================================================
 std::string AfxLoadFileIntoString(const std::string& filename) {
     std::ifstream file(filename);
@@ -320,10 +325,10 @@ std::string to_iso_string(const year_month_day& ymd) {
     // return std::format("{:04}-{:02}-{:02}", static_cast<int>(ymd.year()),
     //                    static_cast<unsigned>(ymd.month()),
     //                    static_cast<unsigned>(ymd.day()));
-    
+
     // Apple maxOS clang does not support std::format so use a workaround
     std::stringstream ss;
-    ss << static_cast<int>(ymd.year()) << '-' 
+    ss << static_cast<int>(ymd.year()) << '-'
        << std::setfill('0') << std::setw(2) << static_cast<unsigned>(ymd.month()) << '-'  // Ensure 2 digits with leading zeros
        << std::setfill('0') << std::setw(2) << static_cast<unsigned>(ymd.day());          // Ensure 2 digits with leading zeros
     return ss.str();
@@ -488,13 +493,13 @@ std::string AfxRemoveDateHyphens(const std::string& date_string) {
 std::string AfxCurrentDate() {
     // Get current time point
     auto now = std::chrono::system_clock::now();
-    
+
     // Convert to time_t for easy formatting
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-    
+
     // Convert to tm structure for local time
     std::tm* now_tm = std::localtime(&now_c);
-    
+
     // Convert to year_month_day object
     const std::chrono::year y{(int)now_tm->tm_year + 1900};
     const std::chrono::month m{(unsigned)now_tm->tm_mon + 1};
@@ -599,7 +604,7 @@ int AfxGetDay(const std::string& date_text) {
 int AfxLocalDayOfWeek() {
     auto today = year_month_weekday{floor<days>(system_clock::now())};
     sys_days sd = sys_days{today};
-    
+
     // Get the weekday
     weekday wd = weekday{sd};
     return (int)static_cast<unsigned>(wd.c_encoding());
@@ -746,7 +751,7 @@ std::string AfxFormatFuturesDateMarketData(const std::string& date_text) {
     if (date_text.length() == 0) return "";
     // Date enters as YYYY-MM-DD so we simply need to remove the hyphens and
     // take the first 6 digits.
-    std::string newdate = AfxRemove(date_text, "-");    
+    std::string newdate = AfxRemove(date_text, "-");
     return newdate.substr(0,6);
 }
 
@@ -818,7 +823,7 @@ std::string AfxGetLongMonthName(const std::string& date_text) {
 // ========================================================================================
 // Format a numeric (double) string with specified decimal places.
 // Decimal places = 2 unless specified otherwise.
-// No leading dollar sign is added. 
+// No leading dollar sign is added.
 // ========================================================================================
 std::string AfxMoney(double value, int num_decimal_places, AppState& state) {
     // Set the output to show specified decimal places and use the fixed format

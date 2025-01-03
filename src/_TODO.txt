@@ -18,6 +18,8 @@ DEAR IMGUI QUIRKS
 
 
 FIXED FOR 5.04
+- Database file location is now immediately given priority if database is found in same folder as the executable rather
+than determining of the spcial file locations exist (ef AppData, .config, or Library/Application Support).
 - For Closed and Transactions panels, fixed list positioning to return to the same line after an edit or delete is performed.
 - Better optimized displaying market and position real time data during initial load and after an edit or delete.
 - Refactor internal Imgui configuration code for consistency across Windows, Mac and Linux.
