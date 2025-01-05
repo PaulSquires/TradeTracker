@@ -18,8 +18,10 @@ DEAR IMGUI QUIRKS
 
 
 FIXED FOR 5.04
+- Fixed Closed Trades not showing previous year data when date filter included previous and current year dates.
 - Database file location is now immediately given priority if database is found in same folder as the executable rather
 than determining of the spcial file locations exist (ef AppData, .config, or Library/Application Support).
+- Added text label is Settings dialog popup to indicate location of the data files.
 - For Closed and Transactions panels, fixed list positioning to return to the same line after an edit or delete is performed.
 - Better optimized displaying market and position real time data during initial load and after an edit or delete.
 - Refactor internal Imgui configuration code for consistency across Windows, Mac and Linux.

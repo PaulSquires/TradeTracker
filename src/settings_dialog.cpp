@@ -46,10 +46,10 @@ void ShowSettingsDialogPopup(AppState& state) {
     ImGui::PushStyleColor(ImGuiCol_Text, clrTextLightWhite(state));
     ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, clrPopupBg(state));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(x_window_padding, y_window_padding));
-    
+
     // Trigger the popup
     if (!ImGui::IsPopupOpen(state.id_settingsdialog_popup.c_str())) {
-        ImVec2 size{state.dpi(570.0f),state.dpi(470.0f)};
+        ImVec2 size{state.dpi(570.0f),state.dpi(480.0f)};
         ImGui::SetNextWindowSize(size);
     	ImGui::OpenPopup(state.id_settingsdialog_popup.c_str(), ImGuiPopupFlags_NoOpenOverExistingPopup);
     }
@@ -77,7 +77,7 @@ void ShowSettingsDialogPopup(AppState& state) {
         ImGui::Checkbox("Display Net and Excess portfolio liquidity amounts", &is_show_portfolio);
         ImGui::Checkbox("Display closest 45 day trade expiration date information", &is_show_45_trade_date);
         // ImGui::Checkbox("Use dark color theme", &is_dark_theme);
-        
+
         ImGui::Spacing();
         static int selected_number_format = (int)state.config.number_format_type;
         ImGui::Text("Number format:");
@@ -85,7 +85,7 @@ void ShowSettingsDialogPopup(AppState& state) {
         ImGui::RadioButton("American (US) 1,234.00", &selected_number_format, (int)NumberFormatType::American);
         ImGui::NewLine(); ImGui::SameLine(x_offset);
         ImGui::RadioButton("European (EU) 1.234,00", &selected_number_format, (int)NumberFormatType::European);
-    
+
         ImGui::Spacing();
         static int selected_costing_method = (int)state.config.costing_method;
         static bool is_exclude_nonstock = state.config.exclude_nonstock_costs;
@@ -116,7 +116,12 @@ void ShowSettingsDialogPopup(AppState& state) {
             ImGui::EndCombo();
         }
         ImGui::PopItemWidth();
-        
+
+        //ImGui::NewLine();
+        ImGui::Spacing();
+        std::string data_location = "Data location: " + GetDataFilesFolder();
+        ImGui::Text("%s", data_location.c_str());
+
         ImGui::NewLine(); ImGui::NewLine();
         ImVec2 button_size{state.dpi(180.0f), 0};
         if (ColoredButton(state, "Year End Procedure", 40, button_size, clrTextBrightWhite(state), clrRed(state))) {
@@ -163,7 +168,7 @@ void ShowSettingsDialogPopup(AppState& state) {
             close_dialog = true;
         }
 
-        ImGui::SameLine(); 
+        ImGui::SameLine();
         if (ColoredButton(state, "Cancel", 470.0f, button_size, clrTextBrightWhite(state), clrRed(state))) {
             close_dialog = true;
         }
@@ -175,7 +180,7 @@ void ShowSettingsDialogPopup(AppState& state) {
 
         ImGui::EndPopup();
     }
-    ImGui::PopStyleVar(); 
-    ImGui::PopStyleColor(2); 
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor(2);
 }
- 
+

@@ -1,6 +1,7 @@
 #include "imgui.h"
 
 #include <algorithm>
+#include <map>
 
 #include "appstate.h"
 #include "list_panel.h"
@@ -200,7 +201,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
         current_month = AfxGetMonth(ClosedData.closed_date);
         current_year = AfxGetYear(ClosedData.closed_date);
 
-        if (current_year != today_year) continue;
+        if (ClosedData.closed_date < start_date && current_year != today_year) continue;
 
         if (ClosedData.closed_date < start_date &&
             current_year == today_year) {
@@ -220,7 +221,9 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
 
         current_date = ClosedData.closed_date;
         subtotal_month = current_month;
-        subtotal_amount += ClosedData.close_amount;
+        if (ClosedData.closed_date >= start_date) {
+            subtotal_amount += ClosedData.close_amount;
+        }
         if (ClosedData.close_amount >= 0) ++current_month_win;
         if (ClosedData.close_amount < 0) ++current_month_loss;
 
