@@ -30,6 +30,7 @@ SOFTWARE.
 #include "utilities.h"
 #include "active_trades_actions.h"
 #include "questionbox.h"
+#include "trade_dialog.h"    // CalendarComboBox
 #include "assignment.h"
 
 #include <cstddef>
@@ -39,16 +40,16 @@ SOFTWARE.
 // ========================================================================================
 // Create Transaction for Shares or Futures that have been called away.
 // ========================================================================================
-void CalledAwayAssignment(AppState& state, 
-			std::shared_ptr<Trade> trade, std::shared_ptr<Leg> leg, 
-			bool is_shares, int quantity_assigned, double multiplier) {
-    
+void CalledAwayAssignment(AppState& state,
+			std::shared_ptr<Trade> trade, std::shared_ptr<Leg> leg,
+			bool is_shares, int quantity_assigned, double multiplier, std::string& called_away_date) {
+
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
     // Close the Option. Save this transaction's leg quantities
     trans = std::make_shared<Transaction>();
-    trans->trans_date = leg->expiry_date;
+    trans->trans_date = called_away_date;
     trans->description = "Called away";
     trans->underlying = Underlying::Options;
     trade->transactions.push_back(trans);
@@ -72,7 +73,7 @@ void CalledAwayAssignment(AppState& state,
     if (leg->action == Action::STO) newleg->action = Action::BTC;
     if (leg->action == Action::BTO) newleg->action = Action::STC;
 
-    newleg->expiry_date = leg->expiry_date;
+    newleg->expiry_date = called_away_date;
     newleg->strike_price = leg->strike_price;
     newleg->put_call = leg->put_call;
     trans->legs.push_back(newleg);
@@ -80,7 +81,7 @@ void CalledAwayAssignment(AppState& state,
 
     // Remove the SHARES/FUTURES that have been called away.
     trans = std::make_shared<Transaction>();
-    trans->trans_date = leg->expiry_date;
+    trans->trans_date = called_away_date;
     trans->description = "Called away";
     trans->underlying = (is_shares) ? Underlying::Shares : Underlying::Futures;
     trans->quantity = quantity_assigned;
@@ -123,13 +124,13 @@ void CalledAwayAssignment(AppState& state,
 // Create Transaction for option assignment for the selected leg.
 // ========================================================================================
 void CreateAssignment(AppState& state, std::shared_ptr<Trade> trade, std::shared_ptr<Leg> leg,
-		bool is_shares, int quantity_assigned, double multiplier) {
+		bool is_shares, int quantity_assigned, double multiplier, std::string& assignment_date) {
     std::shared_ptr<Transaction> trans;
     std::shared_ptr<Leg> newleg;
 
     // Close the Option. Save this transaction's leg quantities
     trans = std::make_shared<Transaction>();
-    trans->trans_date = leg->expiry_date;
+    trans->trans_date = assignment_date;
     trans->quantity = 1;   // must have something > 0 otherwise "Quantity error" if saving an Edit
     trans->description = "Assignment";
     trans->underlying = Underlying::Options;
@@ -155,14 +156,14 @@ void CreateAssignment(AppState& state, std::shared_ptr<Trade> trade, std::shared
     if (leg->action == Action::STO) newleg->action = Action::BTC;
     if (leg->action == Action::BTO) newleg->action = Action::STC;
 
-    newleg->expiry_date = leg->expiry_date; 
+    newleg->expiry_date = assignment_date;
     newleg->strike_price = leg->strike_price;
     newleg->put_call = leg->put_call;
     trans->legs.push_back(newleg);
 
     // Make the SHARES/FUTURES that have been assigned.
     trans = std::make_shared<Transaction>();
-    trans->trans_date = leg->expiry_date;
+    trans->trans_date = assignment_date;
     trans->description = "Assignment";
     trans->underlying = (is_shares) ? Underlying::Shares : Underlying::Futures;
     trans->quantity = quantity_assigned;
@@ -234,13 +235,15 @@ void ShowAssignmentPopup(AppState& state) {
 
     ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, clrPopupBg(state));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{state.dpi(26.0f), state.dpi(26.0f)});
-    
+
     if (ImGui::BeginPopupModal(state.id_assignment_popup.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         static bool is_called_away = false;
         static bool is_assignment = false;
         static std::string long_short_text;
         static std::string quantity_assigned_text;
         static std::string strike_price_text;
+        static std::string assignment_date = AfxCurrentDate();
+        static std::string caption;
 
         static int quantity_assigned = 0;
         int leg_quantity = 0;
@@ -276,6 +279,7 @@ void ShowAssignmentPopup(AppState& state) {
                     quantity_assigned_text = std::to_string(quantity_assigned);
                     strike_price_text = " shares called away at $" + leg->strike_price + " per share.";
                     multiplier = 1;
+                    caption = "SHARES CALLED AWAY";
                 }
                 else {
                     quantity_assigned = MIN(std::abs(leg->open_quantity), std::abs(aggregate_futures));
@@ -283,10 +287,11 @@ void ShowAssignmentPopup(AppState& state) {
                     quantity_assigned_text = std::to_string(quantity_assigned);
                     strike_price_text = " futures called away at $" + leg->strike_price + " per future.";
                     multiplier = trade->multiplier;
+                    caption = "FUTURES CALLED AWAY";
                 }
                 leg_quantity = (leg->open_quantity < 0) ? leg_quantity * -1 : leg_quantity;
             } else {
-                is_assignment = true;   
+                is_assignment = true;
                 long_short_text = (leg->put_call == PutCall::Put) ? "LONG" : "SHORT";
                 show_long_short = true;
 
@@ -295,33 +300,42 @@ void ShowAssignmentPopup(AppState& state) {
                     quantity_assigned_text = std::to_string(quantity_assigned);
                     strike_price_text = " shares at $" + leg->strike_price + " per share.";
                     multiplier = 1;
+                    caption = "SHARES ASSIGNED";
                 }
                 else {
                     quantity_assigned = std::abs(leg->open_quantity);
                     quantity_assigned_text = std::to_string(quantity_assigned);
                     strike_price_text = " futures at $" + leg->strike_price + " per future.";
                     multiplier = trade->multiplier;
+                    caption = "FUTURES ASSIGNED";
                 }
-            }   
+            }
         }
+
+        TextLabel(state, caption.c_str(), left, text_color_white, back_color);
 
         ImGui::BeginGroup();
 
-        TextLabel(state, "Continue with OPTION ASSIGNMENT?", 0, text_color_white, back_color); 
         ImGui::NewLine();
+        ImGui::Spacing();
 
+        TextLabel(state, "Date", left, text_color_gray, back_color);
+        ImGui::NewLine();
+        CalendarComboBox(state, "AssignmentDate", assignment_date, assignment_date, ImGuiComboFlags_HeightLarge, left, 120.0f);
+
+        ImGui::NewLine();
         ImGui::AlignTextToFramePadding();
-        if (show_long_short) {
-            TextLabel(state, long_short_text.c_str(), left, (long_short_text == "LONG") ? text_color_green : text_color_red, back_color); 
+        if (show_long_short && is_assignment) {
+            TextLabel(state, long_short_text.c_str(), left, (long_short_text == "LONG") ? text_color_green : text_color_red, back_color);
         	left += 50.0f;
         }
-        
+
         if (is_first_open) ImGui::SetKeyboardFocusHere();
-        TextInput(state, "##assignment_id", &quantity_assigned_text, ImGuiInputTextFlags_None, 
-        	left, 50.0f, text_color_white, back_color, CallbackNumbersOnly); 
+        TextInput(state, "##assignment_id", &quantity_assigned_text, ImGuiInputTextFlags_None,
+        	left, 50.0f, text_color_white, back_color, CallbackNumbersOnly);
         left += 62.0f;
 
-       	TextLabel(state, strike_price_text.c_str(), left, text_color_white, back_color); 
+       	TextLabel(state, strike_price_text.c_str(), left, text_color_white, back_color);
 
         ImGui::NewLine();
 
@@ -330,7 +344,7 @@ void ShowAssignmentPopup(AppState& state) {
         if (ImGui::Button("Yes", button_size)) {
 	        // Do not exceed the available max quantity
             int quantity_assigned_input = AfxValInteger(quantity_assigned_text);
-	 
+
             // Error if quantity assigned is invalid
             bool is_error = (quantity_assigned_input <= 0 || quantity_assigned_input > quantity_assigned);
             if (is_error) {
@@ -338,10 +352,10 @@ void ShowAssignmentPopup(AppState& state) {
                 CustomQuestionBox(state, "Error", error_message, QuestionCallback::None, true);
             } else {
 		        if (is_called_away) {
-		        	CalledAwayAssignment(state, trade, leg, is_shares, quantity_assigned_input, multiplier);
+		        	CalledAwayAssignment(state, trade, leg, is_shares, quantity_assigned_input, multiplier, assignment_date);
 		        }
 		        if (is_assignment) {
-				    CreateAssignment(state, trade, leg, is_shares, quantity_assigned_input, multiplier);
+				    CreateAssignment(state, trade, leg, is_shares, quantity_assigned_input, multiplier, assignment_date);
 		        }
                 state.show_assignment_popup = false;
                 ImGui::CloseCurrentPopup();

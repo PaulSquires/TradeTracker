@@ -18,6 +18,7 @@ DEAR IMGUI QUIRKS
 
 
 FIXED FOR 5.04
+- Added Date input field to the Assignment dialog to allow for specifying Assignment and Called Away dates.
 - Fixed Closed Trades not showing previous year data when date filter included previous and current year dates.
 - Database file location is now immediately given priority if database is found in same folder as the executable rather
 than determining of the spcial file locations exist (ef AppData, .config, or Library/Application Support).
