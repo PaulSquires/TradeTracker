@@ -24,6 +24,7 @@ SOFTWARE.
 
 */
 
+#include <algorithm>
 #include "appstate.h"
 #include "utilities.h"
 
@@ -87,7 +88,7 @@ void Trade::SetTradeOpenStatus() {
         }
     }
 
-    // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO. 
+    // If this was a SHARES or FUTURES rollup then check to see if the aggregate amount is ZERO.
     if (do_quantity_check) {
         this->is_open = (aggregate == 0) ? false : true;
         return;
@@ -123,7 +124,7 @@ void Trade::CalculateAdjustedCostBase(AppState& state) {
         double total_shares = 0;
 
         for (auto& trans : this->transactions) {
-            bool is_share_transaction = 
+            bool is_share_transaction =
                 (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
 
             if (is_share_transaction) {
@@ -178,11 +179,11 @@ void Trade::CalculateAdjustedCostBase(AppState& state) {
             int quantity_remaining{};
             double cost_per_share{};
         };
-        
+
         // Load the vector and then sort based on earliest date of shares purchase.
         std::vector<Shares> vec;
         for (const auto& trans : this->transactions) {
-            bool is_share_transaction = 
+            bool is_share_transaction =
                 (trans->underlying == Underlying::Shares || trans->underlying == Underlying::Futures) ? true : false;
 
             if (is_share_transaction &&      // bought shares
@@ -211,9 +212,9 @@ void Trade::CalculateAdjustedCostBase(AppState& state) {
         }
 
         for (const auto& trans : this->transactions) {
-            bool is_share_transaction = (trans->underlying == Underlying::Shares || 
+            bool is_share_transaction = (trans->underlying == Underlying::Shares ||
                 trans->underlying == Underlying::Futures) ? true : false;
-            
+
             if (is_share_transaction) {       // sold shares
 
                 Action leg_action = trans->legs.at(0)->action;
