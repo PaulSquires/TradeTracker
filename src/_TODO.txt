@@ -18,3 +18,4 @@ DEAR IMGUI QUIRKS
 
 
 FIXED FOR 5.05
+- Closed Trades list now lists proper description for OTHER transaction types.

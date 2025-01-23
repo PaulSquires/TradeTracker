@@ -149,6 +149,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                 data.closed_date = latest_closed_date;
                 data.close_amount = trade->acb_non_shares;
                 data.description = trade->ticker_name;
+                if (trade->ticker_symbol == "OTHER") data.description = trade->transactions[0]->description;
                 if (state.config.IsFuturesTicker(trade->ticker_symbol)) data.description += " (" + AfxFormatFuturesDate(trade->future_expiry) + ")";
                 vectorClosed.push_back(data);
             }
