@@ -41,7 +41,9 @@ public:
 
         int width = state.dpi(state.config.GetStartupWidth(state));
         int height = state.dpi(state.config.GetStartupHeight(state));
-        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+        int left = (state.display_width - width) / 2;
+        int top = (state.display_height - height) / 2;
+        SetWindowPos(hwnd, NULL, left, top, width, height, SWP_NOZORDER);
 
         state.right_panel_width = state.config.GetStartupRightPanelWidth(state);
 
@@ -70,7 +72,7 @@ public:
         state.config.SaveConfig(state);
 
         ShowWindow(hwnd, false);
-        
+
         // If we are connected to TWS then initiate a disconnect that will also
         // stop the running background threads.
         if (tws_IsConnected(state)) tws_Disconnect(state);
