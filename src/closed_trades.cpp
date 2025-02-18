@@ -53,7 +53,6 @@ void SetFirstLineClosedTrades(AppState& state, std::vector<CListPanelData>& vec)
 
 
 void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
-
     std::string start_date = state.filterpanel_start_date;
     std::string end_date = state.filterpanel_end_date;
     std::string ticker = state.filterpanel_ticker_symbol;
@@ -77,9 +76,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
 
     for (auto& trade : state.db.trades) {
 
-        if (ticker.length() > 0) {
-            if (ticker != trade->ticker_symbol) continue;
-        }
+        if (ticker.length() && ticker != trade->ticker_symbol) continue;
 
         if (selected_category != CATEGORY_ALL) {
             if (trade->category != selected_category) continue;
