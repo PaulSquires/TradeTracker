@@ -82,6 +82,7 @@ void ReloadAppState(AppState& state) {
     state.is_transactions_data_loaded = false;
     state.is_tradehistory_data_loaded = false;
     state.is_journalnotes_data_loaded = false;
+    state.is_transedit_data_loaded = false;
 
     state.show_activetrades = false;
     state.show_closedtrades = false;
@@ -141,7 +142,6 @@ void ReloadAppState(AppState& state) {
     is_positions_ready_for_data = false;
 
     state.stop_monitor_thread_requested = false;
-    state.stop_ping_thread_requested = false;
     state.stop_ticker_update_thread_requested = false;
 
     // Allow price/market data to flow again.

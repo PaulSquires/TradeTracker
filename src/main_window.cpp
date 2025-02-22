@@ -116,7 +116,7 @@ void ShowMainWindow(bool* p_open, AppState& state) {
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec2 item_spacing = style.ItemSpacing;
     state.top_panel_height = state.client_height - state.bottom_panel_height;
-    state.left_panel_width = state.client_width - state.right_panel_width - (splitter_width  + state.dpi(item_spacing.x));
+    state.left_panel_width = state.client_width - state.right_panel_width - (splitter_width  + state.dpi(item_spacing.x * 2));
 
     // Ensure windows sizes remain reasonable
     float min_size = state.dpi(50.0f);

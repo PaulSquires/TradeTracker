@@ -683,17 +683,14 @@ struct AppState {
     void* client;
 
     std::atomic<bool> is_monitor_thread_active = false;
-    std::atomic<bool> is_ping_thread_active = false;
     std::atomic<bool> is_ticker_update_thread_active = false;
     std::atomic<bool> is_checkforupdate_thread_active = false;
 
     std::atomic<bool> stop_monitor_thread_requested = false;
-    std::atomic<bool> stop_ping_thread_requested = false;
     std::atomic<bool> stop_ticker_update_thread_requested = false;
 
     std::thread monitoring_thread;
     std::thread ticker_update_thread;
-    std::thread ping_thread;
     std::thread check_for_update_thread;
 
     std::string year_to_close;

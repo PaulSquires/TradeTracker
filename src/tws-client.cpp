@@ -49,9 +49,9 @@ SOFTWARE.
 #include "messagebox.h"
 
 
-// Unfortunately the following data structures have to 
+// Unfortunately the following data structures have to
 // be made global because the data needs to be updated in the TwsClient::tickPrice
-// and TwsClient::updatePortfolio functions which are callbacks from the 
+// and TwsClient::updatePortfolio functions which are callbacks from the
 // Interactive Brokers library (therefore I can't pass AppState into it).
 std::unordered_map<TickerId, TickerData> mapTickerData;
 std::unordered_map<int, PortfolioData> mapPortfolioData;
@@ -67,28 +67,6 @@ double maintenance_value = 0;
 //
 // Thread functions
 //
-void PingFunction(AppState* state) {
-	std::cout << "Starting the ping thread" << std::endl;
-
-	state->is_ping_thread_active = true;
-
-    TwsClient* client = static_cast<TwsClient*>(state->client);
-
-	while (!state->stop_ping_thread_requested) {
-
-		// Sleep for 5 seconds
-		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-
-		if (state->is_monitor_thread_active == true && client->IsConnected()) {
-			// Send a request time message (ping)
-			client->PingTWS();
-		}
-	}
-
-	std::cout << "Ping Thread Terminated" << std::endl;
-}
-
-
 void TickerUpdateFunction(AppState* state) {
 	std::cout << "Starting the TickerUpdate thread" << std::endl;
 
@@ -112,7 +90,7 @@ void TickerUpdateFunction(AppState* state) {
 
 void MonitoringFunction(AppState* state) {
 	std::cout << "Starting the monitoring thread" << std::endl;
-	
+
 	state->is_monitor_thread_active = true;
 
     TwsClient* client = static_cast<TwsClient*>(state->client);
@@ -133,10 +111,6 @@ void MonitoringFunction(AppState* state) {
 	// Request to shut down the TickerUpdate thread
 	std::cout << "Requesting TickerUpdate Thread to Terminate" << std::endl;
 	state->stop_ticker_update_thread_requested = true;
-
-	// Request to shut down the Ping thread also
-	std::cout << "Requesting Ping Thread to Terminate" << std::endl;
-	state->stop_ping_thread_requested = true;
 
 	std::cout << "Monitoring Thread Terminated" << std::endl;
 }
@@ -169,7 +143,7 @@ std::string fetchVersionFromWebsite(const std::string& url) {
 	}
 	else {
 		std::string local_file = GetDataFilesFolder() + "/_versioncheck.txt";
-		std::string cmd = "C:/Windows/System32/curl.exe -o " + 
+		std::string cmd = "C:/Windows/System32/curl.exe -o " +
 			local_file + " " + url;
 		std::string text = AfxExecCmd(cmd);
 
@@ -185,7 +159,7 @@ std::string fetchVersionFromWebsite(const std::string& url) {
 					line = AfxTrim(line);
 
 					if (line.length() == 0) continue;
-					
+
 					if (line.length()) {
 						version_available = line;
 						break;
@@ -234,7 +208,7 @@ std::string fetchVersionFromWebsite(const std::string& url) {
 
 void CheckForUpdateFunction(AppState* state) {
 	std::cout << "Starting the check for update thread" << std::endl;
-	
+
 	state->is_checkforupdate_thread_active = true;
 
     TwsClient* client = static_cast<TwsClient*>(state->client);
@@ -279,12 +253,6 @@ void tws_EndTickerUpdateThread(AppState& state) {
 	}
 }
 
-void tws_StartPingThread(AppState& state) {
-	if (state.is_ping_thread_active) return;
-	AppState* ptr = &state;  // Convert reference to pointer
-	state.ping_thread = std::thread(PingFunction, ptr);
-}
-
 bool tws_Connect(AppState& state) {
     if (tws_IsConnected(state)) return false;
 
@@ -294,7 +262,7 @@ bool tws_Connect(AppState& state) {
 
 	// If paper trading is enabled via command line then use different port
 	if (state.is_paper_trading) port = 7497;
-	
+
 	bool res = false;
     TwsClient* client = static_cast<TwsClient*>(state.client);
 
@@ -304,7 +272,7 @@ bool tws_Connect(AppState& state) {
 			// Try to recover from a previous socket exception when client disconnected.
 			// The client class elements below were changed from Private to Public and a const
 			// removed so that the elements could be deleted and re-instantiated.
-			
+
 			// destroy the reader before the client
 			if (client->m_pReader)
 				client->m_pReader.reset();
@@ -315,10 +283,9 @@ bool tws_Connect(AppState& state) {
 		}
 
 		res = client->Connect(host, port, client->client_id);
-		
+
 		state.is_monitor_thread_active = false;
 		state.is_ticker_update_thread_active = false;
-		state.is_ping_thread_active = false;
 
 		if (res) {
 			// Start thread that will start messaging polling
@@ -326,7 +293,6 @@ bool tws_Connect(AppState& state) {
 			// that updates the ActiveTrades list every defined interval.
 			tws_StartMonitorThread(state);
 			tws_StartTickerUpdateThread(state);
-			tws_StartPingThread(state);
 			tws_StartCheckForUpdateThread(state);
 			client->had_previous_socket_exception = false;
 		}
@@ -338,7 +304,7 @@ bool tws_Connect(AppState& state) {
 		CustomMessageBox(state, "Connection Failed", text);
 		return false;
 	}
-	
+
 	if (res == false) {
 		std::string text =
 		 	"Could not connect to TWS.\n\n" \
@@ -361,7 +327,6 @@ bool tws_Disconnect(AppState& state) {
 
     state.monitoring_thread.join();
     state.ticker_update_thread.join();
-    state.ping_thread.join();
     state.check_for_update_thread.join();
 
     return (tws_IsConnected(state) ? false : true);
@@ -443,11 +408,6 @@ bool TwsClient::Connect(const char* host, int port, int clientId) {
 		printf("Cannot connect to %s:%d clientId:%d\n", m_pClient->host().c_str(), m_pClient->port(), clientId);
 	}
 	return bRes;
-}
-
-void TwsClient::PingTWS() const {
-	m_pClient->reqCurrentTime();
-	// printf("ping\n");
 }
 
 void TwsClient::Disconnect() const {
@@ -533,7 +493,7 @@ void TwsClient::RequestMarketData(AppState& state, CListPanelData* ld) {
 
 	if (is_option_position) {
 		contract.conId = ld->leg->contract_id;
-		contract.multiplier = std::to_string(ld->trade->multiplier); 
+		contract.multiplier = std::to_string(ld->trade->multiplier);
 		contract.strike = AfxValDouble(ld->leg->strike_price);
 		contract.right = state.db.PutCallToString(ld->leg->put_call);
 	}
@@ -574,9 +534,9 @@ void TwsClient::tickGeneric(TickerId ticker_id, TickType tickType, double value)
 }
 
 
-void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time, 
-	double price, Decimal size, const TickAttribLast& tickAttribLast, 
-	const std::string& exchange, const std::string& specialConditions) 
+void TwsClient::tickByTickAllLast(int reqId, int tickType, time_t time,
+	double price, Decimal size, const TickAttribLast& tickAttribLast,
+	const std::string& exchange, const std::string& specialConditions)
 {
 	//printf("Tick-By-Tick. ReqId: %d, TickType: %s, Time: %s, Price: %s, Size: %s, PastLimit: %d, Unreported: %d, Exchange: %s, SpecialConditions:%s\n",
 	//	reqId, (tickType == 1 ? "Last" : "AllLast"), ctime(&time), Utils::doubleMaxString(price).c_str(), decimalStringToDisplay(size).c_str(), tickAttribLast.pastLimit, tickAttribLast.unreported, exchange.c_str(), specialConditions.c_str());
@@ -587,9 +547,9 @@ void TwsClient::tickPrice(TickerId ticker_id, TickType field, double price, cons
 
 	if (price == -1) return;   // no data currently available
 
-	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed 
-	// by a tickSize. A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for 
-	// this field currently available, whereas a tickPrice with a Green tickSize indicates an active 
+	// Market data tick price callback. Handles all price related ticks. Every tickPrice callback is followed
+	// by a tickSize. A tickPrice value of - 1 or 0 followed by a tickSize of 0 indicates there is no data for
+	// this field currently available, whereas a tickPrice with a Green tickSize indicates an active
 	// quote of 0 (typically for a combo contract).
 
 	// Parameters
@@ -621,13 +581,13 @@ void TwsClient::tickPrice(TickerId ticker_id, TickType field, double price, cons
 		if (field == LAST) td.last_price = price;
 
 		mapTickerData[ticker_id] = td;
-	}  
+	}
 }
 
 
 void TwsClient::updatePortfolio(const Contract& contract, Decimal position,
 	double market_price, double market_value, double average_cost,
-	double unrealized_PNL, double realized_PNL, const std::string& account_name) 
+	double unrealized_PNL, double realized_PNL, const std::string& account_name)
 {
 	PortfolioData pd{};
 
@@ -653,15 +613,15 @@ void TwsClient::connectionClosed() {
 }
 
 
-void TwsClient::error(int id, int error_code, 
+void TwsClient::error(int id, int error_code,
 	const std::string& error_string, const std::string& advanced_order_reject_json)
 {
 	switch (error_code) {
 	case 509:  // socket exception error
-		if (id == -1) {   
+		if (id == -1) {
 
 			printf("Error. Id: %d, Code: %d, Msg: %s\n", id, error_code, error_string.c_str());
-			
+
 			// Ensure that threads that I created get terminated.
 			Disconnect();
 
@@ -692,7 +652,7 @@ void TwsClient::error(int id, int error_code,
 	switch (error_code) {
 	case 1100:   // 'Connectivity between IB and Trader Workstation has been lost.'
 	{
-		// This normally occurs when the internet connection is lost. It refers to the 
+		// This normally occurs when the internet connection is lost. It refers to the
 		// connection between TWS and IBKR, and not TWS and TradeTracker. The connection
 		// between TradeTracker and TWS will resume as soon as TWS reconnects back to the
 		// IBKR servers (ie. TradeTrackers sockets remain open).
@@ -707,7 +667,7 @@ void TwsClient::error(int id, int error_code,
 //		SendMessage(HWND_TABPANEL, MSG_TWS_CONNECT_SUCCESS, 0, 0);
 	}
 	break;
-	
+
 	}
 }
 
@@ -720,7 +680,7 @@ std::cout << "ImportTrades_position" << std::endl;
 	Reconcile_position(contract, position, avg_cost);
 
 	ImportTrades_position(contract, position, avg_cost);
-	
+
  	if (positionEnd_fired) {
  		Reconcile_doPositionMatching();
  	}
@@ -738,14 +698,14 @@ void TwsClient::positionEnd() {
 
 
 void TwsClient::updateAccountValue(const std::string& key, const std::string& val,
-	const std::string& currency, const std::string& accountName) 
+	const std::string& currency, const std::string& accountName)
 {
 	// This callback will fire when PortfolioValue updates are initiated. We look for the
-	// string "AccountReady". 
-	// Note: An important key passed back in IBApi.EWrapper.updateAccountValue after a call 
-	// to IBApi.EClient.reqAccountUpdates is a boolean value 'AccountReady'. If an AccountReady 
-	// value of false is returned that means that the IB server is in the process of resetting 
-	// at that moment, i.e. the account is 'not ready'. When this occurs subsequent key values 
+	// string "AccountReady".
+	// Note: An important key passed back in IBApi.EWrapper.updateAccountValue after a call
+	// to IBApi.EClient.reqAccountUpdates is a boolean value 'AccountReady'. If an AccountReady
+	// value of false is returned that means that the IB server is in the process of resetting
+	// at that moment, i.e. the account is 'not ready'. When this occurs subsequent key values
 	// returned to IBApi::EWrapper::updateAccountValue in the current update can be out of date or incorrect.
 	//if (key == "AccountReady" && val == "true") {
 	//	std::cout << p << "  updateAccountValue.  key: " << key << "  value: " << val << std::endl;
@@ -758,7 +718,7 @@ void TwsClient::updateAccountTime(const std::string& timeStamp) {
 }
 
 
-void TwsClient::accountSummary(int reqId, const std::string& account, 
+void TwsClient::accountSummary(int reqId, const std::string& account,
 	const std::string& tag, const std::string& value, const std::string& currency) {
 	// Values will return immediately when first requested and then everytime they change or 3 minutes.
 
@@ -803,7 +763,7 @@ void TwsClient::currentTime(long time) {
 	// std::cout << "current time " << time << std::endl;
 }
 
-void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta, 
+void TwsClient::tickOptionComputation(TickerId tickerId, TickType tickType, int tickAttrib, double impliedVol, double delta,
                            double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice) {
 	if (mapTickerData.count(tickerId)) {
 		if (delta > -1.0f && delta < 1.0f) {
