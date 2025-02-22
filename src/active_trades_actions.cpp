@@ -202,9 +202,9 @@ void UpdateTickerPortfolioLine(AppState& state, int index, int index_trade) {
         theme_color = (difference < 0) ? clrRed(state) : clrGreen(state);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);
 
-        // Save the Trade's percentage complete so that it can be used for sorting
+        // Save the Trade's profit percentage complete so that it can be used for sorting
         // when the application is connected to TWS.
-        ld->trade->trade_completed_percentage = percentage;
+        ld->trade->trade_profit_percentage = percentage;
     }
 }
 

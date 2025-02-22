@@ -443,8 +443,8 @@ void LoadActiveTradesData(AppState& state, std::vector<CListPanelData>& vec) {
             std::sort(state.db.trades.begin(), state.db.trades.end(),
                 [](const auto& trade1, const auto& trade2) {
                     {
-                        if (trade1->trade_completed_percentage > trade2->trade_completed_percentage) return true;
-                        if (trade2->trade_completed_percentage < trade1->trade_completed_percentage) return false;
+                        if (trade1->trade_profit_percentage > trade2->trade_profit_percentage) return true;
+                        if (trade2->trade_profit_percentage < trade1->trade_profit_percentage) return false;
                         return false;
                     }
                 });

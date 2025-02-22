@@ -133,7 +133,7 @@ bool CDatabase::SaveDatabase(AppState& state) {
 
     std::ostringstream text;
 
-    text << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes|3dteWarning|21dteWarning|TradePercentage\n"
+    text << "// TRADE          T|isOpen|nextleg_id|TickerSymbol|TickerName|FutureExpiry|Category|TradeBP|Notes|3dteWarning|21dteWarning|ProfitPercentage\n"
          << "// TRANS          X|transDate|description|underlying|quantity|price|multiplier|fees|total|SharesAction\n"
          << "// LEG            L|leg_id|leg_back_pointer_id|original_quantity|open_quantity|expiry_date|strike_price|PutCall|action|underlying\n"
          << "// isOpen:        0:false, 1:true\n"
@@ -161,7 +161,7 @@ bool CDatabase::SaveDatabase(AppState& state) {
              << AfxReplace(trade->notes, "\n", "~~") << "|"
              << trade->warning_3_dte << "|"
              << trade->warning_21_dte << "|"
-             << AfxDoubleToString(trade->trade_completed_percentage, 4)
+             << AfxDoubleToString(trade->trade_profit_percentage, 4)
              << "\n";
 
         static std::string p0 = "";
@@ -278,7 +278,7 @@ bool CDatabase::LoadDatabase(AppState& state) {
             trade->notes         = AfxReplace(text, "~~", "\n");
             trade->warning_3_dte  = try_catch_int(st, 9);
             trade->warning_21_dte = try_catch_int(st, 10);
-            trade->trade_completed_percentage = try_catch_double(st, 11);
+            trade->trade_profit_percentage = try_catch_double(st, 11);
 
             trades.emplace_back(trade);
             continue;

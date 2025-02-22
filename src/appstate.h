@@ -412,9 +412,9 @@ public:
     std::string itm_text = "";
     ImU32 itm_color = 0;
 
-    // Save the Trade's percentage complete so that it can be used for sorting
+    // Save the Trade's profit percentage complete so that it can be used for sorting
     // when the application is connected to TWS.
-    double trade_completed_percentage = 0;
+    double trade_profit_percentage = 0;
 
     std::string ticker_column_1;
     std::string ticker_column_2;
