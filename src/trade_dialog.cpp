@@ -296,8 +296,8 @@ double LookupTickerMultiplier(AppState& state, std::string& ticker_symbol) {
 
 void CategoriesComboBox(AppState& state, std::string id_combo, const float x_position, const float width) {
     ImU32 text_color = clrTextDarkWhite(state);
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));  
-    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));  
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_Text, text_color);
 
@@ -321,9 +321,9 @@ void CategoriesComboBox(AppState& state, std::string id_combo, const float x_pos
         for (int i = CATEGORY_START; i <= CATEGORY_END; ++i) {
             bool is_selected = false;
             if (state.show_tradedialog_popup) {
-                is_selected = (state.category_current_item == i); 
+                is_selected = (state.category_current_item == i);
             } else {
-                is_selected = (state.filterpanel_selected_category == i); 
+                is_selected = (state.filterpanel_selected_category == i);
             }
 
             // Change background color when the item is hot tracked
@@ -342,7 +342,7 @@ void CategoriesComboBox(AppState& state, std::string id_combo, const float x_pos
                     state.is_transactions_data_loaded = false;
                 }
             }
-            
+
             ImGui::PopStyleColor();  // pop hot tracking
 
             // Set the initial focus when opening the combo box
@@ -356,12 +356,12 @@ void CategoriesComboBox(AppState& state, std::string id_combo, const float x_pos
         if (!state.show_tradedialog_popup) {
             // Change background color when the item is hot tracked
             ImGui::PushStyleColor(ImGuiCol_HeaderHovered, clrSelection(state));
-            
+
             std::string text;
             bool is_selected = false;
-         
+
             // OTHER INCOME/EXPENSES
-            is_selected = (state.filterpanel_selected_category == CATEGORY_END + 1); 
+            is_selected = (state.filterpanel_selected_category == CATEGORY_END + 1);
             text = state.config.GetCategoryDescription(100);
             text = "      " + text;
             if (is_selected) text.replace(0,5,ICON_MD_CIRCLE_SMALL);
@@ -373,7 +373,7 @@ void CategoriesComboBox(AppState& state, std::string id_combo, const float x_pos
             if (is_selected) ImGui::SetItemDefaultFocus();
 
             // ALL CATEGORIES
-            is_selected = (state.filterpanel_selected_category == CATEGORY_END + 2); 
+            is_selected = (state.filterpanel_selected_category == CATEGORY_END + 2);
             text = state.config.GetCategoryDescription(99);
             text = "      " + text;
             if (is_selected) text.replace(0,5,ICON_MD_CIRCLE_SMALL);
@@ -397,8 +397,8 @@ void CategoriesComboBox(AppState& state, std::string id_combo, const float x_pos
 
 
 void StrategiesComboBox(AppState& state, std::string id_combo, std::string& put_call, const float x_position, const float width) {
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));  
-    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));  
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_Text, clrTextLightWhite(state));
 
@@ -443,7 +443,7 @@ void StrategiesComboBox(AppState& state, std::string id_combo, std::string& put_
             }
 
             ImGui::PopStyleColor();  // pop hot tracking
-            
+
             // Set the initial focus when opening the combo box
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
@@ -456,8 +456,8 @@ void StrategiesComboBox(AppState& state, std::string id_combo, std::string& put_
 
 
 void ManageComboBox(AppState& state, std::string id_combo, Action& share_action, const float x_position, const float width) {
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));  
-    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));  
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_Text, clrTextLightWhite(state));
 
@@ -502,7 +502,7 @@ void ManageComboBox(AppState& state, std::string id_combo, Action& share_action,
             }
 
             ImGui::PopStyleColor();  // pop hot tracking
-            
+
             // Set the initial focus when opening the combo box
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
@@ -514,13 +514,13 @@ void ManageComboBox(AppState& state, std::string id_combo, Action& share_action,
 }
 
 
-bool CalendarComboBox(AppState& state, std::string id_combo, 
-                        std::string& iso_date, std::string& display_date, const ImGuiComboFlags flags, 
+bool CalendarComboBox(AppState& state, std::string id_combo,
+                        std::string& iso_date, std::string& display_date, const ImGuiComboFlags flags,
                         const float x_position, const float width) {
     ImU32 text_color = (state.show_tradedialog_popup) ? clrTextLightWhite(state) : clrTextDarkWhite(state);
     ImU32 text_color_calendar = clrTextBrightWhite(state);
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));  
-    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));  
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, clrBackMediumGray(state));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackMediumGray(state));
     ImGui::PushStyleColor(ImGuiCol_Text, text_color);
 
@@ -534,7 +534,7 @@ bool CalendarComboBox(AppState& state, std::string id_combo,
         static int level = 0;
 
         static ImPlotTime selected_date = 0;
-        static ImPlotTime highlight_date = 0; 
+        static ImPlotTime highlight_date = 0;
 
         if (iso_date.length() == 0) {
             iso_date = AfxCurrentDate();
@@ -542,7 +542,7 @@ bool CalendarComboBox(AppState& state, std::string id_combo,
         }
 
         if (selected_date == 0) {
-            selected_date = ImPlot::MakeTime(AfxGetYear(iso_date), AfxGetMonth(iso_date)-1, AfxGetDay(iso_date)); 
+            selected_date = ImPlot::MakeTime(AfxGetYear(iso_date), AfxGetMonth(iso_date)-1, AfxGetDay(iso_date));
            // selected_date = AfxUnixTime(iso_date);
             highlight_date = selected_date;
         }
@@ -566,11 +566,11 @@ bool CalendarComboBox(AppState& state, std::string id_combo,
             iso_date = buffer;
             selected_date = 0;
             highlight_date = 0;
-        } 
+        }
 
         ImGui::PopStyleColor(3);
         ImGui::EndCombo();
-    } 
+    }
 
     ImGui::PopStyleColor(4);
 
@@ -603,9 +603,10 @@ void TradeGridLine(AppState& state, TradeDialogData& tdd, std::vector<TradeGridD
     float colspacer = 20.0f;
     float left = 47.0f;
     float width = 50.0f;
-    
+
     std::string id;
     std::string display_date;
+    std::string tooltip;
 
     ImVec2 button_size{state.dpi(width), 0};
     ImVec2 button_size_small{state.dpi(width/2), 0};
@@ -617,17 +618,21 @@ void TradeGridLine(AppState& state, TradeDialogData& tdd, std::vector<TradeGridD
             id = "##originalquantity" + std::to_string(array_index);
             TextInput(state, id.c_str(), &tgd.at(array_index).original_quantity, ImGuiInputTextFlags_None, left, width, text_color_white, back_color);
             left = left + width + hsp;
+            tooltip = "Original Quantity";
+            Tooltip(state, tooltip.c_str(), clrTextLightWhite(state), clrBackMediumGray(state));
         }
 
         id = "##quantity" + std::to_string(array_index);
         TextInput(state, id.c_str(), &tgd.at(array_index).quantity, ImGuiInputTextFlags_None, left, width, text_color_white, back_color);
+        tooltip = "Current Quantity";
+        Tooltip(state, tooltip.c_str(), clrTextLightWhite(state), clrBackMediumGray(state));
 
         // Display the date picker
         left = left + width + hsp;
         id = "##expirydate" + std::to_string(array_index);
         // Change the ISO Date to a Short Date for display purposes
         display_date = AfxShortDate(tgd.at(array_index).expiry_date);
-        if (CalendarComboBox(state, id.c_str(), tgd.at(array_index).expiry_date, display_date, 
+        if (CalendarComboBox(state, id.c_str(), tgd.at(array_index).expiry_date, display_date,
                 ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_HeightLarge, left, width)) {
             // If the first grid row (or fourth row for rolls) Expiry Date is being changed then update all other non empty rows.
             if (state.trade_action != TradeAction::edit_transaction) {
@@ -647,7 +652,9 @@ void TradeGridLine(AppState& state, TradeDialogData& tdd, std::vector<TradeGridD
                 }
             }
         }
-        
+        tooltip = "Expiry Date";
+        Tooltip(state, tooltip.c_str(), clrTextLightWhite(state), clrBackMediumGray(state));
+
         left = left + width + hsp;
         ImGui::PushItemFlag(ImGuiItemFlags_NoTabStop, true);
         std::string dte;
@@ -659,16 +666,20 @@ void TradeGridLine(AppState& state, TradeDialogData& tdd, std::vector<TradeGridD
 
         left = left + width + hsp;
         id = "##strike" + std::to_string(array_index);
-           if (TextInput(state, id.c_str(), &tgd.at(array_index).strike_price, ImGuiInputTextFlags_CallbackCharFilter, 
-                left, width, text_color_white, back_color, InputTextCallbackNumbersOnly)) {
+        if (TextInput(state, id.c_str(), &tgd.at(array_index).strike_price, ImGuiInputTextFlags_CallbackCharFilter,
+            left, width, text_color_white, back_color, InputTextCallbackNumbersOnly)) {
             // Remove any negative signs
             tgd.at(array_index).strike_price = AfxRemove(tgd.at(array_index).strike_price, "-");
         }
+        tooltip = "Strike Price";
+        Tooltip(state, tooltip.c_str(), clrTextLightWhite(state), clrBackMediumGray(state));
 
         left = left + width + hsp;
         if (ColoredButton(state, tgd.at(array_index).put_call.c_str(), left, button_size_small, clrTextBrightWhite(state), back_color)) {
             tgd.at(array_index).put_call = (tgd.at(array_index).put_call == "P") ? "C" : "P";
         }
+        tooltip = "Put/Call";
+        Tooltip(state, tooltip.c_str(), clrTextLightWhite(state), clrBackMediumGray(state));
 
         left = left + (width / 2) + hsp;
         ImU32 txtclr = text_color_white;
@@ -687,6 +698,8 @@ void TradeGridLine(AppState& state, TradeDialogData& tdd, std::vector<TradeGridD
                 tgd.at(array_index).action = "STO";
             }
         }
+        tooltip = "Action";
+        Tooltip(state, tooltip.c_str(), clrTextLightWhite(state), clrBackMediumGray(state));
 
         left = left + width + hsp;
         id = ICON_MD_REPLY;
@@ -759,7 +772,7 @@ void ShowTradeDialogPopup(AppState& state) {
         static std::vector<TradeGridData> tgd(8);
 
         // if (is_first_open) {
-        if (ImGui::IsWindowAppearing()) {    
+        if (ImGui::IsWindowAppearing()) {
             InitializeTradeDialogDefaults(state, tdd, tgd);
         }
 
@@ -775,7 +788,7 @@ void ShowTradeDialogPopup(AppState& state) {
         bool show_dte_warnings = true;
 
         if (!tdd.ticker_symbol.length()) tdd.ticker_name = "";
-        
+
         tdd.is_futures_ticker = state.config.IsFuturesTicker(tdd.ticker_symbol);
         show_contract_expiry = tdd.is_futures_ticker;
 
@@ -850,7 +863,7 @@ void ShowTradeDialogPopup(AppState& state) {
             show_strategy = false;
             if (state.trans_edit_transaction->underlying == Underlying::Shares ||
                 state.trans_edit_transaction->underlying == Underlying::Futures) {
-                tdd.trade_grid1_label = 
+                tdd.trade_grid1_label =
                     (state.trans_edit_transaction->underlying == Underlying::Shares) ? "Shares Action" : "Futures Action";
                 tdd.trade_grid2_label = "";
                 show_description = false;
@@ -870,7 +883,7 @@ void ShowTradeDialogPopup(AppState& state) {
         }
 
 
-        ImVec2 button_size{}; 
+        ImVec2 button_size{};
 
         if (show_static_labels) {
             TextLabel(state, tdd.ticker_name.c_str(), 0.0f, text_color_white, back_color);
@@ -917,11 +930,11 @@ void ShowTradeDialogPopup(AppState& state) {
         if (show_contract_expiry) {
             CalendarComboBox(state, "FuturesExpiryDate", tdd.futures_expiry_date, tdd.futures_expiry_date, ImGuiComboFlags_HeightLarge, 440.0f, 102.0f);
         }
-        
-        // Category-start            
+
+        // Category-start
         if (show_category) {
             CategoriesComboBox(state, "Categories", 552.0f, 184.0f);
-            button_size = ImVec2{state.dpi(24.0f), 0}; 
+            button_size = ImVec2{state.dpi(24.0f), 0};
             if (ColoredButton(state, ICON_MD_EDIT, 742.0f, button_size, clrTextDarkWhite(state), back_color)) {
                 state.show_categoriesdialog_popup = true;
             }
@@ -945,9 +958,9 @@ void ShowTradeDialogPopup(AppState& state) {
             TextInput(state, "##Description", &tdd.description, ImGuiInputTextFlags_None, 159.0f, 171.0f, text_color_white, back_color);
         }
 
-        // Strategy-start            
+        // Strategy-start
         if (show_strategy) {
-            button_size = ImVec2{state.dpi(52.0f), 0}; 
+            button_size = ImVec2{state.dpi(52.0f), 0};
             short_long_back_color = (tdd.short_long == "SHORT" ? back_color_red : back_color_green);
             if (ColoredButton(state, tdd.short_long.c_str(), 440.0f, button_size, clrTextBrightWhite(state), short_long_back_color)) {
                 tdd.short_long = (tdd.short_long == "SHORT" ? "LONG" : "SHORT");
@@ -956,7 +969,7 @@ void ShowTradeDialogPopup(AppState& state) {
                 tdd.put_call = (tdd.put_call == "PUT") ? "CALL" : "PUT";
             }
             StrategiesComboBox(state, "Strategies", tdd.put_call, 548.0f, 184.0f);
-            button_size = ImVec2{state.dpi(30.0f), 0}; 
+            button_size = ImVec2{state.dpi(30.0f), 0};
             if (ColoredButton(state, "GO", 735.0f, button_size, clrBackDarkBlack(state), clrBlue(state))) {
                 CreateTradeActionOptionType(state, tdd);
                 InitializeTradeDialogDefaults(state, tdd, tgd);
@@ -980,13 +993,13 @@ void ShowTradeDialogPopup(AppState& state) {
             ManageComboBox(state, "ManageComboBox", tdd.share_action, 0, 200);
             ImGui::NewLine(); ImGui::NewLine();
             ImGui::NewLine(); ImGui::NewLine();
-            ImGui::NewLine(); 
+            ImGui::NewLine();
         } else {
             if (!show_grid) {
                 // If Grid is not shown at this point then fill in with blank lines
                 ImGui::NewLine(); ImGui::NewLine();
                 ImGui::NewLine(); ImGui::NewLine();
-                ImGui::NewLine(); 
+                ImGui::NewLine();
             }
         }
 
@@ -1016,7 +1029,7 @@ void ShowTradeDialogPopup(AppState& state) {
         DoubleInput(state, "##fees", &tdd.fees, 310.0f, 80.0f, text_color_white, back_color);
 
         // If closing a trade or legs then we need to update the Transaction Quantity legs being closed
-        // in order to handle the situation where partial closing legs. This only works for legs that 
+        // in order to handle the situation where partial closing legs. This only works for legs that
         // have the same quantity amounts. The logic would fail on ratio spreads so test first for non
         // ratio legs.
         if (state.trade_action == TradeAction::close_leg ||
@@ -1052,14 +1065,14 @@ void ShowTradeDialogPopup(AppState& state) {
         }
 
         DoubleInput(state, "##total", &tdd.total, 400.0f, 80.0f, text_color_white, back_color);
-        
-        button_size = ImVec2{state.dpi(30.0f), 0}; 
+
+        button_size = ImVec2{state.dpi(30.0f), 0};
         dr_cr_back_color = (tdd.dr_cr == "DR" ? back_color_red : back_color_green);
         if (ColoredButton(state, tdd.dr_cr.c_str(), 485.0f, button_size, clrBackDarkBlack(state), dr_cr_back_color)) {
             tdd.dr_cr = (tdd.dr_cr == "DR" ? "CR" : "DR");
         }
         if (show_buying_power) {
-            TextInput(state, "##buying_power", &tdd.buying_power, ImGuiInputTextFlags_CallbackCharFilter, 
+            TextInput(state, "##buying_power", &tdd.buying_power, ImGuiInputTextFlags_CallbackCharFilter,
                 580.0f, 80.0f, text_color_white, back_color, InputTextCallbackNumbersOnly);
         }
 
@@ -1071,14 +1084,14 @@ void ShowTradeDialogPopup(AppState& state) {
         ImGui::NewLine();
 
         // Push custom background and foreground colors
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, back_color);    
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, back_color);
         ImGui::PushStyleColor(ImGuiCol_Text, text_color_white);
-        button_size = ImVec2{state.dpi(470.0f), state.dpi(100.0f)}; 
+        button_size = ImVec2{state.dpi(470.0f), state.dpi(100.0f)};
         ImGui::SameLine(state.dpi(6));
         ImGui::InputTextMultiline("##TradeDialogMultiLine", &tdd.notes, button_size, ImGuiInputTextFlags_None);
         ImGui::PopStyleColor(2);
 
-        button_size = ImVec2{state.dpi(80.0f), 0}; 
+        button_size = ImVec2{state.dpi(80.0f), 0};
         if (ColoredButton(state, "SAVE", 540.0f, button_size, clrTextBrightWhite(state), clrGreen(state))) {
             if (IsEditTradeAction(state.trade_action)) {
                 if (ValidateEditTradeData(state, tdd, tgd)) {
@@ -1150,7 +1163,7 @@ void ShowTradeDialogPopup(AppState& state) {
 
         ImGui::EndPopup();
     }
-    ImGui::PopStyleVar(); 
-    ImGui::PopStyleColor(); 
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
 }
- 
+

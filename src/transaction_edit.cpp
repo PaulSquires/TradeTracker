@@ -181,7 +181,7 @@ void ShowTransEdit(AppState& state) {
         LoadTransEditData(state, vec, state.trans_edit_trade, state.trans_edit_transaction);
     }
 
-    ImGui::BeginChild("TransEdit", ImVec2(state.left_panel_width, state.top_panel_height));
+    ImGui::BeginChild("TransEdit", ImVec2(state.right_panel_width, state.top_panel_height));
 
     ImGui::BeginGroup();
     TextLabel(state, "Transaction Details", 0, clrTextLightWhite(state), clrBackDarkBlack(state));

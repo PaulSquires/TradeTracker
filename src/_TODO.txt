@@ -20,7 +20,8 @@ DEAR IMGUI QUIRKS
 FIXED FOR 5.05
 - Closed Trades list now lists proper description for OTHER transaction types.
 - Fixed transaction edit panel showing previous trade data after the transaction has been edited.
+- Added descriptive tooltips to the Trade create/edit table.
 - Startup centered in the current monitor (Windows version only).
-- Fixed minor layout width size issue with main window.
+- Fixed minor layout width size issue with main window and also Transaction Edit panel.
 - Removed the Ping thread when connected to TWS as it is somewhat unnecessary.
 

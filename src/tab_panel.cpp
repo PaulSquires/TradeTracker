@@ -218,10 +218,8 @@ void DisplayIconButtons(AppState& state) {
         }
     }
     ImGui::PopStyleColor();
-    if (ImGui::IsItemHovered()) {
-        Tooltip(state, is_connected ? "Click to Disconnect" : "Click to Connect",
-            clrTextLightWhite(state), clrBackMediumGray(state));
-    }
+    Tooltip(state, is_connected ? "Click to Disconnect" : "Click to Connect",
+        clrTextLightWhite(state), clrBackMediumGray(state));
 
     ImGui::SameLine(state.dpi(34.0f));
     ImGui::PushStyleColor(ImGuiCol_Text, clrGreen(state));
@@ -238,9 +236,7 @@ void DisplayIconButtons(AppState& state) {
         }
     }
     ImGui::PopStyleColor();
-    if (ImGui::IsItemHovered()) {
-        Tooltip(state, "Reconcile", clrTextLightWhite(state), clrBackMediumGray(state));
-    }
+    Tooltip(state, "Reconcile", clrTextLightWhite(state), clrBackMediumGray(state));
 
     ImGui::SameLine(state.dpi(68.0f));
     ImGui::PushStyleColor(ImGuiCol_Text, clrTextMediumWhite(state));
@@ -248,9 +244,7 @@ void DisplayIconButtons(AppState& state) {
         state.show_settingsdialog_popup = true;
     }
     ImGui::PopStyleColor();
-    if (ImGui::IsItemHovered()) {
-        Tooltip(state, "Settings", clrTextLightWhite(state), clrBackMediumGray(state));
-    }
+    Tooltip(state, "Settings", clrTextLightWhite(state), clrBackMediumGray(state));
 
     ImGui::PopStyleColor();  // icon button back color
     ImGui::EndGroup();
