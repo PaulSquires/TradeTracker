@@ -4,21 +4,15 @@
 [![License](https://img.shields.io/github/license/PaulSquires/TradeTracker?style=flat-square)](LICENSE)
 <!-- ![Downloads](https://img.shields.io/github/downloads/PaulSquires/TradeTracker/total?style=flat-square) -->
 
-### ANNOUNCEMENT (November 20, 2024)
-TradeTracker is now fully cross-platform (Windows, Linux, MacOS).
-Built using Dear ImGui and backward compatible with the current released version.
-- Source code for the Windows only version (4.2.0) still available from previous older Github commits.
-
-
 ### Why are you still using a spreadsheet to track your stock, futures and options trading? ###
 **Let TradeTracker free you from the constraints of spreadsheets.**
 
-## What is TradeTracker 
-TradeTracker a free application that allows you to track your Stocks, Futures and Options positions. A fantastic alternative to using spreadsheets like Microsoft Excel or Google Sheets! 
+## What is TradeTracker
+TradeTracker a free application that allows you to track your Stocks, Futures and Options positions. A fantastic alternative to using spreadsheets like Microsoft Excel or Google Sheets!
 
 Stocks, Futures and Options positions tracker (includes Interactive Brokers IBKR TWS API integration)
 
-You do not need an Interactive Brokers account but if you have one then TradeTracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture. 
+You do not need an Interactive Brokers account but if you have one then TradeTracker can connect to your running IB Trader Workstation (TWS) instance in order to display real time price action for all of your positions. You can manually record and edit trades and transactions and be able to view all current active positions and all closed positions. Each trade shows all transaction history giving you an instant look at your overall financial picture.
 
 This program exists because tracking trades and their corresponding transactions in IBKR versus TastyTrade, Think or Swim, etc is not easy.  In many parts of the world outside of the USA, it seems that IBKR is the only affordable and viable alternative for options trading. TradeTracker aims to make the trade tracking process as enjoyable and painless as possible.
 
@@ -30,7 +24,7 @@ This program exists because tracking trades and their corresponding transactions
 * Equity and Futures Options focused (underlying stocks and futures can also be tracked).
 * Allow Interactive Broker users to have a better experience tracking their active trades and trade histories.
 * Allow trades to be grouped and tracked by Category/Strategy.
-* Easy to learn and very intuitive with all information available on the main screen. 
+* Easy to learn and very intuitive with all information available on the main screen.
 * High DPI aware. Works and looks great on monitors of all sizes, resolutions and font scalings.
 * Small and fast (written in C++).
 * Simple text file "database" that can easily be manually edited if needed. No additional database engine required.
