@@ -3,6 +3,7 @@
 REM This batch file must be in same folder as CMakeLists.txt
 
 rem @call %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+rem call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 
 REM *************************

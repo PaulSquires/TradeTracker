@@ -36,6 +36,216 @@ HOW TO UPDATE?
 - Please report any issue!
 
 -----------------------------------------------------------------------
+ VERSION 1.91.8 (Released 2025-01-31)
+-----------------------------------------------------------------------
+
+Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.91.8
+
+Breaking changes:
+
+- ColorEdit, ColorPicker: redesigned how alpha is displayed in the preview
+  square. (#8335, #1578, #346)
+   - Removed ImGuiColorEditFlags_AlphaPreview (made value 0): it is now the default behavior.
+   - Prior to 1.91.8: alpha was made opaque in the preview by default _unless_ using ImGuiColorEditFlags_AlphaPreview.
+   - We now display the preview as transparent by default. You can use ImGuiColorEditFlags_AlphaOpaque to use old behavior.
+   - The new flags may be combined better and allow finer controls:
+     - ImGuiColorEditFlags_AlphaOpaque: disable alpha in the preview, but alpha value still editable.
+     - ImGuiColorEditFlags_AlphaNoBg: disable rendering a checkerboard background behind transparent color.
+     - ImGuiColorEditFlags_AlphaPreviewHalf: display half opaque / half transparent preview.
+- Backends: SDLGPU3: Renamed ImGui_ImplSDLGPU3_InitInfo::GpuDevice to Device
+  for consistency. (#8163, #7998, #7988)
+
+Other changes:
+
+- imgui_freetype: fixed issue where glyph advances would incorrectly be
+  snapped to pixels. Effectively it would only be noticeable when hinting
+  is disabled with ImGuiFreeTypeBuilderFlags_NoHinting, as hinting itself
+  snaps glyph advances.
+- Inputs: added IsMouseReleasedWithDelay() helper. (#8337, #8320)
+  Use if you absolutely need to distinguish single-click from double-clicks
+  by introducing a delay. This is a very rarely used UI idiom, but some apps
+  use this: e.g. MS Explorer single-click on an icon triggers a rename.
+  Generally use with 'delay >= io.MouseDoubleClickTime' + combine with a
+  'GetMouseClickedCount() == 1' check.
+- Windows: legacy SetWindowFontScale() is properly inherited by nested child
+  windows. Note that an upcoming major release should make this obsolete,
+  but in the meanwhile it works better now. (#2701, #8138, #1018)
+- Windows, Style: Fixed small rendering issues with menu bar, resize grip and
+  scrollbar when using thick border sizes. (#8267, #7887)
+- Windows: Fixed IsItemXXXX() functions not working on append-version of EndChild(). (#8350)
+  Also made some of the fields accessible after BeginChild() to match Begin() logic.
+- Error Handling: Recovery from missing EndMenuBar() call. (#1651)
+- Tables, Menus: Fixed using BeginTable() in menu layer (any menu bar). (#8355)
+  It previously overrode the current layer back to main layer, which caused an issue
+  with MainMenuBar attempted to release focus when leaving the menu layer.
+- Tables, Menus: Fixed tables or child windows submitted inside BeginMainMenuBar()
+  being unable to save their settings, as the main menu bar uses _NoSavedSettings. (#8356)
+- ColorEdit, ColorPicker: Fixed alpha preview broken in 1.91.7. (#8336, #8241). [@PathogenDavid]
+- Tabs, Style: reworked selected overline rendering to better accommodate
+  for rounded tabs. Reduced default thickness (style.TabBarOverlineSize),
+  increased default rounding (style.TabRounding). (#8334) [@Kian738, @ocornut]
+- Debug Tools: Tweaked font preview.
+- ImDrawList: texture baked storage for thick line reduced from ~64x64 to ~32x32. (#3245)
+- Fonts: IndexLookup[] table hold 16-bit values even in ImWchar32 mode,
+  as it accounts for number of glyphs in same font. This is favorable to
+  CalcTextSize() calls touching less memory.
+- Fonts: OversampleH/OversampleV defaults to 0 for automatic selection.
+   - OversampleH == 0 --> use 1 or 2 depending on font size and use of PixelSnapH.
+   - OversampleV == 0 --> always use 1.
+- ImFontAtlas: made calling ClearFonts() call ClearInputData(), as calling
+  one without the other is never correct. (#8174, #6556, #6336, #4723)
+- Examples: DirectX12: Reduced number of frame in flight from 3 to 2 in
+  provided example, to reduce latency.
+- Examples: Vulkan: better handle VK_SUBOPTIMAL_KHR being returned by
+  vkAcquireNextImageKHR() or vkQueuePresentKHR(). (#7825, #7831) [@NostraMagister]
+- Backends: SDL2: removed assert preventing using ImGui_ImplSDL2_SetGamepadMode()
+  with ImGui_ImplSDL2_GamepadMode_Manual and an empty array. (#8329)
+- Backends: SDL3: removed assert preventing using ImGui_ImplSDL3_SetGamepadMode()
+  with ImGui_ImplSDL3_GamepadMode_Manual and an empty array. (#8329)
+- Backends: SDLGPU3: Exposed ImGui_ImplSDLGPU3_CreateDeviceObjects()/_DestroyDeviceObjects().
+  Removed return value from ImGui_ImplSDLGPU3_CreateFontsTexture(). (#8163, #7998, #7988)
+- Backends: SDL_Renderer2/3: Use endian-dependent RGBA32 texture format, to match
+  SDL_Color. (#8327) [@dkosmari]
+- Backends: DirectX12: Texture upload use the command queue provided in
+  ImGui_ImplDX12_InitInfo instead of creating its own.
+- Backends: OSX: Removed notification observer when shutting down. (#8331) [@jrachele]
+
+
+-----------------------------------------------------------------------
+ VERSION 1.91.7 (Released 2025-01-14)
+-----------------------------------------------------------------------
+
+Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.91.7
+
+Breaking changes:
+
+- TreeNode: renamed ImGuiTreeNodeFlags_SpanTextWidth to ImGuiTreeNodeFlags_SpanLabelWidth
+  for consistency with other names. Kept redirection enum (will obsolete). (#6937)
+
+Other changes:
+
+- Fixed issues with IsItemDeactivated() and IsItemDeactivatedAfterEdit() not
+  emitting a reliable signal when an item is deactivated externally: e.g.
+  via an explicit clear of focus, clear of active id, opening of modal etc.
+  (#5184, #5904, #6766, #8303, #8004)
+  - It used to work when the interruption happened in the frame before the
+    active item as submitted, but not after. It should work in both cases now.
+  - While this is not specific to a certain widgets, typically it would
+    mostly be noticeable on InputText() because it keeps ActiveId for a
+    longer time while allowing other interaction to happen.
+- Error Handling: Fixed bugs recovering from within a table that created
+  a child window, and from nested child windows. (#1651)
+- Error Handling: Turned common EndTable() and other TableXXX functions
+  fail cases into a recoverable error. (#1651, #8314)
+- Error Handling: Basic error handling options in Demo->Tools->Debug Options. (#1651)
+- InputText: Fixed a bug where character replacements performed from a callback
+  were not applied when pasting from clipboard. (#8229)
+- InputText: Fixed issue when activating a ReadOnly field when the underlying
+  value is being modified. (#8242)
+- InputText: Added sanity check to detect some cases of passing a non
+  zero-terminated input buffer.
+- InputText: Fixed not calling CallbackEdit on revert/clear with Escape key,
+  although IsItemEdited() was behaving correctly. (#8273)
+- Tables: Fixed TableAngledHeadersRow() creating an infinite horizontal
+  scrolling region when the table is hosted in a viewport with negative
+  coordinates (left of primary monitor, with multi-viewports enabled).
+- Tables, MultiSelect: Fixed an issue where column width may be mismeasured
+  when calling BeginMultiSelect() while inside a table. (#8250)
+- TreeNode, Tables: Added ImGuiTreeNodeFlags_LabelSpanAllColumns to make
+  the label (not only the highlight/frame) also spans all columns. This is
+  useful for table rows where you know nothing else is submitted. (#8318, #3565)
+  Obviously best used with ImGuiTableFlags_NoBordersInBodyUntilResize.
+- Selectable: Fixed horizontal label alignment when combined with using
+  ImGuiSelectableFlags_SpanAllColumns. (#8338)
+- Drags: Added ImGuiSliderFlags_NoSpeedTweaks flag to disable keyboard
+  modifiers altering the tweak speed. Useful if you want to alter tweak speed
+  yourself based on your own logic. (#8223)
+- Nav: Fixed an issue where Alt key would clear current active item on
+  windows with the ImGuiWindowFlags_NoNavInputs flag. (#8231)
+- Debug Tools: Debug Log: hovering 0xXXXXXXXX values in log is allowed even
+  if a popup is blocking mouse access to the debug log window. (#5855)
+- Debug Tools: Item Picker: Always available in Tools menu regardless of value
+  of io.ConfigDebugIsDebuggerPresent. (#2673)
+- Fonts: Fixed miscalculation of Ellipsis ("...") character width when automatically
+  created from a single comma character, affecting some fonts/settings (not all).
+- Demo: Added label edition to Property Editor demo + fix an ID issue. (#8266) [@moritz-h]
+- Misc: Fixed misc/cpp/imgui_stdlib.h/.cpp not supporting IMGUI_DISABLE. (#8294) [@juur]
+- Misc: Fixed MinGW builds not using UTF-8 friendly _wfopen(). (#8300)
+- Backends: SDLGPU3 for SDL3: Added backend for SDL_GPU! (#8163, #7998, #7988) [@DeltaW0x].
+- Backends: SDL3: Added ImGui_ImplSDL3_InitForSDLGPU() for consistency, even
+  though it is currently not doing anything particular. (#8163, #7998, #7988)
+- Backends: Allegro5: Avoid calling al_set_mouse_cursor() repeatedly since it appears
+  to leak on on X11 (#8256). [@Helodity]
+- Backends: Metal: Fixed leaks when using metal-cpp. (#8276, #8166) [@selimsandal]
+- Backends: Metal: Fixed resource leak when using multiple contexts. (#7419) [@anszom]
+- Backends: Vulkan: Fixed setting VkSwapchainCreateInfoKHR::preTransform for
+  platforms not supporting VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR. (#8222) [@Zer0xFF]
+- Backends: Vulkan: Added a few more ImGui_ImplVulkanH_XXX helper functions
+  primarily for the purpose of making our examples simpler.
+- Backends: Vulkan: Added IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE to clarify
+  how many image sampler descriptors are expected to be available in the provided
+  descriptor pool. Current backend needs 1 but it is expected that by end of Q1 2025
+  this number will grow (will stay a small number). (#6642)
+- Backends: DX11: Expose vertex constant buffer in ImGui_ImplDX11_RenderState.
+  Reset projection matrix in ImDrawCallback_ResetRenderState handlers. (#6969, #5834, #7468, #3590)
+- Backends: DX10: Expose ImGui_ImplDX10_RenderState for completeness. (#6969, #5834, #7468, #3590)
+- Examples: Added Win32+Vulkan example for completeness. (#8180) [@jristic]
+
+
+-----------------------------------------------------------------------
+ VERSION 1.91.6 (Released 2024-12-11)
+-----------------------------------------------------------------------
+
+Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.91.6
+
+Breaking changes:
+
+- Backends: DX12: Changed ImGui_ImplDX12_Init() signature to take a
+  ImGui_ImplDX12_InitInfo struct.
+  - Using the new API, application is now required to pass function pointers
+    to allocate/free SRV Descriptors.
+  - We provide convenience legacy fields to pass a single descriptor,
+    matching the old API, but upcoming features will want multiple.
+  - Legacy ImGui_ImplDX12_Init() signature is still supported (will obsolete).
+- Misc: changed CRC32 table from CRC32-adler to CRC32c polynomial in order to
+  be compatible with the result of SSE 4.2 instructions. (#8169, #4933) [@Teselka]
+  - As a result, some .ini data may be partially lost when storing checksums
+    (docking and tables information particularly).
+  - Because some users have crafted and storing .ini data as a way to workaround
+    limitations of the docking API, we are providing a '#define IMGUI_USE_LEGACY_CRC32_ADLER'
+    compile-time option to keep using old CRC32 tables if you cannot afford invalidating
+    old .ini data.
+
+Other changes:
+
+- Error Handling: fixed cases where recoverable error handling would crash when
+  processing errors outside of the NewFrame()..EndFrame() scope. (#1651)
+- Tables: fixed SetNextWindowScroll() value being ignored by BeginTable() during
+  the first frame or when scrolling flags have changed. (#8196)
+- InputText: added ImGuiInputTextFlags_ElideLeft to elide left side and ensure right side
+  of contents is visible when whole text is not fitting (useful for paths/filenames).
+  (#1442, #1440, #4391, #7208, #8216) [@kucoman, @ocornut]
+- InputText: reactivating last activated InputText() doesn't restore horizontal scrolling
+  (which was disabled during deactivation anyway).
+- Misc: changed embedded ProggyClean encoding to save a bit of binary space (~12kb to 9.5kb).
+- Misc: added IMGUI_DISABLE_DEFAULT_FONT to strip embedded font from binary. (#8161)
+  [@demonese]
+- Demo: example tree used by Property Editor & Selection demos properly freed
+  on application closure. (#8158) [@Legulysse]
+- Fonts: fixed AddCustomRect() not being packed with TexGlyphPadding + not accounted
+  for surface area used to determine best-guess texture size. (#8107) [@YarikTH, @ocornut]
+- Misc: use SSE 4.2 crc32 instructions when available. (#8169, #4933) [@Teselka]
+- Tools: binary_to_compressed_c: added -u8/-u32/-base85 export options.
+- Backends: DirectX12: Let user specifies the DepthStencilView format by setting
+  ImGui_ImplDX12_InitInfo::DSVFormat. (#8217) [@bmarques1995]
+- Backends: Vulkan: Make user-provided descriptor pool optional. As a convenience,
+  when setting init_info->DescriptorPoolSize then the backend will create and manage
+  one itself. (#8172, #4867) [@zeux]
+- Examples: Win32+DX12: Using a basic free-list allocator to manage multiple
+  SRV descriptors.
+
+
+-----------------------------------------------------------------------
  VERSION 1.91.5 (Released 2024-11-07)
 -----------------------------------------------------------------------
 
@@ -44,11 +254,12 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
 Breaking changes:
 
 - Commented out pre-1.87 IO system (equivalent to using IMGUI_DISABLE_OBSOLETE_KEYIO or IMGUI_DISABLE_OBSOLETE_FUNCTIONS before).
-  - io.KeyMap[] and io.KeysDown[] are removed (obsoleted February 2022).
+  - io.KeyMap[] and io.KeysDown[] are removed (obsoleted February 2022). Use IsKeyDown() instead.
   - io.NavInputs[] and ImGuiNavInput are removed (obsoleted July 2022).
   - Pre-1.87 backends are not supported:
     - backends need to call io.AddKeyEvent(), io.AddMouseEvent() instead of writing to io.KeysDown[], io.MouseDown[] fields.
     - backends need to call io.AddKeyAnalogEvent() for gamepad values instead of writing to io.NavInputs[] fields.
+    - you can use IsKeyDown() instead of reading from io.KeysDown[].
   - For more references:
     - read 1.87 and 1.88 part of API BREAKING CHANGES in imgui.cpp or read Changelog for 1.87 and 1.88.
     - read https://github.com/ocornut/imgui/issues/4921
@@ -64,6 +275,11 @@ Other changes:
   between _Header and _HeaderHovered which was introduced v1.91 (#8106, #1861)
 - Buttons: using ImGuiItemFlags_ButtonRepeat makes default button behavior use
   PressedOnClick instead of PressedOnClickRelease when unspecified.
+  - This is intended to make the +/- buttons of InputInt/InputFloat react on the
+    initial mouse down event.
+  - Note that it may reveal incorrect usage if you were using InputInt/InputFloat
+    without persistent storage by relying solely on e.g. IsItemDeactivatedAfterEdit():
+    this was never supported and didn't work consistantly (see #8149).
 - InputText: fixed a bug (regression in 1.91.2) where modifying text buffer within
   a callback would sometimes prevents further appending to the buffer.
 - Tabs, Style: made ImGuiCol_TabDimmedSelectedOverline alpha 0 (not visible) in default
@@ -85,6 +301,7 @@ Other changes:
 - Examples: SDL3+Vulkan: Added example. (#8084, #8085)
 - Examples: Android+OpenGL: Using ALooper_pollOnce() instead of ALooper_pollAll()
   which has been deprecated. (#8013) [@feather179]
+
 
 -----------------------------------------------------------------------
  VERSION 1.91.4 (Released 2024-10-18)
@@ -2275,6 +2492,7 @@ Breaking Changes:
   - For all calls to IO new functions, the Dear ImGui context should be bound/current.
 - Reworked IO keyboard input API: (#4921, #2625, #3724) [@thedmd, @ocornut]
   - Added io.AddKeyEvent() function, obsoleting writing directly to io.KeyMap[], io.KeysDown[] arrays.
+  - You can use IsKeyDown() instead of reading from io.KeysDown[].
   - For keyboard modifiers, you can call io.AddKeyEvent() with ImGuiKey_ModXXX values,
     obsoleting writing directly to io.KeyCtrl, io.KeyShift etc.
   - Added io.SetKeyEventNativeData() function (optional) to pass native and old legacy indices.
