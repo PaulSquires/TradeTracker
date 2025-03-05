@@ -1,5 +1,4 @@
 fonts-memory
-cmake_build.sh
 build
 build-dbg
 build-rel
