@@ -758,7 +758,7 @@ void ShowActiveTrades(AppState& state) {
         lp.vecHeader = nullptr;
         lp.header_backcolor = 0;
         lp.header_height = 0;
-        lp.row_height = 12;
+        lp.row_height = 13;
         lp.min_col_widths = nTradesMinColWidth;
         LoadActiveTradesData(state, vec);
 

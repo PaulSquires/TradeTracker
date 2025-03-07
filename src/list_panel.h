@@ -42,8 +42,8 @@ public:
     ImGuiTableFlags table_flags = ImGuiTableFlags_None;
     bool is_left_panel = false;
     ImU32 header_backcolor = 0;
-    int header_height = 0;
-    int row_height = 0;
+    float header_height = 0;
+    float row_height = 0;
     int column_count = 0;
     int* min_col_widths = nullptr;
     float panel_width = 0;
