@@ -12,7 +12,7 @@
     <ROW Property="ProductCode" Value="1033:{05D47BAE-A47A-4ADD-AF50-A10D24A8E999} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="TradeTracker"/>
-    <ROW Property="ProductVersion" Value="5.04" Options="32"/>
+    <ROW Property="ProductVersion" Value="5.10" Options="32"/>
     <ROW Property="RUNAPPLICATION" Value="1" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{2A9A2321-6B43-4E18-A5D1-5AAECE4FA257}"/>
