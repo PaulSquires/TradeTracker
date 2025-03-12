@@ -17,7 +17,7 @@ DEAR IMGUI QUIRKS
 - InputTextMultiline handles most languages with UTF8 but not ones like Hebrew.
 
 
-FIXED FOR 5.05
+FIXED FOR 5.10
 - Closed Trades list now lists proper description for OTHER transaction types.
 - Fixed transaction edit panel showing previous trade data after the transaction has been edited.
 - Added descriptive tooltips to the Trade create/edit table.
