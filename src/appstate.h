@@ -463,7 +463,6 @@ public:
     bool SaveDatabase(AppState& state);
 
     CDatabase();
-
 };
 
 

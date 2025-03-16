@@ -279,7 +279,6 @@ bool CDatabase::LoadDatabase(AppState& state) {
             trade->warning_3_dte  = try_catch_int(st, 9);
             trade->warning_21_dte = try_catch_int(st, 10);
             trade->trade_profit_percentage = try_catch_double(st, 11);
-
             trades.emplace_back(trade);
             continue;
         }
