@@ -17,5 +17,7 @@ DEAR IMGUI QUIRKS
 - InputTextMultiline handles most languages with UTF8 but not ones like Hebrew.
 
 
+VERSION 5.20 FIXES
+- Updated copyright string to 2025.
 
 

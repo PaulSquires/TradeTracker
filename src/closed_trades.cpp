@@ -88,7 +88,7 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
             if (trans->trans_date > latest_closed_date) {
                 latest_closed_date = trans->trans_date;
             }
-        }
+        } 
 
         if (latest_closed_date > end_date) continue;
 
