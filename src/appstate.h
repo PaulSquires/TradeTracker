@@ -434,6 +434,8 @@ public:
 
     void SetTradeOpenStatus();
     void CalculateAdjustedCostBase(AppState& state);
+    void AverageCostACB(AppState& state);
+    void FIFOCostACB(AppState& state);
     void CreateOpenLegsVector();
 };
 
