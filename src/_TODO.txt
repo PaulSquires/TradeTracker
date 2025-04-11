@@ -19,5 +19,7 @@ DEAR IMGUI QUIRKS
 
 VERSION 5.20 FIXES
 - Updated copyright string to 2025.
+- Subsequent close transactions in Trade not showing in Closed list if Trade had closed Shares and setting to Exclude
+non-stock costs is unchecked (so, Option income, dividends, etc, included in Shares to reduce cost basis).
 
 

@@ -149,8 +149,25 @@ void LoadClosedTradesData(AppState& state, std::vector<CListPanelData>& vec) {
                 if (trade->ticker_symbol == "OTHER") data.description = trade->transactions[0]->description;
                 if (state.config.IsFuturesTicker(trade->ticker_symbol)) data.description += " (" + AfxFormatFuturesDate(trade->future_expiry) + ")";
                 vectorClosed.push_back(data);
+
             }
         }
+
+        if (trade->is_open == false && exclude_acb_non_shares == false) {
+            if (trade->acb_shares) {
+                ClosedData data;
+                data.trade = trade;
+                data.trans = nullptr;
+                data.closed_date = latest_closed_date;
+                // data.close_amount = trade->acb_non_shares + trade->acb_shares;
+                data.close_amount = trade->acb_shares;
+                data.description = trade->ticker_name;
+                if (trade->ticker_symbol == "OTHER") data.description = trade->transactions[0]->description;
+                if (state.config.IsFuturesTicker(trade->ticker_symbol)) data.description += " (" + AfxFormatFuturesDate(trade->future_expiry) + ")";
+                vectorClosed.push_back(data);
+            }
+        }
+
     }
 
     // Destroy any existing ListPanel line data
