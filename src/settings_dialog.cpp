@@ -43,6 +43,7 @@ void ShowSettingsDialogPopup(AppState& state) {
 
     float x_window_padding = state.dpi(40.0f);
     float y_window_padding = state.dpi(10.0f);
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackDarkBlack(state));
     ImGui::PushStyleColor(ImGuiCol_Text, clrTextLightWhite(state));
     ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, clrPopupBg(state));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(x_window_padding, y_window_padding));
@@ -76,7 +77,7 @@ void ShowSettingsDialogPopup(AppState& state) {
         ImGui::Checkbox("Check for newer available TradeTracker versions", &is_allow_update);
         ImGui::Checkbox("Display Net and Excess portfolio liquidity amounts", &is_show_portfolio);
         ImGui::Checkbox("Display closest 45 day trade expiration date information", &is_show_45_trade_date);
-        // ImGui::Checkbox("Use dark color theme", &is_dark_theme);
+        //ImGui::Checkbox("Use dark color theme", &is_dark_theme);
 
         ImGui::Spacing();
         static int selected_number_format = (int)state.config.number_format_type;
@@ -181,6 +182,6 @@ void ShowSettingsDialogPopup(AppState& state) {
         ImGui::EndPopup();
     }
     ImGui::PopStyleVar();
-    ImGui::PopStyleColor(2);
+    ImGui::PopStyleColor(3);
 }
 

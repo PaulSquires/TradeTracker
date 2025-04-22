@@ -146,6 +146,10 @@ void ReloadAppState(AppState& state) {
 
     // Allow price/market data to flow again.
     state.is_pause_market_data = false;
+
+    // Set the color palatte (dark or light)
+    state.initialize_imgui_state();
+
 }
 
 

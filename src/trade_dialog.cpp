@@ -743,6 +743,7 @@ void ShowTradeDialogPopup(AppState& state) {
     float y_window_padding = state.dpi(10.0f);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(x_window_padding, y_window_padding));
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, clrBackDarkBlack(state));
     ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, clrPopupBg(state));
 
     ImU32 back_color = clrBackMediumGray(state);
@@ -1164,6 +1165,6 @@ void ShowTradeDialogPopup(AppState& state) {
         ImGui::EndPopup();
     }
     ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
+    ImGui::PopStyleColor(2);
 }
 
