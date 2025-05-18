@@ -195,13 +195,19 @@ void UpdateTickerPortfolioLine(AppState& state, int index, int index_trade) {
         text = AfxMoney(difference, 2, state);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_3, text, theme_color);
 
-        double percentage = (trade_acb == 0) ? 0 : difference / trade_acb * 100;
-        if (difference < 0) {
-            if (percentage >= 0) percentage *= -1;
+        double percentage = 0.00;
+
+        if (std::abs(trade_acb) > 0.009) {    // because we use double the precision causes floating rounding
+            percentage = (difference / trade_acb) * 100;
+
+            if (difference < 0.00) {
+                if (percentage >= 0.00) percentage *= -1;
+            }
+            else {
+                if (percentage <= 0.00) percentage *= -1;
+            }
         }
-        else {
-            if (percentage <= 0) percentage *= -1;
-        }
+
         text = AfxMoney(percentage, 0, state) + " %";
         theme_color = (difference < 0) ? clrRed(state) : clrGreen(state);
         ld->SetTextData(COLUMN_TICKER_PORTFOLIO_4, text, theme_color);
