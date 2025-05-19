@@ -463,8 +463,8 @@ void TwsClient::RequestMarketData(AppState& state, CListPanelData* ld) {
 		contract.symbol = symbol;
 		contract.secType = (is_option_position) ? "OPT" : "IND";
 		contract.currency = "USD";
-		contract.exchange = "CBOE";
-		contract.primaryExchange = "SMART";   // TWS is moving from ISLAND -> NASDAQ naming.
+		contract.exchange = "SMART";           // Use IB's SmartRouting
+		contract.primaryExchange = "CBOE";     // disambiguate the listing exchange when multiple securities have the same symbol.
 		contract.lastTradeDateOrContractMonth = (is_option_position) ? AfxRemoveDateHyphens(ld->leg->expiry_date) : "";
 	}
 	else {
@@ -486,7 +486,7 @@ void TwsClient::RequestMarketData(AppState& state, CListPanelData* ld) {
 			contract.secType = (is_option_position) ? "OPT" : "STK";
 			contract.currency = "USD";
 			contract.exchange = "SMART";
-			contract.primaryExchange = "NASDAQ";   // TWS is moving from ISLAND -> NASDAQ naming.
+			contract.primaryExchange = "CBOE";
 			contract.lastTradeDateOrContractMonth = (is_option_position) ? AfxRemoveDateHyphens(ld->leg->expiry_date) : "";
 		}
 	}

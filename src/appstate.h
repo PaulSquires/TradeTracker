@@ -560,6 +560,7 @@ public:
 
     std::unordered_map<std::string, bool> mapIndexTickers {
         { "SPX", true },
+        { "XSP", true },
         { "DJX", true },
         { "VIX", true },
         { "RUT", true },
