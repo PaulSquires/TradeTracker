@@ -93,8 +93,6 @@ if (UNIX AND NOT APPLE)
         ${SOURCES}
         ${IMGUI_DIR}/backends/imgui_impl_sdl2.cpp
         ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer2.cpp
-    #    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-    #    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
     )
 elseif (APPLE)
     set(SOURCES 
@@ -121,26 +119,15 @@ if (UNIX AND NOT APPLE)
     message("Configuring for Linux")
     find_package(PkgConfig REQUIRED)
 
-#    pkg_check_modules(GLFW REQUIRED glfw3)
-#    set(LIBS ${GLFW_STATIC_LIBRARIES} GL curl libbid)
-#    include_directories(${GLFW_INCLUDE_DIRS})
-#    link_directories(${GLFW_LIBRARY_DIRS})
-
-#    get_filename_component(LIB_B_PATH ./src/tws-api/IntelDecimal/lib/linux/libbid.a ABSOLUTE)
-#    add_library(libbid STATIC IMPORTED)
-#    set_target_properties(libbid PROPERTIES IMPORTED_LOCATION ${LIB_B_PATH})
-
     add_definitions(-DGL_SILENCE_DEPRECATION)
     find_package(SDL2 REQUIRED)
 
     include_directories(${SDL2_INCLUDE_DIRS})
-#    set(LIBS "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo" SDL2::SDL2-static SDL2::SDL2main curl libbid)
-    set(LIBS SDL2 curl libbid)
+    set(LIBS SDL2::SDL2-static SDL2::SDL2main curl libbid)
 
     include_directories(/usr/local/include /opt/local/include /opt/homebrew/include /usr/local/opt/llvm/include)
     link_directories(/usr/local/lib /opt/local/lib /opt/homebrew/lib /usr/local/opt/llvm/lib )
     set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++")
-#    get_filename_component(LIB_B_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/tws-api/IntelDecimal/lib/osx/libbid.a ABSOLUTE)
     get_filename_component(LIB_B_PATH ./src/tws-api/IntelDecimal/lib/linux/libbid.a ABSOLUTE)
     add_library(libbid STATIC IMPORTED)
     set_target_properties(libbid PROPERTIES IMPORTED_LOCATION ${LIB_B_PATH})
